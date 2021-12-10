@@ -84,3 +84,13 @@ locals {
 #     lacework = lacework.stage
 #   }
 # }
+
+# example lacework aws config only (consolidated cloudtrail via controltower)
+module "stage-lacework-audit-config" {
+  source      = "./modules/multi-lacework-audit-config"
+  environment = local.stage_environment_name
+  providers = {
+    aws      = aws.stage
+    lacework = lacework.stage
+  }
+}

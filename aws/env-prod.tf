@@ -83,3 +83,13 @@ locals {
 #     lacework = lacework.prod
 #   }
 # }
+
+# example lacework aws config only (consolidated cloudtrail via controltower)
+module "prod-lacework-audit-config" {
+  source      = "./modules/multi-lacework-audit-config"
+  environment = local.prod_environment_name
+  providers = {
+    aws      = aws.prod
+    lacework = lacework.prod
+  }
+}
