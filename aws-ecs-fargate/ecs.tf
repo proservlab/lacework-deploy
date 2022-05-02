@@ -82,6 +82,10 @@ resource "aws_ecs_task_definition" "task" {
       {
         "name": "LaceworkAccessToken",
         "value": "2032acf77969af1ed2e083434e08a8c14848d3d829b97d65fbda0873"
+      },
+      {
+        "name": "LaceworkVerbose",
+        "value": "true"
       }
     ],
     "entryPoint": [
