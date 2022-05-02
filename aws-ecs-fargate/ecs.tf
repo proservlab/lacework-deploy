@@ -36,6 +36,24 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = <<TASK_DEFINITION
 [
   {
+    "name": "datacollector-sidecar",
+    "image": "lacework/datacollector:latest-sidecar",
+    "cpu": 0,
+    "portMappings": [],
+    "essential": false,
+    "environment": [],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.lacework.name}",
+        "awslogs-region": "${var.region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  },
+  {
     "essential": true,
     "image": "${aws_ecr_repository.repo.repository_url}:latest",
     "memory": 512,
@@ -60,14 +78,32 @@ resource "aws_ecs_task_definition" "task" {
       {
         "name": "ENVIRONMENT",
         "value": "${var.environment}"
+      },
+      {
+        "name": "LaceworkAccessToken",
+        "value": "2032acf77969af1ed2e083434e08a8c14848d3d829b97d65fbda0873"
       }
     ],
-    "entryPoint": ["python"],
-    "command": ["/app/app.py"],
+    "entryPoint": [
+      "/var/lib/lacework-backup/lacework-sidecar.sh"
+    ],
+    "command": ["python", "/app/app.py"],
+    "volumesFrom": [
+      {
+        "sourceContainer": "datacollector-sidecar",
+        "readOnly": true
+      }
+    ],
+    "dependsOn": [
+      {
+        "containerName": "datacollector-sidecar",
+        "condition": "SUCCESS"
+      }
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "/fargate/service/${var.app}-${var.environment}",
+        "awslogs-group": "${aws_cloudwatch_log_group.logs.name}",
         "awslogs-region": "${var.region}",
         "awslogs-stream-prefix": "ecs"
       }
@@ -125,5 +161,13 @@ resource "aws_cloudwatch_log_group" "logs" {
   retention_in_days = var.logs_retention_in_days
   tags              = {
       Name = "main-log-group-${var.app}-${var.environment}"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "lacework" {
+  name = "/fargate/lacework/lacework-datacollector-sidecar"
+  retention_in_days = var.logs_retention_in_days
+  tags              = {
+      Name = "main-log-group-lacework-${var.environment}"
   }
 }
