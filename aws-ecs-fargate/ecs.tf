@@ -32,17 +32,15 @@ resource "aws_ecs_task_definition" "task" {
 
   # defined in role.tf
   task_role_arn = aws_iam_role.app_role.arn
-
   container_definitions = <<TASK_DEFINITION
 [
   {
     "name": "datacollector-sidecar",
-    "image": "lacework/datacollector:latest-sidecar",
+    "image": "${aws_ecr_repository.lacework-repo.repository_url}:${var.lacework_tag}",
     "cpu": 0,
     "portMappings": [],
     "essential": false,
     "environment": [],
-    "mountPoints": [],
     "volumesFrom": [],
     "logConfiguration": {
       "logDriver": "awslogs",
@@ -55,7 +53,7 @@ resource "aws_ecs_task_definition" "task" {
   },
   {
     "essential": true,
-    "image": "${aws_ecr_repository.repo.repository_url}:latest",
+    "image": "${aws_ecr_repository.repo.repository_url}:${var.tag}",
     "memory": 512,
     "name": "web-image",
     "cpu": 256,
@@ -89,9 +87,11 @@ resource "aws_ecs_task_definition" "task" {
       }
     ],
     "entryPoint": [
-      "/var/lib/lacework-backup/lacework-sidecar.sh"
+      "/var/lib/lacework-backup/lacework-sidecar-minimal.sh"
     ],
-    "command": ["python", "/app/app.py"],
+    "command": [
+      "/app/awesome-prog"
+    ],
     "volumesFrom": [
       {
         "sourceContainer": "datacollector-sidecar",
@@ -138,13 +138,13 @@ resource "aws_ecs_service" "web-image" {
     assign_public_ip = true
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.main.arn
-    container_name   = "web-image"
-    container_port   = 5000
-  }
+  # load_balancer {
+  #   target_group_arn = aws_lb_target_group.main.arn
+  #   container_name   = "web-image"
+  #   container_port   = 5000
+  # }
 
-  depends_on = [aws_lb_listener.ecs]
+  # depends_on = [aws_lb_listener.ecs]
 
   enable_ecs_managed_tags = true
   propagate_tags          = "SERVICE"

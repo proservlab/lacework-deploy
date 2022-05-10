@@ -33,13 +33,31 @@ variable "tag" {
 variable "image_name" {
   description = "Name to use for deployed Docker image"
   type        = string
-  default     = "web-image"
+  default     = "ecs-task/web-image"
 }
 
 variable "source_path" {
   description = "Path to Docker image source"
   type        = string
-  default     = "app"
+  default     = "scratch-app"
+}
+
+variable "lacework_source_path" {
+  description = "Path to Docker image source"
+  type        = string
+  default     = "lacework-scratch-sidecar"
+}
+
+variable "lacework_tag" {
+  description = "Tag to use for deployed Docker image"
+  type        = string
+  default     = "latest-scratch-sidecar"
+}
+
+variable "lacework_image_name" {
+  description = "Name to use for deployed Docker image"
+  type        = string
+  default     = "lacework/datacollector"
 }
 
 variable "hash_script" {
