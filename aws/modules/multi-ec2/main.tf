@@ -60,7 +60,7 @@ resource "aws_route_table" "main" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
   }
-  
+
   tags = {
     Name = "main"
   }
@@ -72,8 +72,8 @@ resource "aws_route_table_association" "main" {
 }
 
 resource "aws_vpc_endpoint_route_table_association" "main" {
-  route_table_id = aws_route_table.main.id
   vpc_endpoint_id = aws_vpc_endpoint.ssm.id # ssm
+  route_table_id = aws_route_table.main.id
 }
 
 resource "aws_security_group" "main" {
@@ -103,8 +103,8 @@ data "aws_vpc_endpoint_service" "ssm" {
 
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id            = aws_vpc.main.id
-  service_name      = "${data.aws_vpc_endpoint_service.ssm.service_name}"
-  vpc_endpoint_type = "Interface"
+  service_name      = data.aws_vpc_endpoint_service.ssm.service_name
+  vpc_endpoint_type = "Gateway"
 
   security_group_ids  = [aws_security_group.ssm.id, aws_security_group.main.id]
   subnet_ids          = [aws_subnet.main.id]
