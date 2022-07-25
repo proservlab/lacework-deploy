@@ -26,6 +26,7 @@ terraform {
 module "environment-proservlab" {
   source      = "./modules/environment"
   environment = "proservlab"
+  region      = var.region
   providers = {
     aws      = aws.proservlab
     lacework = lacework.proservlab

@@ -26,6 +26,16 @@ module "lacework-audit-config" {
   }
 }
 
+module "ec2" {
+  source       = "../multi-ec2"
+  aws_region   = var.region
+  environment  = var.environment
+  instance-name = "${var.environment}-instance"
+  providers = {
+    aws = aws
+  }
+}
+
 # module "eks" {
 #   source       = "../multi-eks"
 #   aws_region   = var.region
@@ -97,15 +107,5 @@ module "lacework-audit-config" {
 #     kubernetes = kubernetes.main
 #     lacework   = lacework
 #     helm       = helm.main
-#   }
-# }
-
-# # example lacework aws config and cloudtrail setup
-# module "proservlab-lacework-audit" {
-#   source      = "../multi-lacework-audit"
-#   environment = var.environment
-#   providers = {
-#     aws      = aws.proservlab
-#     lacework = lacework.proservlab
 #   }
 # }
