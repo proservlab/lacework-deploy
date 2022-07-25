@@ -1,36 +1,35 @@
-
 terraform {
   required_version = ">= 0.12"
 }
 
 provider "aws" {
   region  = var.region
-  profile = "root"
+  profile = "proservlab"
 }
 
 # each profile definition here
 provider "aws" {
-  alias   = "root"
+  alias   = "proservlab"
   region  = var.region
-  profile = "root"
+  profile = "proservlab"
 }
 
 provider "aws" {
-  alias   = "prod"
+  alias   = "dev-prod"
   region  = var.region
-  profile = "prod"
+  profile = "dev-prod"
 }
 
 provider "aws" {
-  alias   = "stage"
+  alias   = "dev-stage"
   region  = var.region
-  profile = "stage"
+  profile = "dev-stage"
 }
 
 provider "aws" {
-  alias   = "test"
+  alias   = "dev-test"
   region  = var.region
-  profile = "test"
+  profile = "dev-test"
 }
 
 provider "aws" {
@@ -45,34 +44,38 @@ provider "aws" {
   profile = "audit"
 }
 
-provider "lacework" {
-  alias        = "organization"
-  organization = true
-}
 
 provider "lacework" {
-  alias      = "root"
-  profile    = "root"
-  subaccount = "lwps"
+  alias   = "proservlab"
+  profile = "proservlab"
 }
+# provider "lacework" {
+#   alias        = "proservlab-organization"
+#   organization = true
+# }
 
-provider "lacework" {
-  alias      = "prod"
-  profile    = "prod"
-  subaccount = "lwps-prod"
-}
+# provider "lacework" {
+#   alias      = "proservlab"
+#   profile    = "proservlab"
+# }
 
-provider "lacework" {
-  alias      = "stage"
-  profile    = "stage"
-  subaccount = "lwps-stage"
-}
+# provider "lacework" {
+#   alias      = "dev-prod"
+#   profile    = "dev-prod"
+#   subaccount = "proservlab-prod"
+# }
 
-provider "lacework" {
-  alias      = "test"
-  profile    = "test"
-  subaccount = "lwps-test"
-}
+# provider "lacework" {
+#   alias      = "dev-stage"
+#   profile    = "dev-stage"
+#   subaccount = "proservlab-stage"
+# }
+
+# provider "lacework" {
+#   alias      = "dev-test"
+#   profile    = "dev-test"
+#   subaccount = "proservlab-test"
+# }
 
 data "aws_availability_zones" "available" {}
 

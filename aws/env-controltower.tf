@@ -8,7 +8,7 @@ module "control_tower_integration_setup" {
   providers = {
     aws.audit       = aws.audit
     aws.log_archive = aws.log
-    lacework        = lacework.organization
+    lacework        = lacework.proservlab
   }
   # SNS Topic ARN is usually in the form: arn:aws:sns:<control_tower_region>:<aws_audit_account_id>:aws-controltower-AllConfigNotifications
   sns_topic_arn = "arn:aws:sns:us-east-1:986224395668:aws-controltower-AllConfigNotifications"
@@ -16,22 +16,22 @@ module "control_tower_integration_setup" {
   s3_bucket_arn = "arn:aws:s3:::aws-controltower-logs-538045531862-us-east-1"
 
   # organization mapping
-  org_account_mappings = [{
-    default_lacework_account = "lwps"
+  # org_account_mappings = [{
+  #   default_lacework_account = "proservlab"
 
-    mapping = [
-      {
-        lacework_account = "lwps-prod"
-        aws_accounts     = ["837437350477"]
-      },
-      {
-        lacework_account = "lwps-stage"
-        aws_accounts     = ["466038157367"]
-      },
-      {
-        lacework_account = "lwps-test"
-        aws_accounts     = ["997124715511"]
-      }
-    ]
-  }]
+  #   mapping = [
+  #     {
+  #       lacework_account = "proservlab-prod"
+  #       aws_accounts     = ["837437350477"]
+  #     },
+  #     {
+  #       lacework_account = "proservlab-stage"
+  #       aws_accounts     = ["466038157367"]
+  #     },
+  #     {
+  #       lacework_account = "proservlab-test"
+  #       aws_accounts     = ["997124715511"]
+  #     }
+  #   ]
+  # }]
 }

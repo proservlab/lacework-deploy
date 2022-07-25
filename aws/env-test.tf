@@ -1,42 +1,52 @@
 locals {
-  test_environment_name = "test"
+  test_environment_name = "dev-test"
 }
 
-# module "test" {
+# example lacework aws config only (consolidated cloudtrail via controltower)
+module "test-lacework-audit-config" {
+  source      = "./modules/multi-lacework-audit-config"
+  environment = local.test_environment_name
+  providers = {
+    aws      = aws.dev-test
+    lacework = lacework.proservlab
+  }
+}
+
+# module "dev-test" {
 #   source       = "./modules/multi-eks"
 #   aws_region   = var.region
 #   environment  = local.test_environment_name
 #   cluster-name = "${local.test_environment_name}-cluster"
 #   providers = {
-#     aws = aws.test
+#     aws = aws.dev-test
 #   }
 # }
 
 # resource "local_file" "test_kubeconfig" {
-#   content  = module.test.kubeconfig
-#   filename = pathexpand("~/.kube/${module.test.cluster_name}")
+#   content  = module.dev-test.kubeconfig
+#   filename = pathexpand("~/.kube/${module.dev-test.cluster_name}")
 # }
 
 # provider "kubernetes" {
-#   alias                  = "test"
-#   host                   = module.test.cluster_endpoint
-#   cluster_ca_certificate = base64decode(module.test.cluster_ca_cert)
+#   alias                  = "dev-test"
+#   host                   = module.dev-test.cluster_endpoint
+#   cluster_ca_certificate = base64decode(module.dev-test.cluster_ca_cert)
 #   exec {
 #     api_version = "client.authentication.k8s.io/v1alpha1"
-#     args        = ["eks", "get-token", "--cluster-name", module.test.cluster_name, "--profile", local.test_environment_name]
+#     args        = ["eks", "get-token", "--cluster-name", module.dev-test.cluster_name, "--profile", local.test_environment_name]
 #     command     = "aws"
 #   }
 # }
 
 # provider "helm" {
-#   alias = "test"
+#   alias = "dev-test"
 #   kubernetes {
-#     host                   = module.test.cluster_endpoint
-#     cluster_ca_certificate = base64decode(module.test.cluster_ca_cert)
+#     host                   = module.dev-test.cluster_endpoint
+#     cluster_ca_certificate = base64decode(module.dev-test.cluster_ca_cert)
 
 #     exec {
 #       api_version = "client.authentication.k8s.io/v1alpha1"
-#       args        = ["eks", "get-token", "--cluster-name", module.test.cluster_name, "--profile", local.test_environment_name]
+#       args        = ["eks", "get-token", "--cluster-name", module.tdev-est.cluster_name, "--profile", local.test_environment_name]
 #       command     = "aws"
 #     }
 #   }
@@ -51,13 +61,13 @@ locals {
 #   environment = local.test_environment_name
 
 #   providers = {
-#     kubernetes = kubernetes.test
+#     kubernetes = kubernetes.dev-test
 #   }
 # }
 
 # # example lacework daemonset
-# resource "lacework_agent_access_token" "test" {
-#   provider    = lacework.test
+# resource "lacework_agent_access_token" "dev-test" {
+#   provider    = lacework.dev-test
 #   name        = "lab-k8s-token-${local.test_environment_name}"
 #   description = "k8s deployment for ${local.test_environment_name}"
 # }
@@ -66,12 +76,12 @@ locals {
 #   source                      = "./modules/multi-lacework-daemonset"
 #   cluster-name                = "${local.test_environment_name}-cluster"
 #   environment                 = local.test_environment_name
-#   lacework_agent_access_token = lacework_agent_access_token.test.token
+#   lacework_agent_access_token = lacework_agent_access_token.dev-test.token
 
 #   providers = {
 #     kubernetes = kubernetes.test
-#     lacework   = lacework.test
-#     helm       = helm.test
+#     lacework   = lacework.dev-test
+#     helm       = helm.dev-test
 #   }
 # }
 
@@ -84,13 +94,3 @@ locals {
 #     lacework = lacework.test
 #   }
 # }
-
-# example lacework aws config only (consolidated cloudtrail via controltower)
-module "test-lacework-audit-config" {
-  source      = "./modules/multi-lacework-audit-config"
-  environment = local.test_environment_name
-  providers = {
-    aws      = aws.test
-    lacework = lacework.test
-  }
-}

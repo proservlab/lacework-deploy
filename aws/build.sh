@@ -48,20 +48,20 @@ for i in "$@"; do
 done
 
 # check for required
-if [[ -z ${ENV} ]]; then
+if [ -z ${ENV} ]; then
 		errmsg "Required option not set: --env"
 		help
 fi
 
-if [[ -z ${ACTION} ]]; then
+if [ -z ${ACTION} ]; then
 		errmsg "Required option not set: --action"
 		help
-elif [[ ${ACTION} != "destroy" ]] && [[ ${ACTION} != "apply" ]] && [[ ${ACTION} != "refresh" ]]; then
+elif [ ${ACTION} != "destroy" ] && [ ${ACTION} != "apply" ] && [ ${ACTION} != "refresh" ]; then
     errmsg "Invalid action: --action should be on of apply, refresh or destroy"
     help
 fi
 
-if [[ -z ${TARGET} ]]; then
+if [ -z ${TARGET} ]; then
   TARGET_ARG=""
 else
   TARGET_ARG="--target=${TARGET}"
@@ -84,15 +84,15 @@ terraform get -update=true
 terraform init -backend-config=env_vars/backend-${ENV}.tfvars
 
 # check for destroy
-if [[ "destroy" == ${ACTION} ]]; then 
+if [ "destroy" = "${ACTION}" ]; then 
 terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${TARGET_ARG}
-elif [[ "apply" == ${ACTION} ]]; then
+elif [ "apply" = "${ACTION}" ]; then
 # else plan, show and apply
 terraform plan -var-file=env_vars/${ENV}.tfvars -out ${ENV}.tfplan ${TARGET_ARG}
 terraform show -no-color ${ENV}.tfplan
 terraform ${ACTION} ${ENV}.tfplan
 rm -f ${ENV}.tfplan
-elif [[ "refresh" == ${ACTION} ]]; then
+elif [ "refresh" = "${ACTION}" ]; then
 terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars
 else
 errmsg "Unknown action."

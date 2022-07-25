@@ -1,42 +1,52 @@
 locals {
-  stage_environment_name = "stage"
+  stage_environment_name = "dev-stage"
 }
 
-# module "stage" {
+# example lacework aws config only (consolidated cloudtrail via controltower)
+module "stage-lacework-audit-config" {
+  source      = "./modules/multi-lacework-audit-config"
+  environment = local.stage_environment_name
+  providers = {
+    aws      = aws.dev-stage
+    lacework = lacework.proservlab
+  }
+}
+
+# module "dev-stage" {
 #   source       = "./modules/multi-eks"
 #   aws_region   = var.region
 #   environment  = local.stage_environment_name
 #   cluster-name = "${local.stage_environment_name}-cluster"
 #   providers = {
-#     aws = aws.stage
+#     aws = aws.dev-stage
 #   }
 # }
 
 # resource "local_file" "stage_kubeconfig" {
-#   content  = module.stage.kubeconfig
-#   filename = pathexpand("~/.kube/${module.stage.cluster_name}")
+#   content  = module.dev-stage.kubeconfig
+#   filename = pathexpand("~/.kube/${module.dev-stage.cluster_name}")
 # }
 
 # provider "kubernetes" {
 #   alias                  = "stage"
-#   host                   = module.stage.cluster_endpoint
-#   cluster_ca_certificate = base64decode(module.stage.cluster_ca_cert)
+#   host                   = module.dev-stage.cluster_endpoint
+#   cluster_ca_certificate = base64decode(module.dev-stage.cluster_ca_cert)
 #   exec {
 #     api_version = "client.authentication.k8s.io/v1alpha1"
-#     args        = ["eks", "get-token", "--cluster-name", module.stage.cluster_name, "--profile", local.stage_environment_name]
+#     args        = ["eks", "get-token", "--cluster-name", module.dev-stage.cluster_name, "--profile", local.stage_environment_name]
 #     command     = "aws"
 #   }
 # }
 
 # provider "helm" {
-#   alias = "stage"
+#   alias = "dev-stage"
 #   kubernetes {
-#     host                   = module.stage.cluster_endpoint
-#     cluster_ca_certificate = base64decode(module.stage.cluster_ca_cert)
+#     host                   = module.dev-stage.cluster_endpoint
+#     cluster_ca_certificate = base64decode(module.dev-stage.cluster_ca_cert)
 
 #     exec {
 #       api_version = "client.authentication.k8s.io/v1alpha1"
-#       args        = ["eks", "get-token", "--cluster-name", module.stage.cluster_name, "--profile", local.stage_environment_name]
+#       args        = ["eks", "get-token", "--cluster-name", module.dev-stage.cluster_name, "--profile", local.stage_environment_name]
 #       command     = "aws"
 #     }
 #   }
@@ -51,13 +61,13 @@ locals {
 #   environment = local.stage_environment_name
 
 #   providers = {
-#     kubernetes = kubernetes.stage
+#     kubernetes = kubernetes.dev-stage
 #   }
 # }
 
 # # example lacework daemonset
 # resource "lacework_agent_access_token" "stage" {
-#   provider    = lacework.stage
+#   provider    = lacework.dev-stage
 #   name        = "lab-k8s-token-${local.stage_environment_name}"
 #   description = "k8s deployment for ${local.stage_environment_name}"
 # }
@@ -66,12 +76,12 @@ locals {
 #   source                      = "./modules/multi-lacework-daemonset"
 #   cluster-name                = "${local.stage_environment_name}-cluster"
 #   environment                 = local.stage_environment_name
-#   lacework_agent_access_token = lacework_agent_access_token.stage.token
+#   lacework_agent_access_token = lacework_agent_access_token.dev-stage.token
 
 #   providers = {
-#     kubernetes = kubernetes.stage
-#     lacework   = lacework.stage
-#     helm       = helm.stage
+#     kubernetes = kubernetes.dev-stage
+#     lacework   = lacework.dev-stage
+#     helm       = helm.dev-stage
 #   }
 # }
 
@@ -80,17 +90,7 @@ locals {
 #   source      = "./modules/multi-lacework-audit"
 #   environment = local.stage_environment_name
 #   providers = {
-#     aws      = aws.stage
-#     lacework = lacework.stage
+#     aws      = aws.dev-stage
+#     lacework = lacework.dev-stage
 #   }
 # }
-
-# example lacework aws config only (consolidated cloudtrail via controltower)
-module "stage-lacework-audit-config" {
-  source      = "./modules/multi-lacework-audit-config"
-  environment = local.stage_environment_name
-  providers = {
-    aws      = aws.stage
-    lacework = lacework.stage
-  }
-}
