@@ -1,7 +1,8 @@
 terraform {
   required_providers {        
     lacework = {
-      source  = "lacework/lacework"
+      source = "lacework/lacework"
+      version = "~> 0.22.1"
     }
   }
 }
@@ -13,12 +14,12 @@ provider "lacework" {}
 variable "gcp_organization_id" {
     type       = string
     description = "GCP Organization ID"
-    default = "YOUR GCO ORG"
+    default = "YOUR GCP ORG"
 }
 
 module "gcp_organization_config" {
   source  = "lacework/config/gcp"
-  version = "~> 1.0"
+  version = "~> 2.1.0"
 
   org_integration = true
   organization_id = var.gcp_organization_id
@@ -26,7 +27,7 @@ module "gcp_organization_config" {
 
 module "gcp_organization_audit_log" {
   source  = "lacework/audit-log/gcp"
-  version = "~> 3.0"
+  version = "~> 3.3.3"
 
   bucket_force_destroy         = true
   org_integration              = true

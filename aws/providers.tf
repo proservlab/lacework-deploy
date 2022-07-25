@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.14"
 }
 
 provider "aws" {
@@ -49,10 +49,11 @@ provider "lacework" {
   alias   = "proservlab"
   profile = "proservlab"
 }
-# provider "lacework" {
-#   alias        = "proservlab-organization"
-#   organization = true
-# }
+
+provider "lacework" {
+  alias        = "proservlab-organization"
+  organization = true
+}
 
 # provider "lacework" {
 #   alias      = "proservlab"

@@ -2,17 +2,12 @@ terraform {
   required_providers {        
     lacework = {
       source = "lacework/lacework"
-      version = "~> 0.5"
+      version = "~> 0.22.1"
     }
     google = {
-        version = ">= 0.12"
+        version = "~> 4.29.0"
     }
   }
-}
-
-provider "aws" {
-  region = "us-east-1"
-  profile = "root"
 }
 
 provider "google" {

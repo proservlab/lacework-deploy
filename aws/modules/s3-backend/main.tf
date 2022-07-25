@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.14"
 }
 
 # ------------------------------------------------------------------------------
@@ -37,18 +37,18 @@ resource "aws_s3_bucket" "terraform_state" {
 
   # Enable versioning so we can see the full revision history of our
   # state files
-  versioning {
-    enabled = true
-  }
+  # versioning {
+  #   enabled = true
+  # }
 
   # Enable server-side encryption by default
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
+  # server_side_encryption_configuration {
+  #   rule {
+  #     apply_server_side_encryption_by_default {
+  #       sse_algorithm = "AES256"
+  #     }
+  #   }
+  # }
 }
 
 resource "aws_s3_bucket_public_access_block" "terraform_state" {
@@ -58,6 +58,28 @@ resource "aws_s3_bucket_public_access_block" "terraform_state" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_acl" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
 # ------------------------------------------------------------------------------

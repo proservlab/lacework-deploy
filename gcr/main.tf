@@ -2,6 +2,7 @@ terraform {
   required_providers {
     lacework = {
       source = "lacework/lacework"
+      version = "~> 0.22.1"
     }
   }
 }
@@ -20,7 +21,7 @@ provider "google" {}
 
 module "lacework_gcr" {
   source  = "lacework/gcr/gcp"
-  version = "~> 1.0"
+  version = "~> 2.3.0"
   for_each   = { 
     for index, project in data.google_projects.projects.projects: project.project_id => project
   }

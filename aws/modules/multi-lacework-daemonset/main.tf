@@ -2,19 +2,15 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.0"
+      version = "~> 2.12.1"
     }
     lacework = {
       source  = "lacework/lacework"
-      version = "~> 0.12.2"
+      version = "~> 0.22.1"
     }
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 2.7.0"
-    }
-    helm = {
-      source = "hashicorp/helm"
-      version = ">=1.3.2"
+      version = "~> 4.0"
     }
   }
 }
