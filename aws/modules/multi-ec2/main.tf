@@ -66,13 +66,13 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_route_table_association" "ssm" {
-  subnet_id = aws_subnet.main.id # first subnet
+resource "aws_route_table_association" "main" {
+  subnet_id = aws_subnet.main.id
   route_table_id = aws_route_table.main.id
 }
 
-resource "aws_route_table_association" "main" {
-  subnet_id = aws_subnet.main.id # first subnet
+resource "aws_vpc_endpoint_route_table_association" "main" {
+  route_table_id = aws_route_table.main.id
   vpc_endpoint_id = aws_vpc_endpoint.ssm.id # ssm
 }
 
