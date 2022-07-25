@@ -25,26 +25,18 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_vpc" "main" {
   cidr_block = "172.16.0.0/16"
-
+  enable_dns_hostnames = true
+  enable_dns_support = true
   tags = {
     Name = "tf-example"
   }
 }
 
-# resource "aws_internet_gateway" "gw" {
-#   vpc_id = aws_vpc.main.id
-
-#   tags = {
-#     Name = "main-igw"
-#   }
-# }
-
-
-resource "aws_egress_only_internet_gateway" "gw" {
+resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main-eogw"
+    Name = "main-igw"
   }
 }
 
@@ -66,21 +58,26 @@ resource "aws_route_table" "main" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_egress_only_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.gw.id
   }
-
+  
   tags = {
     Name = "main"
   }
 }
 
-resource "aws_route_table_association" "main" {
+resource "aws_route_table_association" "ssm" {
   subnet_id = aws_subnet.main.id # first subnet
   route_table_id = aws_route_table.main.id
 }
 
+resource "aws_route_table_association" "main" {
+  subnet_id = aws_subnet.main.id # first subnet
+  vpc_endpoint_id = aws_vpc_endpoint.ssm.id # ssm
+}
+
 resource "aws_security_group" "main" {
-  name = "allow-inbound-ssh-from-any"
+  name = "allow-outbound-to-any"
   vpc_id = "${aws_vpc.main.id}"
 
   # ingress {
@@ -99,6 +96,35 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+data "aws_vpc_endpoint_service" "ssm" {
+  service = "ssm"
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "${data.aws_vpc_endpoint_service.ssm.service_name}"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids  = [aws_security_group.ssm.id, aws_security_group.main.id]
+  subnet_ids          = [aws_subnet.main.id]
+}
+
+resource "aws_security_group" "ssm" {
+  name_prefix = "vpc-endpoint-ssm-"
+  description = "SSM VPC Endpoint Security Group"
+  vpc_id      = aws_vpc.main.id
+}
+
+resource "aws_security_group_rule" "vpc_endpoint_ssm_https" {
+  cidr_blocks       = ["172.16.0.0/16"]
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  security_group_id = aws_security_group.ssm.id
+}
+
 resource "aws_instance" "ubuntu" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
@@ -106,7 +132,7 @@ resource "aws_instance" "ubuntu" {
   subnet_id = aws_subnet.main.id
   security_groups = [ aws_security_group.main.id ]
   
-  depends_on = [aws_egress_only_internet_gateway.gw]
+  depends_on = [aws_internet_gateway.gw]
 }
 
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
