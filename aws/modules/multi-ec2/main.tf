@@ -71,11 +71,6 @@ resource "aws_route_table_association" "main" {
   route_table_id = aws_route_table.main.id
 }
 
-resource "aws_vpc_endpoint_route_table_association" "main" {
-  vpc_endpoint_id = aws_vpc_endpoint.ssm.id # ssm
-  route_table_id = aws_route_table.main.id
-}
-
 resource "aws_security_group" "main" {
   name = "allow-outbound-to-any"
   vpc_id = "${aws_vpc.main.id}"
@@ -101,28 +96,47 @@ data "aws_vpc_endpoint_service" "ssm" {
   service = "ssm"
 }
 
-resource "aws_vpc_endpoint" "ssm" {
-  vpc_id            = aws_vpc.main.id
-  service_name      = data.aws_vpc_endpoint_service.ssm.service_name
-  vpc_endpoint_type = "Gateway"
-
-  security_group_ids  = [aws_security_group.ssm.id, aws_security_group.main.id]
-  subnet_ids          = [aws_subnet.main.id]
-}
-
-resource "aws_security_group" "ssm" {
-  name_prefix = "vpc-endpoint-ssm-"
-  description = "SSM VPC Endpoint Security Group"
+resource "aws_security_group" "ssm_sg" {
+  name        = "ssm-sg"
+  description = "Allow TLS inbound To AWS Systems Manager Session Manager"
   vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+  }
+
+  egress {
+    description = "Allow All Egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "main"
+  }
 }
 
-resource "aws_security_group_rule" "vpc_endpoint_ssm_https" {
-  cidr_blocks       = ["172.16.0.0/16"]
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 443
-  to_port           = 443
-  security_group_id = aws_security_group.ssm.id
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id          = aws_vpc.main.id
+  service_name    = data.aws_vpc_endpoint_service.ssm.service_name
+  subnet_ids      = [ aws_subnet.main.id ]
+
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.ssm_sg.id,
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "main-ssm-endpoint"
+  }
 }
 
 resource "aws_instance" "ubuntu" {
