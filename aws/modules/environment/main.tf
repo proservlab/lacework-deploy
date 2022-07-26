@@ -63,10 +63,10 @@ module "eks" {
   }
 }
 
-# resource "local_file" "kubeconfig" {
-#   content  = module.eks.kubeconfig
-#   filename = pathexpand("~/.kube/${module.eks.cluster_name}")
-# }
+resource "local_file" "kubeconfig" {
+  content  = module.eks.kubeconfig
+  filename = pathexpand("~/.kube/${module.eks.cluster_name}")
+}
 
 # provider "kubernetes" {
 #   alias                  = "main"
