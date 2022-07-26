@@ -2,9 +2,11 @@ locals {
   lacework_image = "lacework/datacollector:latest-sidecar"
   lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar.sh"
   
+  # lacework data collector and app
   entrypoint = "/var/lib/lacework-backup/lacework-sidecar.sh"
   command = "/app/entrypoint.sh"
-  # scratch example
+  
+  # scratch container app example
   # lacework_image = "${aws_ecr_repository.lacework-repo.repository_url}:${var.lacework_tag}"
   # lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar-minimal.sh"
 }
@@ -43,88 +45,88 @@ resource "aws_ecs_task_definition" "task" {
   # defined in role.tf
   task_role_arn = aws_iam_role.app_role.arn
   container_definitions = jsonencode(
-[
-  {
-    "name": "datacollector-sidecar",
-    "image": "${local.lacework_image}",
-    "cpu": 0,
-    "portMappings": [],
-    "essential": false,
-    "environment": [],
-    "volumesFrom": [],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.lacework.name}",
-        "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
-  },
-  {
-    "essential": true,
-    "image": "${aws_ecr_repository.repo.repository_url}:${var.tag}",
-    "memory": 512,
-    "name": "web-image",
-    "cpu": 256,
-    "portMappings": [
+    [
       {
-        "containerPort": 5000,
-        "hostPort": 5000,
-        "protocol": "tcp"
-      }
-    ],
-    "environment": [
-      {
-        "name": "PORT",
-        "value": "5000"
+        "name": "datacollector-sidecar",
+        "image": "${local.lacework_image}",
+        "cpu": 0,
+        "portMappings": [],
+        "essential": false,
+        "environment": [],
+        "volumesFrom": [],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "${aws_cloudwatch_log_group.lacework.name}",
+            "awslogs-region": "${var.region}",
+            "awslogs-stream-prefix": "ecs"
+          }
+        }
       },
       {
-        "name": "PRODUCT",
-        "value": "${var.app}"
-      },
-      {
-        "name": "ENVIRONMENT",
-        "value": "${var.environment}"
-      },
-      {
-        "name": "LaceworkAccessToken",
-        "value": "${lacework_agent_access_token.main.token}"
-      },
-      {
-        "name": "LaceworkVerbose",
-        "value": "true"
+        "essential": true,
+        "image": "${aws_ecr_repository.repo.repository_url}:${var.tag}",
+        "memory": 512,
+        "name": "web-image",
+        "cpu": 256,
+        "portMappings": [
+          {
+            "containerPort": 5000,
+            "hostPort": 5000,
+            "protocol": "tcp"
+          }
+        ],
+        "environment": [
+          {
+            "name": "PORT",
+            "value": "5000"
+          },
+          {
+            "name": "PRODUCT",
+            "value": "${var.app}"
+          },
+          {
+            "name": "ENVIRONMENT",
+            "value": "${var.environment}"
+          },
+          {
+            "name": "LaceworkAccessToken",
+            "value": "${lacework_agent_access_token.main.token}"
+          },
+          {
+            "name": "LaceworkVerbose",
+            "value": "true"
+          }
+        ],
+        "entryPoint": [
+          "${local.entrypoint}"
+        ],
+        "command": [
+          "${local.command}"
+        ],
+        "volumesFrom": [
+          {
+            "sourceContainer": "datacollector-sidecar",
+            "readOnly": true
+          }
+        ],
+        "dependsOn": [
+          {
+            "containerName": "datacollector-sidecar",
+            "condition": "SUCCESS"
+          }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "${aws_cloudwatch_log_group.logs.name}",
+            "awslogs-region": "${var.region}",
+            "awslogs-stream-prefix": "ecs"
+          }
+        }
       }
-    ],
-    "entryPoint": [
-      "${local.entrypoint}"
-    ],
-    "command": [
-      "${local.command}"
-    ],
-    "volumesFrom": [
-      {
-        "sourceContainer": "datacollector-sidecar",
-        "readOnly": true
-      }
-    ],
-    "dependsOn": [
-      {
-        "containerName": "datacollector-sidecar",
-        "condition": "SUCCESS"
-      }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.logs.name}",
-        "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
-  }
-]
-)
+    ]
+  )
 
   
 
