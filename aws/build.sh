@@ -67,9 +67,17 @@ else
   TARGET_ARG="--target=${TARGET}"
 fi
 
+# use variables.tfvars if it exists
+if [ -f "env_vars/variables.tfvars" ]; then
+  VARS="-var-file=env_vars/variables.tfvars"
+else
+  VARS=""
+fi
+
 echo "ENV           = ${ENV}"
 echo "ACTION        = ${ACTION}"
 echo "TARGET        = ${TARGET}"
+echo "VARS          = ${VARS}"
 
 # ensure formatting
 terraform fmt
@@ -85,15 +93,15 @@ terraform init -backend-config=env_vars/backend-${ENV}.tfvars
 
 # check for destroy
 if [ "destroy" = "${ACTION}" ]; then 
-terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${TARGET_ARG}
+terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${VARS} ${TARGET_ARG}
 elif [ "apply" = "${ACTION}" ]; then
 # else plan, show and apply
-terraform plan -var-file=env_vars/${ENV}.tfvars -out ${ENV}.tfplan ${TARGET_ARG}
+terraform plan -var-file=env_vars/${ENV}.tfvars ${VARS} -out ${ENV}.tfplan ${TARGET_ARG}
 terraform show -no-color ${ENV}.tfplan
 terraform ${ACTION} ${ENV}.tfplan
 rm -f ${ENV}.tfplan
 elif [ "refresh" = "${ACTION}" ]; then
-terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars
+terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${VARS}
 else
 errmsg "Unknown action."
 help

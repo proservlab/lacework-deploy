@@ -142,6 +142,10 @@ resource "aws_instance" "ubuntu" {
   subnet_id = aws_subnet.main.id
   security_groups = [ aws_security_group.main.id ]
   
+  tags = {
+    environment = var.environment
+  }
+
   depends_on = [aws_internet_gateway.gw]
 }
 

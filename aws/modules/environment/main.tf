@@ -36,6 +36,23 @@ module "ec2" {
   }
 }
 
+resource "lacework_agent_access_token" "main" {
+  provider    = lacework
+  name        = var.environment
+  description = "deployment for ${var.environment}"
+}
+
+# module "lacework-ssm-agent" {
+#   source       = "../multi-lacework-ssm-agent"
+#   aws_region   = var.region
+#   environment  = var.environment
+#   lacework_agent_token = lacework_agent_access_token.main.token
+#   providers = {
+#     aws      = aws
+#     lacework = lacework
+#   }
+# }
+
 # module "eks" {
 #   source       = "../multi-eks"
 #   aws_region   = var.region
