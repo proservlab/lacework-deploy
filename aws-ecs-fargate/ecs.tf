@@ -1,3 +1,10 @@
+locals {
+  lacework_image = "lacework/datacollector:latest-sidecar"
+  lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar.sh"
+  # scratch example
+  # lacework_image = "${aws_ecr_repository.lacework-repo.repository_url}:${var.lacework_tag}"
+  # lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar-minimal.sh"
+}
 resource "aws_ecs_cluster" "app" {
   name = "${var.environment}-ecs-1"
 }
@@ -32,11 +39,11 @@ resource "aws_ecs_task_definition" "task" {
 
   # defined in role.tf
   task_role_arn = aws_iam_role.app_role.arn
-  container_definitions = <<TASK_DEFINITION
+  container_definitions = jsonencode(
 [
   {
     "name": "datacollector-sidecar",
-    "image": "${aws_ecr_repository.lacework-repo.repository_url}:${var.lacework_tag}",
+    "image": "${local.lacework_image}",
     "cpu": 0,
     "portMappings": [],
     "essential": false,
@@ -87,7 +94,7 @@ resource "aws_ecs_task_definition" "task" {
       }
     ],
     "entryPoint": [
-      "/var/lib/lacework-backup/lacework-sidecar-minimal.sh"
+      "${local.lacework_entrypoint}"
     ],
     "command": [
       "/app/awesome-prog"
@@ -114,7 +121,7 @@ resource "aws_ecs_task_definition" "task" {
     }
   }
 ]
-TASK_DEFINITION
+)
 
   
 

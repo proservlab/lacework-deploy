@@ -1,9 +1,9 @@
 variable "account_name" {
-  default = "root"
+  default = "proservlab"
 }
 
 variable "environment" {
-  default = "prod"
+  default = "proservlab"
 }
 
 variable "app" {
@@ -39,7 +39,8 @@ variable "image_name" {
 variable "source_path" {
   description = "Path to Docker image source"
   type        = string
-  default     = "scratch-app"
+  # default     = "scratch-app"
+  default     = "app"
 }
 
 variable "lacework_source_path" {
