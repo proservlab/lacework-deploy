@@ -39,6 +39,21 @@ resource "aws_internet_gateway" "gw" {
     Name = "main-igw"
   }
 }
+resource "aws_eip" "nat_gateway" {
+  vpc = true
+}
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat_gateway.id
+  subnet_id     = aws_subnet.main.id
+
+  tags = {
+    Name = "main-gw-nat"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.gw]
+}
 
 resource "aws_subnet" "main" {
   vpc_id            = aws_vpc.main.id
@@ -58,7 +73,7 @@ resource "aws_route_table" "main" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id = aws_nat_gateway.main.id
   }
 
   tags = {
