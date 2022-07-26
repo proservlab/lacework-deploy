@@ -12,8 +12,29 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.6.0"
+    }
   }
 }
+
+# resource "kubernetes_namespace" "namespace" {
+#   metadata {
+#     name = "lacework"
+#   }
+# }
+
+# module "lacework_k8s_datacollector" {
+#   source    = "lacework/agent/kubernetes"
+#   version   = "~> 2.1.0"
+#   namespace = "lacework"
+#   lacework_access_token = var.lacework_agent_access_token
+
+#   # Add the lacework_agent_tag argument to retrieve the cluster name in the Kubernetes Dossier
+#   lacework_agent_tags = {KubernetesCluster: var.cluster-name}
+# }
 
 resource "helm_release" "lacework" {
     name       = "lacework"
@@ -22,16 +43,6 @@ resource "helm_release" "lacework" {
 
     create_namespace =  true
     namespace =  "lacework"
-
-    set {
-        name  = "laceworkConfig.accessToken"
-        value = var.lacework_agent_access_token
-    }
-
-    # set {
-    #     name  = "laceworkConfig.serverUrl"
-    #     value = "api.lacework.net"
-    # }
 
     set {
         name  = "laceworkConfig.kubernetesCluster"
@@ -43,24 +54,8 @@ resource "helm_release" "lacework" {
         value = var.environment
     }
 
-    # set_sensitive {
-    #     name  = "laceworkConfig.accessToken"
-    #     value = lacework_agent_access_token.cluster.token
-    # }
+    set_sensitive {
+        name  = "laceworkConfig.accessToken"
+        value = var.lacework_agent_access_token
+    }
 }
-
-# module "lacework_k8s_datacollector" {
-#   source  = "lacework/agent/kubernetes"
-#   version = "~> 1.0"
-#   namespace = "lacework"
-
-#   lacework_access_token = lacework_agent_access_token.cluster.token
-
-#   # Add the lacework_agent_tag argument to retrieve the cluster name in the Kubernetes Dossier
-#   lacework_agent_tags = {KubernetesCluster: var.cluster-name}
-
-#   pod_cpu_request = "200m"
-#   pod_mem_request = "512Mi"
-#   pod_cpu_limit   = "1"
-#   pod_mem_limit   = "1024Mi"
-# }

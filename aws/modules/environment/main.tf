@@ -12,6 +12,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.6.0"
+    }
   }
 }
 
@@ -68,61 +73,54 @@ resource "local_file" "kubeconfig" {
   filename = pathexpand("~/.kube/${module.eks.cluster_name}")
 }
 
-# provider "kubernetes" {
-#   alias                  = "main"
-#   host                   = module.eks.cluster_endpoint
-#   cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
+provider "kubernetes" {
+  alias                  = "main"
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
 
-#   exec {
-#     api_version = "client.authentication.k8s.io/v1alpha1"
-#     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-#     command     = "aws"
-#   }
-# }
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
+    command     = "aws"
+  }
+}
 
-# provider "helm" {
-#   alias = "main"
-#   kubernetes {
-#     host                   = module.eks.cluster_endpoint
-#     cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
+provider "helm" {
+  alias = "main"
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
 
-#     exec {
-#       api_version = "client.authentication.k8s.io/v1alpha1"
-#       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-#       command     = "aws"
-#     }
-#   }
-# }
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
+      command     = "aws"
+    }
+  }
+}
 
-# # example of kubernetes configuration 
-# # - ideally application lives in seperate project to allow for deployment outside of IaC
-# # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-# module "proservlab-kubenetes" {
-#   source      = "../multi-kubernetes"
-#   aws_region  = var.region
-#   environment = var.environment
+# example of kubernetes configuration 
+# - ideally application lives in seperate project to allow for deployment outside of IaC
+# - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
+module "proservlab-kubenetes" {
+  source      = "../multi-kubernetes"
+  aws_region  = var.region
+  environment = var.environment
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#   }
-# }
+  providers = {
+    kubernetes = kubernetes.main
+  }
+}
 
-# # example lacework daemonset
-# resource "lacework_agent_access_token" "main" {
-#   provider    = lacework
-#   name        = "lab-k8s-token-${var.environment}"
-#   description = "k8s deployment for ${var.environment}"
-# }
+module "main-lacework-daemonset" {
+  source                      = "../multi-lacework-daemonset"
+  cluster-name                = "${var.environment}-cluster"
+  environment                 = var.environment
+  lacework_agent_access_token = lacework_agent_access_token.main.token
 
-# module "main-lacework-daemonset" {
-#   source                      = "../multi-lacework-daemonset"
-#   cluster-name                = "${var.environment}-cluster"
-#   environment                 = var.environment
-#   lacework_agent_access_token = lacework_agent_access_token.main.token
-
-#   providers = {
-#     kubernetes = kubernetes.main
-#     lacework   = lacework
-#     helm       = helm.main
-#   }
-# }
+  providers = {
+    kubernetes = kubernetes.main
+    lacework   = lacework
+    helm       = helm.main
+  }
+}
