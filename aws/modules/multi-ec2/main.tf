@@ -39,12 +39,13 @@ resource "aws_internet_gateway" "gw" {
     Name = "main-igw"
   }
 }
+
 resource "aws_eip" "nat_gateway" {
   vpc = true
 }
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat_gateway.id
-  subnet_id     = aws_subnet.main.id
+  subnet_id     = aws_subnet.nat_gateway.id
 
   tags = {
     Name = "main-gw-nat"
@@ -55,6 +56,33 @@ resource "aws_nat_gateway" "main" {
   depends_on = [aws_internet_gateway.gw]
 }
 
+resource "aws_subnet" "nat_gateway" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "172.16.11.0/24"
+  availability_zone = "us-east-1b"
+  
+  # map_public_ip_on_launch = true
+  
+  tags = {
+    Name = "main-public"
+    Environment = var.environment
+  }
+}
+
+resource "aws_route_table" "nat_gateway" {
+  vpc_id = aws_vpc.main.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+}
+
+resource "aws_route_table_association" "nat_gateway" {
+  subnet_id = aws_subnet.nat_gateway.id
+  route_table_id = aws_route_table.nat_gateway.id
+}
+
+
 resource "aws_subnet" "main" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "172.16.10.0/24"
@@ -63,7 +91,7 @@ resource "aws_subnet" "main" {
   # map_public_ip_on_launch = true
   
   tags = {
-    Name = "tf-example"
+    Name = "main-private"
     Environment = var.environment
   }
 }
