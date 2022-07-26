@@ -99,10 +99,10 @@ resource "aws_ecs_task_definition" "task" {
           }
         ],
         "entryPoint": [
-          "${local.entrypoint}"
+          "/var/lib/lacework-backup/lacework-sidecar.sh"
         ],
         "command": [
-          "${local.command}"
+          "/app/entrypoint.sh"
         ],
         "volumesFrom": [
           {
