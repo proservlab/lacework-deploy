@@ -140,7 +140,7 @@ resource "aws_instance" "ubuntu" {
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.ec2-iam-profile.name
   subnet_id = aws_subnet.main.id
-  security_groups = [ aws_security_group.main.id ]
+  vpc_security_group_ids = [ aws_security_group.main.id ]
   
   tags = {
     environment = var.environment
