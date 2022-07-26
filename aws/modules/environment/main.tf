@@ -42,26 +42,26 @@ resource "lacework_agent_access_token" "main" {
   description = "deployment for ${var.environment}"
 }
 
-# module "lacework-ssm-agent" {
-#   source       = "../multi-lacework-ssm-agent"
-#   aws_region   = var.region
-#   environment  = var.environment
-#   lacework_agent_token = lacework_agent_access_token.main.token
-#   providers = {
-#     aws      = aws
-#     lacework = lacework
-#   }
-# }
+module "lacework-ssm-agent" {
+  source       = "../multi-lacework-ssm-agent"
+  aws_region   = var.region
+  environment  = var.environment
+  lacework_agent_token = lacework_agent_access_token.main.token
+  providers = {
+    aws      = aws
+    lacework = lacework
+  }
+}
 
-# module "eks" {
-#   source       = "../multi-eks"
-#   aws_region   = var.region
-#   environment  = var.environment
-#   cluster-name = "${var.environment}-cluster"
-#   providers = {
-#     aws = aws
-#   }
-# }
+module "eks" {
+  source       = "../multi-eks"
+  aws_region   = var.region
+  environment  = var.environment
+  cluster-name = "${var.environment}-cluster"
+  providers = {
+    aws = aws
+  }
+}
 
 # resource "local_file" "kubeconfig" {
 #   content  = module.eks.kubeconfig
