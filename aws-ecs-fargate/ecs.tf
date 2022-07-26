@@ -1,6 +1,8 @@
 locals {
   lacework_image = "lacework/datacollector:latest-sidecar"
   lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar.sh"
+  entrypoint = "entrypoint.sh"
+  command = "/app/app.py"
   # scratch example
   # lacework_image = "${aws_ecr_repository.lacework-repo.repository_url}:${var.lacework_tag}"
   # lacework_entrypoint = "/var/lib/lacework-backup/lacework-sidecar-minimal.sh"
@@ -94,11 +96,11 @@ resource "aws_ecs_task_definition" "task" {
       }
     ],
     "entryPoint": [
-      "${local.lacework_entrypoint}"
+      "${local.entrypoint}"
     ],
-    "command": [
-      "/app/awesome-prog"
-    ],
+    # "command": [
+    #   "${local.command}"
+    # ],
     "volumesFrom": [
       {
         "sourceContainer": "datacollector-sidecar",

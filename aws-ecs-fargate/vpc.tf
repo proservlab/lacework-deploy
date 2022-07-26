@@ -86,7 +86,7 @@ resource "aws_security_group" "alb_security_group" {
         // Do not do it in the production. 
         // Put your office or home address in it!
         cidr_blocks = [
-            "174.7.109.177/32", # external trusted ip
+            "50.98.22.145/32", # external trusted ip
             "10.0.1.0/24",      # internal subnet 1
             "10.0.2.0/24"       # internal subnet 2
         ]
