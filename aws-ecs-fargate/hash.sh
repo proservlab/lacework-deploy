@@ -19,9 +19,9 @@ file_hashes="$(
     cd "$source_path" \
     && find . -type f -not -name '*.pyc' -not -path './.**' \
     | sort \
-    | xargs md5sum -r
+    | xargs md5sum
 )"
 
-hash="$(echo "$file_hashes" | md5sum -r | cut -d' ' -f1)"
+hash="$(echo "$file_hashes" | md5sum  | cut -d' ' -f1)"
 
 echo '{ "hash": "'"$hash"'" }'
