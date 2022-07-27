@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "task" {
     [
       {
         "name": "datacollector-sidecar",
-        "image": "${local.lacework_image}",
+        "image": "lacework/datacollector:latest-sidecar",
         "cpu": 0,
         "portMappings": [],
         "essential": false,

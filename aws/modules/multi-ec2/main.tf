@@ -148,7 +148,6 @@ resource "aws_instance" "ubuntu" {
 
   depends_on = [aws_internet_gateway.gw]
 }
-
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
   name = "ec2_profile"
   role = aws_iam_role.ec2-iam-role.name
@@ -173,7 +172,38 @@ resource "aws_iam_role" "ec2-iam-role" {
   }
 }
 
+resource "aws_iam_policy" "ec2-describe-tags" {
+  name        = "ec2_self_describe_tags"
+  description = "ec2 self describe tags"
+
+  policy = jsonencode(
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "SelfDescribeTagsOnly",
+                "Effect": "Allow",
+                "Action": [
+                    "ec2:DescribeTags"
+                ],
+                "Resource": "*",
+                "Condition": {
+                    "StringEquals": {
+                        "aws:ARN": "$${ec2:SourceInstanceARN}"
+                    }
+                }
+            }
+        ]
+    }
+  )
+}
+
 resource "aws_iam_role_policy_attachment" "ec2-ssm-policy" {
   role       = aws_iam_role.ec2-iam-role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-instance-policy" {
+  role       = aws_iam_role.ec2-iam-role.name
+  policy_arn = aws_iam_policy.ec2-describe-tags.arn
 }
