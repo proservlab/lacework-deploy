@@ -173,25 +173,20 @@ resource "aws_iam_role" "ec2-iam-role" {
 }
 
 resource "aws_iam_policy" "ec2-describe-tags" {
-  name        = "ec2_self_describe_tags"
-  description = "ec2 self describe tags"
+  name        = "ec2_describe_tags"
+  description = "ec2 describe tags"
 
   policy = jsonencode(
     {
         "Version": "2012-10-17",
         "Statement": [
             {
-                "Sid": "SelfDescribeTagsOnly",
+                "Sid": "DescribeTagsOnly",
                 "Effect": "Allow",
                 "Action": [
                     "ec2:DescribeTags"
                 ],
-                "Resource": "*",
-                "Condition": {
-                    "StringEquals": {
-                        "aws:ARN": "$${ec2:SourceInstanceARN}"
-                    }
-                }
+                "Resource": "*"
             }
         ]
     }
