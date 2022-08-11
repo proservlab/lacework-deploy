@@ -8,6 +8,11 @@ resource "aws_lb" "ecs" {
   ]
 
   enable_cross_zone_load_balancing = true
+
+  access_logs {
+    bucket  = aws_s3_bucket.lb_logs.bucket
+    enabled = true
+  }
 }
 
 data "aws_network_interfaces" "ecs" {
