@@ -39,7 +39,8 @@ override.tf.json
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -59,3 +60,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+*/certs/*.crt*
+*/certs/*.key*
+*/certs/*.csr*
+*/certs/*.conf*
+*/values.yaml

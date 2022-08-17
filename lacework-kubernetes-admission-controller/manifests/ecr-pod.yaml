@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-image
+  namespace: default
+spec:
+  containers:
+    - image: 535849429554.dkr.ecr.us-east-1.amazonaws.com/ecs-task/web-image:latest
+      imagePullPolicy: IfNotPresent
+      name: web-image
+      ports:
+        - containerPort: 5000
+  restartPolicy: Always
