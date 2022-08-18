@@ -52,45 +52,38 @@ resource "lacework_policy" "example" {
 
   alerting {
     enabled = true
-    profile = "Custom_CFG_AWS_Profile.Custom_CFG_AWS_Violation"
+    profile = "LW_CFG_AWS_DEFAULT_PROFILE.CFG_AWS_Violation"
   }
 }
 
 resource "lacework_query" "ec2_missing_tag2" {
   query_id = "TF_CUSTOM_AWS_EC2_TAG_QUERY2"
   query    = <<EOT
-  {
+    {
       source {
-            LW_CFG_AWS_EC2_INSTANCES
-        }
-        filter {
-            RESOURCE_CONFIG:State.Name <> 'terminated'
-            AND NOT value_exists(RESOURCE_TAGS:owner) 
-        }
-        RETURN DISTINCT {
-            BATCH_START_TIME,
-            BATCH_END_TIME,
-            QUERY_START_TIME,
-            QUERY_END_TIME,
-            ARN,
-            API_KEY,
-            SERVICE,
-            ACCOUNT_ID,
-            ACCOUNT_ALIAS,
-            RESOURCE_TYPE,
-            RESOURCE_ID,
-            RESOURCE_REGION,
-            RESOURCE_CONFIG,
-            RESOURCE_TAGS
-        }
+          LW_CFG_AWS_EC2_SECURITY_GROUPS a,
+          array_to_rows(a.RESOURCE_CONFIG:IpPermissions) as (ip_permissions),
+          array_to_rows(ip_permissions:IpRanges) as (ip_ranges)
+      }
+      filter {
+          ip_ranges:CidrIp <> '0.0.0.0/0'
+      }
+      return distinct {
+          ACCOUNT_ALIAS,
+          ACCOUNT_ID,
+          ARN as RESOURCE_KEY,
+          RESOURCE_REGION,
+          RESOURCE_TYPE,
+          SERVICE
+      }
   }
 EOT
 }
 
 resource "lacework_policy" "example2" {
-    title       = "EC2 Missing Tag 2"
-    description = "EC2 instance missing required tag"
-    remediation = "Update tags to include required tags"
+    title       = "Security Group Access"
+    description = "Security Group Access"
+    remediation = "Restrict Group"
     query_id    = lacework_query.ec2_missing_tag2.id
     severity    = "High"
     type        = "Violation"
@@ -102,4 +95,42 @@ resource "lacework_policy" "example2" {
         enabled = true
         profile = "LW_CFG_AWS_DEFAULT_PROFILE.CFG_AWS_Violation"
     }
+}
+
+resource "lacework_query" "AWS_CTA_Example" {
+  query_id = "TF_AWS_CTA_Example"
+  query    = <<EOT
+  {
+      source {
+          CloudTrailRawEvents
+      }
+      filter {
+          EVENT_SOURCE = 'ec2.amazonaws.com'
+          and EVENT_NAME = 'DescribeTags'
+      }
+      return distinct {
+          INSERT_ID,
+          INSERT_TIME,
+          EVENT_TIME,
+          EVENT
+      }
+  }
+EOT
+}
+
+resource "lacework_policy" "example3" {
+  title       = "Cloudtrail Example"
+  description = "Example"
+  remediation = "Example"
+  query_id    = lacework_query.AWS_CTA_Example.id
+  severity    = "High"
+  type        = "Violation"
+  evaluation  = "Hourly"
+  tags        = ["domain:AWS", "custom"]
+  enabled     = true
+
+  alerting {
+    enabled = true
+    profile = "LW_CloudTrail_Alerts.CloudTrailDefaultAlert_AwsResource"
+  }
 }
