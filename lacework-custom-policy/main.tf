@@ -8,7 +8,8 @@ resource "lacework_query" "query1" {
     filter {
         EVENT_SOURCE = 'ec2.amazonaws.com'
         and EVENT_NAME = 'RunInstances'
-        and EVENT:userAgent = 'console.ec2.amazonaws.com'
+        and (EVENT:userAgent = 'console.ec2.amazonaws.com'
+        or EVENT:userAgent = 'AWS Internal')
         and ERROR_CODE is null
     }
     return distinct {
@@ -22,9 +23,9 @@ EOT
 }
 
 resource "lacework_policy" "example1" {
-  title       = "Cloudtrail Example"
-  description = "Example"
-  remediation = "Example"
+  title       = "EC2 Instance Manually Created"
+  description = "EC2 Instance Manually Created"
+  remediation = "Use IaC provisioning for all cloud assets"
   query_id    = lacework_query.query1.id
   severity    = "High"
   type        = "Violation"

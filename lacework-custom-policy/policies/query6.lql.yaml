@@ -8,7 +8,8 @@ queryText: |-
         filter {
             EVENT_SOURCE = 'ec2.amazonaws.com'
             and EVENT_NAME = 'RunInstances'
-            and EVENT:userAgent = 'console.ec2.amazonaws.com'
+            and (EVENT:userAgent = 'console.ec2.amazonaws.com'
+            or EVENT:userAgent = 'AWS Internal')
             and ERROR_CODE is null
         }
         return distinct {
