@@ -8,5 +8,5 @@ terraform {
 }
 
 provider "lacework" {
-  profile = "demobeta"
+  profile = "proservlab"
 }

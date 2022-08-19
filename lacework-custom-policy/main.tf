@@ -1,4 +1,4 @@
-resource "lacework_query" "query3" {
+resource "lacework_query" "query1" {
   query_id = "TF_AWS_CTA_Example"
   query    = <<EOT
   {
@@ -21,11 +21,11 @@ resource "lacework_query" "query3" {
 EOT
 }
 
-resource "lacework_policy" "example3" {
+resource "lacework_policy" "example1" {
   title       = "Cloudtrail Example"
   description = "Example"
   remediation = "Example"
-  query_id    = lacework_query.query3.id
+  query_id    = lacework_query.query1.id
   severity    = "High"
   type        = "Violation"
   evaluation  = "Hourly"
