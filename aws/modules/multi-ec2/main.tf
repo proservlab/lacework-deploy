@@ -148,10 +148,26 @@ resource "aws_instance" "ubuntu" {
 
   depends_on = [aws_internet_gateway.gw]
 }
+
+resource "aws_instance" "ubuntu-unprotected" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+  #iam_instance_profile = aws_iam_instance_profile.ec2-iam-profile.name
+  subnet_id = aws_subnet.main.id
+  vpc_security_group_ids = [ aws_security_group.main.id ]
+  
+  tags = {
+    environment = var.environment
+  }
+
+  depends_on = [aws_internet_gateway.gw]
+}
+
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
   name = "ec2_profile"
   role = aws_iam_role.ec2-iam-role.name
 }
+
 resource "aws_iam_role" "ec2-iam-role" {
   name        = "ec2-ssm-role"
   description = "The role for EC2 resources"
