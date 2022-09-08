@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:  
+  - image: alpine
+    name: test-container
+    command: ["tail"]
+    args: ["-f", "/dev/null"] 
+    volumeMounts:
+    - mountPath: /host
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      # directory location on host
+      path: /
+      # this field is optional
+      type: Directory

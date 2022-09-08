@@ -1,0 +1,22 @@
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  labels: 
+    app: kalilinux
+  name: kalilinux
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kalilinux
+  template: 
+    metadata: 
+      labels: 
+        app: kalilinux
+    spec: 
+      containers: 
+        - name: "attacker"
+          image: kalilinux/kali-rolling
+          command: ["tail"]
+          args: ["-f","/dev/null"]
