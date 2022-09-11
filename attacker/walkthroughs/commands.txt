@@ -273,7 +273,41 @@ sudo docker run --rm --name=kubectl --network=host -v /etc/kubelet/:/etc/kubelet
 sudo docker run --rm --name=kubectl --network=host -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:1.23.6  --kubeconfig=/kubeconfig get pods
 
 # aws auth 
-sudo docker run --rm --name=kubectl --network=host -v /usr/bin/aws-iam-authenticator:/usr/bin/aws-iam-authenticator -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:1.23.6  --kubeconfig=/kubeconfig get pods
+sudo docker run --rm --name=kubectl --network=host -v /etc/machine-id:/etc/machine-id -v /usr/bin/aws-iam-authenticator:/usr/bin/aws-iam-authenticator -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:1.23.6  --kubeconfig=/kubeconfig get pods
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+  annotations:
+    kubernetes.io/config.mirror: mirror
+    kubernetes.io/config.source: file
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: kalilinux-5b448b4dcb
+    uid: 08d24a1a-e0a5-4ba6-834d-d50e587f87df
+spec:
+  nodeName: "ip-10-0-0-166.ec2.internal"
+  containers:
+  - image: alpine
+    name: test-container
+    command: ["tail"]
+    args: ["-f", "/dev/null"]
+    volumeMounts:
+    - mountPath: /host
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      # directory location on host
+      path: /
+      # this field is optional
+      type: Directory
 
 # local
 cd ~
