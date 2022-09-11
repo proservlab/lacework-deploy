@@ -268,6 +268,12 @@ docker exec -t <container name> <any command>
 - exec access to any pod?
 
 3) from node:
+# as docker container
+sudo docker run --rm --name=kubectl --network=host -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:latest  --kubeconfig=/kubeconfig get pods
+sudo docker run --rm --name=kubectl --network=host -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:1.23.6  --kubeconfig=/kubeconfig get pods
+
+# aws auth 
+sudo docker run --rm --name=kubectl --network=host -v /usr/bin/aws-iam-authenticator:/usr/bin/aws-iam-authenticator -v /etc/kubelet/:/etc/kubelet -v /etc/kubernetes/:/etc/kubernetes -v /var/lib/kubelet/kubeconfig:/kubeconfig bitnami/kubectl:1.23.6  --kubeconfig=/kubeconfig get pods
 cd ~
 mkdir ~/.kube
 cp /var/lib/kubelet/kubeconfig ~/.kube/config
