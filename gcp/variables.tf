@@ -18,3 +18,9 @@
 #     type       = string
 #     description = "GCP Organization ID"
 # }
+
+variable "environment" {
+    type        = string
+    description = "Environment name"
+    default     = "test"
+}

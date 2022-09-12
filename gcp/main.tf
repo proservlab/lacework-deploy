@@ -1,3 +1,22 @@
+provider "kubernetes" {
+  host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
+  token = data.google_client_config.provider.access_token
+  cluster_ca_certificate = base64decode(
+    data.google_container_cluster.my_cluster.master_auth[0].cluster_ca_certificate,
+  )
+}
+
+provider "helm" {
+  alias = "main"
+  kubernetes {
+    host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
+    token = data.google_client_config.provider.access_token
+    cluster_ca_certificate = base64decode(
+      data.google_container_cluster.my_cluster.master_auth[0].cluster_ca_certificate,
+    )
+  }
+}
+
 provider "google" {
   project = "proservlab-root"
   # project     = var.gcp_project
@@ -20,7 +39,6 @@ data "google_project" "project" {}
 data "google_projects" "projects" {
   filter = "parent.id:${data.google_project.project.org_id} lifecycleState:ACTIVE"
 }
-
 
 module "gcp_organization_config" {
   source  = "lacework/config/gcp"
@@ -64,4 +82,41 @@ module "gke" {
 # module "redis" {
 #   source = "./modules/redis"
 #   redis_enabled = false
+# }
+
+# example of kubernetes configuration 
+# - ideally application lives in seperate project to allow for deployment outside of IaC
+# - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
+# module "proservlab-kubenetes" {
+#   source      = "../multi-kubernetes"
+#   aws_region  = var.region
+#   environment = var.environment
+
+#   providers = {
+#     kubernetes = kubernetes.main
+#   }
+# }
+
+# Retrieve an access token as the Terraform runner
+data "google_client_config" "provider" {}
+
+data "google_container_cluster" "my_cluster" {
+  name     = "test"
+  location = "us-central1"
+
+  depends_on = [
+    module.gke
+  ]
+}
+# module "main-lacework-daemonset" {
+#   source                      = "../multi-lacework-daemonset"
+#   cluster-name                = "${var.environment}-cluster"
+#   environment                 = var.environment
+#   lacework_agent_access_token = lacework_agent_access_token.main.token
+
+#   providers = {
+#     kubernetes = kubernetes.main
+#     lacework   = lacework
+#     helm       = helm.main
+#   }
 # }
