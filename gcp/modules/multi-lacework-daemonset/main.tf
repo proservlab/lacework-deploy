@@ -46,7 +46,7 @@ resource "helm_release" "lacework" {
 
     set {
         name  = "laceworkConfig.kubernetesCluster"
-        value = var.cluster-name
+        value = "${var.environment}-cluster"
     }
 
     set {

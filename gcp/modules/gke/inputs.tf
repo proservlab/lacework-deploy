@@ -6,14 +6,6 @@ variable "cluster_version" {
   default = "1.22"
 }
 
-variable "cluster_username" {
-  default = ""
-}
-
-variable "cluster_password" {
-  default = ""
-}
-
 variable "project_id" {
   type = string
 }
@@ -23,7 +15,7 @@ variable "region" {
 }
 
 variable "nodes_instance_type" {
-  default = "n1-standard-1"
+  default = "e2-medium"
 }
 
 variable "nodes_desired_capacity" {

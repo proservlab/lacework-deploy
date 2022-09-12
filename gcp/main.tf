@@ -1,21 +1,4 @@
-provider "kubernetes" {
-  host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
-  token = data.google_client_config.provider.access_token
-  cluster_ca_certificate = base64decode(
-    data.google_container_cluster.my_cluster.master_auth[0].cluster_ca_certificate,
-  )
-}
 
-provider "helm" {
-  alias = "main"
-  kubernetes {
-    host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
-    token = data.google_client_config.provider.access_token
-    cluster_ca_certificate = base64decode(
-      data.google_container_cluster.my_cluster.master_auth[0].cluster_ca_certificate,
-    )
-  }
-}
 
 provider "google" {
   project = "proservlab-root"
@@ -97,26 +80,48 @@ module "gke" {
 #   }
 # }
 
-# Retrieve an access token as the Terraform runner
+resource "lacework_agent_access_token" "main" {
+  provider    = lacework
+  name        = var.environment
+  description = "deployment for ${var.environment}"
+}
+
 data "google_client_config" "provider" {}
 
-data "google_container_cluster" "my_cluster" {
-  name     = "test"
-  location = "us-central1"
+provider "kubernetes" {
+  alias = "main"
+
+  host  = "https://${module.gke.cluster_endpoint}"
+  token = data.google_client_config.provider.access_token
+  cluster_ca_certificate = base64decode(
+    module.gke.cluster_ca_certificate,
+  )
+}
+
+provider "helm" {
+  alias = "main"
+  kubernetes {
+    host  = "https://${module.gke.cluster_endpoint}"
+    token = data.google_client_config.provider.access_token
+    cluster_ca_certificate = base64decode(
+      module.gke.cluster_ca_certificate
+    )
+  }
+}
+
+module "main-lacework-daemonset" {
+  source                      = "./modules/multi-lacework-daemonset"
+  cluster-name                = "test"
+  environment                 = var.environment
+  lacework_agent_access_token = lacework_agent_access_token.main.token
+
+  providers = {
+    kubernetes = kubernetes.main
+    lacework   = lacework
+    helm       = helm.main
+  }
 
   depends_on = [
     module.gke
   ]
 }
-# module "main-lacework-daemonset" {
-#   source                      = "../multi-lacework-daemonset"
-#   cluster-name                = "${var.environment}-cluster"
-#   environment                 = var.environment
-#   lacework_agent_access_token = lacework_agent_access_token.main.token
-
-#   providers = {
-#     kubernetes = kubernetes.main
-#     lacework   = lacework
-#     helm       = helm.main
-#   }
-# }

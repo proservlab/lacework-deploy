@@ -1,7 +1,18 @@
 data "google_client_config" "current" {}
 
+resource "google_container_cluster" "primary" {
+  name     = "${var.environment_name}-cluster"
+  location = var.region
+
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count       = 1
+}
+
 resource "google_container_cluster" "cluster" {
-  name     = var.environment_name
+  name     = "${var.environment_name}-cluster"
   location = var.region
 
   network    = google_compute_network.network.self_link
@@ -28,7 +39,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "nodes" {
-  name       = "nodes"
+  name       = "${var.environment_name}-nodes"
   location   = var.region
   cluster    = google_container_cluster.cluster.name
   node_count = 1
@@ -58,4 +69,16 @@ resource "google_container_node_pool" "nodes" {
       "https://www.googleapis.com/auth/cloud-platform",
     ]
   }
+}
+
+# Retrieve an access token as the Terraform runner
+data "google_client_config" "provider" {}
+
+data "google_container_cluster" "my_cluster" {
+  name     = "${var.environment_name}-cluster"
+  location = "us-central1"
+
+  depends_on = [
+    google_container_node_pool.nodes, google_container_cluster.cluster
+  ]
 }
