@@ -43,3 +43,25 @@ module "gcp_organization_audit_log" {
   custom_bucket_name           = "lacework-362318-bucket"
 }
 
+module "gke" {
+  source = "./modules/gke"
+  project_id = "kubernetes-cluster-331006"
+  environment_name = "test"
+  region = "us-central1"
+  nodes_max_size = 2
+  nodes_min_size = 1
+  nodes_desired_capacity = 2
+}
+
+
+# module "sql" {
+#   source = "./modules/sql"
+#   sql_enabled = false
+#   sql_master_username = ""
+#   sql_master_password = ""
+# }
+
+# module "redis" {
+#   source = "./modules/redis"
+#   redis_enabled = false
+# }
