@@ -40,5 +40,6 @@ module "gcp_organization_audit_log" {
   service_account_name         = "lacework"
   organization_id              = data.google_organization.org.org_id
   project_id                   = "lacework-362318"
+  custom_bucket_name           = "lacework-362318-bucket"
 }
 
