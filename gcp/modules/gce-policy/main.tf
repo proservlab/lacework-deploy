@@ -1,62 +1,61 @@
+resource "lacework_agent_access_token" "osconfig_deployment" {
+  provider    = lacework
+  name        = var.environment
+  description = "GCP OSConfig Deployment for ${var.environment}"
+}
 
-resource "google_os_config_os_policy_assignment" "primary" {
-  
+resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+
+  project     = var.project
+  location    = "us-central1"
+  name        = "lacework-install-policy"
+  description = "OS policy to install Lacework agent"
+
   instance_filter {
     all = true
-
-    # exclusion_labels {
-    #   labels = {
-    #     label-two = "value-two"
-    #   }
-    # }
-
-    # inclusion_labels {
-    #   labels = {
-    #     label-one = "value-one"
-    #   }
-    # }
-
-    # inventories {
-    #   os_short_name = "centos"
-    #   os_version    = "8.*"
-    # }
   }
 
-  location = "us-central1"
-  name     = "policy-assignment"
-
   os_policies {
-    id   = "policy"
-    mode = "VALIDATION"
+    id   = "lacework-install-policy"
+    mode = "ENFORCEMENT"
 
     resource_groups {
       resources {
-        id = "exec1"
-
-        exec {
-          validate {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/validate"
-            script           = "pwd"
-          }
-
-          enforce {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/enforce"
-            script           = "pwd"
+        id = "apt-repo"
+        repository {
+          apt {
+            uri          = "https://packages.lacework.net/latest/DEB/debian"
+            archive_type = "DEB"
+            distribution = "buster"
+            components   = ["main"]
+            gpg_key      = "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x360d55d76727556814078e25ff3e1d4dee0cc692"
           }
         }
       }
-    }
-
-    resource_groups {
       resources {
-        id = "file1"
+        id = "apt-install"
 
-        file {
-          path    = "$HOME/file"
-          state   = "PRESENT"
-          content = "${var.environment}-sample-content"
+        pkg {
+          desired_state = "INSTALLED"
+
+          apt {
+            name = "lacework"
+          }
+        }
+      }
+      resources {
+        id = "create-lacework-config"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "/$HOME/os-policy-tf.out"
+            script           = "if test -f /var/lib/lacework/config/config.json; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '{\"Tokens\": {\"Accesstoken\": \"${lacework_agent_access_token.osconfig_deployment.token}\"}, \"serverurl\": \"${local.lacework_serverurl}\" }' > /var/lib/lacework/config/config.json && exit 100"
+          }
         }
       }
     }
@@ -64,12 +63,8 @@ resource "google_os_config_os_policy_assignment" "primary" {
 
   rollout {
     disruption_budget {
-      percent = 1
+      fixed = 1
     }
-
     min_wait_duration = "3.5s"
   }
-
-  description = "${var.environment} os policy assignment"
-  project     = var.project
 }

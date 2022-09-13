@@ -132,10 +132,19 @@ module "main-lacework-daemonset" {
 module "gce" {
   source    = "./modules/gce"
   environment = var.environment
+
+  providers = {
+    lacework   = lacework
+    google       = google
+  }
 }
 
 module "gce-policy" {
   source    = "./modules/gce-policy"
   environment = var.environment
   project = data.google_project.project.project_id
+  providers = {
+    lacework   = lacework
+    google       = google
+  }
 }
