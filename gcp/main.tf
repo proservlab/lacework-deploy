@@ -47,7 +47,7 @@ module "gcp_organization_audit_log" {
 module "gke" {
   source = "./modules/gke"
   project_id = "kubernetes-cluster-331006"
-  environment_name = "test"
+  environment = "test"
   region = "us-central1"
   nodes_max_size = 2
   nodes_min_size = 1
@@ -70,15 +70,18 @@ module "gke" {
 # example of kubernetes configuration 
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-# module "proservlab-kubenetes" {
-#   source      = "../multi-kubernetes"
-#   aws_region  = var.region
-#   environment = var.environment
+module "kubenetes" {
+  source      = "./modules/multi-kubernetes"
+  environment = var.environment
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#   }
-# }
+  providers = {
+    kubernetes = kubernetes.main
+  }
+
+  depends_on = [
+    module.gke
+  ]
+}
 
 resource "lacework_agent_access_token" "main" {
   provider    = lacework
@@ -111,7 +114,7 @@ provider "helm" {
 
 module "main-lacework-daemonset" {
   source                      = "./modules/multi-lacework-daemonset"
-  cluster-name                = "test"
+  cluster-name                = "${var.environment}-cluster"
   environment                 = var.environment
   lacework_agent_access_token = lacework_agent_access_token.main.token
 
@@ -124,4 +127,14 @@ module "main-lacework-daemonset" {
   depends_on = [
     module.gke
   ]
+}
+
+module "gce" {
+  source    = "./modules/gce"
+  environment = var.environment
+}
+
+module "gce-policy" {
+  source    = "./modules/gce-policy"
+  environment = var.environment
 }

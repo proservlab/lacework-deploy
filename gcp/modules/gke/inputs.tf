@@ -1,7 +1,3 @@
-variable "environment_name" {
-  type = string
-}
-
 variable "cluster_version" {
   default = "1.22"
 }
@@ -12,6 +8,10 @@ variable "project_id" {
 
 variable "region" {
   default = "us-central1"
+}
+
+variable "environment" {
+  type    = string
 }
 
 variable "nodes_instance_type" {

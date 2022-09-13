@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcloud container clusters get-credentials test --region=us-central1
+gcloud container clusters get-credentials test-cluster --region=us-central1
