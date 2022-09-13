@@ -3,6 +3,13 @@ resource "google_service_account" "default" {
   display_name = "${var.environment}-gce-service-account"
 }
 
+data "template_file" "startup" {
+  template = file("${path.module}/startup.sh")
+  vars = {
+    foo = "bar"
+  }
+}
+
 resource "google_compute_instance" "default" {
   name         = "${var.environment}-compute"
   machine_type = "e2-micro"
@@ -31,9 +38,10 @@ resource "google_compute_instance" "default" {
 
   metadata = {
     foo = "bar"
+    enable-osconfig = "true"
   }
 
-  metadata_startup_script = "echo hi > /test.txt"
+  metadata_startup_script = data.template_file.startup.rendered
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.

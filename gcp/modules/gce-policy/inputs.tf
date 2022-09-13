@@ -5,3 +5,7 @@ variable "environment" {
 variable "project" {
     type    = string
 }
+
+variable "lacework_agent_access_token" {
+    type    = string
+}

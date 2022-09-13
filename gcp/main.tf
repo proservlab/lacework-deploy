@@ -49,9 +49,9 @@ module "gke" {
   project_id = "kubernetes-cluster-331006"
   environment = "test"
   region = "us-central1"
-  nodes_max_size = 2
+  nodes_max_size = 3
   nodes_min_size = 1
-  nodes_desired_capacity = 2
+  nodes_desired_capacity = 3
 }
 
 
@@ -134,7 +134,6 @@ module "gce" {
   environment = var.environment
 
   providers = {
-    lacework   = lacework
     google       = google
   }
 }
@@ -143,6 +142,8 @@ module "gce-policy" {
   source    = "./modules/gce-policy"
   environment = var.environment
   project = data.google_project.project.project_id
+  lacework_agent_access_token = lacework_agent_access_token.main.token
+
   providers = {
     lacework   = lacework
     google       = google
