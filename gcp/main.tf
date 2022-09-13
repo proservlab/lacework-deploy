@@ -46,7 +46,7 @@ module "gcp_organization_audit_log" {
 module "gke" {
   source                              = "./modules/gke"
   gcp_project_id                      = data.google_project.project.project_id
-  cluster_name                        = "${var.environment}-cluster"
+  cluster_name                        = "proservlab-cluster"
   gcp_location                        = "us-central1"
   daily_maintenance_window_start_time = "03:00"
   node_pools = [
@@ -63,8 +63,8 @@ module "gke" {
       node_config_preemptible    = false
     },
   ]
-  vpc_network_name              = "vpc-network"
-  vpc_subnetwork_name           = "vpc-subnetwork"
+  vpc_network_name              = "${var.environment}-vpc-network"
+  vpc_subnetwork_name           = "${var.environment}-vpc-subnetwork"
   vpc_subnetwork_cidr_range     = "10.0.16.0/20"
   cluster_secondary_range_name  = "pods"
   cluster_secondary_range_cidr  = "10.16.0.0/12"
