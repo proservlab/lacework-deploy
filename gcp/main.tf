@@ -44,18 +44,8 @@ module "gcp_organization_audit_log" {
   custom_bucket_name           = "lacework-362318-bucket"
 }
 
-# module "gke" {
-#   source = "./modules/gke"
-#   project_id = "kubernetes-cluster-331006"
-#   environment = "test"
-#   region = "us-central1"
-#   nodes_max_size = 2
-#   nodes_min_size = 1
-#   nodes_desired_capacity = 2
-# }
-
 module "gke" {
-  source = "./modules/gke-2"
+  source = "./modules/gke"
   gcp_project_id = data.google_project.project.project_id
   cluster_name = "${var.environment}-cluster"
   gcp_location = "us-central1"
