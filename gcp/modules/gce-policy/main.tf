@@ -12,9 +12,15 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   instance_filter {
     all = false
 
-    inclusion_labels {
+    # inclusion_labels {
+    #   labels = {
+    #     enable-osconfig	= true
+    #   }
+    # }
+
+    exclusion_labels {
       labels = {
-        enable-osconfig	= true
+        goog-gke-node	= ""
       }
     }
   }

@@ -37,12 +37,11 @@ resource "google_compute_instance" "default" {
     }
 
     metadata = {
-        foo = "bar"
         enable-osconfig = "true"
     }
 
     labels = {
-        enable-osconfig = "true"
+        environment = var.environment
     }
 
     metadata_startup_script = data.template_file.startup.rendered
