@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-      version = ">= 2.12.1"
-    }
-  }
-}
-
 # manage the app deployment to this cluster in separate project - things that could be applied here are:
 # - token hardening
 # - default namespaces

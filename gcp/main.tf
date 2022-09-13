@@ -44,14 +44,54 @@ module "gcp_organization_audit_log" {
   custom_bucket_name           = "lacework-362318-bucket"
 }
 
+# module "gke" {
+#   source = "./modules/gke"
+#   project_id = "kubernetes-cluster-331006"
+#   environment = "test"
+#   region = "us-central1"
+#   nodes_max_size = 2
+#   nodes_min_size = 1
+#   nodes_desired_capacity = 2
+# }
+
 module "gke" {
-  source = "./modules/gke"
-  project_id = "kubernetes-cluster-331006"
-  environment = "test"
-  region = "us-central1"
-  nodes_max_size = 2
-  nodes_min_size = 1
-  nodes_desired_capacity = 2
+  source = "./modules/gke-2"
+  gcp_project_id = data.google_project.project.project_id
+  cluster_name = "my-cluster"
+  gcp_location = "us-central1"
+  daily_maintenance_window_start_time = "03:00"
+  node_pools = [
+    {
+      name                       = "default"
+      initial_node_count         = 1
+      autoscaling_min_node_count = 2
+      autoscaling_max_node_count = 3
+      management_auto_upgrade    = true
+      management_auto_repair     = true
+      node_config_machine_type   = "n1-standard-1"
+      node_config_disk_type      = "pd-standard"
+      node_config_disk_size_gb   = 100
+      node_config_preemptible    = false
+    },
+  ]
+  vpc_network_name = "vpc-network"
+  vpc_subnetwork_name = "vpc-subnetwork"
+  vpc_subnetwork_cidr_range = "10.0.16.0/20"
+  cluster_secondary_range_name = "pods"
+  cluster_secondary_range_cidr = "10.16.0.0/12"
+  services_secondary_range_name = "services"
+  services_secondary_range_cidr = "10.1.0.0/20"
+  master_ipv4_cidr_block = "172.16.0.0/28"
+  access_private_images = "false"
+  http_load_balancing_disabled = "false"
+  master_authorized_networks_cidr_blocks = [
+    {
+      cidr_block = "0.0.0.0/0"
+
+      display_name = "default"
+    },
+  ]
+  identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
 }
 
 
@@ -70,18 +110,18 @@ module "gke" {
 # example of kubernetes configuration 
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-module "kubenetes" {
-  source      = "./modules/multi-kubernetes"
-  environment = var.environment
+# module "kubenetes" {
+#   source      = "./modules/multi-kubernetes"
+#   environment = var.environment
 
-  providers = {
-    kubernetes = kubernetes.main
-  }
+#   providers = {
+#     kubernetes = kubernetes.main
+#   }
 
-  depends_on = [
-    module.gke
-  ]
-}
+#   depends_on = [
+#     module.gke
+#   ]
+# }
 
 resource "lacework_agent_access_token" "main" {
   provider    = lacework
@@ -129,23 +169,23 @@ module "main-lacework-daemonset" {
   ]
 }
 
-module "gce" {
-  source    = "./modules/gce"
-  environment = var.environment
+# module "gce" {
+#   source    = "./modules/gce"
+#   environment = var.environment
 
-  providers = {
-    google       = google
-  }
-}
+#   providers = {
+#     google       = google
+#   }
+# }
 
-module "gce-policy" {
-  source    = "./modules/gce-policy"
-  environment = var.environment
-  project = data.google_project.project.project_id
-  lacework_agent_access_token = lacework_agent_access_token.main.token
+# module "gce-policy" {
+#   source    = "./modules/gce-policy"
+#   environment = var.environment
+#   project = data.google_project.project.project_id
+#   lacework_agent_access_token = lacework_agent_access_token.main.token
 
-  providers = {
-    lacework   = lacework
-    google       = google
-  }
-}
+#   providers = {
+#     lacework   = lacework
+#     google       = google
+#   }
+# }
