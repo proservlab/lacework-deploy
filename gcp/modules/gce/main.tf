@@ -1,51 +1,55 @@
 resource "google_service_account" "default" {
-  account_id   = "${var.environment}-gce-service-account"
-  display_name = "${var.environment}-gce-service-account"
+    account_id   = "${var.environment}-gce-service-account"
+    display_name = "${var.environment}-gce-service-account"
 }
 
 data "template_file" "startup" {
-  template = file("${path.module}/startup.sh")
-  vars = {
-    foo = "bar"
-  }
+    template = file("${path.module}/startup.sh")
+    vars = {
+        foo = "bar"
+    }
 }
 
 resource "google_compute_instance" "default" {
-  name         = "${var.environment}-compute"
-  machine_type = "e2-micro"
-  zone         = "us-central1-a"
+    name         = "${var.environment}-compute"
+    machine_type = "e2-micro"
+    zone         = "us-central1-a"
 
-  tags = ["foo", "bar"]
+    tags = ["foo", "bar"]
 
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
+    boot_disk {
+        initialize_params {
+            image = "debian-cloud/debian-11"
+        }
     }
-  }
 
-  // Local SSD disk
-#   scratch_disk {
-#     interface = "SCSI"
-#   }
+    // Local SSD disk
+    #   scratch_disk {
+    #     interface = "SCSI"
+    #   }
 
-  network_interface {
-    network = "default"
+    network_interface {
+        network = "default"
 
-    access_config {
-      // Ephemeral public IP
+        access_config {
+        // Ephemeral public IP
+        }
     }
-  }
 
-  metadata = {
-    foo = "bar"
-    enable-osconfig = "true"
-  }
+    metadata = {
+        foo = "bar"
+        enable-osconfig = "true"
+    }
 
-  metadata_startup_script = data.template_file.startup.rendered
+    labels = {
+        enable-osconfig = "true"
+    }
 
-  service_account {
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    email  = google_service_account.default.email
-    scopes = ["cloud-platform"]
-  }
+    metadata_startup_script = data.template_file.startup.rendered
+
+    service_account {
+        # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+        email  = google_service_account.default.email
+        scopes = ["cloud-platform"]
+    }
 }
