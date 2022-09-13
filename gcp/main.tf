@@ -154,7 +154,6 @@ provider "helm" {
 
 module "main-lacework-daemonset" {
   source                      = "./modules/multi-lacework-daemonset"
-  cluster-name                = "${var.environment}-cluster"
   environment                 = var.environment
   lacework_agent_access_token = lacework_agent_access_token.main.token
 
