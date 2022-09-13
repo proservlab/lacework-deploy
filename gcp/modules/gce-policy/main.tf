@@ -10,7 +10,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   description = "OS policy to install Lacework agent"
 
   instance_filter {
-    all = true
+    all = false
 
     inclusion_labels {
       labels = {
