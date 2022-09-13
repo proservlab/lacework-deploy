@@ -57,7 +57,7 @@ module "gcp_organization_audit_log" {
 module "gke" {
   source = "./modules/gke-2"
   gcp_project_id = data.google_project.project.project_id
-  cluster_name = "my-cluster"
+  cluster_name = "${var.environment}-cluster"
   gcp_location = "us-central1"
   daily_maintenance_window_start_time = "03:00"
   node_pools = [
