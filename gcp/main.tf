@@ -49,9 +49,9 @@ module "gke" {
   project_id = "kubernetes-cluster-331006"
   environment = "test"
   region = "us-central1"
-  nodes_max_size = 3
+  nodes_max_size = 2
   nodes_min_size = 1
-  nodes_desired_capacity = 3
+  nodes_desired_capacity = 2
 }
 
 

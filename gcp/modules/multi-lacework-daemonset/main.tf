@@ -28,12 +28,16 @@ terraform {
 
 # module "lacework_k8s_datacollector" {
 #   source    = "lacework/agent/kubernetes"
-#   version   = "~> 2.1.0"
+#   version   = "~> 2.0"
 #   namespace = "lacework"
 #   lacework_access_token = var.lacework_agent_access_token
 
 #   # Add the lacework_agent_tag argument to retrieve the cluster name in the Kubernetes Dossier
-#   lacework_agent_tags = {KubernetesCluster: var.cluster-name}
+#   lacework_agent_tags = {KubernetesCluster: "${var.environment}-cluster"}
+
+#   depends_on = [
+#     kubernetes_namespace.namespace
+#   ]
 # }
 
 resource "helm_release" "lacework" {

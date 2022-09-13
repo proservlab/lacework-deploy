@@ -1,5 +1,5 @@
 variable "cluster_version" {
-  default = "1.22"
+  default = "1.23"
 }
 
 variable "project_id" {
