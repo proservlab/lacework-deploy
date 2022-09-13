@@ -11,6 +11,12 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   instance_filter {
     all = true
+
+    inclusion_labels {
+      labels = {
+        enable-osconfig	= true
+      }
+    }
   }
 
   os_policies {

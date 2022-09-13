@@ -110,18 +110,18 @@ module "gke" {
 # example of kubernetes configuration 
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-# module "kubenetes" {
-#   source      = "./modules/multi-kubernetes"
-#   environment = var.environment
+module "kubenetes" {
+  source      = "./modules/multi-kubernetes"
+  environment = var.environment
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+  }
 
-#   depends_on = [
-#     module.gke
-#   ]
-# }
+  depends_on = [
+    module.gke
+  ]
+}
 
 resource "lacework_agent_access_token" "main" {
   provider    = lacework
@@ -168,23 +168,23 @@ module "main-lacework-daemonset" {
   ]
 }
 
-# module "gce" {
-#   source    = "./modules/gce"
-#   environment = var.environment
+module "gce" {
+  source    = "./modules/gce"
+  environment = var.environment
 
-#   providers = {
-#     google       = google
-#   }
-# }
+  providers = {
+    google       = google
+  }
+}
 
-# module "gce-policy" {
-#   source    = "./modules/gce-policy"
-#   environment = var.environment
-#   project = data.google_project.project.project_id
-#   lacework_agent_access_token = lacework_agent_access_token.main.token
+module "gce-policy" {
+  source    = "./modules/gce-policy"
+  environment = var.environment
+  project = data.google_project.project.project_id
+  lacework_agent_access_token = lacework_agent_access_token.main.token
 
-#   providers = {
-#     lacework   = lacework
-#     google       = google
-#   }
-# }
+  providers = {
+    lacework   = lacework
+    google       = google
+  }
+}
