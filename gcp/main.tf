@@ -137,4 +137,5 @@ module "gce" {
 module "gce-policy" {
   source    = "./modules/gce-policy"
   environment = var.environment
+  project = data.google_project.project.project_id
 }

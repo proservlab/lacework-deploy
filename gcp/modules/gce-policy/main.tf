@@ -1,4 +1,6 @@
+
 resource "google_os_config_os_policy_assignment" "primary" {
+  
   instance_filter {
     all = true
 
@@ -69,5 +71,5 @@ resource "google_os_config_os_policy_assignment" "primary" {
   }
 
   description = "${var.environment} os policy assignment"
-  project     = "${var.environment}-project"
+  project     = var.project
 }
