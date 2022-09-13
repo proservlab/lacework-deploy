@@ -1,5 +1,4 @@
 
-
 provider "google" {
   project = "proservlab-root"
   # project     = var.gcp_project
@@ -45,10 +44,10 @@ module "gcp_organization_audit_log" {
 }
 
 module "gke" {
-  source = "./modules/gke"
-  gcp_project_id = data.google_project.project.project_id
-  cluster_name = "${var.environment}-cluster"
-  gcp_location = "us-central1"
+  source                              = "./modules/gke"
+  gcp_project_id                      = data.google_project.project.project_id
+  cluster_name                        = "${var.environment}-cluster"
+  gcp_location                        = "us-central1"
   daily_maintenance_window_start_time = "03:00"
   node_pools = [
     {
@@ -64,16 +63,16 @@ module "gke" {
       node_config_preemptible    = false
     },
   ]
-  vpc_network_name = "vpc-network"
-  vpc_subnetwork_name = "vpc-subnetwork"
-  vpc_subnetwork_cidr_range = "10.0.16.0/20"
-  cluster_secondary_range_name = "pods"
-  cluster_secondary_range_cidr = "10.16.0.0/12"
+  vpc_network_name              = "vpc-network"
+  vpc_subnetwork_name           = "vpc-subnetwork"
+  vpc_subnetwork_cidr_range     = "10.0.16.0/20"
+  cluster_secondary_range_name  = "pods"
+  cluster_secondary_range_cidr  = "10.16.0.0/12"
   services_secondary_range_name = "services"
   services_secondary_range_cidr = "10.1.0.0/20"
-  master_ipv4_cidr_block = "172.16.0.0/28"
-  access_private_images = "false"
-  http_load_balancing_disabled = "false"
+  master_ipv4_cidr_block        = "172.16.0.0/28"
+  access_private_images         = "false"
+  http_load_balancing_disabled  = "false"
   master_authorized_networks_cidr_blocks = [
     {
       cidr_block = "0.0.0.0/0"
@@ -159,22 +158,22 @@ module "main-lacework-daemonset" {
 }
 
 module "gce" {
-  source    = "./modules/gce"
+  source      = "./modules/gce"
   environment = var.environment
 
   providers = {
-    google       = google
+    google = google
   }
 }
 
 module "gce-policy" {
-  source    = "./modules/gce-policy"
-  environment = var.environment
-  project = data.google_project.project.project_id
+  source                      = "./modules/gce-policy"
+  environment                 = var.environment
+  project                     = data.google_project.project.project_id
   lacework_agent_access_token = lacework_agent_access_token.main.token
 
   providers = {
-    lacework   = lacework
-    google       = google
+    lacework = lacework
+    google   = google
   }
 }
