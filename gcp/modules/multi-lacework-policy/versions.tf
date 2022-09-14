@@ -6,7 +6,3 @@ terraform {
     }
   }
 }
-
-provider "lacework" {
-  profile = "proservlab"
-}

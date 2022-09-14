@@ -177,3 +177,10 @@ module "gce-policy" {
     google   = google
   }
 }
+
+module "lacework-policy" {
+  source = "./modules/multi-lacework-policy"
+  providers = {
+    lacework = lacework
+  }
+}
