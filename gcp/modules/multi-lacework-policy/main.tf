@@ -35,6 +35,7 @@ resource "lacework_policy" "example1" {
   evaluation  = "Hourly"
   tags        = [
     "domain:GCP",
+    "security:compliance"
   ]
   enabled     = true
 
