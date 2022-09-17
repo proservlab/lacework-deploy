@@ -19,7 +19,7 @@ resource "helm_release" "lacework" {
     repository = "https://lacework.github.io/helm-charts"
     chart      = "lacework-agent"
 
-    create_namespace =  true
+    create_namespace =  false
     namespace =  "lacework"
 
     set {

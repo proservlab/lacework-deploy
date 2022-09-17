@@ -1,32 +1,11 @@
-# example audit and config
-module "lacework-audit-config" {
-  count = var.enable_lacework_audit_config == true ? 1 : 0
-  source      = "../lacework-audit-config"
-  environment = var.environment
-}
-
+#########################
+# AWS 
+#########################
 module "ec2" {
   count = var.enable_ec2 == true ? 1 : 0
   source       = "../ec2"
   environment  = var.environment
   instance-name = "${var.environment}-instance"
-}
-
-resource "lacework_agent_access_token" "main" {
-  count = var.lacework_agent_access_token == "false" ? 1 : 0
-  name        = "${var.environment}-token"
-  description = "deployment for ${var.environment}"
-}
-
-locals {
-  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
-}
-
-module "lacework-ssm-deployment" {
-  count = var.enable_lacework_ssm_deployment == true ? 1 : 0
-  source       = "../lacework-ssm-deployment"
-  environment  = var.environment
-  lacework_agent_token = local.lacework_agent_access_token
 }
 
 module "eks" {
@@ -36,6 +15,11 @@ module "eks" {
   cluster_name = var.cluster_name
   region       = var.region
 }
+
+
+#########################
+# Kubernetes
+#########################
 
 # resource "local_file" "kubeconfig" {
 #   count = var.enable_eks == true ? 1 : 0
@@ -78,12 +62,50 @@ module "kubenetes" {
   environment = var.environment
 }
 
+#########################
+# Lacework
+#########################
+
+resource "kubernetes_namespace" "lacework" {
+  count = var.enable_eks && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ? 1 : 0
+  metadata {
+    name = "lacework"
+  }
+}
+
+module "lacework-audit-config" {
+  count = var.enable_lacework_audit_config == true ? 1 : 0
+  source      = "../lacework-audit-config"
+  environment = var.environment
+}
+
+resource "lacework_agent_access_token" "main" {
+  count = var.lacework_agent_access_token == "false" ? 1 : 0
+  name        = "${var.environment}-token"
+  description = "deployment for ${var.environment}"
+}
+
+module "lacework-ssm-deployment" {
+  count = var.enable_lacework_ssm_deployment == true ? 1 : 0
+  source       = "../lacework-ssm-deployment"
+  environment  = var.environment
+  lacework_agent_token = local.lacework_agent_access_token
+}
+
+locals {
+  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
+}
+
 module "lacework-daemonset" {
   count = var.enable_eks == true && var.enable_lacework_daemonset == true ? 1 : 0
   source                      = "../lacework-daemonset"
   cluster-name                = var.cluster_name
   environment                 = var.environment
   lacework_agent_access_token = local.lacework_agent_access_token
+
+  depends_on = [
+    kubernetes_namespace.lacework
+  ]
 }
 
 module "lacework-alerts" {
@@ -105,11 +127,27 @@ module "lacework-admission-controller" {
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
   proxy_token = var.proxy_token
+
+  depends_on = [
+    kubernetes_namespace.lacework
+  ]
 }
 
 module "lacework-agentless" {
   count = var.enable_lacework_agentless == true ? 1 : 0
   source      = "../lacework-agentless"
   environment = var.environment
+}
+
+
+#########################
+# Attack
+#########################
+
+module "attack-kubernetes-voteapp" {
+  count = var.enable_attack_kubernetes_voteapp == true ? 1 : 0
+  source      = "../attack-kubernetes-voteapp"
+  environment = var.environment
+  region      = var.region
 }
 

@@ -108,3 +108,14 @@ variable "enable_lacework_admissions_controller" {
   type = bool
   default = false
 }
+
+###########################
+# Attack
+###########################
+
+variable "enable_attack_kubernetes_voteapp" {
+  description = "enable disable of deployment of vulnerable voteapp to kubernetes"
+  type = bool
+  default = false
+}
+

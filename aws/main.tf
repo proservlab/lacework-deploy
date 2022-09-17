@@ -28,6 +28,9 @@ module "environment-proservlab" {
   enable_lacework_ssm_deployment        = true
   enable_lacework_admissions_controller = true
 
+  # attack
+  enable_attack_kubernetes_voteapp = false
+
   providers = {
     aws        = aws.main
     lacework   = lacework.main
