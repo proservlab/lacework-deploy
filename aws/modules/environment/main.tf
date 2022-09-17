@@ -34,6 +34,7 @@ module "eks" {
   source       = "../eks"
   environment  = var.environment
   cluster_name = var.cluster_name
+  region       = var.region
 }
 
 # resource "local_file" "kubeconfig" {

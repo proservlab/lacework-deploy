@@ -18,14 +18,14 @@ module "environment-proservlab" {
   proxy_token = var.proxy_token
 
   # lacework
-  lacework_agent_access_token    = var.lacework_agent_access_token
-  lacework_account_name          = var.lacework_account_name
-  enable_lacework_alerts         = false
-  enable_lacework_audit_config   = true
-  enable_lacework_custom_policy  = false
-  enable_lacework_daemonset      = true
-  enable_lacework_agentless      = false
-  enable_lacework_ssm_deployment = true
+  lacework_agent_access_token           = var.lacework_agent_access_token
+  lacework_account_name                 = var.lacework_account_name
+  enable_lacework_alerts                = false
+  enable_lacework_audit_config          = true
+  enable_lacework_custom_policy         = false
+  enable_lacework_daemonset             = true
+  enable_lacework_agentless             = false
+  enable_lacework_ssm_deployment        = true
   enable_lacework_admissions_controller = true
 
   providers = {
