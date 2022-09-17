@@ -11,12 +11,19 @@
 
 set -e
 
+# get the base path for this script
+BASEPATH=$(dirname "$0")            # relative
+BASEPATH=$(cd "$BASEPATH" && pwd)    # absolutized and normalized
+if [[ -z "$BASEPATH" ]] ; then
+  exit 1
+fi
+
 source_path=${1:-.}
 
 # Hash all source files of the Docker image
 # Exclude Python cache files, dot files
 file_hashes="$(
-    cd "$source_path" \
+    cd "${BASEPATH}/$source_path" \
     && find . -type f -not -name '*.pyc' -not -path './.**' \
     | sort \
     | xargs md5sum
