@@ -1,6 +1,8 @@
 #!/bin/bash
 
 SCRIPTNAME=$(basename "$0")
+ACCOUNT=qa12ro
+DOMAIN=qa12.qa12.corp
 
 help () {
 cat << EOF
@@ -25,7 +27,7 @@ else
 fi
 
 # generate a temporary access token using lacework cli
-ACCESS_TOKEN=$(lacework --profile=proservlab access-token)
+ACCESS_TOKEN=$(lacework --profile=${ACCOUNT} access-token)
 
 # create temp file
 TMP_FILE=$(mktemp -q /tmp/query.XXXXXX)
@@ -42,8 +44,9 @@ curl -s -X POST \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer ${ACCESS_TOKEN}" \
     -d "${QUERY}" \
-    "https://proservlab.lacework.net/api/v2/Vulnerabilities/Hosts/search" \
+    "https://${DOMAIN}.lacework.net/api/v2/Vulnerabilities/Hosts/search" \
     -o "${TMP_FILE}"
+cat ${TMP_FILE}
 if [[ -f "${TMP_FILE}" ]]; then
     jq . "${TMP_FILE}"
 else

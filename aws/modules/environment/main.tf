@@ -1,126 +1,114 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.12.1"
-    }
-    lacework = {
-      source  = "lacework/lacework"
-      version = "~> 0.22.1"
-    }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.6.0"
-    }
-  }
-}
-
-
 # example audit and config
 module "lacework-audit-config" {
-  source      = "../multi-lacework-audit-config"
+  count = var.enable_lacework_audit_config == true ? 1 : 0
+  source      = "../lacework-audit-config"
   environment = var.environment
-  providers = {
-    aws      = aws
-    lacework = lacework
-  }
 }
 
 module "ec2" {
-  source       = "../multi-ec2"
-  aws_region   = var.region
+  count = var.enable_ec2 == true ? 1 : 0
+  source       = "../ec2"
   environment  = var.environment
   instance-name = "${var.environment}-instance"
-  providers = {
-    aws = aws
-  }
 }
 
 resource "lacework_agent_access_token" "main" {
-  provider    = lacework
-  name        = var.environment
+  count = var.lacework_agent_access_token == "false" ? 1 : 0
+  name        = "${var.environment}-token"
   description = "deployment for ${var.environment}"
 }
 
-module "lacework-ssm-agent" {
-  source       = "../multi-lacework-ssm-agent"
-  aws_region   = var.region
+locals {
+  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
+}
+
+module "lacework-ssm-deployment" {
+  count = var.enable_lacework_ssm_deployment == true ? 1 : 0
+  source       = "../lacework-ssm-deployment"
   environment  = var.environment
-  lacework_agent_token = lacework_agent_access_token.main.token
-  providers = {
-    aws      = aws
-    lacework = lacework
-  }
+  lacework_agent_token = local.lacework_agent_access_token
 }
 
 module "eks" {
-  source       = "../multi-eks"
-  aws_region   = var.region
+  count = var.enable_eks == true ? 1 : 0
+  source       = "../eks"
   environment  = var.environment
-  cluster-name = "${var.environment}-cluster"
-  providers = {
-    aws = aws
-  }
+  cluster_name = var.cluster_name
 }
 
-resource "local_file" "kubeconfig" {
-  content  = module.eks.kubeconfig
-  filename = pathexpand("~/.kube/${module.eks.cluster_name}")
-}
+# resource "local_file" "kubeconfig" {
+#   count = var.enable_eks == true ? 1 : 0
+#   content  = module.eks.kubeconfig
+#   filename = pathexpand("~/.kube/${module.eks.cluster_name}")
+# }
 
-provider "kubernetes" {
-  alias                  = "main"
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
+# provider "kubernetes" {
+#   alias                  = "main"
+#   host                   = module.eks.cluster_endpoint
+#   cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
 
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-    command     = "aws"
-  }
-}
+#   exec {
+#     api_version = "client.authentication.k8s.io/v1beta1"
+#     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
+#     command     = "aws"
+#   }
+# }
 
-provider "helm" {
-  alias = "main"
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
+# provider "helm" {
+#   alias = "main"
+#   kubernetes {
+#     host                   = module.eks.cluster_endpoint
+#     cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
 
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-      command     = "aws"
-    }
-  }
-}
+#     exec {
+#       api_version = "client.authentication.k8s.io/v1beta1"
+#       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
+#       command     = "aws"
+#     }
+#   }
+# }
 
 # example of kubernetes configuration 
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-module "proservlab-kubenetes" {
-  source      = "../multi-kubernetes"
-  aws_region  = var.region
+module "kubenetes" {
+  count = var.enable_eks == true && var.enable_eks_app == true ? 1 : 0
+  source      = "../kubernetes"
   environment = var.environment
-
-  providers = {
-    kubernetes = kubernetes.main
-  }
 }
 
-module "main-lacework-daemonset" {
-  source                      = "../multi-lacework-daemonset"
-  cluster-name                = "${var.environment}-cluster"
+module "lacework-daemonset" {
+  count = var.enable_eks == true && var.enable_lacework_daemonset == true ? 1 : 0
+  source                      = "../lacework-daemonset"
+  cluster-name                = var.cluster_name
   environment                 = var.environment
-  lacework_agent_access_token = lacework_agent_access_token.main.token
-
-  providers = {
-    kubernetes = kubernetes.main
-    lacework   = lacework
-    helm       = helm.main
-  }
+  lacework_agent_access_token = local.lacework_agent_access_token
 }
+
+module "lacework-alerts" {
+  count = var.enable_lacework_alerts == true ? 1 : 0
+  source       = "../lacework-alerts"
+  environment  = var.environment
+  slack_token = var.slack_token
+}
+
+module "lacework-custom-policy" {
+  count = var.enable_lacework_custom_policy == true ? 1 : 0
+  source       = "../lacework-custom-policy"
+  environment  = var.environment
+}
+
+module "lacework-admission-controller" {
+  count = var.enable_lacework_admissions_controller == true ? 1 : 0
+  source       = "../lacework-admission-controller"
+  environment  = var.environment
+  lacework_account_name = var.lacework_account_name
+  proxy_token = var.proxy_token
+}
+
+module "lacework-agentless" {
+  count = var.enable_lacework_agentless == true ? 1 : 0
+  source      = "../lacework-agentless"
+  environment = var.environment
+}
+

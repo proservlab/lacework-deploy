@@ -1,3 +1,6 @@
+provider "lacework" {
+  profile = "snifftest-rbac"
+}
 resource "lacework_resource_group_aws" "prod_aws_account" {
   name     = "Production AWS Resources"
   accounts = ["535849429554"]

@@ -1,5 +1,5 @@
 provider "lacework" {
-    profile="proservlab"
+    profile="snifftest-rbac"
 }
 
 provider "aws" {
@@ -9,7 +9,7 @@ provider "aws" {
 
 module "lacework_ecr" {
   source  = "lacework/ecr/aws"
-  version = "~> 0.6.0"
+  version = "~> 0.7.0"
 
 #   lacework_integration_name = "custom integration name"
   non_os_package_support    = true

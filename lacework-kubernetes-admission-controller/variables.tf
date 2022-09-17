@@ -27,3 +27,7 @@ variable "cluster_name" {
 variable "proxy_token" {
   description = "Proxy scanner token"
 }
+
+variable "lacework_account_name" {
+  description = "Lacework account name"
+}

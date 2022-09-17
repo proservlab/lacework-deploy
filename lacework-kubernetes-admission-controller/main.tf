@@ -1,5 +1,5 @@
 provider "lacework" {
-    profile="proservlab"
+    profile="snifftest-rbac"
 }
 
 provider "aws" {
@@ -16,6 +16,7 @@ data "template_file" "values" {
   template = "${file("${path.module}/values.yaml.tpl")}"
   vars = {
     proxy_token = "${var.proxy_token}"
+    lacework_account_name = "${var.lacework_account_name}"
   }
 }
 

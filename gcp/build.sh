@@ -13,7 +13,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --env=ENV --action=ACTION [--target=TARGET]
+usage: $SCRIPTNAME [-h] --workspace=WORK --action=ACTION [--target=TARGET]
 EOH
 		exit 1
 }
@@ -33,8 +33,8 @@ for i in "$@"; do
         ACTION="${i#*=}"
         shift # past argument=value
         ;;
-    -e=*|--env=*)
-        ENV="${i#*=}"
+    -w=*|--workspace=*)
+        WORK="${i#*=}"
         shift # past argument=value
         ;;
     -t=*|--target=*)
@@ -48,8 +48,8 @@ for i in "$@"; do
 done
 
 # check for required
-if [ -z ${ENV} ]; then
-		errmsg "Required option not set: --env"
+if [ -z ${WORK} ]; then
+		errmsg "Required option not set: --workspace"
 		help
 fi
 
@@ -74,7 +74,13 @@ else
   VARS=""
 fi
 
-echo "ENV           = ${ENV}"
+# look for work space variables
+if [ -f "env_vars/variables-${WORK}.tfvars" ]; then
+  VARS="${VARS} -var-file=env_vars/variables-${WORK}.tfvars"
+else
+  VARS="${VARS}"
+fi
+
 echo "ACTION        = ${ACTION}"
 echo "TARGET        = ${TARGET}"
 echo "VARS          = ${VARS}"
@@ -83,25 +89,25 @@ echo "VARS          = ${VARS}"
 terraform fmt
 
 # set workspace
-terraform workspace select ${ENV} || terraform workspace new ${ENV}
+terraform workspace select ${WORK} || terraform workspace new ${WORK}
 
 # update modules as required
 terraform get -update=true
 
 # ensure backend is initialized
-terraform init -backend-config=env_vars/backend-${ENV}.tfvars
+terraform init -backend-config=env_vars/init.tfvars
 
 # check for destroy
 if [ "destroy" = "${ACTION}" ]; then 
-terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${VARS} ${TARGET_ARG}
+terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS} ${TARGET_ARG}
 elif [ "apply" = "${ACTION}" ]; then
 # else plan, show and apply
-terraform plan -var-file=env_vars/${ENV}.tfvars ${VARS} -out ${ENV}.tfplan ${TARGET_ARG}
-terraform show -no-color ${ENV}.tfplan
-terraform ${ACTION} ${ENV}.tfplan
-rm -f ${ENV}.tfplan
+terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+terraform show -no-color build.tfplan
+terraform ${ACTION} build.tfplan
+rm -f build.tfplan
 elif [ "refresh" = "${ACTION}" ]; then
-terraform ${ACTION} -var-file=env_vars/${ENV}.tfvars ${VARS}
+terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}
 else
 errmsg "Unknown action."
 help

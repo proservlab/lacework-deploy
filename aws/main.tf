@@ -1,35 +1,38 @@
-terraform {
-  backend "s3" {
-    bucket         = var.terraform_backend_bucket
-    key            = var.terraform_backend_key
-    encrypt        = var.terraform_backend_encrypt
-    dynamodb_table = var.terraform_backend_dynamodb_table
-    region         = var.terraform_backend_region
-    profile        = var.terraform_backend_profile
-  }
-  required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.12.1"
-    }
-    lacework = {
-      source  = "lacework/lacework"
-      version = "~> 0.22.1"
-    }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-
 module "environment-proservlab" {
   source      = "./modules/environment"
   environment = "proservlab"
   region      = var.region
+
+  # slack
+  slack_token = var.slack_token
+
+  # eks cluster
+  cluster_name = var.cluster_name
+
+  # aws core environment
+  enable_ec2     = true
+  enable_eks     = true
+  enable_eks_app = true
+
+  # kubernetes admission controller
+  proxy_token = var.proxy_token
+
+  # lacework
+  lacework_agent_access_token    = var.lacework_agent_access_token
+  lacework_account_name          = var.lacework_account_name
+  enable_lacework_alerts         = false
+  enable_lacework_audit_config   = true
+  enable_lacework_custom_policy  = false
+  enable_lacework_daemonset      = true
+  enable_lacework_agentless      = false
+  enable_lacework_ssm_deployment = true
+  enable_lacework_admissions_controller = true
+
   providers = {
-    aws      = aws.proservlab
-    lacework = lacework.proservlab
+    aws        = aws.main
+    lacework   = lacework.main
+    kubernetes = kubernetes.main
+    helm       = helm.main
   }
 }
 

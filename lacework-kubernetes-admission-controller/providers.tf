@@ -6,7 +6,7 @@ terraform {
     }
     lacework = {
       source  = "lacework/lacework"
-      version = "~> 0.22.1"
+      version = "~> 0.25"
     }
     aws = {
       source  = "hashicorp/aws"

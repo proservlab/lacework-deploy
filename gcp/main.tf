@@ -99,7 +99,7 @@ module "gke" {
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
 module "kubenetes" {
-  source      = "./modules/multi-kubernetes"
+  source      = "./modules/kubernetes"
   environment = var.environment
 
   providers = {
@@ -141,7 +141,7 @@ provider "helm" {
 }
 
 module "main-lacework-daemonset" {
-  source                      = "./modules/multi-lacework-daemonset"
+  source                      = "./modules/lacework-daemonset"
   environment                 = var.environment
   lacework_agent_access_token = lacework_agent_access_token.main.token
 
@@ -178,7 +178,7 @@ module "gce-policy" {
 }
 
 module "lacework-policy" {
-  source = "./modules/multi-lacework-policy"
+  source = "./modules/lacework-policy"
   providers = {
     lacework = lacework
   }

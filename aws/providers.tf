@@ -1,87 +1,53 @@
 terraform {
-  required_version = ">= 0.14"
-}
+  required_version = ">= 0.15.0"
+  backend "s3" {
+    bucket         = var.terraform_backend_bucket
+    key            = var.terraform_backend_key
+    encrypt        = var.terraform_backend_encrypt
+    dynamodb_table = var.terraform_backend_dynamodb_table
+    region         = var.terraform_backend_region
+    profile        = var.terraform_backend_profile
+  }
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.12.1"
+    }
+    lacework = {
+      source  = "lacework/lacework"
+      version = "~> 0.25"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
 
-provider "aws" {
-  region  = var.region
-  profile = "proservlab"
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.6.0"
+    }
+  }
 }
 
 # each profile definition here
 provider "aws" {
-  alias   = "proservlab"
+  alias   = "main"
   region  = var.region
   profile = "proservlab"
 }
 
-provider "aws" {
-  alias   = "dev-prod"
-  region  = var.region
-  profile = "dev-prod"
-}
-
-provider "aws" {
-  alias   = "dev-stage"
-  region  = var.region
-  profile = "dev-stage"
-}
-
-provider "aws" {
-  alias   = "dev-test"
-  region  = var.region
-  profile = "dev-test"
-}
-
-provider "aws" {
-  alias   = "log"
-  region  = var.region
-  profile = "log"
-}
-
-provider "aws" {
-  alias   = "audit"
-  region  = var.region
-  profile = "audit"
-}
-
-
 provider "lacework" {
-  alias   = "proservlab"
-  profile = "proservlab"
+  alias   = "main"
+  profile = var.lacework_profile
 }
 
-provider "lacework" {
-  alias        = "proservlab-organization"
-  organization = true
+provider "kubernetes" {
+  alias       = "main"
+  config_path = "~/.kube/config"
 }
-
-# provider "lacework" {
-#   alias      = "proservlab"
-#   profile    = "proservlab"
-# }
-
-# provider "lacework" {
-#   alias      = "dev-prod"
-#   profile    = "dev-prod"
-#   subaccount = "proservlab-prod"
-# }
-
-# provider "lacework" {
-#   alias      = "dev-stage"
-#   profile    = "dev-stage"
-#   subaccount = "proservlab-stage"
-# }
-
-# provider "lacework" {
-#   alias      = "dev-test"
-#   profile    = "dev-test"
-#   subaccount = "proservlab-test"
-# }
-
-data "aws_availability_zones" "available" {}
-
-# Not required: currently used in conjunction with using
-# icanhazip.com to determine local workstation external IP
-# to open EC2 Security Group access to the Kubernetes cluster.
-# See workstation-external-ip.tf for additional information.
-provider "http" {}
+provider "helm" {
+  alias = "main"
+  kubernetes {
+    config_path = "~/.kube/config"
+  }
+}
