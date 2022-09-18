@@ -176,9 +176,9 @@ module "lacework-admission-controller" {
   ]
 }
 
-module "gce-lacework-osconfig" {
+module "lacework-osconfig-deployment" {
   count = var.enable_lacework_osconfig_deployment == true ? 1 : 0
-  source                      = "../gce-osconfig"
+  source                      = "../lacework-osconfig-deployment"
   environment                 = var.environment
   project                     = data.google_project.project.project_id
   lacework_agent_access_token = var.lacework_agent_access_token
@@ -188,6 +188,19 @@ module "gce-lacework-osconfig" {
     google   = google
   }
 }
+
+# module "gce-lacework-osconfig" {
+#   count = var.enable_lacework_osconfig_deployment == true ? 1 : 0
+#   source                      = "../gce-osconfig"
+#   environment                 = var.environment
+#   project                     = data.google_project.project.project_id
+#   lacework_agent_access_token = var.lacework_agent_access_token
+
+#   providers = {
+#     lacework = lacework
+#     google   = google
+#   }
+# }
 # not available on gcp currently
 # module "lacework-agentless" {
 #   count = var.enable_lacework_agentless == true ? 1 : 0

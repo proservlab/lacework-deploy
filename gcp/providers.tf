@@ -14,6 +14,7 @@ provider "kubernetes" {
   alias       = "main"
   config_path = "~/.kube/config"
 }
+
 provider "helm" {
   alias = "main"
   kubernetes {
