@@ -1,14 +1,7 @@
-
-variable "environment" {
-  type        = string
-  description = "Environment name"
-  default     = "test"
-}
-
 variable "region" {
-  type        = string
-  description = "GCP regio name"
+  description = "default gcp region"
   default     = "us-central1"
+  type        = string
 }
 
 variable "terraform_backend_bucket" {
@@ -35,4 +28,44 @@ variable "terraform_backend_encrypt" {
 variable "terraform_backend_dynamodb_table" {
   description = "terraform backend dynamodb table"
   type        = string
+}
+
+variable "gcp_project" {
+  description = "name of the gcp project"
+  type        = string
+}
+
+variable "cluster_name" {
+  description = "name of the eks cluster"
+  default     = "proservlab-cluster"
+}
+
+variable "lacework_profile" {
+  description = "lacework account profile name"
+  type        = string
+}
+
+variable "lacework_gcp_project" {
+  description = "name of the gcp project"
+  type        = string
+}
+
+variable "lacework_account_name" {
+  description = "lacework account name"
+  default     = "proservlab"
+}
+
+variable "slack_token" {
+  description = "slack token to use for notifications"
+  default     = false
+}
+
+variable "lacework_agent_access_token" {
+  description = "lacework agent token"
+  type        = string
+}
+
+variable "proxy_token" {
+  type        = string
+  description = "proxy token used by the admissions controller"
 }

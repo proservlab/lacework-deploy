@@ -370,3 +370,18 @@ data "google_container_cluster" "my_cluster" {
     google_container_node_pool.node_pool, google_container_cluster.cluster
   ]
 }
+
+resource "null_resource" "gke_context_switcher" {
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "gcloud container clusters get-credentials ${var.cluster_name} --region=${var.gcp_location}"
+  }
+
+  depends_on = [
+    google_container_cluster.cluster
+  ]
+}

@@ -6,16 +6,12 @@
 
 # module "lacework_k8s_datacollector" {
 #   source    = "lacework/agent/kubernetes"
-#   version   = "~> 2.0"
+#   version   = "~> 2.1.0"
 #   namespace = "lacework"
 #   lacework_access_token = var.lacework_agent_access_token
 
 #   # Add the lacework_agent_tag argument to retrieve the cluster name in the Kubernetes Dossier
-#   lacework_agent_tags = {KubernetesCluster: "${var.environment}-cluster"}
-
-#   depends_on = [
-#     kubernetes_namespace.namespace
-#   ]
+#   lacework_agent_tags = {KubernetesCluster: var.cluster-name}
 # }
 
 resource "helm_release" "lacework" {
@@ -23,12 +19,12 @@ resource "helm_release" "lacework" {
     repository = "https://lacework.github.io/helm-charts"
     chart      = "lacework-agent"
 
-    create_namespace =  true
+    create_namespace =  false
     namespace =  "lacework"
 
     set {
         name  = "laceworkConfig.kubernetesCluster"
-        value = "${var.environment}-cluster"
+        value = var.cluster-name
     }
 
     set {

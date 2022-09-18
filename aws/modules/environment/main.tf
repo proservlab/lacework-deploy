@@ -21,42 +21,10 @@ module "eks" {
 # Kubernetes
 #########################
 
-# resource "local_file" "kubeconfig" {
-#   count = var.enable_eks == true ? 1 : 0
-#   content  = module.eks.kubeconfig
-#   filename = pathexpand("~/.kube/${module.eks.cluster_name}")
-# }
-
-# provider "kubernetes" {
-#   alias                  = "main"
-#   host                   = module.eks.cluster_endpoint
-#   cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
-
-#   exec {
-#     api_version = "client.authentication.k8s.io/v1beta1"
-#     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-#     command     = "aws"
-#   }
-# }
-
-# provider "helm" {
-#   alias = "main"
-#   kubernetes {
-#     host                   = module.eks.cluster_endpoint
-#     cluster_ca_certificate = base64decode(module.eks.cluster_ca_cert)
-
-#     exec {
-#       api_version = "client.authentication.k8s.io/v1beta1"
-#       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", var.environment]
-#       command     = "aws"
-#     }
-#   }
-# }
-
 # example of kubernetes configuration 
 # - ideally application lives in seperate project to allow for deployment outside of IaC
 # - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-module "kubenetes" {
+module "kubernetes" {
   count = var.enable_eks == true && var.enable_eks_app == true ? 1 : 0
   source      = "../kubernetes"
   environment = var.environment
@@ -65,7 +33,6 @@ module "kubenetes" {
 #########################
 # Lacework
 #########################
-
 resource "kubernetes_namespace" "lacework" {
   count = var.enable_eks && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ? 1 : 0
   metadata {
@@ -90,10 +57,6 @@ module "lacework-ssm-deployment" {
   source       = "../lacework-ssm-deployment"
   environment  = var.environment
   lacework_agent_token = local.lacework_agent_access_token
-}
-
-locals {
-  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
 }
 
 module "lacework-daemonset" {
