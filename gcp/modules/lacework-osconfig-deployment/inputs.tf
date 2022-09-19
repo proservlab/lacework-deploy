@@ -2,12 +2,11 @@ variable "environment" {
     type    = string
 }
 
-variable "location" {
+variable "gcp_location" {
     type = "string"
-    default = "us-central1-a"
 }
 
-variable "project" {
+variable "gcp_project" {
     type    = string
 }
 

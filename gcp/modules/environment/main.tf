@@ -187,7 +187,8 @@ module "lacework-osconfig-deployment" {
   count = var.enable_lacework_osconfig_deployment == true ? 1 : 0
   source                      = "../lacework-osconfig-deployment"
   environment                 = var.environment
-  project                     = data.google_project.project.project_id
+  gcp_project                 = data.google_project.project.project_id
+  gcp_location                = var.gcp_location
   lacework_agent_access_token = var.lacework_agent_access_token
   lacework_server_url         = var.lacework_server_url
 

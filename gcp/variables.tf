@@ -35,9 +35,15 @@ variable "gcp_project" {
   type        = string
 }
 
+variable "gcp_location" {
+  description = "default gcp location"
+  default     = "us-central1-a"
+  type        = string
+}
+
 variable "cluster_name" {
   description = "name of the eks cluster"
-  default     = "proservlab-cluster"
+  default     = "terraform-cluster"
 }
 
 variable "lacework_profile" {
@@ -52,7 +58,11 @@ variable "lacework_gcp_project" {
 
 variable "lacework_account_name" {
   description = "lacework account name"
-  default     = "proservlab"
+}
+
+variable "lacework_server_url" {
+  description = "lacework server url"
+  default     = "https://api.lacework.net"
 }
 
 variable "slack_token" {

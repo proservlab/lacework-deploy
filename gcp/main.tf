@@ -21,6 +21,7 @@ module "environment-proservlab" {
   region           = var.region
   gcp_organization = data.google_project.project.org_id
   gcp_project      = var.gcp_project
+  gcp_location     = var.gcp_location
 
   # slack
   slack_token = var.slack_token
@@ -39,6 +40,7 @@ module "environment-proservlab" {
   # lacework
   lacework_gcp_project                  = var.lacework_gcp_project
   lacework_agent_access_token           = var.lacework_agent_access_token
+  lacework_server_url                   = var.lacework_server_url
   lacework_account_name                 = var.lacework_account_name
   enable_lacework_alerts                = true
   enable_lacework_audit_config          = true

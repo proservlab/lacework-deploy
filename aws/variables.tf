@@ -51,6 +51,11 @@ variable "slack_token" {
   default     = false
 }
 
+variable "lacework_server_url" {
+  description = "lacework server url"
+  default     = "https://api.lacework.net"
+}
+
 variable "lacework_agent_access_token" {
   description = "lacework agent token"
   type        = string
