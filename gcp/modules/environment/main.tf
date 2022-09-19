@@ -149,6 +149,7 @@ module "lacework-daemonset" {
   cluster-name                = var.cluster_name
   environment                 = var.environment
   lacework_agent_access_token = local.lacework_agent_access_token
+  lacework_server_url         = var.lacework_server_url
 
   depends_on = [
     module.gke,
@@ -188,6 +189,7 @@ module "lacework-osconfig-deployment" {
   environment                 = var.environment
   project                     = data.google_project.project.project_id
   lacework_agent_access_token = var.lacework_agent_access_token
+  lacework_server_url         = var.lacework_server_url
 
   providers = {
     lacework = lacework
@@ -195,18 +197,6 @@ module "lacework-osconfig-deployment" {
   }
 }
 
-# module "gce-lacework-osconfig" {
-#   count = var.enable_lacework_osconfig_deployment == true ? 1 : 0
-#   source                      = "../gce-osconfig"
-#   environment                 = var.environment
-#   project                     = data.google_project.project.project_id
-#   lacework_agent_access_token = var.lacework_agent_access_token
-
-#   providers = {
-#     lacework = lacework
-#     google   = google
-#   }
-# }
 # not available on gcp currently
 # module "lacework-agentless" {
 #   count = var.enable_lacework_agentless == true ? 1 : 0

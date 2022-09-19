@@ -68,7 +68,8 @@ module "lacework-ssm-deployment" {
   count = var.enable_lacework_ssm_deployment == true ? 1 : 0
   source       = "../lacework-ssm-deployment"
   environment  = var.environment
-  lacework_agent_token = local.lacework_agent_access_token
+  lacework_agent_access_token = local.lacework_agent_access_token
+  lacework_server_url         = var.lacework_server_url
 }
 
 module "lacework-daemonset" {
@@ -77,6 +78,7 @@ module "lacework-daemonset" {
   cluster-name                = var.cluster_name
   environment                 = var.environment
   lacework_agent_access_token = local.lacework_agent_access_token
+  lacework_server_url         = var.lacework_server_url
 
   depends_on = [
     module.eks,

@@ -51,7 +51,8 @@ resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
     }
 
     parameters = {
-        Token = var.lacework_agent_token
+        Token = var.lacework_agent_access_token
+        Serverurl = var.lacework_server_url
     }
 
     compliance_severity = "HIGH"

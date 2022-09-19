@@ -1,11 +1,7 @@
-locals {
-  lacework_serverurl = "https://api.lacework.net"
-}
-
 resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   project     = var.project
-  location    = "us-central1-a"
+  location    = var.location
   name        = "lacework-install-policy"
   description = "OS policy to install Lacework agent"
 
@@ -64,7 +60,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
           enforce {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '{\"Tokens\": {\"Accesstoken\": \"${var.lacework_agent_access_token}\"}, \"serverurl\": \"${local.lacework_serverurl}\" }' > /var/lib/lacework/config/config.json && exit 100"
+            script           = "echo '{\"Tokens\": {\"Accesstoken\": \"${var.lacework_agent_access_token}\"}, \"serverurl\": \"${var.lacework_server_url}\" }' > /var/lib/lacework/config/config.json && exit 100"
           }
         }
       }

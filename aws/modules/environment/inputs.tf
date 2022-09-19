@@ -67,6 +67,12 @@ variable "lacework_agent_access_token" {
   default = "false"
 }
 
+variable "lacework_server_url" {
+  description = "lacework server url"
+  type = string
+  default = "https://api.lacework.net"
+}
+
 variable "enable_lacework_audit_config" {
   description = "enable disable lacework audit and config"
   type = bool

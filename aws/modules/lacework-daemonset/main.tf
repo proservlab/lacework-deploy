@@ -32,6 +32,11 @@ resource "helm_release" "lacework" {
         value = var.environment
     }
 
+    set {
+        name  = "laceworkConfig.serverUrl"
+        value = var.lacework_server_url
+    }
+
     set_sensitive {
         name  = "laceworkConfig.accessToken"
         value = var.lacework_agent_access_token
