@@ -56,8 +56,8 @@ fi
 if [ -z ${ACTION} ]; then
 		errmsg "Required option not set: --action"
 		help
-elif [ ${ACTION} != "destroy" ] && [ ${ACTION} != "apply" ] && [ ${ACTION} != "refresh" ]; then
-    errmsg "Invalid action: --action should be on of apply, refresh or destroy"
+elif [ ${ACTION} != "destroy" ] && [ ${ACTION} != "apply" ] && [ ${ACTION} != "plan" ] && [ ${ACTION} != "refresh" ]; then
+    errmsg "Invalid action: --action should be on of plan, apply, refresh or destroy"
     help
 fi
 
@@ -105,6 +105,11 @@ elif [ "apply" = "${ACTION}" ]; then
 terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
 terraform show -no-color build.tfplan
 terraform ${ACTION} build.tfplan
+rm -f build.tfplan
+elif [ "plan" = "${ACTION}" ]; then
+# else plan, show
+terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+terraform show -no-color build.tfplan
 rm -f build.tfplan
 elif [ "refresh" = "${ACTION}" ]; then
 terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}

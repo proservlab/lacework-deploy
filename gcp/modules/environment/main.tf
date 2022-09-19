@@ -127,6 +127,10 @@ resource "kubernetes_namespace" "lacework" {
   metadata {
     name = "lacework"
   }
+
+  depends_on = [
+    module.gke,
+  ]
 }
 
 resource "lacework_agent_access_token" "main" {
@@ -147,6 +151,7 @@ module "lacework-daemonset" {
   lacework_agent_access_token = local.lacework_agent_access_token
 
   depends_on = [
+    module.gke,
     kubernetes_namespace.lacework
   ]
 }
@@ -172,6 +177,7 @@ module "lacework-admission-controller" {
   proxy_token = var.proxy_token
 
   depends_on = [
+    module.gke,
     kubernetes_namespace.lacework
   ]
 }
@@ -218,5 +224,10 @@ module "attack-kubernetes-voteapp" {
   source      = "../attack-kubernetes-voteapp"
   environment = var.environment
   region      = var.region
+
+  depends_on = [
+    module.gke,
+    kubernetes_namespace.lacework
+  ]
 }
 

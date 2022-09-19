@@ -28,6 +28,10 @@ module "kubernetes" {
   count = var.enable_eks == true && var.enable_eks_app == true ? 1 : 0
   source      = "../kubernetes"
   environment = var.environment
+
+  depends_on = [
+    module.eks
+  ]
 }
 
 #########################
@@ -38,6 +42,10 @@ resource "kubernetes_namespace" "lacework" {
   metadata {
     name = "lacework"
   }
+
+  depends_on = [
+    module.eks
+  ]
 }
 
 module "lacework-audit-config" {
@@ -50,6 +58,10 @@ resource "lacework_agent_access_token" "main" {
   count = var.lacework_agent_access_token == "false" ? 1 : 0
   name        = "${var.environment}-token"
   description = "deployment for ${var.environment}"
+}
+
+locals {
+  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
 }
 
 module "lacework-ssm-deployment" {
@@ -67,6 +79,7 @@ module "lacework-daemonset" {
   lacework_agent_access_token = local.lacework_agent_access_token
 
   depends_on = [
+    module.eks,
     kubernetes_namespace.lacework
   ]
 }
@@ -92,6 +105,7 @@ module "lacework-admission-controller" {
   proxy_token = var.proxy_token
 
   depends_on = [
+    module.eks,
     kubernetes_namespace.lacework
   ]
 }
@@ -112,5 +126,10 @@ module "attack-kubernetes-voteapp" {
   source      = "../attack-kubernetes-voteapp"
   environment = var.environment
   region      = var.region
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.lacework
+  ]
 }
 

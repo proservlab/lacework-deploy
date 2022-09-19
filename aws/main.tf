@@ -11,8 +11,8 @@ module "environment-proservlab" {
 
   # aws core environment
   enable_ec2     = true
-  enable_eks     = true
-  enable_eks_app = true
+  enable_eks     = false
+  enable_eks_app = false
 
   # kubernetes admission controller
   proxy_token = var.proxy_token
@@ -21,15 +21,15 @@ module "environment-proservlab" {
   lacework_agent_access_token           = var.lacework_agent_access_token
   lacework_account_name                 = var.lacework_account_name
   enable_lacework_alerts                = false
-  enable_lacework_audit_config          = true
+  enable_lacework_audit_config          = false
   enable_lacework_custom_policy         = false
-  enable_lacework_daemonset             = true
+  enable_lacework_daemonset             = false
   enable_lacework_agentless             = false
-  enable_lacework_ssm_deployment        = true
-  enable_lacework_admissions_controller = true
+  enable_lacework_ssm_deployment        = false
+  enable_lacework_admissions_controller = false
 
   # attack
-  enable_attack_kubernetes_voteapp = true
+  enable_attack_kubernetes_voteapp = false
 
   providers = {
     aws        = aws.main
