@@ -21,7 +21,7 @@ module "environment-proservlab" {
   lacework_agent_access_token           = var.lacework_agent_access_token
   lacework_server_url                   = var.lacework_server_url
   lacework_account_name                 = var.lacework_account_name
-  enable_lacework_alerts                = true
+  enable_lacework_alerts                = false
   enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = true
   enable_lacework_daemonset             = true
