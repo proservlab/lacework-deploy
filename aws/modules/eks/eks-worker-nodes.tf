@@ -69,19 +69,3 @@ resource "aws_eks_node_group" "cluster" {
     aws_iam_role_policy_attachment.node-AmazonSSMPatchAssociation,
   ]
 }
-
-
-resource "null_resource" "eks_context_switcher" {
-
-  triggers = {
-    always_run = timestamp()
-  }
-
-  provisioner "local-exec" {
-    command = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_name}"
-  }
-
-  depends_on = [
-    aws_eks_node_group.cluster
-  ]
-}

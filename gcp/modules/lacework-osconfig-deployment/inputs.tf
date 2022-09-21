@@ -3,7 +3,7 @@ variable "environment" {
 }
 
 variable "gcp_location" {
-    type = "string"
+    type = string
 }
 
 variable "gcp_project" {

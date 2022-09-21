@@ -15,7 +15,7 @@ module "aws_cloudtrail" {
 }
 
 provider "lacework" {
-  profile="snifftest-stitch"
+  profile="snifftest-stitch-2022-09-20"
 }
 
 provider "aws" {

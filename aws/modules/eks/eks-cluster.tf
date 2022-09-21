@@ -90,3 +90,19 @@ resource "aws_eks_cluster" "cluster" {
     aws_cloudwatch_log_group.example
   ]
 }
+
+# ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
+resource "null_resource" "eks_context_switcher" {
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_name}"
+  }
+
+  depends_on = [
+    aws_eks_cluster.cluster
+  ]
+}

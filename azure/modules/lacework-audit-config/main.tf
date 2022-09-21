@@ -1,29 +1,11 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.12.1"
-    }
-    lacework = {
-      source  = "lacework/lacework"
-      version = "~> 0.25"
-    }
-  }
-}
-
-provider "azuread" {}
-provider "azurerm" {
-  features {}
-}
-
 module "az_ad_application" {
   source  = "lacework/ad-application/azure"
-  version = "~> 1.0"
+  version = "~> 1.2"
 }
 
 module "az_config" {
   source  = "lacework/config/azure"
-  version = "~> 1.0"
+  version = "~> 1.1"
 
   use_existing_ad_application = true
   all_subscriptions = true
@@ -34,7 +16,7 @@ module "az_config" {
 
 module "az_activity_log" {
   source  = "lacework/activity-log/azure"
-  version = "~> 1.0"
+  version = "~> 1.2"
 
   use_existing_ad_application = true
   all_subscriptions = true

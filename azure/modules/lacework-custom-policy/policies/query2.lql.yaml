@@ -1,0 +1,21 @@
+---
+queryId: TF_AWS_CTA_Example
+queryText: |-
+  {
+      source {
+          LW_CFG_AWS_EC2_SECURITY_GROUPS a,
+          array_to_rows(a.RESOURCE_CONFIG:IpPermissions) as (ip_permissions),
+          array_to_rows(ip_permissions:IpRanges) as (ip_ranges)
+      }
+      filter {
+          ip_ranges:CidrIp <> '0.0.0.0/0'
+      }
+      return distinct {
+          ACCOUNT_ALIAS,
+          ACCOUNT_ID,
+          ARN as RESOURCE_KEY,
+          RESOURCE_REGION,
+          RESOURCE_TYPE,
+          SERVICE
+      }
+  }

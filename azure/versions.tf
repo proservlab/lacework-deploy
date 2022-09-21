@@ -1,11 +1,21 @@
-# terraform {
-#   required_providers {
-#     azurerm = {
-#       source  = "hashicorp/azurerm"
-#       version = "2.66.0"
-#     }
-#   }
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.12.1"
+    }
+    lacework = {
+      source  = "lacework/lacework"
+      version = "~> 0.25"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.28"
+    }
 
-#   required_version = ">= 0.14"
-# }
-
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.23"
+    }
+  }
+}
