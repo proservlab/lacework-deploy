@@ -30,9 +30,9 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # aws core environment
-  enable_gce     = true
-  enable_gke     = true
-  enable_gke_app = true
+  enable_gce     = false
+  enable_gke     = false
+  enable_gke_app = false
 
   # kubernetes admission controller
   proxy_token = var.proxy_token
@@ -42,11 +42,11 @@ module "environment-proservlab" {
   lacework_agent_access_token           = var.lacework_agent_access_token
   lacework_server_url                   = var.lacework_server_url
   lacework_account_name                 = var.lacework_account_name
-  enable_lacework_alerts                = true
-  enable_lacework_audit_config          = true
-  enable_lacework_custom_policy         = true
-  enable_lacework_daemonset             = true
-  enable_lacework_osconfig_deployment   = true
+  enable_lacework_alerts                = false
+  enable_lacework_audit_config          = false
+  enable_lacework_custom_policy         = false
+  enable_lacework_daemonset             = false
+  enable_lacework_osconfig_deployment   = false
   enable_lacework_admissions_controller = false
 
   # attack

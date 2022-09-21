@@ -10,7 +10,7 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # azure core environment
-  enable_compute = true
+  enable_compute = false
   enable_aks     = false
   enable_aks_app = false
 
