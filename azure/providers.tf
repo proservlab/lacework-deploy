@@ -1,7 +1,7 @@
 # needed for attacker ecr
 provider "aws" {
   alias   = "main"
-  region  = var.region
+  region  = var.aws_region
   profile = "proservlab"
 }
 
