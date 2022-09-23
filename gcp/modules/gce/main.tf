@@ -1,9 +1,11 @@
 resource "google_service_account" "default" {
+    count = var.enable_gce == true ? 1 : 0
     account_id   = "${var.environment}-gce-service-account"
     display_name = "${var.environment}-gce-service-account"
 }
 
 data "template_file" "startup" {
+    count = var.enable_gce == true ? 1 : 0
     template = file("${path.module}/startup.sh")
     vars = {
         foo = "bar"
@@ -11,6 +13,7 @@ data "template_file" "startup" {
 }
 
 resource "google_compute_instance" "default" {
+    count = var.enable_gce == true ? 1 : 0
     name         = "${var.environment}-compute"
     machine_type = "e2-micro"
     zone         = "us-central1-a"
