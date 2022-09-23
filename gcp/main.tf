@@ -43,7 +43,7 @@ module "environment-proservlab" {
   lacework_server_url                   = var.lacework_server_url
   lacework_account_name                 = var.lacework_account_name
   enable_lacework_alerts                = false
-  enable_lacework_audit_config          = false
+  enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = false
   enable_lacework_daemonset             = false
   enable_lacework_osconfig_deployment   = false

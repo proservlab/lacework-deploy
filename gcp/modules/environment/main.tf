@@ -17,6 +17,7 @@ data "google_projects" "projects" {
 }
 
 module "gce" {
+  count = var.enable_gce == true ? 1 : 0
   source      = "../gce"
   environment = var.environment
 
