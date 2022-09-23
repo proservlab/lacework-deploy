@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "default aws region (used for attacker ecr and s3 backend)"
+  default     = "us-east-1"
+  type        = string
+}
+
 variable "region" {
   description = "default azure region"
   default     = "West US 2"
