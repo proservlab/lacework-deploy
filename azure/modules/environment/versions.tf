@@ -8,6 +8,10 @@ terraform {
       source  = "lacework/lacework"
       version = "~> 0.25"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
     azuread = {
       source = "hashicorp/azuread"
       version = "~> 2.28"

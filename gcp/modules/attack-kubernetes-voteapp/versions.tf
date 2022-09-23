@@ -8,11 +8,13 @@ terraform {
       source  = "lacework/lacework"
       version = "~> 0.25"
     }
+    google = {
+      version = "~> 4.36.0"
+    }
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
-
     docker = {
       source  = "kreuzwerker/docker"
       version = "2.19.0"

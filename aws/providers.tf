@@ -1,4 +1,5 @@
-# each profile definition here
+
+# needed for attacker ecr
 provider "aws" {
   alias   = "main"
   region  = var.region

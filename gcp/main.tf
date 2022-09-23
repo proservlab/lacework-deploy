@@ -53,6 +53,7 @@ module "environment-proservlab" {
   enable_attack_kubernetes_voteapp = false
 
   providers = {
+    aws        = aws.main
     google     = google.main
     lacework   = lacework.main
     kubernetes = kubernetes.main

@@ -8,11 +8,9 @@ terraform {
       source  = "lacework/lacework"
       version = "~> 0.25"
     }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
+    google = {
+      version = "~> 4.36.0"
     }
-
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.6.0"

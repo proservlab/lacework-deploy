@@ -16,6 +16,10 @@ terraform {
       source = "hashicorp/azurerm"
       version = "~> 2.28"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
     docker = {
       source  = "kreuzwerker/docker"
       version = "2.19.0"

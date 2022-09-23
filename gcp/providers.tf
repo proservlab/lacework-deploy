@@ -1,4 +1,10 @@
-# each profile definition here
+# needed for attacker ecr
+provider "aws" {
+  alias   = "main"
+  region  = var.region
+  profile = "proservlab"
+}
+
 provider "google" {
   alias   = "main"
   project = var.gcp_project

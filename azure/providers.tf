@@ -1,3 +1,10 @@
+# needed for attacker ecr
+provider "aws" {
+  alias   = "main"
+  region  = var.region
+  profile = "proservlab"
+}
+
 provider "azuread" {
   alias = "main"
 }
