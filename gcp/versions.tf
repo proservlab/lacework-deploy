@@ -23,7 +23,8 @@ terraform {
       version = "~> 4.0"
     }
     google = {
-      version = "~> 4.36.0"
+      source  = "hashicorp/google"
+      version = "~> 4.37"
     }
     helm = {
       source  = "hashicorp/helm"

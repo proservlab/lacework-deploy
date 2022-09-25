@@ -10,6 +10,10 @@ data "google_project" "project" {
   project_id = var.gcp_project
 }
 
+data "google_project" "lacework_project" {
+  project_id = var.lacework_gcp_project
+}
+
 # all projects
 data "google_projects" "projects" {
   filter = "parent.id:${data.google_project.project.org_id} lifecycleState:ACTIVE"
@@ -20,7 +24,7 @@ module "environment-proservlab" {
   environment      = "proservlab"
   region           = var.region
   gcp_organization = data.google_project.project.org_id
-  gcp_project      = var.gcp_project
+  gcp_project      = data.google_project.project.project_id
   gcp_location     = var.gcp_location
 
   # slack
@@ -30,7 +34,7 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # aws core environment
-  enable_gce     = false
+  enable_gce     = true
   enable_gke     = false
   enable_gke_app = false
 
@@ -38,7 +42,7 @@ module "environment-proservlab" {
   proxy_token = var.proxy_token
 
   # lacework
-  lacework_gcp_project                  = var.lacework_gcp_project
+  lacework_gcp_project                  = data.google_project.lacework_project.project_id
   lacework_agent_access_token           = var.lacework_agent_access_token
   lacework_server_url                   = var.lacework_server_url
   lacework_account_name                 = var.lacework_account_name
@@ -46,7 +50,7 @@ module "environment-proservlab" {
   enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = false
   enable_lacework_daemonset             = false
-  enable_lacework_osconfig_deployment   = false
+  enable_lacework_osconfig_deployment   = true
   enable_lacework_admissions_controller = false
 
   # attack
