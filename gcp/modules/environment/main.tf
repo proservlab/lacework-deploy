@@ -134,7 +134,15 @@ module "lacework-alerts" {
   count = var.enable_lacework_alerts == true ? 1 : 0
   source       = "../lacework-alerts"
   environment  = var.environment
+  
+  enable_slack_alerts = var.enable_slack_alerts
   slack_token = var.slack_token
+
+  enable_jira_cloud_alerts = var.enable_jira_cloud_alerts
+  jira_cloud_url = var.jira_cloud_url
+  jira_cloud_project_key = var.jira_cloud_project_key
+  jira_cloud_api_token = var.jira_cloud_api_token
+  jira_cloud_issue_type = var.jira_cloud_issue_type
 }
 
 module "lacework-custom-policy" {

@@ -28,7 +28,15 @@ module "environment-proservlab" {
   gcp_location     = var.gcp_location
 
   # slack
+  enable_slack_alerts = false
   slack_token = var.slack_token
+
+  # slack
+  enable_jira_cloud_alerts = false
+  jira_cloud_url = var.jira_cloud_url
+  jira_cloud_project_key = var.jira_cloud_project_key
+  jira_cloud_issue_type = var.jira_cloud_issue_type
+  jira_cloud_api_token = var.jira_cloud_api_token
 
   # eks cluster
   cluster_name = var.cluster_name
