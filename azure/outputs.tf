@@ -1,31 +1,43 @@
-# output "resource_group_name" {
-#   value = azurerm_resource_group.default.name
-# }
+output "az_config_name" {
+  value = module.environment-proservlab.az_config_name
+}
 
-# output "kubernetes_cluster_name" {
-#   value = azurerm_kubernetes_cluster.default.name
-# }
+output "az_config_client_id" {
+  value = module.environment-proservlab.az_config_client_id
+}
 
-# output "host" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.host
-# }
 
-# output "client_key" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.client_key
-# }
+output "az_config_client_secret" {
+  sensitive = true
+  value     = module.environment-proservlab.az_config_client_secret
+}
 
-# output "client_certificate" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.client_certificate
-# }
+output "az_config_tenant_id" {
+  value = module.environment-proservlab.az_config_tenant_id
+}
 
-# output "kube_config" {
-#   value = azurerm_kubernetes_cluster.default.kube_config_raw
-# }
+output "az_config_queue_url" {
+  value = module.environment-proservlab.az_config_queue_url
+}
 
-# output "cluster_username" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.username
-# }
+output "az_audit_name" {
+  value = module.environment-proservlab.az_audit_name
+}
 
-# output "cluster_password" {
-#   value = azurerm_kubernetes_cluster.default.kube_config.0.password
-# }
+output "az_audit_client_id" {
+  value = module.environment-proservlab.az_audit_client_id
+}
+
+
+output "az_audit_client_secret" {
+  sensitive = true
+  value     = module.environment-proservlab.az_audit_client_secret
+}
+
+output "az_audit_tenant_id" {
+  value = module.environment-proservlab.az_audit_tenant_id
+}
+
+output "az_audit_queue_url" {
+  value = module.environment-proservlab.az_audit_queue_url
+}

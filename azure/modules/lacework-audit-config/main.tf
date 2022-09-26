@@ -3,20 +3,29 @@ module "az_ad_application" {
   version = "~> 1.2"
 }
 
+# module "az_config" {
+#   source  = "lacework/config/azure"
+#   version = "~> 1.1"
+
+#   use_existing_ad_application = true
+#   all_subscriptions = true
+#   application_id              = module.az_ad_application.application_id
+#   application_password        = module.az_ad_application.application_password
+#   service_principal_id        = module.az_ad_application.service_principal_id
+# }
+
 module "az_config" {
-  source  = "lacework/config/azure"
-  version = "~> 1.1"
+  source  = "../lacework-config-manual"
 
   use_existing_ad_application = true
-  all_subscriptions = true
+  all_subscriptions           = true
   application_id              = module.az_ad_application.application_id
   application_password        = module.az_ad_application.application_password
   service_principal_id        = module.az_ad_application.service_principal_id
 }
 
 module "az_activity_log" {
-  source  = "lacework/activity-log/azure"
-  version = "~> 1.2"
+  source  = "../lacework-audit-manual"
 
   use_existing_ad_application = true
   all_subscriptions = true
