@@ -34,7 +34,6 @@ resource "lacework_alert_rule" "prod" {
     "Critical", 
     "High", 
     "Medium", 
-    "Info", 
     "Low", 
     "Info"
   ]
