@@ -1,8 +1,8 @@
 locals {
   alert_channels = flatten(
     [
-      length(lacework_alert_channel_slack.ops_alert) > 0 ? [lacework_alert_channel_slack.ops_alert] : [],
-      length(lacework_alert_channel_jira_cloud.ops_alert) > 0 ? [lacework_alert_channel_jira_cloud.ops_alert] : []
+      length(lacework_alert_channel_slack.ops_alert) > 0 ? [lacework_alert_channel_slack.ops_alert[0].id] : [],
+      length(lacework_alert_channel_jira_cloud.ops_alert) > 0 ? [lacework_alert_channel_jira_cloud.ops_alert[0].id] : []
     ]
   )
 }
@@ -23,7 +23,7 @@ resource "lacework_alert_channel_jira_cloud" "ops_alert" {
 }
 resource "lacework_alert_channel_slack" "ops_alert" {
   count       = var.enable_slack_alerts == true ? 1 : 0
-  name      = "slack_jira_alert"
+  name      = "slack_ops_alert"
   slack_url = var.slack_token
 }
 
