@@ -37,7 +37,7 @@ module "environment-proservlab" {
   enable_lacework_daemonset_compliance  = true
   enable_lacework_agentless             = true
   enable_lacework_ssm_deployment        = true
-  enable_lacework_admissions_controller = false
+  enable_lacework_admissions_controller = true
 
   # attack
   enable_attack_kubernetes_voteapp = true
