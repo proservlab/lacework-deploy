@@ -2,7 +2,7 @@ variable "environment" {
     type    = string
 }
 
-variable "cluster-name" {
+variable "cluster_name" {
   type    = string
 }
 
@@ -14,3 +14,29 @@ variable "lacework_server_url" {
     type    = string
     default = "https://api.lacework.net"
 }
+
+variable "lacework_image_repository" {
+    type    = string
+    default = "lacework/datacollector"
+}
+
+variable "lacework_cluster_agent_enable" {
+    type    = bool
+    default = false
+}
+
+variable "lacework_cluster_agent_image_repository" {
+    type    = string
+    default = "lacework/k8scollector"
+}
+
+variable "lacework_cluster_agent_cluster_type" {
+    type    = string
+    default = "aks"
+}
+
+variable "lacework_cluster_agent_cluster_region" {
+    type    = string
+    default = "us-east-1"
+}
+

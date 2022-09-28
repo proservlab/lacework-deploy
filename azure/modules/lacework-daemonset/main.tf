@@ -24,7 +24,7 @@ resource "helm_release" "lacework" {
 
     set {
         name  = "laceworkConfig.kubernetesCluster"
-        value = var.cluster-name
+        value = var.cluster_name
     }
 
     set {
@@ -40,5 +40,30 @@ resource "helm_release" "lacework" {
     set_sensitive {
         name  = "laceworkConfig.accessToken"
         value = var.lacework_agent_access_token
+    }
+
+    set {
+        name  = "clusterAgent.enable"
+        value = var.lacework_cluster_agent_enable
+    }
+
+    set {
+        name  = "clusterAgent.image.repository"
+        value = var.lacework_cluster_agent_image_repository
+    }
+
+    set {
+        name  = "clusterAgent.clusterType"
+        value = var.lacework_cluster_agent_cluster_type
+    }
+
+    set {
+        name  = "clusterAgent.clusterRegion"
+        value = var.lacework_cluster_agent_cluster_region
+    }
+
+    set {
+        name  = "image.repository"
+        value = var.lacework_image_repository
     }
 }

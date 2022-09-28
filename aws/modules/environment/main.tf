@@ -74,11 +74,15 @@ module "lacework-ssm-deployment" {
 
 module "lacework-daemonset" {
   count = var.enable_eks == true && var.enable_lacework_daemonset == true ? 1 : 0
-  source                      = "../lacework-daemonset"
-  cluster-name                = var.cluster_name
-  environment                 = var.environment
-  lacework_agent_access_token = local.lacework_agent_access_token
-  lacework_server_url         = var.lacework_server_url
+  source                                = "../lacework-daemonset"
+  cluster_name                          = var.cluster_name
+  environment                           = var.environment
+  lacework_agent_access_token           = local.lacework_agent_access_token
+  lacework_server_url                   = var.lacework_server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = var.enable_lacework_daemonset_compliance == true ? var.enable_lacework_daemonset_compliance : false
+  lacework_cluster_agent_cluster_region = var.region
 
   depends_on = [
     module.eks,

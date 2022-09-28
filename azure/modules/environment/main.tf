@@ -73,6 +73,10 @@ module "lacework-daemonset" {
   lacework_agent_access_token = local.lacework_agent_access_token
   lacework_server_url         = var.lacework_server_url
 
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = var.enable_lacework_daemonset_compliance == true ? var.enable_lacework_daemonset_compliance : false
+  lacework_cluster_agent_cluster_region = var.region
+
   depends_on = [
     module.aks,
     kubernetes_namespace.lacework

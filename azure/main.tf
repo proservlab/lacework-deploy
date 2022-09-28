@@ -34,6 +34,7 @@ module "environment-proservlab" {
   enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = false
   enable_lacework_daemonset             = false
+  enable_lacework_daemonset_compliance  = false
   enable_lacework_admissions_controller = false
 
   # attack

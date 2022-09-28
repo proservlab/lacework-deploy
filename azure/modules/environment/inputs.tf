@@ -131,6 +131,12 @@ variable "enable_lacework_daemonset" {
   default = false
 }
 
+variable "enable_lacework_daemonset_compliance" {
+  description = "enable disable of deployment of lacework compliance agent (requires enable_eks)"
+  type = bool
+  default = false
+}
+
 variable "enable_lacework_alerts" {
   description = "enable disable of configuration of lacework alerts (default slack channel)"
   type = bool
