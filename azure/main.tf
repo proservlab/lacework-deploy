@@ -22,6 +22,7 @@ module "environment-proservlab" {
   enable_compute = false
   enable_aks     = false
   enable_aks_app = false
+  enable_aks_psp = false
 
   # kubernetes admission controller
   proxy_token = var.proxy_token

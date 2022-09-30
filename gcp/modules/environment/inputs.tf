@@ -117,6 +117,12 @@ variable "enable_gke_app" {
   default = false
 }
 
+variable "enable_gke_psp" {
+  description = "enable disable of kubernetes pod security policy"
+  type = bool
+  default = false
+}
+
 
 ###########################
 # Lacework

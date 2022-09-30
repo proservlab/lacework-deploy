@@ -70,12 +70,21 @@ module "gke" {
 # Kubernetes
 #########################
 
-# example of kubernetes configuration 
-# - ideally application lives in seperate project to allow for deployment outside of IaC
-# - this configuration could be used to deploy any default setup like token hardening, default daemonsets, etc
-module "kubenetes" {
+# example of pushing kubernetes deployment via terraform
+module "kubenetes-app" {
   count = var.enable_gke_app == true ? 1 : 0
-  source      = "../kubernetes"
+  source      = "../kubernetes-app"
+  environment = var.environment
+
+  depends_on = [
+    module.gke
+  ]
+}
+
+# example of applying pod security policy
+module "kubenetes-psp" {
+  count = var.enable_gke == true && var.enable_gke_psp == true ? 1 : 0
+  source      = "../kubernetes-psp"
   environment = var.environment
 
   depends_on = [

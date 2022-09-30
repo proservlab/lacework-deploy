@@ -102,6 +102,12 @@ variable "enable_eks_app" {
   default = false
 }
 
+variable "enable_eks_psp" {
+  description = "enable disable of kubernetes pod security policy"
+  type = bool
+  default = false
+}
+
 
 ###########################
 # Lacework

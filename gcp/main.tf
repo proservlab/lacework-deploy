@@ -46,6 +46,7 @@ module "environment-proservlab" {
   enable_gce     = true
   enable_gke     = false
   enable_gke_app = false
+  enable_gke_psp = false
 
   # kubernetes admission controller
   proxy_token = var.proxy_token

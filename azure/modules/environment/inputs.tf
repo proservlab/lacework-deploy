@@ -102,6 +102,12 @@ variable "enable_aks_app" {
   default = false
 }
 
+variable "enable_aks_psp" {
+  description = "enable disable of kubernetes pod security policy"
+  type = bool
+  default = false
+}
+
 
 ###########################
 # Lacework
