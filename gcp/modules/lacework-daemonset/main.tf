@@ -21,6 +21,7 @@ resource "helm_release" "lacework" {
 
     create_namespace =  false
     namespace =  "lacework"
+    force_update = true
 
     set {
         name  = "laceworkConfig.kubernetesCluster"

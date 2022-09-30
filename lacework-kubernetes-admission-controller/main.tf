@@ -27,6 +27,7 @@ resource "helm_release" "lacework-admission-controller" {
 
     create_namespace =  false
     namespace =  "lacework"
+    force_update = true
 
     set {
         name  = "webhooks.caBundle"
