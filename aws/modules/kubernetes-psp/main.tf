@@ -2,7 +2,7 @@ resource "kubernetes_pod_security_policy" "privileged" {
   metadata {
     name = "privileged"
     annotations = {
-        seccomp.security.alpha.kubernetes.io/allowedProfileNames = "*"
+        "seccomp.security.alpha.kubernetes.io/allowedProfileNames" : "*"
     }
         
   }
@@ -45,8 +45,8 @@ resource "kubernetes_pod_security_policy" "restricted" {
   metadata {
     name = "restricted"
     annotations = {
-        seccomp.security.alpha.kubernetes.io/allowedProfileNames = "docker/default"
-        seccomp.security.alpha.kubernetes.io/defaultProfileName = "docker/default"
+        "seccomp.security.alpha.kubernetes.io/allowedProfileNames" : "docker/default"
+        "seccomp.security.alpha.kubernetes.io/defaultProfileName" : "docker/default"
     }
   }
   spec {
