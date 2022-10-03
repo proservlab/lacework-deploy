@@ -22,7 +22,7 @@ module "environment-proservlab" {
   enable_ec2     = true
   enable_eks     = true
   enable_eks_app = true
-  enable_eks_psp = false
+  enable_eks_psp = true
 
   # kubernetes admission controller
   proxy_token = var.proxy_token
