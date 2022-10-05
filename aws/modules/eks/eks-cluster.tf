@@ -79,7 +79,7 @@ resource "aws_eks_cluster" "cluster" {
   vpc_config {
     security_group_ids = [aws_security_group.cluster.id]
     subnet_ids         = aws_subnet.cluster.*.id
-    #public_access_cidrs  = [local.workstation-external-cidr]
+    public_access_cidrs  = var.public_access_cidr
     endpoint_private_access = true
     endpoint_public_access = true
   }
@@ -99,7 +99,7 @@ resource "null_resource" "eks_context_switcher" {
   }
 
   provisioner "local-exec" {
-    command = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_name}"
+    command = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_name} && sleep 30"
   }
 
   depends_on = [
