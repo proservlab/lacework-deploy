@@ -8,7 +8,7 @@ module "environment-proservlab" {
   slack_token         = var.slack_token
 
   # jira
-  enable_jira_cloud_alerts = true
+  enable_jira_cloud_alerts = false
   jira_cloud_url           = var.jira_cloud_url
   jira_cloud_project_key   = var.jira_cloud_project_key
   jira_cloud_issue_type    = var.jira_cloud_issue_type
