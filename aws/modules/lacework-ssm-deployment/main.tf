@@ -3,7 +3,7 @@ module "lacework_aws_ssm_agents_install" {
     version = "~> 0.7"
 
     lacework_agent_tags = {
-        environment = var.environment
+        Environment = var.environment
     }
 
     aws_resources_tags = {
@@ -23,7 +23,7 @@ resource "aws_resourcegroups_group" "main" {
 
             TagFilters = [
                 {
-                    Key = "environment"
+                    Key = "Environment"
                     Values = [
                         var.environment
                     ]
@@ -56,4 +56,10 @@ resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
     }
 
     compliance_severity = "HIGH"
+
+    # every 30 minutes
+    schedule_expression = "cron(0/30 * * * ? *)"
+    
+    # will apply when updated and interval when false
+    apply_only_at_cron_interval = false
 }

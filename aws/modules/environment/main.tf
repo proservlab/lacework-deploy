@@ -1,11 +1,17 @@
 #########################
 # AWS 
 #########################
-module "ec2" {
+# module "ec2" {
+#   count = var.enable_ec2 == true ? 1 : 0
+#   source       = "../ec2"
+#   environment  = var.environment
+#   instance-name = "${var.environment}-instance"
+# }
+
+module "ec2-instances" {
   count = var.enable_ec2 == true ? 1 : 0
-  source       = "../ec2"
+  source       = "../ec2-instances"
   environment  = var.environment
-  instance-name = "${var.environment}-instance"
 }
 
 module "eks" {
@@ -122,7 +128,7 @@ module "lacework-custom-policy" {
 }
 
 module "lacework-admission-controller" {
-  count = var.enable_lacework_admissions_controller == true ? 1 : 0
+  count = var.enable_eks == true && var.enable_lacework_admissions_controller == true ? 1 : 0
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
@@ -146,7 +152,7 @@ module "lacework-agentless" {
 #########################
 
 module "attack-kubernetes-voteapp" {
-  count = var.enable_attack_kubernetes_voteapp == true ? 1 : 0
+  count = var.enable_eks == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
   source      = "../attack-kubernetes-voteapp"
   environment = var.environment
   region      = var.region

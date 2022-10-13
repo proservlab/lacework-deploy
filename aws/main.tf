@@ -8,7 +8,7 @@ module "environment-proservlab" {
   slack_token         = var.slack_token
 
   # jira
-  enable_jira_cloud_alerts = false
+  enable_jira_cloud_alerts = true
   jira_cloud_url           = var.jira_cloud_url
   jira_cloud_project_key   = var.jira_cloud_project_key
   jira_cloud_issue_type    = var.jira_cloud_issue_type
@@ -21,7 +21,7 @@ module "environment-proservlab" {
   # aws core environment
   enable_ec2     = true
   enable_eks     = true
-  enable_eks_app = true
+  enable_eks_app = false
   enable_eks_psp = false
 
   # kubernetes admission controller
@@ -34,14 +34,14 @@ module "environment-proservlab" {
   enable_lacework_alerts                = true
   enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = true
-  enable_lacework_daemonset             = true
-  enable_lacework_daemonset_compliance  = true
-  enable_lacework_agentless             = false
+  enable_lacework_daemonset             = false
+  enable_lacework_daemonset_compliance  = false
+  enable_lacework_agentless             = true
   enable_lacework_ssm_deployment        = true
-  enable_lacework_admissions_controller = true
+  enable_lacework_admissions_controller = false
 
   # attack
-  enable_attack_kubernetes_voteapp = true
+  enable_attack_kubernetes_voteapp = false
 
   providers = {
     aws        = aws.main
