@@ -153,7 +153,7 @@ module "lacework-agentless" {
 
 module "attack-kubernetes-voteapp" {
   count = var.enable_eks == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
-  source      = "../attack-kubernetes-voteapp"
+  source      = "../vulnerable-voteapp"
   environment = var.environment
   region      = var.region
 

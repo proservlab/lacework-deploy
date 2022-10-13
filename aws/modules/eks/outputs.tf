@@ -61,6 +61,10 @@ output "kubeconfig" {
   value = local.kubeconfig
 }
 
+output "cluster" {
+  value = aws_eks_cluster.cluster
+}
+
 output "cluster_name" {
   value = var.cluster_name
 }

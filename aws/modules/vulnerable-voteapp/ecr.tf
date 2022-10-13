@@ -1,6 +1,7 @@
 resource "aws_ecr_repository" "repo" {
     name                 = var.image_name
     image_tag_mutability = "MUTABLE"
+    force_delete = true
 
     # Encryption configuration
     # encryption_configuration {

@@ -32,6 +32,10 @@ resource "aws_iam_role_policy_attachment" "node-AmazonEKS_CNI_Policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
   role       = aws_iam_role.node.name
 }
+resource "aws_iam_role_policy_attachment" "node-AmazonEBSCSIDriverPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = aws_iam_role.node.name
+}
 
 resource "aws_iam_role_policy_attachment" "node-AmazonEC2ContainerRegistryReadOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
@@ -56,14 +60,15 @@ resource "aws_eks_node_group" "cluster" {
   instance_types = [ "t3a.small" ]
 
   scaling_config {
-    desired_size = 3
-    max_size     = 3
+    desired_size = 4
+    max_size     = 4
     min_size     = 1
   }
 
   depends_on = [
     aws_iam_role_policy_attachment.node-AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.node-AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.node-AmazonEBSCSIDriverPolicy,
     aws_iam_role_policy_attachment.node-AmazonEC2ContainerRegistryReadOnly,
     aws_iam_role_policy_attachment.node-AmazonSSMManagedInstanceCore,
     aws_iam_role_policy_attachment.node-AmazonSSMPatchAssociation,
