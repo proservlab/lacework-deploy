@@ -41,7 +41,7 @@ module "environment-proservlab" {
   enable_lacework_admissions_controller = true
 
   # attack
-  enable_attack_kubernetes_voteapp = false
+  enable_attack_kubernetes_voteapp = true
 
   providers = {
     aws        = aws.main
