@@ -166,3 +166,19 @@ resource "aws_instance" "ubuntu-unprotected-2" {
 
   depends_on = [module.vpc]
 }
+
+resource "aws_instance" "ubuntu-unprotected-3" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+  
+  iam_instance_profile = aws_iam_instance_profile.ec2-iam-profile.name
+  subnet_id = module.vpc.public_subnet.id
+  vpc_security_group_ids = [ module.vpc.public_sg.id ]
+  
+  tags = {
+    Name = "ec2-public-3"
+    NoLacework = "true"
+  }
+
+  depends_on = [module.vpc]
+}
