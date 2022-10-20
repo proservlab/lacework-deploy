@@ -10,16 +10,29 @@ module "lacework_admission_controller" {
 
   registries = [
     {
-      name      = "myRegistry"
+      name      = "docker_public"
       domain    = "index.docker.io"
       ssl       = true
       auto_poll = false
       is_public = true
-      poll_frequency_minutes = 20
+      auto_poll: false
       disable_non_os_package_scanning = false
       go_binary_scanning = {
         enabled = true
-      }
+      } 
+    },
+    {
+      name      = "github_public"
+      domain    = "ghcr.io"
+      ssl       = true
+      auto_poll = false
+      is_public = true
+      auto_poll: false
+      disable_non_os_package_scanning = false
+      go_binary_scanning = {
+        enabled = true
+      } 
+      notification_type: ghcr
     }
   ]
 }
