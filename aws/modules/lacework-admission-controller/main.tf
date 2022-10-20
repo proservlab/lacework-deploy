@@ -15,7 +15,6 @@ module "lacework_admission_controller" {
       ssl       = true
       auto_poll = false
       is_public = true
-      auto_poll: false
       disable_non_os_package_scanning = false
       go_binary_scanning = {
         enabled = true
@@ -27,12 +26,11 @@ module "lacework_admission_controller" {
       ssl       = true
       auto_poll = false
       is_public = true
-      auto_poll: false
       disable_non_os_package_scanning = false
+      notification_type = "ghcr"
       go_binary_scanning = {
         enabled = true
       } 
-      notification_type: ghcr
     }
   ]
 }
