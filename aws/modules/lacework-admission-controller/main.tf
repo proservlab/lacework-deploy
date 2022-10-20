@@ -16,9 +16,6 @@ module "lacework_admission_controller" {
       auto_poll = false
       is_public = true
       disable_non_os_package_scanning = false
-      go_binary_scanning = {
-        enabled = true
-      } 
     },
     {
       name      = "github_public"
@@ -28,9 +25,6 @@ module "lacework_admission_controller" {
       is_public = true
       disable_non_os_package_scanning = false
       notification_type = "ghcr"
-      go_binary_scanning = {
-        enabled = true
-      } 
     }
   ]
 }
