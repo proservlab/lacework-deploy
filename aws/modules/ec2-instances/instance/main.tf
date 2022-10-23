@@ -11,4 +11,6 @@ resource "aws_instance" "instance" {
 
   user_data = var.user_data
   user_data_base64 = var.user_data_base64
+
+  user_data_replace_on_change = true
 }

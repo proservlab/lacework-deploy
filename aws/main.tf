@@ -56,10 +56,10 @@ module "environment-proservlab" {
       ssm_deploy_tag   = { ssm_deploy_lacework = "false" }
       tags             = {}
       user_data        = <<EOT
-      #!/bin/bash
+#!/bin/bash
 
-      touch /tmp/deployed
-      EOT
+/usr/bin/touch /tmp/deployed
+EOT
       user_data_base64 = null
     }
   ]
