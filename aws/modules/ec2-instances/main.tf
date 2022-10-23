@@ -37,12 +37,12 @@ module "instances" {
 
   # merge additional tags including ssm deployment tag
   tags = merge(
-          {
-            Name = "ec2-${ each.value.public == true ? "public": "private"}-${each.key}"
-            Environment = var.environment
-            public = each.value.public
-          },
-          each.value.tags, 
-          each.value.enable_ssm ? each.value.ssm_deploy_tag : {}
+            {
+              Name = each.value.key
+              Environment = var.environment
+              public = each.value.public
+            },
+            each.value.tags, 
+            each.value.enable_ssm ? each.value.ssm_deploy_tag : {}
           )
 }
