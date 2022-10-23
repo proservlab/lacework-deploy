@@ -38,7 +38,7 @@ module "instances" {
   # merge additional tags including ssm deployment tag
   tags = merge(
             {
-              Name = each.value.key
+              Name = each.value.name
               Environment = var.environment
               public = each.value.public
             },
