@@ -18,7 +18,7 @@ resource "aws_resourcegroups_group" "main" {
     name = "main"
 
     resource_query {
-        query = var.resource_query
+        query = jsonencode(var.resource_query)
     }
 
     tags = {

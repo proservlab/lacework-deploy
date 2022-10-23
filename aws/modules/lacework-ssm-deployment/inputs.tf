@@ -16,7 +16,7 @@ variable "resource_query" {
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({
         Key = string
-        Value = list(string)
+        Values = list(string)
       }))
     })
     description = "JSON query to idenfity resources which will have lacework deployed"
