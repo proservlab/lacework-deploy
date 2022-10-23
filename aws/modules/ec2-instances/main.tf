@@ -43,6 +43,6 @@ module "instances" {
               public = each.value.public
             },
             each.value.tags, 
-            each.value.enable_ssm ? each.value.ssm_deploy_tag : {}
+            each.value.enable_ssm == true ? each.value.ssm_deploy_tag : {}
           )
 }

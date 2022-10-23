@@ -19,7 +19,7 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # aws core environment
-  enable_ec2     = true
+  enable_ec2     = false
   enable_eks     = true
   enable_eks_app = true
   enable_eks_psp = false
