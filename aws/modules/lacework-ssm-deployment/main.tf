@@ -2,10 +2,12 @@ module "lacework_aws_ssm_agents_install" {
     source  = "lacework/ssm-agent/aws"
     version = "~> 0.7"
 
+    # tags to add to the lacework data collector
     lacework_agent_tags = {
         Environment = var.environment
     }
 
+    # tags to add to created resources for this module
     aws_resources_tags = {
         billing = var.environment
         owner   = "lacework"
@@ -16,20 +18,7 @@ resource "aws_resourcegroups_group" "main" {
     name = "main"
 
     resource_query {
-        query = jsonencode({
-            ResourceTypeFilters = [
-                "AWS::EC2::Instance"
-            ]
-
-            TagFilters = [
-                {
-                    Key = "Environment"
-                    Values = [
-                        var.environment
-                    ]
-                }
-            ]
-        })
+        query = var.resource_query
     }
 
     tags = {
