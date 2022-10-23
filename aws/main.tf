@@ -55,7 +55,11 @@ module "environment-proservlab" {
       enable_ssm       = true
       ssm_deploy_tag   = { ssm_deploy_lacework = "false" }
       tags             = {}
-      user_data        = null
+      user_data        = <<EOT
+      #!/bin/bash
+
+      touch /tmp/deployed
+      EOT
       user_data_base64 = null
     }
   ]

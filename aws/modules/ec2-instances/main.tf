@@ -32,8 +32,8 @@ module "instances" {
   subnet_id = each.value.public == true ? module.vpc.public_subnet.id : module.vpc.private_subnet.id
   vpc_security_group_ids = [ each.value.public == true ? module.vpc.public_sg.id : module.vpc.private_sg.id ]
   
-  user_data = each.value.user_data != null && each.value.user_data_base64 != null ?  each.value.user_data : null
-  user_data_base64 = each.value.user_data_base64 != null ?  each.value.user_data_base64 : null
+  user_data = each.value.user_data
+  user_data_base64 = each.value.user_data_base64
 
   # merge additional tags including ssm deployment tag
   tags = merge(

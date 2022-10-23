@@ -93,16 +93,19 @@ resource "aws_eks_cluster" "cluster" {
 
 # ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
 resource "null_resource" "eks_context_switcher" {
-
   triggers = {
-    always_run = timestamp()
+    always = timestamp()
   }
+
+  depends_on = [aws_eks_cluster.cluster]
 
   provisioner "local-exec" {
-    command = "aws eks --region ${var.region} update-kubeconfig --name ${var.cluster_name} && sleep 30"
+    interpreter = ["/bin/bash", "-c"]
+    command = <<EOT
+      set -e
+      echo 'Applying Auth ConfigMap with kubectl...'
+      aws eks wait cluster-active --name '${var.cluster_name}'
+      aws eks update-kubeconfig --name '${var.cluster_name}' --alias '${var.cluster_name}-${var.region}' --region=${var.region}
+    EOT
   }
-
-  depends_on = [
-    aws_eks_cluster.cluster
-  ]
 }
