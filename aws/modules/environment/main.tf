@@ -1,17 +1,13 @@
 #########################
 # AWS 
 #########################
-# module "ec2" {
-#   count = var.enable_ec2 == true ? 1 : 0
-#   source       = "../ec2"
-#   environment  = var.environment
-#   instance-name = "${var.environment}-instance"
-# }
 
 module "ec2-instances" {
   count = var.enable_ec2 == true ? 1 : 0
   source       = "../ec2-instances"
   environment  = var.environment
+
+  instances = var.instances
 }
 
 module "eks" {

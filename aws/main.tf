@@ -24,6 +24,42 @@ module "environment-proservlab" {
   enable_eks_app = true
   enable_eks_psp = false
 
+  instances = [
+    {
+      name             = "ec2-private-1"
+      public           = false
+      instance_type    = "t2.micro"
+      ami_name         = "ubuntu_focal"
+      enable_ssm       = true
+      ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
+      tags             = {}
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name             = "ec2-public-1"
+      public           = true
+      instance_type    = "t2.micro"
+      ami_name         = "ubuntu_focal"
+      enable_ssm       = true
+      ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
+      tags             = {}
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name             = "ec2-public-2"
+      public           = true
+      instance_type    = "t2.micro"
+      ami_name         = "ubuntu_focal"
+      enable_ssm       = true
+      ssm_deploy_tag   = { ssm_deploy_lacework = "false" }
+      tags             = {}
+      user_data        = null
+      user_data_base64 = null
+    }
+  ]
+
   # kubernetes admission controller
   proxy_token = var.proxy_token
 
