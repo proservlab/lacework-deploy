@@ -12,22 +12,26 @@ variable "lacework_server_url" {
 }
 
 variable "resource_query" {
-    type    = string
+    type    = object({
+      ResourceTypeFilters = list(string)
+      TagFilters  = list(object({
+        Key = string
+        Value = list(string)
+      }))
+    })
     description = "JSON query to idenfity resources which will have lacework deployed"
-    default = <<EOT
-      {
-            ResourceTypeFilters = [
-                "AWS::EC2::Instance"
-            ]
+    default = {
+                ResourceTypeFilters = [
+                    "AWS::EC2::Instance"
+                ]
 
-            TagFilters = [
-                {
-                    Key = "ssm_deploy_lacework"
-                    Values = [
-                        "true"
-                    ]
-                }
-            ]
-      }
-    EOT
+                TagFilters = [
+                    {
+                        Key = "ssm_deploy_lacework"
+                        Values = [
+                            "true"
+                        ]
+                    }
+                ]
+              }
 }
