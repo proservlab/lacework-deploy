@@ -24,7 +24,7 @@ variable "resource_query" {
                 {
                     Key = "ssm_deploy_lacework"
                     Values = [
-                        true
+                        "true"
                     ]
                 }
             ]
