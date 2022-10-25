@@ -257,10 +257,10 @@ variable "enable_deploy_secret_ssh_keys" {
 }
 
 ###########################
-# Attack Surface
+# Attacker
 ###########################
 
-variable "enable_deplenable_deploy_malware_eicar" {
+variable "enable_deploy_malware_eicar" {
   description = "enable disable deployment of eicar malware test file for detection."
   type = bool
   default = false
