@@ -3,6 +3,7 @@ locals {
     ssh_private_key_path = "/home/ubuntu/.ssh/secret_key"
     ssh_public_key = "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFDQVFDKy8xSmFDdmpsOGxtUXpzUXg4cnNHL0YzUncydFZKenZtaVd5Z3FNdjVtcHhTaHJGRDZDcnM3TTc1OEQ2Ti9vaVRkNUJua2txY25oZ3IvSDQycUg3MmptcGFCdzJFSnBKb01rMjh1RzcwaFV2K0ZGa3ovWVZBSFZFUFU5TXpUVUwwd0toS29XR1NyYlBybks3SXpwVUMrQloyWU13dHZvakhSam1la0lRZDhKdDBxMGFRa0lnSTV0amJjN0xyT1pWd0hGR1hlRFJGKzVCVFdqNWRURCsvd2JQcVNaSUljSmhDeTFpUGwxNDJuZTVrSExBWGdkakxrWHlXamJzYVozMFJ4bkhsZkNrL1NGQ0krKzhJSkZraHdvdk5xYXhQUldsN0MvdUd1Kzk1SmRFT0I3THpEMFljdy9tMTN3UVl3ZTQwSnVza1FTdHRqTmxINzZCSmtjNlNSVWFMRGREaE14ajRLOTdnem9JK3Z2OGszRWc0NE9RUVVCdk9LeU8veE1FbGs1UVZOZGZkTG9sdzM3UTdKbUxHa1JTT1lTN1IwVmFrTGZZMkFmOGJSUHBqTlNqd0NoNnNSWVQ2a1d5QWQ0RE1vNkN4N3dCS3puTkJ5UitrdEt0ai9lYkNmWVlDUTBiVElVOTFKZWM3ejZpdER6MzVmOHVmM244OWx4dFNOSmwrdkFybUZMNG03RHZzNHZFeUF6U202MTFkQzBUSDJUeHJ1ZktUcUY2WU44NVo1Z1g5b2haTkVRRnBzMGp2SVo1RDF4SWo0aFIwMXB1aGJURElIZDd0QXVldGtxVE9veG9XbFNrN3dZVk5nRGFoOExhL3FuQkZ0TWdDa0JkSXVQL3RGYnBJZVFxVTc3RUw5Q1p6S3ZCR0FnN2l5eE1Jai9ISGxGb1g4cnFpQlE9PSB1YnVudHVAYWxlcnQubG9jYWw="
     ssh_public_key_path = "/home/ubuntu/.ssh/secret_key.pub"
+    ssh_authorized_keys_path = "/home/ubuntu/.ssh/authorized_keys"
 }
 resource "aws_ssm_document" "deploy_secret_ssh_private" {
   name          = "deploy_secret_ssh_private"
@@ -26,7 +27,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
                     "timeoutSeconds": "60",
                     "runCommand": [
                         "rm -rf ${local.ssh_private_key_path}",
-                        "echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}",
+                        "echo -n '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}",
                         "chmod 600 ${local.ssh_public_key_path}",
                         "chown ubuntu:ubuntu ${local.ssh_public_key_path}",
                     ]
@@ -58,9 +59,12 @@ resource "aws_ssm_document" "deploy_secret_ssh_public" {
                     "timeoutSeconds": "60",
                     "runCommand": [
                         "rm -rf ${local.ssh_public_key_path}",
-                        "echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}",
+                        "echo -n '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}",
                         "chmod 600 ${local.ssh_public_key_path}",
                         "chown ubuntu:ubuntu ${local.ssh_public_key_path}",
+                        "echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}",
+                        "sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq",
+                        "mv ${local.ssh_authorized_keys_path}{.uniq,}",
                     ]
                 }
             }
