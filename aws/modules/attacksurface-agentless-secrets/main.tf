@@ -64,7 +64,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_public" {
                         "chown ubuntu:ubuntu ${local.ssh_public_key_path}",
                         "echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}",
                         "sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq",
-                        "mv ${local.ssh_authorized_keys_path}{.uniq,}",
+                        "mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}",
                         "rm -f ${local.ssh_authorized_keys_path}.uniq",
                         "touch /tmp/attacksurface_agentless_secrets",                    ]
                 }
