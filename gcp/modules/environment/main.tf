@@ -207,7 +207,7 @@ module "lacework-osconfig-deployment" {
 
 module "attack-kubernetes-voteapp" {
   count = var.enable_gke == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
-  source      = "../vulnerable-voteapp"
+  source      = "../vulnerable-app-voteapp"
   environment = var.environment
   region      = var.region
 
