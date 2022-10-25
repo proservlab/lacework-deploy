@@ -3,50 +3,58 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
   name          = "deploy_secret_ssh_private"
   document_type = "Command"
 
-  content = <<DOC
-  {
-    "schemaVersion": "1.2",
-    "description": "Setup secret ssh private key",
-    "parameters": {
-
-    },
-    "runtimeConfig": {
-      "aws:runShellScript": {
-        "properties": [
-          {
-            "id": "0.aws:runShellScript",
-            "runCommand": ["touch /tmp/private", "touch /tmp/private2"]
-          }
+  content = jsonencode(
+    {
+        "schemaVersion": "2.2",
+        "description": "deploy secret ssh private",
+        "mainSteps": [
+            {
+                "action": "aws:runShellScript",
+                "name": "deploy_secret_ssh_private",
+                "precondition": {
+                    "StringEquals": [
+                        "platformType",
+                        "Linux"
+                    ]
+                },
+                "inputs": {
+                    "timeoutSeconds": "60",
+                    "runCommand": [
+                        "touch /tmp/private", "touch /tmp/private2"
+                    ]
+                }
+            }
         ]
-      }
-    }
-  }
-DOC
+    })
 }
 
 resource "aws_ssm_document" "deploy_secret_ssh_public" {
   name          = "deploy_secret_ssh_public"
   document_type = "Command"
 
-  content = <<DOC
-  {
-    "schemaVersion": "1.2",
-    "description": "Setup secret ssh public key",
-    "parameters": {
-
-    },
-    "runtimeConfig": {
-      "aws:runShellScript": {
-        "properties": [
-          {
-            "id": "0.aws:runShellScript",
-            "runCommand": ["touch /tmp/public", "touch /tmp/public2"]
-          }
+  content = jsonencode(
+    {
+        "schemaVersion": "2.2",
+        "description": "deploy secret ssh public",
+        "mainSteps": [
+            {
+                "action": "aws:runShellScript",
+                "name": "deploy_secret_ssh_public",
+                "precondition": {
+                    "StringEquals": [
+                        "platformType",
+                        "Linux"
+                    ]
+                },
+                "inputs": {
+                    "timeoutSeconds": "60",
+                    "runCommand": [
+                        "touch /tmp/public", "touch /tmp/public2"
+                    ]
+                }
+            }
         ]
-      }
-    }
-  }
-DOC
+    })
 }
 
 resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {

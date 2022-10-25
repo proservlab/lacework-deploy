@@ -104,6 +104,9 @@ EOT
   # attack surface
   enable_deploy_secret_ssh_keys = true
 
+  # attacker
+  enable_deploy_malware_eicar = true
+
   providers = {
     aws        = aws.main
     lacework   = lacework.main
