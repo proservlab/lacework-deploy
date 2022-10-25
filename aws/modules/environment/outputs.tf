@@ -1,3 +1,3 @@
-# output "example" {
-#   value = example.app
-# }
+output "ec2-instances" {
+    value = module.ec2-instances
+}
