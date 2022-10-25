@@ -32,7 +32,7 @@ module "environment-proservlab" {
       ami_name         = "ubuntu_focal"
       enable_ssm       = true
       ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
-      tags             = {}
+      tags             = { ssm_deploy_malware_eicar = "true" }
       user_data        = null
       user_data_base64 = null
     },
@@ -53,7 +53,7 @@ module "environment-proservlab" {
       instance_type  = "t2.micro"
       ami_name       = "ubuntu_focal"
       enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       tags = {
         ssm_deploy_secret_ssh_private = "true",
         ssm_deploy_malware_eicar      = "true"
@@ -72,7 +72,7 @@ EOT
       instance_type  = "t2.micro"
       ami_name       = "ubuntu_focal"
       enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       tags = {
         ssm_deploy_secret_ssh_public = "true",
         ssm_deploy_malware_eicar     = "true"
