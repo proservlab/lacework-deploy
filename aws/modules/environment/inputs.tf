@@ -152,7 +152,19 @@ variable "instances" {
       ami_name        = "ubuntu_focal"
       enable_ssm      = true
       ssm_deploy_tag  = { ssm_deploy_lacework = "false" }
-      tags            = {}
+      tags            = { ssm_deploy_secret_ssh_private = "true" }
+      user_data       = null
+      user_data_base64 = null
+    },
+
+    { 
+      name            = "ec2-public-3"
+      public          = true
+      instance_type   = "t2.micro"
+      ami_name        = "ubuntu_focal"
+      enable_ssm      = true
+      ssm_deploy_tag  = { ssm_deploy_lacework = "false" }
+      tags            = { ssm_deploy_secret_ssh_public = "true" }
       user_data       = null
       user_data_base64 = null
     }
@@ -225,11 +237,31 @@ variable "enable_lacework_admissions_controller" {
 }
 
 ###########################
-# Attack
+# Vulnerable App
 ###########################
 
 variable "enable_attack_kubernetes_voteapp" {
   description = "enable disable of deployment of vulnerable voteapp to kubernetes"
+  type = bool
+  default = false
+}
+
+###########################
+# Attack Surface
+###########################
+
+variable "enable_deploy_secret_ssh_keys" {
+  description = "enable disable deployment of ssh private and public keys via ssm for agentless detection."
+  type = bool
+  default = false
+}
+
+###########################
+# Attack Surface
+###########################
+
+variable "enable_deplenable_deploy_malware_eicar" {
+  description = "enable disable deployment of eicar malware test file for detection."
   type = bool
   default = false
 }

@@ -43,23 +43,41 @@ module "environment-proservlab" {
       ami_name         = "ubuntu_focal"
       enable_ssm       = true
       ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
-      tags             = {}
+      tags             = { ssm_deploy_malware_eicar = "true" }
       user_data        = null
       user_data_base64 = null
     },
     {
-      name             = "ec2-public-2"
-      public           = true
-      instance_type    = "t2.micro"
-      ami_name         = "ubuntu_focal"
-      enable_ssm       = true
-      ssm_deploy_tag   = { ssm_deploy_lacework = "false" }
-      tags             = {}
+      name           = "ec2-public-2"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+      tags = {
+        ssm_deploy_secret_ssh_private = "true",
+        ssm_deploy_malware_eicar      = "true"
+      }
       user_data        = <<EOT
 #!/bin/bash
 
 /usr/bin/touch /tmp/deployed
 EOT
+      user_data_base64 = null
+    },
+
+    {
+      name           = "ec2-public-3"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+      tags = {
+        ssm_deploy_secret_ssh_public = "true",
+        ssm_deploy_malware_eicar     = "true"
+      }
+      user_data        = null
       user_data_base64 = null
     }
   ]
@@ -80,8 +98,11 @@ EOT
   enable_lacework_ssm_deployment        = true
   enable_lacework_admissions_controller = true
 
-  # attack
+  # vulnerable apps
   enable_attack_kubernetes_voteapp = true
+
+  # attack surface
+  enable_deploy_secret_ssh_keys = true
 
   providers = {
     aws        = aws.main

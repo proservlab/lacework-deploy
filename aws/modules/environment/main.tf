@@ -144,10 +144,10 @@ module "lacework-agentless" {
 
 
 #########################
-# Attack
+# Vulnerable Apps
 #########################
 
-module "attack-kubernetes-voteapp" {
+module "vulnerable-app-voteapp" {
   count = var.enable_eks == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
   source      = "../vulnerable-app-voteapp"
   environment = var.environment
@@ -159,3 +159,24 @@ module "attack-kubernetes-voteapp" {
   ]
 }
 
+#########################
+# Attack Surface
+#########################
+
+# requires ec2 instance deployment
+module "attacksurface-agentless-secrets" {
+  count = var.enable_ec2 == true && var.enable_deploy_secret_ssh_keys == true ? 1 : 0
+  source = "../attacksurface-agentless-secrets"
+  environment = var.environment
+}
+
+#########################
+# Attacker
+#########################
+
+# requires ec2 instance deployment
+module "attacker-malware-eicar" {
+  count = var.enable_ec2 == true && var.enable_deploy_malware_eicar == true ? 1 : 0
+  source = "../attacker-malware-eicar"
+  environment = var.environment
+}
