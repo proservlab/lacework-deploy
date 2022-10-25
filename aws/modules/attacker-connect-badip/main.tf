@@ -1,21 +1,20 @@
-
 locals {
-    eicar_string_base64 = "WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo="
-    eicar_path = "/tmp/eicar.com"
+    port = 80
+    iplist_url = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
 }
 
-resource "aws_ssm_document" "deploy_malware_eicar" {
-  name          = "deploy_malware_eicar"
+resource "aws_ssm_document" "connect_bad_ip" {
+  name          = "connect_bad_ip"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "deploy secret ssh private",
+        "description": "connect bad ip on port ${local.port}",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private",
+                "name": "connect_bad_ip",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -25,9 +24,8 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "rm -rf ${local.eicar_path}",
-                        "echo -n '${base64decode(local.eicar_string_base64)}' > ${local.eicar_path}",
-                        "touch /tmp/attacker_malware_eicar",
+                        "curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\" | xargs -I {} nc -w 1 -vv {} ${local.port}",
+                        "touch /tmp/attacker_connect_bad_ip",
                     ]
                 }
             }
@@ -35,11 +33,11 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
     })
 }
 
-resource "aws_resourcegroups_group" "deploy_malware_eicar" {
-    name = "deploy_malware_eicar"
+resource "aws_resourcegroups_group" "connect_bad_ip" {
+    name = "connect_bad_ip"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_malware_eicar)
+        query = jsonencode(var.resource_query_connect_bad_ip)
     }
 
     tags = {
@@ -48,15 +46,15 @@ resource "aws_resourcegroups_group" "deploy_malware_eicar" {
     }
 }
 
-resource "aws_ssm_association" "deploy_malware_eicar" {
-    association_name = "deploy_malware_eicar"
+resource "aws_ssm_association" "connect_bad_ip" {
+    association_name = "connect_bad_ip"
 
-    name = aws_ssm_document.deploy_malware_eicar.name
+    name = aws_ssm_document.connect_bad_ip.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_malware_eicar.name,
+            aws_resourcegroups_group.connect_bad_ip.name,
         ]
     }
 

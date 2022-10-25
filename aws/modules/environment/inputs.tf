@@ -250,7 +250,7 @@ variable "enable_attack_kubernetes_voteapp" {
 # Attack Surface
 ###########################
 
-variable "enable_deploy_secret_ssh_keys" {
+variable "enable_attacksurface_agentless_secrets" {
   description = "enable disable deployment of ssh private and public keys via ssm for agentless detection."
   type = bool
   default = false
@@ -260,9 +260,43 @@ variable "enable_deploy_secret_ssh_keys" {
 # Attacker
 ###########################
 
-variable "enable_deploy_malware_eicar" {
+variable "enable_attacker_malware_eicar" {
   description = "enable disable deployment of eicar malware test file for detection."
   type = bool
   default = false
 }
+
+variable "enable_attacker_connect_badip" {
+  description = "enable disable connect to badip"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_connect_enumerate_host" {
+  description = "enable disable connect enumerate host"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_connect_oast_host" {
+  description = "enable disable connect oast host"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_exec_codecov" {
+  description = "enable disable exec codecov"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_exec_reverseshell" {
+  description = "enable disable exec reverseshell"
+  type = bool
+  default = false
+}
+
+
+
+
 

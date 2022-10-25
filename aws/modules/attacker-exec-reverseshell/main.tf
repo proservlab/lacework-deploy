@@ -1,21 +1,20 @@
-
 locals {
-    eicar_string_base64 = "WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo="
-    eicar_path = "/tmp/eicar.com"
+    port = 4444
+    pid_path = "/var/run/nc_listener"
 }
 
-resource "aws_ssm_document" "deploy_malware_eicar" {
-  name          = "deploy_malware_eicar"
+resource "aws_ssm_document" "exec_reverse_shell" {
+  name          = "exec_reverse_shell"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "deploy secret ssh private",
+        "description": "exec reverse shell",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private",
+                "name": "exec_reverse_shell",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -25,9 +24,10 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "rm -rf ${local.eicar_path}",
-                        "echo -n '${base64decode(local.eicar_string_base64)}' > ${local.eicar_path}",
-                        "touch /tmp/attacker_malware_eicar",
+                        "kill -9 $(cat ${local.pid_path})",
+                        "/usr/bin/nc -l ${local.port} &",
+                        "echo -n $! > ${local.pid_path}",
+                        "touch /tmp/attacker_exec_reverseshell",
                     ]
                 }
             }
@@ -35,11 +35,11 @@ resource "aws_ssm_document" "deploy_malware_eicar" {
     })
 }
 
-resource "aws_resourcegroups_group" "deploy_malware_eicar" {
-    name = "deploy_malware_eicar"
+resource "aws_resourcegroups_group" "exec_reverse_shell" {
+    name = "exec_reverse_shell"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_malware_eicar)
+        query = jsonencode(var.resource_query_exec_reverse_shell)
     }
 
     tags = {
@@ -48,15 +48,15 @@ resource "aws_resourcegroups_group" "deploy_malware_eicar" {
     }
 }
 
-resource "aws_ssm_association" "deploy_malware_eicar" {
-    association_name = "deploy_malware_eicar"
+resource "aws_ssm_association" "exec_reverse_shell" {
+    association_name = "exec_reverse_shell"
 
-    name = aws_ssm_document.deploy_malware_eicar.name
+    name = aws_ssm_document.exec_reverse_shell.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_malware_eicar.name,
+            aws_resourcegroups_group.exec_reverse_shell.name,
         ]
     }
 

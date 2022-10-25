@@ -165,7 +165,7 @@ module "vulnerable-app-voteapp" {
 
 # requires ec2 instance deployment
 module "attacksurface-agentless-secrets" {
-  count = var.enable_ec2 == true && var.enable_deploy_secret_ssh_keys == true ? 1 : 0
+  count = var.enable_ec2 == true && var.enable_attacksurface_agentless_secrets == true ? 1 : 0
   source = "../attacksurface-agentless-secrets"
   environment = var.environment
 }
@@ -176,7 +176,37 @@ module "attacksurface-agentless-secrets" {
 
 # requires ec2 instance deployment
 module "attacker-malware-eicar" {
-  count = var.enable_ec2 == true && var.enable_deploy_malware_eicar == true ? 1 : 0
+  count = var.enable_ec2 == true && var.enable_attacker_malware_eicar == true ? 1 : 0
   source = "../attacker-malware-eicar"
+  environment = var.environment
+}
+
+module "attacker-connect-badip" {
+  count = var.enable_ec2 == true && var.enable_attacker_connect_badip == true ? 1 : 0
+  source = "../attacker-connect-badip"
+  environment = var.environment
+}
+
+module "attacker-connect-enumerate-host" {
+  count = var.enable_ec2 == true && var.enable_attacker_connect_enumerate_host == true ? 1 : 0
+  source = "../attacker-connect-enumerate-host"
+  environment = var.environment
+}
+
+module "attacker-connect-oast-host" {
+  count = var.enable_ec2 == true && var.enable_attacker_connect_oast_host == true ? 1 : 0
+  source = "../attacker-connect-oast-host"
+  environment = var.environment
+}
+
+module "attacker-exec-codecov" {
+  count = var.enable_ec2 == true && var.enable_attacker_exec_codecov == true ? 1 : 0
+  source = "../attacker-exec-codecov"
+  environment = var.environment
+}
+
+module "attacker-exec-reverseshell" {
+  count = var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ? 1 : 0
+  source = "../attacker-exec-reverseshell"
   environment = var.environment
 }

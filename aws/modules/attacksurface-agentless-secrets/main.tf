@@ -66,7 +66,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_public" {
                         "sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq",
                         "mv ${local.ssh_authorized_keys_path}{.uniq,}",
                         "rm -f ${local.ssh_authorized_keys_path}.uniq",
-                    ]
+                        "touch /tmp/attacksurface_agentless_secrets",                    ]
                 }
             }
         ]

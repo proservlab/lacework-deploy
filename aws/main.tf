@@ -26,24 +26,42 @@ module "environment-proservlab" {
 
   instances = [
     {
-      name             = "ec2-private-1"
-      public           = false
-      instance_type    = "t2.micro"
-      ami_name         = "ubuntu_focal"
-      enable_ssm       = true
-      ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
-      tags             = { ssm_deploy_malware_eicar = "true" }
+      name           = "ec2-private-1"
+      public         = false
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      tags = {
+        ssm_connect_bad_ip            = "false"
+        ssm_connect_enumerate_host    = "false"
+        ssm_connect_oast_host         = "false"
+        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_public  = "false"
+        ssm_deploy_secret_ssh_private = "false"
+        ssm_exec_reverse_shell        = "false"
+        ssm_exec_codecov              = "false"
+      }
       user_data        = null
       user_data_base64 = null
     },
     {
-      name             = "ec2-public-1"
-      public           = true
-      instance_type    = "t2.micro"
-      ami_name         = "ubuntu_focal"
-      enable_ssm       = true
-      ssm_deploy_tag   = { ssm_deploy_lacework = "true" }
-      tags             = { ssm_deploy_malware_eicar = "true" }
+      name           = "ec2-public-1"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      tags = {
+        ssm_connect_bad_ip            = "false"
+        ssm_connect_enumerate_host    = "false"
+        ssm_connect_oast_host         = "false"
+        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_public  = "false"
+        ssm_deploy_secret_ssh_private = "false"
+        ssm_exec_reverse_shell        = "false"
+        ssm_exec_codecov              = "false"
+      }
       user_data        = null
       user_data_base64 = null
     },
@@ -55,8 +73,14 @@ module "environment-proservlab" {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       tags = {
-        ssm_deploy_secret_ssh_private = "true",
+        ssm_connect_bad_ip            = "false"
+        ssm_connect_enumerate_host    = "false"
+        ssm_connect_oast_host         = "false"
         ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_public  = "false"
+        ssm_deploy_secret_ssh_private = "true"
+        ssm_exec_reverse_shell        = "false"
+        ssm_exec_codecov              = "false"
       }
       user_data        = <<EOT
 #!/bin/bash
@@ -74,8 +98,14 @@ EOT
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       tags = {
-        ssm_deploy_secret_ssh_public = "true",
-        ssm_deploy_malware_eicar     = "true"
+        ssm_connect_bad_ip            = "false"
+        ssm_connect_enumerate_host    = "false"
+        ssm_connect_oast_host         = "false"
+        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_public  = "true"
+        ssm_deploy_secret_ssh_private = "false"
+        ssm_exec_reverse_shell        = "false"
+        ssm_exec_codecov              = "false"
       }
       user_data        = null
       user_data_base64 = null
@@ -102,10 +132,15 @@ EOT
   enable_attack_kubernetes_voteapp = true
 
   # attack surface
-  enable_deploy_secret_ssh_keys = true
+  enable_attacksurface_agentless_secrets = true
 
   # attacker
-  enable_deploy_malware_eicar = true
+  enable_attacker_malware_eicar          = true
+  enable_attacker_connect_badip          = true
+  enable_attacker_connect_enumerate_host = true
+  enable_attacker_connect_oast_host      = true
+  enable_attacker_exec_codecov           = true
+  enable_attacker_exec_reverseshell      = true
 
   providers = {
     aws        = aws.main
