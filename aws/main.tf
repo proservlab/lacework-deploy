@@ -36,7 +36,7 @@ module "environment-proservlab" {
         ssm_connect_bad_ip            = "false"
         ssm_connect_enumerate_host    = "false"
         ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_malware_eicar      = "false"
         ssm_deploy_secret_ssh_public  = "false"
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
@@ -73,9 +73,9 @@ module "environment-proservlab" {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       tags = {
-        ssm_connect_bad_ip            = "false"
+        ssm_connect_bad_ip            = "true"
         ssm_connect_enumerate_host    = "false"
-        ssm_connect_oast_host         = "false"
+        ssm_connect_oast_host         = "true"
         ssm_deploy_malware_eicar      = "true"
         ssm_deploy_secret_ssh_public  = "false"
         ssm_deploy_secret_ssh_private = "true"
@@ -101,7 +101,7 @@ EOT
         ssm_connect_bad_ip            = "false"
         ssm_connect_enumerate_host    = "false"
         ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_malware_eicar      = "false"
         ssm_deploy_secret_ssh_public  = "true"
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
