@@ -24,8 +24,8 @@ resource "aws_ssm_document" "connect_bad_ip" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\" | xargs -I {} nc -w 1 -vv {} ${local.port}",
-                        "touch /tmp/attacker_connect_bad_ip",
+                        "curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\" > /tmp/bad_ip.txt",
+                        "/usr/bin/nc -w 5 -vv $(cat /tmp/bad_ip.txt) ${local.port} 2>&1 > /tmp/attacker_connect_bad_ip",
                     ]
                 }
             }

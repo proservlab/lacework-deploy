@@ -79,7 +79,7 @@ module "environment-proservlab" {
         ssm_deploy_malware_eicar      = "true"
         ssm_deploy_secret_ssh_public  = "false"
         ssm_deploy_secret_ssh_private = "true"
-        ssm_exec_reverse_shell        = "false"
+        ssm_exec_reverse_shell        = "true"
         ssm_exec_codecov              = "false"
       }
       user_data        = <<EOT

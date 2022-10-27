@@ -26,6 +26,7 @@ resource "aws_ssm_document" "connect_enumerate_host" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
+                        "rm -rf ${local.nmap_path}",
                         "curl -L -o ${local.nmap_path} ${local.nmap_download}",
                         "chmod 755 ${local.nmap_path}",
                         "${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host} > /tmp/attacker_connect_enumerate_host",

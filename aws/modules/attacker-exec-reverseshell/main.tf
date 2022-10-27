@@ -24,7 +24,7 @@ resource "aws_ssm_document" "exec_reverse_shell" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "kill -9 $(cat ${local.pid_path})",
+                        "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
                         "/usr/bin/nc -l ${local.port} &",
                         "echo -n $! > ${local.pid_path}",
                         "touch /tmp/attacker_exec_reverseshell",

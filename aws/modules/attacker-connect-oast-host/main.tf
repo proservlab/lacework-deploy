@@ -1,5 +1,5 @@
 locals {
-    oast_domain = "abcsomerandomxyz.burpcollaborator.net"
+    oast_domain = "burpcollaborator.net"
 }
 
 resource "aws_ssm_document" "connect_oast_host" {
@@ -23,7 +23,7 @@ resource "aws_ssm_document" "connect_oast_host" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "curl -s https://${local.oast_domain} > /tmp/attacker_connect_oast_host.txt",
+                        "curl -s https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain} > /tmp/attacker_connect_oast_host.txt",
                     ]
                 }
             }
