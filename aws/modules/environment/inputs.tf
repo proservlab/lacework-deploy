@@ -258,6 +258,11 @@ variable "enable_attack_kubernetes_privileged_pod" {
   default = false
 }
 
+variable "enable_attack_kubernetes_root_mount_fs_pod" {
+  description = "enable disable of deployment of vulnerable root mount fs to kubernetes"
+  type = bool
+  default = false
+}
 
 
 
@@ -313,6 +318,12 @@ variable "enable_attacker_exec_reverseshell" {
 
 variable "enable_attacker_exec_docker_cpuminer" {
   description = "enable disable docker cpuminer"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_kubernetes_app_kali" {
+  description = "enable disable kernetes kali pod"
   type = bool
   default = false
 }

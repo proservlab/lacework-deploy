@@ -181,6 +181,17 @@ module "vulnerable-kubernetes-app-privileged-pod" {
   ]
 }
 
+module "vulnerable-kubernetes-app-root-mount-fs-pod" {
+  count = var.enable_eks == true && var.enable_attack_kubernetes_root_mount_fs_pod == true ? 1 : 0
+  source      = "../vulnerable-kubernetes-app-root-mount-fs-pod"
+  environment = var.environment
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.lacework
+  ]
+}
+
 #########################
 # Attack Surface
 #########################
@@ -236,5 +247,11 @@ module "attacker-exec-reverseshell" {
 module "attacker-exec-docker-cpuminer" {
   count = var.enable_ec2 == true && var.enable_attacker_exec_docker_cpuminer == true ? 1 : 0
   source = "../attacker-exec-docker-cpuminer"
+  environment = var.environment
+}
+
+module "attacker-kubernetes-app-kali" {
+  count = var.enable_ec2 == true && var.enable_attacker_kubernetes_app_kali == true ? 1 : 0
+  source = "../attacker-kubernetes-app-kali"
   environment = var.environment
 }
