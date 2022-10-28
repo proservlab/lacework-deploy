@@ -1,9 +1,3 @@
-resource "kubernetes_namespace" "namespace" {
-  metadata {
-    name = var.environment
-  }
-}
-
 resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
   metadata {
     name = "attacker-kalilinux-pod"
