@@ -44,7 +44,7 @@ resource "kubernetes_deployment" "vulnerable_root_mount_fs_pod" {
           name = "test-volume"
           host_path {
             path = "/"
-            type = "directory"
+            type = "Directory"
           }
         }
       }

