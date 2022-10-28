@@ -133,9 +133,9 @@ EOT
 
   # vulnerable apps
   enable_attack_kubernetes_voteapp           = true
-  enable_attack_kubernetes_log4shell         = false
-  enable_attack_kubernetes_privileged_pod    = false
-  enable_attack_kubernetes_root_mount_fs_pod = false
+  enable_attack_kubernetes_log4shell         = true
+  enable_attack_kubernetes_privileged_pod    = true
+  enable_attack_kubernetes_root_mount_fs_pod = true
 
   # attack surface
   enable_attacksurface_agentless_secrets = true
@@ -147,8 +147,8 @@ EOT
   enable_attacker_connect_oast_host      = true
   enable_attacker_exec_codecov           = true
   enable_attacker_exec_reverseshell      = true
-  enable_attacker_exec_docker_cpuminer   = false
-  enable_attacker_kubernetes_app_kali    = false
+  enable_attacker_exec_docker_cpuminer   = true
+  enable_attacker_kubernetes_app_kali    = true
 
   providers = {
     aws        = aws.main
