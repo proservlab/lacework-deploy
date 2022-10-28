@@ -30,9 +30,6 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
       }
 
       spec {
-        security_context {
-            privileged = true
-        }
         container {
             image = "kalilinux/kali-rolling"
             name  = "attacker-kalilinux-pod"

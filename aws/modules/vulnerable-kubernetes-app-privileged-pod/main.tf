@@ -30,14 +30,14 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
       }
 
       spec {
-        security_context {
-            privileged = true
-        }
         container {
             image = "nginx:latest"
             name  = "nginx"
             command = ["tail"]
             args = ["-f", "/dev/null"] 
+            security_context {
+                privileged = true
+            }
         }
       }
     }

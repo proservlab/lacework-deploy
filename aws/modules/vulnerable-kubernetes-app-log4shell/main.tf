@@ -30,9 +30,6 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
       }
 
       spec {
-        security_context {
-            privileged = true
-        }
         container {
             image = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
             name  = "vulnerable-log4shell-pod"

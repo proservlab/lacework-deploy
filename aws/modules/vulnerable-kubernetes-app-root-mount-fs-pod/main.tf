@@ -30,9 +30,6 @@ resource "kubernetes_deployment" "vulnerable_root_mount_fs_pod" {
       }
 
       spec {
-        security_context {
-            privileged = true
-        }
         container {
             image = "nginx:latest"
             name  = "nginx"

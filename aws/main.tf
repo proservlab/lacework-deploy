@@ -132,9 +132,9 @@ EOT
   enable_lacework_admissions_controller = true
 
   # vulnerable apps
-  enable_attack_kubernetes_voteapp       = true
-  enable_attack_kubernetes_log4shell     = false
-  enable_attack_kubernetes_privileged_pod = false
+  enable_attack_kubernetes_voteapp           = true
+  enable_attack_kubernetes_log4shell         = false
+  enable_attack_kubernetes_privileged_pod    = false
   enable_attack_kubernetes_root_mount_fs_pod = false
 
   # attack surface
