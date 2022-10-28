@@ -246,6 +246,21 @@ variable "enable_attack_kubernetes_voteapp" {
   default = false
 }
 
+variable "enable_attack_kubernetes_log4shell" {
+  description = "enable disable of deployment of vulnerable log4shell container to kubernetes"
+  type = bool
+  default = false
+}
+
+variable "enable_attack_kubernetes_privileged_pod" {
+  description = "enable disable of deployment of vulnerable privileged pod to kubernetes"
+  type = bool
+  default = false
+}
+
+
+
+
 ###########################
 # Attack Surface
 ###########################

@@ -159,6 +159,28 @@ module "vulnerable-app-voteapp" {
   ]
 }
 
+module "vulnerable-kubernetes-app-log4shell" {
+  count = var.enable_eks == true && var.enable_attack_kubernetes_log4shell == true ? 1 : 0
+  source      = "../vulnerable-kubernetes-app-log4shell"
+  environment = var.environment
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.lacework
+  ]
+}
+
+module "vulnerable-kubernetes-app-privileged-pod" {
+  count = var.enable_eks == true && var.enable_attack_kubernetes_privileged_pod == true ? 1 : 0
+  source      = "../vulnerable-kubernetes-app-privileged-pod"
+  environment = var.environment
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.lacework
+  ]
+}
+
 #########################
 # Attack Surface
 #########################
