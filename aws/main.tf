@@ -41,6 +41,7 @@ module "environment-proservlab" {
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
         ssm_exec_codecov              = "false"
+        ssm_exec_docker_cpuminer      = "false"
       }
       user_data        = null
       user_data_base64 = null
@@ -61,6 +62,7 @@ module "environment-proservlab" {
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
         ssm_exec_codecov              = "false"
+        ssm_exec_docker_cpuminer      = "false"
       }
       user_data        = null
       user_data_base64 = null
@@ -81,6 +83,7 @@ module "environment-proservlab" {
         ssm_deploy_secret_ssh_private = "true"
         ssm_exec_reverse_shell        = "true"
         ssm_exec_codecov              = "false"
+        ssm_exec_docker_cpuminer      = "false"
       }
       user_data        = <<EOT
 #!/bin/bash

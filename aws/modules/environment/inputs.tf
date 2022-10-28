@@ -296,6 +296,14 @@ variable "enable_attacker_exec_reverseshell" {
   default = false
 }
 
+variable "enable_attacker_exec_docker_cpuminer" {
+  description = "enable disable docker cpuminer"
+  type = bool
+  default = false
+}
+
+
+
 
 
 

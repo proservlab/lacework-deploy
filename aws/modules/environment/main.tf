@@ -210,3 +210,9 @@ module "attacker-exec-reverseshell" {
   source = "../attacker-exec-reverseshell"
   environment = var.environment
 }
+
+module "attacker-exec-docker-cpuminer" {
+  count = var.enable_ec2 == true && var.enable_attacker_exec_docker_cpuminer == true ? 1 : 0
+  source = "../attacker-exec-docker-cpuminer"
+  environment = var.environment
+}
