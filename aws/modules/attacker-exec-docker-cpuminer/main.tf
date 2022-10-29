@@ -27,7 +27,7 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
                     "timeoutSeconds": "60",
                     "runCommand": [
                         "echo \"starting...\" > /tmp/attacker_exec_docker_cpuminer",
-                        "if [[ `docker ps | grep ${local.name}` ]] then docker stop ${local.name}; fi 2>&1 >> /tmp/attacker_exec_docker_cpuminer",
+                        "if [[ `docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi 2>&1 >> /tmp/attacker_exec_docker_cpuminer",
                         "docker run --rm -d --network=host --name ${local.name} ${local.image} -l ${local.server} -u ${local.user}",
                         "touch /tmp/attacker_exec_docker_cpuminer",
                     ]
