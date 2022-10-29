@@ -67,6 +67,7 @@ resource "helm_release" "cluster-autoscaler" {
   namespace   = "kube-system"
   repository  = "stable"
   chart       = "cluster-autoscaler"
+  force_update = true
 
   set{
     name  = "cloudProvder"

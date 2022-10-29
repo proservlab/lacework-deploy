@@ -29,9 +29,6 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
             name  = "vulnerable-log4shell-pod"
             command = ["java"]
             args = ["-jar", "/app/spring-boot-application.jar"]
-            port {
-                container_port = 8080
-            }
         }
       }
     }
@@ -41,24 +38,24 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
 
 resource "kubernetes_service_v1" "vulnerable_log4shell_pod" {
     metadata {
-        name = "vulnerable-log4shell-pod"
+        name = "vulnerable-log4shell-po"
         labels = {
-            app = "vulnerable-log4shell-pod"
+            app = "vulnerable-log4shell-po"
         }
+        # namespace = var.environment
     }
     spec {
         selector = {
-            app = "vulnerable-log4shell-pod"
+            app = "vulnerable-log4shell-po"
         }
 
         # session_affinity = "ClientIP"
         port {
-            name = "vulnerable-log4shell-pod"
+            name = "log4shell-service"
             port        = 8080
             target_port = 8080
         }
 
-        # type = "LoadBalancer"
-        cluster_ip = "None"
+        type = "LoadBalancer"
     }
 }
