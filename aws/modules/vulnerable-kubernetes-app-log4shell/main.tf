@@ -1,3 +1,6 @@
+locals {
+  enable_service = false
+}
 resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
   metadata {
     name = "vulnerable-log4shell-pod"
@@ -29,6 +32,10 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
             name  = "vulnerable-log4shell-pod"
             command = ["java"]
             args = ["-jar", "/app/spring-boot-application.jar"]
+
+            port {
+                container_port = 8080
+            }
         }
       }
     }
@@ -37,16 +44,17 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
 
 
 resource "kubernetes_service_v1" "vulnerable_log4shell_pod" {
+    count = local.enable_service == true ? 1 : 0
     metadata {
-        name = "vulnerable-log4shell-po"
+        name = "vulnerable-log4shell-pod"
         labels = {
-            app = "vulnerable-log4shell-po"
+            app = "vulnerable-log4shell-pod"
         }
         # namespace = var.environment
     }
     spec {
         selector = {
-            app = "vulnerable-log4shell-po"
+            app = "vulnerable-log4shell-pod"
         }
 
         # session_affinity = "ClientIP"
