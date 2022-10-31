@@ -12,7 +12,7 @@ openssl rand -out PlaintextKeyMaterial.bin 32
 openssl base64 -in PlaintextKeyMaterial.bin -out PlaintextKeyMaterial.b64
 
 # generate import params
-export KEY=`aws kms --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
+export KEY=`aws kms --profile=dev-test --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
 echo "Key Import Params: ${KEY}"
 
 # create base64 publickey and token
@@ -36,7 +36,7 @@ openssl pkeyutl \
     -pkeyopt rsa_oaep_md:sha256
 
 # import encrypted key material
-aws kms \
+aws kms --profile=dev-test \
     --region us-east-1 \
     import-key-material \
     --key-id ${KEY_ID} \
