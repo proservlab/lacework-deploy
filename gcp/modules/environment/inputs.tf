@@ -23,6 +23,18 @@ variable "gcp_organization" {
   type        = string
 }
 
+variable "disable_all" {
+  description   = "override disable of all modules"
+  type          = bool
+  default       = false
+}
+
+variable "enable_all" {
+  description   = "override enable of all modules"
+  type          = bool
+  default       = false
+}
+
 ###########################
 # Kubernetes Admission Controller
 ###########################

@@ -3,7 +3,7 @@
 #########################
 
 module "gce" {
-  count = var.enable_gce == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gce == true ) ? 1 : 0
   source      = "../gce"
   environment = var.environment
 
@@ -13,7 +13,7 @@ module "gce" {
 }
 
 module "gke" {
-  count = var.enable_gke == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true ) ? 1 : 0
   source                              = "../gke"
   gcp_project_id                      = var.gcp_project
   cluster_name                        = var.cluster_name
@@ -72,7 +72,7 @@ module "gke" {
 
 # example of pushing kubernetes deployment via terraform
 module "kubenetes-app" {
-  count = var.enable_gke == true && var.enable_gke_app == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_gke_app == true ) ? 1 : 0
   source      = "../kubernetes-app"
   environment = var.environment
 
@@ -83,7 +83,7 @@ module "kubenetes-app" {
 
 # example of applying pod security policy
 module "kubenetes-psp" {
-  count = var.enable_gke == true && var.enable_gke_psp == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_gke_psp == true ) ? 1 : 0
   source      = "../kubernetes-psp"
   environment = var.environment
 
@@ -97,7 +97,7 @@ module "kubenetes-psp" {
 #########################
 
 resource "kubernetes_namespace" "lacework" {
-  count = var.enable_gke == true && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ) ? 1 : 0
   metadata {
     name = "lacework"
   }
@@ -108,7 +108,7 @@ resource "kubernetes_namespace" "lacework" {
 }
 
 module "lacework-audit-config" {
-  count = var.enable_lacework_audit_config == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_audit_config == true ) ? 1 : 0
   source      = "../lacework-audit-config"
   environment = var.environment
   lacework_gcp_project = var.lacework_gcp_project
@@ -116,7 +116,7 @@ module "lacework-audit-config" {
 }
 
 resource "lacework_agent_access_token" "main" {
-  count = var.lacework_agent_access_token == "false" ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.lacework_agent_access_token == "false" ) ? 1 : 0
   name        = "${var.environment}-token"
   description = "deployment for ${var.environment}"
 }
@@ -126,7 +126,7 @@ locals {
 }
 
 module "lacework-daemonset" {
-  count = var.enable_gke == true && var.enable_lacework_daemonset == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_lacework_daemonset == true ) ? 1 : 0
   source                      = "../lacework-daemonset"
   cluster-name                = var.cluster_name
   environment                 = var.environment
@@ -144,7 +144,7 @@ module "lacework-daemonset" {
 }
 
 module "lacework-alerts" {
-  count = var.enable_lacework_alerts == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_alerts == true ) ? 1 : 0
   source       = "../lacework-alerts"
   environment  = var.environment
   
@@ -160,13 +160,13 @@ module "lacework-alerts" {
 }
 
 module "lacework-custom-policy" {
-  count = var.enable_lacework_custom_policy == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_custom_policy == true ) ? 1 : 0
   source       = "../lacework-custom-policy"
   environment  = var.environment
 }
 
 module "lacework-admission-controller" {
-  count = var.enable_gke == true && var.enable_lacework_admissions_controller == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_lacework_admissions_controller == true ) ? 1 : 0
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
@@ -179,7 +179,7 @@ module "lacework-admission-controller" {
 }
 
 module "lacework-osconfig-deployment" {
-  count = var.enable_lacework_osconfig_deployment == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_osconfig_deployment == true ) ? 1 : 0
   source                      = "../lacework-osconfig-deployment"
   environment                 = var.environment
   gcp_project                 = var.gcp_project
@@ -195,7 +195,7 @@ module "lacework-osconfig-deployment" {
 
 # not available on gcp currently
 # module "lacework-agentless" {
-#   count = var.enable_lacework_agentless == true ? 1 : 0
+#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_agentless == true ) ? 1 : 0
 #   source      = "../lacework-agentless"
 #   environment = var.environment
 # }
@@ -206,7 +206,7 @@ module "lacework-osconfig-deployment" {
 #########################
 
 module "attack-kubernetes-voteapp" {
-  count = var.enable_gke == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_attack_kubernetes_voteapp == true ) ? 1 : 0
   source      = "../vulnerable-app-voteapp"
   environment = var.environment
   region      = var.region

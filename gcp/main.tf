@@ -27,6 +27,10 @@ module "environment-proservlab" {
   gcp_project      = data.google_project.project.project_id
   gcp_location     = var.gcp_location
 
+  # override enable
+  disable_all = false
+  enable_all = false
+
   # slack
   enable_slack_alerts       = true
   slack_token               = var.slack_token

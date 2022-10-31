@@ -3,6 +3,10 @@ module "environment-proservlab" {
   environment = "proservlab"
   region      = var.region
 
+  # override enable
+  disable_all = true
+  enable_all  = false
+
   # slack
   enable_slack_alerts = true
   slack_token         = var.slack_token

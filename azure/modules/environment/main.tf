@@ -2,7 +2,7 @@
 # AWS 
 #########################
 module "compute" {
-  count = var.enable_compute == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_compute == true ) ? 1 : 0
   source        = "../compute"
   environment   = var.environment
   region      = var.region
@@ -10,7 +10,7 @@ module "compute" {
 }
 
 module "aks" {
-  count = var.enable_aks == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true ) ? 1 : 0
   source       = "../aks"
   environment  = var.environment
   cluster_name = var.cluster_name
@@ -24,7 +24,7 @@ module "aks" {
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {
-  count = var.enable_aks == true && var.enable_aks_app == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_aks_app == true ) ? 1 : 0
   source      = "../kubernetes-app"
   environment = var.environment
 
@@ -35,7 +35,7 @@ module "kubernetes-app" {
 
 # example of applying pod security policy
 module "kubenetes-psp" {
-  count = var.enable_aks == true && var.enable_aks_psp == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_aks_psp == true ) ? 1 : 0
   source      = "../kubernetes-psp"
   environment = var.environment
 
@@ -48,7 +48,7 @@ module "kubenetes-psp" {
 # Lacework
 #########################
 resource "kubernetes_namespace" "lacework" {
-  count = var.enable_aks == true && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ) ? 1 : 0
   metadata {
     name = "lacework"
   }
@@ -59,13 +59,13 @@ resource "kubernetes_namespace" "lacework" {
 }
 
 module "lacework-audit-config" {
-  count = var.enable_lacework_audit_config == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_audit_config == true ) ? 1 : 0
   source      = "../lacework-audit-config"
   environment = var.environment
 }
 
 resource "lacework_agent_access_token" "main" {
-  count = var.lacework_agent_access_token == "false" ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.lacework_agent_access_token == "false" ) ? 1 : 0
   name        = "${var.environment}-token"
   description = "deployment for ${var.environment}"
 }
@@ -75,7 +75,7 @@ locals {
 }
 
 module "lacework-daemonset" {
-  count = var.enable_aks == true && var.enable_lacework_daemonset == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_lacework_daemonset == true ) ? 1 : 0
   source                      = "../lacework-daemonset"
   cluster-name                = var.cluster_name
   environment                 = var.environment
@@ -93,7 +93,7 @@ module "lacework-daemonset" {
 }
 
 module "lacework-alerts" {
-  count = var.enable_lacework_alerts == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_alerts == true ) ? 1 : 0
   source       = "../lacework-alerts"
   environment  = var.environment
   
@@ -109,13 +109,13 @@ module "lacework-alerts" {
 }
 
 module "lacework-custom-policy" {
-  count = var.enable_lacework_custom_policy == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_custom_policy == true ) ? 1 : 0
   source       = "../lacework-custom-policy"
   environment  = var.environment
 }
 
 module "lacework-admission-controller" {
-  count = var.enable_aks == true && var.enable_lacework_admissions_controller == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_lacework_admissions_controller == true ) ? 1 : 0
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
@@ -133,7 +133,7 @@ module "lacework-admission-controller" {
 #########################
 
 module "attack-kubernetes-voteapp" {
-  count = var.enable_aks == true && var.enable_attack_kubernetes_voteapp == true ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_attack_kubernetes_voteapp == true ) ? 1 : 0
   source      = "../vulnerable-app-voteapp"
   environment = var.environment
   region      = var.region
