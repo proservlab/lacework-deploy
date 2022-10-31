@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "key" {
   statement {
     sid       = "Allow global access to encrypt"
     effect    = "Allow"
-    actions   = ["kms:Encrypt"]
+    actions   = ["kms:Encrypt", "kms:GenerateDataKey"]
     resources = [
       #"arn:aws:kms:${local.region}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_external_key.key.id}",
       "*"
