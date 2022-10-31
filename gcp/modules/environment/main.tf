@@ -122,7 +122,7 @@ resource "lacework_agent_access_token" "main" {
 }
 
 locals {
-  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
+  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
 }
 
 module "lacework-daemonset" {
