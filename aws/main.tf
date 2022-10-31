@@ -4,7 +4,7 @@ module "environment-proservlab" {
   region      = var.region
 
   # override enable
-  disable_all = true
+  disable_all = false
   enable_all  = false
 
   # slack
@@ -61,7 +61,7 @@ module "environment-proservlab" {
         ssm_connect_bad_ip            = "false"
         ssm_connect_enumerate_host    = "false"
         ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_malware_eicar      = "false"
         ssm_deploy_secret_ssh_public  = "false"
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
