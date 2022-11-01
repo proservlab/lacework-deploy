@@ -13,9 +13,14 @@
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq '.Account' --raw-output)
 # aws current user arn
 export AWS_CURRENT_USER=$(aws sts get-caller-identity | jq '.Arn' --raw-output)
-
 # s3 bucket to be encrypted
 export S3_BUCKET=$(aws s3 ls | grep attacksurface-target | awk '{print $3}' | head -1)
+
+##################################################
+# stage1 - create kms key with external material
+##################################################
+
+echo "Stage 1 - Create kms key with external material\n#########################"
 
 # create key with no key material (get key-id from output)
 export KEY_ID=`aws kms create-key --origin EXTERNAL | jq '.KeyMetadata.KeyId' --raw-output`
@@ -126,11 +131,17 @@ aws kms put-key-policy \
     --key-id ${KEY_ID} \
     --policy file://new_key_policy.json
 
+read -n 1 -p "Continue to stage 2 - upload unencrypted file?"
+echo "Stage 2 - Upload unencrypted file\n#########################"
+
 # create unencrypted file and copy to s3
 echo "sample file" | aws s3 cp - s3://${S3_BUCKET}/files/sample_file.txt
 
 # read unencypted content
 echo "Unencrypted content: $(aws s3 cp s3://${S3_BUCKET}/files/sample_file.txt -)"
+
+read -n 1 -p "Continue to stage 3 - encrypt file with external material kms key?"
+echo "Stage 3 - Encrypt file with external material kms key\n#########################"
 
 # encrypt existing file
 aws s3 cp \
@@ -138,9 +149,10 @@ aws s3 cp \
     --sse aws:kms \
     --sse-kms-key-id "arn:aws:kms:us-east-1:${AWS_ACCOUNT_ID}:key/${KEY_ID}"
 
-# attempt to read encrypted file
+# attempt to read encrypted file (this should result in an error)
 echo "Encrypted content: $(aws s3 cp s3://${S3_BUCKET}/files/sample_file.txt -)"
 
+# EXAMPLE - to do this for all files in a bucket
 # bucketname="attacksurface-target-s3-bucket-46qsim8h"
 # aws s3 ls ${bucketname} --recursive | awk '{ print $NF }' > /tmp/filelist
 
