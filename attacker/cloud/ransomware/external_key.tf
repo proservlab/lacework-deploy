@@ -10,7 +10,7 @@ terraform {
 provider "aws" {
     alias = "attacker"
     region  = "us-east-1"
-    profile = "dev-test"
+    profile = "attacker"
 }
 
 provider "aws" {
@@ -54,6 +54,7 @@ resource "aws_s3_bucket" "target" {
     tags = {
         Name        = "attacksurface-target-s3-bucket-${random_string.bucket_unique.result}"
     }
+    force_destroy = true
 }
 
 resource "aws_s3_bucket_acl" "target" {
@@ -86,6 +87,19 @@ data "aws_iam_policy_document" "s3_target_write" {
             "arn:aws:s3:::${aws_s3_bucket.target[0].id}"
         ]
     }
+
+    statement {
+        sid       = "AllowReadBuckets"
+        effect    = "Allow"
+        actions   = [
+            "s3:List*",
+            "s3:Get*",
+            "s3:Copy*",
+        ]
+        resources = [
+            "*"
+        ]
+    }
     statement {
         sid       = "AllowKMSEncrypt"
         effect    = "Allow"
@@ -96,6 +110,35 @@ data "aws_iam_policy_document" "s3_target_write" {
                     ]
         resources = [
             "arn:aws:kms:*"
+        ]
+    }
+    statement {
+        sid       = "AllowKMSCreateKey"
+        effect    = "Allow"
+        actions   = [
+                        "kms:CreateKey",
+                        "kms:ImportKey",
+                        "kms:ImportKeyMaterial",
+                        "kms:DeleteKey",
+                        "kms:DeleteKeyMaterial",
+                        "kms:EnableKey",
+                        "kms:DisableKey",
+                        "kms:ScheduleKeyDeletion",
+                        "kms:PutKeyPolicy",
+                        "kms:SetPolicy",
+                        "kms:DeletePolicy",
+                        "kms:CreateGrant",
+                        "kms:DeleteIdentity",
+                        "kms:DescribeIdentity",
+                        "kms:KeyStatus",
+                        "kms:Status",                        
+                        "kms:List*",
+                        "kms:Get*",
+                        "kms:Describe*",
+                        "tag:GetResources"
+                    ]
+        resources = [
+            "*"
         ]
     }   
 }

