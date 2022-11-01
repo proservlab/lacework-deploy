@@ -139,20 +139,20 @@ EOT
   enable_attack_kubernetes_voteapp           = true
   enable_attack_kubernetes_log4shell         = true
   enable_attack_kubernetes_privileged_pod    = true
-  enable_attack_kubernetes_root_mount_fs_pod = true
+  enable_attack_kubernetes_root_mount_fs_pod = false
 
   # attack surface
   enable_attacksurface_agentless_secrets = true
 
   # attacker
-  enable_attacker_malware_eicar          = true
-  enable_attacker_connect_badip          = true
-  enable_attacker_connect_enumerate_host = true
-  enable_attacker_connect_oast_host      = true
-  enable_attacker_exec_codecov           = true
-  enable_attacker_exec_reverseshell      = true
-  enable_attacker_exec_docker_cpuminer   = true
-  enable_attacker_kubernetes_app_kali    = true
+  enable_attacker_malware_eicar          = false
+  enable_attacker_connect_badip          = false
+  enable_attacker_connect_enumerate_host = false
+  enable_attacker_connect_oast_host      = false
+  enable_attacker_exec_codecov           = false
+  enable_attacker_exec_reverseshell      = false
+  enable_attacker_exec_docker_cpuminer   = false
+  enable_attacker_kubernetes_app_kali    = false
 
   providers = {
     aws        = aws.main
