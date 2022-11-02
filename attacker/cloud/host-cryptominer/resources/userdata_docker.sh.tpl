@@ -17,4 +17,4 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 # run docker container
-sudo docker run -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l equihash.usa.nicehash.com:3357 -u 3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1
+sudo docker run --rm -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l equihash.usa.nicehash.com:3357 -u 3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1
