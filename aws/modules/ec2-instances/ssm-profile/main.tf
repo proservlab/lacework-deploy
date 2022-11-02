@@ -5,7 +5,7 @@ resource "aws_iam_instance_profile" "ec2-iam-profile" {
 }
 
 resource "aws_iam_role" "ec2-iam-role" {
-  name        = "ec2-ssm-role"
+  name        = "ec2_profile"
   description = "The role for EC2 resources"
   assume_role_policy = <<EOF
   {
