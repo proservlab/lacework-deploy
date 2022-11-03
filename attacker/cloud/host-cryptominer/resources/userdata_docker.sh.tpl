@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# setup docker
+# install docker
 sudo apt-get remove -y docker docker-engine docker.io containerd runc
 sudo apt-get update
 sudo apt-get install -y \
@@ -14,7 +14,16 @@ echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo apt-get install -y \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-compose-plugin
 
-# run docker container
+# run docker containers for coin miners
+
+# nicehash
 sudo docker run --rm -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l equihash.usa.nicehash.com:3357 -u 3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1
+
+# minerd
+sudo docker run --rm -d --network=host --name minerd_miner mkell43/minerd -a cryptonight -o stratum+tcp://eth.pool.minergate.com:45791 -u foxbones@protonmail.com -p x

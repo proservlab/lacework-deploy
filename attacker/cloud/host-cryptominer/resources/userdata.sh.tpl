@@ -11,4 +11,4 @@ sudo apt-get update && \
 	make -j $(nproc)
 
 # run miner
-./nheqminer_cpu -l equihash.usa.nicehash.com:3357 -u 3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1
+./nheqminer_cpu -l equihash.usa.nicehash.com:3357 -u 3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1 &

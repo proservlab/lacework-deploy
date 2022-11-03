@@ -7,8 +7,38 @@ terraform {
   }
 }
 
+data "aws_ami" "ubuntu_focal" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+data "aws_ami" "amazon_linux" {
+  owners = ["amazon"]
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
+}
+
 locals {
     region          = var.region
+    ami_map = {
+        ubuntu_focal = data.aws_ami.ubuntu_focal.id
+        amazon_linux = data.aws_ami.amazon_linux.id
+    }
 }
 
 data "aws_caller_identity" "current" {}
@@ -89,6 +119,15 @@ data "template_file" "user_data" {
   }
 }
 
+data "template_file" "user_data_docker" {
+  template = "${file("./resources/userdata_docker.sh.tpl")}"
+
+  vars = {
+    wallet = "${var.wallet}"
+    region = "${var.region}"
+  }
+}
+
 data "aws_iam_instance_profile" "ssm" {
   name = "ec2_profile"
 }
@@ -96,14 +135,16 @@ data "aws_iam_instance_profile" "ssm" {
 resource "aws_instance" "miner" {
     count           = "${var.instances}"
     ami             = "ami-0d70b8dd4ec1e2d1e"
-    instance_type   = "g5.xlarge"
+    instance_type   = "t2.micro"
     
     subnet_id = aws_subnet.public.id
     vpc_security_group_ids =    [
                                     "${aws_security_group.miner.id}"
                                 ]
 
-    user_data_base64 = base64encode(data.template_file.user_data.rendered)
+    # user_data_base64 = base64encode(data.template_file.user_data.rendered)
+    user_data_base64 = base64encode(data.template_file.user_data_docker.rendered)
+    
     associate_public_ip_address = true
     
     # borrowed from existing environment
