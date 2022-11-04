@@ -103,6 +103,7 @@ resource "helm_release" "admission-controller" {
     namespace = "lacework"
     force_update = true
     replace = true
+    
     values = [data.template_file.values.rendered]
 
     set {
