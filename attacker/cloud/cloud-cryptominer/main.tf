@@ -81,7 +81,7 @@ resource "aws_security_group" "miner" {
 }
 
 data "template_file" "user_data" {
-  template = "${file("./resources/userdata.sh.tpl")}"
+  template = "${file("${path.module}/resources/userdata.sh.tpl")}"
 
   vars = {
     wallet = "${var.wallet}"

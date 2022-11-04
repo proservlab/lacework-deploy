@@ -4,7 +4,7 @@ module "environment-proservlab" {
   region      = var.region
 
   # override enable
-  disable_all = false
+  disable_all = true
   enable_all  = false
 
   # slack
