@@ -134,7 +134,7 @@ EOT
   enable_lacework_agentless             = true
   enable_lacework_ssm_deployment        = true
   enable_lacework_admissions_controller = true
-  enable_lacework_eks_audit             = true
+  enable_lacework_eks_audit             = false
 
   # vulnerable apps
   enable_attack_kubernetes_voteapp           = true
