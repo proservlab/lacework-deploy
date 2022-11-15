@@ -6,7 +6,7 @@ terraform {
     }
     lacework = {
       source  = "lacework/lacework"
-      version = "~> 0.25"
+      version = "~> 1.0.1"
     }
     google = {
       source = "hashicorp/google"

@@ -248,6 +248,14 @@ variable "enable_lacework_admissions_controller" {
   default = false
 }
 
+variable "enable_lacework_eks_audit" {
+  description = "enable disable of configuration of lacework eks audit"
+  type = bool
+  default = false
+}
+
+
+
 ###########################
 # Vulnerable App
 ###########################

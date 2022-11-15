@@ -142,6 +142,18 @@ module "lacework-agentless" {
   environment = var.environment
 }
 
+module "lacework-eks-audit" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_lacework_eks_audit == true ) ? 1 : 0
+  source      = "../lacework-eks-audit"
+  region      = var.region
+  environment = var.environment
+  cluster_names = [var.cluster_name]
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.lacework
+  ]
+}
 
 #########################
 # Vulnerable Apps
