@@ -18,6 +18,18 @@ module "eks" {
   region       = var.region
 }
 
+module "inspector" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_inspector== true ) ? 1 : 0
+  source       = "../inspector"
+  environment  = var.environment
+}
+
+module "inspector-ssm" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_inspector== true ) ? 1 : 0
+  source       = "../ssm-install-inspector"
+  environment  = var.environment
+}
+
 
 #########################
 # Kubernetes

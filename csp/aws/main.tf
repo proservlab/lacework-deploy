@@ -23,10 +23,11 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # aws core environment
-  enable_ec2     = true
-  enable_eks     = true
-  enable_eks_app = true
-  enable_eks_psp = false
+  enable_ec2       = true
+  enable_eks       = true
+  enable_eks_app   = true
+  enable_eks_psp   = false
+  enable_inspector = true
 
   instances = [
     {
@@ -46,6 +47,7 @@ module "environment-proservlab" {
         ssm_exec_reverse_shell        = "false"
         ssm_exec_codecov              = "false"
         ssm_exec_docker_cpuminer      = "false"
+        ssm_deploy_inspector_agent    = "false"
       }
       user_data        = null
       user_data_base64 = null
@@ -67,6 +69,7 @@ module "environment-proservlab" {
         ssm_exec_reverse_shell        = "false"
         ssm_exec_codecov              = "false"
         ssm_exec_docker_cpuminer      = "false"
+        ssm_deploy_inspector_agent    = "false"
       }
       user_data        = null
       user_data_base64 = null
@@ -88,6 +91,7 @@ module "environment-proservlab" {
         ssm_exec_reverse_shell        = "true"
         ssm_exec_codecov              = "false"
         ssm_exec_docker_cpuminer      = "false"
+        ssm_deploy_inspector_agent    = "true"
       }
       user_data        = <<EOT
 #!/bin/bash
@@ -113,6 +117,7 @@ EOT
         ssm_deploy_secret_ssh_private = "false"
         ssm_exec_reverse_shell        = "false"
         ssm_exec_codecov              = "false"
+        ssm_deploy_inspector_agent    = "false"
       }
       user_data        = null
       user_data_base64 = null

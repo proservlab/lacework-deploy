@@ -120,6 +120,12 @@ variable "enable_eks_psp" {
   default = false
 }
 
+variable "enable_inspector" {
+  description = "enable disable aws inspector"
+  type = bool
+  default = false
+}
+
 variable "instances" {
   type    = list(
     object({
@@ -146,40 +152,6 @@ variable "instances" {
       user_data       = null
       user_data_base64 = null
     },
-    { 
-      name            = "ec2-public-1"
-      public          = true
-      instance_type   = "t2.micro"
-      ami_name        = "ubuntu_focal"
-      enable_ssm      = true
-      ssm_deploy_tag  = { ssm_deploy_lacework = "true" }
-      tags            = {}
-      user_data       = null
-      user_data_base64 = null
-    },
-    { 
-      name            = "ec2-public-2"
-      public          = true
-      instance_type   = "t2.micro"
-      ami_name        = "ubuntu_focal"
-      enable_ssm      = true
-      ssm_deploy_tag  = { ssm_deploy_lacework = "false" }
-      tags            = { ssm_deploy_secret_ssh_private = "true" }
-      user_data       = null
-      user_data_base64 = null
-    },
-
-    { 
-      name            = "ec2-public-3"
-      public          = true
-      instance_type   = "t2.micro"
-      ami_name        = "ubuntu_focal"
-      enable_ssm      = true
-      ssm_deploy_tag  = { ssm_deploy_lacework = "false" }
-      tags            = { ssm_deploy_secret_ssh_public = "true" }
-      user_data       = null
-      user_data_base64 = null
-    }
   ]
 }
 
