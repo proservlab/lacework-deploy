@@ -1,7 +1,7 @@
 locals {
+    pid_path = "/var/run/nc_attacker"
     listen_port = var.listen_port
     listen_ip = var.listen_ip
-    pid_path = "/var/run/nc_listener"
 }
 
 resource "aws_ssm_document" "exec_reverse_shell_attacker" {
