@@ -25,9 +25,11 @@ resource "aws_ssm_document" "exec_reverse_shell_attacker" {
                 "inputs": {
                     "timeoutSeconds": "600",
                     "runCommand": [
+                        "echo \"Starting listener: ${local.listen_ip}:${local.listen_port}\" > /tmp/attacker_exec_reverseshell_listener.log",
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
-                        "/usr/bin/nc -l ${local.listen_ip} ${local.listen_port} &",
+                        "/usr/bin/nc -vv -nl ${local.listen_ip} ${local.listen_port} >> /tmp/attacker_exec_reverseshell_listener.log 2>&1 &",
                         "echo -n $! > ${local.pid_path}",
+                        "echo \"Listener started\" >> /tmp/attacker_exec_reverseshell_listener.log 2>&1 ",
                         "touch /tmp/attacker_exec_reverseshell_listener",
                     ]
                 }
