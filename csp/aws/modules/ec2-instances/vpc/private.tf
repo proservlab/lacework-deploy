@@ -116,3 +116,25 @@ resource "aws_security_group_rule" "private_egress_rules" {
   security_group_id = aws_security_group.private.id
 }
 
+resource "aws_security_group_rule" "private_allow_egress_inter_security_group" {
+  count = var.allow_all_inter_security_group == true ? 1 : 0
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  self              = true
+  description       = "allow all egress inter security group"
+  security_group_id = aws_security_group.private.id
+}
+
+resource "aws_security_group_rule" "private_allow_ingress_inter_security_group" {
+  count = var.allow_all_inter_security_group == true ? 1 : 0
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  self              = true
+  description       = "allow all ingress inter security group"
+  security_group_id = aws_security_group.private.id
+}
+

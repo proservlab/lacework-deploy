@@ -7,7 +7,51 @@ module "ec2-instances" {
   source       = "../ec2-instances"
   environment  = var.environment
 
+  # list of instances to configure
   instances = var.instances
+
+  # allow endpoints inside their own security group to communicate
+  allow_all_inter_security_group = true
+
+  public_ingress_rules = [
+      {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_block  = "0.0.0.0/0"
+        description = "allow ssh inbound"
+      }
+  ]
+
+  public_egress_rules = [
+      {
+          from_port = 0
+          to_port = 0
+          protocol = "-1"
+          cidr_block = "0.0.0.0/0"
+          description = "allow all outbound"
+      }
+  ]
+
+  private_ingress_rules = [
+      {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_block  = "0.0.0.0/0"
+        description = "allow ssh inbound"
+      }
+  ]
+
+  private_egress_rules = [
+      {
+          from_port = 0
+          to_port = 0
+          protocol = "-1"
+          cidr_block = "0.0.0.0/0"
+          description = "allow all outbound"
+      }
+  ]
 }
 
 module "eks" {

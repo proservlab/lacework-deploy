@@ -8,6 +8,12 @@ variable "environment" {
     description = "name of the environment"
 }
 
+variable "allow_all_inter_security_group" {
+  type = bool
+  description = "Enable endpoints within the security group to communicate on all ports and protocols."
+  default = false
+}
+
 variable "private_ingress_rules" {
     type = list(object({
       from_port   = number

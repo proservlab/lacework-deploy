@@ -2,6 +2,11 @@ variable "environment" {
   type    = string
 }
 
+variable "allow_all_inter_security_group" {
+  type = bool
+  description = "Enable endpoints within the security group to communicate on all ports and protocols."
+  default = false
+}
 variable "public_ingress_rules" {
   type    = list(map(any))
   default = [
