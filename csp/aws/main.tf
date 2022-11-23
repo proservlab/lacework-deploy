@@ -1,3 +1,84 @@
+locals {
+  ssm_default_tags = {
+    ssm_connect_bad_ip              = "false"
+    ssm_connect_enumerate_host      = "false"
+    ssm_connect_oast_host           = "false"
+    ssm_deploy_malware_eicar        = "false"
+    ssm_deploy_secret_ssh_public    = "false"
+    ssm_deploy_secret_ssh_private   = "false"
+    ssm_exec_reverse_shell_attacker = "false"
+    ssm_exec_reverse_shell_target   = "false"
+    ssm_exec_codecov                = "false"
+    ssm_deploy_inspector_agent      = "false"
+  }
+
+  instances = [
+    {
+      name           = "ec2-private-1"
+      public         = false
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      # override default ssm action tags
+      tags             = merge(local.ssm_default_tags, {})
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name           = "ec2-public-1"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      # override default ssm action tags
+      tags             = merge(local.ssm_default_tags, {})
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name           = "ec2-public-2"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      # override default ssm action tags
+      tags = merge(local.ssm_default_tags, {
+        ssm_connect_oast_host         = "true"
+        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_private = "true"
+        ssm_exec_reverse_shell_target = "true"
+        ssm_deploy_inspector_agent    = "true"
+      })
+
+      user_data        = <<EOT
+#!/bin/bash
+
+/usr/bin/touch /tmp/deployed
+EOT
+      user_data_base64 = null
+    },
+
+    {
+      name           = "ec2-public-3"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      # override default ssm action tags
+      tags = merge(local.ssm_default_tags, {
+        ssm_deploy_secret_ssh_public    = "true"
+        ssm_exec_reverse_shell_attacker = "true"
+      })
+      user_data        = null
+      user_data_base64 = null
+    }
+  ]
+}
+
 module "environment-proservlab" {
   source      = "./modules/environment"
   environment = "proservlab"
@@ -29,100 +110,7 @@ module "environment-proservlab" {
   enable_eks_psp   = false
   enable_inspector = true
 
-  instances = [
-    {
-      name           = "ec2-private-1"
-      public         = false
-      instance_type  = "t2.micro"
-      ami_name       = "ubuntu_focal"
-      enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
-      tags = {
-        ssm_connect_bad_ip            = "false"
-        ssm_connect_enumerate_host    = "false"
-        ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "false"
-        ssm_deploy_secret_ssh_public  = "false"
-        ssm_deploy_secret_ssh_private = "false"
-        ssm_exec_reverse_shell        = "false"
-        ssm_exec_codecov              = "false"
-        ssm_exec_docker_cpuminer      = "false"
-        ssm_deploy_inspector_agent    = "false"
-      }
-      user_data        = null
-      user_data_base64 = null
-    },
-    {
-      name           = "ec2-public-1"
-      public         = true
-      instance_type  = "t2.micro"
-      ami_name       = "ubuntu_focal"
-      enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
-      tags = {
-        ssm_connect_bad_ip            = "false"
-        ssm_connect_enumerate_host    = "false"
-        ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "false"
-        ssm_deploy_secret_ssh_public  = "false"
-        ssm_deploy_secret_ssh_private = "false"
-        ssm_exec_reverse_shell        = "false"
-        ssm_exec_codecov              = "false"
-        ssm_exec_docker_cpuminer      = "false"
-        ssm_deploy_inspector_agent    = "false"
-      }
-      user_data        = null
-      user_data_base64 = null
-    },
-    {
-      name           = "ec2-public-2"
-      public         = true
-      instance_type  = "t2.micro"
-      ami_name       = "ubuntu_focal"
-      enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
-      tags = {
-        ssm_connect_bad_ip            = "true"
-        ssm_connect_enumerate_host    = "false"
-        ssm_connect_oast_host         = "true"
-        ssm_deploy_malware_eicar      = "true"
-        ssm_deploy_secret_ssh_public  = "false"
-        ssm_deploy_secret_ssh_private = "true"
-        ssm_exec_reverse_shell        = "true"
-        ssm_exec_codecov              = "false"
-        ssm_exec_docker_cpuminer      = "false"
-        ssm_deploy_inspector_agent    = "true"
-      }
-      user_data        = <<EOT
-#!/bin/bash
-
-/usr/bin/touch /tmp/deployed
-EOT
-      user_data_base64 = null
-    },
-
-    {
-      name           = "ec2-public-3"
-      public         = true
-      instance_type  = "t2.micro"
-      ami_name       = "ubuntu_focal"
-      enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
-      tags = {
-        ssm_connect_bad_ip            = "false"
-        ssm_connect_enumerate_host    = "false"
-        ssm_connect_oast_host         = "false"
-        ssm_deploy_malware_eicar      = "false"
-        ssm_deploy_secret_ssh_public  = "true"
-        ssm_deploy_secret_ssh_private = "false"
-        ssm_exec_reverse_shell        = "false"
-        ssm_exec_codecov              = "false"
-        ssm_deploy_inspector_agent    = "false"
-      }
-      user_data        = null
-      user_data_base64 = null
-    }
-  ]
+  instances = local.instances
 
   # kubernetes admission controller
   proxy_token = var.proxy_token
@@ -156,7 +144,7 @@ EOT
   enable_attacker_connect_enumerate_host = false
   enable_attacker_connect_oast_host      = false
   enable_attacker_exec_codecov           = false
-  enable_attacker_exec_reverseshell      = false
+  enable_attacker_exec_reverseshell      = true
   enable_attacker_exec_docker_cpuminer   = false
   enable_attacker_kubernetes_app_kali    = false
 
