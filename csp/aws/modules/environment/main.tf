@@ -315,24 +315,26 @@ module "attacker-exec-codecov" {
   environment = var.environment
 }
 
-module "attacker-exec-reverseshell" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
-  source = "../attacker-exec-reverseshell"
-  environment = var.environment
-}
-
-# module "attacker-exec-reverseshell-attacker" {
+# module "attacker-exec-reverseshell" {
 #   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
-#   source = "../attacker-exec-reverseshell_attacker"
+#   source = "../attacker-exec-reverseshell"
 #   environment = var.environment
 # }
+
+module "attacker-exec-reverseshell-attacker" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
+  source = "../attacker-exec-reverseshell-attacker"
+  environment = var.environment
+  listen_ip = "0.0.0.0"
+  listen_port = "4444"
+}
 
 module "attacker-exec-reverseshell-target" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
   source = "../attacker-exec-reverseshell-target"
   environment = var.environment
-  listen_ip = "0.0.0.0"
-  listen_port = 4444
+  host_ip = "127.0.0.1"
+  host_port = 4444
 }
 module "attacker-exec-docker-cpuminer" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_cpuminer == true ) ? 1 : 0
