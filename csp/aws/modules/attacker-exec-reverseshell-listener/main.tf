@@ -1,5 +1,6 @@
 locals {
-    port = 4444
+    listen_port = var.listen_port
+    listen_ip = var.listen_ip
     pid_path = "/var/run/nc_listener"
 }
 
@@ -25,7 +26,7 @@ resource "aws_ssm_document" "exec_reverse_shell" {
                     "timeoutSeconds": "60",
                     "runCommand": [
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
-                        "/usr/bin/nc -l ${local.port} &",
+                        "/usr/bin/nc -l ${local.listen_ip} ${local.listen_port} &",
                         "echo -n $! > ${local.pid_path}",
                         "touch /tmp/attacker_exec_reverseshell_listener",
                     ]

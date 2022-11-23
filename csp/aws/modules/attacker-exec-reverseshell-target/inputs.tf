@@ -18,11 +18,22 @@ variable "resource_query_exec_reverse_shell" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_exec_reverse_shell"
+                        Key = "ssm_exec_reverse_shell_target"
                         Values = [
                             "true"
                         ]
                     }
                 ]
               }
+}
+
+variable "host_ip" {
+  type = string
+  description = "IP address of attacker"
+}
+
+variable "host_port" {
+  type = number
+  description = "Port address of attacker"
+  default = 4444
 }
