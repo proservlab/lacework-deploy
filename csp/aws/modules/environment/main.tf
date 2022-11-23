@@ -3,7 +3,7 @@
 ########################
 locals {
   attacker_instance = flatten([
-    for instance in module.ec2-instances[0].instances: instance.tags.test if instance.tags.test == "test2"
+    // for instance in module.ec2-instances[0].instances: instance.tag.test if instance.tag.test == "test2"
   ])
 }
 

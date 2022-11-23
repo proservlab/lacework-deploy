@@ -4,18 +4,18 @@ locals {
     pid_path = "/var/run/nc_listener"
 }
 
-resource "aws_ssm_document" "exec_reverse_shell" {
-  name          = "exec_reverse_shell"
+resource "aws_ssm_document" "exec_reverse_shell_attacker" {
+  name          = "exec_reverse_shell_attacker"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "exec reverse shell",
+        "description": "exec reverse shell attacker",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_reverse_shell",
+                "name": "exec_reverse_shell_attacker",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -36,11 +36,11 @@ resource "aws_ssm_document" "exec_reverse_shell" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_reverse_shell" {
-    name = "exec_reverse_shell"
+resource "aws_resourcegroups_group" "exec_reverse_shell_attacker" {
+    name = "exec_reverse_shell_attacker"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_reverse_shell)
+        query = jsonencode(var.resource_query_exec_reverse_shell_attacker)
     }
 
     tags = {
@@ -49,15 +49,15 @@ resource "aws_resourcegroups_group" "exec_reverse_shell" {
     }
 }
 
-resource "aws_ssm_association" "exec_reverse_shell" {
-    association_name = "exec_reverse_shell"
+resource "aws_ssm_association" "exec_reverse_shell_attacker" {
+    association_name = "exec_reverse_shell_attacker"
 
-    name = aws_ssm_document.exec_reverse_shell.name
+    name = aws_ssm_document.exec_reverse_shell_attacker.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_reverse_shell.name,
+            aws_resourcegroups_group.exec_reverse_shell_attacker.name,
         ]
     }
 
