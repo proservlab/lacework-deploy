@@ -5,6 +5,9 @@ locals {
   attacker_instance = flatten([
     for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_attacker == "true"
   ])
+  target_instance = flatten([
+    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_target == "true"
+  ])
 }
 
 #########################
@@ -329,11 +332,12 @@ module "attacker-exec-reverseshell-attacker" {
   listen_port = "4444"
 }
 
+# need to have an attacker instance
 module "attacker-exec-reverseshell-target" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true && length(local.attacker_instance) > 0 ) ? 1 : 0
   source = "../attacker-exec-reverseshell-target"
   environment = var.environment
-  host_ip = "127.0.0.1"
+  host_ip =  local.attacker_instance[0]
   host_port = 4444
 }
 module "attacker-exec-docker-cpuminer" {
