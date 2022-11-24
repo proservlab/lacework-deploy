@@ -3,6 +3,7 @@ locals {
     listen_ip = var.listen_ip
     base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
+    truncate -s 0 /tmp/attacker_exec_reverseshell_listener.log
     echo "Starting listener: ${local.listen_ip}:${local.listen_port}" > /tmp/attacker_exec_reverseshell_listener.log
     while true; do
         screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
