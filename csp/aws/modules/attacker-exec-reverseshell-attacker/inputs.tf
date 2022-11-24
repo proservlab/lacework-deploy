@@ -38,3 +38,11 @@ variable "listen_port" {
   description = "Port address of attacker"
   default = 4444
 }
+
+variable "payload" {
+  type = string
+  description = "The bash commands payload to execute when target machine connects"
+  default = <<-EOT
+  touch /tmp/pwned
+  EOT
+}
