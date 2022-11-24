@@ -308,6 +308,20 @@ variable "enable_attacker_exec_reverseshell" {
   default = false
 }
 
+variable "attacker_exec_reverseshell_payload" {
+  description = "the payload to send after reverse shell connection"
+  type = string
+  default =<<-EOT
+  touch /tmp/pwned
+  EOT
+}
+
+variable "attacker_exec_reverseshell_port" {
+  description = "the payload to send after reverse shell connection"
+  type = number
+  default = 4444
+}
+
 variable "enable_attacker_exec_docker_cpuminer" {
   description = "enable disable docker cpuminer"
   type = bool

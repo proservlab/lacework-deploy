@@ -53,11 +53,11 @@ locals {
         ssm_deploy_inspector_agent    = "true"
       })
 
-      user_data        = <<EOT
-#!/bin/bash
+      user_data        = <<-EOT
+                          #!/bin/bash
 
-/usr/bin/touch /tmp/deployed
-EOT
+                          /usr/bin/touch /tmp/deployed
+                          EOT
       user_data_base64 = null
     },
 
@@ -110,6 +110,7 @@ module "environment-proservlab" {
   enable_eks_psp   = false
   enable_inspector = true
 
+  # ec2 instance definitions
   instances = local.instances
 
   # kubernetes admission controller
@@ -145,6 +146,10 @@ module "environment-proservlab" {
   enable_attacker_connect_oast_host      = false
   enable_attacker_exec_codecov           = false
   enable_attacker_exec_reverseshell      = true
+  attacker_exec_reverseshell_port        = 4445
+  attacker_exec_reverseshell_payload     = <<-EOT
+                                            touch /tmp/target_pwned
+                                            EOT
   enable_attacker_exec_docker_cpuminer   = false
   enable_attacker_kubernetes_app_kali    = false
 

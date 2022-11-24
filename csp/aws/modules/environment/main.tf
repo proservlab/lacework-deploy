@@ -318,18 +318,13 @@ module "attacker-exec-codecov" {
   environment = var.environment
 }
 
-# module "attacker-exec-reverseshell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
-#   source = "../attacker-exec-reverseshell"
-#   environment = var.environment
-# }
-
 module "attacker-exec-reverseshell-attacker" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
   source = "../attacker-exec-reverseshell-attacker"
   environment = var.environment
   listen_ip = "0.0.0.0"
-  listen_port = "4444"
+  listen_port = var.attacker_exec_reverseshell_port
+  payload = var.attacker_exec_reverseshell_payload
 }
 
 # need to have an attacker instance
@@ -338,7 +333,7 @@ module "attacker-exec-reverseshell-target" {
   source = "../attacker-exec-reverseshell-target"
   environment = var.environment
   host_ip =  local.attacker_instance[0]
-  host_port = 4444
+  host_port = var.attacker_exec_reverseshell_port
 }
 module "attacker-exec-docker-cpuminer" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_cpuminer == true ) ? 1 : 0
