@@ -30,7 +30,7 @@ resource "aws_ssm_document" "exec_docker_log4shell_target" {
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "start docker based cpuminer",
+        "description": "start docker based log4shell",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",

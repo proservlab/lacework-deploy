@@ -40,6 +40,16 @@ variable "attacker_ldap_port" {
 }
 
 variable "attacker_ip" {
-  type = number
+  type = string
   description = "attacker ip"
+}
+
+variable "target_ip" {
+  type = string
+  description = "target ip"
+}
+
+variable "target_port" {
+  type = number
+  description = "target port"
 }

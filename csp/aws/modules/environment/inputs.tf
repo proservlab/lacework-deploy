@@ -36,6 +36,7 @@ variable "proxy_token" {
 
 variable "lacework_account_name" {
   description = "lacework account name"
+  type = string
 }
 
 ###########################

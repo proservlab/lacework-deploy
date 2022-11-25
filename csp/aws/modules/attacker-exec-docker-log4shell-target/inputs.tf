@@ -30,5 +30,5 @@ variable "resource_query_exec_docker_log4shell_target" {
 variable "listen_port" {
   type = number
   description = "listening port for container"
-  default=8080
+  default=8000
 }

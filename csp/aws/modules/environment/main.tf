@@ -379,18 +379,22 @@ module "attacker-exec-docker-cpuminer" {
   environment = var.environment
 }
 
-module "attacker-exec-docker-log4shell-target" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true ) ? 1 : 0
-  source = "../attacker-exec-docker-log4shell-target"
-  environment = var.environment
-}
-
 module "attacker-exec-docker-log4shell-attacker" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true && length(local.attacker_instance_log4shell) > 0 && length(local.target_instance_log4shell) > 0 ) ? 1 : 0
   source = "../attacker-exec-docker-log4shell-attacker"
   environment = var.environment
+  attacker_http_port=8088
+  attacker_ldap_port=1389
+  attacker_ip=local.attacker_instance_log4shell[0]
+  target_ip=local.target_instance_log4shell[0]
+  target_port=8000
 }
-
+module "attacker-exec-docker-log4shell-target" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true && length(local.attacker_instance_log4shell) > 0 && length(local.target_instance_log4shell) > 0 ) ? 1 : 0
+  source = "../attacker-exec-docker-log4shell-target"
+  environment = var.environment
+  listen_port=8000
+}
 
 
 module "attacker-kubernetes-app-kali" {
