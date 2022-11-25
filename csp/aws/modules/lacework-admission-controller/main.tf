@@ -86,11 +86,11 @@ resource "tls_locally_signed_cert" "admission" {
 }
 
 data "template_file" "values" {
-  template = "${file("${path.module}/resources/values.yaml.tpl")}"
+  template = file("${path.module}/resources/values.yaml.tpl")
 
   vars = {
-    lacework_account_name = "${var.lacework_account_name}"
-    proxy_token = "${var.proxy_token}"
+    lacework_account_name = var.lacework_account_name
+    proxy_token = var.proxy_token
   }
 }
 

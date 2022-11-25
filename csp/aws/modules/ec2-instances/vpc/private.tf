@@ -89,7 +89,7 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_security_group" "private" {
   name = "${var.name}-private-security-group"
-  vpc_id = "${aws_vpc.private.id}"
+  vpc_id = aws_vpc.private.id
 }
 
 resource "aws_security_group_rule" "private_ingress_rules" {

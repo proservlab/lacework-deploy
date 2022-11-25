@@ -340,6 +340,12 @@ variable "enable_attacker_exec_docker_cpuminer" {
   default = false
 }
 
+variable "enable_attacker_exec_docker_log4shell" {
+  description = "enable disable docker log4shell"
+  type = bool
+  default = false
+}
+
 variable "enable_attacker_kubernetes_app_kali" {
   description = "enable disable kernetes kali pod"
   type = bool

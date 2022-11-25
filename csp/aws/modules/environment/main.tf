@@ -12,6 +12,14 @@ locals {
   attacker_instance_http_listener = flatten([
     for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_http_listener_attacker == "true"
   ])
+
+  target_instance_log4shell = flatten([
+    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_docker_log4shell_target == "true"
+  ])
+
+  attacker_instance_log4shell = flatten([
+    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_docker_log4shell_attacker == "true"
+  ])
 }
 
 #########################
@@ -370,6 +378,20 @@ module "attacker-exec-docker-cpuminer" {
   source = "../attacker-exec-docker-cpuminer"
   environment = var.environment
 }
+
+module "attacker-exec-docker-log4shell-target" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true ) ? 1 : 0
+  source = "../attacker-exec-docker-log4shell-target"
+  environment = var.environment
+}
+
+module "attacker-exec-docker-log4shell-attacker" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true ) ? 1 : 0
+  source = "../attacker-exec-docker-log4shell-attacker"
+  environment = var.environment
+}
+
+
 
 module "attacker-kubernetes-app-kali" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_kubernetes_app_kali == true ) ? 1 : 0

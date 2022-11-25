@@ -18,6 +18,7 @@ module "vpc" {
   private_egress_rules = var.private_egress_rules
   public_ingress_rules = var.public_ingress_rules
   public_egress_rules = var.public_egress_rules
+  allow_all_inter_security_group=var.allow_all_inter_security_group
 }
 
 # instances

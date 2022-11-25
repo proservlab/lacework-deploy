@@ -49,7 +49,7 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_security_group" "public" {
   name = "${var.name}-public-security-group"
-  vpc_id = "${aws_vpc.public.id}"
+  vpc_id = aws_vpc.public.id
 }
 
 resource "aws_security_group_rule" "public_ingress_rules" {

