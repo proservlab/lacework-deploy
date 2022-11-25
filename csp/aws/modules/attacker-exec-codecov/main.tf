@@ -28,7 +28,7 @@ resource "aws_ssm_document" "exec_git_codecov" {
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "exec git codecov style callback",
+        "description": "exec git codecov callhome",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",

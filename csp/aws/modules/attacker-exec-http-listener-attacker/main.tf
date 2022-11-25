@@ -15,7 +15,7 @@ locals {
     echo "index" > /tmp/www/index.html
     mkdir -p /tmp/www/upload/v2
     echo "upload" > /tmp/www/upload/v2index.html
-    screen -d -L -Logfile /tmp/http.log -S http -m python3 -m http.server -u --bind ${local.listen_ip} ${local.listen_port}
+    screen -d -L -Logfile /tmp/http.log -S http -m python3 -m http.server --bind ${local.listen_ip} ${local.listen_port}
     screen -S http -X colon "logfile flush 0^M"
     log "listener started.."
     EOT
