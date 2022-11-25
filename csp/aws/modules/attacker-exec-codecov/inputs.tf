@@ -43,3 +43,15 @@ variable "use_ssl" {
   description = "Enable disable use to HTTPS"
   default = false
 }
+
+variable "git_origin" {
+  type = string
+  description = "git origin to add to posted payload"
+  default=""
+}
+
+variable "env_secrets" {
+  type = list(string)
+  description = "list of env secrets to add to posted payload"
+  default=["SECRET=supersecret123"]
+}
