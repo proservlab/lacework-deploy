@@ -26,6 +26,7 @@ locals {
         sleep 300
         log "restarting attacker session..."
     done
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }

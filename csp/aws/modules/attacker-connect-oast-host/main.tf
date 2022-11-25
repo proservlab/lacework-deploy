@@ -9,7 +9,8 @@ locals {
     truncate -s 0 $LOGFILE
     OAST_URL="https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain}"
     log "http request: $OAST_URL"
-    log "$(curl -s \"$OAST_URL\")"
+    curl -s "$OAST_URL" >> $LOGFILE 2>&1
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }

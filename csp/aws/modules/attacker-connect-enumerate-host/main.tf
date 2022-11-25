@@ -16,14 +16,15 @@ locals {
         log "nmap not found"
         log "downloading: ${local.nmap_download}"
         if [ -f ${local.nmap_path} ]; then
-            curl -L -o ${local.nmap_path} ${local.nmap_download}
-            chmod 755 ${local.nmap_path}
+            curl -L -o ${local.nmap_path} ${local.nmap_download} >> $LOGFILE 2>&1
+            chmod 755 ${local.nmap_path} >> $LOGFILE 2>&1
         fi
         log "using nmap: ${local.nmap_path}"
-        log "$(${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host}"
+        ${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host} >> $LOGFILE 2>&1
     else
-        log "$(nmap -sS -p ${local.nmap_ports} ${local.nmap_scan_host})"
+        nmap -sS -p ${local.nmap_ports} ${local.nmap_scan_host} >> $LOGFILE 2>&1
     fi
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }

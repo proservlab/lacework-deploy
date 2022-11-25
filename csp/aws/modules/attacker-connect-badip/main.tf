@@ -10,7 +10,8 @@ locals {
     log "finding bad ip: ${local.iplist_url}"
     BADIP=$(curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\")
     log "found bad ip: $BADIP"
-    log "pinging: $(ping -c 10 -w 5 $BADIP)"
+    ping -c 10 -w 5 $BADIP >> $LOGFILE 2>&1
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }

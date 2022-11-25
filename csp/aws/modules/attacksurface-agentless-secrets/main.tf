@@ -22,6 +22,7 @@ locals {
     chmod 600 ${local.ssh_public_key_path}
     chown ubuntu:ubuntu ${local.ssh_public_key_path}
     log "public key: $(ls -l ${local.ssh_public_key_path})"
+    log "done"
     EOT
     base64_payload_public = base64encode(local.payload_public)
 
@@ -42,6 +43,7 @@ locals {
     mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}
     rm -f ${local.ssh_authorized_keys_path}.uniq
     log "private key: $(ls -l ${local.ssh_private_key_path})"
+    log "done"
     EOT
     base64_payload_private = base64encode(local.payload_private)
 }

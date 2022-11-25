@@ -22,6 +22,7 @@ locals {
         sleep 60;
         log "starting retry...";
     done
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }
