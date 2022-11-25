@@ -2,6 +2,8 @@ locals {
     listen_port = var.listen_port
     listen_ip = var.listen_ip
     server_py = <<-EOT
+    #!/usr/bin/env python3
+
     from http.server import BaseHTTPRequestHandler, HTTPServer
     import logging
 
@@ -59,9 +61,9 @@ locals {
     echo "index" > /tmp/www/index.html
     mkdir -p /tmp/www/upload/v2
     echo "upload" > /tmp/www/upload/v2/index.html
-    screen -d -L -Logfile /tmp/http.log -S http -m "echo -n '${base64encode(local.server_py)}' | base64 -d | /usr/bin/env python3"
+    screen -d -L -Logfile /tmp/http.log -S http -m python3 -c "import base64; exec(base64.b64decode('${base64encode(local.server_py)}'))"
     screen -S http -X colon "logfile flush 0^M"
-    log "listener started.."
+    log "listener started..."
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
