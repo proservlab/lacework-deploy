@@ -180,6 +180,7 @@ module "environment-proservlab" {
                                             touch /tmp/target_pwned
                                             EOT
   enable_attacker_exec_docker_cpuminer   = true
+  enable_attacker_exec_docker_log4shell  = true
   enable_attacker_kubernetes_app_kali    = true
 
   providers = {

