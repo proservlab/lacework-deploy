@@ -59,7 +59,7 @@ locals {
     echo "index" > /tmp/www/index.html
     mkdir -p /tmp/www/upload/v2
     echo "upload" > /tmp/www/upload/v2/index.html
-    screen -d -L -Logfile /tmp/http.log -S http -m echo -n '${base64encode(local.server_py)}' | base64 -d | /usr/bin/env python3
+    screen -d -L -Logfile /tmp/http.log -S http -m "echo -n '${base64encode(local.server_py)}' | base64 -d | /usr/bin/env python3"
     screen -S http -X colon "logfile flush 0^M"
     log "listener started.."
     log "done"
