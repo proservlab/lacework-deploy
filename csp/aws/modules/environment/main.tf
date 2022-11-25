@@ -84,12 +84,6 @@ module "inspector" {
   environment  = var.environment
 }
 
-module "inspector-ssm" {
-  count = 0
-  source       = "../ssm-install-inspector"
-  environment  = var.environment
-}
-
 ##################################################
 # AWS SSM Software Deployment
 ##################################################

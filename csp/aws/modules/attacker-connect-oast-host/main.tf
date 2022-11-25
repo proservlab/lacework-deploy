@@ -7,8 +7,9 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "making request to oast domain"
-    log "$(curl -s https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain})"
+    OAST_URL="https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain}"
+    log "http request: $OAST_URL"
+    log "$(curl -s \"$OAST_URL\")"
     EOT
     base64_payload = base64encode(local.payload)
 }

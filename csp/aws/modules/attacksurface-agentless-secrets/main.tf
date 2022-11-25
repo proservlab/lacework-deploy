@@ -10,7 +10,23 @@ locals {
     ssh_authorized_keys_path = "/home/ubuntu/.ssh/authorized_keys"
 
     payload_public = <<-EOT
-    LOGFILE=/tmp/attacker_malware_eicar.log
+    LOGFILE=/tmp/attacksurface_agentless_public_key.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "creating public key: ${local.ssh_public_key_path}"
+    rm -rf ${local.ssh_public_key_path}
+    echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
+    chmod 600 ${local.ssh_public_key_path}
+    chown ubuntu:ubuntu ${local.ssh_public_key_path}
+    log "public key: $(ls -l ${local.ssh_public_key_path})"
+    EOT
+    base64_payload_public = base64encode(local.payload_public)
+
+    payload_private = <<-EOT
+    LOGFILE=/tmp/attacksurface_agentless_private_key.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -19,27 +35,13 @@ locals {
     log "creating private key: ${local.ssh_private_key_path}"
     rm -rf ${local.ssh_private_key_path}
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}
-    chmod 600 ${local.ssh_public_key_path}
-    chown ubuntu:ubuntu ${local.ssh_public_key_path}
-    EOT
-    base64_payload_public = base64encode(local.payload_public)
-
-    payload_private = <<-EOT
-    LOGFILE=/tmp/attacker_malware_eicar.log
-    function log {
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
-    }
-    truncate -s 0 $LOGFILE
-    log "creating private key: ${local.ssh_public_key_path}"
-    rm -rf ${local.ssh_public_key_path}
-    echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
-    chmod 600 ${local.ssh_public_key_path}
-    chown ubuntu:ubuntu ${local.ssh_public_key_path}
+    chmod 600 ${local.ssh_private_key_path}
+    chown ubuntu:ubuntu ${local.ssh_private_key_path}
     echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}
     sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq
     mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}
     rm -f ${local.ssh_authorized_keys_path}.uniq
+    log "private key: $(ls -l ${local.ssh_private_key_path})"
     EOT
     base64_payload_private = base64encode(local.payload_private)
 }
