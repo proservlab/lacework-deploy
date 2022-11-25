@@ -18,6 +18,7 @@ locals {
     screen -d -L -Logfile /tmp/http.log -S http -m python3 -m http.server --bind ${local.listen_ip} ${local.listen_port}
     screen -S http -X colon "logfile flush 0^M"
     log "listener started.."
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }
