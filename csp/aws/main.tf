@@ -1,21 +1,22 @@
-locals {
-  ssm_default_tags = {
-    ssm_connect_bad_ip              = "false"
-    ssm_connect_enumerate_host      = "false"
-    ssm_connect_oast_host           = "false"
-    ssm_deploy_malware_eicar        = "false"
-    ssm_deploy_secret_ssh_public    = "false"
-    ssm_deploy_secret_ssh_private   = "false"
-    ssm_exec_reverse_shell_attacker = "false"
-    ssm_exec_reverse_shell_target   = "false"
-    ssm_exec_git_codecov            = "false"
-    ssm_exec_http_listener_attacker = "false"
-    ssm_exec_docker_cpuminer        = "false"
-    ssm_deploy_inspector_agent      = "false"
-    ssm_deploy_docker               = "false"
-    ssm_deploy_git                  = "false"
-  }
+#########################
+# DEFAULTS
+#
+# ssm_default_tags - all ssm deployment tags set
+#                    to false
+#########################
 
+module "defaults" {
+  source = "./modules/defaults"
+}
+
+#########################
+# LOCALS
+#
+# instances - a list of all instances to create
+#             including ssm tag overrides
+#########################
+
+locals {
   instances = [
     {
       name           = "ec2-private-1"
@@ -25,7 +26,7 @@ locals {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
-      tags             = merge(local.ssm_default_tags, {})
+      tags             = merge(module.defaults.ssm_default_tags, {})
       user_data        = null
       user_data_base64 = null
     },
@@ -37,13 +38,10 @@ locals {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
-      tags = merge(local.ssm_default_tags, {
+      tags = merge(module.defaults.ssm_default_tags, {
         ssm_deploy_docker               = "true"
         ssm_exec_docker_cpuminer        = "true"
-        ssm_deploy_git                  = "true"
-        ssm_exec_codecov                = "true"
         ssm_exec_http_listener_attacker = "true"
-
       })
       user_data        = null
       user_data_base64 = null
@@ -56,12 +54,14 @@ locals {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
-      tags = merge(local.ssm_default_tags, {
+      tags = merge(module.defaults.ssm_default_tags, {
         ssm_connect_oast_host         = "true"
         ssm_deploy_malware_eicar      = "true"
         ssm_deploy_secret_ssh_private = "true"
         ssm_exec_reverse_shell_target = "true"
         ssm_deploy_inspector_agent    = "true"
+        ssm_deploy_git                = "true"
+        ssm_exec_git_codecov          = "true"
       })
 
       user_data        = <<-EOT
@@ -80,7 +80,7 @@ locals {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
-      tags = merge(local.ssm_default_tags, {
+      tags = merge(module.defaults.ssm_default_tags, {
         ssm_deploy_secret_ssh_public    = "true"
         ssm_exec_reverse_shell_attacker = "true"
       })
@@ -89,6 +89,20 @@ locals {
     }
   ]
 }
+
+#########################
+# ATTACKER ENVIRONMENT
+#
+# deploys attacker environment
+#########################
+
+# TDB - currently all attack run within local network
+
+#########################
+# TARGET ENVIRONMENT
+#
+# deploys target environment with lacework components installed
+#########################
 
 module "environment-proservlab" {
   source      = "./modules/environment"

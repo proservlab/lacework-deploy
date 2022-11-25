@@ -81,17 +81,7 @@ variable "instances" {
       ami_name        = "ubuntu_focal"
       enable_ssm      = true
       ssm_deploy_tag  = { ssm_deploy_lacework = "true" }
-      tags            = {
-                          ssm_connect_bad_ip            = "false"
-                          ssm_connect_enumerate_host    = "false"
-                          ssm_connect_oast_host         = "false"
-                          ssm_deploy_malware_eicar      = "false"
-                          ssm_deploy_secret_ssh_public  = "false"
-                          ssm_deploy_secret_ssh_private = "false"
-                          ssm_exec_reverse_shell        = "false"
-                          ssm_exec_codecov              = "false"
-                          ssm_exec_docker_cpuminer      = "false"
-                        }
+      tags            = {}
       user_data       = null
       user_data_base64 = null
     },
@@ -102,38 +92,7 @@ variable "instances" {
       ami_name        = "ubuntu_focal"
       enable_ssm      = true
       ssm_deploy_tag  = { ssm_deploy_lacework = "true" }
-      tags            = {
-                          ssm_connect_bad_ip            = "false"
-                          ssm_connect_enumerate_host    = "false"
-                          ssm_connect_oast_host         = "false"
-                          ssm_deploy_malware_eicar      = "false"
-                          ssm_deploy_secret_ssh_public  = "false"
-                          ssm_deploy_secret_ssh_private = "false"
-                          ssm_exec_reverse_shell        = "false"
-                          ssm_exec_codecov              = "false"
-                          ssm_exec_docker_cpuminer      = "false"
-                        }
-      user_data       = null
-      user_data_base64 = null
-    },
-    { 
-      name            = "ec2-public-2"
-      public          = true
-      instance_type   = "t2.micro"
-      ami_name        = "ubuntu_focal"
-      enable_ssm      = true
-      ssm_deploy_tag  = { ssm_deploy_lacework = "false" }
-      tags            = {
-                          ssm_connect_bad_ip            = "false"
-                          ssm_connect_enumerate_host    = "false"
-                          ssm_connect_oast_host         = "false"
-                          ssm_deploy_malware_eicar      = "false"
-                          ssm_deploy_secret_ssh_public  = "false"
-                          ssm_deploy_secret_ssh_private = "false"
-                          ssm_exec_reverse_shell        = "false"
-                          ssm_exec_codecov              = "false"
-                          ssm_exec_docker_cpuminer      = "false"
-                        }
+      tags            = {}
       user_data       = null
       user_data_base64 = null
     }

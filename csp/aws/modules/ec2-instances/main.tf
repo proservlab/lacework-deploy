@@ -1,3 +1,4 @@
+# lookup latest amis
 module "amis" {
   source = "./amis"
 }
