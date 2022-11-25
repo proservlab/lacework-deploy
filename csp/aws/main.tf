@@ -39,10 +39,9 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                  = "true"
-        ssm_exec_docker_cpuminer           = "true"
-        ssm_exec_http_listener_attacker    = "true"
-        ssm_exec_docker_log4shell_attacker = "true"
+        ssm_deploy_docker               = "true"
+        ssm_exec_docker_cpuminer        = "true"
+        ssm_exec_http_listener_attacker = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -56,14 +55,13 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_connect_oast_host            = "true"
-        ssm_deploy_malware_eicar         = "true"
-        ssm_deploy_secret_ssh_private    = "true"
-        ssm_exec_reverse_shell_target    = "true"
-        ssm_deploy_inspector_agent       = "true"
-        ssm_deploy_git                   = "true"
-        ssm_exec_git_codecov             = "true"
-        ssm_exec_docker_log4shell_target = "true"
+        ssm_connect_oast_host         = "true"
+        ssm_deploy_malware_eicar      = "true"
+        ssm_deploy_secret_ssh_private = "true"
+        ssm_exec_reverse_shell_target = "true"
+        ssm_deploy_inspector_agent    = "true"
+        ssm_deploy_git                = "true"
+        ssm_exec_git_codecov          = "true"
       })
 
       user_data        = <<-EOT
@@ -83,8 +81,25 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_secret_ssh_public    = "true"
-        ssm_exec_reverse_shell_attacker = "true"
+        ssm_deploy_docker                  = "true"
+        ssm_deploy_secret_ssh_public       = "true"
+        ssm_exec_reverse_shell_attacker    = "true"
+        ssm_exec_docker_log4shell_attacker = "true"
+      })
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name           = "ec2-public-4"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "true" }
+      # override default ssm action tags
+      tags = merge(module.defaults.ssm_default_tags, {
+        ssm_deploy_docker                  = "true"
+        ssm_exec_docker_log4shell_attacker = "true"
       })
       user_data        = null
       user_data_base64 = null

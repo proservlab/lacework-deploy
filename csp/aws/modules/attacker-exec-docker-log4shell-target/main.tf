@@ -16,8 +16,9 @@ locals {
     done
     log "docker path: $(which docker)"
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
-    sudo docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}
-    sudo docker ps -a >> $LOGFILE 2>&1
+    log "$(echo 'docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}')"
+    docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image} >> $LOGFILE 2>&1
+    docker ps -a >> $LOGFILE 2>&1
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
