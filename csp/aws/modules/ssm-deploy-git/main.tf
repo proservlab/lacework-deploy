@@ -1,32 +1,35 @@
 locals {
-    iplist_url = var.iplist_url
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_connect_badip.log
+    LOGFILE=/tmp/ssm_deploy_git.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "finding bad ip: ${local.iplist_url}"
-    BADIP=$(curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\")
-    log "found bad ip: $BADIP"
-    log "pinging: $(ping -c 10 -w 5 $BADIP)"
+    log "Checking for git..."
+    if ! which git; then
+        log "git not found installation required"
+        sudo apt-get update
+        sudo apt-get install -y \
+            git
+    fi
+    log "git path: $(which docker)"
     EOT
     base64_payload = base64encode(local.payload)
 }
 
-resource "aws_ssm_document" "connect_bad_ip" {
-  name          = "connect_bad_ip"
+resource "aws_ssm_document" "deploy_git" {
+  name          = "deploy_git"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "connect bad ip on port ${local.port}",
+        "description": "deploy git",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "connect_bad_ip",
+                "name": "deploy_git",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -45,11 +48,11 @@ resource "aws_ssm_document" "connect_bad_ip" {
     })
 }
 
-resource "aws_resourcegroups_group" "connect_bad_ip" {
-    name = "connect_bad_ip"
+resource "aws_resourcegroups_group" "deploy_git" {
+    name = "deploy_git"
 
     resource_query {
-        query = jsonencode(var.resource_query_connect_bad_ip)
+        query = jsonencode(var.resource_query_deploy_git)
     }
 
     tags = {
@@ -58,15 +61,15 @@ resource "aws_resourcegroups_group" "connect_bad_ip" {
     }
 }
 
-resource "aws_ssm_association" "connect_bad_ip" {
-    association_name = "connect_bad_ip"
+resource "aws_ssm_association" "deploy_git" {
+    association_name = "deploy_git"
 
-    name = aws_ssm_document.connect_bad_ip.name
+    name = aws_ssm_document.deploy_git.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.connect_bad_ip.name,
+            aws_resourcegroups_group.deploy_git.name,
         ]
     }
 

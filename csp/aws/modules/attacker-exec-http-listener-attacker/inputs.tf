@@ -2,7 +2,7 @@ variable "environment" {
   type    = string
 }
 
-variable "resource_query_connect_enumerate_host" {
+variable "resource_query_exec_http_listener_attacker" {
     type    = object({
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({
@@ -18,7 +18,7 @@ variable "resource_query_connect_enumerate_host" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_connect_enumerate_host"
+                        Key = "ssm_exec_http_listener_attacker"
                         Values = [
                             "true"
                         ]
@@ -27,14 +27,14 @@ variable "resource_query_connect_enumerate_host" {
               }
 }
 
-variable "nmap_scan_host" {
+variable "listen_ip" {
   type = string
-  description = "the host to port scan"
-  default = "portquiz.net"
+  description = "IP address of attacker"
+  default = "0.0.0.0"
 }
 
-variable "nmap_scan_ports" {
-  type = string
-  description = "the ports to scan on target host"
-  default = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
+variable "listen_port" {
+  type = number
+  description = "Port address of attacker"
+  default = 8080
 }

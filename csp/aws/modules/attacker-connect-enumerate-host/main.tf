@@ -1,8 +1,31 @@
 locals {
     nmap_download = "https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap?raw=true"
     nmap_path = "/tmp/nmap"
-    nmap_ports = "443,22"
-    nmap_scan_host = "portquiz.net"
+    nmap_ports = var.nmap_scan_ports
+    nmap_scan_host = var.nmap_scan_host
+    payload = <<-EOT
+    LOGFILE=/tmp/attacker_connect_enumerate_host.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "scan target: ${local.nmap_scan_host} ${local.nmap_ports}"
+    log "checking for nmap"
+    if ! which nmap; then
+        log "nmap not found"
+        log "downloading: ${local.nmap_download}"
+        if [ -f ${local.nmap_path} ]; then
+            curl -L -o ${local.nmap_path} ${local.nmap_download}
+            chmod 755 ${local.nmap_path}
+        fi
+        log "using nmap: ${local.nmap_path}"
+        log "$(${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host}"
+    else
+        log "$(nmap -sS -p ${local.nmap_ports} ${local.nmap_scan_host})"
+    fi
+    EOT
+    base64_payload = base64encode(local.payload)
 }
 
 resource "aws_ssm_document" "connect_enumerate_host" {
@@ -26,10 +49,8 @@ resource "aws_ssm_document" "connect_enumerate_host" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "rm -rf ${local.nmap_path}",
-                        "curl -L -o ${local.nmap_path} ${local.nmap_download}",
-                        "chmod 755 ${local.nmap_path}",
-                        "${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host} > /tmp/attacker_connect_enumerate_host",
+                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }
             }

@@ -31,6 +31,7 @@ variable "cluster_name" {
 
 variable "proxy_token" {
   description = "proxy scanner token"
+  type = string
 }
 
 variable "lacework_account_name" {
@@ -320,6 +321,17 @@ variable "attacker_exec_reverseshell_port" {
   description = "the payload to send after reverse shell connection"
   type = number
   default = 4444
+}
+
+variable "enable_attacker_exec_http_listener" {
+  description = "enable disable exec http listener"
+  type = bool
+  default = false
+}
+variable "attacker_exec_http_port" {
+  description = "the payload to send after reverse shell connection"
+  type = number
+  default = 8080
 }
 
 variable "enable_attacker_exec_docker_cpuminer" {

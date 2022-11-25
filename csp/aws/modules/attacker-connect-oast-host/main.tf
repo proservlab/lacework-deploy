@@ -1,5 +1,16 @@
 locals {
     oast_domain = "burpcollaborator.net"
+    payload = <<-EOT
+    LOGFILE=/tmp/attacker_connect_oast_host.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "making request to oast domain"
+    log "$(curl -s https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain})"
+    EOT
+    base64_payload = base64encode(local.payload)
 }
 
 resource "aws_ssm_document" "connect_oast_host" {
@@ -23,7 +34,8 @@ resource "aws_ssm_document" "connect_oast_host" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "curl -s https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain} > /tmp/attacker_connect_oast_host.txt",
+                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }
             }

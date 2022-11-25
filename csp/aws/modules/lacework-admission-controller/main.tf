@@ -31,7 +31,7 @@
 
 resource "tls_private_key" "ca" {
   count     = var.use_self_signed_certs ? 1 : 0
-  algorithm = "RSA"
+  key_algorithm = "RSA"
   rsa_bits  = 2048
 }
 
@@ -52,7 +52,7 @@ resource "tls_self_signed_cert" "ca" {
 
 resource "tls_private_key" "admission" {
   count     = var.use_self_signed_certs ? 1 : 0
-  algorithm = "RSA"
+  key_algorithm = "RSA"
   rsa_bits  = 2048
 }
 

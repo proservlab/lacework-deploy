@@ -8,8 +8,11 @@ locals {
     ssm_deploy_secret_ssh_private   = "false"
     ssm_exec_reverse_shell_attacker = "false"
     ssm_exec_reverse_shell_target   = "false"
-    ssm_exec_codecov                = "false"
+    ssm_exec_git_codecov            = "false"
+    ssm_exec_docker_cpuminer        = "false"
     ssm_deploy_inspector_agent      = "false"
+    ssm_deploy_docker               = "false"
+    ssm_deploy_git                  = "false"
   }
 
   instances = [
@@ -33,7 +36,13 @@ locals {
       enable_ssm     = true
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
-      tags             = merge(local.ssm_default_tags, {})
+      tags = merge(local.ssm_default_tags, {
+        ssm_deploy_docker        = "true"
+        ssm_exec_docker_cpuminer = "true"
+        ssm_deploy_git           = "true"
+        ssm_exec_codecov         = "true"
+
+      })
       user_data        = null
       user_data_base64 = null
     },
@@ -140,18 +149,20 @@ module "environment-proservlab" {
   enable_attacksurface_agentless_secrets = true
 
   # attacker
-  enable_attacker_malware_eicar          = false
-  enable_attacker_connect_badip          = false
-  enable_attacker_connect_enumerate_host = false
-  enable_attacker_connect_oast_host      = false
-  enable_attacker_exec_codecov           = false
+  enable_attacker_malware_eicar          = true
+  enable_attacker_connect_badip          = true
+  enable_attacker_connect_enumerate_host = true
+  enable_attacker_connect_oast_host      = true
+  enable_attacker_exec_codecov           = true
   enable_attacker_exec_reverseshell      = true
+  enable_attacker_exec_http_listener     = true
   attacker_exec_reverseshell_port        = 4445
+  attacker_exec_http_port                = 8080
   attacker_exec_reverseshell_payload     = <<-EOT
                                             touch /tmp/target_pwned
                                             EOT
-  enable_attacker_exec_docker_cpuminer   = false
-  enable_attacker_kubernetes_app_kali    = false
+  enable_attacker_exec_docker_cpuminer   = true
+  enable_attacker_kubernetes_app_kali    = true
 
   providers = {
     aws        = aws.main

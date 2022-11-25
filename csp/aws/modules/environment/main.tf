@@ -2,11 +2,15 @@
 # LOCALS
 ########################
 locals {
-  attacker_instance = flatten([
+  attacker_instance_reverseshell = flatten([
     for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_attacker == "true"
   ])
-  target_instance = flatten([
+  target_instance_reverseshell = flatten([
     for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_target == "true"
+  ])
+
+  attacker_instance_http_listener = flatten([
+    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_http_listener_attacker == "true"
   ])
 }
 
@@ -80,9 +84,25 @@ module "inspector" {
   environment  = var.environment
 }
 
-module "inspector-ssm" {
+# module "inspector-ssm" {
+#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_inspector== true ) ? 1 : 0
+#   source       = "../ssm-install-inspector"
+#   environment  = var.environment
+# }
+
+##################################################
+# AWS SSM Software Deployment
+##################################################
+
+module "ssm-deploy-inspector-agent" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_inspector== true ) ? 1 : 0
-  source       = "../ssm-install-inspector"
+  source       = "../ssm-deploy-inspector-agent"
+  environment  = var.environment
+}
+
+module "ssm-deploy-docker" {
+  count = (var.enable_all == true) || (var.disable_all != true ) ? 1 : 0
+  source       = "../ssm-deploy-docker"
   environment  = var.environment
 }
 
@@ -298,24 +318,32 @@ module "attacker-connect-badip" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_badip == true ) ? 1 : 0
   source = "../attacker-connect-badip"
   environment = var.environment
+  # list of bad ip to select from - only a single random will be used
+  iplist_url = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
 }
 
 module "attacker-connect-enumerate-host" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_enumerate_host == true ) ? 1 : 0
   source = "../attacker-connect-enumerate-host"
   environment = var.environment
-}
 
+  # scan local reverse shell target if available else portquiz
+  nmap_scan_host = length(local.target_instance_reverseshell) > 0 ? local.target_instance_reverseshell[0] : "portquiz.net"
+  nmap_scan_ports = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
+}
 module "attacker-connect-oast-host" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_oast_host == true ) ? 1 : 0
   source = "../attacker-connect-oast-host"
   environment = var.environment
 }
 
+# need attacker http listener
 module "attacker-exec-codecov" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_codecov == true ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener && var.enable_attacker_exec_codecov == true && length(var.attacker_instance_http_listener) > 0) ? 1 : 0
   source = "../attacker-exec-codecov"
   environment = var.environment
+  host_ip = local.attacker_instance_http_listener[0]
+  host_port = var.attacker_exec_http_port
 }
 
 module "attacker-exec-reverseshell-attacker" {
@@ -327,12 +355,20 @@ module "attacker-exec-reverseshell-attacker" {
   payload = var.attacker_exec_reverseshell_payload
 }
 
-# need to have an attacker instance
+module "attacker-exec-http-listener-attacker" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener == true && length(var.attacker_instance_http_listener) > 0 ) ? 1 : 0
+  source = "../attacker-exec-http-listener-attacker"
+  environment = var.environment
+  listen_ip = "0.0.0.0"
+  listen_port = var.attacker_exec_http_port
+}
+
+# need attacker reverse shell listener
 module "attacker-exec-reverseshell-target" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true && length(local.attacker_instance) > 0 ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true && length(local.attacker_instance_reverseshell) > 0 ) ? 1 : 0
   source = "../attacker-exec-reverseshell-target"
   environment = var.environment
-  host_ip =  local.attacker_instance[0]
+  host_ip =  local.attacker_instance_reverseshell[0]
   host_port = var.attacker_exec_reverseshell_port
 }
 module "attacker-exec-docker-cpuminer" {

@@ -2,7 +2,7 @@ variable "environment" {
   type    = string
 }
 
-variable "resource_query_connect_enumerate_host" {
+variable "resource_query_deploy_git" {
     type    = object({
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({
@@ -18,23 +18,11 @@ variable "resource_query_connect_enumerate_host" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_connect_enumerate_host"
+                        Key = "ssm_deploy_git"
                         Values = [
                             "true"
                         ]
                     }
                 ]
               }
-}
-
-variable "nmap_scan_host" {
-  type = string
-  description = "the host to port scan"
-  default = "portquiz.net"
-}
-
-variable "nmap_scan_ports" {
-  type = string
-  description = "the ports to scan on target host"
-  default = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
 }

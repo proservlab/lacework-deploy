@@ -2,7 +2,7 @@ variable "environment" {
   type    = string
 }
 
-variable "resource_query_exec_reverse_shell" {
+variable "resource_query_deploy_docker" {
     type    = object({
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({
@@ -18,7 +18,7 @@ variable "resource_query_exec_reverse_shell" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_exec_reverse_shell"
+                        Key = "ssm_deploy_docker"
                         Values = [
                             "true"
                         ]

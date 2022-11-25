@@ -26,3 +26,9 @@ variable "resource_query_connect_bad_ip" {
                 ]
               }
 }
+
+variable "iplist_url" {
+  type = string
+  description = "url to obtain a list of bad ips"
+  default = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+}
