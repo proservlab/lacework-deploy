@@ -22,7 +22,7 @@ resource "aws_ssm_document" "connect_bad_ip" {
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "connect bad ip on port ${local.port}",
+        "description": "connect ping bad ip",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",

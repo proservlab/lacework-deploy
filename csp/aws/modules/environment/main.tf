@@ -160,7 +160,7 @@ resource "lacework_agent_access_token" "main" {
 }
 
 locals {
-  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
+  lacework_agent_access_token = var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token
 }
 
 module "lacework-ssm-deployment" {
@@ -339,7 +339,7 @@ module "attacker-connect-oast-host" {
 
 # need attacker http listener
 module "attacker-exec-codecov" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener && var.enable_attacker_exec_codecov == true && length(var.attacker_instance_http_listener) > 0) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener && var.enable_attacker_exec_codecov == true && length(local.attacker_instance_http_listener) > 0) ? 1 : 0
   source = "../attacker-exec-codecov"
   environment = var.environment
   host_ip = local.attacker_instance_http_listener[0]
@@ -356,7 +356,7 @@ module "attacker-exec-reverseshell-attacker" {
 }
 
 module "attacker-exec-http-listener-attacker" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener == true && length(var.attacker_instance_http_listener) > 0 ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener == true && length(local.attacker_instance_http_listener) > 0 ) ? 1 : 0
   source = "../attacker-exec-http-listener-attacker"
   environment = var.environment
   listen_ip = "0.0.0.0"

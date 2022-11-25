@@ -9,6 +9,7 @@ locals {
     ssm_exec_reverse_shell_attacker = "false"
     ssm_exec_reverse_shell_target   = "false"
     ssm_exec_git_codecov            = "false"
+    ssm_exec_http_listener_attacker = "false"
     ssm_exec_docker_cpuminer        = "false"
     ssm_deploy_inspector_agent      = "false"
     ssm_deploy_docker               = "false"
@@ -37,10 +38,11 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(local.ssm_default_tags, {
-        ssm_deploy_docker        = "true"
-        ssm_exec_docker_cpuminer = "true"
-        ssm_deploy_git           = "true"
-        ssm_exec_codecov         = "true"
+        ssm_deploy_docker               = "true"
+        ssm_exec_docker_cpuminer        = "true"
+        ssm_deploy_git                  = "true"
+        ssm_exec_codecov                = "true"
+        ssm_exec_http_listener_attacker = "true"
 
       })
       user_data        = null
