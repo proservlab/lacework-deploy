@@ -47,7 +47,7 @@ variable "use_ssl" {
 variable "git_origin" {
   type = string
   description = "git origin to add to posted payload"
-  default=""
+  default="git@git.localhost:repo/repo.git"
 }
 
 variable "env_secrets" {

@@ -23,6 +23,8 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    screen -ls | grep codecov | cut -d. -f1 | awk '{print $1}' | xargs kill
+    truncate -s 0 /tmp/codecov.log
     log "checking for git..."
     while ! which git; do
         log "git not found - waiting"
@@ -33,6 +35,8 @@ locals {
     screen -S codecov -X colon "logfile flush 0^M"
     log 'sending screen command: ${local.command_payload}';
     screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
+    sleep 30
+    screen -ls | grep codecov | cut -d. -f1 | awk '{print $1}' | xargs kill
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
