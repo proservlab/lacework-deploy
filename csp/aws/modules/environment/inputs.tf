@@ -128,6 +128,18 @@ variable "enable_inspector" {
   default = false
 }
 
+variable "enable_deploy_docker" {
+  description = "enable disable ssm deploy docker capability"
+  type = bool
+  default = false
+}
+
+variable "enable_deploy_git" {
+  description = "enable disable ssm deploy git capability"
+  type = bool
+  default = false
+}
+
 variable "instances" {
   type    = list(
     object({

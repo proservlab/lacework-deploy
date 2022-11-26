@@ -98,8 +98,8 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                  = "true"
-        ssm_exec_docker_log4shell_attacker = "true"
+        ssm_deploy_docker                = "true"
+        ssm_exec_docker_log4shell_target = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -146,11 +146,15 @@ module "environment-proservlab" {
   cluster_name = var.cluster_name
 
   # aws core environment
-  enable_ec2       = true
-  enable_eks       = true
-  enable_eks_app   = true
-  enable_eks_psp   = false
-  enable_inspector = true
+  enable_ec2     = true
+  enable_eks     = true
+  enable_eks_app = true
+  enable_eks_psp = false
+
+  # aws ssm document setup - provides optional install capability
+  enable_inspector     = true
+  enable_deploy_git    = true
+  enable_deploy_docker = true
 
   # ec2 instance definitions
   instances = local.instances

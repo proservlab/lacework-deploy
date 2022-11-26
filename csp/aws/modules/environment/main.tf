@@ -109,6 +109,18 @@ module "ssm-deploy-inspector-agent" {
   environment  = var.environment
 }
 
+module "ssm-deploy-git" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_deploy_git== true ) ? 1 : 0
+  source       = "../ssm-deploy-git"
+  environment  = var.environment
+}
+
+module "ssm-deploy-docker" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_deploy_docker== true ) ? 1 : 0
+  source       = "../ssm-deploy-docker"
+  environment  = var.environment
+}
+
 #########################
 # Kubernetes
 #########################
