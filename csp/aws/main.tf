@@ -42,6 +42,7 @@ locals {
         ssm_deploy_docker               = "true"
         ssm_exec_docker_cpuminer        = "true"
         ssm_exec_http_listener_attacker = "true"
+        ssm_connect_enumerate_host      = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -100,6 +101,7 @@ locals {
       tags = merge(module.defaults.ssm_default_tags, {
         ssm_deploy_docker                = "true"
         ssm_exec_docker_log4shell_target = "true"
+        ssm_connect_bad_ip               = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -200,7 +202,7 @@ module "environment-proservlab" {
                                             EOT
   enable_attacker_exec_docker_cpuminer   = true
   enable_attacker_exec_docker_log4shell  = true
-  enable_attacker_kubernetes_app_kali    = true
+  enable_attacker_kubernetes_app_kali    = false
 
   providers = {
     aws        = aws.main
