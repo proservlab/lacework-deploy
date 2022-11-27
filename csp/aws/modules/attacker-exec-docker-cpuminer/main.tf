@@ -52,7 +52,7 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "echo \"${local.base64_payload}\" > /tmp/payload",
+                        "echo \"${local.base64_payload}\" > /tmp/payload_${basename(abspath(path.module))}",
                         "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
                     ]
                 }
