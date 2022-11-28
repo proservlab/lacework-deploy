@@ -350,12 +350,12 @@ module "simulation-target" {
   # via ssm as root. any instances tagged will have the
   # enable attacks run, every 30 minutes by default.
   enable_target_attacksurface_secrets_ssh = true
-  enable_target_malware_eicar             = false
-  enable_target_connect_badip             = false
-  enable_target_connect_enumerate_host    = false
+  enable_target_malware_eicar             = true
+  enable_target_connect_badip             = true
+  enable_target_connect_enumerate_host    = true
   enable_target_connect_oast_host         = true
   enable_target_kubernetes_app_kali       = false
-  enable_target_docker_cpuminer           = false
+  enable_target_docker_cpuminer           = true
 
   # simulation advanced
   # -------------------
