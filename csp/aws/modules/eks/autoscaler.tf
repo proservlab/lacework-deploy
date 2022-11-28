@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
 }
 
 resource "helm_release" "cluster-autoscaler" {
-  name        = "cluster-autoscaler"
+  name        = "${var.environment}-cluster-autoscaler"
   
   namespace   = "kube-system"
   repository  = "stable"

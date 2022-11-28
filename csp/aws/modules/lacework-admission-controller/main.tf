@@ -2,8 +2,8 @@
 #   source  = "lacework/admission-controller/kubernetes"
 #   version = "~> 0.1"
 
-#   lacework_account_name = "${var.lacework_account_name}"
-#   proxy_scanner_token   = "${var.proxy_token}"
+#   lacework_account_name = var.lacework_account_name
+#   proxy_scanner_token   = var.lacework_proxy_token
 #   default_registry      = "index.docker.io"
 #   static_cache_location = "/opt/lacework"
 #   scan_public_registries = true
@@ -90,12 +90,12 @@ data "template_file" "values" {
 
   vars = {
     lacework_account_name = var.lacework_account_name
-    proxy_token = var.proxy_token
+    lacework_proxy_token = var.lacework_proxy_token
   }
 }
 
 resource "helm_release" "admission-controller" {
-    name       = "lacework-admission-controller"
+    name       = "${var.environment}-lacework-admission-controller"
     repository = "https://lacework.github.io/helm-charts"
     chart      = "admission-controller"
 

@@ -15,7 +15,7 @@
 # }
 
 resource "helm_release" "lacework" {
-    name       = "lacework"
+    name       = "${var.environment}-lacework"
     repository = "https://lacework.github.io/helm-charts"
     chart      = "lacework-agent"
 

@@ -37,17 +37,13 @@ variable "terraform_backend_dynamodb_table" {
   type        = string
 }
 
-variable "cluster_name" {
-  description = "name of the aks cluster"
-  default     = "proservlab-cluster"
-}
-
 variable "lacework_profile" {
+  type = string
   description = "lacework account profile name"
-  default     = "proservlab"
 }
 
 variable "lacework_account_name" {
+  type = string
   description = "lacework account name"
   default     = "proservlab"
 }
@@ -108,6 +104,7 @@ variable "jira_cloud_username" {
 }
 
 variable "lacework_server_url" {
+  type = string
   description = "lacework server url"
   default     = "https://api.lacework.net"
 }
@@ -118,7 +115,7 @@ variable "lacework_agent_access_token" {
   default     = "false"
 }
 
-variable "proxy_token" {
+variable "lacework_proxy_token" {
   type        = string
   description = "proxy token used by the admissions controller"
 }

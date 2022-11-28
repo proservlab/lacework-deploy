@@ -2,11 +2,13 @@ variable "environment" {
   type = string
 }
 
-variable "proxy_token" {
-  description = "proxy scanner token"
+variable "lacework_proxy_token" {
+  type = string
+  description = "lacework proxy scanner token"
 }
 
 variable "lacework_account_name" {
+  type = string
   description = "lacework account name"
 }
 

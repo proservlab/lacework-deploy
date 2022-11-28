@@ -17,5 +17,13 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.6.0"
     }
+    template = {
+      source = "hashicorp/template"
+      version = "2.2.0"
+    }
+    tls = {
+      source = "hashicorp/tls"
+      version = "4.0.4"
+    }
   }
 }

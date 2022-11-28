@@ -53,7 +53,7 @@ module "environment-proservlab" {
   enable_gke_psp = false
 
   # kubernetes admission controller
-  proxy_token = var.proxy_token
+  lacework_proxy_token = var.lacework_proxy_token
 
   # lacework
   lacework_gcp_project                  = data.google_project.lacework_project.project_id

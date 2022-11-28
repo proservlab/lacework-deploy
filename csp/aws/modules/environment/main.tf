@@ -2,24 +2,7 @@
 # LOCALS
 ########################
 locals {
-  attacker_instance_reverseshell = flatten([
-    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_attacker == "true"
-  ])
-  target_instance_reverseshell = flatten([
-    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_reverse_shell_target == "true"
-  ])
-
-  attacker_instance_http_listener = flatten([
-    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_http_listener_attacker == "true"
-  ])
-
-  target_instance_log4shell = flatten([
-    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_docker_log4shell_target == "true"
-  ])
-
-  attacker_instance_log4shell = flatten([
-    for instance in module.ec2-instances[0].instances: instance.instance.private_ip if instance.instance.tags.ssm_exec_docker_log4shell_attacker == "true"
-  ])
+  lacework_agent_access_token = var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token
 }
 
 #########################
@@ -44,45 +27,13 @@ module "ec2-instances" {
   # allow endpoints inside their own security group to communicate
   allow_all_inter_security_group = true
 
-  public_ingress_rules = [
-      {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-        description = "allow ssh inbound"
-      }
-  ]
+  public_ingress_rules = var.public_ingress_rules
 
-  public_egress_rules = [
-      {
-          from_port = 0
-          to_port = 0
-          protocol = "-1"
-          cidr_block = "0.0.0.0/0"
-          description = "allow all outbound"
-      }
-  ]
+  public_egress_rules = var.public_egress_rules
 
-  private_ingress_rules = [
-      {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-        description = "allow ssh inbound"
-      }
-  ]
+  private_ingress_rules = var.private_ingress_rules
 
-  private_egress_rules = [
-      {
-          from_port = 0
-          to_port = 0
-          protocol = "-1"
-          cidr_block = "0.0.0.0/0"
-          description = "allow all outbound"
-      }
-  ]
+  private_egress_rules = var.private_egress_rules
 }
 
 module "eks" {
@@ -173,10 +124,6 @@ resource "lacework_agent_access_token" "main" {
   description = "deployment for ${var.environment}"
 }
 
-locals {
-  lacework_agent_access_token = var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token
-}
-
 module "lacework-ssm-deployment" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_ssm_deployment == true ) ? 1 : 0
   source       = "../lacework-ssm-deployment"
@@ -230,7 +177,7 @@ module "lacework-admission-controller" {
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
-  proxy_token = var.proxy_token
+  lacework_proxy_token = var.lacework_proxy_token
 
   depends_on = [
     module.eks,
@@ -307,110 +254,105 @@ module "vulnerable-kubernetes-app-root-mount-fs-pod" {
 }
 
 #########################
-# Attack Surface
+# SIMULATION
 #########################
 
-# requires ec2 instance deployment
-module "attacksurface-agentless-secrets" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacksurface_agentless_secrets == true ) ? 1 : 0
-  source = "../attacksurface-agentless-secrets"
+module "simulation-target-attacksurface-secrets-ssh" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_attacksurface_secrets_ssh == true ) ? 1 : 0
+  source = "../simulation-target-attacksurface-secrets-ssh"
   environment = var.environment
 }
 
-#########################
-# Attacker
-#########################
 
-# requires ec2 instance deployment
-module "attacker-malware-eicar" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_malware_eicar == true ) ? 1 : 0
-  source = "../attacker-malware-eicar"
+module "simulation-target-drop-malware-eicar" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_malware_eicar == true ) ? 1 : 0
+  source = "../simulation-target-drop-malware-eicar"
   environment = var.environment
 }
 
-module "attacker-connect-badip" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_badip == true ) ? 1 : 0
-  source = "../attacker-connect-badip"
+module "simulation-target-connect-badip" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_connect_badip == true ) ? 1 : 0
+  source = "../simulation-target-connect-badip"
   environment = var.environment
   # list of bad ip to select from - only a single random will be used
   iplist_url = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
 }
 
-module "attacker-connect-enumerate-host" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_enumerate_host == true ) ? 1 : 0
-  source = "../attacker-connect-enumerate-host"
+module "simulation-target-connect-enumerate-host" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_connect_enumerate_host == true ) ? 1 : 0
+  source = "../simulation-target-connect-enumerate-host"
   environment = var.environment
 
   # scan local reverse shell target if available else portquiz
-  nmap_scan_host = length(local.target_instance_reverseshell) > 0 ? local.target_instance_reverseshell[0] : "portquiz.net"
+  nmap_scan_host = length(var.target_instance_reverseshell) > 0 ? var.target_instance_reverseshell[0].private_ip : "portquiz.net"
   nmap_scan_ports = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
 }
-module "attacker-connect-oast-host" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_connect_oast_host == true ) ? 1 : 0
-  source = "../attacker-connect-oast-host"
+module "simulation-target-connect-oast-host" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_connect_oast_host == true ) ? 1 : 0
+  source = "../simulation-target-connect-oast-host"
   environment = var.environment
 }
 
 # need attacker http listener
-module "attacker-exec-codecov" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener && var.enable_attacker_exec_codecov == true && length(local.attacker_instance_http_listener) > 0) ? 1 : 0
-  source = "../attacker-exec-codecov"
+module "simulation-target-exec-codecov" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_codecov == true && length(var.attacker_instance_http_listener) > 0) ? 1 : 0
+  source = "../simulation-target-exec-codecov"
   environment = var.environment
-  host_ip = local.attacker_instance_http_listener[0]
-  host_port = var.attacker_exec_http_port
+  host_ip = var.attacker_instance_http_listener[0].public_ip
+  host_port = var.attacker_generic_http_listener_port
 }
 
-module "attacker-exec-reverseshell-attacker" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true ) ? 1 : 0
-  source = "../attacker-exec-reverseshell-attacker"
+module "simulation-attacker-exec-http-listener" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_http_listener == true && length(var.attacker_instance_http_listener) > 0 ) ? 1 : 0
+  source = "../simulation-attacker-exec-http-listener"
   environment = var.environment
   listen_ip = "0.0.0.0"
-  listen_port = var.attacker_exec_reverseshell_port
-  payload = var.attacker_exec_reverseshell_payload
+  listen_port = var.attacker_generic_http_listener_port
 }
 
-module "attacker-exec-http-listener-attacker" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_http_listener == true && length(local.attacker_instance_http_listener) > 0 ) ? 1 : 0
-  source = "../attacker-exec-http-listener-attacker"
+module "simulation-attacker-exec-reverseshell" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_reverseshell == true ) ? 1 : 0
+  source = "../simulation-attacker-exec-reverseshell"
   environment = var.environment
   listen_ip = "0.0.0.0"
-  listen_port = var.attacker_exec_http_port
+  listen_port = var.attacker_reverseshell_port
+  payload = var.attacker_reverseshell_payload
 }
 
-# need attacker reverse shell listener
-module "attacker-exec-reverseshell-target" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_reverseshell == true && length(local.attacker_instance_reverseshell) > 0 ) ? 1 : 0
-  source = "../attacker-exec-reverseshell-target"
+module "simulation-target-exec-reverseshell" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_reverseshell == true && length(var.attacker_instance_reverseshell) > 0 ) ? 1 : 0
+  source = "../simulation-target-exec-reverseshell"
   environment = var.environment
-  host_ip =  local.attacker_instance_reverseshell[0]
-  host_port = var.attacker_exec_reverseshell_port
+  host_ip =  var.attacker_instance_reverseshell[0].public_ip
+  host_port = var.attacker_reverseshell_port
 }
-module "attacker-exec-docker-cpuminer" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_cpuminer == true ) ? 1 : 0
-  source = "../attacker-exec-docker-cpuminer"
+module "simulation-target-exec-docker-cpuminer" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_docker_cpuminer == true ) ? 1 : 0
+  source = "../simulation-target-exec-docker-cpuminer"
   environment = var.environment
-}
-
-module "attacker-exec-docker-log4shell-attacker" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true && length(local.attacker_instance_log4shell) > 0 && length(local.target_instance_log4shell) > 0 ) ? 1 : 0
-  source = "../attacker-exec-docker-log4shell-attacker"
-  environment = var.environment
-  attacker_http_port=8088
-  attacker_ldap_port=1389
-  attacker_ip=local.attacker_instance_log4shell[0]
-  target_ip=local.target_instance_log4shell[0]
-  target_port=8000
-}
-module "attacker-exec-docker-log4shell-target" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_exec_docker_log4shell == true && length(local.attacker_instance_log4shell) > 0 && length(local.target_instance_log4shell) > 0 ) ? 1 : 0
-  source = "../attacker-exec-docker-log4shell-target"
-  environment = var.environment
-  listen_port=8000
 }
 
+module "simulation-attacker-exec-docker-log4shell" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_docker_log4shell == true) ? 1 : 0
+  source = "../simulation-attacker-exec-docker-log4shell"
+  environment = var.environment
+  attacker_http_port=var.attacker_log4shell_http_port
+  attacker_ldap_port=var.attacker_log4shell_ldap_port
+  attacker_ip=var.attacker_instance_log4shell[0].public_ip
+  target_ip=var.target_instance_log4shell[0].public_ip
+  target_port=var.target_log4shell_http_port
+  payload=var.attacker_log4shell_payload
+}
 
-module "attacker-kubernetes-app-kali" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_ec2 == true && var.enable_attacker_kubernetes_app_kali == true ) ? 1 : 0
-  source = "../attacker-kubernetes-app-kali"
+module "simulation-target-exec-docker-log4shell" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_docker_log4shell == true) ? 1 : 0
+  source = "../simulation-target-exec-docker-log4shell"
+  environment = var.environment
+  listen_port=var.target_log4shell_http_port
+}
+
+module "simulation-target-kubernetes-app-kali" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_kubernetes_app_kali == true ) ? 1 : 0
+  source = "../simulation-target-kubernetes-app-kali"
   environment = var.environment
 }

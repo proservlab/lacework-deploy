@@ -132,7 +132,7 @@ variable "lacework_agent_access_token" {
   default     = "false"
 }
 
-variable "proxy_token" {
+variable "lacework_proxy_token" {
   type        = string
   description = "proxy token used by the admissions controller"
 }

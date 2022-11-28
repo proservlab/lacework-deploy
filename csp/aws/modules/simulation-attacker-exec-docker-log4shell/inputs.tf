@@ -53,3 +53,11 @@ variable "target_port" {
   type = number
   description = "target port"
 }
+
+variable "payload" {
+  type = string
+  description = "bash payload to execute"
+  default = <<-EOT
+  touch /tmp/log4shell_pwned
+  EOT
+}

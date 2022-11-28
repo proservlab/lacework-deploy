@@ -27,16 +27,19 @@ variable "enable_all" {
 variable "cluster_name" {
   description = "the kubernetes cluster name to deploy to"
   type = string
+  default = "false"
 }
 
-variable "proxy_token" {
-  description = "proxy scanner token"
+variable "lacework_proxy_token" {
+  description = "lacework proxy scanner token"
   type = string
+  default = "false"
 }
 
 variable "lacework_account_name" {
   description = "lacework account name"
   type = string
+  default = "false"
 }
 
 ###########################
@@ -101,13 +104,13 @@ variable "jira_cloud_username" {
 variable "enable_ec2" {
   description = "enable disable setup of ec2 instances (default 2 one with ssm role, one not)"
   type = bool
-  default = true
+  default = false
 }
 
 variable "enable_eks" {
   description = "enable disable eks setup (default 3 node cluster t3a.small)"
   type = bool
-  default = true
+  default = false
 }
 
 variable "enable_eks_app" {
@@ -169,6 +172,62 @@ variable "instances" {
   ]
 }
 
+variable "public_ingress_rules" {
+   type = list(any)
+   description = "public ingress rules"
+   default = [
+      {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_block  = "0.0.0.0/0"
+        description = "allow ssh inbound"
+      }
+  ]
+}
+
+variable "public_egress_rules" {
+   type = list(any)
+   description = "public egress rules"
+   default = [
+      {
+          from_port = 0
+          to_port = 0
+          protocol = "-1"
+          cidr_block = "0.0.0.0/0"
+          description = "allow all outbound"
+      }
+  ]
+}
+
+variable "private_ingress_rules" {
+   type = list(any)
+   description = "private ingress rules"
+   default = [
+      {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_block  = "0.0.0.0/0"
+        description = "allow ssh inbound"
+      }
+  ]
+}
+
+variable "private_egress_rules" {
+   type = list(any)
+   description = "private egress rules"
+   default = [
+      {
+          from_port = 0
+          to_port = 0
+          protocol = "-1"
+          cidr_block = "0.0.0.0/0"
+          description = "allow all outbound"
+      }
+  ]
+}
+
 
 ###########################
 # Lacework
@@ -189,7 +248,7 @@ variable "lacework_server_url" {
 variable "enable_lacework_audit_config" {
   description = "enable disable lacework audit and config"
   type = bool
-  default = true
+  default = false
 }
 
 variable "enable_lacework_ssm_deployment" {
@@ -276,7 +335,7 @@ variable "enable_attack_kubernetes_root_mount_fs_pod" {
 # Attack Surface
 ###########################
 
-variable "enable_attacksurface_agentless_secrets" {
+variable "enable_target_attacksurface_secrets_ssh" {
   description = "enable disable deployment of ssh private and public keys via ssm for agentless detection."
   type = bool
   default = false
@@ -286,85 +345,154 @@ variable "enable_attacksurface_agentless_secrets" {
 # Attacker
 ###########################
 
-variable "enable_attacker_malware_eicar" {
+variable "enable_target_malware_eicar" {
   description = "enable disable deployment of eicar malware test file for detection."
   type = bool
   default = false
 }
 
-variable "enable_attacker_connect_badip" {
+variable "enable_target_connect_badip" {
   description = "enable disable connect to badip"
   type = bool
   default = false
 }
 
-variable "enable_attacker_connect_enumerate_host" {
+variable "enable_target_connect_enumerate_host" {
   description = "enable disable connect enumerate host"
   type = bool
   default = false
 }
 
-variable "enable_attacker_connect_oast_host" {
+variable "enable_target_connect_oast_host" {
   description = "enable disable connect oast host"
   type = bool
   default = false
 }
 
-variable "enable_attacker_exec_codecov" {
+variable "enable_target_codecov" {
   description = "enable disable exec codecov"
   type = bool
   default = false
 }
 
-variable "enable_attacker_exec_reverseshell" {
-  description = "enable disable exec reverseshell"
+variable "enable_attacker_reverseshell" {
+  description = "enable disable exec attacker reverseshell listen"
   type = bool
   default = false
 }
 
-variable "attacker_exec_reverseshell_payload" {
-  description = "the payload to send after reverse shell connection"
-  type = string
-  default =<<-EOT
-  touch /tmp/pwned
-  EOT
+variable "enable_target_reverseshell" {
+  description = "enable disable exec target reverseshell connect"
+  type = bool
+  default = false
 }
 
-variable "attacker_exec_reverseshell_port" {
-  description = "the payload to send after reverse shell connection"
-  type = number
-  default = 4444
-}
-
-variable "enable_attacker_exec_http_listener" {
+variable "enable_attacker_http_listener" {
   description = "enable disable exec http listener"
   type = bool
   default = false
 }
-variable "attacker_exec_http_port" {
-  description = "the payload to send after reverse shell connection"
-  type = number
-  default = 8080
-}
 
-variable "enable_attacker_exec_docker_cpuminer" {
+variable "enable_target_docker_cpuminer" {
   description = "enable disable docker cpuminer"
   type = bool
   default = false
 }
 
-variable "enable_attacker_exec_docker_log4shell" {
+variable "enable_target_docker_log4shell" {
   description = "enable disable docker log4shell"
   type = bool
   default = false
 }
 
-variable "enable_attacker_kubernetes_app_kali" {
+variable "enable_attacker_docker_log4shell" {
+  description = "enable disable docker log4shell"
+  type = bool
+  default = false
+}
+
+
+variable "enable_target_kubernetes_app_kali" {
   description = "enable disable kernetes kali pod"
   type = bool
   default = false
 }
 
+# simulation attacker target
+variable "attacker_generic_http_listener_port" {
+  description = "http get/post capture server used for codecov"
+  type = number
+  default = 8444
+}
+
+variable "attacker_reverseshell_payload" {
+  description = "the payload to send after reverse shell connection"
+  type = string
+  default = <<-EOT
+  touch /tmp/pwned
+  EOT
+}
+
+variable "attacker_reverseshell_port" {
+  description = "the payload to send after reverse shell connection"
+  type = number
+  default = 4444
+}
+
+variable "attacker_log4shell_http_port" {
+  description = "attacker http port used in codecov attack"
+  type = number
+  default = 8080
+}
+variable "attacker_log4shell_ldap_port" {
+  description = "attacker ldap port used in log4shell attack"
+  type = number
+  default = 1389
+}
+
+variable "target_log4shell_http_port" {
+  description = "attacker http port used in codecov attack"
+  type = number
+  default = 8080
+}
+
+variable "attacker_log4shell_payload" {
+  type = string
+  description = "bash payload to run on target"
+  default = <<-EOT
+    touch /tmp/log4shell_pwned
+    EOT
+}
+
+variable "attacker_instance_reverseshell" {
+  type = list
+  description = "attacker reverse shell instance details"
+  default = []
+}
+
+variable "attacker_instance_http_listener" {
+  type = list
+  description = "attacker http listener instance details"
+  default = []
+}
+
+variable "attacker_instance_log4shell" {
+  type = list
+  description = "attacker log4shell instance details"
+  default = []
+}
+
+variable "target_instance_reverseshell" {
+  type = list
+  description = "target reveser shell instance details"
+  default = []
+}
+
+variable "target_instance_log4shell" {
+  type = list
+  description = "target log4shell instance details"
+  default = []
+}
 
 
 

@@ -44,8 +44,8 @@ variable "cluster_name" {
   type = string
 }
 
-variable "proxy_token" {
-  description = "proxy scanner token"
+variable "lacework_proxy_token" {
+  description = "lacework proxy scanner token"
 }
 
 variable "lacework_account_name" {

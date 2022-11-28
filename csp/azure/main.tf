@@ -29,7 +29,7 @@ module "environment-proservlab" {
   enable_aks_psp = false
 
   # kubernetes admission controller
-  proxy_token = var.proxy_token
+  lacework_proxy_token = var.lacework_proxy_token
 
   # lacework
   lacework_agent_access_token           = var.lacework_agent_access_token

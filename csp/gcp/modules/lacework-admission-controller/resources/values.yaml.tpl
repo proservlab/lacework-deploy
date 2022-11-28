@@ -5,7 +5,7 @@ proxy-scanner:
     static_cache_location: /opt/lacework
     lacework:
       account_name: "${lacework_account_name}"
-      integration_access_token: "${proxy_token}"
+      integration_access_token: "${lacework_proxy_token}"
     registries:
       - domain: index.docker.io
         name: docker_public

@@ -71,7 +71,7 @@ resource "lacework_agent_access_token" "main" {
 }
 
 locals {
-  lacework_agent_access_token = "${var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token}"
+  lacework_agent_access_token =  var.lacework_agent_access_token == "false" && length(lacework_agent_access_token.main) > 0 ? lacework_agent_access_token.main[0].token : var.lacework_agent_access_token
 }
 
 module "lacework-daemonset" {
@@ -119,7 +119,7 @@ module "lacework-admission-controller" {
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
-  proxy_token = var.proxy_token
+  lacework_proxy_token = var.lacework_proxy_token
 
   depends_on = [
     module.aks,
