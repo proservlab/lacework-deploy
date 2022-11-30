@@ -21,7 +21,7 @@ module "vpc" {
   environment = var.environment
 
   enable_enable_public_vpc = length(local.public_instance_count) > 0 ? true : false
-  enable_enable_private_vpc = length(local.private_instance_count) > 0 ? true : false
+  enable_private_vpc = length(local.private_instance_count) > 0 ? true : false
 
   private_ingress_rules = var.private_ingress_rules
   private_egress_rules = var.private_egress_rules
