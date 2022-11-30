@@ -63,10 +63,10 @@ elif [ "$${CONTAINER}" = "protonvpn" ]; then
     DOCKER_OPTS="--detach --device=/dev/net/tun --cap-add=NET_ADMIN"
 elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
-    DOCKER_OPTS="-it --entrypoint=/bin/bash --net=container:protonvpn"
+    DOCKER_OPTS="-it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
 elif [ "$${CONTAINER}" = "terraform" ]; then
     CONTAINER_IMAGE="amazon/terraform:latest"
-    DOCKER_OPTS="-it --entrypoint=/bin/sh --net=container:protonvpn"
+    DOCKER_OPTS="-it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
 fi
 
 if [ -z "$${ENV_FILE}" ]; then
