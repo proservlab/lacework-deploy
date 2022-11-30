@@ -25,7 +25,7 @@ locals {
     echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
     echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
     echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-    chmod -R 755 /${local.attack_dir}/aws-cli/*.sh
+    chmod -R 755 /${local.attack_dir}/*.sh
     log "Checking for docker..."
     while ! which docker; do
         log "docker not found - waiting"
