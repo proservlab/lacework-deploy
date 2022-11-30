@@ -98,3 +98,33 @@ variable "instances" {
     }
   ]
 }
+
+variable "public_network" {
+  type = string
+  description = "public network"
+  default = "172.17.0.0/16"
+}
+
+variable "public_subnet" {
+  type = string
+  description = "public subnet"
+  default = "172.17.0.0/24"
+}
+
+variable "private_network" {
+  type = string
+  description = "private network"
+  default = "172.16.0.0/16"
+}
+
+variable "private_subnet" {
+  type = string
+  description = "private subnet"
+  default = "172.16.100.0/24"
+}
+
+variable "private_nat_subnet" {
+  type = string
+  description = "private nat subnet"
+  default = "172.16.10.0/24"
+}

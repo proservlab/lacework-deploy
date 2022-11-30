@@ -28,12 +28,15 @@ module "ec2-instances" {
   allow_all_inter_security_group = true
 
   public_ingress_rules = var.public_ingress_rules
-
   public_egress_rules = var.public_egress_rules
-
   private_ingress_rules = var.private_ingress_rules
-
   private_egress_rules = var.private_egress_rules
+
+  public_network = var.public_network
+  public_subnet = var.public_subnet
+  private_network = var.private_network
+  private_subnet = var.private_subnet
+  private_nat_subnet = var.private_nat_subnet
 }
 
 module "eks" {
@@ -319,6 +322,13 @@ module "simulation-attacker-exec-reverseshell" {
   payload = var.attacker_reverseshell_payload
 }
 
+module "simulation-attacker-exec-port-forward" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_exec_port_forward == true) ? 1 : 0
+  source = "../simulation-attacker-exec-port-forward"
+  environment = var.environment
+  listen_port = var.attacker_port_forward_server_port
+}
+
 module "simulation-target-exec-reverseshell" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_reverseshell == true && length(var.attacker_instance_reverseshell) > 0 ) ? 1 : 0
   source = "../simulation-target-exec-reverseshell"
@@ -326,6 +336,7 @@ module "simulation-target-exec-reverseshell" {
   host_ip =  var.attacker_instance_reverseshell[0].public_ip
   host_port = var.attacker_reverseshell_port
 }
+
 module "simulation-target-exec-docker-cpuminer" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_docker_cpuminer == true ) ? 1 : 0
   source = "../simulation-target-exec-docker-cpuminer"
@@ -333,13 +344,14 @@ module "simulation-target-exec-docker-cpuminer" {
 }
 
 module "simulation-attacker-exec-docker-log4shell" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_docker_log4shell == true) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_docker_log4shell == true && length(var.target_instance_log4shell) > 0 && length(var.attacker_instance_log4shell) > 0) ? 1 : 0
   source = "../simulation-attacker-exec-docker-log4shell"
   environment = var.environment
+
   attacker_http_port=var.attacker_log4shell_http_port
   attacker_ldap_port=var.attacker_log4shell_ldap_port
-  attacker_ip=var.attacker_instance_log4shell[0].public_ip
-  target_ip=var.target_instance_log4shell[0].public_ip
+  attacker_ip=var.attacker_instance_log4shell[0].private_ip
+  target_ip=var.target_instance_log4shell[0].private_ip
   target_port=var.target_log4shell_http_port
   payload=var.attacker_log4shell_payload
 }
@@ -355,4 +367,29 @@ module "simulation-target-kubernetes-app-kali" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_kubernetes_app_kali == true ) ? 1 : 0
   source = "../simulation-target-kubernetes-app-kali"
   environment = var.environment
+}
+
+module "simulation-target-exec-port-forward" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_exec_port_forward == true && length(var.attacker_instance_port_forward) > 0) ? 1 : 0
+  source = "../simulation-target-exec-port-forward"
+  environment = var.environment
+  port_forwards = var.target_port_forward_ports
+  host_ip = var.attacker_instance_port_forward[0].private_ip
+  host_port = var.attacker_port_forward_server_port
+}
+
+module "simulation-attacker-exec-docker-compromised-credentials" {
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_compromised_credentials == true) ? 1 : 0
+  source = "../simulation-attacker-exec-docker-compromised-credentials"
+  environment = var.environment
+  region = var.region
+
+  compromised_credentials = var.attacker_compromised_credentials
+  protonvpn_user = var.attacker_protonvpn_user
+  protonvpn_password = var.attacker_protonvpn_password
+  protonvpn_tier = var.attacker_protonvpn_tier
+  protonvpn_protocol = var.attacker_protonvpn_protocol
+  protonvpn_server = var.attacker_protonvpn_server
+  wallet = var.attacker_cloud_cryptomining_wallet
+  minergate_user = var.attacker_host_cryptomining_user
 }

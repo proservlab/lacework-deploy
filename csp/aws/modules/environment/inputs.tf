@@ -228,6 +228,36 @@ variable "private_egress_rules" {
   ]
 }
 
+variable "public_network" {
+  type = string
+  description = "public network"
+  default = "172.17.0.0/16"
+}
+
+variable "public_subnet" {
+  type = string
+  description = "public subnet"
+  default = "172.17.0.0/24"
+}
+
+variable "private_network" {
+  type = string
+  description = "private network"
+  default = "172.16.0.0/16"
+}
+
+variable "private_subnet" {
+  type = string
+  description = "private subnet"
+  default = "172.16.100.0/24"
+}
+
+variable "private_nat_subnet" {
+  type = string
+  description = "private nat subnet"
+  default = "172.16.10.0/24"
+}
+
 
 ###########################
 # Lacework
@@ -411,14 +441,79 @@ variable "enable_attacker_docker_log4shell" {
   default = false
 }
 
-
 variable "enable_target_kubernetes_app_kali" {
   description = "enable disable kernetes kali pod"
   type = bool
   default = false
 }
 
+variable "enable_target_exec_port_forward" {
+  description = "enable disable port forwarding on target"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_exec_port_forward" {
+  description = "enable disable port forwarding on attackers"
+  type = bool
+  default = false
+}
+
+variable "enable_attacker_compromised_credentials" {
+  description = "enable disable compromised credentials attack"
+  type = bool
+  default = false
+}
+
 # simulation attacker target
+variable "attacker_compromised_credentials" {
+  type = any
+  description = "credentials to use in compromised keys attack"
+  default = {}
+}
+
+variable "attacker_protonvpn_user" {
+  type = string
+  description = "protonvpn user"
+  default = ""
+}
+
+variable "attacker_protonvpn_password" {
+  type = string
+  description = "protonvpn password"
+  default = ""
+}
+
+variable "attacker_protonvpn_tier" {
+  type = number
+  description = "protonvpn tier (0=free, 1=basic, 2=pro, 3=visionary)"
+  default = 0
+}
+
+variable "attacker_protonvpn_server" {
+  type = string
+  description = "protonvpn server (RANDOM, AU, CR, IS, JP, JP-FREE, LV, NL, NL-FREE, NZ, SG, SK, US, US-NJ, US-FREE,...); see https://api.protonmail.ch/vpn/logicals"
+  default = "RANDOM"
+}
+
+variable "attacker_protonvpn_protocol" {
+  type = string
+  description = "protonvpn protocol"
+  default = "udp"
+}
+
+variable "attacker_cloud_cryptomining_wallet" {
+  type = string
+  description = "cloud cryptomining wallet"
+  default = ""
+}
+
+variable "attacker_host_cryptomining_user" {
+  type = string
+  description = "host cryptomining user"
+  default = ""
+}
+
 variable "attacker_generic_http_listener_port" {
   description = "http get/post capture server used for codecov"
   type = number
@@ -464,6 +559,23 @@ variable "attacker_log4shell_payload" {
     EOT
 }
 
+variable "attacker_port_forward_server_port" {
+  type = number
+  description = "attacker port forward server port"
+  default = 8888
+}
+
+variable "target_port_forward_ports" {
+  type = list(object({
+      src_port      = number
+      dst_port      = number
+      dst_ip        = string
+      description   = string
+    }))
+  description = "list of ports forward through attacker port forward server"
+  default = []
+}
+
 variable "attacker_instance_reverseshell" {
   type = list
   description = "attacker reverse shell instance details"
@@ -482,6 +594,12 @@ variable "attacker_instance_log4shell" {
   default = []
 }
 
+variable "attacker_instance_port_forward" {
+  type = list
+  description = "attacker port forward instance details"
+  default = []
+}
+
 variable "target_instance_reverseshell" {
   type = list
   description = "target reveser shell instance details"
@@ -491,6 +609,12 @@ variable "target_instance_reverseshell" {
 variable "target_instance_log4shell" {
   type = list
   description = "target log4shell instance details"
+  default = []
+}
+
+variable "target_instance_port_forward" {
+  type = list
+  description = "target port forward instance details"
   default = []
 }
 

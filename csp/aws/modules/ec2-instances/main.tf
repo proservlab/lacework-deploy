@@ -19,6 +19,12 @@ module "vpc" {
   public_ingress_rules = var.public_ingress_rules
   public_egress_rules = var.public_egress_rules
   allow_all_inter_security_group=var.allow_all_inter_security_group
+
+  public_network = var.public_network
+  public_subnet = var.public_subnet
+  private_network = var.private_network
+  private_subnet = var.private_subnet
+  private_nat_subnet = var.private_nat_subnet
 }
 
 # instances

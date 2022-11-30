@@ -8,7 +8,7 @@ locals {
         ssm_deploy_secret_ssh_private   = "false"
         ssm_exec_reverse_shell_attacker = "false"
         ssm_exec_reverse_shell_target   = "false"
-        ssm_exec_git_codecov_target            = "false"
+        ssm_exec_git_codecov_target     = "false"
         ssm_exec_http_listener_attacker = "false"
         ssm_exec_docker_cpuminer        = "false"
         ssm_exec_docker_log4shell_target = "false"
@@ -16,6 +16,9 @@ locals {
         ssm_deploy_inspector_agent      = "false"
         ssm_deploy_docker               = "false"
         ssm_deploy_git                  = "false"
+        ssm_exec_port_forward_target    = "false"
+        ssm_exec_port_forward_attacker  = "false"
+        ssm_exec_docker_compromised_credentials_attacker = "false"
   }
 
   environment_defaults = {
@@ -81,21 +84,24 @@ locals {
     # attack surface
     enable_target_attacksurface_secrets_ssh = false
 
-    # attacker
+    # simulation
     enable_target_malware_eicar          = false
     enable_target_connect_badip          = false
     enable_target_connect_enumerate_host = false
     enable_target_connect_oast_host      = false
-    enable_target_exec_codecov           = false
-    enable_attacker_exec_reverseshell      = false
-    enable_attacker_exec_http_listener     = false
-    attacker_exec_reverseshell_port        = 4445
-    attacker_exec_http_port                = 8080
-    attacker_exec_reverseshell_payload     = <<-EOT
+    enable_target_codecov           = false
+    enable_attacker_reverseshell      = false
+    enable_attacker_http_listener     = false
+    enable_attacker_port_forward      = false
+    attacker_reverseshell_port        = 4445
+    attacker_http_port                = 8080
+    attacker_reverseshell_payload     = <<-EOT
                                               touch /tmp/target_pwned
                                               EOT
-    enable_target_exec_docker_cpuminer   = false
-    enable_attacker_exec_docker_log4shell  = false
+    enable_target_docker_cpuminer   = false
+    enable_target_port_forward       = false
+    enable_attacker_docker_log4shell  = false
     enable_target_kubernetes_app_kali    = false
+    enable_attacker_compromised_credentials = false
   }
 }

@@ -1,6 +1,6 @@
 # private resources 
 resource "aws_vpc" "private" {
-  cidr_block = "172.16.0.0/16"
+  cidr_block = var.private_network
   enable_dns_hostnames = true
   enable_dns_support = true
   tags = {
@@ -36,7 +36,7 @@ resource "aws_nat_gateway" "private" {
 
 resource "aws_subnet" "nat_gateway" {
   vpc_id            = aws_vpc.private.id
-  cidr_block        = "172.16.10.0/24"
+  cidr_block        = var.private_nat_subnet
   availability_zone = "us-east-1b"
   
   tags = {
@@ -60,7 +60,7 @@ resource "aws_route_table_association" "nat_gateway" {
 
 resource "aws_subnet" "private" {
     vpc_id            = aws_vpc.private.id
-    cidr_block        = "172.16.100.0/24"
+    cidr_block        = var.private_subnet
     availability_zone = "us-east-1b"
     
     tags = {

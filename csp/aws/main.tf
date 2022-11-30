@@ -27,6 +27,9 @@ locals {
     codecov = length(module.target.ec2-instances) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_git_codecov_target == "true"
     ]) : []
+    port_forward = length(module.target.ec2-instances) > 0 ? flatten([
+      for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_port_forward_target == "true"
+    ]) : []
   }
 
   attacker = {
@@ -38,6 +41,9 @@ locals {
     ]) : []
     log4shell = length(module.attacker.ec2-instances) > 0 ? flatten([
       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_docker_log4shell_attacker == "true"
+    ]) : []
+    port_forward = length(module.attacker.ec2-instances) > 0 ? flatten([
+      for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_port_forward_attacker == "true"
     ]) : []
   }
 
@@ -51,9 +57,9 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "false" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                  = "true"
-        ssm_exec_reverse_shell_attacker    = "true"
-        ssm_exec_docker_log4shell_attacker = "true"
+        ssm_deploy_docker                                = "true"
+        ssm_exec_reverse_shell_attacker                  = "true"
+        ssm_exec_docker_compromised_credentials_attacker = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -70,18 +76,16 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                = "true"
-        ssm_deploy_git                   = "true"
-        ssm_deploy_secret_ssh_private    = "true"
-        ssm_exec_reverse_shell_target    = "true"
-        ssm_deploy_inspector_agent       = "true"
-        ssm_exec_docker_log4shell_target = "true"
+        ssm_deploy_docker             = "true"
+        ssm_deploy_git                = "true"
+        ssm_deploy_secret_ssh_private = "true"
+        ssm_exec_reverse_shell_target = "true"
+        ssm_deploy_inspector_agent    = "true"
       })
 
       user_data        = null
       user_data_base64 = null
     },
-
     {
       name           = "target-public-2"
       public         = true
@@ -98,12 +102,116 @@ locals {
     },
   ]
 
-  ssh_port                            = 22
-  target_log4shell_http_port          = 8000
+  target_iam_policies = {
+    "simulation_power_user" = jsonencode({
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Sid" : "AllowSpecifics",
+          "Action" : [
+            "lambda:*",
+            "apigateway:*",
+            "ec2:*",
+            "rds:*",
+            "s3:*",
+            "sns:*",
+            "states:*",
+            "ssm:*",
+            "sqs:*",
+            "iam:*",
+            "elasticloadbalancing:*",
+            "autoscaling:*",
+            "cloudwatch:*",
+            "cloudfront:*",
+            "route53:*",
+            "ecr:*",
+            "logs:*",
+            "ecs:*",
+            "application-autoscaling:*",
+            "logs:*",
+            "events:*",
+            "elasticache:*",
+            "es:*",
+            "kms:*",
+            "dynamodb:*",
+            "fms:*",
+            "guardduty:*",
+            "inspector:*",
+            "waf:*"
+          ],
+          "Effect" : "Allow",
+          "Resource" : "*"
+        },
+        {
+          "Sid" : "DenySpecifics",
+          "Action" : [
+            "iam:*User*",
+            "iam:*Login*",
+            "iam:*Group*",
+            "iam:*Provider*",
+            "aws-portal:*",
+            "budgets:*",
+            "config:*",
+            "directconnect:*",
+            "aws-marketplace:*",
+            "aws-marketplace-management:*",
+            "ec2:*ReservedInstances*"
+          ],
+          "Effect" : "Deny",
+          "Resource" : "*"
+        }
+      ]
+    })
+  }
+
+  target_iam_users = [
+    {
+      name   = "claude.kripto"
+      policy = local.target_iam_policies["simulation_power_user"]
+    },
+    {
+      name   = "dee.fensivason"
+      policy = local.target_iam_policies["simulation_power_user"]
+    },
+    {
+      name   = "haust.kripto"
+      policy = local.target_iam_policies["simulation_power_user"]
+    },
+    {
+      name   = "kees.kompromize"
+      policy = local.target_iam_policies["simulation_power_user"]
+    },
+    {
+      name   = "rand.sumwer"
+      policy = local.target_iam_policies["simulation_power_user"]
+    },
+  ]
+
+  target_log4shell_http_port = 8000
+  target_port_forward_ports = flatten([
+    for attacker in local.attacker.port_forward : [
+      {
+        src_port    = 1389
+        dst_ip      = local.attacker.port_forward[0].private_ip
+        dst_port    = 1389
+        description = "log4shell target port forward"
+      },
+      {
+        src_port    = 8080
+        dst_ip      = local.attacker.port_forward[0].private_ip
+        dst_port    = 8080
+        description = "log4shell target port forward"
+      }
+    ]
+  ])
+
   attacker_log4shell_ldap_port        = 1389
   attacker_log4shell_http_port        = 8080
   attacker_reverseshell_port          = 4444
   attacker_generic_http_listener_port = 8444
+  attacker_port_forward_server_port   = 8888
+
+  ssh_port = 22
 }
 
 #########################
@@ -141,6 +249,12 @@ module "attacker" {
   enable_eks     = false
   enable_eks_app = false
   enable_eks_psp = false
+
+  public_network     = "172.27.0.0/16"
+  public_subnet      = "172.27.0.0/24"
+  private_network    = "172.26.0.0/16"
+  private_subnet     = "172.26.100.0/24"
+  private_nat_subnet = "172.26.10.0/24"
 
   # aws ssm document setup - provides optional install capability
   enable_inspector     = false
@@ -188,7 +302,6 @@ module "attacker" {
   enable_attack_kubernetes_log4shell         = false
   enable_attack_kubernetes_privileged_pod    = false
   enable_attack_kubernetes_root_mount_fs_pod = false
-
   providers = {
     aws        = aws.attacker
     lacework   = lacework.attacker
@@ -233,8 +346,14 @@ module "target" {
   enable_eks_app = false
   enable_eks_psp = false
 
+  public_network     = "172.17.0.0/16"
+  public_subnet      = "172.17.0.0/24"
+  private_network    = "172.16.0.0/16"
+  private_subnet     = "172.16.100.0/24"
+  private_nat_subnet = "172.16.10.0/24"
+
   # aws ssm document setup - provides optional install capability
-  enable_inspector     = false
+  enable_inspector     = true
   enable_deploy_git    = true
   enable_deploy_docker = true
 
@@ -327,18 +446,50 @@ resource "aws_security_group_rule" "simulation-target-public-ingress" {
   provider = aws.target
 }
 
+# brute force some users - this should be assume role at some point
+resource "aws_iam_user" "target_iam_users" {
+  for_each = { for i in local.target_iam_users : i.name => i }
+  name     = each.key
+
+  provider = aws.target
+}
+
+resource "aws_iam_user_policy" "target_iam_users_policy" {
+  for_each = { for i in local.target_iam_users : i.name => i }
+  name     = "iam-policy-${each.value.name}"
+  user     = each.key
+  policy   = each.value.policy
+
+  provider = aws.target
+
+  depends_on = [
+    aws_iam_user.target_iam_users
+  ]
+}
+
+resource "aws_iam_access_key" "target_iam_users_access_key" {
+  for_each = { for i in local.target_iam_users : i.name => i }
+  user     = each.key
+
+  depends_on = [
+    aws_iam_user.target_iam_users
+  ]
+}
+
 module "simulation-target" {
   source      = "./modules/environment"
   environment = "simulation-target"
   region      = var.region
 
   # set all endpoint target/attacker
-  attacker_instance_http_listener = local.attacker.http_listener
-  attacker_instance_log4shell     = local.attacker.log4shell
-  attacker_instance_reverseshell  = local.attacker.reverseshell
-  target_instance_log4shell       = local.target.log4shell
-  target_instance_reverseshell    = local.target.reverseshell
-
+  attacker_instance_http_listener   = local.attacker.http_listener
+  attacker_instance_log4shell       = local.attacker.log4shell
+  attacker_instance_reverseshell    = local.attacker.reverseshell
+  attacker_instance_port_forward    = local.attacker.port_forward
+  attacker_port_forward_server_port = local.attacker_port_forward_server_port
+  target_instance_log4shell         = local.target.log4shell
+  target_instance_reverseshell      = local.target.reverseshell
+  target_instance_port_forward      = local.target.port_forward
 
   # in simulation cluster name is used to exec kube commands
   # for example: deploy kali instance
@@ -383,6 +534,10 @@ module "simulation-target" {
     kubernetes = kubernetes.target
     helm       = helm.target
   }
+
+  # port forward
+  enable_target_exec_port_forward = true
+  target_port_forward_ports       = local.target_port_forward_ports
 }
 
 # simulation for attacker environment
@@ -424,6 +579,15 @@ locals {
         description = "allow codecov http inbound"
       }
     ],
+    [
+      for instance in local.target.port_forward : {
+        from_port   = local.attacker_port_forward_server_port
+        to_port     = local.attacker_port_forward_server_port
+        protocol    = "tcp"
+        cidr_block  = "${instance.public_ip}/32"
+        description = "allow port forward server inbound"
+      }
+    ],
   )
 }
 resource "aws_security_group_rule" "simulation-attacker-public-ingress" {
@@ -449,8 +613,10 @@ module "simulation-attacker" {
   attacker_instance_http_listener = local.attacker.http_listener
   attacker_instance_log4shell     = local.attacker.log4shell
   attacker_instance_reverseshell  = local.attacker.reverseshell
+  attacker_instance_port_forward  = local.attacker.port_forward
   target_instance_log4shell       = local.target.log4shell
   target_instance_reverseshell    = local.target.reverseshell
+  target_instance_port_forward    = local.target.port_forward
 
   # simulation advanced
   # -------------------
@@ -464,18 +630,29 @@ module "simulation-attacker" {
   attacker_log4shell_ldap_port     = local.attacker_log4shell_ldap_port
   attacker_log4shell_http_port     = local.attacker_log4shell_http_port
   attacker_log4shell_payload       = <<-EOT
-                                          touch /tmp/log4shell_pwned
-                                          EOT
+                                      touch /tmp/log4shell_pwned
+                                      EOT
   # reverseshell
   enable_attacker_reverseshell  = true
   attacker_reverseshell_port    = local.attacker_reverseshell_port
   attacker_reverseshell_payload = <<-EOT
-                                      touch /tmp/reverseshell_pwned
-                                      EOT
+                                  touch /tmp/reverseshell_pwned
+                                  EOT
 
   # codecov
   enable_attacker_http_listener       = true
   attacker_generic_http_listener_port = local.attacker_generic_http_listener_port
+
+  # compromised credentials
+  enable_attacker_compromised_credentials = true
+  attacker_compromised_credentials        = aws_iam_access_key.target_iam_users_access_key
+  attacker_protonvpn_user                 = var.attacker_protonvpn_user
+  attacker_protonvpn_password             = var.attacker_protonvpn_password
+  attacker_protonvpn_tier                 = var.attacker_protonvpn_tier
+  attacker_protonvpn_server               = var.attacker_protonvpn_server
+  attacker_protonvpn_protocol             = var.attacker_protonvpn_protocol
+  attacker_cloud_cryptomining_wallet      = var.attacker_cloud_cryptomining_wallet
+  attacker_host_cryptomining_user         = var.attacker_host_cryptomining_user
 
   providers = {
     aws        = aws.attacker
@@ -483,5 +660,9 @@ module "simulation-attacker" {
     kubernetes = kubernetes.attacker
     helm       = helm.attacker
   }
+
+  # port forward
+  enable_attacker_exec_port_forward = true
+  attacker_port_forward_server_port = local.attacker_port_forward_server_port
 }
 

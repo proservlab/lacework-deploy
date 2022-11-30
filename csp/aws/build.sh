@@ -102,16 +102,22 @@ if [ "destroy" = "${ACTION}" ]; then
 terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS} ${TARGET_ARG}
 elif [ "apply" = "${ACTION}" ]; then
 # else plan, show and apply
+echo "Running: terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}"
 terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+echo "Running: terraform show -no-color build.tfplan"
 terraform show -no-color build.tfplan
+echo "Running: terraform ${ACTION} build.tfplan"
 terraform ${ACTION} build.tfplan
 rm -f build.tfplan
 elif [ "plan" = "${ACTION}" ]; then
 # else plan, show
+echo "Running: terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}"
 terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+echo "Running: terraform show -no-color build.tfplan"
 terraform show -no-color build.tfplan
 rm -f build.tfplan
 elif [ "refresh" = "${ACTION}" ]; then
+echo "Running: terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}"
 terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}
 else
 errmsg "Unknown action."
