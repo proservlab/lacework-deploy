@@ -1,3 +1,8 @@
+locals {
+  public_instance_count = length([ for instance in var.instances: instance if instance.public == true ])
+  private_instance_count = length([ for instance in var.instances: instance if instance.public == false ])
+}
+
 # lookup latest amis
 module "amis" {
   source = "./amis"
@@ -14,6 +19,10 @@ module "vpc" {
   source = "./vpc"
   name = "main"
   environment = var.environment
+
+  enable_enable_public_vpc = length(local.public_instance_count) > 0 ? true : false
+  enable_enable_private_vpc = length(local.private_instance_count) > 0 ? true : false
+
   private_ingress_rules = var.private_ingress_rules
   private_egress_rules = var.private_egress_rules
   public_ingress_rules = var.public_ingress_rules

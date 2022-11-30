@@ -1,23 +1,23 @@
 output "public_vpc" {
-  value = aws_vpc.public
+  value = enable_public_vpc == true ? module.public[0].vpc : {}
 }
 
 output "public_subnet" {
-  value = aws_subnet.public
+  value = enable_public_vpc == true ? module.public[0].subnet : {}
 }
 
 output "public_sg" {
-  value = aws_security_group.public
+  value = enable_public_vpc == true ? module.public[0].sg : {}
 }
 
 output "private_vpc" {
-  value = aws_vpc.private
+  value = enable_private_vpc == true ? module.private[0].vpc : {}
 }
 
 output "private_subnet" {
-  value = aws_subnet.private
+  value = enable_private_vpc == true ? module.private[0].subnet : {}
 }
 
 output "private_sg" {
-  value = aws_security_group.private
+  value = enable_private_vpc == true ? module.private[0].sg : {}
 }
