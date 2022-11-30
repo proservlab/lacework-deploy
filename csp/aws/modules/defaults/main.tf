@@ -18,7 +18,7 @@ locals {
         ssm_deploy_git                  = "false"
         ssm_exec_port_forward_target    = "false"
         ssm_exec_port_forward_attacker  = "false"
-        ssm_exec_docker_compromised_credentials_attacker = "false"
+        ssm_exec_docker_compromised_keys_attacker = "false"
   }
 
   environment_defaults = {

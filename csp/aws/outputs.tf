@@ -12,8 +12,3 @@ output "simulation_attacker_instances" {
 output "simulation_target_instances" {
   value = local.target
 }
-
-output "keys" {
-  value     = aws_iam_access_key.target_iam_users_access_key
-  sensitive = true
-}

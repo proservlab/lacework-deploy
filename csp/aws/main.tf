@@ -57,9 +57,9 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "false" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                                = "true"
-        ssm_exec_reverse_shell_attacker                  = "true"
-        ssm_exec_docker_compromised_credentials_attacker = "true"
+        ssm_deploy_docker                         = "true"
+        ssm_exec_reverse_shell_attacker           = "true"
+        ssm_exec_docker_compromised_keys_attacker = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -474,6 +474,18 @@ resource "aws_iam_access_key" "target_iam_users_access_key" {
   depends_on = [
     aws_iam_user.target_iam_users
   ]
+
+  provider = aws.target
+}
+
+data "template_file" "compromised_keys" {
+  for_each = { for i in local.target_iam_users : i.name => i }
+  template = <<-EOT
+    AWS_ACCESS_KEY_ID=${aws_iam_access_key.target_iam_users_access_key[each.key].id}
+    AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.target_iam_users_access_key[each.key].secret}
+    AWS_DEFAULT_REGION=${var.region}
+    AWS_DEFAULT_OUTPUT=json
+    EOT
 }
 
 module "simulation-target" {
@@ -645,7 +657,7 @@ module "simulation-attacker" {
 
   # compromised credentials
   enable_attacker_compromised_credentials = true
-  attacker_compromised_credentials        = aws_iam_access_key.target_iam_users_access_key
+  attacker_compromised_credentials        = data.template_file.compromised_keys
   attacker_protonvpn_user                 = var.attacker_protonvpn_user
   attacker_protonvpn_password             = var.attacker_protonvpn_password
   attacker_protonvpn_tier                 = var.attacker_protonvpn_tier
@@ -665,4 +677,3 @@ module "simulation-attacker" {
   enable_attacker_exec_port_forward = true
   attacker_port_forward_server_port = local.attacker_port_forward_server_port
 }
-

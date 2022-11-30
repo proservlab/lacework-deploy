@@ -6,7 +6,7 @@ variable "region" {
   type    = string
 }
 
-variable "resource_query_exec_docker_compromised_credentials_attacker" {
+variable "resource_query_exec_docker_compromised_keys_attacker" {
     type    = object({
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({
@@ -22,7 +22,7 @@ variable "resource_query_exec_docker_compromised_credentials_attacker" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_exec_docker_compromised_credentials_attacker"
+                        Key = "ssm_exec_docker_compromised_keys_attacker"
                         Values = [
                             "true"
                         ]
