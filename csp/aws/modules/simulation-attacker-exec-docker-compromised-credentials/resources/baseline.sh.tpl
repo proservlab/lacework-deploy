@@ -3,14 +3,15 @@
 # ec2
 echo "Baseline access for account"
 x=10
+opts="--output json --color off --no-cli-pager"
 while [ $x -gt 0 ]; 
 do 
-    aws sts get-caller-identity --output json --color off --no-cli-pager
-    aws iam list-users --output json --color off --no-cli-pager 
-    aws s3api list-buckets --output json --color off --no-cli-pager 
-    aws ec2 describe-instances --output json --color off --no-cli-pager 
-    aws ec2 describe-images --output json --color off --no-cli-pager  
-    aws ec2 describe-volumes --output json --color off --no-cli-pager 
-    aws ec2 describe-vpcs --output json --color off --no-cli-pager
+    aws sts get-caller-identity $opts > /dev/null 2>&1
+    aws iam list-users $opts > /dev/null 2>&1
+    aws s3api list-buckets $opts > /dev/null 2>&1
+    aws ec2 describe-instances $opts > /dev/null 2>&1
+    aws ec2 describe-images --filters "Name=name,Values=ubuntu-pro-server/images/*20.04*" $opts > /dev/null 2>&1
+    aws ec2 describe-volumes $opts > /dev/null 2>&1
+    aws ec2 describe-vpcs $opts > /dev/null 2>&1
     x=$(($x-1))
 done
