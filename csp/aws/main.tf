@@ -57,8 +57,22 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "false" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
+        ssm_deploy_docker               = "true"
+        ssm_exec_reverse_shell_attacker = "true"
+      })
+      user_data        = null
+      user_data_base64 = null
+    },
+    {
+      name           = "attacker-public-2"
+      public         = true
+      instance_type  = "t2.micro"
+      ami_name       = "ubuntu_focal"
+      enable_ssm     = true
+      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+      # override default ssm action tags
+      tags = merge(module.defaults.ssm_default_tags, {
         ssm_deploy_docker                         = "true"
-        ssm_exec_reverse_shell_attacker           = "true"
         ssm_exec_docker_compromised_keys_attacker = "true"
       })
       user_data        = null

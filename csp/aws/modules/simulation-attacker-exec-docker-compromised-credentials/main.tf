@@ -9,13 +9,8 @@ locals {
     }
     truncate -s 0 $LOGFILE
     rm -rf ${local.attack_dir}
-    mkdir -p ${local.attack_dir}
-    mkdir -p ${local.attack_dir}/aws-cli/scripts
-    mkdir -p ${local.attack_dir}/terraform/scripts/cloudcrypto
-    mkdir -p ${local.attack_dir}/terraform/scripts/hostcrypto
-    mkdir -p ${local.attack_dir}/protonvpn
+    mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
     cd ${local.attack_dir}
-    log "creating creds..."
     ${local.aws_creds}
     echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
     echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
@@ -26,14 +21,9 @@ locals {
     echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
     echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
     echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-    chmod 755 /${local.attack_dir}/*.sh
-    log "Checking for docker..."
     while ! which docker; do
-        log "docker not found - waiting"
         sleep 10
     done
-    log "docker path: $(which docker)"
-    log "done";
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -161,7 +151,7 @@ resource "aws_ssm_association" "exec_docker_compromised_keys_attacker" {
     compliance_severity = "HIGH"
 
     # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    schedule_expression = "cron(0 */2 * * ? *)"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false
