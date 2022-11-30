@@ -34,8 +34,9 @@ data "aws_ami" "amazon_linux" {
 }
 
 locals {
-    region          = ${ region }
-    name            = ${ name }
+    region          = "${ region }"
+    name            = "${ name }"
+    instances       = ${ instances }
     user_data       = <<-EOT
                       #!/bin/bash
                       # install docker
@@ -132,7 +133,7 @@ data "aws_iam_instance_profile" "ssm" {
 }
 
 resource "aws_instance" "miner" {
-    count           = var.instances
+    count           = local.instances
     ami             = "ami-0d70b8dd4ec1e2d1e"
     instance_type   = "t2.micro"
     

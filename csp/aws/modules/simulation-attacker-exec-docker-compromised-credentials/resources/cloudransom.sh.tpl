@@ -1,5 +1,7 @@
 #!/bin/bash
 
+yum install -y jq
+
 # aws account where kms key will be created
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq '.Account' --raw-output)
 # aws current user arn

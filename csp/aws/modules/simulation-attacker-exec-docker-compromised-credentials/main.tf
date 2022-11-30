@@ -85,6 +85,7 @@ data "template_file" "hostcrypto" {
     vars = {
         name = "crypto-cpu-miner"
         region = var.region
+        instances = 1
         minergate_user = var.minergate_user
     }
 }

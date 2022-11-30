@@ -65,7 +65,7 @@ elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
     DOCKER_OPTS="-it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
 elif [ "$${CONTAINER}" = "terraform" ]; then
-    CONTAINER_IMAGE="amazon/terraform:latest"
+    CONTAINER_IMAGE="hashicorp/terraform:latest"
     DOCKER_OPTS="-it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
 fi
 
