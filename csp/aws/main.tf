@@ -180,23 +180,23 @@ locals {
 
   target_iam_users = [
     {
-      name   = "claude.kripto"
+      name   = "claude.kripto@interlacelabs"
       policy = local.target_iam_policies["simulation_power_user"]
     },
     {
-      name   = "dee.fensivason"
+      name   = "dee.fensivason@interlacelabs"
       policy = local.target_iam_policies["simulation_power_user"]
     },
     {
-      name   = "haust.kripto"
+      name   = "haust.kripto@interlacelabs"
       policy = local.target_iam_policies["simulation_power_user"]
     },
     {
-      name   = "kees.kompromize"
+      name   = "kees.kompromize@interlacelabs"
       policy = local.target_iam_policies["simulation_power_user"]
     },
     {
-      name   = "rand.sumwer"
+      name   = "rand.sumwer@interlacelabs"
       policy = local.target_iam_policies["simulation_power_user"]
     },
   ]
