@@ -264,11 +264,11 @@ module "attacker" {
   enable_eks_app = false
   enable_eks_psp = false
 
-  public_network     = "172.27.0.0/16"
-  public_subnet      = "172.27.0.0/24"
-  private_network    = "172.26.0.0/16"
-  private_subnet     = "172.26.100.0/24"
-  private_nat_subnet = "172.26.10.0/24"
+  public_network     = "172.18.0.0/16"
+  public_subnet      = "172.18.0.0/24"
+  private_network    = "172.19.0.0/16"
+  private_subnet     = "172.19.100.0/24"
+  private_nat_subnet = "172.19.10.0/24"
 
   # aws ssm document setup - provides optional install capability
   enable_inspector     = false

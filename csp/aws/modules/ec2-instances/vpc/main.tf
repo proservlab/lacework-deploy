@@ -8,6 +8,7 @@ module "public" {
     public_egress_rules = var.public_egress_rules
     public_ingress_rules = var.public_ingress_rules
     public_network = var.public_network
+    public_subnet = var.public_subnet
 }
 
 module "private" {
@@ -20,4 +21,5 @@ module "private" {
     private_egress_rules = var.private_egress_rules
     private_ingress_rules = var.private_ingress_rules
     private_network = var.private_network
+    private_subnet = var.private_subnet
 }
