@@ -108,11 +108,11 @@ resource "aws_security_group_rule" "private_egress_rules" {
   count = length(var.private_egress_rules)
 
   type              = "egress"
-  from_port         = var.public_egress_rules[count.index].from_port
-  to_port           = var.public_egress_rules[count.index].to_port
-  protocol          = var.public_egress_rules[count.index].protocol
-  cidr_blocks       = [var.public_egress_rules[count.index].cidr_block]
-  description       = var.public_egress_rules[count.index].description
+  from_port         = var.private_egress_rules[count.index].from_port
+  to_port           = var.private_egress_rules[count.index].to_port
+  protocol          = var.private_egress_rules[count.index].protocol
+  cidr_blocks       = [var.private_egress_rules[count.index].cidr_block]
+  description       = var.private_egress_rules[count.index].description
   security_group_id = aws_security_group.private.id
 }
 

@@ -1,5 +1,5 @@
 module "public" {
-    count = enable_public_vpc == true ? 1 : 0
+    count = var.enable_public_vpc == true ? 1 : 0
     source = "./public"
 
     name = var.name
@@ -11,7 +11,7 @@ module "public" {
 }
 
 module "private" {
-    count = enable_private_vpc == true ? 1 : 0
+    count = var.enable_private_vpc == true ? 1 : 0
     source = "./private"
 
     name = var.name
