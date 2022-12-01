@@ -37,8 +37,7 @@ resource "aws_ssm_document" "connect_bad_ip" {
                 "inputs": {
                     "timeoutSeconds": "60",
                     "runCommand": [
-                        "echo \"${local.base64_payload}\" > /tmp/payload_${basename(abspath(path.module))}",
-                        "echo '${local.base64_payload}' | base64 -d | /bin/bash -"
+                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
                     ]
                 }
             }

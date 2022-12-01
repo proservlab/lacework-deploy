@@ -22,4 +22,5 @@ module "private" {
     private_ingress_rules = var.private_ingress_rules
     private_network = var.private_network
     private_subnet = var.private_subnet
+    private_nat_subnet = var.private_nat_subnet
 }
