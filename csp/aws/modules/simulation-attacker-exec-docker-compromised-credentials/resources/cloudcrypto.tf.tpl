@@ -23,7 +23,7 @@ locals {
                 ETCMINTERTARGZ="etcminer-0.20.0-cuda-11-opencl-linux-x86_64.tar.gz"
                 ETCMINERARGS="-U"
                 INSTTYPE=$(curl -s http://169.254.169.254/latest/meta-data/instance-type)
-                wget -O etcminer.tar.gz https://etcminer-release.s3.amazonaws.com/0.20.0/$${ETCMINTERTARGZ}
+                wget -O etcminer.tar.gz https://etcminer-release.s3.amazonaws.com/0.20.0/$ETCMINTERTARGZ
                 tar xvfz etcminer.tar.gz
                 cd etcminer
                 cat > runner.sh << __EOF__
