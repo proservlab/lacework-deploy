@@ -422,14 +422,16 @@ resource "lacework_query" "query8" {
         array_to_rows(items:tags) as (tags)
       }
       filter {
-          EVENT_SOURCE = 'ec2.amazonaws.com'
-          AND
-          EVENT_NAME IN ('RunInstances')
-          AND
-          (EVENT:requestParameters.tagSpecificationSet is not null
-            and tags:value = 'Owner')
-        OR
-          (EVENT:requestParameters.tagSpecificationSet is null)
+        EVENT_SOURCE = 'ec2.amazonaws.com'
+        AND
+        EVENT_NAME IN ('RunInstances')
+        AND
+          (
+            (EVENT:requestParameters.tagSpecificationSet is not null
+            AND tags:value = 'Owner')
+            OR
+            (EVENT:requestParameters.tagSpecificationSet is null)
+          )
         AND
           ERROR_CODE is null
       }
