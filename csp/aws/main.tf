@@ -401,7 +401,7 @@ module "target" {
   lacework_account_name                 = var.lacework_account_name
   enable_lacework_alerts                = true
   enable_lacework_audit_config          = true
-  enable_lacework_custom_policy         = false
+  enable_lacework_custom_policy         = true
   enable_lacework_daemonset             = false
   enable_lacework_daemonset_compliance  = false
   enable_lacework_agentless             = true
