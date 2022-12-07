@@ -271,7 +271,7 @@ module "attacker" {
   private_nat_subnet = "172.19.10.0/24"
 
   # aws ssm document setup - provides optional install capability
-  enable_inspector     = false
+  enable_inspector     = true
   enable_deploy_git    = true
   enable_deploy_docker = true
 

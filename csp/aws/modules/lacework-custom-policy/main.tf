@@ -418,20 +418,14 @@ resource "lacework_query" "query8" {
     {
       source {
         CloudTrailRawEvents e,
-        array_to_rows(e.EVENT:requestParameters.tagSpecificationSet.items) as (items),
-        array_to_rows(items:tags) as (tags)
+        array_to_rows(e.EVENT:requestParameters.tagSpecificationSet.items) as (items)
       }
       filter {
         EVENT_SOURCE = 'ec2.amazonaws.com'
         AND
         EVENT_NAME IN ('RunInstances')
         AND
-          (
-            (EVENT:requestParameters.tagSpecificationSet is not null
-            AND tags:value = 'Owner')
-            OR
-            (EVENT:requestParameters.tagSpecificationSet is null)
-          )
+        CONTAINS(items:tags::String,'{"key":"owner"')
         AND
           ERROR_CODE is null
       }
