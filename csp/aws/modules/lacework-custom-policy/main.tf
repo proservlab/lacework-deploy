@@ -425,7 +425,7 @@ resource "lacework_query" "query8" {
         AND
         EVENT_NAME IN ('RunInstances')
         AND
-        CONTAINS(items:tags::String,'{"key":"owner"')
+        NOT CONTAINS(items:tags::String,'{"key":"owner"')
         AND
           ERROR_CODE is null
       }
