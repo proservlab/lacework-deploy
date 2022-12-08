@@ -350,8 +350,8 @@ module "simulation-attacker-exec-docker-log4shell" {
 
   attacker_http_port=var.attacker_log4shell_http_port
   attacker_ldap_port=var.attacker_log4shell_ldap_port
-  attacker_ip=var.attacker_instance_log4shell[0].private_ip
-  target_ip=var.target_instance_log4shell[0].private_ip
+  attacker_ip=var.attacker_instance_log4shell[0].public_ip
+  target_ip=var.target_instance_log4shell[0].public_ip
   target_port=var.target_log4shell_http_port
   payload=var.attacker_log4shell_payload
 }
