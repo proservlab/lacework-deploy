@@ -89,7 +89,8 @@ locals {
     enable_target_connect_badip          = false
     enable_target_connect_enumerate_host = false
     enable_target_connect_oast_host      = false
-    enable_target_codecov           = false
+    enable_target_docker_log4shell     = false
+    enable_target_codecov             = false
     enable_attacker_reverseshell      = false
     enable_attacker_http_listener     = false
     enable_attacker_port_forward      = false
