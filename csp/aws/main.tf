@@ -109,7 +109,9 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_secret_ssh_public = "true"
+        ssm_deploy_docker                = "true"
+        ssm_deploy_secret_ssh_public     = "true"
+        ssm_exec_docker_log4shell_target = "true"
       })
       user_data        = null
       user_data_base64 = null

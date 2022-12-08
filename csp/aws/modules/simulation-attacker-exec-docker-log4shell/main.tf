@@ -22,7 +22,7 @@ locals {
     truncate -s 0 $LOGFILE
     log "Checking for docker..."
     while ! which docker; do
-        log "docker not found - waiting"
+        log "docker not found...waiting"
         sleep 10
     done
     log "docker path: $(which docker)"
