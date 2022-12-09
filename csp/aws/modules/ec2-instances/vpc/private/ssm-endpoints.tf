@@ -1,10 +1,12 @@
-# ssm vpc endpoint
-data "aws_vpc_endpoint_service" "ssm" {
-  service = "ssm"
+locals {
+  vpc_interface_endpoints = toset(["ec2", "ec2messages", "ssm", "ssmmessages"])
+  vpc_gateway_endpoints = toset(["s3"])
 }
 
-resource "aws_security_group" "ssm_sg" {
-  name        = "private-ssm-sg"
+# VPC ENDPOINT SECURITY GROUP
+
+resource "aws_security_group" "vpc_endpoint" {
+  name        = "private-vpcep-sg"
   description = "Allow TLS inbound To AWS Systems Manager Session Manager"
   vpc_id      = aws_vpc.private.id
 
@@ -24,121 +26,50 @@ resource "aws_security_group" "ssm_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "private-ssm"
+    Name = "private-vpcep-sg"
   }
 }
 
-resource "aws_vpc_endpoint" "ssm" {
+# VPC INTERFACE ENDPOINT
+data "aws_vpc_endpoint_service" "vpc_interface_endpoint" {
+  for_each = local.vpc_interface_endpoints
+  service = each.key
+  service_type = "Interface"
+}
+
+resource "aws_vpc_endpoint" "vpc_interface_endpoint" {
+  for_each = local.vpc_interface_endpoints
   vpc_id          = aws_vpc.private.id
-  service_name    = data.aws_vpc_endpoint_service.ssm.service_name
+  service_name    = data.aws_vpc_endpoint_service.vpc_interface_endpoint[each.key].service_name
   subnet_ids      = [ aws_subnet.private.id ]
 
-  vpc_endpoint_type = "Interface"
+  vpc_endpoint_type = data.aws_vpc_endpoint_service.vpc_interface_endpoint[each.key].service_type
 
   security_group_ids = [
-    aws_security_group.ssm_sg.id,
+    aws_security_group.vpc_endpoint.id,
   ]
 
   private_dns_enabled = true
 
   tags = {
-    Name = "private-ssm-endpoint"
-  }
-}
-######## setup vpc endpoints for ssm ###########
-
-# ssmmessages vpc endpoint
-data "aws_vpc_endpoint_service" "ssmmessages" {
-  service = "ssmmessages"
-}
-
-resource "aws_security_group" "ssmmessages_sg" {
-  name        = "private-ssmmessages-sg"
-  description = "Allow TLS inbound To AWS Systems Manager Session Manager"
-  vpc_id      = aws_vpc.private.id
-
-  ingress {
-    description = "HTTPS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.private.cidr_block]
-  }
-
-  egress {
-    description = "Allow All Egress"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = {
-    Name = "private-ssmmessages"
+    Name = "private-vpcepi-${each.key}"
   }
 }
 
-resource "aws_vpc_endpoint" "ssmmessages" {
+# VPC GATEWAY ENDPOINT
+data "aws_vpc_endpoint_service" "vpc_gateway_endpoint" {
+  for_each = local.vpc_gateway_endpoints
+  service = each.key
+  service_type = "Gateway"
+}
+
+resource "aws_vpc_endpoint" "vpc_gateway_endpoint" {
+  for_each = local.vpc_gateway_endpoints
   vpc_id          = aws_vpc.private.id
-  service_name    = data.aws_vpc_endpoint_service.ssmmessages.service_name
+  service_name    = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_name
   subnet_ids      = [ aws_subnet.private.id ]
-
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ssmmessages_sg.id,
-  ]
-
-  private_dns_enabled = true
-
+  vpc_endpoint_type = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_type
   tags = {
-    Name = "private-ssmmessages-endpoint"
-  }
-}
-
-# ec2 vpc endpoint
-data "aws_vpc_endpoint_service" "ec2" {
-  service = "ec2"
-}
-
-resource "aws_security_group" "ec2_sg" {
-  name        = "private-ec2-sg"
-  description = "Allow TLS inbound To AWS Systems Manager Session Manager"
-  vpc_id      = aws_vpc.private.id
-
-  ingress {
-    description = "HTTPS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.private.cidr_block]
-  }
-
-  egress {
-    description = "Allow All Egress"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = {
-    Name = "private-ec2"
-  }
-}
-
-resource "aws_vpc_endpoint" "ec2" {
-  vpc_id          = aws_vpc.private.id
-  service_name    = data.aws_vpc_endpoint_service.ec2.service_name
-  subnet_ids      = [ aws_subnet.private.id]
-
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ec2_sg.id,
-  ]
-
-  private_dns_enabled = true
-
-  tags = {
-    Name = "private-main-ec2-endpoint"
+    Name = "private-vpcepg-${each.key}"
   }
 }

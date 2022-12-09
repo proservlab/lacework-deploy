@@ -45,6 +45,7 @@ module "eks" {
   environment  = var.environment
   cluster_name = var.cluster_name
   region       = var.region
+  aws_profile_name = var.aws_profile_name
 }
 
 module "inspector" {

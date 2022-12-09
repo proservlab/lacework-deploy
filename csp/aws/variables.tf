@@ -114,6 +114,22 @@ variable "jira_cloud_username" {
 }
 
 ###########################
+# KUBERNETES
+###########################
+
+variable "attacker_cluster_name" {
+  description = "attacker cluster name"
+  type        = string
+  default     = "attacker-cluster"
+}
+
+variable "target_cluster_name" {
+  description = "target cluster name"
+  type        = string
+  default     = "target-cluster"
+}
+
+###########################
 # SIMULATION
 ###########################
 

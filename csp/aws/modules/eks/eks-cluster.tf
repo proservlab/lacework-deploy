@@ -78,7 +78,7 @@ resource "aws_eks_cluster" "cluster" {
 
   vpc_config {
     security_group_ids = [aws_security_group.cluster.id]
-    subnet_ids         = aws_subnet.cluster.*.id
+    subnet_ids         = [ for subnet in aws_subnet.cluster: subnet.id ]
     public_access_cidrs  = var.public_access_cidr
     endpoint_private_access = true
     endpoint_public_access = true
@@ -104,8 +104,8 @@ resource "null_resource" "eks_context_switcher" {
     command = <<EOT
       set -e
       echo 'Applying Auth ConfigMap with kubectl...'
-      aws eks wait cluster-active --name '${var.cluster_name}'
-      aws eks update-kubeconfig --name '${var.cluster_name}' --alias '${var.cluster_name}-${var.region}' --region=${var.region}
+      aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
+      aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --alias '${var.cluster_name}-${var.region}' --region=${var.region}
     EOT
   }
 }

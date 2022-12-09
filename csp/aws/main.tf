@@ -238,9 +238,10 @@ locals {
 #########################
 
 module "attacker" {
-  source      = "./modules/environment"
-  environment = "attacker"
-  region      = var.region
+  source           = "./modules/environment"
+  environment      = "attacker"
+  region           = var.region
+  aws_profile_name = "attacker"
 
   # override enable
   disable_all = false
@@ -259,7 +260,7 @@ module "attacker" {
   jira_cloud_username      = var.jira_cloud_username
 
   # eks cluster
-  cluster_name = "attacker-cluster"
+  cluster_name = var.attacker_cluster_name
 
   # aws core environment
   enable_ec2     = true
@@ -334,9 +335,10 @@ module "attacker" {
 #########################
 
 module "target" {
-  source      = "./modules/environment"
-  environment = "target"
-  region      = var.region
+  source           = "./modules/environment"
+  environment      = "target"
+  region           = var.region
+  aws_profile_name = "target"
 
   # override enable
   disable_all = false
@@ -355,11 +357,11 @@ module "target" {
   jira_cloud_username      = var.jira_cloud_username
 
   # eks cluster
-  cluster_name = "target-cluster"
+  cluster_name = var.target_cluster_name
 
   # aws core environment
   enable_ec2     = true
-  enable_eks     = false
+  enable_eks     = true
   enable_eks_app = false
   enable_eks_psp = false
 
@@ -413,7 +415,7 @@ module "target" {
   enable_lacework_eks_audit             = false
 
   # vulnerable apps
-  enable_attack_kubernetes_voteapp           = false
+  enable_attack_kubernetes_voteapp           = true
   enable_attack_kubernetes_log4shell         = false
   enable_attack_kubernetes_privileged_pod    = false
   enable_attack_kubernetes_root_mount_fs_pod = false
@@ -506,9 +508,10 @@ data "template_file" "compromised_keys" {
 }
 
 module "simulation-target" {
-  source      = "./modules/environment"
-  environment = "simulation-target"
-  region      = var.region
+  source           = "./modules/environment"
+  environment      = "simulation-target"
+  region           = var.region
+  aws_profile_name = "target"
 
   # set all endpoint target/attacker
   attacker_instance_http_listener   = local.attacker.http_listener
@@ -522,7 +525,7 @@ module "simulation-target" {
 
   # in simulation cluster name is used to exec kube commands
   # for example: deploy kali instance
-  cluster_name = "target-cluster"
+  cluster_name = var.attacker_cluster_name
 
   # simulation basic
   # -------------------
@@ -634,9 +637,10 @@ resource "aws_security_group_rule" "simulation-attacker-public-ingress" {
 }
 
 module "simulation-attacker" {
-  source      = "./modules/environment"
-  environment = "simulation-attacker"
-  region      = var.region
+  source           = "./modules/environment"
+  environment      = "simulation-attacker"
+  region           = var.region
+  aws_profile_name = "attacker"
 
   # set all endpoint target/attacker
   attacker_instance_http_listener = local.attacker.http_listener

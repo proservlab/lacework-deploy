@@ -8,6 +8,11 @@ variable "region" {
   type        = string
 }
 
+variable "aws_profile_name" {
+  description = "aws profile name"
+  type        = string
+}
+
 variable "disable_all" {
   description   = "override disable of all modules"
   type          = bool
