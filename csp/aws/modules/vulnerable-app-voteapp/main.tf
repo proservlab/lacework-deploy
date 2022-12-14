@@ -6,6 +6,9 @@ resource "kubernetes_service_v1" "vote" {
             app = "vote"
         }
         # namespace = var.environment
+        # annotations = {
+        #   "service.beta.kubernetes.io/aws-load-balancer-security-groups" = "value"
+        # }
     }
     spec {
         selector = {

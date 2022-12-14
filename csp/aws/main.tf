@@ -18,31 +18,31 @@ module "defaults" {
 
 locals {
   target = {
-    reverseshell = length(module.target.ec2-instances) > 0 ? flatten([
+    reverseshell = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_reverse_shell_target == "true"
     ]) : []
-    log4shell = length(module.target.ec2-instances) > 0 ? flatten([
+    log4shell = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_docker_log4shell_target == "true"
     ]) : []
-    codecov = length(module.target.ec2-instances) > 0 ? flatten([
+    codecov = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_git_codecov_target == "true"
     ]) : []
-    port_forward = length(module.target.ec2-instances) > 0 ? flatten([
+    port_forward = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_port_forward_target == "true"
     ]) : []
   }
 
   attacker = {
-    http_listener = length(module.attacker.ec2-instances) > 0 ? flatten([
+    http_listener = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_http_listener_attacker == "true"
     ]) : []
-    reverseshell = length(module.attacker.ec2-instances) > 0 ? flatten([
+    reverseshell = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_reverse_shell_attacker == "true"
     ]) : []
-    log4shell = length(module.attacker.ec2-instances) > 0 ? flatten([
+    log4shell = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_docker_log4shell_attacker == "true"
     ]) : []
-    port_forward = length(module.attacker.ec2-instances) > 0 ? flatten([
+    port_forward = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_port_forward_attacker == "true"
     ]) : []
   }
@@ -57,28 +57,29 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "false" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker               = "true"
-        ssm_exec_reverse_shell_attacker = "true"
-      })
-      user_data        = null
-      user_data_base64 = null
-    },
-    {
-      name           = "attacker-public-2"
-      public         = true
-      instance_type  = "t2.micro"
-      ami_name       = "ubuntu_focal"
-      enable_ssm     = true
-      ssm_deploy_tag = { ssm_deploy_lacework = "false" }
-      # override default ssm action tags
-      tags = merge(module.defaults.ssm_default_tags, {
         ssm_deploy_docker                         = "true"
         ssm_exec_docker_compromised_keys_attacker = "true"
-        ssm_exec_docker_log4shell_attacker        = "true"
+        #ssm_exec_reverse_shell_attacker = "true"
       })
       user_data        = null
       user_data_base64 = null
     },
+    # {
+    #   name           = "attacker-public-2"
+    #   public         = true
+    #   instance_type  = "t2.micro"
+    #   ami_name       = "ubuntu_focal"
+    #   enable_ssm     = true
+    #   ssm_deploy_tag = { ssm_deploy_lacework = "false" }
+    #   # override default ssm action tags
+    #   tags = merge(module.defaults.ssm_default_tags, {
+    #     ssm_deploy_docker                         = "true"
+    #     ssm_exec_docker_compromised_keys_attacker = "true"
+    #     ssm_exec_docker_log4shell_attacker        = "true"
+    #   })
+    #   user_data        = null
+    #   user_data_base64 = null
+    # },
   ]
 
   target_instances = [
@@ -91,11 +92,11 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker             = "true"
-        ssm_deploy_git                = "true"
+        #ssm_deploy_docker             = "true"
+        #ssm_deploy_git                = "true"
         ssm_deploy_secret_ssh_private = "true"
-        ssm_exec_reverse_shell_target = "true"
-        ssm_deploy_inspector_agent    = "true"
+        #ssm_exec_reverse_shell_target = "true"
+        #ssm_deploy_inspector_agent    = "true"
       })
 
       user_data        = null
@@ -110,9 +111,9 @@ locals {
       ssm_deploy_tag = { ssm_deploy_lacework = "true" }
       # override default ssm action tags
       tags = merge(module.defaults.ssm_default_tags, {
-        ssm_deploy_docker                = "true"
-        ssm_deploy_secret_ssh_public     = "true"
-        ssm_exec_docker_log4shell_target = "true"
+        #ssm_deploy_docker                = "true"
+        ssm_deploy_secret_ssh_public = "true"
+        #ssm_exec_docker_log4shell_target = "true"
       })
       user_data        = null
       user_data_base64 = null
@@ -276,7 +277,7 @@ module "attacker" {
 
   # aws ssm document setup - provides optional install capability
   enable_inspector     = false
-  enable_deploy_git    = true
+  enable_deploy_git    = false
   enable_deploy_docker = true
 
   # ec2 instance definitions
@@ -407,12 +408,12 @@ module "target" {
   enable_lacework_alerts                = true
   enable_lacework_audit_config          = true
   enable_lacework_custom_policy         = true
-  enable_lacework_daemonset             = false
-  enable_lacework_daemonset_compliance  = false
+  enable_lacework_daemonset             = true
+  enable_lacework_daemonset_compliance  = true
   enable_lacework_agentless             = true
   enable_lacework_ssm_deployment        = true
-  enable_lacework_admissions_controller = false
-  enable_lacework_eks_audit             = false
+  enable_lacework_admissions_controller = true
+  enable_lacework_eks_audit             = true
 
   # vulnerable apps
   enable_attack_kubernetes_voteapp           = true
@@ -533,12 +534,12 @@ module "simulation-target" {
   # via ssm as root. any instances tagged will have the
   # enable attacks run, every 30 minutes by default.
   enable_target_attacksurface_secrets_ssh = true
-  enable_target_malware_eicar             = true
-  enable_target_connect_badip             = true
-  enable_target_connect_enumerate_host    = true
-  enable_target_connect_oast_host         = true
+  enable_target_malware_eicar             = false
+  enable_target_connect_badip             = false
+  enable_target_connect_enumerate_host    = false
+  enable_target_connect_oast_host         = false
   enable_target_kubernetes_app_kali       = false
-  enable_target_docker_cpuminer           = true
+  enable_target_docker_cpuminer           = false
 
   # simulation advanced
   # -------------------
@@ -547,17 +548,17 @@ module "simulation-target" {
   # address are available
 
   # log4shell
-  enable_target_docker_log4shell = true
+  enable_target_docker_log4shell = false
   target_log4shell_http_port     = local.target_log4shell_http_port
   attacker_log4shell_ldap_port   = local.attacker_log4shell_ldap_port
   attacker_log4shell_http_port   = local.attacker_log4shell_http_port
 
   # reverseshell
-  enable_target_reverseshell = true
+  enable_target_reverseshell = false
   attacker_reverseshell_port = local.attacker_reverseshell_port
 
   # codecov
-  enable_target_codecov               = true
+  enable_target_codecov               = false
   attacker_generic_http_listener_port = local.attacker_generic_http_listener_port
 
   providers = {
@@ -568,7 +569,7 @@ module "simulation-target" {
   }
 
   # port forward
-  enable_target_exec_port_forward = true
+  enable_target_exec_port_forward = false
   target_port_forward_ports       = local.target_port_forward_ports
 }
 
@@ -658,7 +659,7 @@ module "simulation-attacker" {
   # address are available
 
   # log4shell
-  enable_attacker_docker_log4shell = true
+  enable_attacker_docker_log4shell = false
   target_log4shell_http_port       = local.target_log4shell_http_port
   attacker_log4shell_ldap_port     = local.attacker_log4shell_ldap_port
   attacker_log4shell_http_port     = local.attacker_log4shell_http_port
@@ -666,14 +667,14 @@ module "simulation-attacker" {
                                       touch /tmp/log4shell_pwned
                                       EOT
   # reverseshell
-  enable_attacker_reverseshell  = true
+  enable_attacker_reverseshell  = false
   attacker_reverseshell_port    = local.attacker_reverseshell_port
   attacker_reverseshell_payload = <<-EOT
                                   touch /tmp/reverseshell_pwned
                                   EOT
 
   # codecov
-  enable_attacker_http_listener       = true
+  enable_attacker_http_listener       = false
   attacker_generic_http_listener_port = local.attacker_generic_http_listener_port
 
   # compromised credentials
@@ -695,6 +696,6 @@ module "simulation-attacker" {
   }
 
   # port forward
-  enable_attacker_exec_port_forward = true
+  enable_attacker_exec_port_forward = false
   attacker_port_forward_server_port = local.attacker_port_forward_server_port
 }
