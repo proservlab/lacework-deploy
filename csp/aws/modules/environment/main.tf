@@ -48,6 +48,18 @@ module "eks" {
   aws_profile_name = var.aws_profile_name
 }
 
+data "aws_instances" "cluster" {
+  instance_tags = {
+    "eks:cluster-name" = var.cluster_name
+  }
+
+  instance_state_names = ["running"]
+
+  depends_on = [
+    module.eks
+  ]
+}
+
 module "inspector" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_inspector== true ) ? 1 : 0
   source       = "../inspector"

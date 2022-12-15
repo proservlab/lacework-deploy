@@ -30,6 +30,9 @@ locals {
     port_forward = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_port_forward_target == "true"
     ]) : []
+    eks_public_ips = length(lookup(module.target, "eks_instances", [])) > 0 ? flatten([
+      for ip in lookup(module.target.eks_instances, "public_ips", []) : ip
+    ]) : []
   }
 
   attacker = {
@@ -573,68 +576,93 @@ module "simulation-target" {
   target_port_forward_ports       = local.target_port_forward_ports
 }
 
-# simulation for attacker environment
-locals {
-  attacker_public_sg_ingress = concat(
-    [
-      for instance in local.target.log4shell : {
-        from_port   = local.attacker_log4shell_ldap_port
-        to_port     = local.attacker_log4shell_ldap_port
-        protocol    = "tcp"
-        cidr_block  = "${instance.public_ip}/32"
-        description = "allow log4shell ldap inbound"
-      }
-    ],
-    [
-      for instance in local.target.log4shell : {
-        from_port   = local.attacker_log4shell_http_port
-        to_port     = local.attacker_log4shell_http_port
-        protocol    = "tcp"
-        cidr_block  = "${instance.public_ip}/32"
-        description = "allow log4shell http inbound"
-      }
-    ],
-    [
-      for instance in local.target.reverseshell : {
-        from_port   = local.attacker_reverseshell_port
-        to_port     = local.attacker_reverseshell_port
-        protocol    = "tcp"
-        cidr_block  = "${instance.public_ip}/32"
-        description = "allow reverseshell inbound"
-      }
-    ],
-    [
-      for instance in local.target.codecov : {
-        from_port   = local.attacker_generic_http_listener_port
-        to_port     = local.attacker_generic_http_listener_port
-        protocol    = "tcp"
-        cidr_block  = "${instance.public_ip}/32"
-        description = "allow codecov http inbound"
-      }
-    ],
-    [
-      for instance in local.target.port_forward : {
-        from_port   = local.attacker_port_forward_server_port
-        to_port     = local.attacker_port_forward_server_port
-        protocol    = "tcp"
-        cidr_block  = "${instance.public_ip}/32"
-        description = "allow port forward server inbound"
-      }
-    ],
-  )
+resource "null_resource" "eksips-local-source" {
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.target.eks_public_ips)}' > /tmp/local-eksips-source.txt"
+  }
 }
+
+data "local_file" "eksips-source" {
+  filename   = "/tmp/local-eksips-source.txt"
+  depends_on = [null_resource.eksips-local-source]
+}
+
+# simulation for attacker environment
 resource "aws_security_group_rule" "simulation-attacker-public-ingress" {
-  count = length(local.attacker_public_sg_ingress)
+  for_each = {
+    for rule in concat(
+      # allow all ephemeral inbound from eks nodes
+      [
+        for ip in jsondecode(data.local_file.eksips-source.content) : {
+          from_port   = "1024"
+          to_port     = "65534"
+          protocol    = "tcp"
+          cidr_block  = "${ip}/32"
+          description = "allow eks node inbound"
+        }
+      ],
+      [
+        for instance in local.target.log4shell : {
+          from_port   = local.attacker_log4shell_ldap_port
+          to_port     = local.attacker_log4shell_ldap_port
+          protocol    = "tcp"
+          cidr_block  = "${instance.public_ip}/32"
+          description = "allow log4shell ldap inbound"
+        }
+      ],
+      [
+        for instance in local.target.log4shell : {
+          from_port   = local.attacker_log4shell_http_port
+          to_port     = local.attacker_log4shell_http_port
+          protocol    = "tcp"
+          cidr_block  = "${instance.public_ip}/32"
+          description = "allow log4shell http inbound"
+        }
+      ],
+      [
+        for instance in local.target.reverseshell : {
+          from_port   = local.attacker_reverseshell_port
+          to_port     = local.attacker_reverseshell_port
+          protocol    = "tcp"
+          cidr_block  = "${instance.public_ip}/32"
+          description = "allow reverseshell inbound"
+        }
+      ],
+      [
+        for instance in local.target.codecov : {
+          from_port   = local.attacker_generic_http_listener_port
+          to_port     = local.attacker_generic_http_listener_port
+          protocol    = "tcp"
+          cidr_block  = "${instance.public_ip}/32"
+          description = "allow codecov http inbound"
+        }
+      ],
+      [
+        for instance in local.target.port_forward : {
+          from_port   = local.attacker_port_forward_server_port
+          to_port     = local.attacker_port_forward_server_port
+          protocol    = "tcp"
+          cidr_block  = "${instance.public_ip}/32"
+          description = "allow port forward server inbound"
+        }
+      ],
+    ) : "${rule.cidr_block}:${rule.from_port}:${rule.to_port}" => rule
+  }
 
   type              = "ingress"
-  from_port         = local.attacker_public_sg_ingress[count.index].from_port
-  to_port           = local.attacker_public_sg_ingress[count.index].to_port
-  protocol          = local.attacker_public_sg_ingress[count.index].protocol
-  cidr_blocks       = [local.attacker_public_sg_ingress[count.index].cidr_block]
-  description       = local.attacker_public_sg_ingress[count.index].description
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = [each.value.cidr_block]
+  description       = each.value.description
   security_group_id = module.attacker.public_sg.id
 
   provider = aws.attacker
+
+  depends_on = [
+    module.target,
+    module.attacker
+  ]
 }
 
 module "simulation-attacker" {

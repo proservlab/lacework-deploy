@@ -80,3 +80,19 @@ resource "aws_eks_node_group" "cluster" {
     aws_iam_role_policy_attachment.node-AmazonSSMPatchAssociation,
   ]
 }
+
+resource "aws_autoscaling_group_tag" "nodes_group" {
+  for_each = toset(
+    [for asg in flatten(
+      [for resources in aws_eks_node_group.cluster.resources : resources.autoscaling_groups]
+    ) : asg.name]
+  )
+
+  autoscaling_group_name = each.value
+
+  tag {
+    key   = "Name"
+    value = "eks_node_group"
+    propagate_at_launch = true
+  }
+}
