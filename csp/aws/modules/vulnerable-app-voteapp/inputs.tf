@@ -43,7 +43,7 @@ variable "push_script" {
 variable "app_namespace" {
   type = string
   description = "Namespace for the application"
-  default = "default"
+  default = "vote"
 }
 
 variable "maintenance_namespace" {

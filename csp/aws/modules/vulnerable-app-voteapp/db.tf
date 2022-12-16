@@ -2,8 +2,8 @@
 locals {
     db_app_name = "db"
     db_app_namespace = var.app_namespace
-    db_app_role_name = "${local.db_app_namespace}-cluster-read-write-role"
-    db_app_service_account = "${local.db_app_namespace}-service-account"  
+    db_app_role_name = "${local.db_app_name}-cluster-read-role"
+    db_app_service_account = "${local.db_app_name}-service-account"  
 }
 
 resource "kubernetes_service_account" "db" {
@@ -23,7 +23,8 @@ resource "kubernetes_cluster_role" "db" {
                                 "",
                             ]
         resources      =    [
-                                "*"
+                                "services",
+                                "pods"
                             ]
         verbs          =    [
                                 "get", 

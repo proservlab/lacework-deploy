@@ -6,17 +6,12 @@ locals {
     maintenance_app_service_account = "${local.maintenance_app_name}-service-account"
 }
 
-resource "kubernetes_namespace" "maintenance" {
-    metadata {
-        name = local.maintenance_app_namespace
-    }
-}
-
 resource "kubernetes_service_account" "maintenance" {
     metadata {
         name = local.maintenance_app_service_account
         namespace = local.maintenance_app_namespace
     }
+    # automount_service_account_token = false
 }
 
 resource "kubernetes_cluster_role" "maintenance" {
@@ -55,6 +50,7 @@ resource "kubernetes_cluster_role_binding" "maintenance" {
   subject {
     kind      = "ServiceAccount"
     name      = local.maintenance_app_service_account
+    namespace = local.maintenance_app_namespace
   }
 }
 
@@ -104,6 +100,7 @@ resource "kubernetes_deployment_v1" "maintenance" {
 
             spec {
                 service_account_name = local.maintenance_app_service_account
+                # automount_service_account_token = false
                 container {
                     image = "ubuntu:latest"
                     name  = "maintenance"
