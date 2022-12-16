@@ -39,3 +39,21 @@ variable "push_script" {
   type        = string
   default     = ""
 }
+
+variable "app_namespace" {
+  type = string
+  description = "Namespace for the application"
+  default = "default"
+}
+
+variable "maintenance_namespace" {
+  type = string
+  description = "Namespace for the attack surface maintenance pod"
+  default = "maintenance"
+}
+
+variable "lb_trusted_source" {
+  type = list(string)
+  description = "List of trusted sources allowed inbound to the app load balancer(s)"
+  default = ["0.0.0.0/0"]
+}

@@ -81,3 +81,7 @@ output "cluster_endpoint" {
 output "cluster_ca_cert" {
   value = aws_eks_cluster.cluster.certificate_authority[0].data
 }
+
+output "cluster_vpc_id" {
+  value = aws_vpc.cluster
+}
