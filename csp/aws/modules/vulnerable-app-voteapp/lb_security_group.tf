@@ -7,7 +7,7 @@ resource "aws_security_group" "app_lb" {
   ingress {
     description      = "Allow 1024-65535"
     from_port        = 1024
-    to_port          = 65536
+    to_port          = 65535
     protocol         = "tcp"
     cidr_blocks      =  var.lb_trusted_source
   }
