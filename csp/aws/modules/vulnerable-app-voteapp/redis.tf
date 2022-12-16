@@ -1,27 +1,25 @@
 # redis
 locals {
-    name = "result"
-    namespace = var.app_namespace
-    role_name = "${local.name}-cluster-read-role"
-    service_account = "${local.name}-service-account"
+    redis_app_name = "redis"
+    redis_app_namespace = var.app_namespace
 }
 
 resource "kubernetes_service_v1" "redis" {
     metadata {
-        name = local.name
+        name = local.redis_app_name
         labels = {
-            app = local.name
+            app = local.redis_app_name
         }
-        namespace = local.namespace
+        namespace = local.redis_app_namespace
     }
     spec {
         selector = {
-            app = local.name
+            app = local.redis_app_name
         }
 
         # session_affinity = "ClientIP"
         port {
-            name = "${local.name}-service"
+            name = "${local.redis_app_name}-service"
             port        = 6379
             target_port = 6379
         }
@@ -32,11 +30,11 @@ resource "kubernetes_service_v1" "redis" {
 }
 resource "kubernetes_deployment_v1" "redis" {
     metadata {
-        name = local.name
+        name = local.redis_app_name
         labels = {
-            app = local.name
+            app = local.redis_app_name
         }
-        namespace = local.namespace
+        namespace = local.redis_app_namespace
     }
 
     spec {
@@ -44,21 +42,21 @@ resource "kubernetes_deployment_v1" "redis" {
 
         selector {
             match_labels = {
-                app = local.name
+                app = local.redis_app_name
             }
         }
 
         template {
             metadata {
                 labels = {
-                    app = local.name
+                    app = local.redis_app_name
                 }
             }
 
             spec {
                 container {
                     image = "redis:alpine"
-                    name  = local.name
+                    name  = local.redis_app_name
                     port {
                         container_port = 6379
                     }

@@ -1,18 +1,16 @@
 # result
 locals {
-    name = "result"
-    namespace = var.app_namespace
-    role_name = "${local.name}-cluster-read-role"
-    service_account = "${local.name}-service-account"
+    result_app_name = "result"
+    result_app_namespace = var.app_namespace
 }
 
 resource "kubernetes_service_v1" "result" {
     metadata {
-        name = local.name
+        name = local.result_app_name
         labels = {
-            app = local.name
+            app = local.result_app_name
         }
-        namespace = local.namespace
+        namespace = local.result_app_namespace
         annotations = {
           "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
           "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
@@ -20,12 +18,12 @@ resource "kubernetes_service_v1" "result" {
     }
     spec {
         selector = {
-            app = local.name
+            app = local.result_app_name
         }
 
         # session_affinity = "ClientIP"
         port {
-            name = "${local.name}-service"
+            name = "${local.result_app_name}-service"
             port        = 5001
             target_port = 80
         }
@@ -41,11 +39,11 @@ resource "kubernetes_service_v1" "result" {
 
 resource "kubernetes_deployment_v1" "result" {
     metadata {
-        name = local.name
+        name = local.result_app_name
         labels = {
-            app = local.name
+            app = local.result_app_name
         }
-        namespace = local.namespace
+        namespace = local.result_app_namespace
     }
 
     spec {
@@ -53,21 +51,21 @@ resource "kubernetes_deployment_v1" "result" {
 
         selector {
             match_labels = {
-                app = local.name
+                app = local.result_app_name
             }
         }
 
         template {
             metadata {
                 labels = {
-                app = local.name
+                app = local.result_app_name
                 }
             }
 
             spec {
                 container {
                     image = "dockersamples/examplevotingapp_result:before"
-                    name  = local.name
+                    name  = local.result_app_name
                     port {
                         container_port = 80
                     }

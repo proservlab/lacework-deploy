@@ -1,21 +1,21 @@
 # db
 locals {
-    name = "db"
-    namespace = var.app_namespace
-    role_name = "${local.name}-cluster-read-role"
-    service_account = "${local.name}-service-account"
+    db_app_name = "db"
+    db_app_namespace = var.app_namespace
+    db_app_role_name = "${local.db_app_namespace}-cluster-read-write-role"
+    db_app_service_account = "${local.db_app_namespace}-service-account"  
 }
 
 resource "kubernetes_service_account" "db" {
     metadata {
-        name = local.service_account
-        namespace = local.namespace
+        name = local.db_app_service_account
+        namespace = local.db_app_namespace
     }
 }
 
 resource "kubernetes_cluster_role" "db" {
     metadata {
-        name = local.role_name
+        name = local.db_app_role_name
     }
 
     rule {
@@ -35,35 +35,35 @@ resource "kubernetes_cluster_role" "db" {
 
 resource "kubernetes_cluster_role_binding" "db" {
   metadata {
-    name      = "${local.name}-role-binding"
+    name      = "${local.db_app_name}-role-binding"
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = local.role_name
+    name      = local.db_app_role_name
   }
   subject {
     kind      = "ServiceAccount"
-    name      = local.service_account
+    name      = local.db_app_service_account
   }
 }
 
 resource "kubernetes_service_v1" "db" {
     metadata {
-        name = local.name
+        name = local.db_app_name
         labels = {
-            app = local.name
+            app = local.db_app_name
         }
-        namespace = local.namespace
+        namespace = local.db_app_namespace
     }
     spec {
         selector = {
-            app = local.name
+            app = local.db_app_name
         }
 
         # session_affinity = "ClientIP"
         port {
-            name = local.name
+            name = local.db_app_name
             port        = 5432
             target_port = 5432
         }
@@ -74,8 +74,8 @@ resource "kubernetes_service_v1" "db" {
 }
 resource "kubernetes_persistent_volume_claim_v1" "db" {
     metadata {
-        name = "${local.name}-data-claim"
-        namespace = local.namespace
+        name = "${local.db_app_name}-data-claim"
+        namespace = local.db_app_namespace
     }
     spec {
         access_modes = ["ReadWriteOnce"]
@@ -88,11 +88,11 @@ resource "kubernetes_persistent_volume_claim_v1" "db" {
 }
 resource "kubernetes_deployment_v1" "db" {
     metadata {
-        name = local.name
+        name = local.db_app_name
         labels = {
-            app = local.name
+            app = local.db_app_name
         }
-        namespace = local.namespace
+        namespace = local.db_app_namespace
     }
 
     spec {
@@ -100,21 +100,21 @@ resource "kubernetes_deployment_v1" "db" {
 
         selector {
             match_labels = {
-                app = local.name
+                app = local.db_app_name
             }
         }
 
         template {
             metadata {
                 labels = {
-                    app = local.name
+                    app = local.db_app_name
                 }
             }
 
             spec {
                 container {
                     image = "postgres:9.4"
-                    name  = local.name
+                    name  = local.db_app_name
                     port {
                         container_port = 5432
                     }
@@ -137,14 +137,14 @@ resource "kubernetes_deployment_v1" "db" {
                         value = "trust"
                     }
                     volume_mount {
-                        name = "${local.name}-data-claim"
+                        name = "${local.db_app_name}-data-claim"
                         mount_path = "/var/lib/postgresql/data"
                     }
                 }
                 volume {
-                    name = "${local.name}-data-claim"
+                    name = "${local.db_app_name}-data-claim"
                     persistent_volume_claim {
-                        claim_name = "${local.name}-data-claim"
+                        claim_name = "${local.db_app_name}-data-claim"
                     }
                 }
             }

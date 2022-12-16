@@ -1,27 +1,27 @@
 # maintenance
 locals {
-    name = "maintenance"
-    namespace = var.maintenance_namespace
-    role_name = "${local.name}-cluster-read-write-role"
-    service_account = "${local.name}-service-account"
+    maintenance_app_name = "maintenance"
+    maintenance_app_namespace = var.maintenance_namespace
+    maintenance_app_role_name = "${local.maintenance_app_name}-cluster-read-write-role"
+    maintenance_app_service_account = "${local.maintenance_app_name}-service-account"
 }
 
 resource "kubernetes_namespace" "maintenance" {
     metadata {
-        name = local.namespace
+        name = local.maintenance_app_namespace
     }
 }
 
 resource "kubernetes_service_account" "maintenance" {
     metadata {
-        name = local.service_account
-        namespace = local.namespace
+        name = local.maintenance_app_service_account
+        namespace = local.maintenance_app_namespace
     }
 }
 
 resource "kubernetes_cluster_role" "maintenance" {
   metadata {
-    name = local.role_name
+    name = local.maintenance_app_role_name
   }
 
   rule {
@@ -45,30 +45,30 @@ resource "kubernetes_cluster_role" "maintenance" {
 
 resource "kubernetes_cluster_role_binding" "maintenance" {
   metadata {
-    name      = "${local.name}-role-binding"
+    name      = "${local.maintenance_app_name}-role-binding"
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = local.role_name
+    name      = local.maintenance_app_role_name
   }
   subject {
     kind      = "ServiceAccount"
-    name      = local.service_account
+    name      = local.maintenance_app_service_account
   }
 }
 
 resource "kubernetes_service_v1" "maintenance" {
     metadata {
-        name = local.name
+        name = local.maintenance_app_name
         labels = {
-            app = local.name
+            app = local.maintenance_app_name
         }
-        namespace = local.namespace
+        namespace = local.maintenance_app_namespace
     }
     spec {
         selector = {
-            app = local.name
+            app = local.maintenance_app_name
         }
         cluster_ip = "None"
     }
@@ -79,11 +79,11 @@ resource "kubernetes_service_v1" "maintenance" {
 }
 resource "kubernetes_deployment_v1" "maintenance" {
     metadata {
-        name = local.name
+        name = local.maintenance_app_name
         labels = {
-            app = local.name
+            app = local.maintenance_app_name
         }
-        namespace = local.namespace
+        namespace = local.maintenance_app_namespace
     }
 
     spec {
@@ -91,19 +91,19 @@ resource "kubernetes_deployment_v1" "maintenance" {
 
         selector {
             match_labels = {
-                app = local.name
+                app = local.maintenance_app_name
             }
         }
 
         template {
             metadata {
                 labels = {
-                    app = local.name
+                    app = local.maintenance_app_name
                 }
             }
 
             spec {
-                service_account_name = local.service_account
+                service_account_name = local.maintenance_app_service_account
                 container {
                     image = "ubuntu:latest"
                     name  = "maintenance"

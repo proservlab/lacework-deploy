@@ -1,22 +1,20 @@
 # worker
 locals {
-    name = "vote"
-    namespace = var.app_namespace
-    role_name = "${local.name}-cluster-read-role"
-    service_account = "${local.name}-service-account"
+    worker_app_name = "worker"
+    worker_app_namespace = var.app_namespace
 }
 
 resource "kubernetes_service_v1" "worker" {
     metadata {
-        name = local.name
+        name = local.worker_app_name
         labels = {
-            app = local.name
+            app = local.worker_app_name
         }
-        namespace = local.namespace
+        namespace = local.worker_app_namespace
     }
     spec {
         selector = {
-            app = local.name
+            app = local.worker_app_name
         }
         cluster_ip = "None"
     }
@@ -27,11 +25,11 @@ resource "kubernetes_service_v1" "worker" {
 }
 resource "kubernetes_deployment_v1" "worker" {
     metadata {
-        name = local.name
+        name = local.worker_app_name
         labels = {
-            app = local.name
+            app = local.worker_app_name
         }
-        namespace = local.namespace
+        namespace = local.worker_app_namespace
     }
 
     spec {
@@ -39,21 +37,21 @@ resource "kubernetes_deployment_v1" "worker" {
 
         selector {
             match_labels = {
-                app = local.name
+                app = local.worker_app_name
             }
         }
 
         template {
             metadata {
                 labels = {
-                app = local.name
+                app = local.worker_app_name
                 }
             }
 
             spec {
                 container {
                     image = "dockersamples/examplevotingapp_worker"
-                    name  = local.name
+                    name  = local.worker_app_name
                 }
             }
         }
