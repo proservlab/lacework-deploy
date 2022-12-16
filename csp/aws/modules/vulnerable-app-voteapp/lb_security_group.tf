@@ -2,16 +2,14 @@
 resource "aws_security_group" "app_lb" {
   name        = "app_lb"
   description = "Allow inbound traffic from trusted source"
-  vpc_id      = module.eks.cluster_vpc_id
+  vpc_id      = var.cluster_vpc_id
 
   ingress {
     description      = "Allow 1024-65535"
     from_port        = 1024
     to_port          = 65536
     protocol         = "tcp"
-    cidr_blocks      =  [
-                            var.lb_trusted_source
-                        ]
+    cidr_blocks      =  var.lb_trusted_source
   }
 
   egress {

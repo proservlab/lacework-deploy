@@ -57,3 +57,8 @@ variable "lb_trusted_source" {
   description = "List of trusted sources allowed inbound to the app load balancer(s)"
   default = ["0.0.0.0/0"]
 }
+
+variable "cluster_vpc_id" {
+  type = string
+  description = "VPC id for the cluster - used to lb security group"
+}

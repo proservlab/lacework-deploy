@@ -229,6 +229,7 @@ module "vulnerable-app-voteapp" {
   source      = "../vulnerable-app-voteapp"
   environment = var.environment
   region      = var.region
+  cluster_vpc_id = module.eks[0].cluster_vpc_id
 
   depends_on = [
     module.eks,
