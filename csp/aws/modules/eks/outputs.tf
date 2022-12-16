@@ -83,5 +83,5 @@ output "cluster_ca_cert" {
 }
 
 output "cluster_vpc_id" {
-  value = aws_vpc.cluster
+  value = aws_vpc.cluster.id
 }
