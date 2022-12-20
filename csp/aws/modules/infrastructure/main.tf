@@ -186,7 +186,7 @@ resource "kubernetes_namespace" "lacework" {
 
 # lacework daemonset and kubernetes compliance
 module "lacework-daemonset" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.enabled == true && var.config.context.lacework.agent.kubernetes.daemonset == true ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.enabled == true && var.config.context.lacework.agent.kubernetes.daemonset.enabled == true ) ? 1 : 0
   source                                = "./modules/lacework/daemonset"
   cluster_name                          = var.config.context.aws.eks.cluster_name
   environment                           = var.config.context.global.environment
