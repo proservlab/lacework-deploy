@@ -199,7 +199,7 @@ variable "enable_lacework_agentless" {
   default = false
 }
 
-variable "enable_lacework_admissions_controller" {
+variable "enable_lacework_admission_controller" {
   description = "enable disable of configuration of lacework agentless scanning"
   type = bool
   default = false
@@ -209,7 +209,7 @@ variable "enable_lacework_admissions_controller" {
 # Attack
 ###########################
 
-variable "enable_attack_kubernetes_voteapp" {
+variable "enable_target_attacksurface_kubernetes_voteapp" {
   description = "enable disable of deployment of vulnerable voteapp to kubernetes"
   type = bool
   default = false

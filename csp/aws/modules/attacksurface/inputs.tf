@@ -26,7 +26,7 @@ variable "enable_all" {
 }
 
 ###########################
-# Kubernetes Admission Controller
+# Kubernetes
 ###########################
 
 variable "cluster_name" {
@@ -35,315 +35,9 @@ variable "cluster_name" {
   default = "false"
 }
 
-variable "lacework_proxy_token" {
-  description = "lacework proxy scanner token"
-  type = string
-  default = "false"
-}
-
-variable "lacework_account_name" {
-  description = "lacework account name"
-  type = string
-  default = "false"
-}
 
 ###########################
-# Slack Alerts
-###########################
-
-variable "enable_slack_alerts" {
-  description = "enable or disable slack alerts"
-  type        = bool
-  default     = false
-}
-
-variable "slack_token" {
-  description = "slack webhook for critical alerts"
-  type        = string
-  default     = "false"
-}
-
-###########################
-# Jira Alerts
-###########################
-variable "enable_jira_cloud_alerts" {
-  description = "enable or disable slack alerts"
-  type        = bool
-  default     = false
-}
-
-variable "jira_cloud_url" {
-  description = "jira cloud url"
-  type        = string
-  default     = "false"
-}
-
-variable "jira_cloud_project_key" {
-  description = "jira cloud project key"
-  type        = string
-  default     = "false"
-}
-
-variable "jira_cloud_issue_type" {
-  description = "jira issue type"
-  type        = string
-  default     = "false"
-}
-
-variable "jira_cloud_api_token" {
-  description = "jira api token"
-  type        = string
-  default     = "false"
-}
-
-variable "jira_cloud_username" {
-  description = "jira username"
-  type        = string
-  default     = "false"
-}
-
-###########################
-# AWS Resources
-###########################
-
-variable "enable_ec2" {
-  description = "enable disable setup of ec2 instances (default 2 one with ssm role, one not)"
-  type = bool
-  default = false
-}
-
-variable "enable_eks" {
-  description = "enable disable eks setup (default 3 node cluster t3a.small)"
-  type = bool
-  default = false
-}
-
-variable "enable_eks_app" {
-  description = "enable disable of kubernetes simple app (default nginx - requires enable_eks)"
-  type = bool
-  default = false
-}
-
-variable "enable_eks_psp" {
-  description = "enable disable of kubernetes pod security policy"
-  type = bool
-  default = false
-}
-
-variable "enable_inspector" {
-  description = "enable disable aws inspector"
-  type = bool
-  default = false
-}
-
-variable "enable_deploy_docker" {
-  description = "enable disable ssm deploy docker capability"
-  type = bool
-  default = false
-}
-
-variable "enable_deploy_git" {
-  description = "enable disable ssm deploy git capability"
-  type = bool
-  default = false
-}
-
-variable "instances" {
-  type    = list(
-    object({
-      name            = string
-      public          = bool
-      instance_type   = string
-      ami_name        = string
-      enable_ssm      = bool
-      ssm_deploy_tag  = map(any)
-      tags            = map(any)
-      user_data       = string
-      user_data_base64 = string
-    })
-  )
-  default = [
-    { 
-      name            = "ec2-private-1"
-      public          = false
-      instance_type   = "t2.micro"
-      ami_name        = "ubuntu_focal"
-      enable_ssm      = true
-      ssm_deploy_tag  = { ssm_deploy_lacework = "true" }
-      tags            = {}
-      user_data       = null
-      user_data_base64 = null
-    },
-  ]
-}
-
-variable "public_ingress_rules" {
-   type = list(any)
-   description = "public ingress rules"
-   default = [
-      {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-        description = "allow ssh inbound"
-      }
-  ]
-}
-
-variable "public_egress_rules" {
-   type = list(any)
-   description = "public egress rules"
-   default = [
-      {
-          from_port = 0
-          to_port = 0
-          protocol = "-1"
-          cidr_block = "0.0.0.0/0"
-          description = "allow all outbound"
-      }
-  ]
-}
-
-variable "private_ingress_rules" {
-   type = list(any)
-   description = "private ingress rules"
-   default = [
-      {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-        description = "allow ssh inbound"
-      }
-  ]
-}
-
-variable "private_egress_rules" {
-   type = list(any)
-   description = "private egress rules"
-   default = [
-      {
-          from_port = 0
-          to_port = 0
-          protocol = "-1"
-          cidr_block = "0.0.0.0/0"
-          description = "allow all outbound"
-      }
-  ]
-}
-
-variable "public_network" {
-  type = string
-  description = "public network"
-  default = "172.17.0.0/16"
-}
-
-variable "public_subnet" {
-  type = string
-  description = "public subnet"
-  default = "172.17.0.0/24"
-}
-
-variable "private_network" {
-  type = string
-  description = "private network"
-  default = "172.16.0.0/16"
-}
-
-variable "private_subnet" {
-  type = string
-  description = "private subnet"
-  default = "172.16.100.0/24"
-}
-
-variable "private_nat_subnet" {
-  type = string
-  description = "private nat subnet"
-  default = "172.16.10.0/24"
-}
-
-
-###########################
-# Lacework
-###########################
-
-variable "lacework_agent_access_token" {
-  description = "preconfigured lacework agent access token"
-  type = string
-  default = "false"
-}
-
-variable "lacework_server_url" {
-  description = "lacework server url"
-  type = string
-  default = "https://api.lacework.net"
-}
-
-variable "enable_lacework_audit_config" {
-  description = "enable disable lacework audit and config"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_ssm_deployment" {
-  description = "enable disable lacework ssm deployment"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_syscall_ssm_deployment" {
-  description = "enable disable lacework ssm deployment of syscall config"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_daemonset" {
-  description = "enable disable of deployment of lacework daemonset (requires enable_eks)"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_daemonset_compliance" {
-  description = "enable disable of deployment of lacework compliance agent (requires enable_eks)"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_alerts" {
-  description = "enable disable of configuration of lacework alerts (default slack channel)"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_custom_policy"{
-  description = "enable disable of configuration of lacework custom policy (default redteam alerts)"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_agentless" {
-  description = "enable disable of configuration of lacework agentless scanning"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_admission_controller" {
-  description = "enable disable of configuration of lacework agentless scanning"
-  type = bool
-  default = false
-}
-
-variable "enable_lacework_eks_audit" {
-  description = "enable disable of configuration of lacework eks audit"
-  type = bool
-  default = false
-}
-
-
-
-###########################
-# Vulnerable App
+# Attack Surface Kubernetes
 ###########################
 
 variable "enable_target_attacksurface_kubernetes_voteapp" {
@@ -373,7 +67,7 @@ variable "enable_target_attacksurface_kubernetes_root_mount_fs_pod" {
 
 
 ###########################
-# Attack Surface
+# Attack Surface Host
 ###########################
 
 variable "enable_target_attacksurface_secrets_ssh" {
@@ -382,8 +76,14 @@ variable "enable_target_attacksurface_secrets_ssh" {
   default = false
 }
 
+variable "enable_target_attacksurface_docker_log4shell" {
+  description = "enable disable docker log4shell"
+  type = bool
+  default = false
+}
+
 ###########################
-# Attacker
+# Attacker Post Compromise Simulation
 ###########################
 
 variable "enable_target_postcompromise_drop_malware_eicar" {
@@ -593,7 +293,7 @@ variable "attacker_context_instance_reverseshell" {
   default = []
 }
 
-variable "attacker_context_instance_http" {
+variable "attacker_context_instance_reverseshell" {
   type = list
   description = "attacker http listener instance details"
   default = []

@@ -133,43 +133,43 @@ variable "target_cluster_name" {
 # SIMULATION
 ###########################
 
-variable "attacker_protonvpn_user" {
+variable "attacker_context_config_protonvpn_user" {
   type        = string
   description = "protonvpn user"
   default     = ""
 }
 
-variable "attacker_protonvpn_password" {
+variable "attacker_context_config_protonvpn_password" {
   type        = string
   description = "protonvpn password"
   default     = ""
 }
 
-variable "attacker_protonvpn_tier" {
+variable "attacker_context_config_protonvpn_tier" {
   type        = number
   description = "protonvpn tier (0=free, 1=basic, 2=pro, 3=visionary)"
   default     = 0
 }
 
-variable "attacker_protonvpn_server" {
+variable "attacker_context_config_protonvpn_server" {
   type        = string
   description = "protonvpn server (RANDOM, AU, CR, IS, JP, JP-FREE, LV, NL, NL-FREE, NZ, SG, SK, US, US-NJ, US-FREE,...); see https://api.protonmail.ch/vpn/logicals"
   default     = "RANDOM"
 }
 
-variable "attacker_protonvpn_protocol" {
+variable "attacker_context_config_protonvpn_protocol" {
   type        = string
   description = "protonvpn protocol"
   default     = "udp"
 }
 
-variable "attacker_cloud_cryptomining_wallet" {
+variable "attacker_context_config_cryptomining_cloud_wallet" {
   type        = string
   description = "cloud cryptomining wallet"
   default     = ""
 }
 
-variable "attacker_host_cryptomining_user" {
+variable "attacker_context_config_cryptomining_host_user" {
   type        = string
   description = "host cryptomining user"
   default     = ""

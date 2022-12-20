@@ -97,7 +97,7 @@ module "kubenetes-psp" {
 #########################
 
 resource "kubernetes_namespace" "lacework" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && (var.enable_lacework_admissions_controller || var.enable_lacework_daemonset) ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && (var.enable_lacework_admission_controller || var.enable_lacework_daemonset) ) ? 1 : 0
   metadata {
     name = "lacework"
   }
@@ -166,7 +166,7 @@ module "lacework-custom-policy" {
 }
 
 module "lacework-admission-controller" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_lacework_admissions_controller == true ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_lacework_admission_controller == true ) ? 1 : 0
   source       = "../lacework-admission-controller"
   environment  = var.environment
   lacework_account_name = var.lacework_account_name
@@ -206,7 +206,7 @@ module "lacework-osconfig-deployment" {
 #########################
 
 module "attack-kubernetes-voteapp" {
-  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_attack_kubernetes_voteapp == true ) ? 1 : 0
+  count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_target_attacksurface_kubernetes_voteapp == true ) ? 1 : 0
   source      = "../vulnerable-app-voteapp"
   environment = var.environment
   region      = var.region

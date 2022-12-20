@@ -66,10 +66,10 @@ module "environment-proservlab" {
   enable_lacework_daemonset             = false
   enable_lacework_daemonset_compliance  = false
   enable_lacework_osconfig_deployment   = true
-  enable_lacework_admissions_controller = false
+  enable_lacework_admission_controller = false
 
   # attack
-  enable_attack_kubernetes_voteapp = false
+  enable_target_attacksurface_kubernetes_voteapp = false
 
   providers = {
     aws        = aws.main

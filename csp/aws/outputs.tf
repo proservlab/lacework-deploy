@@ -5,10 +5,10 @@
 #   }
 # }
 
-output "simulation_attacker_instances" {
-  value = local.attacker
-}
+# output "simulation_attacker_instances" {
+#   value = local.attacker
+# }
 
-output "simulation_target_instances" {
-  value = local.target
-}
+# output "simulation_target_instances" {
+#   value = local.target
+# }
