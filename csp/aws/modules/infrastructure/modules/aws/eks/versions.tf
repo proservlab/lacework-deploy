@@ -16,5 +16,9 @@ terraform {
       source = "hashicorp/null"
       version = "3.2.1"
     }
+    http = {
+      source = "hashicorp/http"
+      version = "3.2.1"
+    }
   }
 }

@@ -1,3 +1,8 @@
+locals {
+  k8s_service_account_namespace = "kube-system"
+  k8s_service_account_name      = "cluster-autoscaler-aws"
+}
+
 module "iam_assumable_role_admin" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version                       = "~> 4.0"
@@ -5,7 +10,7 @@ module "iam_assumable_role_admin" {
   role_name                     = "cluster-${var.environment}-autoscaler"
   provider_url                  = replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")
   role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:cluster-autoscaler-aws-cluster-autoscaler"]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
 
   tags = {
     Owner = split("/", data.aws_caller_identity.current.arn)[1]
@@ -49,7 +54,7 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
 
     condition {
       test     = "StringEquals"
-      variable = "autoscaling:ResourceTag/kubernetes.io/cluster/${aws_eks_cluster.cluster.id}"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${aws_eks_cluster.cluster.id}"
       values   = ["owned"]
     }
 
@@ -74,14 +79,23 @@ resource "helm_release" "cluster-autoscaler" {
     value = "aws"
   }
 
-  set{
+  set {
     name  = "awsRegion"
     value = var.region
+  }
+  set {
+    name  = "rbac.serviceAccount.name"
+    value = local.k8s_service_account_name
+  }
+  set {
+    name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.iam_assumable_role_admin.iam_role_arn
+    type  = "string"
   }
 
   set{
     name  = "autoDiscovery.clusterName"
-    value = aws_eks_cluster.cluster.id
+    value = var.cluster_name
   }
 
   set{

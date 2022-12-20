@@ -33,6 +33,7 @@ resource "aws_subnet" "cluster" {
   tags = tomap({
     "Name"                                      = "terraform-eks-${var.environment}-node",
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/${count.index==0?"elb":"internal-elb"}" = "1",
   })
 }
 

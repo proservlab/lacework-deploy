@@ -60,14 +60,14 @@ resource "aws_eks_node_group" "cluster" {
   instance_types = [ "t3a.small" ]
 
   scaling_config {
-    desired_size = 5
+    desired_size = 3
     max_size     = 5
     min_size     = 1
   }
 
   tags =  {
             "k8s.io/cluster-autoscaler/enabled" = "true"
-            "k8s.io/cluster-autoscaler/${var.cluster_name}" = "true"
+            "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
             "Name" = "terraform-eks-worker-node"
           }
 
