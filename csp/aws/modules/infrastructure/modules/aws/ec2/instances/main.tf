@@ -43,7 +43,7 @@ module "vpc" {
 
 # instances
 module "instances" {
-  for_each = { for instance in var.instances: instance.name => instance }
+  for_each = nonsensitive({ for instance in var.instances: instance.name => instance })
   source = "./instance"
   environment = var.environment
   
