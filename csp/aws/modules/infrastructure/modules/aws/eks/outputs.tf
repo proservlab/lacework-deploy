@@ -75,3 +75,11 @@ output "cluster_ca_cert" {
 output "cluster_vpc_id" {
   value = aws_vpc.cluster.id
 }
+
+output "cluster_public_sg_id" {
+  value = aws_subnet.cluster[0].id
+}
+
+output "cluster_private_sg_id" {
+  value = aws_subnet.cluster[1].id
+}

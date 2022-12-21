@@ -8,21 +8,21 @@ variable "config" {
       surface = object({
         host = object({
           log4j = object({
-            enabled = bool
+            enabled                 = bool
           })
         })
         kubernetes = object({
           log4j = object({
-            enabled = bool
+            enabled                 = bool
           })
           voteapp = object({
-            enabled = bool
+            enabled                 = bool
           })
           privileged_pod = object({
-            enabled = bool
+            enabled                 = bool
           })
           root_mount_fs = object({
-            enabled = bool
+            enabled                 = bool
           })
         })
       })
@@ -57,25 +57,4 @@ variable "config" {
       }
     }
   }
-}
-
-variable "infrastructure" {
-  type = object({
-    context = object({
-      global = object({
-          environment               = string
-          trust_security_group      = bool
-          disable_all               = string
-          enable_all                = string
-      })
-      aws = object({
-          region                    = string
-          profile_name              = string
-          iam                       = any
-          ec2                       = any
-          eks                       = any
-          eks_instances             = any
-      })
-    })
-  })
 }

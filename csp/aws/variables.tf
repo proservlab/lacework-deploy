@@ -60,13 +60,13 @@ variable "lacework_server_url" {
 variable "lacework_agent_access_token" {
   description = "lacework agent token"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 variable "lacework_proxy_token" {
   type        = string
   description = "lacework proxy token used by the admissions controller"
-  # default     = "false"
+  default     = null
 }
 
 ###########################
@@ -86,31 +86,31 @@ variable "slack_token" {
 variable "jira_cloud_url" {
   description = "jira cloud url"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 variable "jira_cloud_project_key" {
   description = "jira cloud project key"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 variable "jira_cloud_issue_type" {
   description = "jira issue type"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 variable "jira_cloud_api_token" {
   description = "jira api token"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 variable "jira_cloud_username" {
   description = "jira username"
   type        = string
-  default     = "false"
+  default     = null
 }
 
 ###########################
@@ -136,13 +136,13 @@ variable "target_cluster_name" {
 variable "attacker_context_config_protonvpn_user" {
   type        = string
   description = "protonvpn user"
-  default     = ""
+  default     = null
 }
 
 variable "attacker_context_config_protonvpn_password" {
   type        = string
   description = "protonvpn password"
-  default     = ""
+  default     = null
 }
 
 variable "attacker_context_config_protonvpn_tier" {
@@ -166,11 +166,11 @@ variable "attacker_context_config_protonvpn_protocol" {
 variable "attacker_context_config_cryptomining_cloud_wallet" {
   type        = string
   description = "cloud cryptomining wallet"
-  default     = ""
+  default     = null
 }
 
 variable "attacker_context_config_cryptomining_host_user" {
   type        = string
   description = "host cryptomining user"
-  default     = ""
+  default     = null
 }

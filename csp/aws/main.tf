@@ -15,6 +15,10 @@ module "default-infrastructure-context" {
   source = "./modules/context/infrastructure"
 }
 
+module "default-attacksurface-context" {
+  source = "./modules/context/attacksurface"
+}
+
 #########################
 # CONFIG
 ########################
@@ -168,6 +172,7 @@ module "target-config" {
   ]
 }
 
+
 #########################
 # INFRASTRUCTURE CONTEXT
 ########################
@@ -213,12 +218,52 @@ module "target-infrastructure" {
 }
 
 #########################
-# ATTACK CONTEXT
+# ATTACKSURFACE CONFIG
+########################
+
+module "target-attacksurface-config" {
+  source  = "cloudposse/config/yaml//modules/deepmerge"
+  version = "0.2.0"
+
+  maps = [
+    module.default-attacksurface-context.config,
+    {
+      surface = {
+        host = {
+          log4j = {
+            enabled = false
+          }
+          ssh_keys = {
+            enabled = false
+          }
+        }
+        kubernetes = {
+          log4j = {
+            enabled = false
+          }
+          voteapp = {
+            enabled = false
+          }
+          privileged_pod = {
+            enabled = false
+          }
+          root_mount_fs = {
+            enabled = false
+          }
+        }
+      }
+    }
+  ]
+}
+
+#########################
+# ATTACKSURFACE CONTEXT
 ########################
 
 # set attack the context
-module "attack-context" {
-  source = "./modules/context/attack"
+module "target-attacksurface-context" {
+  source = "./modules/context/attacksurface"
+  config = module.target-attacksurface-config.merged
 }
 
 #########################
@@ -226,6 +271,11 @@ module "attack-context" {
 ########################
 
 # deploy attacksurface
+module "target-attacksurface" {
+  source         = "./modules/attacksurface"
+  config         = module.target-attacksurface-context.config
+  infrastructure = module.target-infrastructure.config
+}
 
 #########################
 # ATTACKSIMULATION DEPLOYMENT

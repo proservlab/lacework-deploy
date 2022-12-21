@@ -1,3 +1,11 @@
+resource "random_uuid" "agent" {
+}
+
+resource "lacework_agent_access_token" "agent" {
+    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    name = "${var.environment}-${random_uuid.agent.id}-daemonset-agent-access-token"
+}
+
 module "lacework_aws_ssm_agents_install" {
     source  = "lacework/ssm-agent/aws"
     version = "~> 0.7"
@@ -40,7 +48,7 @@ resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
     }
 
     parameters = {
-        Token = var.lacework_agent_access_token
+        Token = can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
         Serverurl = var.lacework_server_url
     }
 

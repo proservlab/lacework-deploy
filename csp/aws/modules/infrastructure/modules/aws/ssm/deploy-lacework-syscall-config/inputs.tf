@@ -29,23 +29,6 @@ variable "resource_query_deploy_lacework_syscall" {
 
 variable "syscall_config" {
   type = string
-  description = "Configuration for syscall_config.yaml"
-  default = <<-EOT
-            etype.file:
-                send-if-matches:
-                    file_mod_passwd:
-                        watchpath: /etc/passwd
-                send-if-matches:
-                    file_mod_ssh_user_config:
-                        watchpath: /home/*/.ssh/
-                send-if-matches:
-                    file_mod_root_ssh_user_config:
-                        watchpath: /root/.ssh/
-                send-if-matches:
-                    file_mod_root_crond:
-                        watchpath: /etc/cron.d/root
-                send-if-matches:
-                    file_mod_root_crond:
-                        watchpath: /var/spool/cron/root
-            EOT
+  description = "Configuration file path syscall_config.yaml"
+  default = "./resources/syscall_config.yaml"
 }

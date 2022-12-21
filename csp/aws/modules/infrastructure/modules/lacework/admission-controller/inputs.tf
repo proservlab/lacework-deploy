@@ -5,6 +5,7 @@ variable "environment" {
 variable "lacework_proxy_token" {
   type = string
   description = "lacework proxy scanner token"
+  default = null
 }
 
 variable "lacework_account_name" {

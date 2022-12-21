@@ -108,13 +108,12 @@ resource "helm_release" "cluster-autoscaler" {
     value = module.iam_assumable_role_admin.iam_role_arn
   }
 
-  # set {
-  #     name = "podAnnotations.iam\\.amazonaws\\.com\\/role"
-  #     value = "arn:aws:iam::{{ terraform.kubernetes.aws.account_id }}:role\\/${var.short-region}-${var.environment}-eks-${var.cluster-id}-cluster-autoscaler"
-  # }
-
   set {
     name = "sslCertPath"
     value = "/etc/ssl/certs/ca-bundle.crt"
   }
+
+  depends_on = [
+    null_resource.eks_context_switcher
+  ]
 }

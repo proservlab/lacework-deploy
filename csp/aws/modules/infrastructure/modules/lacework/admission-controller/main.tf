@@ -1,33 +1,10 @@
-# module "lacework_admission_controller" {
-#   source  = "lacework/admission-controller/kubernetes"
-#   version = "~> 0.1"
+resource "random_uuid" "proxyscanner" {
+}
 
-#   lacework_account_name = var.lacework_account_name
-#   proxy_scanner_token   = var.lacework_proxy_token
-#   default_registry      = "index.docker.io"
-#   static_cache_location = "/opt/lacework"
-#   scan_public_registries = true
-
-#   registries = [
-#     {
-#       name      = "docker_public"
-#       domain    = "index.docker.io"
-#       ssl       = true
-#       auto_poll = false
-#       is_public = true
-#       disable_non_os_package_scanning = false
-#     },
-#     {
-#       name      = "github_public"
-#       domain    = "ghcr.io"
-#       ssl       = true
-#       auto_poll = false
-#       is_public = true
-#       disable_non_os_package_scanning = false
-#       notification_type = "ghcr"
-#     }
-#   ]
-# }
+resource "lacework_integration_proxy_scanner" "proxyscanner" {
+  count = can(length(var.lacework_proxy_token)) ? 0 : 1
+  name = "${var.environment}-${random_uuid.proxyscanner.id}-proxyscanner-access-token"
+}
 
 resource "tls_private_key" "ca" {
   count     = var.use_self_signed_certs ? 1 : 0
@@ -90,7 +67,7 @@ data "template_file" "values" {
 
   vars = {
     lacework_account_name = var.lacework_account_name
-    lacework_proxy_token = var.lacework_proxy_token
+    lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
   }
 }
 

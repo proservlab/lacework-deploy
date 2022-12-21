@@ -1,8 +1,8 @@
 locals {
     lacework_install_path = "/var/lib/lacework"
-    lacework_syscall_config_path = "${local.lacework_install_path}/config/syscall_config.yaml"
-    syscall_config =    var.syscall_config
-    base64_syscall_config=base64encode(local.syscall_config)
+    lacework_syscall_config_path = "${local.lacework_install_path}/syscall_config.yaml"
+    syscall_config = file(var.syscall_config)
+    base64_syscall_config = base64encode(local.syscall_config)
     hash_syscall_config = sha256(local.syscall_config)
     payload = <<-EOT
     set -e

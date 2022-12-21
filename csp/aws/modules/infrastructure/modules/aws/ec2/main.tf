@@ -5,7 +5,7 @@ locals {
 
 # default tags
 module "default-ssm-tags" {
-  source = "../../../../../context/tags"
+  source = "../../../../context/tags"
 }
 
 # lookup latest amis
@@ -43,7 +43,7 @@ module "vpc" {
 
 # instances
 module "instances" {
-  for_each = nonsensitive({ for instance in var.instances: instance.name => instance })
+  for_each = { for instance in var.instances: instance.name => instance }
   source = "./instance"
   environment = var.environment
   
