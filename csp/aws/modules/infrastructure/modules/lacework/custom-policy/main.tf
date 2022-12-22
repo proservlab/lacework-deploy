@@ -403,7 +403,7 @@ resource "lacework_policy" "example7" {
   severity    = "High"
   type        = "Violation"
   evaluation  = "Daily"
-  tags        = ["domain:AWS", "custom"]
+  # tags        = ["domain:AWS", "custom"]
   enabled     = true
 
   alerting {
@@ -450,7 +450,7 @@ resource "lacework_policy" "example8" {
   severity    = "High"
   type        = "Violation"
   evaluation  = "Hourly"
-  tags        = ["domain:AWS", "custom"]
+  # tags        = ["domain:AWS", "custom"]
   enabled     = true
 
   alerting {
