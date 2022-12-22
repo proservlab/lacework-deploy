@@ -127,7 +127,7 @@ module "lacework-ssm-deployment-syscall-config" {
 
 # lacework cloud audit and config collection
 module "lacework-audit-config" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.audit_config == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.audit_config.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/audit-config"
   environment = local.config.context.global.environment
 }
@@ -158,7 +158,7 @@ module "lacework-alerts" {
 
 # lacework custom policy
 module "lacework-custom-policy" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.custom_policy == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.custom_policy.enabled == true ) ? 1 : 0
   source       = "./modules/lacework/custom-policy"
   environment  = local.config.context.global.environment
 }
@@ -211,7 +211,7 @@ module "lacework-admission-controller" {
 
 # lacework eks audit
 module "lacework-eks-audit" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs == true && length(module.eks) >0 ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true && length(module.eks) >0 ) ? 1 : 0
   source      = "./modules/lacework/eks-audit"
   region      = local.config.context.aws.region
   environment = local.config.context.global.environment
