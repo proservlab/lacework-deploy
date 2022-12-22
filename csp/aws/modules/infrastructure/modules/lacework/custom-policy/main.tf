@@ -458,6 +458,47 @@ resource "lacework_policy" "example8" {
     profile = "LW_CloudTrail_Alerts.CloudTrailDefaultAlert_AwsResource"
   }
 }
+
+resource "lacework_query" "query9" {
+    query_id = "TF_CUSTOM_SYSCALL_SSH_KEYS_QUERY"
+    query    = <<-EOT
+    {
+      source {
+            LW_HA_SYSCALLS_FILE
+      }
+      filter {
+            TARGET_OP like any('create','modify') AND TARGET_PATH like any('%/.ssh/authorized_keys','%/ssh/sshd_config')
+      }
+      return distinct {{
+            RECORD_CREATED_TIME,
+            MID,
+            TARGET_OP,
+            TARGET_PATH
+      }
+    }
+    EOT
+    depends_on = [
+      lacework_alert_profile.custom_profile
+    ]
+}
+
+resource "lacework_policy" "example9" {
+  title       = "Custom syscall: ssh keys modified"
+  description = "Custom syscall: ssh keys modified"
+  remediation = "Review access context and revoke keys as necessary"
+  query_id    = lacework_query.query9.id
+  severity    = "High"
+  type        = "Violation"
+  evaluation  = "Hourly"
+  # tags        = ["domain:AWS", "custom"]
+  enabled     = true
+
+  alerting {
+    enabled = true
+    profile = "LW_HA_SYSCALLS_FILE_DEFAULT_PROFILE.Violation"
+  }
+}
+
    
 
 

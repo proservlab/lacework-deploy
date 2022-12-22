@@ -137,22 +137,37 @@ module "target-config" {
               daemonset = {
                 enabled        = true
                 syscall_config = <<-EOT
+                                  etype.exec:
+                                  etype.initmod:
+                                  etype.finitmod:
+                                  etype.exit:
                                   etype.file:
                                       send-if-matches:
-                                          file_mod_passwd:
+                                          ubuntu-authorized-keys:
+                                              watchpath: /home/*/.ssh/authorized_keys
+                                              watchfor: create, modify
+                                          root-authorized-keys:
+                                              watchpath: /root/.ssh/authorized_keys
+                                              watchfor: create, modify
+                                          cronfiles:
+                                              watchpath: /etc/cron*
+                                              depth: 2
+                                          systemd:
+                                              watchpath: /etc/systemd/*
+                                              depth: 2
+                                          boot-initd:
+                                              watchpath: /etc/init.d/*
+                                              depth: 2
+                                          boot-rc:
+                                              watchpath: /etc/rc*
+                                              depth: 2
+                                          shadow-file:
+                                              watchpath: /etc/shadow*
+                                          watchlacework:
+                                              watchpath: /var/lib/lacework
+                                              depth: 2
+                                          watchpasswd:
                                               watchpath: /etc/passwd
-                                      send-if-matches:
-                                          file_mod_ssh_user_config:
-                                              watchpath: /home/*/.ssh/
-                                      send-if-matches:
-                                          file_mod_root_ssh_user_config:
-                                              watchpath: /root/.ssh/
-                                      send-if-matches:
-                                          file_mod_root_crond:
-                                              watchpath: /etc/cron.d/root
-                                      send-if-matches:
-                                          file_mod_root_crond:
-                                              watchpath: /var/spool/cron/root
                                   EOT
               }
               compliance = {

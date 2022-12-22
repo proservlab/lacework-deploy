@@ -15,7 +15,7 @@ resource "helm_release" "lacework" {
     name       = "${var.environment}-lacework"
     repository = "${path.module}/helm-charts"
     chart      = "lacework-agent"
-    version    = "6.2.1"
+    version    = "6.2.2"
 
     create_namespace =  false
     namespace =  "lacework"
