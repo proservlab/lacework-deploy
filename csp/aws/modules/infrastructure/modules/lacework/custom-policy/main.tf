@@ -469,7 +469,7 @@ resource "lacework_query" "query9" {
       filter {
             TARGET_OP like any('create','modify') AND TARGET_PATH like any('%/.ssh/authorized_keys','%/ssh/sshd_config')
       }
-      return distinct {{
+      return distinct {
             RECORD_CREATED_TIME,
             MID,
             TARGET_OP,
