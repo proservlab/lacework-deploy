@@ -35,8 +35,6 @@ variable "config" {
         eks = object({
           enabled               = bool
           cluster_name          = string
-          deploy_app            = bool
-          deploy_psp            = bool
         })
         inspector = object({
           enabled               = bool
@@ -174,8 +172,6 @@ variable "config" {
         eks = {
           enabled               = false
           cluster_name          = "infra-cluster"
-          deploy_app            = false
-          deploy_psp            = false
         }
         inspector = {
           enabled               = false

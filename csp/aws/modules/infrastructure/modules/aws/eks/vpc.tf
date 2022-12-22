@@ -10,6 +10,8 @@ locals {
   vpc_cidr = "10.0.0.0/16"
   vpc_interface_endpoints = toset(["autoscaling", "ecr.api", "ecr.dkr", "ec2", "ec2messages", "elasticloadbalancing", "sts", "kms", "logs", "ssm", "ssmmessages"])
   vpc_gateway_endpoints = toset(["s3"])
+
+  cluster_subnet_count = 2
 }
 
 resource "aws_vpc" "cluster" {
@@ -23,34 +25,83 @@ resource "aws_vpc" "cluster" {
 }
 
 resource "aws_subnet" "cluster" {
-  count = 2
+  count = local.cluster_subnet_count
 
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   cidr_block              = cidrsubnet(local.vpc_cidr,8,count.index)
-  map_public_ip_on_launch = true
   vpc_id                  = aws_vpc.cluster.id
+  map_public_ip_on_launch = false
 
   tags = tomap({
     "Name"                                      = "terraform-eks-${var.environment}-node",
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
-    "kubernetes.io/role/${count.index==0?"elb":"internal-elb"}" = "1",
+    # "kubernetes.io/role/${count.index==0?"elb":"internal-elb"}" = "1",
+    "kubernetes.io/role/internal-elb" = "1",
   })
 }
 
-resource "aws_internet_gateway" "cluster" {
+resource "aws_internet_gateway" "private" {
   vpc_id = aws_vpc.cluster.id
 
   tags = {
-    Name = "eks-${var.environment}-${var.cluster_name}"
+    Name = "eks-${var.cluster_name}-private-nat-internet-gw"
   }
 }
 
+resource "aws_eip" "nat_gateway" {
+  vpc = true
+  tags = {
+    Name = "eks-${var.cluster_name}-private-nat-eip"
+  }
+}
+
+resource "aws_nat_gateway" "private" {
+  allocation_id = aws_eip.nat_gateway.id
+  subnet_id     = aws_subnet.nat_gateway.id
+
+  tags = {
+    Name = "eks-${var.cluster_name}-private-nat-gw"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.private]
+}
+
+resource "aws_subnet" "nat_gateway" {
+  vpc_id            = aws_vpc.cluster.id
+  # assign the next /24 subnet to the nat gateway
+  cidr_block        = cidrsubnet(local.vpc_cidr,8,local.cluster_subnet_count)
+  availability_zone = data.aws_availability_zones.available.names[0]
+  
+  tags = {
+    Name = "eks-${var.cluster_name}-private-nat-gw-subnet"
+    Environment = var.environment
+  }
+}
+
+# route nat gateway through internet gateway
+resource "aws_route_table" "nat_gateway" {
+  vpc_id = aws_vpc.cluster.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.private.id
+  }
+}
+
+resource "aws_route_table_association" "nat_gateway" {
+  subnet_id = aws_subnet.nat_gateway.id
+  route_table_id = aws_route_table.nat_gateway.id
+}
+
+# route nodes through nat gateway
 resource "aws_route_table" "cluster" {
   vpc_id = aws_vpc.cluster.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.cluster.id
+    # gateway_id = aws_internet_gateway.cluster.id
+    nat_gateway_id = aws_nat_gateway.private.id
   }
 }
 
@@ -62,7 +113,6 @@ resource "aws_route_table_association" "cluster" {
 }
 
 # VPC Endpoints Security Group
-
 resource "aws_security_group" "cluster_vpc_endpoint" {
   ingress {
     from_port   = 443

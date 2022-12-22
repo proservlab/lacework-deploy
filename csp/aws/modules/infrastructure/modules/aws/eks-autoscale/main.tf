@@ -3,12 +3,14 @@ locals {
   k8s_service_account_name      = "cluster-autoscaler-aws"
 }
 
+data "aws_caller_identity" "current" {}
+
 module "iam_assumable_role_admin" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version                       = "~> 4.0"
   create_role                   = true
   role_name                     = "cluster-${var.environment}-autoscaler"
-  provider_url                  = replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")
+  provider_url                  = replace(var.cluster_oidc_issuer, "https://", "")
   role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
 
@@ -20,7 +22,7 @@ module "iam_assumable_role_admin" {
 
 resource "aws_iam_policy" "cluster_autoscaler" {
   name_prefix = "cluster-${var.environment}-autoscaler"
-  description = "EKS cluster-autoscaler policy for cluster ${aws_eks_cluster.cluster.id}"
+  description = "EKS cluster-autoscaler policy for cluster ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.cluster_autoscaler.json
 }
 
@@ -54,7 +56,7 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
 
     condition {
       test     = "StringEquals"
-      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${aws_eks_cluster.cluster.id}"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${var.cluster_name}"
       values   = ["owned"]
     }
 
@@ -112,8 +114,4 @@ resource "helm_release" "cluster-autoscaler" {
     name = "sslCertPath"
     value = "/etc/ssl/certs/ca-bundle.crt"
   }
-
-  depends_on = [
-    null_resource.eks_context_switcher
-  ]
 }

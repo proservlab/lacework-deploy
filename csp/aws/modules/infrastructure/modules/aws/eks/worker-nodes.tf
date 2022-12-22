@@ -57,12 +57,12 @@ resource "aws_eks_node_group" "cluster" {
   node_group_name = var.cluster_name
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = [ for subnet in aws_subnet.cluster: subnet.id ]
-  instance_types = [ "t3a.small" ]
+  instance_types = [ "t3.small" ]
 
   scaling_config {
-    desired_size = 1
+    desired_size = 3
     max_size     = 5
-    min_size     = 1
+    min_size     = 2
   }
 
   tags =  {

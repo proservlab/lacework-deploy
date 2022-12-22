@@ -4,7 +4,7 @@
 provider "aws" {
   alias   = "attacker"
   region  = var.region
-  profile = "attacker"
+  profile = var.attacker_aws_profile
 }
 
 provider "lacework" {
@@ -14,15 +14,13 @@ provider "lacework" {
 
 provider "kubernetes" {
   alias       = "attacker"
-  config_path = "~/.kube/config"
-  #config_context = length(module.attacker.eks) > 0 ? "${module.attacker.eks[0].cluster_name}-${var.region}" : null
+  config_path = pathexpand("~/.kube/attacker-kubeconfig")
 }
 
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = "~/.kube/config"
-    #config_context = length(module.attacker.eks) > 0 ? "${module.attacker.eks[0].cluster_name}-${var.region}" : null
+    config_path = pathexpand("~/.kube/attacker-kubeconfig")
   }
 }
 
@@ -32,7 +30,7 @@ provider "helm" {
 provider "aws" {
   alias   = "target"
   region  = var.region
-  profile = "target"
+  profile = var.target_aws_profile
 }
 
 provider "lacework" {
@@ -40,17 +38,22 @@ provider "lacework" {
   profile = var.lacework_profile
 }
 
-provider "kubernetes" {
-  alias = "target"
+# resource "local_file" "target-kubeconfig" {
+#   depends_on = [
+#     module.target-infrastructure
+#   ]
+#   content  = ""
+#   filename = pathexpand("~/.kube/target-kubeconfig")
+# }
 
-  config_path = "~/.kube/config"
-  #config_context = length(module.target.eks) > 0 ? "${module.target.eks[0].cluster_name}-${var.region}" : null
+provider "kubernetes" {
+  alias       = "target"
+  config_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
 }
 
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = "~/.kube/config"
-    #config_context = length(module.target.eks) > 0 ? "${module.target.eks[0].cluster_name}-${var.region}" : null
+    config_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   }
 }

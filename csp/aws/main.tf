@@ -36,7 +36,7 @@ module "attacker-config" {
           trust_security_group = true
         }
         aws = {
-          profile_name = "attacker"
+          profile_name = var.attacker_aws_profile
           ec2 = {
             enabled            = false
             public_network     = "172.27.0.0/16"
@@ -80,7 +80,7 @@ module "target-config" {
           trust_security_group = true
         }
         aws = {
-          profile_name = "target"
+          profile_name = var.target_aws_profile
           ec2 = {
             enabled            = true
             public_network     = "172.17.0.0/16"
@@ -198,10 +198,8 @@ module "attacker-infrastructure" {
   config = module.attacker-infrastructure-context.config
 
   providers = {
-    aws        = aws.attacker
-    lacework   = lacework.attacker
-    kubernetes = kubernetes.attacker
-    helm       = helm.attacker
+    aws      = aws.attacker
+    lacework = lacework.attacker
   }
 }
 
@@ -210,15 +208,13 @@ module "target-infrastructure" {
   config = module.target-infrastructure-context.config
 
   providers = {
-    aws        = aws.target
-    lacework   = lacework.target
-    kubernetes = kubernetes.target
-    helm       = helm.target
+    aws      = aws.target
+    lacework = lacework.target
   }
 }
 
 #########################
-# ATTACKSURFACE CONFIG
+# ATTACK SURFACE CONFIG
 ########################
 
 module "target-attacksurface-config" {
@@ -228,27 +224,35 @@ module "target-attacksurface-config" {
   maps = [
     module.default-attacksurface-context.config,
     {
-      surface = {
-        host = {
-          log4j = {
-            enabled = false
+      context = {
+        aws = {
+          host = {
+            log4j = {
+              enabled = false
+            }
+            ssh_keys = {
+              enabled = false
+            }
           }
-          ssh_keys = {
-            enabled = false
-          }
-        }
-        kubernetes = {
-          log4j = {
-            enabled = false
-          }
-          voteapp = {
-            enabled = false
-          }
-          privileged_pod = {
-            enabled = false
-          }
-          root_mount_fs = {
-            enabled = false
+          eks = {
+            app = {
+              enabled = true
+            }
+            psp = {
+              enabled = false
+            }
+            log4j = {
+              enabled = false
+            }
+            voteapp = {
+              enabled = false
+            }
+            privileged_pod = {
+              enabled = false
+            }
+            root_mount_fs = {
+              enabled = false
+            }
           }
         }
       }
@@ -257,24 +261,35 @@ module "target-attacksurface-config" {
 }
 
 #########################
-# ATTACKSURFACE CONTEXT
+# ATTACK SURFACE CONTEXT
 ########################
 
 # set attack the context
 module "target-attacksurface-context" {
-  source = "./modules/context/attacksurface"
+  source = "./modules/context/attack/surface"
   config = module.target-attacksurface-config.merged
 }
 
 #########################
-# ATTACKSURFACE DEPLOYMENT
+# ATTACK SURFACE DEPLOYMENT
 ########################
 
 # deploy attacksurface
 module "target-attacksurface" {
-  source         = "./modules/attacksurface"
-  config         = module.target-attacksurface-context.config
-  infrastructure = module.target-infrastructure.config
+  source = "./modules/attack/surface"
+  config = module.target-attacksurface-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    config         = module.target-infrastructure-context.config
+    deployed_state = module.target-infrastructure.config
+  }
+  providers = {
+    aws        = aws.target
+    lacework   = lacework.target
+    kubernetes = kubernetes.target
+    helm       = helm.target
+  }
 }
 
 #########################

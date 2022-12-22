@@ -1,5 +1,6 @@
 locals {
   config = var.config
+  kubeconfig_path = try(module.eks[0].kubeconfig_path, "~/.kube/config")
 }
 
 #########################
@@ -39,9 +40,21 @@ module "eks" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
   source       = "./modules/aws/eks"
   environment  = local.config.context.global.environment
-  cluster_name = local.config.context.aws.eks.cluster_name
   region       = local.config.context.aws.region
   aws_profile_name = local.config.context.aws.profile_name
+
+  cluster_name = local.config.context.aws.eks.cluster_name
+}
+
+# eks-autoscale
+module "eks-autoscaler" {
+  count = (length(module.eks) > 0) ? 1 : 0
+  source       = "./modules/aws/eks-autoscale"
+  environment  = local.config.context.global.environment
+  region       = local.config.context.aws.region
+  
+  cluster_name = local.config.context.aws.eks.cluster_name
+  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 }
 
 #########################
@@ -150,9 +163,8 @@ module "lacework-custom-policy" {
   environment  = local.config.context.global.environment
 }
 
-# lacework kubernetes namespace
 resource "kubernetes_namespace" "lacework" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true ) ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true && length(module.eks) >0 ) ) ? 1 : 0
   metadata {
     name = "lacework"
   }
@@ -164,7 +176,7 @@ resource "kubernetes_namespace" "lacework" {
 
 # lacework daemonset and kubernetes compliance
 module "lacework-daemonset" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true && length(module.eks) >0 ) ? 1 : 0
   source                                = "./modules/lacework/daemonset"
   cluster_name                          = local.config.context.aws.eks.cluster_name
   environment                           = local.config.context.global.environment
@@ -183,7 +195,7 @@ module "lacework-daemonset" {
 
 # lacework kubernetes admission controller
 module "lacework-admission-controller" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true && length(module.eks) >0 ) ? 1 : 0
   source       = "./modules/lacework/admission-controller"
   environment  = local.config.context.global.environment
   lacework_account_name = local.config.context.lacework.account_name
@@ -197,7 +209,7 @@ module "lacework-admission-controller" {
 
 # lacework eks audit
 module "lacework-eks-audit" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs == true && length(module.eks) >0 ) ? 1 : 0
   source      = "./modules/lacework/eks-audit"
   region      = local.config.context.aws.region
   environment = local.config.context.global.environment
@@ -206,18 +218,6 @@ module "lacework-eks-audit" {
   depends_on = [
     module.eks,
     kubernetes_namespace.lacework
-  ]
-}
-
-data "aws_instances" "cluster" {
-  instance_tags = {
-    "eks:cluster-name" = local.config.context.aws.eks.cluster_name
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [
-    module.eks
   ]
 }
 

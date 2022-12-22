@@ -37,6 +37,22 @@ variable "terraform_backend_dynamodb_table" {
   type        = string
 }
 
+##########################
+# AWS
+##########################
+
+variable "attacker_aws_profile" {
+  type        = string
+  description = "attacker aws profile"
+  default     = "attacker"
+}
+
+variable "target_aws_profile" {
+  type        = string
+  description = "target aws profile"
+  default     = "target"
+}
+
 ###########################
 # LACEWORK
 ###########################
