@@ -74,6 +74,7 @@ variable "config" {
             })               
             daemonset = object({
               enabled         = bool
+              syscall_config  = string
             })
             compliance = object({
               enabled         = bool
@@ -210,6 +211,7 @@ variable "config" {
             }             
             daemonset = {
               enabled         = false
+              syscall_config  = null
             }
             compliance = {
               enabled         = false

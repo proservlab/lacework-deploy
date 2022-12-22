@@ -1,3 +1,0 @@
-locals {
-    config = var.config
-}

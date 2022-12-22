@@ -4,338 +4,81 @@ locals {
 }
 
 #########################
-# Kubernetes
+# AWS IAM
+##########################
+
+# create iam users
+module "iam" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.iam.enabled == true ) ? 1 : 0
+  source      = "./modules/aws/iam"
+  environment = var.infrastructure.config.context.global.environment
+  region = var.infrastructure.config.context.aws.region
+  user_policies = var.config.context.aws.iam.user_policies
+  users = var.config.context.aws.iam.users
+}
+
+#########################
+# AWS SSM
+# ssm tag-based surface config
+##########################
+
+module "ssh-keys" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
+  source = "./modules/aws/ssm/ssh-keys"
+  environment = var.infrastructure.config.context.global.environment
+}
+
+module "log4j" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.docker.log4j.enabled == true ) ? 1 : 0
+  source = "./modules/aws/ssm/docker/log4j"
+  environment = var.infrastructure.config.context.global.environment
+}
+
+#########################
+# Kubernetes General
 #########################
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && can(length(var.infrastructure.deployed_state.context.aws.eks)) && var.config.context.aws.eks.app.enabled == true ) ? 1 : 0
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.kubernetes.app.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes/app"
   environment = var.infrastructure.config.context.global.environment
 }
 
 # example of applying pod security policy
 module "kubenetes-psp" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && can(length(var.infrastructure.deployed_state.context.aws.eks)) && var.config.context.aws.eks.psp.enabled == true ) ? 1 : 0
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.kubernetes.psp.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes/psp"
   environment = var.infrastructure.config.context.global.environment
 }
 
-# #########################
-# # Lacework
-# #########################
-# resource "kubernetes_namespace" "lacework" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && (var.enable_lacework_admission_controller || var.enable_lacework_daemonset) ) ? 1 : 0
-#   metadata {
-#     name = "lacework"
-#   }
+#########################
+# Kubernetes Vulnerable
+#########################
 
-#   depends_on = [
-#     module.eks
-#   ]
-# }
+module "vulnerable-kubernetes-voteapp" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/voteapp"
+  environment = var.infrastructure.config.context.global.environment
+  region      = var.infrastructure.config.context.aws.region
+  cluster_vpc_id = var.infrastructure.deployed_state.context.aws.eks.cluster_vpc_id
+  secret_credentials = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+}
 
-# module "lacework-audit-config" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_audit_config == true ) ? 1 : 0
-#   source      = "../lacework-audit-config"
-#   environment = var.environment
-# }
+module "vulnerable-kubernetes-log4shell" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.log4j.enabled == true ) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/log4shell"
+  environment = var.infrastructure.config.context.global.environment
+}
 
-# resource "lacework_agent_access_token" "main" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.lacework_agent_access_token == "false" ) ? 1 : 0
-#   name        = "${var.environment}-token"
-#   description = "deployment for ${var.environment}"
-# }
+module "vulnerable-kubernetes-privileged-pod" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/privileged-pod"
+  environment = var.infrastructure.config.context.global.environment
+}
 
-# module "lacework-ssm-deployment" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_ssm_deployment == true ) ? 1 : 0
-#   source       = "../lacework-ssm-deployment"
-#   environment  = var.environment
-#   lacework_agent_access_token = local.lacework_agent_access_token
-#   lacework_server_url         = var.lacework_server_url
-# }
-
-# module "lacework-ssm-deployment-syscall-config" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_syscall_ssm_deployment == true ) ? 1 : 0
-#   source       = "../lacework-ssm-deployment-syscall-config"
-#   environment  = var.environment
-#   syscall_config =  <<-EOT
-#                     etype.file:
-#                         send-if-matches:
-#                             file_mod_passwd:
-#                                 watchpath: /etc/passwd
-#                         send-if-matches:
-#                             file_mod_ssh_user_config:
-#                                 watchpath: /home/*/.ssh/
-#                         send-if-matches:
-#                             file_mod_root_ssh_user_config:
-#                                 watchpath: /root/.ssh/
-#                         send-if-matches:
-#                             file_mod_root_crond:
-#                                 watchpath: /etc/cron.d/root
-#                         send-if-matches:
-#                             file_mod_root_crond:
-#                                 watchpath: /var/spool/cron/root
-#                     EOT
-# }
-
-# module "lacework-daemonset" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_lacework_daemonset == true ) ? 1 : 0
-#   source                                = "../lacework-daemonset"
-#   cluster_name                          = var.cluster_name
-#   environment                           = var.environment
-#   lacework_agent_access_token           = local.lacework_agent_access_token
-#   lacework_server_url                   = var.lacework_server_url
-  
-#   # compliance cluster agent
-#   lacework_cluster_agent_enable         = var.enable_lacework_daemonset_compliance == true ? var.enable_lacework_daemonset_compliance : false
-#   lacework_cluster_agent_cluster_region = var.region
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# module "lacework-alerts" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_alerts == true ) ? 1 : 0
-#   source       = "../lacework-alerts"
-#   environment  = var.environment
-  
-#   enable_slack_alerts       = var.enable_slack_alerts
-#   slack_token               = var.slack_token
-
-#   enable_jira_cloud_alerts  = var.enable_jira_cloud_alerts
-#   jira_cloud_url            = var.jira_cloud_url
-#   jira_cloud_project_key    = var.jira_cloud_project_key
-#   jira_cloud_api_token      = var.jira_cloud_api_token
-#   jira_cloud_issue_type     = var.jira_cloud_issue_type
-#   jira_cloud_username       = var.jira_cloud_username
-# }
-
-# module "lacework-custom-policy" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_custom_policy == true ) ? 1 : 0
-#   source       = "../lacework-custom-policy"
-#   environment  = var.environment
-# }
-
-# module "lacework-admission-controller" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_lacework_admission_controller == true ) ? 1 : 0
-#   source       = "../lacework-admission-controller"
-#   environment  = var.environment
-#   lacework_account_name = var.lacework_account_name
-#   lacework_proxy_token = var.lacework_proxy_token
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# module "lacework-agentless" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_lacework_agentless == true ) ? 1 : 0
-#   source      = "../lacework-agentless"
-#   environment = var.environment
-# }
-
-# module "lacework-eks-audit" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_lacework_eks_audit == true ) ? 1 : 0
-#   source      = "../lacework-eks-audit"
-#   region      = var.region
-#   environment = var.environment
-#   cluster_names = [var.cluster_name]
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# #########################
-# # Vulnerable Apps
-# #########################
-
-# module "vulnerable-app-voteapp" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_target_attacksurface_kubernetes_voteapp == true) ? 1 : 0
-#   source      = "../vulnerable-app-voteapp"
-#   environment = var.environment
-#   region      = var.region
-#   cluster_vpc_id = module.eks[0].cluster_vpc_id
-#   secret_credentials = lookup(var.target_context_credentials_compromised_aws, "clue.burnetes@interlacelabs",[])
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# module "vulnerable-kubernetes-app-log4shell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_target_attacksurface_kubernetes_log4shell == true ) ? 1 : 0
-#   source      = "../vulnerable-kubernetes-app-log4shell"
-#   environment = var.environment
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# module "vulnerable-kubernetes-app-privileged-pod" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_target_attacksurface_kubernetes_privileged_pod == true ) ? 1 : 0
-#   source      = "../vulnerable-kubernetes-app-privileged-pod"
-#   environment = var.environment
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# module "vulnerable-kubernetes-app-root-mount-fs-pod" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_eks == true && var.enable_target_attacksurface_kubernetes_root_mount_fs_pod == true ) ? 1 : 0
-#   source      = "../vulnerable-kubernetes-app-root-mount-fs-pod"
-#   environment = var.environment
-
-#   depends_on = [
-#     module.eks,
-#     kubernetes_namespace.lacework
-#   ]
-# }
-
-# #########################
-# # SIMULATION
-# #########################
-
-# module "simulation-target-attacksurface-secrets-ssh" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_attacksurface_secrets_ssh == true ) ? 1 : 0
-#   source = "../simulation-target-attacksurface-secrets-ssh"
-#   environment = var.environment
-# }
-
-
-# module "simulation-target-drop-malware-eicar" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_drop_malware_eicar == true ) ? 1 : 0
-#   source = "../simulation-target-drop-malware-eicar"
-#   environment = var.environment
-# }
-
-# module "simulation-target-connect-badip" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_callhome_malware_eicar == true ) ? 1 : 0
-#   source = "../simulation-target-connect-badip"
-#   environment = var.environment
-#   # list of bad ip to select from - only a single random will be used
-#   iplist_url = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
-# }
-
-# module "simulation-target-connect-enumerate-host" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_enumerate_host == true ) ? 1 : 0
-#   source = "../simulation-target-connect-enumerate-host"
-#   environment = var.environment
-
-#   # scan local reverse shell target if available else portquiz
-#   nmap_scan_host = length(var.target_context_instance_reverseshell) > 0 ? var.target_context_instance_reverseshell[0].private_ip : "portquiz.net"
-#   nmap_scan_ports = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
-# }
-# module "simulation-target-connect-oast-host" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_callhome_oast_host == true ) ? 1 : 0
-#   source = "../simulation-target-connect-oast-host"
-#   environment = var.environment
-# }
-
-# # need attacker http listener
-# module "simulation-target-exec-codecov" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_callhome_codecov == true && length(var.attacker_context_instance_reverseshell) > 0) ? 1 : 0
-#   source = "../simulation-target-exec-codecov"
-#   environment = var.environment
-#   host_ip = var.attacker_context_instance_reverseshell[0].public_ip
-#   host_port = var.attacker_context_responder_http_port
-# }
-
-# module "simulation-attacker-exec-http-listener" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_responder_http == true && length(var.attacker_context_instance_reverseshell) > 0 ) ? 1 : 0
-#   source = "../simulation-attacker-exec-http-listener"
-#   environment = var.environment
-#   listen_ip = "0.0.0.0"
-#   listen_port = var.attacker_context_responder_http_port
-# }
-
-# module "simulation-attacker-exec-reverseshell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_responder_reverseshell == true ) ? 1 : 0
-#   source = "../simulation-attacker-exec-reverseshell"
-#   environment = var.environment
-#   listen_ip = "0.0.0.0"
-#   listen_port = var.attacker_context_responder_reverseshell_port
-#   payload = var.attacker_context_payload_reverseshell
-# }
-
-# module "simulation-attacker-exec-port-forward" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_responder_port_forward == true) ? 1 : 0
-#   source = "../simulation-attacker-exec-port-forward"
-#   environment = var.environment
-#   listen_port = var.attacker_context_responder_portforward_server_port
-# }
-
-# module "simulation-target-exec-reverseshell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_callhome_reverseshell == true && length(var.attacker_context_instance_reverseshell) > 0 ) ? 1 : 0
-#   source = "../simulation-target-exec-reverseshell"
-#   environment = var.environment
-#   host_ip =  var.attacker_context_instance_reverseshell[0].public_ip
-#   host_port = var.attacker_context_responder_reverseshell_port
-# }
-
-# module "simulation-target-exec-docker-cpuminer" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_docker_cpuminer == true ) ? 1 : 0
-#   source = "../simulation-target-exec-docker-cpuminer"
-#   environment = var.environment
-# }
-
-# module "simulation-attacker-exec-docker-log4shell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_compromise_docker_log4shell == true && length(var.target_context_instance_log4shell) > 0 && length(var.attacker_context_instance_log4shell) > 0) ? 1 : 0
-#   source = "../simulation-attacker-exec-docker-log4shell"
-#   environment = var.environment
-
-#   attacker_http_port=var.attacker_context_responder_log4shell_http_port
-#   attacker_ldap_port=var.attacker_context_responder_log4shell_ldap_port
-#   attacker_ip=var.attacker_context_instance_log4shell[0].public_ip
-#   target_ip=var.target_context_instance_log4shell[0].public_ip
-#   target_port=var.target_context_listener_log4shell_http_port
-#   payload=var.attacker_context_payload_log4shell
-# }
-
-# module "simulation-target-exec-docker-log4shell" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_attacksurface_docker_log4shell == true) ? 1 : 0
-#   source = "../simulation-target-exec-docker-log4shell"
-#   environment = var.environment
-#   listen_port=var.target_context_listener_log4shell_http_port
-# }
-
-# module "simulation-target-kubernetes-app-kali" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_kubernetes_app_kali == true ) ? 1 : 0
-#   source = "../simulation-target-kubernetes-app-kali"
-#   environment = var.environment
-# }
-
-# module "simulation-target-exec-port-forward" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_target_postcompromise_port_forward == true && length(var.attacker_context_instance_portforward) > 0) ? 1 : 0
-#   source = "../simulation-target-exec-port-forward"
-#   environment = var.environment
-#   port_forwards = var.target_context_listener_portforward_ports
-#   host_ip = var.attacker_context_instance_portforward[0].private_ip
-#   host_port = var.attacker_context_responder_portforward_server_port
-# }
-
-# module "simulation-attacker-exec-docker-compromised-credentials" {
-#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_attacker_compromise_compromised_credentials == true) ? 1 : 0
-#   source = "../simulation-attacker-exec-docker-compromised-credentials"
-#   environment = var.environment
-#   region = var.region
-
-#   compromised_credentials = var.target_context_credentials_compromised_aws
-#   protonvpn_user = var.attacker_context_config_protonvpn_user
-#   protonvpn_password = var.attacker_context_config_protonvpn_password
-#   protonvpn_tier = var.attacker_context_config_protonvpn_tier
-#   protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
-#   protonvpn_server = var.attacker_context_config_protonvpn_server
-#   wallet = var.attacker_context_config_cryptomining_cloud_wallet
-#   minergate_user = var.attacker_context_config_cryptomining_host_user
-# }
+module "vulnerable-kubernetes-root-mount-fs-pod" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/root-mount-fs-pod"
+  environment = var.infrastructure.config.context.global.environment
+}

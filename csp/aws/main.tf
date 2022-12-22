@@ -16,7 +16,7 @@ module "default-infrastructure-context" {
 }
 
 module "default-attacksurface-context" {
-  source = "./modules/context/attacksurface"
+  source = "./modules/context/attack/surface"
 }
 
 #########################
@@ -135,7 +135,25 @@ module "target-config" {
                 enabled = true
               }
               daemonset = {
-                enabled = true
+                enabled        = true
+                syscall_config = <<-EOT
+                                  etype.file:
+                                      send-if-matches:
+                                          file_mod_passwd:
+                                              watchpath: /etc/passwd
+                                      send-if-matches:
+                                          file_mod_ssh_user_config:
+                                              watchpath: /home/*/.ssh/
+                                      send-if-matches:
+                                          file_mod_root_ssh_user_config:
+                                              watchpath: /root/.ssh/
+                                      send-if-matches:
+                                          file_mod_root_crond:
+                                              watchpath: /etc/cron.d/root
+                                      send-if-matches:
+                                          file_mod_root_crond:
+                                              watchpath: /var/spool/cron/root
+                                  EOT
               }
               compliance = {
                 enabled = true
@@ -226,7 +244,98 @@ module "target-attacksurface-config" {
     {
       context = {
         aws = {
-          host = {
+          iam = {
+            enabled = true
+            user_policies = {
+              "simulation_power_user" = jsonencode({
+                "Version" : "2012-10-17",
+                "Statement" : [
+                  {
+                    "Sid" : "AllowSpecifics",
+                    "Action" : [
+                      "lambda:*",
+                      "apigateway:*",
+                      "ec2:*",
+                      "rds:*",
+                      "s3:*",
+                      "sns:*",
+                      "states:*",
+                      "ssm:*",
+                      "sqs:*",
+                      "iam:*",
+                      "elasticloadbalancing:*",
+                      "autoscaling:*",
+                      "cloudwatch:*",
+                      "cloudfront:*",
+                      "route53:*",
+                      "ecr:*",
+                      "logs:*",
+                      "ecs:*",
+                      "application-autoscaling:*",
+                      "logs:*",
+                      "events:*",
+                      "elasticache:*",
+                      "es:*",
+                      "kms:*",
+                      "dynamodb:*",
+                      "fms:*",
+                      "guardduty:*",
+                      "inspector:*",
+                      "waf:*"
+                    ],
+                    "Effect" : "Allow",
+                    "Resource" : "*"
+                  },
+                  {
+                    "Sid" : "DenySpecifics",
+                    "Action" : [
+                      "iam:*User*",
+                      "iam:*Login*",
+                      "iam:*Group*",
+                      "iam:*Provider*",
+                      "aws-portal:*",
+                      "budgets:*",
+                      "config:*",
+                      "directconnect:*",
+                      "aws-marketplace:*",
+                      "aws-marketplace-management:*",
+                      "ec2:*ReservedInstances*"
+                    ],
+                    "Effect" : "Deny",
+                    "Resource" : "*"
+                  }
+                ]
+              })
+            }
+            users = [
+              {
+                name   = "claude.kripto@interlacelabs"
+                policy = "simulation_power_user"
+              },
+              {
+                name   = "dee.fensivason@interlacelabs"
+                policy = "simulation_power_user"
+              },
+              {
+                name   = "haust.kripto@interlacelabs"
+                policy = "simulation_power_user"
+              },
+              {
+                name   = "kees.kompromize@interlacelabs"
+                policy = "simulation_power_user"
+              },
+              {
+                name   = "rand.sumwer@interlacelabs"
+                policy = "simulation_power_user"
+              },
+
+              {
+                name   = "clue.burnetes@interlacelabs"
+                policy = "simulation_power_user"
+              },
+            ]
+          }
+          ssm = {
             log4j = {
               enabled = false
             }
@@ -234,23 +343,25 @@ module "target-attacksurface-config" {
               enabled = false
             }
           }
-          eks = {
-            app = {
-              enabled = true
-            }
-            psp = {
-              enabled = false
-            }
+        }
+        kubernetes = {
+          app = {
+            enabled = true
+          }
+          psp = {
+            enabled = false
+          }
+          vulnerable = {
             log4j = {
               enabled = false
             }
             voteapp = {
-              enabled = false
+              enabled = true
             }
             privileged_pod = {
               enabled = false
             }
-            root_mount_fs = {
+            root_mount_fs_pod = {
               enabled = false
             }
           }
@@ -277,11 +388,14 @@ module "target-attacksurface-context" {
 # deploy attacksurface
 module "target-attacksurface" {
   source = "./modules/attack/surface"
+  # attack surface config
   config = module.target-attacksurface-context.config
 
   # infrasturcture config and deployed state
   infrastructure = {
-    config         = module.target-infrastructure-context.config
+    # initial configuration reference
+    config = module.target-infrastructure-context.config
+    # deployed state configuration reference
     deployed_state = module.target-infrastructure.config
   }
   providers = {

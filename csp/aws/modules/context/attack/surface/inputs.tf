@@ -6,21 +6,33 @@ variable "config" {
   type = object({
     context = object({
       aws = object({
-        host = object({
-          log4j = object({
-            enabled                 = bool
+        iam = object({
+          enabled                  = bool
+          user_policies = map(string)
+          users = list(object({
+            name                    = string
+            policy                  = string
+          }))
+        })
+        ssm = object({
+          docker = object({
+            log4j = object({
+              enabled                 = bool
+            })
           })
           ssh_keys = object({
             enabled                 = bool
           })
         })
-        eks = object({
-          app = object({
-            enabled                 = bool
-          })
-          psp = object({
-            enabled                 = bool
-          })
+      })
+      kubernetes = object({
+        app = object({
+          enabled                 = bool
+        })
+        psp = object({
+          enabled                 = bool
+        })
+        vulnerable = object({
           log4j = object({
             enabled                 = bool
           })
@@ -30,7 +42,7 @@ variable "config" {
           privileged_pod = object({
             enabled                 = bool
           })
-          root_mount_fs = object({
+          root_mount_fs_pod = object({
             enabled                 = bool
           })
         })
@@ -41,21 +53,30 @@ variable "config" {
   default = {
     context = {
       aws = {
-        host = {
-          log4j = {
-            enabled = false
+        iam = {
+          enabled = false
+          user_policies = null
+          users = null
+        }
+        ssm = {
+          docker = {
+            log4j = {
+              enabled = false
+            }
           }
           ssh_keys = {
             enabled = false
           }
         }
-        eks = {
-          app = {
-            enabled = false
-          }
-          psp = {
-            enabled = false
-          }
+      }
+      kubernetes = {
+        app = {
+          enabled = false
+        }
+        psp = {
+          enabled = false
+        }
+        vulnerable = {
           log4j = {
             enabled = false
           }
@@ -65,7 +86,7 @@ variable "config" {
           privileged_pod = {
             enabled = false
           }
-          root_mount_fs = {
+          root_mount_fs_pod = {
             enabled = false
           }
         }

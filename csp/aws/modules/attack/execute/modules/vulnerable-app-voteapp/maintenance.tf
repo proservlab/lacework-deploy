@@ -119,15 +119,15 @@ resource "kubernetes_deployment_v1" "maintenance" {
                     command =  [ "tail" ]
                     args =  [ "-f", "/dev/null" ]
                     volume_mount {
-                        name = "${local.maintenance_app_name}-aws-credentials"
-                        mount_path = "/root/.aws/credentials"
+                        name = "${local.maintenance_app_name}-aws-creds"
+                        mount_path = "/root/.aws"
                         read_only = true
                     }
                 }
                 volume {
-                    name = "${local.maintenance_app_name}-aws-credentials"
+                    name = "${local.maintenance_app_name}-aws-creds"
                     secret {
-                        secret_name = "${local.maintenance_app_name}-aws-credentials"
+                        secret_name = "${local.maintenance_app_name}-aws-creds"
                     }
                 }
             }

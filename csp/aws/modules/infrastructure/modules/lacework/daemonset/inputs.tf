@@ -40,3 +40,7 @@ variable "lacework_cluster_agent_cluster_region" {
     default = "us-east-1"
 }
 
+variable "syscall_config" {
+    type = string
+    default = ""
+}

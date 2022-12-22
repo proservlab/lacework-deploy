@@ -21,7 +21,7 @@ variable "config" {
           privileged_pod = object({
             enabled                 = bool
           })
-          root_mount_fs = object({
+          root_mount_fs_pod = object({
             enabled                 = bool
           })
         })
@@ -50,7 +50,7 @@ variable "config" {
           privileged_pod = {
             enabled = false
           }
-          root_mount_fs = {
+          root_mount_fs_pod = {
             enabled = false
           }
         }

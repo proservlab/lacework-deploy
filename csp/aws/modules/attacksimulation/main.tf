@@ -184,6 +184,25 @@ module "lacework-daemonset" {
   lacework_cluster_agent_enable         = var.enable_lacework_daemonset_compliance == true ? var.enable_lacework_daemonset_compliance : false
   lacework_cluster_agent_cluster_region = var.region
 
+  syscall_config =  <<-EOT
+                    etype.file:
+                        send-if-matches:
+                            file_mod_passwd:
+                                watchpath: /etc/passwd
+                        send-if-matches:
+                            file_mod_ssh_user_config:
+                                watchpath: /home/*/.ssh/
+                        send-if-matches:
+                            file_mod_root_ssh_user_config:
+                                watchpath: /root/.ssh/
+                        send-if-matches:
+                            file_mod_root_crond:
+                                watchpath: /etc/cron.d/root
+                        send-if-matches:
+                            file_mod_root_crond:
+                                watchpath: /var/spool/cron/root
+                    EOT
+
   depends_on = [
     module.eks,
     kubernetes_namespace.lacework

@@ -1,0 +1,16 @@
+etype.file:
+    send-if-matches:
+        file_mod_passwd:
+            watchpath: /etc/passwd
+    send-if-matches:
+        file_mod_ssh_user_config:
+            watchpath: /home/*/.ssh/
+    send-if-matches:
+        file_mod_root_ssh_user_config:
+            watchpath: /root/.ssh/
+    send-if-matches:
+        file_mod_root_crond:
+            watchpath: /etc/cron.d/root
+    send-if-matches:
+        file_mod_root_crond:
+            watchpath: /var/spool/cron/root
