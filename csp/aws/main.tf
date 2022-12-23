@@ -96,7 +96,21 @@ module "target-config" {
                 ami_name                  = "ubuntu_focal"
                 enable_ssm_console_access = true
                 tags = {
-                  ssm_deploy_lacework = "true"
+                  ssm_deploy_lacework           = "true"
+                  ssm_deploy_secret_ssh_private = "true"
+                }
+                user_data        = null
+                user_data_base64 = null
+              },
+              {
+                name                      = "target-public-2"
+                public                    = true
+                instance_type             = "t2.micro"
+                ami_name                  = "ubuntu_focal"
+                enable_ssm_console_access = true
+                tags = {
+                  ssm_deploy_lacework          = "true"
+                  ssm_deploy_secret_ssh_public = "true"
                 }
                 user_data        = null
                 user_data_base64 = null
@@ -355,7 +369,7 @@ module "target-attacksurface-config" {
               enabled = false
             }
             ssh_keys = {
-              enabled = false
+              enabled = true
             }
           }
         }
