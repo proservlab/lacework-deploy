@@ -352,152 +352,112 @@
 # }
 
 
-resource "lacework_alert_profile" "custom_profile" {
-  name    = "Custom_CFG_AWS_Profile"
-  extends = "LW_CFG_AWS_DEFAULT_PROFILE"
+# resource "lacework_alert_profile" "custom_profile" {
+#   name    = "Custom_CFG_AWS_Profile"
+#   extends = "LW_CFG_AWS_DEFAULT_PROFILE"
 
-  alert {
-    name        = "Custom_CFG_AWS_Violation"
-    event_name  = "Custom LW Configuration AWS Violation Alert"
-    subject     = "Violation detected for AWS Resource {{RESOURCE_TYPE}}:{{RESOURCE_ID}} in account {{ACCOUNT_ID}} region {{RESOURCE_REGION}}"
-    description = "Violation for AWS Resource {{RESOURCE_TYPE}}:{{RESOURCE_ID}} in account {{ACCOUNT_ID}} region {{RESOURCE_REGION}}"
-  }
-}
+#   alert {
+#     name        = "Custom_CFG_AWS_Violation"
+#     event_name  = "Custom LW Configuration AWS Violation Alert"
+#     subject     = "Violation detected for AWS Resource {{RESOURCE_TYPE}}:{{RESOURCE_ID}} in account {{ACCOUNT_ID}} region {{RESOURCE_REGION}}"
+#     description = "Violation for AWS Resource {{RESOURCE_TYPE}}:{{RESOURCE_ID}} in account {{ACCOUNT_ID}} region {{RESOURCE_REGION}}"
+#   }
+# }
 
-resource "lacework_query" "query7" {
-    query_id = "TF_CUSTOM_AWS_EC2_TAG_QUERY"
-    query    = <<-EOT
-    {
-      SOURCE {
-          LW_CFG_AWS
-      }
-      FILTER {
-          RESOURCE_TYPE = 'ec2:instance'
-          and API_KEY = 'describe-instances'
-          and RESOURCE_CONFIG:State.Name <> 'terminated'
-          and (not value_exists(RESOURCE_TAGS:owner)
-          or RESOURCE_TAGS = '{}')
-      }
-      RETURN DISTINCT {
-          ACCOUNT_ALIAS,
-          ACCOUNT_ID,
-          RESOURCE_CONFIG,
-          RESOURCE_ID,
-          RESOURCE_REGION,
-          RESOURCE_TYPE,
-          SERVICE,
-          'MissingRequiredTags' as REASON
-      }
-  }
-EOT
-    depends_on = [
-      lacework_alert_profile.custom_profile
-    ]
-}
+# resource "lacework_query" "query7" {
+#     query_id = "TF_CUSTOM_AWS_EC2_TAG_QUERY"
+#     query    = <<-EOT
+#     {
+#       SOURCE {
+#           LW_CFG_AWS
+#       }
+#       FILTER {
+#           RESOURCE_TYPE = 'ec2:instance'
+#           and API_KEY = 'describe-instances'
+#           and RESOURCE_CONFIG:State.Name <> 'terminated'
+#           and (not value_exists(RESOURCE_TAGS:owner)
+#           or RESOURCE_TAGS = '{}')
+#       }
+#       RETURN DISTINCT {
+#           ACCOUNT_ALIAS,
+#           ACCOUNT_ID,
+#           RESOURCE_CONFIG,
+#           RESOURCE_ID,
+#           RESOURCE_REGION,
+#           RESOURCE_TYPE,
+#           SERVICE,
+#           'MissingRequiredTags' as REASON
+#       }
+#   }
+# EOT
+#     depends_on = [
+#       lacework_alert_profile.custom_profile
+#     ]
+# }
 
-resource "lacework_policy" "example7" {
-  title       = "EC2 Missing Tag Config Eval"
-  description = "EC2 instance missing required tag"
-  remediation = "Update tags to include required tags"
-  query_id    = lacework_query.query7.id
-  severity    = "High"
-  type        = "Violation"
-  evaluation  = "Daily"
-  # tags        = ["domain:AWS", "custom"]
-  enabled     = true
+# resource "lacework_policy" "example7" {
+#   title       = "EC2 Missing Tag Config Eval"
+#   description = "EC2 instance missing required tag"
+#   remediation = "Update tags to include required tags"
+#   query_id    = lacework_query.query7.id
+#   severity    = "High"
+#   type        = "Violation"
+#   evaluation  = "Daily"
+#   # tags        = ["domain:AWS", "custom"]
+#   enabled     = true
 
-  alerting {
-    enabled = true
-    profile = "LW_CFG_AWS_DEFAULT_PROFILE.CFG_AWS_Violation"
-  }
-}
+#   alerting {
+#     enabled = true
+#     profile = "LW_CFG_AWS_DEFAULT_PROFILE.CFG_AWS_Violation"
+#   }
+# }
 
-resource "lacework_query" "query8" {
-    query_id = "TF_CUSTOM_AWS_EC2_TAG_CLOUDTRAIL_QUERY"
-    query    = <<-EOT
-    {
-      source {
-        CloudTrailRawEvents e,
-        array_to_rows(e.EVENT:requestParameters.tagSpecificationSet.items) as (items)
-      }
-      filter {
-        EVENT_SOURCE = 'ec2.amazonaws.com'
-        AND
-        EVENT_NAME IN ('RunInstances')
-        AND
-        NOT CONTAINS(items:tags::String,'{"key":"owner"')
-        AND
-          ERROR_CODE is null
-      }
-      return distinct {
-        INSERT_ID,
-        INSERT_TIME,
-        EVENT_TIME,
-        EVENT
-      }
-    }
-    EOT
-    depends_on = [
-      lacework_alert_profile.custom_profile
-    ]
-}
+# resource "lacework_query" "query8" {
+#     query_id = "TF_CUSTOM_AWS_EC2_TAG_CLOUDTRAIL_QUERY"
+#     query    = <<-EOT
+#     {
+#       source {
+#         CloudTrailRawEvents e,
+#         array_to_rows(e.EVENT:requestParameters.tagSpecificationSet.items) as (items)
+#       }
+#       filter {
+#         EVENT_SOURCE = 'ec2.amazonaws.com'
+#         AND
+#         EVENT_NAME IN ('RunInstances')
+#         AND
+#         NOT CONTAINS(items:tags::String,'{"key":"owner"')
+#         AND
+#           ERROR_CODE is null
+#       }
+#       return distinct {
+#         INSERT_ID,
+#         INSERT_TIME,
+#         EVENT_TIME,
+#         EVENT
+#       }
+#     }
+#     EOT
+#     depends_on = [
+#       lacework_alert_profile.custom_profile
+#     ]
+# }
 
-resource "lacework_policy" "example8" {
-  title       = "EC2 Missing Tag Cloudtrail Eval"
-  description = "EC2 instance missing required tag"
-  remediation = "Update tags to include required tags"
-  query_id    = lacework_query.query8.id
-  severity    = "High"
-  type        = "Violation"
-  evaluation  = "Hourly"
-  # tags        = ["domain:AWS", "custom"]
-  enabled     = true
+# resource "lacework_policy" "example8" {
+#   title       = "EC2 Missing Tag Cloudtrail Eval"
+#   description = "EC2 instance missing required tag"
+#   remediation = "Update tags to include required tags"
+#   query_id    = lacework_query.query8.id
+#   severity    = "High"
+#   type        = "Violation"
+#   evaluation  = "Hourly"
+#   # tags        = ["domain:AWS", "custom"]
+#   enabled     = true
 
-  alerting {
-    enabled = true
-    profile = "LW_CloudTrail_Alerts.CloudTrailDefaultAlert_AwsResource"
-  }
-}
-
-resource "lacework_query" "query9" {
-    query_id = "TF_CUSTOM_SYSCALL_SSH_KEYS_QUERY"
-    query    = <<-EOT
-    {
-      source {
-            LW_HA_SYSCALLS_FILE
-      }
-      filter {
-            TARGET_OP like any('create','modify') AND TARGET_PATH like any('%/.ssh/authorized_keys','%/ssh/sshd_config')
-      }
-      return distinct {
-            RECORD_CREATED_TIME,
-            MID,
-            TARGET_OP,
-            TARGET_PATH
-      }
-    }
-    EOT
-    depends_on = [
-      lacework_alert_profile.custom_profile
-    ]
-}
-
-resource "lacework_policy" "example9" {
-  title       = "Custom syscall: ssh keys modified"
-  description = "Custom syscall: ssh keys modified"
-  remediation = "Review access context and revoke keys as necessary"
-  query_id    = lacework_query.query9.id
-  severity    = "High"
-  type        = "Violation"
-  evaluation  = "Hourly"
-  # tags        = ["domain:AWS", "custom"]
-  enabled     = true
-
-  alerting {
-    enabled = true
-    profile = "LW_HA_SYSCALLS_FILE_DEFAULT_PROFILE.Violation"
-  }
-}
+#   alerting {
+#     enabled = true
+#     profile = "LW_CloudTrail_Alerts.CloudTrailDefaultAlert_AwsResource"
+#   }
+# }
 
    
 
