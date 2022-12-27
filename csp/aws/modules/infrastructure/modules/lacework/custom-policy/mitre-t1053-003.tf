@@ -16,9 +16,6 @@ resource "lacework_query" "t1053-003" {
       }
     }
     EOT
-    depends_on = [
-      lacework_alert_profile.custom_profile
-    ]
 }
 
 resource "lacework_policy" "t1053-003" {
