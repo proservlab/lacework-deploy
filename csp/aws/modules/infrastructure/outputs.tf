@@ -1,10 +1,12 @@
 output "config" {
     value = {
         context = {
+            workstation = {
+                ip = module.workstation-external-ip.cidr
+            }
             aws = {
-                iam                       = try(module.iam[0],null)
-                ec2                       = try(module.ec2[0],null)
-                eks                       = try(module.eks[0],null)
+                ec2                       = module.ec2
+                eks                       = module.eks
             }
         }
     }

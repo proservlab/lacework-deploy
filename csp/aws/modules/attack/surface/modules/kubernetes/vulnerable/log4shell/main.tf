@@ -1,13 +1,15 @@
 locals {
-  enable_service = false
+    log4shell_app_name = var.app
+    log4shell_app_namespace = var.app_namespace
 }
+
 resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
   metadata {
-    name = "vulnerable-log4shell-pod"
+    name = local.log4shell_app_name
     labels = {
-      app = "vulnerable-log4shell-pod"
+      app = local.log4shell_app_name
     }
-    namespace = "default"
+    namespace = local.log4shell_app_namespace
   }
 
   spec {
@@ -15,21 +17,21 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
 
     selector {
         match_labels = {
-            app = "vulnerable-log4shell-pod"
+            app = local.log4shell_app_name
         }
     }
 
     template {
       metadata {
         labels = {
-            app = "vulnerable-log4shell-pod"
+            app = local.log4shell_app_name
         }
       }
 
       spec {
         container {
             image = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
-            name  = "vulnerable-log4shell-pod"
+            name  = local.log4shell_app_name
             command = ["java"]
             args = ["-jar", "/app/spring-boot-application.jar"]
 
@@ -42,25 +44,27 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
   }
 }
 
-
-resource "kubernetes_service_v1" "vulnerable_log4shell_pod" {
-    count = local.enable_service == true ? 1 : 0
+resource "kubernetes_service_v1" "log4shell" {
     metadata {
-        name = "vulnerable-log4shell-pod"
+        name = local.log4shell_app_name
         labels = {
-            app = "vulnerable-log4shell-pod"
+            app = local.log4shell_app_name
         }
-        # namespace = var.environment
+        namespace = local.log4shell_app_namespace
+        annotations = {
+          "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
+          "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
+        }
     }
     spec {
         selector = {
-            app = "vulnerable-log4shell-pod"
+            app = local.log4shell_app_name
         }
 
         # session_affinity = "ClientIP"
         port {
-            name = "log4shell-service"
-            port        = 8080
+            name = "${local.log4shell_app_name}-service"
+            port        = var.service_port
             target_port = 8080
         }
 

@@ -69,7 +69,7 @@ resource "kubernetes_service_v1" "vote" {
         # session_affinity = "ClientIP"
         port {
             name = "${local.vote_app_name}-service"
-            port        = 5000
+            port        = var.vote_service_port
             target_port = 80
         }
 

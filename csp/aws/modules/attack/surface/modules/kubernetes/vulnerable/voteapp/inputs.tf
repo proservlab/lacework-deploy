@@ -52,12 +52,6 @@ variable "maintenance_namespace" {
   default = "maintenance"
 }
 
-variable "lb_trusted_source" {
-  type = list(string)
-  description = "List of trusted sources allowed inbound to the app load balancer(s)"
-  default = ["0.0.0.0/0"]
-}
-
 variable "cluster_vpc_id" {
   type = string
   description = "VPC id for the cluster - used to lb security group"
@@ -72,4 +66,34 @@ variable "secret_credentials" {
     AWS_DEFAULT_REGION=us-east-1
     AWS_DEFAULT_OUTPUT=json
   EOT
+}
+
+variable "vote_service_port" {
+  type = number
+  description = "External port to expose vote service on"
+  default = 8001
+}
+
+variable "result_service_port" {
+  type = number
+  description = "External port to expose result service on"
+  default = 8002
+}
+
+variable "trusted_attacker_source" {
+  type = list(string)
+  description = "Allow all attacker source public addresses inbound to the app load balancer(s)"
+  default = []
+}
+
+variable "trusted_workstation_source" {
+  type = list(string)
+  description = "Allow current workstation public address inbound to the app load balancer(s)"
+  default = []
+}
+
+variable "additional_trusted_sources" {
+  type = list(string)
+  description = "List of additional trusted sources allowed inbound to the app load balancer(s)"
+  default = []
 }

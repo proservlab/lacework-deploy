@@ -1,6 +1,32 @@
 # merge and validate configuration
 locals {
   config = var.config
+
+  workstation_ips = [var.infrastructure.deployed_state.target.context.workstation.ip]
+
+  attacker_eks = can(length(var.infrastructure.deployed_state.attacker.context.aws.eks)) ? var.infrastructure.deployed_state.attacker.context.aws.eks : []
+  attacker_ec2 = can(length(var.infrastructure.deployed_state.attacker.context.aws.ec2)) ? var.infrastructure.deployed_state.attacker.context.aws.ec2 : []
+  attacker_eks_trusted_ips = [ 
+      for cluster in local.attacker_eks: "${cluster.cluster_nat_public_ip}/32" 
+    ]
+  attacker_ec2_trusted_ips = flatten([ 
+      for ec2 in local.attacker_ec2: 
+        [
+          for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance, "public_ip", "false") != "false"
+        ]
+    ])
+  
+  target_eks = can(length(var.infrastructure.deployed_state.target.context.aws.eks)) ? var.infrastructure.deployed_state.target.context.aws.eks : []
+  target_ec2 = can(length(var.infrastructure.deployed_state.target.context.aws.ec2)) ? var.infrastructure.deployed_state.target.context.aws.ec2 : []
+  target_eks_trusted_ips = [ 
+        for cluster in local.target_eks: "${cluster.cluster_nat_public_ip}/32" 
+      ]
+  target_ec2_trusted_ips = flatten([ 
+      for ec2 in local.target_ec2: 
+      [
+        for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance.tags_all, "public_ip", "false") != "false"
+      ] 
+    ])
 }
 
 #########################
@@ -61,14 +87,32 @@ module "vulnerable-kubernetes-voteapp" {
   source      = "./modules/kubernetes/vulnerable/voteapp"
   environment = var.infrastructure.config.context.global.environment
   region      = var.infrastructure.config.context.aws.region
-  cluster_vpc_id = var.infrastructure.deployed_state.context.aws.eks.cluster_vpc_id
+  cluster_vpc_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
   secret_credentials = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+
+  vote_service_port     = var.config.context.kubernetes.vulnerable.voteapp.vote_service_port
+  result_service_port     = var.config.context.kubernetes.vulnerable.voteapp.result_service_port
+  trusted_attacker_source   = var.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+      local.attacker_eks_trusted_ips,
+      local.attacker_ec2_trusted_ips
+    ]) : []
+  trusted_workstation_source    = local.workstation_ips
+  additional_trusted_sources = var.config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
 }
 
 module "vulnerable-kubernetes-log4shell" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.log4j.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes/vulnerable/log4shell"
   environment = var.infrastructure.config.context.global.environment
+  cluster_vpc_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  
+  service_port     = var.config.context.kubernetes.vulnerable.log4j.service_port
+  trusted_attacker_source   = var.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+      local.attacker_eks_trusted_ips,
+      local.attacker_ec2_trusted_ips
+    ]) : []
+  trusted_workstation_source = local.workstation_ips
+  additional_trusted_sources = var.config.context.kubernetes.vulnerable.log4j.additional_trusted_sources
 }
 
 module "vulnerable-kubernetes-privileged-pod" {

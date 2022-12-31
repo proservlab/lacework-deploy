@@ -4,6 +4,14 @@ locals {
 }
 
 #########################
+# GENERAL
+#########################
+
+module "workstation-external-ip" {
+  source       = "./modules/general/workstation-external-ip"
+}
+
+#########################
 # EC2
 #########################
 
@@ -55,17 +63,6 @@ module "eks-autoscaler" {
   
   cluster_name = local.config.context.aws.eks.cluster_name
   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
-}
-
-#########################
-# IAM
-#########################
-
-# iam
-module "iam" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.iam.enabled == true ) ? 1 : 0
-  source = "./modules/aws/iam"
-  users = local.config.context.aws.iam
 }
 
 #########################

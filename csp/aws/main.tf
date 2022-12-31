@@ -38,7 +38,7 @@ module "attacker-config" {
         aws = {
           profile_name = var.attacker_aws_profile
           ec2 = {
-            enabled            = false
+            enabled            = true
             public_network     = "172.27.0.0/16"
             public_subnet      = "172.27.0.0/24"
             private_network    = "172.26.0.0/16"
@@ -425,7 +425,10 @@ module "target-attacksurface" {
     # initial configuration reference
     config = module.target-infrastructure-context.config
     # deployed state configuration reference
-    deployed_state = module.target-infrastructure.config
+    deployed_state = {
+      target   = module.target-infrastructure.config
+      attacker = module.attacker-infrastructure.config
+    }
   }
   providers = {
     aws        = aws.target

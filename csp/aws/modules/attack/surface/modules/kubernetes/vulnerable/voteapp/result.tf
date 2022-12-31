@@ -24,7 +24,7 @@ resource "kubernetes_service_v1" "result" {
         # session_affinity = "ClientIP"
         port {
             name = "${local.result_app_name}-service"
-            port        = 5001
+            port        = var.result_service_port
             target_port = 80
         }
 

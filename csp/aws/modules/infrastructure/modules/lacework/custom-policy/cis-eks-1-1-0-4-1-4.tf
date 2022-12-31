@@ -116,7 +116,7 @@ resource "lacework_policy" "eks-1-1-0-4-1-4" {
   remediation = "Where possible, remove create access to pod objects in the cluster."
   query_id    = lacework_query.eks-1-1-0-4-1-4.id
   severity    = "High"
-  type        = "Compliance"
+  type        = "Violation"
   evaluation  = "Hourly"
   # tags        = ["domain:AWS", "custom"]
   enabled     = true
