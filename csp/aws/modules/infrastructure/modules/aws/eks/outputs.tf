@@ -63,3 +63,7 @@ output "cluster_private_sg_id" {
 output "cluster_nat_public_ip" {
   value = aws_eip.nat_gateway.public_ip
 }
+
+output "openid_connect_provider" {
+  value = aws_iam_openid_connect_provider.cluster
+}
