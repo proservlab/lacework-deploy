@@ -3,7 +3,7 @@
 import werkzeug
 werkzeug.cached_property = werkzeug.utils.cached_property
 from flask import Flask, request, url_for
-from flask_restplus import Api, Resource, fields
+from flask_restx import Api, Resource, fields
 from flask_cors import CORS
 import requests
 import os
@@ -213,4 +213,4 @@ class MainClass(Resource):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    flask_app.run(host="0.0.0.0", debug=True)
