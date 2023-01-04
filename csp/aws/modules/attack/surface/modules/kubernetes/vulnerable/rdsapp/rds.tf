@@ -1,19 +1,21 @@
 locals {
-    init_db_username = "dbuser"
-    init_db_password = "dbpassword"
+  database_service_name = "database"
 
-    service_account_db_user = "workshop_user"
-    service_account = "database"
+  init_db_username = "dbuser"
+  init_db_password = "dbpassword"
 
-    subnets_cidrs = [
-        cidrsubnet(var.cluster_vpc_subnet,8,200),
-        cidrsubnet(var.cluster_vpc_subnet,8,201)
-    ]
+  service_account_db_user = "workshop_user"
+  service_account = "database"
 
-    availability_zones = [
-        data.aws_availability_zones.available.names[0],
-        data.aws_availability_zones.available.names[1]
-    ]
+  subnets_cidrs = [
+      cidrsubnet(var.cluster_vpc_subnet,8,200),
+      cidrsubnet(var.cluster_vpc_subnet,8,201)
+  ]
+
+  availability_zones = [
+      data.aws_availability_zones.available.names[0],
+      data.aws_availability_zones.available.names[1]
+  ]
 }
 
 data "aws_iam_openid_connect_provider" "cluster" {
@@ -135,4 +137,55 @@ resource "aws_db_instance" "database" {
     Name = "rdsapp-${var.environment}",
     Environment = var.environment
   }
+}
+
+resource "kubernetes_service_v1" "database" {
+    metadata {
+        name = local.database_service_name
+        labels = {
+            app = local.database_service_name
+        }
+        namespace = var.namespace
+    }
+    spec {
+        external_name = aws_db_instance.database.endpoint
+
+        port {
+            name = local.database_service_name
+            port        = 5432
+            target_port = 5432
+        }
+
+        type = "ExternalName"
+    }
+}
+
+# bootstrap iam user
+resource "kubernetes_job_v1" "database_bootstrap" {
+  metadata {
+    name = "database_bootstrap"
+    namespace = var.namespace
+  }
+  spec {
+    template {
+      metadata {}
+      spec {
+        container {
+          name    = "mysql-client"
+          image   = "percona-server-mysql-8.0.20"
+          command = ["/bin/bash", "-c"]
+          args =    <<EOT
+                    mysql -h database -u${local.init_db_username} -p${local.init_db_password} --execute='CREATE USER workshop_user IDENTIFIED WITH AWSAuthenticationPlugin AS \'RDS\';'
+                    EOT
+        }
+        restart_policy = "Never"
+      }
+    }
+    backoff_limit = 4
+    timeouts {
+      create = "2m"
+      update = "2m"
+    }
+  }
+  wait_for_completion = true
 }

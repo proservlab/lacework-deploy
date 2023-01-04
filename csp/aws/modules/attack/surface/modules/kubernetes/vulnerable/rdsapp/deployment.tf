@@ -34,4 +34,8 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
       }
     }
   }
+
+  depends_on = [
+    kubernetes_job_v1.database_bootstrap
+  ]
 }
