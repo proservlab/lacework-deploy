@@ -52,18 +52,17 @@ output "cluster_vpc_id" {
   value = aws_vpc.cluster.id
 }
 
-output "cluster_public_sg_id" {
-  value = aws_subnet.cluster[0].id
+output "cluster_vpc_subnet" {
+  value = local.vpc_cidr
 }
-
-output "cluster_private_sg_id" {
-  value = aws_subnet.cluster[1].id
+output "cluster_sg_id" {
+  value = aws_security_group.cluster.id
 }
 
 output "cluster_nat_public_ip" {
   value = aws_eip.nat_gateway.public_ip
 }
 
-output "openid_connect_provider" {
+output "cluster_openid_connect_provider" {
   value = aws_iam_openid_connect_provider.cluster
 }

@@ -105,7 +105,7 @@ module "vulnerable-kubernetes-log4shell" {
   source      = "./modules/kubernetes/vulnerable/log4shell"
   environment = var.infrastructure.config.context.global.environment
   cluster_vpc_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
-  
+
   service_port     = var.config.context.kubernetes.vulnerable.log4j.service_port
   trusted_attacker_source   = var.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
       local.attacker_eks_trusted_ips,
@@ -113,6 +113,30 @@ module "vulnerable-kubernetes-log4shell" {
     ]) : []
   trusted_workstation_source = local.workstation_ips
   additional_trusted_sources = var.config.context.kubernetes.vulnerable.log4j.additional_trusted_sources
+}
+
+module "vulnerable-kubernetes-rdsapp" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.rdsapp.enabled == true ) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/rdsapp"
+  environment = var.infrastructure.config.context.global.environment
+  region = var.infrastructure.config.context.aws.region
+  cluster_vpc_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  # trusted security group for rds connections
+  cluster_sg_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_sg_id
+  cluster_vpc_subnet = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_subnet
+  
+  # oidc provider for pod assumed database roles
+  cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
+  cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
+  
+  service_port     = var.config.context.kubernetes.vulnerable.rdsapp.service_port
+  trusted_attacker_source   = var.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+      local.attacker_eks_trusted_ips,
+      local.attacker_ec2_trusted_ips
+    ]) : []
+  trusted_workstation_source = local.workstation_ips
+  additional_trusted_sources = var.config.context.kubernetes.vulnerable.rdsapp.additional_trusted_sources
 }
 
 module "vulnerable-kubernetes-privileged-pod" {

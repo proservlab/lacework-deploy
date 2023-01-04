@@ -387,6 +387,10 @@ module "target-attacksurface-config" {
             voteapp = {
               enabled = true
             }
+
+            rdsapp = {
+              enabled = true
+            }
             privileged_pod = {
               enabled = false
             }

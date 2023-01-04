@@ -48,6 +48,13 @@ variable "config" {
             trust_workstation_source    = bool
             additional_trusted_sources  = list(string)
           })
+          rdsapp = object({
+            enabled                     = bool
+            service_port                = number
+            trust_attacker_source       = bool
+            trust_workstation_source    = bool
+            additional_trusted_sources  = list(string)
+          })
           privileged_pod = object({
             enabled                     = bool
           })
@@ -100,6 +107,14 @@ variable "config" {
             trust_attacker_source       = true
             trust_workstation_source    = true
             additional_trusted_sources = []
+          }
+
+          rdsapp = {
+            enabled                     = false
+            service_port                = 8080
+            trust_attacker_source       = true
+            trust_workstation_source    = true
+            additional_trusted_sources  = []
           }
           privileged_pod = {
             enabled = false

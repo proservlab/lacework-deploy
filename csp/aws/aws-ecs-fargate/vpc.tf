@@ -8,7 +8,7 @@ resource "aws_internet_gateway" "main" {
 resource "aws_vpc" "main" {
     cidr_block = "10.0.0.0/16"
     tags = {
-            Name = "ecs-${var.app}-${var.environment}-main-vpc"
+        Name = "ecs-${var.app}-${var.environment}-main-vpc"
     }
 }
 
