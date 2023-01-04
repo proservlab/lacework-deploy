@@ -49,14 +49,14 @@ output "cluster_ca_cert" {
 }
 
 output "cluster_vpc_id" {
-  value = aws_vpc.cluster.id
+  value = aws_eks_cluster.cluster.vpc_config[0].vpc_id
 }
 
 output "cluster_vpc_subnet" {
   value = local.vpc_cidr
 }
 output "cluster_sg_id" {
-  value = aws_security_group.cluster.id
+  value = aws_eks_cluster.cluster.vpc_config[0].cluster_security_group_id
 }
 
 output "cluster_nat_public_ip" {

@@ -1,6 +1,8 @@
 locals {
-    db_username = "dbuser"
-    db_password = "dbpassword"
+    init_db_username = "dbuser"
+    init_db_password = "dbpassword"
+
+    service_account_db_user = "workshop_user"
     service_account = "database"
 
     subnets_cidrs = [
@@ -44,7 +46,7 @@ data "aws_iam_policy_document" "database" {
     actions = ["rds-db:connect"]
     effect  = "Allow"
     resources = [
-      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/${local.db_username}"
+      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/${local.service_account_db_user}"
     ]
   }
 }
@@ -95,8 +97,8 @@ resource "aws_security_group" "database" {
   vpc_id      = var.cluster_vpc_id
 
   ingress {
-    from_port   = "5432"
-    to_port     = "5432"
+    from_port   = "3306"
+    to_port     = "3306"
     protocol    = "tcp"
     description = "rdsapp mysql"
     security_groups = [var.cluster_sg_id]
@@ -118,8 +120,8 @@ resource "aws_db_instance" "database" {
   engine                                = "mysql"
   engine_version                        = "5.7"
   instance_class                        = "db.t3.micro"
-  username                              = local.db_username
-  password                              = local.db_password
+  username                              = local.init_db_username
+  password                              = local.init_db_password
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true
