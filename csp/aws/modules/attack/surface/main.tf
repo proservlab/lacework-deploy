@@ -58,6 +58,23 @@ module "log4j" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.docker.log4j.enabled == true ) ? 1 : 0
   source = "./modules/aws/ssm/docker/log4j"
   environment = var.infrastructure.config.context.global.environment
+
+}
+
+#########################
+# AWS RDS
+##########################
+
+module "rds" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.rds.enabled == true ) ? 1 : 0
+  source = "./modules/aws/rds"
+  environment = var.infrastructure.config.context.global.environment
+  
+  vpc_id                        = var.config.context.aws.rds.vpc_id
+  vpc_subnet                    = var.config.context.aws.rds.vpc_subnet
+  trusted_sg_id                 = var.config.context.aws.rds.trusted_sg_id
+  root_db_username              = var.config.context.aws.rds.root_db_username
+  root_db_password              = var.config.context.aws.rds.root_db_password
 }
 
 #########################

@@ -364,6 +364,14 @@ module "target-attacksurface-config" {
               },
             ]
           }
+          rds = {
+            enabled          = true
+            vpc_id           = module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id
+            vpc_subnet       = module.target-infrastructure.config.context.aws.ec2[0].public_network
+            trusted_sg_id    = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
+            root_db_username = "dbuser"
+            root_db_password = "dbpassword"
+          }
           ssm = {
             log4j = {
               enabled = false

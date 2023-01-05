@@ -16,6 +16,10 @@ output "attacker-instances" {
   ]
 }
 
+output "test" {
+  value = module.target-infrastructure.config.context.aws.ec2
+}
+
 # output "ec2-instances" {
 #   value = {
 #     target   = module.target.ec2-instances

@@ -148,7 +148,7 @@ resource "kubernetes_service_v1" "database" {
         namespace = var.namespace
     }
     spec {
-        external_name = aws_db_instance.database.endpoint
+        external_name = split(":", aws_db_instance.database.endpoint)[0]
 
         port {
             name = local.database_service_name
@@ -163,7 +163,7 @@ resource "kubernetes_service_v1" "database" {
 # bootstrap iam user
 resource "kubernetes_job_v1" "database_bootstrap" {
   metadata {
-    name = "database_bootstrap"
+    name = "dbbootstrap"
     namespace = var.namespace
   }
   spec {
@@ -172,20 +172,25 @@ resource "kubernetes_job_v1" "database_bootstrap" {
       spec {
         container {
           name    = "mysql-client"
-          image   = "percona-server-mysql-8.0.20"
-          command = ["/bin/bash", "-c"]
-          args =    <<EOT
-                    mysql -h database -u${local.init_db_username} -p${local.init_db_password} --execute='CREATE USER workshop_user IDENTIFIED WITH AWSAuthenticationPlugin AS \'RDS\';'
+          image   = "mysql:8.0.31"
+          command = ["/bin/sh", "-c"]
+          args =    [
+                    # <<EOT
+                    # mysql -h database -u${local.init_db_username} -p${local.init_db_password} --execute="CREATE USER workshop_user IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';"
+                    # EOT
+                    <<EOT
+                    echo "hello world"
                     EOT
+          ]
         }
         restart_policy = "Never"
       }
     }
     backoff_limit = 4
-    timeouts {
-      create = "2m"
-      update = "2m"
-    }
   }
   wait_for_completion = true
+
+  depends_on = [
+    kubernetes_service_v1.database
+  ]
 }

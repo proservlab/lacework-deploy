@@ -14,6 +14,14 @@ variable "config" {
             policy                      = string
           }))
         })
+        rds = object({
+          enabled                       = bool
+          vpc_id                        = string
+          vpc_subnet                    = string
+          trusted_sg_id                 = string
+          root_db_username              = string
+          root_db_password              = string
+        })
         ssm = object({
           docker = object({
             log4j = object({
@@ -73,6 +81,15 @@ variable "config" {
           enabled                       = false
           user_policies                 = null
           users                         = null
+        }
+
+        rds = {
+          enabled                       = false
+          vpc_id                        = null
+          vpc_subnet                    = null
+          trusted_sg_id                 = null
+          root_db_username              = null
+          root_db_password              = null
         }
         ssm = {
           docker = {
