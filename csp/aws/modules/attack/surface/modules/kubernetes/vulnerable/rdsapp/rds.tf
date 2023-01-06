@@ -160,6 +160,14 @@ resource "kubernetes_service_v1" "database" {
     }
 }
 
+data "template_file" "database" {
+  template = file("${path.module}/resources/bootstrap.sql.tpl")
+
+  vars = {
+    iam_db_user = local.service_account_db_user
+  }
+}
+
 # bootstrap iam user
 resource "kubernetes_job_v1" "database_bootstrap" {
   metadata {
@@ -175,11 +183,8 @@ resource "kubernetes_job_v1" "database_bootstrap" {
           image   = "mysql:8.0.31"
           command = ["/bin/sh", "-c"]
           args =    [
-                    # <<EOT
-                    # mysql -h database -u${local.init_db_username} -p${local.init_db_password} --execute="CREATE USER workshop_user IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';"
-                    # EOT
                     <<EOT
-                    echo "hello world"
+                    mysql -h database -u${local.init_db_username} -p${local.init_db_password} <<< $(echo ${base64encode(data.template_file.database.rendered)} | base64 -d)
                     EOT
           ]
         }
