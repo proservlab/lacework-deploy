@@ -29,8 +29,29 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
             image = "ubuntu:latest"
             name  = "maintenance"
             command = ["tail"]
-            args = ["-f", "/dev/null"] 
+            args = ["-f", "/dev/null"]
+            env {
+                name = "DB_APP_URL"
+                value = split(":", aws_db_instance.database.endpoint)[0]
+            }
+            env {
+                name = "DB_USER_NAME"
+                value = var.service_account_db_user
+            }
+            env {
+                name = "DB_NAME"
+                value = var.database_name
+            }
+            env {
+                name = "DB_PORT"
+                value = var.database_port
+            }
+            env {
+                name = "DB_REGION"
+                value = var.region
+            }
         }
+        
       }
     }
   }

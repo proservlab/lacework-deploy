@@ -1,18 +1,20 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-    init_db_username = var.root_db_username
-    init_db_password = var.root_db_password
+  init_db_username = var.root_db_username
+  init_db_password = var.root_db_password
+  
+  database_port = var.database_port
 
-    subnets_cidrs = [
-        cidrsubnet(var.vpc_subnet,8,200),
-        cidrsubnet(var.vpc_subnet,8,201)
-    ]
+  subnets_cidrs = [
+      cidrsubnet(var.vpc_subnet,8,200),
+      cidrsubnet(var.vpc_subnet,8,201)
+  ]
 
-    availability_zones = [
-        data.aws_availability_zones.available.names[0],
-        data.aws_availability_zones.available.names[1]
-    ]
+  availability_zones = [
+      data.aws_availability_zones.available.names[0],
+      data.aws_availability_zones.available.names[1]
+  ]
 }
 
 resource "aws_subnet" "database" {
@@ -44,8 +46,8 @@ resource "aws_security_group" "database" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = "3306"
-    to_port     = "3306"
+    from_port   = var.database_port
+    to_port     = var.database_port
     protocol    = "tcp"
     description = "db mysql"
     security_groups = [var.trusted_sg_id]
@@ -64,11 +66,13 @@ resource "aws_db_instance" "database" {
   allocated_storage                     = 5
   max_allocated_storage                 = 10
   db_name                               = "mydb"
+  port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
   instance_class                        = "db.t3.micro"
   username                              = local.init_db_username
   password                              = local.init_db_password
+  identifier_prefix                     = "rdsapp-${var.environment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true

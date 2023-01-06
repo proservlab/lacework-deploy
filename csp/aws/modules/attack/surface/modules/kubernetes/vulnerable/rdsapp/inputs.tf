@@ -11,6 +11,42 @@ variable "namespace" {
     default = "rdsapp"
 }
 
+variable "root_db_username" {
+    type = string
+    description = "root admin username"
+    default = "dbuser"
+}
+
+variable "root_db_password" {
+    type = string
+    description = "root admin password"
+    default = "dbpassword"
+}
+
+variable "service_account_db_user" {
+    type = string 
+    description = "kubernetes service account db username for rds iam auth"
+    default = "workshop_user"
+}
+
+variable "service_account" {
+    type = string 
+    description = "kubernetes service account name for rds iam auth"
+    default = "database"
+}
+
+variable "database_name" {
+    type = string
+    description = "name of application database"
+    default = "dev"
+}
+
+variable "database_port" {
+    type = number
+    description = "port for rds database service"
+    default = 3306
+}
+
 variable "cluster_vpc_id" {
     type = string
     description = "VPC id for the cluster - used to lb security group"

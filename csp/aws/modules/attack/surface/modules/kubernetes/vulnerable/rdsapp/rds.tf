@@ -1,11 +1,12 @@
 locals {
-  database_service_name = "database"
+  init_db_username = var.root_db_username
+  init_db_password = var.root_db_password
 
-  init_db_username = "dbuser"
-  init_db_password = "dbpassword"
+  service_account_db_user = var.service_account_db_user
+  service_account = var.service_account
 
-  service_account_db_user = "workshop_user"
-  service_account = "database"
+  database_name = var.database_name
+  database_port = var.database_port
 
   subnets_cidrs = [
       cidrsubnet(var.cluster_vpc_subnet,8,200),
@@ -99,8 +100,8 @@ resource "aws_security_group" "database" {
   vpc_id      = var.cluster_vpc_id
 
   ingress {
-    from_port   = "3306"
-    to_port     = "3306"
+    from_port   = local.database_port
+    to_port     = local.database_port
     protocol    = "tcp"
     description = "rdsapp mysql"
     security_groups = [var.cluster_sg_id]
@@ -119,11 +120,13 @@ resource "aws_db_instance" "database" {
   allocated_storage                     = 5
   max_allocated_storage                 = 10
   db_name                               = "mydb"
+  port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
   instance_class                        = "db.t3.micro"
   username                              = local.init_db_username
   password                              = local.init_db_password
+  identifier_prefix                     = "rdsapp-${var.environment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true
@@ -139,33 +142,19 @@ resource "aws_db_instance" "database" {
   }
 }
 
-resource "kubernetes_service_v1" "database" {
-    metadata {
-        name = local.database_service_name
-        labels = {
-            app = local.database_service_name
-        }
-        namespace = var.namespace
-    }
-    spec {
-        external_name = split(":", aws_db_instance.database.endpoint)[0]
-
-        port {
-            name = local.database_service_name
-            port        = 5432
-            target_port = 5432
-        }
-
-        type = "ExternalName"
-    }
-}
-
 data "template_file" "database" {
   template = file("${path.module}/resources/bootstrap.sql.tpl")
 
   vars = {
     iam_db_user = local.service_account_db_user
+    database_name = local.database_name
   }
+}
+
+data "template_file" "rds_cert" {
+    template = file("${path.module}/resources/rds-combined-ca-bundle.pem")
+
+    vars = {}
 }
 
 # bootstrap iam user
@@ -184,18 +173,20 @@ resource "kubernetes_job_v1" "database_bootstrap" {
           command = ["/bin/sh", "-c"]
           args =    [
                     <<EOT
-                    mysql -h database -u${local.init_db_username} -p${local.init_db_password} <<< $(echo ${base64encode(data.template_file.database.rendered)} | base64 -d)
+                    echo ${base64encode(data.template_file.rds_cert.rendered)} | base64 -d > rds-combined-ca-bundle.pem && \
+                    /bin/sh <<< $(echo ${base64encode("mysql --ssl-ca=rds-combined-ca-bundle.pem --ssl-mode=REQUIRED -h $DB_APP_URL -u${local.init_db_username} -p${local.init_db_password} <<< $(echo ${base64encode(data.template_file.database.rendered)} | base64 -d)")} | base64 -d)
                     EOT
           ]
+          env {
+                name = "DB_APP_URL"
+                value = split(":", aws_db_instance.database.endpoint)[0]
+            }
         }
         restart_policy = "Never"
       }
     }
     backoff_limit = 4
+    ttl_seconds_after_finished = 120
   }
   wait_for_completion = true
-
-  depends_on = [
-    kubernetes_service_v1.database
-  ]
 }

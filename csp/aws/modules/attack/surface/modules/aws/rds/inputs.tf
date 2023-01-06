@@ -28,3 +28,9 @@ variable "root_db_password" {
     description = "root admin password"
     default = "dbpassword"
 }
+
+variable "database_port" {
+    type = number
+    description = "port for rds database service"
+    default = 3306
+}

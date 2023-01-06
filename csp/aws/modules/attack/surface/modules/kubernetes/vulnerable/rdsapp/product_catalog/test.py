@@ -4,14 +4,14 @@ from pymysql.err import DatabaseError
 import boto3
 import os
 
-DB_APP_URL = "database"
-DB_USER_NAME = "workshop_user"
-DB_NAME = "dev"
-DB_PORT = 3306
-DB_REGION = "us-east-1"
-
 list_of_names = ""
 
+AGG_APP_URL = os.environ.get("AGG_APP_URL")
+DB_APP_URL = os.environ.get("DB_APP_URL")
+DB_USER_NAME = os.environ.get("DB_USER_NAME")
+DB_NAME = os.environ.get("DB_NAME")
+DB_PORT = os.environ.get("DB_PORT")
+DB_REGION = os.environ.get("DB_REGION")
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 
