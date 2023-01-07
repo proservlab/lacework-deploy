@@ -20,7 +20,7 @@ variable "regional" {
 }
 
 variable "lacework_integration_name" {
-    type = bool
+    type = string
     description = "lacework integration name"
     default = "agentless_from_terraform"
 }
