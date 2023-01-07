@@ -19,7 +19,6 @@ locals {
 
 resource "aws_route_table" "database" {
     vpc_id = var.vpc_id
-
     route {
         cidr_block = "0.0.0.0/0"
         gateway_id = var.igw_id
@@ -31,8 +30,9 @@ resource "aws_route_table" "database" {
 }
 
 resource "aws_route_table_association" "database" {
-  subnet_id = aws_subnet.database.id
-  route_table_id = aws_route_table.database.id
+  count = length(local.subnets_cidrs)
+  subnet_id = aws_subnet.database[count.index].id
+  route_table_id = aws_route_table.database[count.index].id
 }
 
 resource "aws_subnet" "database" {
