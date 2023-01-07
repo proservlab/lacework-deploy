@@ -10,6 +10,10 @@ output "public_sg" {
   value = var.enable_public_vpc == true ? module.public[0].sg : null
 }
 
+output "public_igw" {
+  value = var.enable_public_vpc == true ? module.public[0].igw : null
+}
+
 output "private_vpc" {
   value = var.enable_private_vpc == true ? module.private[0].vpc : null
 }

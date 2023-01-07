@@ -9,3 +9,7 @@ output "subnet" {
 output "sg" {
   value = aws_security_group.public
 }
+
+output "igw" {
+  value = aws_internet_gateway.public
+}

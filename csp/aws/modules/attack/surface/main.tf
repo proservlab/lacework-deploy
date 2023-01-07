@@ -70,6 +70,7 @@ module "rds" {
   source = "./modules/aws/rds"
   environment = var.infrastructure.config.context.global.environment
   
+  igw_id                        = var.config.context.aws.rds.igw_id
   vpc_id                        = var.config.context.aws.rds.vpc_id
   vpc_subnet                    = var.config.context.aws.rds.vpc_subnet
   trusted_sg_id                 = var.config.context.aws.rds.trusted_sg_id

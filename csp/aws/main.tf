@@ -375,6 +375,7 @@ module "target-attacksurface-config" {
           }
           rds = {
             enabled          = true
+            igw_id           = module.target-infrastructure.config.context.aws.ec2[0].public_igw.id
             vpc_id           = module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id
             vpc_subnet       = module.target-infrastructure.config.context.aws.ec2[0].public_network
             trusted_sg_id    = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id

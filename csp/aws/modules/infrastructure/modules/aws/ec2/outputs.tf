@@ -14,6 +14,10 @@ output "public_sg" {
     value = module.vpc.public_sg
 }
 
+output "public_igw" {
+    value = module.vpc.public_igw
+}
+
 output "private_network" {
     value = var.private_network
 }

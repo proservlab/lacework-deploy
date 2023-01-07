@@ -17,6 +17,24 @@ locals {
   ]
 }
 
+resource "aws_route_table" "database" {
+    vpc_id = var.vpc_id
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = var.igw_id
+    }
+
+    tags = {
+        Name = "${var.environment}-ec2db-internet-gw-route"
+    }
+}
+
+resource "aws_route_table_association" "database" {
+  subnet_id = aws_subnet.database.id
+  route_table_id = aws_route_table.database.id
+}
+
 resource "aws_subnet" "database" {
   vpc_id                  = var.vpc_id
   count                   = length(local.subnets_cidrs)
@@ -72,7 +90,7 @@ resource "aws_db_instance" "database" {
   instance_class                        = "db.t3.micro"
   username                              = local.init_db_username
   password                              = local.init_db_password
-  identifier_prefix                     = "rdsapp-${var.environment}"
+  identifier_prefix                     = "ec2rds-${var.environment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true

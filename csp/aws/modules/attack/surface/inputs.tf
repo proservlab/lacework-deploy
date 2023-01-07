@@ -16,6 +16,7 @@ variable "config" {
         })
         rds = object({
           enabled                       = bool
+          igw_id                        = string
           vpc_id                        = string
           vpc_subnet                    = string
           trusted_sg_id                 = string
@@ -84,6 +85,7 @@ variable "config" {
         }
         rds = {
           enabled                       = false
+          igw_id                        = null
           vpc_id                        = null
           vpc_subnet                    = null
           trusted_sg_id                 = null

@@ -2,6 +2,11 @@ variable "environment" {
     type = string
 }
 
+variable "igw_id" {
+    type = string
+    description = "IGW id for subnet"
+}
+
 variable "vpc_id" {
     type = string
     description = "VPC id to deploy instance to"
