@@ -53,6 +53,41 @@ variable "target_aws_profile" {
   default     = "target"
 }
 
+##########################
+# GCP
+##########################
+
+variable "attacker_gcp_project" {
+  type        = string
+  description = "attacker gcp project"
+  default     = "attacker"
+}
+
+variable "attacker_gcp_region" {
+  type        = string
+  description = "attacker gcp region"
+  default     = "us-central1"
+}
+
+variable "target_gcp_project" {
+  type        = string
+  description = "target gcp profile"
+  default     = "target"
+}
+
+variable "target_gcp_lacework_project" {
+  type        = string
+  description = "target gcp lacework profile"
+  default     = "target"
+}
+
+variable "target_gcp_region" {
+  type        = string
+  description = "target gcp region"
+  default     = "us-central1"
+}
+
+
 ###########################
 # LACEWORK
 ###########################

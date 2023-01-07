@@ -133,8 +133,12 @@ module "target-config" {
         lacework = {
           server_url   = var.lacework_server_url
           account_name = var.lacework_account_name
-          audit_config = {
+          aws_audit_config = {
             enabled = true
+          }
+          gcp_audit_config = {
+            project_id = var.target_gcp_lacework_project
+            enabled    = true
           }
           custom_policy = {
             enabled = true
@@ -195,7 +199,7 @@ module "target-config" {
               }
             }
           }
-          agentless = {
+          aws_agentless = {
             enabled = true
           }
           alerts = {
@@ -246,6 +250,7 @@ module "attacker-infrastructure" {
 
   providers = {
     aws      = aws.attacker
+    google   = google.attacker
     lacework = lacework.attacker
   }
 }
@@ -256,6 +261,7 @@ module "target-infrastructure" {
 
   providers = {
     aws      = aws.target
+    google   = google.target
     lacework = lacework.target
   }
 }

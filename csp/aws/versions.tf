@@ -21,6 +21,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
+    google = {
+      source                = "hashicorp/google"
+      version               = "~> 4.37"
+      configuration_aliases = [google.google-lacework]
+    }
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.6.0"

@@ -11,6 +11,35 @@ variable "config" {
         disable_all               = bool
         enable_all                = bool
       })
+      gcp = object({
+        region                    = string
+        project_id                = string
+        gce = object({
+          enabled               = bool
+          instances             = list(any)
+          public_network        = string
+          public_subnet         = string
+          private_network       = string
+          private_subnet        = string
+          private_nat_subnet    = string
+          public_ingress_rules  = list(any)
+          public_egress_rules   = list(any)
+          private_ingress_rules = list(any)
+          private_egress_rules  = list(any)
+        })
+        gke = object({
+          enabled               = bool
+          cluster_name          = string
+        })
+        osconfig = object({
+          enabled               = bool
+          deploy_git            = bool
+          deploy_docker         = bool
+          deploy_inspector_agent = bool
+          deploy_lacework_agent = bool
+          deploy_lacework_syscall_config = bool
+        })
+      })
       aws = object({
         region                    = string
         profile_name              = string
@@ -52,7 +81,11 @@ variable "config" {
       lacework = object({
         server_url              = string
         account_name            = string
-        audit_config            = object({
+        aws_audit_config        = object({
+          enabled               = bool
+        })
+        gcp_audit_config        = object({
+          project_id            = string
           enabled               = bool
         })
         custom_policy = object({
@@ -64,6 +97,9 @@ variable "config" {
           token                 = string
           host = object({
             ssm = object({
+              enabled         = bool
+            })
+            osconfig = object({
               enabled         = bool
             })
           })
@@ -82,12 +118,18 @@ variable "config" {
             eks_audit_logs = object({
               enabled         = bool
             })
+            gke_audit_logs = object({
+              enabled         = bool
+            })
             admission_controller = object({
               enabled         = bool
             })
           })
         })
-        agentless = object({
+        aws_agentless = object({
+          enabled               = bool
+        })
+        gcp_agentless = object({
           enabled               = bool
         })
         alerts = object({
@@ -116,6 +158,67 @@ variable "config" {
         trust_security_group      = false
         disable_all               = false
         enable_all                = false
+      }
+      gcp = {
+        region                    = "us-central-1"
+        project_id                = null
+        gce = {
+          enabled               = false
+          instances             = []
+          public_network        = "172.17.0.0/16"
+          public_subnet         = "172.17.0.0/24"
+          private_network       = "172.16.0.0/16"
+          private_subnet        = "172.16.100.0/24"
+          private_nat_subnet    = "172.16.10.0/24"
+          public_ingress_rules  = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    },
+                                  ]
+          public_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+          private_ingress_rules = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    }
+                                  ]
+          private_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+        }
+        gke = {
+          enabled               = false
+          cluster_name          = "infra-cluster"
+        }
+        osconfig = {
+          enabled               = false
+          deploy_git            = false
+          deploy_docker         = false
+          deploy_inspector_agent = false
+          deploy_lacework_agent = false
+          deploy_lacework_syscall_config = false
+        }
       }
       aws = {
         region                    = "us-east-1"
@@ -189,7 +292,11 @@ variable "config" {
       lacework = {
         server_url              = null
         account_name            = null
-        audit_config            = {
+        aws_audit_config            = {
+          enabled               = false
+        }
+        gcp_audit_config            = {
+          project_id            = null
           enabled               = false
         }
         custom_policy = {
@@ -200,6 +307,9 @@ variable "config" {
           token                 = null
           host = {
             ssm = {
+              enabled           = false
+            }
+            osconfig = {
               enabled           = false
             }
           }
@@ -219,12 +329,18 @@ variable "config" {
             eks_audit_logs = {
               enabled         = false
             }
+            gke_audit_logs = {
+              enabled         = false
+            }
             admission_controller = {
               enabled         = false
             }
           }
         }
-        agentless = {
+        aws_agentless = {
+          enabled               = false
+        }
+        gcp_agentless = {
           enabled               = false
         }
         alerts = {

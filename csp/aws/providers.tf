@@ -1,10 +1,16 @@
 ###########################
-# ATTCKER PROVIDERS
+# ATTACKER PROVIDERS
 ###########################
 provider "aws" {
   alias   = "attacker"
   region  = var.region
   profile = var.attacker_aws_profile
+}
+
+provider "google" {
+  alias   = "attacker"
+  project = var.attacker_gcp_project
+  region  = var.attacker_gcp_region
 }
 
 provider "lacework" {
@@ -33,18 +39,16 @@ provider "aws" {
   profile = var.target_aws_profile
 }
 
+provider "google" {
+  alias   = "target"
+  project = var.target_gcp_project
+  region  = var.target_gcp_region
+}
+
 provider "lacework" {
   alias   = "target"
   profile = var.lacework_profile
 }
-
-# resource "local_file" "target-kubeconfig" {
-#   depends_on = [
-#     module.target-infrastructure
-#   ]
-#   content  = ""
-#   filename = pathexpand("~/.kube/target-kubeconfig")
-# }
 
 provider "kubernetes" {
   alias       = "target"

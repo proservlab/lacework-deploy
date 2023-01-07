@@ -124,17 +124,33 @@ module "lacework-ssm-deployment-syscall-config" {
 
 # lacework cloud audit and config collection
 module "lacework-audit-config" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.audit_config.enabled == true ) ? 1 : 0
-  source      = "./modules/lacework/audit-config"
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_audit_config.enabled == true ) ? 1 : 0
+  source      = "./modules/lacework/aws/audit-config"
   environment = local.config.context.global.environment
+}
+
+module "lacework-gcp-audit-config" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_audit_config.enabled == true ) ? 1 : 0
+  source      = "./modules/lacework/gcp/audit-config"
+  environment = local.config.context.global.environment
+  
+  providers = {
+    google = google.lacework
+  }
 }
 
 # lacework agentless scanning
 module "lacework-agentless" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.agentless.enabled == true ) ? 1 : 0
-  source      = "./modules/lacework/agentless"
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+  source      = "./modules/lacework/aws/agentless"
   environment = local.config.context.global.environment
 }
+
+# module "lacework-gcp-agentless" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_agentless.enabled == true ) ? 1 : 0
+#   source      = "./modules/lacework/gcp/agentless"
+#   environment = local.config.context.global.environment
+# }
 
 # lacework alerts
 module "lacework-alerts" {
@@ -209,7 +225,7 @@ module "lacework-admission-controller" {
 # lacework eks audit
 module "lacework-eks-audit" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true && length(module.eks) >0 ) ? 1 : 0
-  source      = "./modules/lacework/eks-audit"
+  source      = "./modules/lacework/aws/eks-audit"
   region      = local.config.context.aws.region
   environment = local.config.context.global.environment
   cluster_names = [local.config.context.aws.eks.cluster_name]
@@ -220,6 +236,74 @@ module "lacework-eks-audit" {
   ]
 }
 
+
+#########################
+# GCP
+#########################
+
+# module "gce" {
+#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gce == true ) ? 1 : 0
+#   source      = "../gce"
+#   environment = var.environment
+
+#   providers = {
+#     google = google
+#   }
+# }
+
+# module "gke" {
+#   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true ) ? 1 : 0
+#   source                              = "../gke"
+#   gcp_project_id                      = var.gcp_project
+#   cluster_name                        = var.cluster_name
+#   gcp_location                        = var.region
+#   daily_maintenance_window_start_time = "03:00"
+#   node_pools = [
+#     {
+#       name                       = "default"
+#       initial_node_count         = 1
+#       autoscaling_min_node_count = 2
+#       autoscaling_max_node_count = 3
+#       management_auto_upgrade    = true
+#       management_auto_repair     = true
+#       node_config_machine_type   = "n1-standard-1"
+#       node_config_disk_type      = "pd-standard"
+#       node_config_disk_size_gb   = 100
+#       node_config_preemptible    = false
+#     },
+#   ]
+#   vpc_network_name              = "${var.environment}-vpc-network"
+#   vpc_subnetwork_name           = "${var.environment}-vpc-subnetwork"
+#   vpc_subnetwork_cidr_range     = "10.0.16.0/20"
+#   cluster_secondary_range_name  = "pods"
+#   cluster_secondary_range_cidr  = "10.16.0.0/12"
+#   services_secondary_range_name = "services"
+#   services_secondary_range_cidr = "10.1.0.0/20"
+#   master_ipv4_cidr_block        = "172.16.0.0/28"
+#   access_private_images         = "false"
+#   http_load_balancing_disabled  = "false"
+#   master_authorized_networks_cidr_blocks = [
+#     {
+#       cidr_block = "0.0.0.0/0"
+
+#       display_name = "default"
+#     },
+#   ]
+#   identity_namespace = "${var.gcp_project}.svc.id.goog"
+# }
+
+
+# module "sql" {
+#   source = "../sql"
+#   sql_enabled = false
+#   sql_master_username = ""
+#   sql_master_password = ""
+# }
+
+# module "redis" {
+#   source = "../redis"
+#   redis_enabled = false
+# }
 
 
 
