@@ -203,7 +203,7 @@ module "target-config" {
             enabled = true
           }
           gcp_agentless = {
-            enabled = true
+            enabled = false
           }
           alerts = {
             enabled = true

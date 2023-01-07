@@ -160,7 +160,7 @@ variable "config" {
         enable_all                = false
       }
       gcp = {
-        region                    = "us-central-1"
+        region                    = "us-central1"
         project_id                = null
         gce = {
           enabled               = false
