@@ -1,5 +1,6 @@
 module "lacework_gcp_agentless_scanning_project_single_region" {
-  source = "../terraform-gcp-agentless-scanning"
+  source = "lacework/agentless-scanning/gcp"
+  version = "~> 0.1"
 
   project_filter_list = [
     "proservlab-root"

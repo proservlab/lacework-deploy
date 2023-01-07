@@ -133,7 +133,7 @@ module "lacework-gcp-audit-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_audit_config.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/gcp/audit-config"
   environment = local.config.context.global.environment
-  
+
   providers = {
     google = google.lacework
   }
@@ -146,11 +146,19 @@ module "lacework-agentless" {
   environment = local.config.context.global.environment
 }
 
-# module "lacework-gcp-agentless" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_agentless.enabled == true ) ? 1 : 0
-#   source      = "./modules/lacework/gcp/agentless"
-#   environment = local.config.context.global.environment
-# }
+module "lacework-gcp-agentless" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_agentless.enabled == true ) ? 1 : 0
+  source      = "./modules/lacework/gcp/agentless"
+  environment = local.config.context.global.environment
+
+  project_filter_list = [
+    var.config.context.gcp.project_id
+  ]
+
+  providers = {
+    google = google.lacework
+  }
+}
 
 # lacework alerts
 module "lacework-alerts" {

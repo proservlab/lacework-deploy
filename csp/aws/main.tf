@@ -202,6 +202,9 @@ module "target-config" {
           aws_agentless = {
             enabled = true
           }
+          gcp_agentless = {
+            enabled = true
+          }
           alerts = {
             enabled = true
             slack = {
