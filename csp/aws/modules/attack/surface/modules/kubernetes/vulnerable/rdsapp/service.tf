@@ -1,10 +1,10 @@
 resource "kubernetes_service_v1" "vote" {
     metadata {
-        name = local.vote_app_name
+        name = var.app
         labels = {
             app = var.app
         }
-        namespace = local.namespace
+        namespace = var.namespace
         annotations = {
           "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
           "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
