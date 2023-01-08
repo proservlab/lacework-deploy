@@ -19,13 +19,13 @@ variable "tag" {
 variable "image_name" {
   description = "Name to use for deployed Docker image"
   type        = string
-  default     = "rdsapp/rdsapp"
+  default     = "rdsapp/app"
 }
 
 variable "source_path" {
   description = "Path to Docker image source"
   type        = string
-  default     = "src"
+  default     = "app"
 }
 
 variable "hash_script" {

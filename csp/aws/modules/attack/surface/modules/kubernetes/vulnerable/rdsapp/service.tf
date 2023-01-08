@@ -1,0 +1,27 @@
+resource "kubernetes_service_v1" "vote" {
+    metadata {
+        name = local.vote_app_name
+        labels = {
+            app = var.app
+        }
+        namespace = local.namespace
+        annotations = {
+          "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
+          "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
+        }
+    }
+    spec {
+        selector = {
+            app = var.app
+        }
+
+        # session_affinity = "ClientIP"
+        port {
+            name = "${var.app}-service"
+            port        = var.service_port
+            target_port = 80
+        }
+
+        type = "LoadBalancer"
+    }
+}
