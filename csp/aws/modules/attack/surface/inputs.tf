@@ -19,6 +19,7 @@ variable "config" {
           igw_id                        = string
           vpc_id                        = string
           vpc_subnet                    = string
+          ec2_instance_role_name         = string
           trusted_sg_id                 = string
           root_db_username              = string
           root_db_password              = string
@@ -88,6 +89,7 @@ variable "config" {
           igw_id                        = null
           vpc_id                        = null
           vpc_subnet                    = null
+          ec2_instance_role_name         = null
           trusted_sg_id                 = null
           root_db_username              = null
           root_db_password              = null

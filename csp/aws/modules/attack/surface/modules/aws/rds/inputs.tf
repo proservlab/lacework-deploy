@@ -22,6 +22,11 @@ variable "trusted_sg_id" {
     description = "Security group for the ec2 instance - will be trusted"
 }
 
+variable "ec2_instance_role_name" {
+    type = string
+    description = "The ec2 instance role to update with db parameter access"
+}
+
 variable "root_db_username" {
     type = string
     description = "root admin username"
@@ -32,6 +37,12 @@ variable "root_db_password" {
     type = string
     description = "root admin password"
     default = "dbpassword"
+}
+
+variable "database_name" {
+    type = string
+    description = "name of the database to store in parameter store"
+    default = "dev"
 }
 
 variable "database_port" {

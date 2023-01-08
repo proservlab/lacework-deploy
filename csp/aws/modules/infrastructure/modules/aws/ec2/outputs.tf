@@ -29,3 +29,7 @@ output "private_vpc" {
 output "private_sg" {
     value = module.vpc.private_sg
 }
+
+output "ec2_instance_role" {
+    value = module.ssm_profile.ec2-instance-role
+}
