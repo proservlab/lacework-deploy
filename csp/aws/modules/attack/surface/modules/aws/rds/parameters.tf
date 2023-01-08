@@ -90,8 +90,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                                 "kms:Decrypt"
                             ],
                             "Resource": [
-                                "${aws_ssm_parameter.db_username.arn}",
-                                "${aws_ssm_parameter.db_password.arn}"
+                                "${aws_kms_key.this.arn}"
                             ]
                         }
                     ]
