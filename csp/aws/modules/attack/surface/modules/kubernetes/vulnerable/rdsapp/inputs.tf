@@ -109,7 +109,7 @@ variable "cluster_openid_connect_provider_url" {
 variable "service_port" {
   type = number
   description = "External port to expose result service on"
-  default = 8080
+  default = 8000
 }
 
 variable "trusted_attacker_source" {
