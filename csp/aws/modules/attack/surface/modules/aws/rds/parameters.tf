@@ -1,4 +1,4 @@
-data "aws_caller_identity" "this" {}
+data "aws_caller_identity" "current" {}
 
 resource "aws_ssm_parameter" "db_host" {
     name = "db_host"
@@ -37,7 +37,7 @@ resource "aws_kms_key" "this" {
                     "Sid": "Allow access for Account Holder",
                     "Effect": "Allow",
                     "Principal": {
-                        "AWS": "${data.aws_caller_identity.this.arn}"
+                        "AWS": "${data.aws_caller_identity.current.arn}"
                     },
                     "Action": [
                         "kms:Create*",
@@ -60,6 +60,18 @@ resource "aws_kms_key" "this" {
                         "kms:GenerateDataKey*"
                     ],
                     "Resource": "*"
+                    },
+                    {
+                        "Sid": "AllowEC2RoleDecrypt",
+                        "Action": [
+                            "kms:Decrypt",
+                        ],
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam:::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                            ]
+                        }
                     }
                 ]
                 }
