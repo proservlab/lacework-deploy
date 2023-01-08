@@ -6,6 +6,40 @@ variable "region" {
     type = string
 }
 
+variable "app" {
+  default = "rdsapp"
+}
+
+variable "tag" {
+  description = "Tag to use for deployed Docker image"
+  type        = string
+  default     = "latest"
+}
+
+variable "image_name" {
+  description = "Name to use for deployed Docker image"
+  type        = string
+  default     = "rdsapp/rdsapp"
+}
+
+variable "source_path" {
+  description = "Path to Docker image source"
+  type        = string
+  default     = "src"
+}
+
+variable "hash_script" {
+  description = "Path to script to generate hash of source contents"
+  type        = string
+  default     = ""
+}
+
+variable "push_script" {
+  description = "Path to script to build and push Docker image"
+  type        = string
+  default     = ""
+}
+
 variable "namespace" {
     type = string
     default = "rdsapp"

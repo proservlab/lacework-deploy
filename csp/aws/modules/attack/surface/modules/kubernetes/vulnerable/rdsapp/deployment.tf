@@ -26,10 +26,10 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
       spec {
         service_account_name = "database"
         container {
-            image = "ubuntu:latest"
-            name  = "maintenance"
-            command = ["tail"]
-            args = ["-f", "/dev/null"]
+            image = "${aws_ecr_repository.repo.repository_url}:${var.tag}"
+            name  = "rdsapp"
+            command = ["/app/boostrap.sh"]
+            args = []
             env {
                 name = "DB_APP_URL"
                 value = split(":", aws_db_instance.database.endpoint)[0]

@@ -50,13 +50,13 @@ module "iam" {
 
 module "ssh-keys" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
-  source = "./modules/aws/ssm/ssh-keys"
+  source = "./modules/aws/ssm/ec2/ssh-keys"
   environment = var.infrastructure.config.context.global.environment
 }
 
 module "log4j" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.docker.log4j.enabled == true ) ? 1 : 0
-  source = "./modules/aws/ssm/docker/log4j"
+  source = "./modules/aws/ssm/ec2/docker/log4j"
   environment = var.infrastructure.config.context.global.environment
 
 }
