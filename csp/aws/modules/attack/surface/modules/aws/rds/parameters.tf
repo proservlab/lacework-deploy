@@ -64,7 +64,7 @@ resource "aws_kms_key" "this" {
                     {
                         "Sid": "AllowEC2RoleDecrypt",
                         "Action": [
-                            "kms:Decrypt",
+                            "kms:Decrypt"
                         ],
                         "Effect": "Allow",
                         "Principal": {
