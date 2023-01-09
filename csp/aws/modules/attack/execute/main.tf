@@ -105,7 +105,6 @@ module "ssm-connect-reverseshell" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.reverseshell.enabled == true ) ? 1 : 0
   source = "./modules/simulation/aws/ssm/connect-reverseshell"
   environment = var.infrastructure.config.context.global.environment
-  port_forwards = var.config.context.simulation.aws.ssm.connect.port_forwards
   host_ip =  var.config.context.simulation.aws.ssm.connect.host_ip
   host_port = var.config.context.simulation.aws.ssm.connect.host_port
 }

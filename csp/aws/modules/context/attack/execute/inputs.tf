@@ -23,7 +23,7 @@ variable "config" {
               })
               nmap_port_scan = object({
                 enabled                     = bool
-                nmap_scan_host              = list(string)
+                nmap_scan_host              = string
                 nmap_scan_ports             = list(number)
               })
               oast = object({
@@ -138,7 +138,7 @@ variable "config" {
               nmap_port_scan = {
                 enabled                     = false
                 nmap_scan_host              = "portquiz.net"
-                nmap_scan_ports             = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
+                nmap_scan_ports             = [80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636]
               }
               oast = {
                 enabled                     = false

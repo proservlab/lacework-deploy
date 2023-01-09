@@ -1,7 +1,7 @@
 locals {
     nmap_download = "https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap?raw=true"
     nmap_path = "/tmp/nmap"
-    nmap_ports = var.nmap_scan_ports
+    nmap_ports = join(",",var.nmap_scan_ports)
     nmap_scan_host = var.nmap_scan_host
     payload = <<-EOT
     LOGFILE=/tmp/attacker_connect_enumerate_host.log
