@@ -76,7 +76,7 @@ resource "kubernetes_service_v1" "maintenance" {
 
 resource "kubernetes_secret" "maintenance" {
     metadata {
-        name = "${local.maintenance_app_name}-aws-creds"
+        name = "${local.maintenance_app_name}-aws-credentials"
         namespace = local.maintenance_app_namespace
     }
     
