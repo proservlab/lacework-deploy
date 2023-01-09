@@ -19,6 +19,10 @@ module "default-attacksurface-context" {
   source = "./modules/context/attack/surface"
 }
 
+module "default-attacksimulation-context" {
+  source = "./modules/context/attack/surface"
+}
+
 #########################
 # CONFIG
 ########################

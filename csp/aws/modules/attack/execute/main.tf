@@ -29,7 +29,7 @@ locals {
     ])
 
 #   target = {
-#     reverseshell = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
+#     reverse_shell = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
 #       for instance in module.target.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_reverse_shell_target == "true"
 #     ]) : []
 #     log4shell = length(lookup(module.target, "ec2-instances", [])) > 0 ? flatten([
@@ -50,7 +50,7 @@ locals {
 #     http_listener = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
 #       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_http_listener_attacker == "true"
 #     ]) : []
-#     reverseshell = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
+#     reverse_shell = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
 #       for instance in module.attacker.ec2-instances[0].instances : instance.instance if instance.instance.tags.ssm_exec_reverse_shell_attacker == "true"
 #     ]) : []
 #     log4shell = length(lookup(module.attacker, "ec2-instances", [])) > 0 ? flatten([
@@ -101,9 +101,9 @@ module "ssm-connect-oast-host" {
   environment = var.infrastructure.config.context.global.environment
 }
 
-module "ssm-connect-reverseshell" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.reverseshell.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-reverseshell"
+module "ssm-connect-reverse-shell" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.reverse_shell.enabled == true ) ? 1 : 0
+  source = "./modules/simulation/aws/ssm/connect-reverse-shell"
   environment = var.infrastructure.config.context.global.environment
   host_ip =  var.config.context.simulation.aws.ssm.connect.host_ip
   host_port = var.config.context.simulation.aws.ssm.connect.host_port
@@ -197,11 +197,11 @@ module "ssm-responder-port-forward" {
   listen_port = var.config.context.simulation.aws.ssm.responder.port_forward.listen_port
 }
 
-module "ssm-responder-reverseshell" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.responder.reverseshell.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/responder-reverseshell"
+module "ssm-responder-reverse-shell" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.responder.reverse_shell.enabled == true ) ? 1 : 0
+  source = "./modules/simulation/aws/ssm/responder-reverse-shell"
   environment = var.infrastructure.config.context.global.environment
-  listen_ip = var.config.context.simulation.aws.ssm.responder.reverseshell.listen_ip
-  listen_port = var.config.context.simulation.aws.ssm.responder.reverseshell.listen_port
-  payload = var.config.context.simulation.aws.ssm.responder.reverseshell.payload
+  listen_ip = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_ip
+  listen_port = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_port
+  payload = var.config.context.simulation.aws.ssm.responder.reverse_shell.payload
 }
