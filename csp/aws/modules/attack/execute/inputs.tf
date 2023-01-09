@@ -5,53 +5,225 @@
 variable "config" {
   type = object({
     context = object({
-      surface = object({
-        host = object({
-          log4j = object({
-            enabled = bool
-          })
-        })
-        kubernetes = object({
-          log4j = object({
-            enabled = bool
-          })
-          voteapp = object({
-            enabled = bool
-          })
-          privileged_pod = object({
-            enabled = bool
-          })
-          root_mount_fs_pod = object({
-            enabled = bool
+      simulation = object({
+        aws = object({
+          ssm = object({
+            drop = object({
+              malware = object({
+                eicar = object({ 
+                  enabled                     = bool
+                  eicar_path                  = string
+                })
+              })
+            })
+            connect = object({
+              badip = object({
+                enabled                     = bool
+                iplist_url                  = string
+              })
+              nmap_port_scan = object({
+                enabled                     = bool
+                nmap_scan_host              = list(string)
+                nmap_scan_ports             = list(number)
+              })
+              oast = object({
+                enabled                     = bool
+              })
+              codecov = object({
+                enabled                     = bool
+                host_ip                     = string
+                host_port                   = number
+                use_ssl                     = bool
+                git_origin                  = string
+                env_secrets                 = list(string)
+              })
+              reverse_shell = object({
+                enabled                     = bool
+                host_ip                     = string
+                host_port                   = number
+              })
+            })
+            listener = object({
+              http = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+              })
+              port_forward = object({
+                enabled                     = bool
+                port_forwards               = list(object({
+                                                src_port      = number
+                                                dst_port      = number
+                                                dst_ip        = string
+                                                description   = string
+                                              }))
+                host_ip                     = string
+                host_port                   = number
+              })
+              docker_log4shell_vulnerable_host = object({
+                enabled                     = bool
+                listen_port                 = number
+              })
+            })
+            responder = object({
+              reverse_shell = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+              })
+              port_forward = object({
+                enabled                     = bool
+                listen_port                 = number
+              })
+            })
+            execute = object({
+              docker_cpu_miner = object({
+                enabled                     = bool
+                nicehash_image              = string
+                nicehash_name               = string
+                nicehash_server             = string
+                nicehash_user               = string
+                minergate_name              = string
+                minergate_image             = string
+                minergate_server            = string
+                minergate_user              = string
+              })
+              docker_log4shell_attack = object({
+                enabled                     = bool
+                attacker_http_port          = number
+                attacker_ldap_port          = number
+                attacker_ip                 = string
+                target_ip                   = string
+                target_port                 = number
+                payload                     = string
+              })
+              docker_compromised_credentials_attack = object({
+                enabled                     = bool
+                compromised_credentials     = string
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+              })
+            })
+            
           })
         })
       })
-    })
+    })  
   })
 
   default = {
     context = {
-      surface = {
-        host = {
-          log4j = {
-            enabled = false
-          }
-          ssh_keys = {
-            enabled = false
-          }
-        }
-        kubernetes = {
-          log4j = {
-            enabled = false
-          }
-          voteapp = {
-            enabled = false
-          }
-          privileged_pod = {
-            enabled = false
-          }
-          root_mount_fs_pod = {
-            enabled = false
+      simulation = {
+        aws = {
+          ssm = {
+            drop = {
+              malware = {
+                eicar = { 
+                  enabled                     = false
+                  eicar_path                  = "/tmp/eicar"
+                }
+              }
+            }
+            connect = {
+              badip = {
+                enabled                     = false
+                iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+              }
+              nmap_port_scan = {
+                enabled                     = false
+                nmap_scan_host              = "portquiz.net"
+                nmap_scan_ports             = "80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636"
+              }
+              oast = {
+                enabled                     = false
+              }
+              codecov = {
+                enabled                     = false
+                host_ip                     = null
+                host_port                   = 8080
+                use_ssl                     = false
+                git_origin                  = "git@git.localhost:repo/repo.git"
+                env_secrets                 = ["SECRET=supersecret123"]
+              }
+              reverse_shell = {
+                enabled                     = false
+                host_ip                     = null
+                host_port                   = 4444
+              }
+            }
+            listener = {
+              http = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = 8080
+              }
+              port_forward = {
+                enabled                     = false
+                port_forwards               = [{
+                                                src_port      = 1234
+                                                dst_port      = 4444
+                                                dst_ip        = "127.0.0.1"
+                                                description   = "Example"
+                                              }]
+                host_ip                     = null
+                host_port                   = 8888
+              }
+              docker_log4shell_vulnerable_host = {
+                enabled                     = false
+                listen_port                 = 8000
+              }
+            }
+            responder = {
+              reverse_shell = object({
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "touch /tmp/pwned"
+              })
+              port_forward = {
+                enabled                     = false
+                listen_port                 = 8888
+              }
+            }
+            execute = {
+              docker_cpu_miner = {
+                enabled                     = false
+                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
+                nicehash_name               = "nicehash"
+                nicehash_server             = "equihash.usa.nicehash.com:3357"
+                nicehash_user               = null
+                minergate_name              = "minerd"
+                minergate_image             = "mkell43/minerd"
+                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
+                minergate_user              = null
+              }
+              docker_log4shell_attack = {
+                enabled                     = false
+                attacker_http_port          = 8088
+                attacker_ldap_port          = 1389
+                attacker_ip                 = null
+                target_ip                   = null
+                target_port                 = null
+                payload                     = "touch /tmp/log4shell_pwned"
+              }
+              docker_compromised_credentials_attack = {
+                enabled                     = false
+                compromised_credentials     = null
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+              }
+            }
           }
         }
       }
@@ -61,20 +233,7 @@ variable "config" {
 
 variable "infrastructure" {
   type = object({
-    context = object({
-      global = object({
-          environment               = string
-          trust_security_group      = bool
-          disable_all               = string
-          enable_all                = string
-      })
-      aws = object({
-          region                    = string
-          profile_name              = string
-          iam                       = any
-          ec2                       = any
-          eks                       = any
-      })
-    })
+    config = any
+    deployed_state = any
   })
 }
