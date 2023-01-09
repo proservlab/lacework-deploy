@@ -131,7 +131,7 @@ variable "config" {
 
           rdsapp = {
             enabled                     = false
-            service_port                = 8080
+            service_port                = 8000
             trust_attacker_source       = true
             trust_workstation_source    = true
             additional_trusted_sources  = []

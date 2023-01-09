@@ -1,8 +1,8 @@
 resource "kubernetes_deployment" "vulnerable_privileged_pod" {
   metadata {
-    name = "vulnerable-rdsapp"
+    name = var.app
     labels = {
-      app = "vulnerable-rdsapp"
+      app = var.app
     }
     namespace = var.namespace
   }
@@ -12,14 +12,14 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
 
     selector {
         match_labels = {
-            app = "vulnerable-rdsapp"
+            app = var.app
         }
     }
 
     template {
       metadata {
         labels = {
-            app = "vulnerable-rdsapp"
+            app = var.app
         }
       }
 

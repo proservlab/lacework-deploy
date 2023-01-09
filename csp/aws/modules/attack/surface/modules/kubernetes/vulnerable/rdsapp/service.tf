@@ -19,7 +19,7 @@ resource "kubernetes_service_v1" "vote" {
         port {
             name = "${var.app}-service"
             port        = var.service_port
-            target_port = 5000
+            target_port = 80
         }
 
         type = "LoadBalancer"
