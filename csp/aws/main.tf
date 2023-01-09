@@ -20,7 +20,7 @@ module "default-attacksurface-context" {
 }
 
 module "default-attacksimulation-context" {
-  source = "./modules/context/attack/surface"
+  source = "./modules/context/attack/execute"
 }
 
 #########################
@@ -594,10 +594,8 @@ module "target-attacksimulation" {
   # infrasturcture config and deployed state
   infrastructure = {
     # initial configuration reference
-    config = {
-      target   = module.target-infrastructure-context.config
-      attacker = module.attacker-infrastructure-context.config
-    }
+    config = module.target-infrastructure-context.config
+
     # deployed state configuration reference
     deployed_state = {
       target   = module.target-infrastructure.config
