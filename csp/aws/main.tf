@@ -96,8 +96,10 @@ module "target-config" {
                 ami_name                  = "ubuntu_focal"
                 enable_ssm_console_access = true
                 tags = {
-                  ssm_deploy_lacework           = "true"
-                  ssm_deploy_secret_ssh_private = "true"
+                  ssm_deploy_lacework              = "true"
+                  ssm_deploy_docker                = "true"
+                  ssm_deploy_secret_ssh_private    = "true"
+                  ssm_exec_docker_log4shell_target = "true"
                 }
                 user_data        = null
                 user_data_base64 = null
@@ -385,7 +387,7 @@ module "target-attacksurface-config" {
           }
           ssm = {
             log4j = {
-              enabled = false
+              enabled = true
             }
             ssh_keys = {
               enabled = true
@@ -401,7 +403,7 @@ module "target-attacksurface-config" {
           }
           vulnerable = {
             log4j = {
-              enabled = false
+              enabled = true
             }
             voteapp = {
               enabled = true
