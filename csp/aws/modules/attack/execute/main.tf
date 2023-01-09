@@ -163,10 +163,10 @@ module "ssm-execute-docker-log4shell-attack" {
 #########################
 
 module "ssm-listener-docker-log4shell-vulnerable-host" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_log4shell_vulnerable_host.enabled == true) ? 1 : 0
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.listener.docker_log4shell_vulnerable_host.enabled == true) ? 1 : 0
   source = "./modules/simulation/aws/ssm/listener-docker-log4shell-vulnerable-host"
   environment = var.infrastructure.config.context.global.environment
-  listen_port = var.config.context.simulation.aws.ssm.execute.docker_log4shell_vulnerable_host.listen_port
+  listen_port = var.config.context.simulation.aws.ssm.listener.docker_log4shell_vulnerable_host.listen_port
 }
 
 module "ssm-listener-http-listener" {
