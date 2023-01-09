@@ -140,8 +140,8 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
 }
 
 module "ssm-execute-docker-cpuminer" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_cpuminer == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/execute-docker-cpuminer"
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_cpu_miner == true ) ? 1 : 0
+  source = "./modules/simulation/aws/ssm/execute-docker-cpu-miner"
   environment = var.infrastructure.config.context.global.environment
 }
 
