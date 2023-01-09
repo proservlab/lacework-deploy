@@ -105,8 +105,8 @@ module "ssm-connect-reverse-shell" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.reverse_shell.enabled == true ) ? 1 : 0
   source = "./modules/simulation/aws/ssm/connect-reverse-shell"
   environment = var.infrastructure.config.context.global.environment
-  host_ip =  var.config.context.simulation.aws.ssm.connect.host_ip
-  host_port = var.config.context.simulation.aws.ssm.connect.host_port
+  host_ip =  var.config.context.simulation.aws.ssm.connect.reverse_shell.host_ip
+  host_port = var.config.context.simulation.aws.ssm.connect.reverse_shell.host_port
 }
 
 #########################
@@ -127,7 +127,7 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
   source = "./modules/simulation/aws/ssm/execute-docker-compromised-credentials"
   environment = var.infrastructure.config.context.global.environment
-  region = var.config.context.global.aws.region
+  region = var.infrastructure.config.context.aws.region
 
   compromised_credentials = var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.compromised_credentials
   protonvpn_user = var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.protonvpn_user
