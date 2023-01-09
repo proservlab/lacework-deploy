@@ -573,7 +573,7 @@ module "target-attacksimulation-config" {
 
 # set attack the context
 module "target-attacksimulation-context" {
-  source = "./modules/context/attack/exec"
+  source = "./modules/context/attack/execute"
   config = module.target-attacksimulation-config.merged
 }
 
@@ -583,7 +583,7 @@ module "target-attacksimulation-context" {
 
 # deploy target attacksimulation
 module "target-attacksimulation" {
-  source = "./modules/attack/exec"
+  source = "./modules/attack/execute"
   # attack surface config
   config = module.target-attacksimulation-context.config
 

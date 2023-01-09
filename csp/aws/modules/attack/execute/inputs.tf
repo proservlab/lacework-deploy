@@ -180,12 +180,12 @@ variable "config" {
               }
             }
             responder = {
-              reverse_shell = object({
+              reverse_shell = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
-              })
+              }
               port_forward = {
                 enabled                     = false
                 listen_port                 = 8888
