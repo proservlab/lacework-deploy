@@ -11,7 +11,7 @@
             "additional_trusted_sources"  :  [],
             "trusted_tcp_ports"           :  {
               "from_port" :  0,
-              "to_port" :  0
+              "to_port" :  65535
             }
           }
         }
