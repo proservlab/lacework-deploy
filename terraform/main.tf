@@ -20,7 +20,7 @@ module "default-attacksurface-context" {
 }
 
 module "default-attacksimulation-context" {
-  source = "./modules/context/attack/execute"
+  source = "./modules/context/attack/simulate"
 }
 
 #########################
@@ -259,7 +259,7 @@ module "attacker-attacksimulation-config" {
 
   maps = [
     module.default-attacksimulation-context.config,
-    jsondecode(data.attacker-attacksimulation-config-file.rendered)
+    jsondecode(data.template_file.attacker-attacksimulation-config-file.rendered)
   ]
 }
 
@@ -275,7 +275,7 @@ module "target-attacksimulation-config" {
 
   maps = [
     module.default-attacksimulation-context.config,
-    jsondecode(data.target-attacksimulation-config-file.rendered)
+    jsondecode(data.template_file.target-attacksimulation-config-file.rendered)
   ]
 }
 

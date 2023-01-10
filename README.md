@@ -17,7 +17,6 @@ jira_cloud_project_key = "xxxxxx"
 jira_cloud_issue_type = "xxxxxx"
 jira_cloud_url = "https://xxxxxx.atlassian.net"
 slack_token = "https://hooks.slack.com/services/xxxxxx"
-proxy_token = "xxxxxx"
 lacework_profile = "xxxxxx"
 lacework_account_name = "xxxxxx"
 lacework_server_url = "https://xxxxxx.lacework.net"
@@ -27,12 +26,12 @@ lacework_server_url = "https://xxxxxx.lacework.net"
 
 All AWS instances are setup with SSM management. They can be access via aws-cli ssm commands. This applies to public and private instances as well as cluster nodes.
 
-## list ssm managed instances
+## List SSM Managed Instances
 
 Output a json list of instance id, state, privateip, publicip and tags for all ssm managed instances
 `export ENV=<target|attacker>; aws ssm describe-instance-information --profile=$ENV | jq -r '.InstanceInformationList[] | .InstanceId' | xargs -I '{}' aws ec2 --profile=$ENV describe-instances --instance-id {} | jq -r '.Reservations[] | .Instances[] | { Name:(.Tags|from_entries.Name), InstanceId:.InstanceId, State:.State.Name, PublicIpAddress:.PublicIpAddress, PrivateIpAddress:.PrivateIpAddress }'`
 
-## connect to shell on ssm managed instance
+## Connect to Shell on SSM Managed Instance
 
 ` aws ssm start-session  --target "<INSTANCE_ID>" --profile=<target|attacker>`
 
@@ -53,4 +52,4 @@ Reteive meta data for compute instance from the local machine:
 
 # Future
 
-Currently security related tests are focused in AWS and are developed to leverage ssm. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.
+Currently security related tests are focused in AWS and are developed to leverage SSM. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.

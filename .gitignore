@@ -66,5 +66,5 @@ Temporary Items
 */certs/*.csr*
 */certs/*.conf*
 */values.yaml
-attacker/cloud/ransomware/*.b64
-attacker/cloud/ransomware/*.bin
+*/cloud/ransomware/*.b64
+*/cloud/ransomware/*.bin
