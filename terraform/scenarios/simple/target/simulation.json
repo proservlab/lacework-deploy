@@ -1,0 +1,15 @@
+{
+  "context" :  {
+    "simulation" :  {
+      "aws" :  {
+        "ssm" :  {
+          "connect" :  {
+            "oast" :  {
+              "enabled" :  true
+            }
+          }
+        }
+      }
+    }
+  }
+}

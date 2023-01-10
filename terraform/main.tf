@@ -28,7 +28,7 @@ module "default-attacksimulation-context" {
 ########################
 
 data "template_file" "attack-config-file" {
-  template = file("${path.module}/scenarios/demo/attacker/infrastructure.json")
+  template = file("${path.module}/scenarios/simple/attacker/infrastructure.json")
   vars = {
     attacker_aws_profile = var.attacker_aws_profile
   }
@@ -45,28 +45,15 @@ module "attacker-config" {
 }
 
 data "template_file" "target-config-file" {
-  template = file("${path.module}/scenarios/demo/target/infrastructure.json")
+  template = file("${path.module}/scenarios/simple/target/infrastructure.json")
   vars = {
     # aws
     target_aws_profile = var.target_aws_profile
 
-    # gcp
-    target_gcp_lacework_project = var.target_gcp_lacework_project
-
     # lacework
     lacework_server_url   = var.lacework_server_url
     lacework_account_name = var.lacework_account_name
-    syscall_config_path   = abspath("${path.module}/scenarios/demo/target/resources/syscall_config.yaml")
-
-    # slack
-    slack_token = var.slack_token
-
-    # jira config
-    jira_cloud_url         = var.jira_cloud_url
-    jira_cloud_username    = var.jira_cloud_username
-    jira_cloud_api_token   = var.jira_cloud_api_token
-    jira_cloud_project_key = var.jira_cloud_project_key
-    jira_cloud_issue_type  = var.jira_cloud_issue_type
+    syscall_config_path   = abspath("${path.module}/scenarios/simple/target/resources/syscall_config.yaml")
   }
 }
 
@@ -128,7 +115,7 @@ module "target-infrastructure" {
 ########################
 
 data "template_file" "attacker-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/demo/attacker/surface.json")
+  template = file("${path.module}/scenarios/simple/attacker/surface.json")
 
   vars = {
     # ec2 security group trusted ingress
@@ -146,24 +133,11 @@ module "attacker-attacksurface-config" {
 }
 
 data "template_file" "target-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/demo/target/surface.json")
+  template = file("${path.module}/scenarios/simple/target/surface.json")
 
   vars = {
-    # iam
-    iam_power_user_policy_path = abspath("${path.module}/scenarios/demo/target/resources/iam_power_user_policy.json")
-    iam_users_path             = abspath("${path.module}/scenarios/demo/target/resources/iam_users.json")
-
     # ec2 security group trusted ingress
     security_group_id = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
-
-    # rds
-    rds_igw_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_igw.id
-    rds_vpc_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id
-    rds_vpc_subnet             = module.target-infrastructure.config.context.aws.ec2[0].public_network
-    rds_ec2_instance_role_name = module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_role.name
-    rds_trusted_sg_id          = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
-    rds_root_db_username       = "dbuser"
-    rds_root_db_password       = "dbpassword"
   }
 }
 
@@ -248,7 +222,7 @@ module "target-attacksurface" {
 ########################
 
 data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/demo/attacker/simulation.json")
+  template = file("${path.module}/scenarios/simple/attacker/simulation.json")
 
   vars = {}
 }
@@ -264,7 +238,7 @@ module "attacker-attacksimulation-config" {
 }
 
 data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/demo/target/simulation.json")
+  template = file("${path.module}/scenarios/simple/target/simulation.json")
 
   vars = {}
 }

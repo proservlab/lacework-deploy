@@ -29,6 +29,11 @@ for i in "$@"; do
         shift # past argument=value
         help
         ;;
+    -l|--local-backend)
+        LOCAL_BACKEND="${i#*=}"
+        shift # past argument=value
+        help
+        ;;
     -a=*|--action=*)
         ACTION="${i#*=}"
         shift # past argument=value
@@ -95,15 +100,21 @@ terraform workspace select ${WORK} || terraform workspace new ${WORK}
 terraform get -update=true
 
 # ensure backend is initialized
+if [ -z ${LOCAL_BACKEND} ]; then
 terraform init -backend-config=env_vars/init.tfvars
+BACKEND="-var-file=env_vars/backend.tfvars"
+else
+terraform init
+BACKEND=""
+fi;
 
 # check for destroy
 if [ "destroy" = "${ACTION}" ]; then 
-terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS} ${TARGET_ARG}
+terraform ${ACTION} ${BACKEND} ${VARS} ${TARGET_ARG}
 elif [ "apply" = "${ACTION}" ]; then
 # else plan, show and apply
-echo "Running: terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}"
-terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+echo "Running: terraform plan ${BACKEND} ${VARS} -out build.tfplan ${TARGET_ARG}"
+terraform plan ${BACKEND} ${VARS} -out build.tfplan ${TARGET_ARG}
 echo "Running: terraform show -no-color build.tfplan"
 terraform show -no-color build.tfplan
 echo "Running: terraform ${ACTION} build.tfplan"
@@ -111,14 +122,14 @@ terraform ${ACTION} build.tfplan
 rm -f build.tfplan
 elif [ "plan" = "${ACTION}" ]; then
 # else plan, show
-echo "Running: terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}"
-terraform plan -var-file=env_vars/backend.tfvars ${VARS} -out build.tfplan ${TARGET_ARG}
+echo "Running: terraform plan ${BACKEND} ${VARS} -out build.tfplan ${TARGET_ARG}"
+terraform plan ${BACKEND} ${VARS} -out build.tfplan ${TARGET_ARG}
 echo "Running: terraform show -no-color build.tfplan"
 terraform show -no-color build.tfplan
 rm -f build.tfplan
 elif [ "refresh" = "${ACTION}" ]; then
-echo "Running: terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}"
-terraform ${ACTION} -var-file=env_vars/backend.tfvars ${VARS}
+echo "Running: terraform ${ACTION} ${BACKEND} ${VARS}"
+terraform ${ACTION} ${BACKEND} ${VARS}
 else
 errmsg "Unknown action."
 help

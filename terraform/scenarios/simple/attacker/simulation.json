@@ -1,0 +1,34 @@
+{
+  "context" :  {
+    "simulation" :  {
+      "aws" :  {
+        "ssm" :  {
+          "listener" :  {
+            "http" :  {
+              "enabled" :  false
+            },
+            "port_forward" :  {
+              "enabled" :  false
+            }
+          },
+          "responder" :  {
+            "reverse_shell" :  {
+              "enabled" :  false
+            },
+            "port_forward" :  {
+              "enabled" :  false
+            }
+          },
+          "execute" :  {
+            "docker_log4shell_attack" :  {
+              "enabled" :  false
+            },
+            "docker_compromised_credentials_attack" :  {
+              "enabled" :  false
+            }
+          }
+        }
+      }
+    }
+  }
+}
