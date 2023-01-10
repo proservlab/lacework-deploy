@@ -56,7 +56,7 @@ data "template_file" "target-config-file" {
     # lacework
     lacework_server_url   = var.lacework_server_url
     lacework_account_name = var.lacework_account_name
-    syscall_config_path   = "${path.module}/scenarios/demo/target/resources/syscall_config.yaml"
+    syscall_config_path   = abspath("${path.module}/scenarios/demo/target/resources/syscall_config.yaml")
 
     # slack
     slack_token = var.slack_token
@@ -150,8 +150,8 @@ data "template_file" "target-attacksurface-config-file" {
 
   vars = {
     # iam
-    iam_power_user_policy_path = "${path.module}/scenarios/demo/target/resources/iam_power_user_policy.json"
-    iam_users_path             = "${path.module}/scenarios/demo/target/resources/iam_users.json"
+    iam_power_user_policy_path = abspath("${path.module}/scenarios/demo/target/resources/iam_power_user_policy.json")
+    iam_users_path             = abspath("${path.module}/scenarios/demo/target/resources/iam_users.json")
 
     # ec2 security group trusted ingress
     security_group_id = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
