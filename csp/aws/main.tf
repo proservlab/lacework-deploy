@@ -544,7 +544,7 @@ module "target-attacksimulation-config" {
                   enabled = false
                 }
                 oast = {
-                  enabled = false
+                  enabled = true
                 }
                 codecov = {
                   enabled = false

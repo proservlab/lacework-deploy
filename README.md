@@ -30,7 +30,7 @@ All AWS instances are setup with SSM management. They can be access via aws-cli 
 ## list ssm managed instances
 
 Output a json list of instance id, state, privateip, publicip and tags for all ssm managed instances
-`export ENV=<target|attacker>; aws ssm describe-instance-information --profile=$ENV | jq -r '.InstanceInformationList[] | .InstanceId' | xargs -I '{}' aws ec2 --profile=$ENV describe-instances --instance-id {} | jq -r '.Reservations[] | .Instances[] | { InstanceId:.InstanceId, State:.State.Name, PublicIpAddress:.PublicIpAddress, PrivateIpAddress:.PrivateIpAddress, Tags:.Tags }'`
+`export ENV=<target|attacker>; aws ssm describe-instance-information --profile=$ENV | jq -r '.InstanceInformationList[] | .InstanceId' | xargs -I '{}' aws ec2 --profile=$ENV describe-instances --instance-id {} | jq -r '.Reservations[] | .Instances[] | { Name:(.Tags|from_entries.Name), InstanceId:.InstanceId, State:.State.Name, PublicIpAddress:.PublicIpAddress, PrivateIpAddress:.PrivateIpAddress }'`
 
 ## connect to shell on ssm managed instance
 
@@ -53,4 +53,4 @@ Reteive meta data for compute instance from the local machine:
 
 # Future
 
-Currently security related tests are focsed in AWS and are developed to leverage ssm. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.
+Currently security related tests are focused in AWS and are developed to leverage ssm. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.
