@@ -7,8 +7,8 @@ variable "region" {
 }
 
 variable "user_policies" {
-    type = map(string)
-    description = "list of role to create"
+    type = map(any)
+    description = "list of iam policies to create"
 }
 
 variable "users" {

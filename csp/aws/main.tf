@@ -128,7 +128,7 @@ module "target-infrastructure" {
 ########################
 
 data "template_file" "attacker-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/demo/attacker/attacksurface.json")
+  template = file("${path.module}/scenarios/demo/attacker/surface.json")
 
   vars = {
     # ec2 security group trusted ingress
@@ -146,7 +146,7 @@ module "attacker-attacksurface-config" {
 }
 
 data "template_file" "target-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/demo/target/attacksurface.json")
+  template = file("${path.module}/scenarios/demo/target/surface.json")
 
   vars = {
     # iam
@@ -213,10 +213,10 @@ module "attacker-attacksurface" {
     }
   }
   providers = {
-    aws        = aws.target
-    lacework   = lacework.target
-    kubernetes = kubernetes.target
-    helm       = helm.target
+    aws        = aws.attacker
+    lacework   = lacework.attacker
+    kubernetes = kubernetes.attacker
+    helm       = helm.attacker
   }
 }
 
@@ -246,47 +246,27 @@ module "target-attacksurface" {
 #########################
 # ATTACKSIMULATION CONFIG
 ########################
+
+data "template_file" "attacker-attacksimulation-config-file" {
+  template = file("${path.module}/scenarios/demo/attacker/simulation.json")
+
+  vars = {}
+}
+
 module "attacker-attacksimulation-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"
 
   maps = [
     module.default-attacksimulation-context.config,
-    {
-      context = {
-        simulation = {
-          aws = {
-            ssm = {
-              listener = {
-                http = {
-                  enabled = false
-                }
-                port_forward = {
-                  enabled = false
-                }
-              }
-              responder = {
-                reverse_shell = {
-                  enabled = false
-                }
-                port_forward = {
-                  enabled = false
-                }
-              }
-              execute = {
-                docker_log4shell_attack = {
-                  enabled = false
-                }
-                docker_compromised_credentials_attack = {
-                  enabled = false
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    jsondecode(data.attacker-attacksimulation-config-file.rendered)
   ]
+}
+
+data "template_file" "target-attacksimulation-config-file" {
+  template = file("${path.module}/scenarios/demo/target/simulation.json")
+
+  vars = {}
 }
 
 module "target-attacksimulation-config" {
@@ -295,53 +275,7 @@ module "target-attacksimulation-config" {
 
   maps = [
     module.default-attacksimulation-context.config,
-    {
-      context = {
-        simulation = {
-          aws = {
-            ssm = {
-              drop = {
-                malware = {
-                  eicar = {
-                    enabled = false
-                  }
-                }
-              }
-              connect = {
-                badip = {
-                  enabled = false
-                }
-                nmap_port_scan = {
-                  enabled = false
-                }
-                oast = {
-                  enabled = true
-                }
-                codecov = {
-                  enabled = false
-                }
-                reverse_shell = {
-                  enabled = false
-                }
-              }
-              listener = {
-                http = {
-                  enabled = false
-                }
-                port_forward = {
-                  enabled = false
-                }
-              }
-              execute = {
-                docker_cpu_miner = {
-                  enabled = false
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    jsondecode(data.target-attacksimulation-config-file.rendered)
   ]
 }
 
@@ -350,8 +284,14 @@ module "target-attacksimulation-config" {
 ########################
 
 # set attack the context
+module "attacker-attacksimulation-context" {
+  source = "./modules/context/attack/simulate"
+  config = module.attacker-attacksimulation-config.merged
+}
+
+# set attack the context
 module "target-attacksimulation-context" {
-  source = "./modules/context/attack/execute"
+  source = "./modules/context/attack/simulate"
   config = module.target-attacksimulation-config.merged
 }
 
@@ -360,8 +300,33 @@ module "target-attacksimulation-context" {
 ########################
 
 # deploy target attacksimulation
+module "attacker-attacksimulation" {
+  source = "./modules/attack/simulate"
+  # attack surface config
+  config = module.attacker-attacksimulation-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = module.attacker-infrastructure-context.config
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-infrastructure.config
+      attacker = module.attacker-infrastructure.config
+    }
+  }
+  providers = {
+    aws        = aws.attacker
+    lacework   = lacework.attacker
+    kubernetes = kubernetes.attacker
+    helm       = helm.attacker
+  }
+}
+
+# deploy target attacksimulation
 module "target-attacksimulation" {
-  source = "./modules/attack/execute"
+  source = "./modules/attack/simulate"
   # attack surface config
   config = module.target-attacksimulation-context.config
 

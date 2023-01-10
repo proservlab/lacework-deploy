@@ -1,0 +1,47 @@
+{
+  "context" :  {
+    "simulation" :  {
+      "aws" :  {
+        "ssm" :  {
+          "drop" :  {
+            "malware" :  {
+              "eicar" :  {
+                "enabled" :  false
+              }
+            }
+          },
+          "connect" :  {
+            "badip" :  {
+              "enabled" :  false
+            },
+            "nmap_port_scan" :  {
+              "enabled" :  false
+            },
+            "oast" :  {
+              "enabled" :  true
+            },
+            "codecov" :  {
+              "enabled" :  false
+            },
+            "reverse_shell" :  {
+              "enabled" :  false
+            }
+          },
+          "listener" :  {
+            "http" :  {
+              "enabled" :  false
+            },
+            "port_forward" :  {
+              "enabled" :  false
+            }
+          },
+          "execute" :  {
+            "docker_cpu_miner" :  {
+              "enabled" :  false
+            }
+          }
+        }
+      }
+    }
+  }
+}
