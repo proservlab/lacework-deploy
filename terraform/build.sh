@@ -13,7 +13,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --workspace=WORK --action=ACTION [--target=TARGET]
+usage: $SCRIPTNAME [-h] [--local-backend] --workspace=WORK --action=ACTION [--target=TARGET]
 EOH
 		exit 1
 }
