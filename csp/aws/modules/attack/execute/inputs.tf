@@ -60,10 +60,6 @@ variable "config" {
                 host_ip                     = string
                 host_port                   = number
               })
-              docker_log4shell_vulnerable_host = object({
-                enabled                     = bool
-                listen_port                 = number
-              })
             })
             responder = object({
               reverse_shell = object({
@@ -110,7 +106,6 @@ variable "config" {
                 minergate_user              = string
               })
             })
-            
           })
         })
       })
@@ -173,10 +168,6 @@ variable "config" {
                                               }]
                 host_ip                     = null
                 host_port                   = 8888
-              }
-              docker_log4shell_vulnerable_host = {
-                enabled                     = false
-                listen_port                 = 8000
               }
             }
             responder = {

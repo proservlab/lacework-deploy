@@ -25,9 +25,12 @@ variable "config" {
           root_db_password              = string
         })
         ssm = object({
-          docker = object({
-            log4j = object({
-              enabled                   = bool
+          vulnerable = object({
+            docker = object({
+              log4shellapp = object({
+                enabled                   = bool
+                listen_port               = number
+              })
             })
           })
           ssh_keys = object({ 
@@ -43,7 +46,7 @@ variable "config" {
           enabled                       = bool
         })
         vulnerable = object({
-          log4j = object({
+          log4shellapp = object({
             enabled                     = bool
             service_port                = number
             trust_attacker_source       = bool
@@ -89,15 +92,18 @@ variable "config" {
           igw_id                        = null
           vpc_id                        = null
           vpc_subnet                    = null
-          ec2_instance_role_name         = null
+          ec2_instance_role_name        = null
           trusted_sg_id                 = null
           root_db_username              = null
           root_db_password              = null
         }
         ssm = {
-          docker = {
-            log4j = {
-              enabled                   = false
+          vulnerable = {
+            docker = {
+              log4shellapp = {
+                enabled                   = false
+                listen_port               = 8000
+              }
             }
           }
           ssh_keys = {
@@ -113,7 +119,7 @@ variable "config" {
           enabled                       = false
         }
         vulnerable = {
-          log4j = {
+          log4shellapp = {
             enabled                     = false
             service_port                = 8000
             trust_attacker_source       = true

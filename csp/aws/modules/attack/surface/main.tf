@@ -54,11 +54,11 @@ module "ssh-keys" {
   environment = var.infrastructure.config.context.global.environment
 }
 
-module "log4j" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.docker.log4j.enabled == true ) ? 1 : 0
-  source = "./modules/aws/ssm/ec2/docker/log4j"
+module "vulnerable-docker-log4shellspp" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ssm.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
+  source = "./modules/aws/ssm/ec2/vulnerable/docker-log4shellapp"
   environment = var.infrastructure.config.context.global.environment
-
+  listen_port = var.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
 }
 
 #########################
@@ -119,19 +119,19 @@ module "vulnerable-kubernetes-voteapp" {
   additional_trusted_sources = var.config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
 }
 
-module "vulnerable-kubernetes-log4shell" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.log4j.enabled == true ) ? 1 : 0
-  source      = "./modules/kubernetes/vulnerable/log4shell"
+module "vulnerable-kubernetes-log4shellapp" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.infrastructure.config.context.aws.eks.enabled == true && var.config.context.kubernetes.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
+  source      = "./modules/kubernetes/vulnerable/log4shellapp"
   environment = var.infrastructure.config.context.global.environment
   cluster_vpc_id = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-  service_port     = var.config.context.kubernetes.vulnerable.log4j.service_port
-  trusted_attacker_source   = var.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+  service_port     = var.config.context.kubernetes.vulnerable.log4shellapp.service_port
+  trusted_attacker_source   = var.config.context.kubernetes.vulnerable.log4shellapp.trust_attacker_source ? flatten([
       local.attacker_eks_trusted_ips,
       local.attacker_ec2_trusted_ips
     ]) : []
   trusted_workstation_source = local.workstation_ips
-  additional_trusted_sources = var.config.context.kubernetes.vulnerable.log4j.additional_trusted_sources
+  additional_trusted_sources = var.config.context.kubernetes.vulnerable.log4shellapp.additional_trusted_sources
 }
 
 module "vulnerable-kubernetes-rdsapp" {

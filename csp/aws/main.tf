@@ -117,6 +117,7 @@ module "target-config" {
                 tags = {
                   ssm_deploy_lacework          = "true"
                   ssm_deploy_secret_ssh_public = "true"
+                  ssm_connect_oast_host        = "true"
                 }
                 user_data        = null
                 user_data_base64 = null
@@ -390,8 +391,12 @@ module "target-attacksurface-config" {
             root_db_password       = "dbpassword"
           }
           ssm = {
-            log4j = {
-              enabled = true
+            vulnerable = {
+              docker = {
+                log4shellapp = {
+                  enabled = true
+                }
+              }
             }
             ssh_keys = {
               enabled = true
@@ -406,13 +411,12 @@ module "target-attacksurface-config" {
             enabled = false
           }
           vulnerable = {
-            log4j = {
+            log4shellapp = {
               enabled = true
             }
             voteapp = {
               enabled = true
             }
-
             rdsapp = {
               enabled = true
             }
@@ -482,7 +486,6 @@ module "attacker-attacksimulation-config" {
         simulation = {
           aws = {
             ssm = {
-
               listener = {
                 http = {
                   enabled = false
