@@ -109,8 +109,8 @@ variable "config" {
               enabled         = bool
             })               
             daemonset = object({
-              enabled         = bool
-              syscall_config  = string
+              enabled               = bool
+              syscall_config_path   = string
             })
             compliance = object({
               enabled         = bool
@@ -320,8 +320,8 @@ variable "config" {
               enabled         = false
             }             
             daemonset = {
-              enabled         = false
-              syscall_config  = null
+              enabled              = false
+              syscall_config_path  = null
             }
             compliance = {
               enabled         = false

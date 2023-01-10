@@ -8,11 +8,22 @@ variable "config" {
       aws = object({
         iam = object({
           enabled                       = bool
-          user_policies = map(string)
-          users = list(object({
-            name                        = string
-            policy                      = string
-          }))
+          user_policies_path = string
+          users_path = string
+        })
+        ec2 = object({
+          add_trusted_ingress = object({
+            enabled                     = bool
+            security_group_id           = string
+            trust_workstation           = bool
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            additional_trusted_sources  = list(string)
+            trusted_tcp_ports           = object({
+              from_port                 = number
+              to_port                   = number
+            })
+          })
         })
         rds = object({
           enabled                       = bool
@@ -84,8 +95,22 @@ variable "config" {
       aws = {
         iam = {
           enabled                       = false
-          user_policies                 = null
-          users                         = null
+          user_policies_path            = null
+          users_path                    = null
+        }
+        ec2 = {
+          add_trusted_ingress = {
+            enabled                     = false
+            security_group_id           = null
+            trust_workstation           = false
+            trust_attacker_source       = false
+            trust_target_source         = false
+            additional_trusted_sources  = []
+            trusted_tcp_ports           = {
+              from_port = 1024
+              to_port = 65535
+            }
+          }
         }
         rds = {
           enabled                       = false

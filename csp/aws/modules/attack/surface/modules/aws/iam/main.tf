@@ -13,7 +13,7 @@ resource "aws_iam_user_policy" "user_policies" {
   for_each = { for i in var.users : i.name => i }
   name     = "iam-policy-${var.environment}-${each.value.name}"
   user     = each.key
-  policy   = var.user_policies[each.value.policy]
+  policy   = jsonencode(var.user_policies[each.value.policy])
 
   depends_on = [
     aws_iam_user.users

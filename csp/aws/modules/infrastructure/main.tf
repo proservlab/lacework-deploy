@@ -208,7 +208,7 @@ module "lacework-daemonset" {
   lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
   lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
-  syscall_config =  local.config.context.lacework.agent.kubernetes.daemonset.syscall_config
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   depends_on = [
     module.eks,

@@ -27,48 +27,47 @@ module "default-attacksimulation-context" {
 # CONFIG
 ########################
 
+data "template_file" "attack-config-file" {
+  template = file("${path.module}/scenarios/demo/attacker/infrastructure.json")
+  vars = {
+    attacker_aws_profile = var.attacker_aws_profile
+  }
+}
+
 module "attacker-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"
 
   maps = [
     module.default-infrastructure-context.config,
-    {
-      context = {
-        global = {
-          environment          = "attacker"
-          trust_security_group = true
-        }
-        aws = {
-          profile_name = var.attacker_aws_profile
-          ec2 = {
-            enabled            = true
-            public_network     = "172.27.0.0/16"
-            public_subnet      = "172.27.0.0/24"
-            private_network    = "172.26.0.0/16"
-            private_subnet     = "172.26.100.0/24"
-            private_nat_subnet = "172.26.10.0/24"
-            instances = [
-              {
-                name                      = "attacker-public-1"
-                public                    = true
-                instance_type             = "t2.micro"
-                ami_name                  = "ubuntu_focal"
-                enable_ssm_console_access = true
-                tags                      = {}
-                user_data                 = null
-                user_data_base64          = null
-              }
-            ]
-          }
-          eks = {
-            enabled      = false
-            cluster_name = "attacker-cluster"
-          }
-        }
-      }
-    }
+    jsondecode(data.template_file.attack-config-file.rendered)
   ]
+}
+
+data "template_file" "target-config-file" {
+  template = file("${path.module}/scenarios/demo/target/infrastructure.json")
+  vars = {
+    # aws
+    target_aws_profile = var.target_aws_profile
+
+    # gcp
+    target_gcp_lacework_project = var.target_gcp_lacework_project
+
+    # lacework
+    lacework_server_url   = var.lacework_server_url
+    lacework_account_name = var.lacework_account_name
+    syscall_config_path   = "${path.module}/scenarios/demo/target/resources/syscall_config.yaml"
+
+    # slack
+    slack_token = var.slack_token
+
+    # jira config
+    jira_cloud_url         = var.jira_cloud_url
+    jira_cloud_username    = var.jira_cloud_username
+    jira_cloud_api_token   = var.jira_cloud_api_token
+    jira_cloud_project_key = var.jira_cloud_project_key
+    jira_cloud_issue_type  = var.jira_cloud_issue_type
+  }
 }
 
 module "target-config" {
@@ -77,159 +76,7 @@ module "target-config" {
 
   maps = [
     module.default-infrastructure-context.config,
-    {
-      context = {
-        global = {
-          environment          = "target"
-          trust_security_group = true
-        }
-        aws = {
-          profile_name = var.target_aws_profile
-          ec2 = {
-            enabled            = true
-            public_network     = "172.17.0.0/16"
-            public_subnet      = "172.17.0.0/24"
-            private_network    = "172.16.0.0/16"
-            private_subnet     = "172.16.100.0/24"
-            private_nat_subnet = "172.16.10.0/24"
-            instances = [
-              {
-                name                      = "target-public-1"
-                public                    = true
-                instance_type             = "t2.micro"
-                ami_name                  = "ubuntu_focal"
-                enable_ssm_console_access = true
-                tags = {
-                  ssm_deploy_lacework              = "true"
-                  ssm_deploy_docker                = "true"
-                  ssm_deploy_secret_ssh_private    = "true"
-                  ssm_exec_docker_log4shell_target = "true"
-                }
-                user_data        = null
-                user_data_base64 = null
-              },
-              {
-                name                      = "target-public-2"
-                public                    = true
-                instance_type             = "t2.micro"
-                ami_name                  = "ubuntu_focal"
-                enable_ssm_console_access = true
-                tags = {
-                  ssm_deploy_lacework          = "true"
-                  ssm_deploy_secret_ssh_public = "true"
-                  ssm_connect_oast_host        = "true"
-                }
-                user_data        = null
-                user_data_base64 = null
-              }
-            ]
-          }
-          eks = {
-            enabled      = true
-            cluster_name = "target-cluster"
-          }
-          ssm = {
-            enabled                        = true
-            deploy_git                     = true
-            deploy_docker                  = true
-            deploy_inspector_agent         = true
-            deploy_lacework_agent          = true
-            deploy_lacework_syscall_config = true
-          }
-        }
-        lacework = {
-          server_url   = var.lacework_server_url
-          account_name = var.lacework_account_name
-          aws_audit_config = {
-            enabled = true
-          }
-          gcp_audit_config = {
-            project_id = var.target_gcp_lacework_project
-            enabled    = true
-          }
-          custom_policy = {
-            enabled = true
-          }
-          agent = {
-            enabled = true
-
-            kubernetes = {
-              enabled = true
-              proxy_scanner = {
-                token   = var.lacework_proxy_token
-                enabled = true
-              }
-              daemonset = {
-                enabled        = true
-                syscall_config = <<-EOT
-                                  etype.exec:
-                                  etype.initmod:
-                                  etype.finitmod:
-                                  etype.exit:
-                                  etype.file:
-                                      send-if-matches:
-                                          ubuntu-authorized-keys:
-                                              watchpath: /home/*/.ssh/authorized_keys
-                                              watchfor: create, modify
-                                          root-authorized-keys:
-                                              watchpath: /root/.ssh/authorized_keys
-                                              watchfor: create, modify
-                                          cronfiles:
-                                              watchpath: /etc/cron*
-                                              depth: 2
-                                          systemd:
-                                              watchpath: /etc/systemd/*
-                                              depth: 2
-                                          boot-initd:
-                                              watchpath: /etc/init.d/*
-                                              depth: 2
-                                          boot-rc:
-                                              watchpath: /etc/rc*
-                                              depth: 2
-                                          shadow-file:
-                                              watchpath: /etc/shadow*
-                                          watchlacework:
-                                              watchpath: /var/lib/lacework
-                                              depth: 2
-                                          watchpasswd:
-                                              watchpath: /etc/passwd
-                                  EOT
-              }
-              compliance = {
-                enabled = true
-              }
-              eks_audit_logs = {
-                enabled = true
-              }
-              admission_controller = {
-                enabled = true
-              }
-            }
-          }
-          aws_agentless = {
-            enabled = true
-          }
-          gcp_agentless = {
-            enabled = false
-          }
-          alerts = {
-            enabled = true
-            slack = {
-              enabled   = true
-              api_token = var.slack_token
-            }
-            jira = {
-              enabled           = true
-              cloud_url         = var.jira_cloud_url
-              cloud_username    = var.jira_cloud_username
-              cloud_api_token   = var.jira_cloud_api_token
-              cloud_project_key = var.jira_cloud_project_key
-              cloud_issue_type  = var.jira_cloud_issue_type
-            }
-          }
-        }
-      }
-    }
+    jsondecode(data.template_file.target-config-file.rendered)
   ]
 }
 
@@ -280,156 +127,53 @@ module "target-infrastructure" {
 # ATTACK SURFACE CONFIG
 ########################
 
+data "template_file" "attacker-attacksurface-config-file" {
+  template = file("${path.module}/scenarios/demo/attacker/attacksurface.json")
+
+  vars = {
+    # ec2 security group trusted ingress
+    security_group_id = module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id
+  }
+}
+module "attacker-attacksurface-config" {
+  source  = "cloudposse/config/yaml//modules/deepmerge"
+  version = "0.2.0"
+
+  maps = [
+    module.default-attacksurface-context.config,
+    jsondecode(data.template_file.attacker-attacksurface-config-file.rendered)
+  ]
+}
+
+data "template_file" "target-attacksurface-config-file" {
+  template = file("${path.module}/scenarios/demo/target/attacksurface.json")
+
+  vars = {
+    # iam
+    iam_power_user_policy_path = "${path.module}/scenarios/demo/target/resources/iam_power_user_policy.json"
+    iam_users_path             = "${path.module}/scenarios/demo/target/resources/iam_users.json"
+
+    # ec2 security group trusted ingress
+    security_group_id = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
+
+    # rds
+    rds_igw_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_igw.id
+    rds_vpc_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id
+    rds_vpc_subnet             = module.target-infrastructure.config.context.aws.ec2[0].public_network
+    rds_ec2_instance_role_name = module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_role.name
+    rds_trusted_sg_id          = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
+    rds_root_db_username       = "dbuser"
+    rds_root_db_password       = "dbpassword"
+  }
+}
+
 module "target-attacksurface-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"
 
   maps = [
     module.default-attacksurface-context.config,
-    {
-      context = {
-        aws = {
-          iam = {
-            enabled = true
-            user_policies = {
-              "simulation_power_user" = jsonencode({
-                "Version" : "2012-10-17",
-                "Statement" : [
-                  {
-                    "Sid" : "AllowSpecifics",
-                    "Action" : [
-                      "lambda:*",
-                      "apigateway:*",
-                      "ec2:*",
-                      "rds:*",
-                      "s3:*",
-                      "sns:*",
-                      "states:*",
-                      "ssm:*",
-                      "sqs:*",
-                      "iam:*",
-                      "elasticloadbalancing:*",
-                      "autoscaling:*",
-                      "cloudwatch:*",
-                      "cloudfront:*",
-                      "route53:*",
-                      "ecr:*",
-                      "logs:*",
-                      "ecs:*",
-                      "application-autoscaling:*",
-                      "logs:*",
-                      "events:*",
-                      "elasticache:*",
-                      "es:*",
-                      "kms:*",
-                      "dynamodb:*",
-                      "fms:*",
-                      "guardduty:*",
-                      "inspector:*",
-                      "waf:*"
-                    ],
-                    "Effect" : "Allow",
-                    "Resource" : "*"
-                  },
-                  {
-                    "Sid" : "DenySpecifics",
-                    "Action" : [
-                      "iam:*User*",
-                      "iam:*Login*",
-                      "iam:*Group*",
-                      "iam:*Provider*",
-                      "aws-portal:*",
-                      "budgets:*",
-                      "config:*",
-                      "directconnect:*",
-                      "aws-marketplace:*",
-                      "aws-marketplace-management:*",
-                      "ec2:*ReservedInstances*"
-                    ],
-                    "Effect" : "Deny",
-                    "Resource" : "*"
-                  }
-                ]
-              })
-            }
-            users = [
-              {
-                name   = "claude.kripto@interlacelabs"
-                policy = "simulation_power_user"
-              },
-              {
-                name   = "dee.fensivason@interlacelabs"
-                policy = "simulation_power_user"
-              },
-              {
-                name   = "haust.kripto@interlacelabs"
-                policy = "simulation_power_user"
-              },
-              {
-                name   = "kees.kompromize@interlacelabs"
-                policy = "simulation_power_user"
-              },
-              {
-                name   = "rand.sumwer@interlacelabs"
-                policy = "simulation_power_user"
-              },
-
-              {
-                name   = "clue.burnetes@interlacelabs"
-                policy = "simulation_power_user"
-              },
-            ]
-          }
-          rds = {
-            enabled                = true
-            igw_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_igw.id
-            vpc_id                 = module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id
-            vpc_subnet             = module.target-infrastructure.config.context.aws.ec2[0].public_network
-            ec2_instance_role_name = module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_role.name
-            trusted_sg_id          = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
-            root_db_username       = "dbuser"
-            root_db_password       = "dbpassword"
-          }
-          ssm = {
-            vulnerable = {
-              docker = {
-                log4shellapp = {
-                  enabled = true
-                }
-              }
-            }
-            ssh_keys = {
-              enabled = true
-            }
-          }
-        }
-        kubernetes = {
-          app = {
-            enabled = true
-          }
-          psp = {
-            enabled = false
-          }
-          vulnerable = {
-            log4shellapp = {
-              enabled = true
-            }
-            voteapp = {
-              enabled = true
-            }
-            rdsapp = {
-              enabled = true
-            }
-            privileged_pod = {
-              enabled = false
-            }
-            root_mount_fs_pod = {
-              enabled = false
-            }
-          }
-        }
-      }
-    }
+    jsondecode(data.template_file.target-attacksurface-config-file.rendered)
   ]
 }
 
@@ -438,6 +182,11 @@ module "target-attacksurface-config" {
 ########################
 
 # set attack the context
+module "attacker-attacksurface-context" {
+  source = "./modules/context/attack/surface"
+  config = module.attacker-attacksurface-config.merged
+}
+
 module "target-attacksurface-context" {
   source = "./modules/context/attack/surface"
   config = module.target-attacksurface-config.merged
@@ -448,6 +197,29 @@ module "target-attacksurface-context" {
 ########################
 
 # deploy attacksurface
+module "attacker-attacksurface" {
+  source = "./modules/attack/surface"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = module.attacker-infrastructure-context.config
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-infrastructure.config
+      attacker = module.attacker-infrastructure.config
+    }
+  }
+  providers = {
+    aws        = aws.target
+    lacework   = lacework.target
+    kubernetes = kubernetes.target
+    helm       = helm.target
+  }
+}
+
 module "target-attacksurface" {
   source = "./modules/attack/surface"
   # attack surface config
@@ -474,7 +246,6 @@ module "target-attacksurface" {
 #########################
 # ATTACKSIMULATION CONFIG
 ########################
-
 module "attacker-attacksimulation-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"

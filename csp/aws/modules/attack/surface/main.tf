@@ -39,8 +39,32 @@ module "iam" {
   source      = "./modules/aws/iam"
   environment = var.infrastructure.config.context.global.environment
   region = var.infrastructure.config.context.aws.region
-  user_policies = var.config.context.aws.iam.user_policies
-  users = var.config.context.aws.iam.users
+  user_policies = jsondecode(file(var.config.context.aws.iam.user_policies_path))
+  users = jsondecode(file(var.config.context.aws.iam.users_path))
+}
+
+#########################
+# AWS EC2 SECURITY GROUP
+##########################
+
+# append ingress rules
+module "ec2-add-trusted-ingress" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
+  source      = "./modules/aws/ec2/add-trusted-ingress"
+  environment = var.infrastructure.config.context.global.environment
+  
+  security_group_id = var.config.context.aws.ec2.add_trusted_ingress.security_group_id
+  trusted_attacker_source   = var.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
+      local.attacker_eks_trusted_ips,
+      local.attacker_ec2_trusted_ips
+    ]) : []
+  trusted_target_source   = var.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+      local.target_eks_trusted_ips,
+      local.target_ec2_trusted_ips
+    ]) : []
+  trusted_workstation_source    = local.workstation_ips
+  trusted_tcp_ports             = var.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
+
 }
 
 #########################
@@ -73,7 +97,7 @@ module "rds" {
   igw_id                        = var.config.context.aws.rds.igw_id
   vpc_id                        = var.config.context.aws.rds.vpc_id
   vpc_subnet                    = var.config.context.aws.rds.vpc_subnet
-  ec2_instance_role_name         = var.config.context.aws.rds.ec2_instance_role_name
+  ec2_instance_role_name        = var.config.context.aws.rds.ec2_instance_role_name
   trusted_sg_id                 = var.config.context.aws.rds.trusted_sg_id
   root_db_username              = var.config.context.aws.rds.root_db_username
   root_db_password              = var.config.context.aws.rds.root_db_password
