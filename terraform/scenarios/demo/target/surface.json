@@ -1,72 +1,72 @@
 {
-    "context" :  {
-      "aws" :  {
-        "iam" :  {
-          "enabled" :  true,
-          "user_policies_path" :  "${ iam_power_user_policy_path }",
-          "users_path" :  "${ iam_users_path }"
-        },
-        "ec2" :  {
-          "add_trusted_ingress" :  {
-            "enabled"                     :  true,
-            "security_group_id"           :  "${ security_group_id }",
-            "trust_workstation"           :  true,
-            "trust_attacker_source"       :  true,
-            "trust_target_source"         :  true,
-            "additional_trusted_sources"  :  [],
-            "trusted_tcp_ports"           :  {
-              "from_port" :  0,
-              "to_port" :  65535
-            }
-          }
-        },
-        "rds" :  {
-          "enabled"                :  true,
-          "igw_id"                 :  "${ rds_igw_id }",
-          "vpc_id"                 :  "${ rds_vpc_id }",
-          "vpc_subnet"             :  "${ rds_vpc_subnet }",
-          "ec2_instance_role_name" :  "${ rds_ec2_instance_role_name }",
-          "trusted_sg_id"          :  "${ rds_trusted_sg_id }",
-          "root_db_username"       :  "${ rds_root_db_username }",
-          "root_db_password"       :  "${ rds_root_db_password }"
-        },
-        "ssm" :  {
-          "vulnerable" :  {
-            "docker" :  {
-              "log4shellapp" :  {
-                "enabled" :  true
-              }
-            }
-          },
-          "ssh_keys" :  {
-            "enabled" :  true
+  "context" :  {
+    "aws" :  {
+      "iam" :  {
+        "enabled" :  false,
+        "user_policies_path" :  "${ iam_power_user_policy_path }",
+        "users_path" :  "${ iam_users_path }"
+      },
+      "ec2" :  {
+        "add_trusted_ingress" :  {
+          "enabled"                     :  true,
+          "security_group_id"           :  "${ security_group_id }",
+          "trust_workstation"           :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
           }
         }
       },
-      "kubernetes" :  {
-        "app" :  {
+      "rds" :  {
+        "enabled"                :  true,
+        "igw_id"                 :  "${ rds_igw_id }",
+        "vpc_id"                 :  "${ rds_vpc_id }",
+        "vpc_subnet"             :  "${ rds_vpc_subnet }",
+        "ec2_instance_role_name" :  "${ rds_ec2_instance_role_name }",
+        "trusted_sg_id"          :  "${ rds_trusted_sg_id }",
+        "root_db_username"       :  "${ rds_root_db_username }",
+        "root_db_password"       :  "${ rds_root_db_password }"
+      },
+      "ssm" :  {
+        "vulnerable" :  {
+          "docker" :  {
+            "log4shellapp" :  {
+              "enabled" :  true
+            }
+          }
+        },
+        "ssh_keys" :  {
+          "enabled" :  true
+        }
+      }
+    },
+    "kubernetes" :  {
+      "app" :  {
+        "enabled" :  false
+      },
+      "psp" :  {
+        "enabled" :  false
+      },
+      "vulnerable" :  {
+        "log4shellapp" :  {
           "enabled" :  true
         },
-        "psp" :  {
+        "voteapp" :  {
+          "enabled" :  true
+        },
+        "rdsapp" :  {
+          "enabled" :  true
+        },
+        "privileged_pod" :  {
           "enabled" :  false
         },
-        "vulnerable" :  {
-          "log4shellapp" :  {
-            "enabled" :  true
-          },
-          "voteapp" :  {
-            "enabled" :  true
-          },
-          "rdsapp" :  {
-            "enabled" :  true
-          },
-          "privileged_pod" :  {
-            "enabled" :  false
-          },
-          "root_mount_fs_pod" :  {
-            "enabled" :  false
-          }
+        "root_mount_fs_pod" :  {
+          "enabled" :  false
         }
       }
     }
   }
+}

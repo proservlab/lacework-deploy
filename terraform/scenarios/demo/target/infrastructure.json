@@ -66,7 +66,7 @@
         },
         "gcp_audit_config": {
           "project_id" : "${ target_gcp_lacework_project }",
-          "enabled"    : true
+          "enabled"    : false
         },
         "custom_policy": {
           "enabled" : true

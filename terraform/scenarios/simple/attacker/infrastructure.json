@@ -25,10 +25,6 @@
                     "user_data_base64": null
                 }
                 ]
-            },
-            "eks": {
-                "enabled": false,
-                "cluster_name": "attacker-cluster"
             }
         }
     }

@@ -3,14 +3,6 @@
 ########################
 
 # defaults
-module "defaults" {
-  source = "./modules/context/tags"
-}
-
-module "default-ssm-tags" {
-  source = "./modules/context/tags"
-}
-
 module "default-infrastructure-context" {
   source = "./modules/context/infrastructure"
 }
@@ -24,46 +16,41 @@ module "default-attacksimulation-context" {
 }
 
 #########################
-# CONFIG
+# INFRASTRUCTURE CONFIG
 ########################
 
-data "template_file" "attack-config-file" {
+data "template_file" "attacker-infrastructure-config-file" {
   template = file("${path.module}/scenarios/simple/attacker/infrastructure.json")
   vars = {
     attacker_aws_profile = var.attacker_aws_profile
   }
 }
 
-module "attacker-config" {
+module "attacker-infrastructure-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"
 
   maps = [
     module.default-infrastructure-context.config,
-    jsondecode(data.template_file.attack-config-file.rendered)
+    jsondecode(data.template_file.attacker-infrastructure-config-file.rendered)
   ]
 }
 
-data "template_file" "target-config-file" {
+data "template_file" "target-infrastructure-config-file" {
   template = file("${path.module}/scenarios/simple/target/infrastructure.json")
   vars = {
     # aws
     target_aws_profile = var.target_aws_profile
-
-    # lacework
-    lacework_server_url   = var.lacework_server_url
-    lacework_account_name = var.lacework_account_name
-    syscall_config_path   = abspath("${path.module}/scenarios/simple/target/resources/syscall_config.yaml")
   }
 }
 
-module "target-config" {
+module "target-infrastructure-config" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "0.2.0"
 
   maps = [
     module.default-infrastructure-context.config,
-    jsondecode(data.template_file.target-config-file.rendered)
+    jsondecode(data.template_file.target-infrastructure-config-file.rendered)
   ]
 }
 
@@ -75,12 +62,12 @@ module "target-config" {
 # set infrasturcture context
 module "attacker-infrastructure-context" {
   source = "./modules/context/infrastructure"
-  config = module.attacker-config.merged
+  config = module.attacker-infrastructure-config.merged
 }
 
 module "target-infrastructure-context" {
   source = "./modules/context/infrastructure"
-  config = module.target-config.merged
+  config = module.target-infrastructure-config.merged
 }
 
 #########################
@@ -94,8 +81,6 @@ module "attacker-infrastructure" {
 
   providers = {
     aws      = aws.attacker
-    google   = google.attacker
-    lacework = lacework.attacker
   }
 }
 
@@ -105,8 +90,6 @@ module "target-infrastructure" {
 
   providers = {
     aws      = aws.target
-    google   = google.target
-    lacework = lacework.target
   }
 }
 
@@ -119,17 +102,8 @@ data "template_file" "attacker-attacksurface-config-file" {
 
   vars = {
     # ec2 security group trusted ingress
-    security_group_id = module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id
+    security_group_id = try(module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
   }
-}
-module "attacker-attacksurface-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
-
-  maps = [
-    module.default-attacksurface-context.config,
-    jsondecode(data.template_file.attacker-attacksurface-config-file.rendered)
-  ]
 }
 
 data "template_file" "target-attacksurface-config-file" {
@@ -137,17 +111,26 @@ data "template_file" "target-attacksurface-config-file" {
 
   vars = {
     # ec2 security group trusted ingress
-    security_group_id = module.target-infrastructure.config.context.aws.ec2[0].public_sg.id
+    security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
   }
 }
 
-module "target-attacksurface-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
+locals {
+  attacker_config = data.template_file.attacker-attacksurface-config-file.rendered
+  target_config = data.template_file.target-attacksurface-config-file.rendered
+}
 
-  maps = [
-    module.default-attacksurface-context.config,
-    jsondecode(data.template_file.target-attacksurface-config-file.rendered)
+data "utils_deep_merge_json" "attacker-attacksurface-config" {
+  input = [
+    jsonencode(module.default-attacksurface-context.config),
+    local.attacker_config
+  ]
+}
+
+data "utils_deep_merge_json" "target-attacksurface-config" {
+  input = [
+    jsonencode(module.default-attacksurface-context.config),
+    local.target_config
   ]
 }
 
@@ -158,12 +141,12 @@ module "target-attacksurface-config" {
 # set attack the context
 module "attacker-attacksurface-context" {
   source = "./modules/context/attack/surface"
-  config = module.attacker-attacksurface-config.merged
+  config = jsondecode(data.utils_deep_merge_json.attacker-attacksurface-config.output)
 }
 
 module "target-attacksurface-context" {
   source = "./modules/context/attack/surface"
-  config = module.target-attacksurface-config.merged
+  config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
 }
 
 #########################
@@ -186,18 +169,26 @@ module "attacker-attacksurface" {
       attacker = module.attacker-infrastructure.config
     }
   }
+  
   providers = {
-    aws        = aws.attacker
-    lacework   = lacework.attacker
+    aws      = aws.attacker
+    lacework = lacework.attacker
     kubernetes = kubernetes.attacker
-    helm       = helm.attacker
+    helm = helm.attacker
   }
+
+  depends_on = [
+    module.target-infrastructure,
+    module.attacker-infrastructure,
+    module.attacker-infrastructure-context,
+    module.attacker-attacksurface-context
+  ]
 }
 
 module "target-attacksurface" {
   source = "./modules/attack/surface"
   # attack surface config
-  config = module.target-attacksurface-context.config
+  config = module.attacker-attacksurface-context.config
 
   # infrasturcture config and deployed state
   infrastructure = {
@@ -209,116 +200,120 @@ module "target-attacksurface" {
       attacker = module.attacker-infrastructure.config
     }
   }
+
   providers = {
-    aws        = aws.target
-    lacework   = lacework.target
+    aws      = aws.target
+    lacework = lacework.target
     kubernetes = kubernetes.target
-    helm       = helm.target
+    helm = helm.target
   }
-}
 
-#########################
-# ATTACKSIMULATION CONFIG
-########################
-
-data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/simulation.json")
-
-  vars = {}
-}
-
-module "attacker-attacksimulation-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
-
-  maps = [
-    module.default-attacksimulation-context.config,
-    jsondecode(data.template_file.attacker-attacksimulation-config-file.rendered)
+  depends_on = [
+    module.target-infrastructure,
+    module.attacker-infrastructure,
+    module.target-infrastructure-context,
+    module.target-attacksurface-context
   ]
 }
 
-data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/target/simulation.json")
+# #########################
+# # ATTACKSIMULATION CONFIG
+# ########################
 
-  vars = {}
-}
+# data "template_file" "attacker-attacksimulation-config-file" {
+#   template = file("${path.module}/scenarios/demo/attacker/simulation.json")
 
-module "target-attacksimulation-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
+#   vars = {}
+# }
 
-  maps = [
-    module.default-attacksimulation-context.config,
-    jsondecode(data.template_file.target-attacksimulation-config-file.rendered)
-  ]
-}
+# module "attacker-attacksimulation-config" {
+#   source  = "cloudposse/config/yaml//modules/deepmerge"
+#   version = "0.2.0"
 
-#########################
-# ATTACKSIMULATION CONTEXT
-########################
+#   maps = [
+#     module.default-attacksimulation-context.config,
+#     jsondecode(data.template_file.attacker-attacksimulation-config-file.rendered)
+#   ]
+# }
 
-# set attack the context
-module "attacker-attacksimulation-context" {
-  source = "./modules/context/attack/simulate"
-  config = module.attacker-attacksimulation-config.merged
-}
+# data "template_file" "target-attacksimulation-config-file" {
+#   template = file("${path.module}/scenarios/demo/target/simulation.json")
 
-# set attack the context
-module "target-attacksimulation-context" {
-  source = "./modules/context/attack/simulate"
-  config = module.target-attacksimulation-config.merged
-}
+#   vars = {}
+# }
 
-#########################
-# ATTACKSIMULATION DEPLOYMENT
-########################
+# module "target-attacksimulation-config" {
+#   source  = "cloudposse/config/yaml//modules/deepmerge"
+#   version = "0.2.0"
 
-# deploy target attacksimulation
-module "attacker-attacksimulation" {
-  source = "./modules/attack/simulate"
-  # attack surface config
-  config = module.attacker-attacksimulation-context.config
+#   maps = [
+#     module.default-attacksimulation-context.config,
+#     jsondecode(data.template_file.target-attacksimulation-config-file.rendered)
+#   ]
+# }
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.attacker-infrastructure-context.config
+# #########################
+# # ATTACKSIMULATION CONTEXT
+# ########################
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
-  providers = {
-    aws        = aws.attacker
-    lacework   = lacework.attacker
-    kubernetes = kubernetes.attacker
-    helm       = helm.attacker
-  }
-}
+# # set attack the context
+# module "attacker-attacksimulation-context" {
+#   source = "./modules/context/attack/simulate"
+#   config = module.attacker-attacksimulation-config.merged
+# }
 
-# deploy target attacksimulation
-module "target-attacksimulation" {
-  source = "./modules/attack/simulate"
-  # attack surface config
-  config = module.target-attacksimulation-context.config
+# # set attack the context
+# module "target-attacksimulation-context" {
+#   source = "./modules/context/attack/simulate"
+#   config = module.target-attacksimulation-config.merged
+# }
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.target-infrastructure-context.config
+# #########################
+# # ATTACKSIMULATION DEPLOYMENT
+# ########################
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
-  providers = {
-    aws        = aws.target
-    lacework   = lacework.target
-    kubernetes = kubernetes.target
-    helm       = helm.target
-  }
-}
+# # deploy target attacksimulation
+# module "attacker-attacksimulation" {
+#   source = "./modules/attack/simulate"
+#   # attack surface config
+#   config = module.attacker-attacksimulation-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.attacker-infrastructure-context.config
+
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
+#   providers = {
+#     aws      = aws.attacker
+#     lacework = lacework.attacker
+#   }
+# }
+
+# # deploy target attacksimulation
+# module "target-attacksimulation" {
+#   source = "./modules/attack/simulate"
+#   # attack surface config
+#   config = module.target-attacksimulation-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.target-infrastructure-context.config
+
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
+#   providers = {
+#     aws      = aws.target
+#     lacework = lacework.target
+#   }
+# }

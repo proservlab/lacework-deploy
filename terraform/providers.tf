@@ -20,13 +20,13 @@ provider "lacework" {
 
 provider "kubernetes" {
   alias       = "attacker"
-  config_path = pathexpand("~/.kube/attacker-kubeconfig")
+  config_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
 }
 
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = pathexpand("~/.kube/attacker-kubeconfig")
+    config_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   }
 }
 

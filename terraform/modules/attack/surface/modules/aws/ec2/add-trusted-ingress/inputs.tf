@@ -36,3 +36,8 @@ variable "trusted_tcp_ports" {
         to_port = number
     })
 }
+
+variable enabled {
+  type = bool
+  default = false
+}

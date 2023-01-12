@@ -1,5 +1,0 @@
-lacework_profile = "<LACEWORK PROFILE NAME>"
-lacework_account_name = "<LACEWORK ACCOUNT NAME>"
-lacework_server_url = "https://<LACEWORK SERVER URL>"
-attacker_aws_profile = "<AWS PROFILE FOR ATTACKER>"
-target_aws_profile = "<AWS PROFILE FOR TARGET>"

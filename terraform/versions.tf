@@ -1,13 +1,5 @@
 terraform {
   required_version = ">= 0.15.0"
-  backend "s3" {
-    bucket         = var.terraform_backend_bucket
-    key            = var.terraform_backend_key
-    encrypt        = var.terraform_backend_encrypt
-    dynamodb_table = var.terraform_backend_dynamodb_table
-    region         = var.terraform_backend_region
-    profile        = var.terraform_backend_profile
-  }
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -33,6 +25,10 @@ terraform {
     template = {
       source  = "hashicorp/template"
       version = "2.2.0"
+    }
+    utils = {
+      source = "cloudposse/utils"
+      version = "1.6.0"
     }
   }
 }
