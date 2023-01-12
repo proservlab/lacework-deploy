@@ -72,6 +72,8 @@ locals {
 module "ssm-connect-badip" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.badip.enabled == true ) ? 1 : 0
   source        = "./modules/simulation/aws/ssm/connect-badip"
+  environment    = var.infrastructure.config.context.global.deployment
+  deployment    = var.infrastructure.config.context.global.deployment
   
   # list of bad ip to select from - only a single random will be used
   iplist_url    = var.config.context.simulation.aws.ssm.connect.badip.iplist_url
@@ -80,6 +82,8 @@ module "ssm-connect-badip" {
 module "ssm-connect-codecov" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.codecov.enabled == true) ? 1 : 0
   source        = "./modules/simulation/aws/ssm/connect-codecov"
+  environment    = var.infrastructure.config.context.global.deployment
+  deployment    = var.infrastructure.config.context.global.deployment
   
   
   host_ip       = var.config.context.simulation.aws.ssm.connect.codecov.host_ip
@@ -89,6 +93,8 @@ module "ssm-connect-codecov" {
 module "ssm-connect-nmap-port-scan" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.nmap_port_scan.enabled == true ) ? 1 : 0
   source        = "./modules/simulation/aws/ssm/connect-nmap-port-scan"
+  environment    = var.infrastructure.config.context.global.deployment
+  deployment    = var.infrastructure.config.context.global.deployment
   
 
   # scan local reverse shell target if available else portquiz
@@ -99,6 +105,8 @@ module "ssm-connect-nmap-port-scan" {
 module "ssm-connect-oast-host" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.oast.enabled == true ) ? 1 : 0
   source        = "./modules/simulation/aws/ssm/connect-oast-host"
+  environment    = var.infrastructure.config.context.global.deployment
+  deployment    = var.infrastructure.config.context.global.deployment
   
 }
 

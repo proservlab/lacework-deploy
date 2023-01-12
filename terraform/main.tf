@@ -183,13 +183,6 @@ module "attacker-attacksurface" {
     kubernetes = kubernetes.attacker
     helm       = helm.attacker
   }
-
-  # depends_on = [
-  #   module.target-infrastructure,
-  #   module.attacker-infrastructure,
-  #   module.attacker-infrastructure-context,
-  #   module.attacker-attacksurface-context
-  # ]
 }
 
 module "target-attacksurface" {
@@ -214,112 +207,105 @@ module "target-attacksurface" {
     kubernetes = kubernetes.target
     helm       = helm.target
   }
-
-  # depends_on = [
-  #   module.target-infrastructure,
-  #   module.attacker-infrastructure,
-  #   module.target-infrastructure-context,
-  #   module.target-attacksurface-context
-  # ]
 }
 
-# #########################
-# # ATTACKSIMULATION CONFIG
-# ########################
+#########################
+# ATTACKSIMULATION CONFIG
+########################
 
-# data "template_file" "attacker-attacksimulation-config-file" {
-#   template = file("${path.module}/scenarios/simple/attacker/simulation.json")
+data "template_file" "attacker-attacksimulation-config-file" {
+  template = file("${path.module}/scenarios/simple/attacker/simulation.json")
 
-#   vars = {}
-# }
+  vars = {}
+}
 
-# data "template_file" "target-attacksimulation-config-file" {
-#   template = file("${path.module}/scenarios/simple/target/simulation.json")
+data "template_file" "target-attacksimulation-config-file" {
+  template = file("${path.module}/scenarios/simple/target/simulation.json")
 
-#   vars = {}
-# }
+  vars = {}
+}
 
-# locals {
-#   attacker_attacksimulation_config = data.template_file.attacker-attacksimulation-config-file.rendered
-#   target_attacksimulation_config   = data.template_file.target-attacksimulation-config-file.rendered
-# }
+locals {
+  attacker_attacksimulation_config = data.template_file.attacker-attacksimulation-config-file.rendered
+  target_attacksimulation_config   = data.template_file.target-attacksimulation-config-file.rendered
+}
 
-# data "utils_deep_merge_json" "attacker-attacksimulation-config" {
-#   input = [
-#     jsonencode(module.default-attacksimulation-context.config),
-#     local.attacker_attacksimulation_config
-#   ]
-# }
+data "utils_deep_merge_json" "attacker-attacksimulation-config" {
+  input = [
+    jsonencode(module.default-attacksimulation-context.config),
+    local.attacker_attacksimulation_config
+  ]
+}
 
-# data "utils_deep_merge_json" "target-attacksimulation-config" {
-#   input = [
-#     jsonencode(module.default-attacksimulation-context.config),
-#     local.target_attacksimulation_config
-#   ]
-# }
+data "utils_deep_merge_json" "target-attacksimulation-config" {
+  input = [
+    jsonencode(module.default-attacksimulation-context.config),
+    local.target_attacksimulation_config
+  ]
+}
 
-# #########################
-# # ATTACKSIMULATION CONTEXT
-# ########################
+#########################
+# ATTACKSIMULATION CONTEXT
+########################
 
-# # set attack the context
-# module "attacker-attacksimulation-context" {
-#   source = "./modules/context/attack/simulate"
-#   config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
-# }
+# set attack the context
+module "attacker-attacksimulation-context" {
+  source = "./modules/context/attack/simulate"
+  config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
+}
 
-# # set attack the context
-# module "target-attacksimulation-context" {
-#   source = "./modules/context/attack/simulate"
-#   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
-# }
+# set attack the context
+module "target-attacksimulation-context" {
+  source = "./modules/context/attack/simulate"
+  config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
+}
 
-# #########################
-# # ATTACKSIMULATION DEPLOYMENT
-# ########################
+#########################
+# ATTACKSIMULATION DEPLOYMENT
+########################
 
-# # deploy target attacksimulation
-# module "attacker-attacksimulation" {
-#   source = "./modules/attack/simulate"
-#   # attack surface config
-#   config = module.attacker-attacksimulation-context.config
+# deploy target attacksimulation
+module "attacker-attacksimulation" {
+  source = "./modules/attack/simulate"
+  # attack surface config
+  config = module.attacker-attacksimulation-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = module.attacker-infrastructure-context.config
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = module.attacker-infrastructure-context.config
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-infrastructure.config
-#       attacker = module.attacker-infrastructure.config
-#     }
-#   }
-#   providers = {
-#     aws      = aws.attacker
-#     lacework = lacework.attacker
-#   }
-# }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-infrastructure.config
+      attacker = module.attacker-infrastructure.config
+    }
+  }
+  providers = {
+    aws      = aws.attacker
+    lacework = lacework.attacker
+  }
+}
 
-# # deploy target attacksimulation
-# module "target-attacksimulation" {
-#   source = "./modules/attack/simulate"
-#   # attack surface config
-#   config = module.target-attacksimulation-context.config
+# deploy target attacksimulation
+module "target-attacksimulation" {
+  source = "./modules/attack/simulate"
+  # attack surface config
+  config = module.target-attacksimulation-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = module.target-infrastructure-context.config
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = module.target-infrastructure-context.config
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-infrastructure.config
-#       attacker = module.attacker-infrastructure.config
-#     }
-#   }
-#   providers = {
-#     aws      = aws.target
-#     lacework = lacework.target
-#   }
-# }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-infrastructure.config
+      attacker = module.attacker-infrastructure.config
+    }
+  }
+  providers = {
+    aws      = aws.target
+    lacework = lacework.target
+  }
+}
