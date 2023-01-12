@@ -22,6 +22,63 @@ lacework_account_name = "xxxxxx"
 lacework_server_url = "https://xxxxxx.lacework.net"
 ```
 
+## Manual execution
+
+### setup
+1. download install or upgrade to terraform 1.3.7. download zip files can be found here: https://releases.hashicorp.com/terraform/1.3.7/
+2. create two aws profiles (attacker and target) they can be the same cloud account just make sure the names are present
+3. create a name lacework profile `lacework configure -j <APKEY> --profile=<LACEWORK_PROFILENAME>
+4. create a new file variables-<WORKSPACE_NAME>.tfvars in terraform/env_vars/
+5. add the following content:
+```
+attacker_aws_profile = "<ATTACKER AWS PROFILENAME>"
+target_aws_profile = "<TARGET AWS PROFILENAME>"
+lacework_profile = "<LACEWORK PROFILENAME>"
+lacework_account_name = "<LACEWORK ACCOUNT NAME (e.g. mytenant)>"
+lacework_server_url = "<LACEWORK URL (e.g. https://mytenant.lacework.net)"
+```
+
+**terraform build**
+```
+### change to terraform directory
+cd lacework-deploy/terraform
+
+### initial setup and workspace creation
+WORKSPACE=<WORKSPACE>
+terraform workspace select ${WORKSPACE} || terraform workspace new ${WORKSPACE}
+terraform init -upgrade
+
+# create unique deployment id
+terraform plan -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
+
+# build infrastructure
+terraform plan -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply
+
+# build attacksurface
+terraform plan -target=module.target-attacksurface -target=module.attacker-attacksurface -out build.tfplan && terraform apply build.tf
+plan
+
+# build attacksimulation
+terraform plan -target=module.target-attacksimulation -target=module.attacker-attacksimulation -out build.tfplan && terraform apply build.tfplan
+```
+
+*Build needs to be done in this order the first time around because each layer requires info from the other. once it's build you can update the json files in scenarios and plan apply that layer and any downstream layers.*
+
+**terraform destory (needs to be done in this order)**
+```
+# destroy attacksimulation
+terraform plan -destroy -target=module.target-attacksimulation -target=module.attacker-attacksimulation -out build.tfplan && terraform apply build.tfplan
+
+# destroy attacksurface
+terraform plan -destroy -target=module.target-attacksurface -target=module.attacker-attacksurface -out build.tfplan && terraform apply build.tfplan
+
+# destroy infrastructure
+terraform plan -destroy -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply build.tfplan
+
+# destroy deployment id
+terraform plan -destroy -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
+```
+
 # SSM Access
 
 All AWS instances are setup with SSM management. They can be access via aws-cli ssm commands. This applies to public and private instances as well as cluster nodes.
