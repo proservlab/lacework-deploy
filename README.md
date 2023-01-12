@@ -27,7 +27,7 @@ lacework_server_url = "https://xxxxxx.lacework.net"
 ### setup
 1. download install or upgrade to terraform 1.3.7. download zip files can be found here: https://releases.hashicorp.com/terraform/1.3.7/
 2. create two aws profiles (attacker and target) they can be the same cloud account just make sure the names are present
-3. create a name lacework profile `lacework configure -j <APKEY> --profile=<LACEWORK_PROFILENAME>
+3. create a name lacework profile `lacework configure -j <APIKEY> --profile=<LACEWORK_PROFILENAME>
 4. create a new file variables-<WORKSPACE_NAME>.tfvars in terraform/env_vars/
 5. add the following content:
 ```
