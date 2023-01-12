@@ -25,7 +25,7 @@ resource "aws_route_table" "database" {
     }
 
     tags = {
-        Name = "${var.environment}-ec2db-internet-gw-route"
+        Name = "ec2db-internet-gw-route-${var.environment}-${var.deployment}"
     }
 }
 
@@ -42,23 +42,24 @@ resource "aws_subnet" "database" {
   availability_zone       = element(local.availability_zones, count.index)
 
   tags = {
-    Name        = "${var.environment}-${element(local.availability_zones, count.index)}-db-subnet"
-    Environment = var.environment
+    Name        = "db-subnet-${var.environment}-${var.deployment}-${element(local.availability_zones, count.index)}"
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 
 resource "aws_db_subnet_group" "database" {
   description = "db subnet group"
-  name        = "db_subnet_group"
+  name        = "db_subnet_group_${var.environment}_${var.deployment}"
   subnet_ids  = aws_subnet.database.*.id
 
   tags = {
-    Name = var.environment
+    Name = "db-subnet-group-${var.environment}-${var.deployment}"
   }
 }
 
 resource "aws_security_group" "database" {
-  name = "${var.environment}-db-sg"
+  name = "db-sg-${var.environment}-${var.deployment}"
 
   description = "db security group"
   vpc_id      = var.vpc_id
@@ -101,7 +102,8 @@ resource "aws_db_instance" "database" {
   ]
 
   tags = {
-    Name = "${var.environment}-db",
-    Environment = var.environment
+    Name = "db-${var.environment}-${var.deployment}",
+    environment = var.environment
+    deployment = var.deployment
   }
 }

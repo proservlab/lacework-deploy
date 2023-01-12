@@ -71,24 +71,25 @@ locals {
 #########################
 module "ssm-connect-badip" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.badip.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-badip"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/connect-badip"
+  
   # list of bad ip to select from - only a single random will be used
-  iplist_url = var.config.context.simulation.aws.ssm.connect.badip.iplist_url
+  iplist_url    = var.config.context.simulation.aws.ssm.connect.badip.iplist_url
 }
 
 module "ssm-connect-codecov" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.codecov.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-codecov"
-  environment = var.infrastructure.config.context.global.environment
-  host_ip = var.config.context.simulation.aws.ssm.connect.codecov.host_ip
-  host_port = var.config.context.simulation.aws.ssm.connect.codecov.host_port
+  source        = "./modules/simulation/aws/ssm/connect-codecov"
+  
+  
+  host_ip       = var.config.context.simulation.aws.ssm.connect.codecov.host_ip
+  host_port     = var.config.context.simulation.aws.ssm.connect.codecov.host_port
 }
 
 module "ssm-connect-nmap-port-scan" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.nmap_port_scan.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-nmap-port-scan"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/connect-nmap-port-scan"
+  
 
   # scan local reverse shell target if available else portquiz
   nmap_scan_host = var.config.context.simulation.aws.ssm.connect.nmap_port_scan.nmap_scan_host
@@ -97,16 +98,18 @@ module "ssm-connect-nmap-port-scan" {
 
 module "ssm-connect-oast-host" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.oast.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-oast-host"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/connect-oast-host"
+  
 }
 
 module "ssm-connect-reverse-shell" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.connect.reverse_shell.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/connect-reverse-shell"
-  environment = var.infrastructure.config.context.global.environment
-  host_ip =  var.config.context.simulation.aws.ssm.connect.reverse_shell.host_ip
-  host_port = var.config.context.simulation.aws.ssm.connect.reverse_shell.host_port
+  source        = "./modules/simulation/aws/ssm/connect-reverse-shell"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+
+  host_ip       =  var.config.context.simulation.aws.ssm.connect.reverse_shell.host_ip
+  host_port     = var.config.context.simulation.aws.ssm.connect.reverse_shell.host_port
 }
 
 #########################
@@ -114,9 +117,11 @@ module "ssm-connect-reverse-shell" {
 #########################
 module "ssm-drop-malware-eicar" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.drop.malware.eicar.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/drop-malware-eicar"
-  environment = var.infrastructure.config.context.global.environment
-  eicar_path = var.config.context.simulation.aws.ssm.drop.malware.eicar.eicar_path
+  source        = "./modules/simulation/aws/ssm/drop-malware-eicar"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+
+  eicar_path    = var.config.context.simulation.aws.ssm.drop.malware.eicar.eicar_path
 }
 
 #########################
@@ -125,9 +130,10 @@ module "ssm-drop-malware-eicar" {
 
 module "simulation-attacker-exec-docker-compromised-credentials" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/execute-docker-compromised-credentials"
-  environment = var.infrastructure.config.context.global.environment
-  region = var.infrastructure.config.context.aws.region
+  source        = "./modules/simulation/aws/ssm/execute-docker-compromised-credentials"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+  region        = var.infrastructure.config.context.aws.region
 
   compromised_credentials = var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.compromised_credentials
   protonvpn_user = var.config.context.simulation.aws.ssm.execute.docker_compromised_credentials_attack.protonvpn_user
@@ -141,14 +147,16 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
 
 module "ssm-execute-docker-cpuminer" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_cpu_miner == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/execute-docker-cpu-miner"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/execute-docker-cpu-miner"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
 }
 
 module "ssm-execute-docker-log4shell-attack" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.execute.docker_log4shell_attack.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/execute-docker-log4shell-attack"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/execute-docker-log4shell-attack"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
 
   attacker_http_port = var.config.context.simulation.aws.ssm.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = var.config.context.simulation.aws.ssm.execute.docker_log4shell_attack.attacker_ldap_port
@@ -164,19 +172,23 @@ module "ssm-execute-docker-log4shell-attack" {
 
 module "ssm-listener-http-listener" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.listener.http.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/listener-http-listener"
-  environment = var.infrastructure.config.context.global.environment
-  listen_ip = var.config.context.simulation.aws.ssm.listener.http.listen_ip
-  listen_port = var.config.context.simulation.aws.ssm.listener.http.listen_port
+  source        = "./modules/simulation/aws/ssm/listener-http-listener"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+
+  listen_ip     = var.config.context.simulation.aws.ssm.listener.http.listen_ip
+  listen_port   = var.config.context.simulation.aws.ssm.listener.http.listen_port
 }
 
 module "ssm-listener-port-forward" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.listener.port_forward.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/listener-port-forward"
-  environment = var.infrastructure.config.context.global.environment
+  source        = "./modules/simulation/aws/ssm/listener-port-forward"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
   port_forwards = var.config.context.simulation.aws.ssm.listener.port_forward.port_forwards
-  host_ip = var.config.context.simulation.aws.ssm.listener.port_forward.host_ip
-  host_port = var.config.context.simulation.aws.ssm.listener.port_forward.host_port
+  
+  host_ip       = var.config.context.simulation.aws.ssm.listener.port_forward.host_ip
+  host_port     = var.config.context.simulation.aws.ssm.listener.port_forward.host_port
 }
 
 #########################
@@ -185,16 +197,20 @@ module "ssm-listener-port-forward" {
 
 module "ssm-responder-port-forward" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.responder.port_forward.enabled == true) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/responder-port-forward"
-  environment = var.infrastructure.config.context.global.environment
-  listen_port = var.config.context.simulation.aws.ssm.responder.port_forward.listen_port
+  source        = "./modules/simulation/aws/ssm/responder-port-forward"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+
+  listen_port   = var.config.context.simulation.aws.ssm.responder.port_forward.listen_port
 }
 
 module "ssm-responder-reverse-shell" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.simulation.aws.ssm.responder.reverse_shell.enabled == true ) ? 1 : 0
-  source = "./modules/simulation/aws/ssm/responder-reverse-shell"
-  environment = var.infrastructure.config.context.global.environment
-  listen_ip = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_ip
-  listen_port = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_port
-  payload = var.config.context.simulation.aws.ssm.responder.reverse_shell.payload
+  source        = "./modules/simulation/aws/ssm/responder-reverse-shell"
+  environment   = var.infrastructure.config.context.global.environment
+  deployment    = var.infrastructure.config.context.global.deployment
+
+  listen_ip     = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_ip
+  listen_port   = var.config.context.simulation.aws.ssm.responder.reverse_shell.listen_port
+  payload       = var.config.context.simulation.aws.ssm.responder.reverse_shell.payload
 }

@@ -32,7 +32,7 @@ locals {
 }
 
 resource "aws_ssm_document" "exec_docker_cpuminer" {
-  name          = "exec_docker_cpuminer"
+  name          = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -61,7 +61,7 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
 }
 
 resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
-    name = "exec_docker_cpuminer"
+    name = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_exec_docker_cpuminer)
@@ -74,7 +74,7 @@ resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
 }
 
 resource "aws_ssm_association" "exec_docker_cpuminer" {
-    association_name = "exec_docker_cpuminer"
+    association_name = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.exec_docker_cpuminer.name
 

@@ -37,7 +37,7 @@ locals {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                    = var.vpc_network_name
+  name                    = "${var.vpc_network_name}-${var.environment}-${var.deployment}"
   auto_create_subnetworks = "false"
   project                 = var.gcp_project_id
 }
@@ -52,7 +52,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork" {
   # a dash, lowercase letter, or digit, except the last character, which
   # cannot be a dash.
   #name = "default-${var.gcp_cluster_region}"
-  name    = var.vpc_subnetwork_name
+  name    = "${var.vpc_subnetwork_name}-${var.environment}-${var.deployment}"
   region  = local.gcp_region
   project = var.gcp_project_id
 
@@ -90,7 +90,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork" {
 resource "google_compute_router" "router" {
   # Only create the Cloud NAT if it is enabled.
   count   = var.enable_cloud_nat ? 1 : 0
-  name    = format("%s-router", var.cluster_name)
+  name    = format("%s-router", "${var.cluster_name}-${var.environment}-${var.deployment}")
   region  = local.gcp_region
   network = google_compute_network.vpc_network.self_link
 }
@@ -99,7 +99,7 @@ resource "google_compute_router" "router" {
 resource "google_compute_router_nat" "nat" {
   # Only create the Cloud NAT if it is enabled.
   count = var.enable_cloud_nat ? 1 : 0
-  name  = format("%s-nat", var.cluster_name)
+  name  = format("%s-nat", "${var.cluster_name}-${var.environment}-${var.deployment}")
   // Because router has the count attribute set we have to use [0] here to
   // refer to its attributes.
   router = google_compute_router.router[0].name
@@ -120,7 +120,7 @@ resource "google_container_cluster" "cluster" {
   location = var.gcp_location
   project = var.gcp_project_id
 
-  name = var.cluster_name
+  name = "${var.cluster_name}-${var.environment}-${var.deployment}"
 
   min_master_version = local.min_master_version
 
@@ -363,7 +363,7 @@ resource "google_container_node_pool" "node_pool" {
 data "google_client_config" "provider" {}
 
 data "google_container_cluster" "my_cluster" {
-  name     = var.cluster_name
+  name     = "${var.cluster_name}-${var.environment}-${var.deployment}"
   location = var.gcp_location
 
   depends_on = [

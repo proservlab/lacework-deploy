@@ -1,41 +1,43 @@
 {
-    "context": {
-      "global": {
-        "environment"          : "target",
-        "trust_security_group" : true
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }",
+      "trust_security_group" : true
+    },
+    "aws": {
+      "profile_name" : "${ aws_profile }",
+      "ec2": {
+        "enabled"            : true,
+        "public_network"     : "172.17.0.0/16",
+        "public_subnet"      : "172.17.0.0/24",
+        "private_network"    : "172.16.0.0/16",
+        "private_subnet"     : "172.16.100.0/24",
+        "private_nat_subnet" : "172.16.10.0/24",
+        "instances": [
+          {
+            "name"                      : "target-public-1",
+            "public"                    : true,
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "enable_ssm_console_access" : true,
+            "tags": {
+              "ssm_deploy_lacework"              : "true",
+              "ssm_deploy_docker"                : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
+          }
+        ]
       },
-      "aws": {
-        "profile_name" : "${ target_aws_profile }",
-        "ec2": {
-          "enabled"            : true,
-          "public_network"     : "172.17.0.0/16",
-          "public_subnet"      : "172.17.0.0/24",
-          "private_network"    : "172.16.0.0/16",
-          "private_subnet"     : "172.16.100.0/24",
-          "private_nat_subnet" : "172.16.10.0/24",
-          "instances": [
-            {
-              "name"                      : "target-public-1",
-              "public"                    : true,
-              "instance_type"             : "t2.micro",
-              "ami_name"                  : "ubuntu_focal",
-              "enable_ssm_console_access" : true,
-              "tags": {
-                "ssm_deploy_lacework"              : "true"
-              },
-              "user_data"        : null,
-              "user_data_base64" : null
-            }
-          ]
-        },
-        "ssm": {
-          "enabled"                        : false,
-          "deploy_git"                     : false,
-          "deploy_docker"                  : false,
-          "deploy_inspector_agent"         : false,
-          "deploy_lacework_agent"          : false,
-          "deploy_lacework_syscall_config" : false
-        }
+      "ssm": {
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
+        "deploy_inspector_agent"         : false,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true
       }
     }
   }
+}

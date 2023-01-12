@@ -8,6 +8,11 @@ variable "environment" {
     description = "name of the environment"
 }
 
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
+}
+
 variable "trust_security_group" {
   type = bool
   description = "Enable endpoints within the security group to communicate on all ports and protocols."

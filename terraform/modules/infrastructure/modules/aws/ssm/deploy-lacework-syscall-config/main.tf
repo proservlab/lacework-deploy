@@ -31,7 +31,7 @@ locals {
 }
 
 resource "aws_ssm_document" "deploy_lacework_syscall" {
-  name          = "deploy_lacework_syscall"
+  name          = "deploy_lacework_syscall_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -60,7 +60,7 @@ resource "aws_ssm_document" "deploy_lacework_syscall" {
 }
 
 resource "aws_resourcegroups_group" "deploy_lacework_syscall" {
-    name = "deploy_lacework_syscall"
+    name = "deploy_lacework_syscall_${var.environment}_${var.deployment}${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_deploy_lacework_syscall)
@@ -73,7 +73,7 @@ resource "aws_resourcegroups_group" "deploy_lacework_syscall" {
 }
 
 resource "aws_ssm_association" "deploy_lacework_syscall" {
-    association_name = "deploy_lacework_syscall"
+    association_name = "deploy_lacework_syscall_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.deploy_lacework_syscall.name
 

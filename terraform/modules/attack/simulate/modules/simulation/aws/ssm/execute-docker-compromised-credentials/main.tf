@@ -73,7 +73,7 @@ data "template_file" "cloudcrypto" {
     template = file("${path.module}/resources/cloudcrypto.tf.tpl")
 
     vars = {
-        name = "crypto-gpu-miner"
+        name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
         instances = 12
         wallet = var.wallet
         region = var.region
@@ -84,7 +84,7 @@ data "template_file" "hostcrypto" {
     template = file("${path.module}/resources/hostcrypto.tf.tpl")
 
     vars = {
-        name = "crypto-cpu-miner"
+        name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
         region = var.region
         instances = 1
         minergate_user = var.minergate_user
@@ -96,7 +96,7 @@ data "template_file" "start" {
 }
 
 resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
-  name          = "exec_docker_compromised_keys_attacker"
+  name          = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -125,7 +125,7 @@ resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
 }
 
 resource "aws_resourcegroups_group" "exec_docker_compromised_keys_attacker" {
-    name = "exec_docker_compromised_keys_attacker"
+    name = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_exec_docker_compromised_keys_attacker)
@@ -138,7 +138,7 @@ resource "aws_resourcegroups_group" "exec_docker_compromised_keys_attacker" {
 }
 
 resource "aws_ssm_association" "exec_docker_compromised_keys_attacker" {
-    association_name = "exec_docker_compromised_keys_attacker"
+    association_name = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.exec_docker_compromised_keys_attacker.name
 

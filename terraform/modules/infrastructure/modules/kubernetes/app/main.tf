@@ -11,9 +11,9 @@ resource "kubernetes_namespace" "namespace" {
 
 resource "kubernetes_deployment" "app" {
   metadata {
-    name = "terraform-${var.environment}-app"
+    name = "terraform-example-app"
     labels = {
-      app = "${var.environment}-app"
+      app = "example-app"
     }
     namespace = var.environment
   }
@@ -23,14 +23,14 @@ resource "kubernetes_deployment" "app" {
 
     selector {
       match_labels = {
-        app = "${var.environment}-app"
+        app = "example-app"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "${var.environment}-app"
+          app = "example-app"
         }
       }
 

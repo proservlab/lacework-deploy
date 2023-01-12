@@ -79,7 +79,8 @@ resource "aws_subnet" "database" {
 
   tags = {
     Name        = "${var.environment}-${element(local.availability_zones, count.index)}-private-subnet"
-    Environment = var.environment
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 
@@ -138,7 +139,8 @@ resource "aws_db_instance" "database" {
 
   tags = {
     Name = "rdsapp-${var.environment}",
-    Environment = var.environment
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 

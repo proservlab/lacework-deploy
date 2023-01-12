@@ -1,6 +1,6 @@
 
 resource "lacework_alert_profile" "custom_profile" {
-  name    = "Custom_CFG_AWS_Profile"
+  name    = "Custom_CFG_AWS_Profile_${var.environment}_${var.deployment}"
   extends = "LW_CFG_AWS_DEFAULT_PROFILE"
 
   alert {

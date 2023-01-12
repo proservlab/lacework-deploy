@@ -6,7 +6,7 @@
 #
 
 resource "aws_iam_role" "cluster" {
-  name = "eks-${var.environment}-cluster"
+  name = "eks-cluster-${var.environment}-${var.deployment}"
 
   assume_role_policy = <<-EOT
                           {
@@ -35,7 +35,7 @@ resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSVPCResourceControlle
 }
 
 resource "aws_security_group" "cluster" {
-  name        = "eks-${var.environment}-cluster"
+  name        = "eks-cluster-${var.environment}-${var.deployment}"
   description = "Cluster communication with worker nodes"
   vpc_id      = aws_vpc.cluster.id
 
@@ -47,7 +47,7 @@ resource "aws_security_group" "cluster" {
   }
 
   tags = {
-    Name = var.cluster_name
+    Name = "${var.cluster_name}-${var.environment}-${var.deployment}"
     Env = var.environment
   }
 }
@@ -63,12 +63,12 @@ resource "aws_security_group_rule" "cluster-ingress-workstation-https" {
 }
 
 resource "aws_cloudwatch_log_group" "example" {
-  name              = "/aws/eks/${var.cluster_name}/${var.environment}/cluster"
+  name              = "/aws/eks/${var.cluster_name}/${var.environment}/${var.deployment}/cluster"
   retention_in_days = 3
 }
 
 resource "aws_eks_cluster" "cluster" {
-  name     = var.cluster_name
+  name     = "${var.cluster_name}-${var.environment}-${var.deployment}"
   role_arn = aws_iam_role.cluster.arn
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
@@ -100,8 +100,8 @@ resource "null_resource" "eks_context_switcher" {
     command = <<EOT
       set -e
       echo 'Applying Auth ConfigMap with kubectl...'
-      aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
-      aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --alias '${var.cluster_name}-${var.region}' --region=${var.region}
+      aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}-${var.environment}-${var.deployment}'
+      aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}-${var.environment}-${var.deployment}' --alias '${var.cluster_name}-${var.region}-${var.environment}-${var.deployment}' --region=${var.region}
     EOT
   }
 }

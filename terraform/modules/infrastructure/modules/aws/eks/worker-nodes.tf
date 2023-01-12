@@ -5,7 +5,7 @@
 #
 
 resource "aws_iam_role" "node" {
-  name = "eks-${var.environment}-${var.cluster_name}-node"
+  name = "eks-node-${var.cluster_name}-${var.environment}-${var.deployment}"
 
   assume_role_policy = <<-EOT
                           {

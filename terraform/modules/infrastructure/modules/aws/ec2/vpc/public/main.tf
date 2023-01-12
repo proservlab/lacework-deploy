@@ -4,7 +4,7 @@ resource "aws_vpc" "public" {
   enable_dns_hostnames = true
   enable_dns_support = true
   tags = {
-    Name = "${var.name}-public-vpc"
+    Name = "public-vpc-${var.environment}-${var.deployment}"
   }
 }
 
@@ -12,7 +12,7 @@ resource "aws_internet_gateway" "public" {
   vpc_id = aws_vpc.public.id
 
   tags = {
-    Name = "${var.name}-public-internet-gw"
+    Name = "public-internet-gw-${var.environment}-${var.deployment}"
   }
 }
 
@@ -24,8 +24,9 @@ resource "aws_subnet" "public" {
     map_public_ip_on_launch = true
     
     tags = {
-        Name = "${var.name}-public-subnet"
-        Environment = var.environment
+        Name = "public-subnet-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 
@@ -38,7 +39,7 @@ resource "aws_route_table" "public" {
     }
 
     tags = {
-        Name = "${var.name}-default-public-internet-gw-route"
+        Name = "default-public-internet-gw-route-${var.environment}-${var.deployment}"
     }
 }
 
@@ -48,8 +49,12 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_security_group" "public" {
-  name = "${var.name}-public-security-group"
+  name = "public-security-group-${var.environment}-${var.deployment}"
   vpc_id = aws_vpc.public.id
+
+  tags = {
+    Name = "public-security-group-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_security_group_rule" "public_ingress_rules" {

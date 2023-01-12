@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "example_assume_role_policy" {
 
 resource "aws_iam_role" "aws-node" {
   assume_role_policy = data.aws_iam_policy_document.example_assume_role_policy.json
-  name               = "aws-node"
+  name               = "aws-node-${var.environment}-${var.deployment}"
 }
 
 resource "aws_eks_identity_provider_config" "cluster" {

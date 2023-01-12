@@ -44,14 +44,14 @@ resource "aws_internet_gateway" "private" {
   vpc_id = aws_vpc.cluster.id
 
   tags = {
-    Name = "eks-${var.cluster_name}-private-nat-internet-gw"
+    Name = "eks-private-nat-internet-gw-${var.cluster_name}-${var.environment}-${var.deployment}"
   }
 }
 
 resource "aws_eip" "nat_gateway" {
   vpc = true
   tags = {
-    Name = "eks-${var.cluster_name}-private-nat-eip"
+    Name = "eks-private-nat-eip-${var.cluster_name}-${var.environment}-${var.deployment}"
   }
 }
 
@@ -60,7 +60,7 @@ resource "aws_nat_gateway" "private" {
   subnet_id     = aws_subnet.nat_gateway.id
 
   tags = {
-    Name = "eks-${var.cluster_name}-private-nat-gw"
+    Name = "eks-private-nat-gw-${var.cluster_name}-${var.environment}-${var.deployment}"
   }
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -75,8 +75,9 @@ resource "aws_subnet" "nat_gateway" {
   availability_zone = data.aws_availability_zones.available.names[0]
   
   tags = {
-    Name = "eks-${var.cluster_name}-private-nat-gw-subnet"
-    Environment = var.environment
+    Name = "eks-private-nat-gw-subnet-${var.cluster_name}-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 
@@ -121,10 +122,10 @@ resource "aws_security_group" "cluster_vpc_endpoint" {
     cidr_blocks = [local.vpc_cidr]
   }
 
-  name      = "eks-${var.environment}-${var.cluster_name}-vpcep-sg"
+  name      = "eks-vpcep-sg-${var.cluster_name}-${var.environment}-${var.deployment}"
   vpc_id    = aws_vpc.cluster.id
   tags      = {
-                Name = "eks-${var.environment}-${var.cluster_name}-vpcep-sg"
+                Name = "eks-vpcep-sg-${var.cluster_name}-${var.environment}-${var.deployment}"
               }
 }
 
@@ -147,7 +148,7 @@ resource "aws_vpc_endpoint" "vpc_interface_endpoint" {
     aws_security_group.cluster_vpc_endpoint.id,
   ]
   tags      = {
-                Name = "eks-${var.environment}-${var.cluster_name}-vpcepi-${each.key}"
+                Name = "eks-vpcepi-${each.key}-${var.cluster_name}-${var.environment}-${var.deployment}"
               }
 }
 
@@ -177,6 +178,6 @@ resource "aws_vpc_endpoint" "vpc_gateway_endpoint" {
   service_name        = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_name
   vpc_endpoint_type   = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_type
   tags      = {
-                Name = "eks-${var.environment}-${var.cluster_name}-vpcepg-${each.key}"
+                Name = "eks-vpcepg-${each.key}-${var.cluster_name}-${var.environment}-${var.deployment}"
               }
 }

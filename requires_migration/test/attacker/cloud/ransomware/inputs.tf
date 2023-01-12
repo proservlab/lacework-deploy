@@ -1,6 +1,11 @@
 variable "environment" {
-  type    = string
-  default = "attacker"
+    type = string
+    description = "name of the environment"
+}
+
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
 }
 
 variable "region" {

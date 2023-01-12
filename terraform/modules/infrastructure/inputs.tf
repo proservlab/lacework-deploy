@@ -7,6 +7,7 @@ variable "config" {
     context = object({
       global = object({
         environment               = string
+        deployment                = string
         trust_security_group      = bool
         disable_all               = bool
         enable_all                = bool
@@ -155,6 +156,7 @@ variable "config" {
     context = {
       global = {
         environment               = "infra"
+        deployment                = "default"
         trust_security_group      = false
         disable_all               = false
         enable_all                = false

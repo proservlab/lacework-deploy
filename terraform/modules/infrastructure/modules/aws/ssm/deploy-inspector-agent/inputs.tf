@@ -1,5 +1,11 @@
 variable "environment" {
-  type    = string
+    type = string
+    description = "name of the environment"
+}
+
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
 }
 
 variable "resource_query_deploy_inspector_agent" {

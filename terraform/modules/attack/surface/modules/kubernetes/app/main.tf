@@ -11,9 +11,9 @@ resource "kubernetes_namespace" "namespace" {
 
 resource "kubernetes_deployment" "app" {
   metadata {
-    name = "terraform-${var.environment}-app"
+    name = "terraform-example-app"
     labels = {
-      app = "${var.environment}-app"
+      app = "example-app"
     }
     namespace = var.environment
   }

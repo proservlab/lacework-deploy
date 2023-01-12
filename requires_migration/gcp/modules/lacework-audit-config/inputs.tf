@@ -1,7 +1,12 @@
 variable "environment" {
-    type    = string
+    type = string
+    description = "name of the environment"
 }
 
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
+}
 variable "gcp_organization" {
     type            = string
     description     = "gcp organization where lacework config should be stored"

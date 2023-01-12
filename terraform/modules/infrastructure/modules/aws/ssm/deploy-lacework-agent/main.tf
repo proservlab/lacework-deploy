@@ -3,7 +3,7 @@ resource "random_uuid" "agent" {
 
 resource "lacework_agent_access_token" "agent" {
     count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "${var.environment}-${random_uuid.agent.id}-daemonset-agent-access-token"
+    name = "daemonset-agent-access-token-${var.environment}-${var.deployment}"
 }
 
 module "lacework_aws_ssm_agents_install" {
@@ -12,7 +12,8 @@ module "lacework_aws_ssm_agents_install" {
 
     # tags to add to the lacework data collector
     lacework_agent_tags = {
-        Environment = var.environment
+        environment = var.environment
+        deployment = var.deployment
     }
 
     # tags to add to created resources for this module
@@ -23,7 +24,7 @@ module "lacework_aws_ssm_agents_install" {
 }
 
 resource "aws_resourcegroups_group" "main" {
-    name = "main"
+    name = "main-${var.environment}-${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query)
@@ -36,7 +37,7 @@ resource "aws_resourcegroups_group" "main" {
 }
 
 resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
-    association_name = "install-lacework-agents-group"
+    association_name = "install-lacework-agents-group-${var.environment}-${var.deployment}"
 
     name = module.lacework_aws_ssm_agents_install.ssm_document_name
 

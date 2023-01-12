@@ -4,6 +4,8 @@ module "public" {
 
     name = var.name
     environment = var.environment
+    deployment = var.deployment
+
     trust_security_group = var.trust_security_group
     public_egress_rules = var.public_egress_rules
     public_ingress_rules = var.public_ingress_rules
@@ -17,6 +19,8 @@ module "private" {
 
     name = var.name
     environment = var.environment
+    deployment = var.deployment
+    
     trust_security_group = var.trust_security_group
     private_egress_rules = var.private_egress_rules
     private_ingress_rules = var.private_ingress_rules

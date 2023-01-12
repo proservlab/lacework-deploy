@@ -1,6 +1,7 @@
 module "environment-proservlab" {
   source      = "./modules/environment"
   environment = "proservlab"
+  
   region      = var.region
 
   # override enable

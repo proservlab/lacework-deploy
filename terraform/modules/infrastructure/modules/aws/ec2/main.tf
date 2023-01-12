@@ -17,13 +17,15 @@ module "amis" {
 module "ssm_profile" {
   source = "./ssm-profile"
   environment = var.environment
+  deployment = var.deployment
 }
 
 # build private and public vpcs
 module "vpc" {
   source = "./vpc"
-  name = "main"
+  name = "main-${var.environment}-${var.deployment}"
   environment = var.environment
+  deployment = var.deployment
 
   enable_public_vpc = local.public_instance_count > 0 ? true : false
   enable_private_vpc = local.private_instance_count > 0 ? true : false
@@ -46,6 +48,7 @@ module "instances" {
   for_each = { for instance in var.instances: instance.name => instance }
   source = "./instance"
   environment = var.environment
+  deployment = var.deployment
   
   ami           = module.amis.ami_map[each.value.ami_name]
   instance_type = each.value.instance_type
@@ -62,8 +65,9 @@ module "instances" {
     module.default-ssm-tags.ssm_default_tags,
     merge(
       {
-        Name = each.value.name
-        Environment = var.environment
+        Name = "${each.value.name}${var.environment}-${var.deployment}-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
         public = each.value.public
       },
       each.value.tags,

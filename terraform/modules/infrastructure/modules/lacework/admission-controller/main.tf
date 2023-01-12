@@ -3,7 +3,7 @@ resource "random_uuid" "proxyscanner" {
 
 resource "lacework_integration_proxy_scanner" "proxyscanner" {
   count = can(length(var.lacework_proxy_token)) ? 0 : 1
-  name = "${var.environment}-${random_uuid.proxyscanner.id}-proxyscanner-access-token"
+  name = "proxyscanner-access-token-${var.environment}-${var.deployment}"
 }
 
 resource "tls_private_key" "ca" {
@@ -72,7 +72,7 @@ data "template_file" "values" {
 }
 
 resource "helm_release" "admission-controller" {
-    name       = "${var.environment}-lacework-admission-controller"
+    name       = "lacework-admission-controller-${var.environment}-${var.deployment}"
     repository = "https://lacework.github.io/helm-charts"
     chart      = "admission-controller"
 

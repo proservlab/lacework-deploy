@@ -4,7 +4,7 @@ resource "aws_vpc" "private" {
   enable_dns_hostnames = true
   enable_dns_support = true
   tags = {
-    Name = "${var.name}-private-vpc"
+    Name = "private-vpc-${var.environment}-${var.deployment}"
   }
 }
 
@@ -13,7 +13,7 @@ resource "aws_internet_gateway" "private" {
   vpc_id = aws_vpc.private.id
 
   tags = {
-    Name = "${var.name}-private-nat-internet-gw"
+    Name = "private-nat-internet-gw-${var.environment}-${var.deployment}"
   }
 }
 
@@ -26,7 +26,7 @@ resource "aws_nat_gateway" "private" {
   subnet_id     = aws_subnet.nat_gateway.id
 
   tags = {
-    Name = "${var.name}-private-nat-gw"
+    Name = "private-nat-gw-${var.environment}-${var.deployment}"
   }
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -40,8 +40,9 @@ resource "aws_subnet" "nat_gateway" {
   availability_zone = "us-east-1b"
   
   tags = {
-    Name = "${var.name}-private-nat-gw-subnet"
-    Environment = var.environment
+    Name = "private-nat-gw-subnet-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 
@@ -64,8 +65,9 @@ resource "aws_subnet" "private" {
     availability_zone = "us-east-1b"
     
     tags = {
-        Name = "${var.name}-private-subnet"
-        Environment = var.environment
+        Name = "private-subnet-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 
@@ -78,7 +80,7 @@ resource "aws_route_table" "private" {
     }
 
     tags = {
-        Name = "${var.name}-default-private-nat-gw-route"
+        Name = "default-private-nat-gw-route-${var.environment}-${var.deployment}"
     }
 }
 
@@ -88,8 +90,13 @@ resource "aws_route_table_association" "private" {
 }
 
 resource "aws_security_group" "private" {
-  name = "${var.name}-private-security-group"
+  name = "private-security-group-${var.environment}-${var.deployment}"
   vpc_id = aws_vpc.private.id
+
+  tags = {
+    Name = "private-security-group-${var.environment}-${var.deployment}"
+  }
+  
 }
 
 resource "aws_security_group_rule" "private_ingress_rules" {

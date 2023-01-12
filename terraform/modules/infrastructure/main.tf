@@ -20,6 +20,7 @@ module "ec2" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.enabled == true && can(length(local.config.context.aws.ec2.instances))) ? 1 : 0
   source       = "./modules/aws/ec2"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 
   # list of instances to configure
   instances = local.config.context.aws.ec2.instances
@@ -48,6 +49,7 @@ module "eks" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
   source       = "./modules/aws/eks"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
   region       = local.config.context.aws.region
   aws_profile_name = local.config.context.aws.profile_name
 
@@ -59,6 +61,7 @@ module "eks-autoscaler" {
   count = (length(module.eks) > 0) ? 1 : 0
   source       = "./modules/aws/eks-autoscale"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
   region       = local.config.context.aws.region
   
   cluster_name = local.config.context.aws.eks.cluster_name
@@ -74,6 +77,7 @@ module "inspector" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.inspector.enabled == true ) ? 1 : 0
   source       = "./modules/aws/inspector"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 #########################
@@ -85,6 +89,7 @@ module "ssm-deploy-inspector-agent" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_inspector_agent == true && local.config.context.aws.inspector.enabled == true ) ? 1 : 0
   source       = "./modules/aws/ssm/deploy-inspector-agent"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 # ssm deploy git
@@ -92,6 +97,7 @@ module "ssm-deploy-git" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_git== true ) ? 1 : 0
   source       = "./modules/aws/ssm/deploy-git"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 # ssm deploy docker
@@ -99,6 +105,7 @@ module "ssm-deploy-docker" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_docker== true ) ? 1 : 0
   source       = "./modules/aws/ssm/deploy-docker"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 # ssm deploy lacework agent
@@ -106,6 +113,8 @@ module "ssm-deploy-lacework-agent" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_lacework_agent == true ) ? 1 : 0
   source       = "./modules/aws/ssm/deploy-lacework-agent"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
   lacework_agent_access_token = local.config.context.lacework.agent.token
   lacework_server_url         = local.config.context.lacework.server_url
 }
@@ -115,6 +124,8 @@ module "lacework-ssm-deployment-syscall-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_lacework_syscall_config == true ) ? 1 : 0
   source       = "./modules/aws/ssm/deploy-lacework-syscall-config"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
   syscall_config = "${path.module}/modules/aws/ssm/deploy-lacework-syscall-config/resources/syscall_config.yaml"
 }
 
@@ -127,12 +138,14 @@ module "lacework-audit-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_audit_config.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/aws/audit-config"
   environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 module "lacework-gcp-audit-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_audit_config.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/gcp/audit-config"
   environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 
   providers = {
     google = google.lacework
@@ -144,12 +157,14 @@ module "lacework-agentless" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/aws/agentless"
   environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 module "lacework-gcp-agentless" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.gcp_agentless.enabled == true ) ? 1 : 0
   source      = "./modules/lacework/gcp/agentless"
   environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 
   project_filter_list = [
     var.config.context.gcp.project_id
@@ -165,6 +180,7 @@ module "lacework-alerts" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.alerts.enabled == true ) ? 1 : 0
   source       = "./modules/lacework/alerts"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
   
   enable_slack_alerts       = local.config.context.lacework.alerts.slack.enabled
   slack_token               = local.config.context.lacework.alerts.slack.api_token
@@ -182,6 +198,7 @@ module "lacework-custom-policy" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.custom_policy.enabled == true ) ? 1 : 0
   source       = "./modules/lacework/custom-policy"
   environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 resource "kubernetes_namespace" "lacework" {
@@ -201,6 +218,7 @@ module "lacework-daemonset" {
   source                                = "./modules/lacework/daemonset"
   cluster_name                          = local.config.context.aws.eks.cluster_name
   environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
   lacework_agent_access_token           = local.config.context.lacework.agent.token
   lacework_server_url                   = local.config.context.lacework.server_url
   
@@ -219,10 +237,12 @@ module "lacework-daemonset" {
 # lacework kubernetes admission controller
 module "lacework-admission-controller" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true && length(module.eks) >0 ) ? 1 : 0
-  source       = "./modules/lacework/admission-controller"
-  environment  = local.config.context.global.environment
+  source                = "./modules/lacework/admission-controller"
+  environment           = local.config.context.global.environment
+  deployment            = local.config.context.global.deployment
+  
   lacework_account_name = local.config.context.lacework.account_name
-  lacework_proxy_token = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
+  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
 
   depends_on = [
     module.eks,
@@ -236,6 +256,8 @@ module "lacework-eks-audit" {
   source      = "./modules/lacework/aws/eks-audit"
   region      = local.config.context.aws.region
   environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
   cluster_names = [local.config.context.aws.eks.cluster_name]
 
   depends_on = [
@@ -253,6 +275,7 @@ module "lacework-eks-audit" {
 #   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gce == true ) ? 1 : 0
 #   source      = "../gce"
 #   environment = var.environment
+#   deployment = var.deployment
 
 #   providers = {
 #     google = google
@@ -263,6 +286,8 @@ module "lacework-eks-audit" {
 #   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true ) ? 1 : 0
 #   source                              = "../gke"
 #   gcp_project_id                      = var.gcp_project
+# environment   = local.config.context.global.environment
+# deployment   = local.config.context.global.deployment
 #   cluster_name                        = var.cluster_name
 #   gcp_location                        = var.region
 #   daily_maintenance_window_start_time = "03:00"

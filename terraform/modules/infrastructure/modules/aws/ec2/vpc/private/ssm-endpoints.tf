@@ -6,7 +6,7 @@ locals {
 # VPC ENDPOINT SECURITY GROUP
 
 resource "aws_security_group" "vpc_endpoint" {
-  name        = "private-vpcep-sg"
+  name        = "private-vpcep-sg-${var.environment}-${var.deployment}"
   description = "Allow TLS inbound To AWS Systems Manager Session Manager"
   vpc_id      = aws_vpc.private.id
 
@@ -26,7 +26,7 @@ resource "aws_security_group" "vpc_endpoint" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "private-vpcep-sg"
+    Name = "private-vpcep-sg-${var.environment}-${var.deployment}"
   }
 }
 
@@ -52,7 +52,7 @@ resource "aws_vpc_endpoint" "vpc_interface_endpoint" {
   private_dns_enabled = true
 
   tags = {
-    Name = "private-vpcepi-${each.key}"
+    Name = "private-vpcepi-${each.key}-${var.environment}-${var.deployment}"
   }
 }
 

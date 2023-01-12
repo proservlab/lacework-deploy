@@ -7,12 +7,12 @@ resource "local_file" "syscall_config" {
 # create a token for the daemonset
 resource "lacework_agent_access_token" "agent" {
     count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "${var.environment}-daemonset-agent-access-token"
+    name = "daemonset-agent-access-token-${var.environment}-${var.deployment}"
 }
 
 # use the local chart to apply (current workaround for syscall_config.yaml)
 resource "helm_release" "lacework" {
-    name       = "${var.environment}-lacework"
+    name       = "lacework-${var.environment}-${var.deployment}"
     repository = "${path.module}/helm-charts"
     chart      = "lacework-agent"
     version    = "6.2.2"

@@ -1,11 +1,12 @@
 {
     "context": {
         "global": {
-        "environment": "attacker",
-        "trust_security_group": true
+            "environment"          : "attacker",
+            "deployment"           : "${ deployment }",
+            "trust_security_group" : true
         },
         "aws": {
-            "profile_name": "${ attacker_aws_profile }",
+            "profile_name": "${ aws_profile }",
             "ec2": {
                 "enabled": true,
                 "public_network": "172.27.0.0/16",

@@ -3,7 +3,13 @@ variable "account_name" {
 }
 
 variable "environment" {
-  default = "proservlab"
+    type = string
+    description = "name of the environment"
+}
+
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
 }
 
 variable "app" {

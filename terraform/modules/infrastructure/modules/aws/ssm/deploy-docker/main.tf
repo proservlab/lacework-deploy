@@ -34,7 +34,7 @@ locals {
 }
 
 resource "aws_ssm_document" "deploy_docker" {
-  name          = "deploy_docker"
+  name          = "deploy_docker_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -63,7 +63,7 @@ resource "aws_ssm_document" "deploy_docker" {
 }
 
 resource "aws_resourcegroups_group" "deploy_docker" {
-    name = "deploy_docker"
+    name = "deploy_docker_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_deploy_docker)

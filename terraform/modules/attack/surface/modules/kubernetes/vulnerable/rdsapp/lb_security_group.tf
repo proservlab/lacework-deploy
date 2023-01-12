@@ -1,6 +1,6 @@
 # app lb security group
 resource "aws_security_group" "app_lb" {
-  name        = "${var.app}-app_lb-sg"
+  name        = "${var.app}-app-lb-sg-${var.environment}-${var.deployment}"
   description = "Allow inbound traffic from trusted source"
   vpc_id      = var.cluster_vpc_id
 

@@ -96,12 +96,12 @@ resource "aws_inspector_resource_group" "group" {
 }
 
 resource "aws_inspector_assessment_target" "assessment" {
-  name               = "inspector"
+  name               = "inspector-${var.environment}-${var.deployment}"
   resource_group_arn = aws_inspector_resource_group.group.arn
 }
 
 resource "aws_inspector_assessment_template" "assessment" {
-  name       = "inspector"
+  name       = "inspector-${var.environment}-${var.deployment}"
   target_arn = aws_inspector_assessment_target.assessment.arn
   duration   = "3600"
 
@@ -109,7 +109,7 @@ resource "aws_inspector_assessment_template" "assessment" {
 }
 
 resource "aws_cloudwatch_event_rule" "assessment" {
-  name                = "inspector-schedule"
+  name                = "inspector-schedule-${var.environment}-${var.deployment}"
   description         = "scheduled inspector rule"
   schedule_expression = "cron(0/30 * * * ? *)"
 }
@@ -141,7 +141,7 @@ data "aws_iam_policy_document" "assessment" {
 }
 
 resource "aws_iam_role" "assessment" {
-  name               = "inspector-role"
+  name               = "inspector-role-${var.environment}-${var.deployment}"
   assume_role_policy = data.aws_iam_policy_document.events-assume-role-policy.json
 
    inline_policy {

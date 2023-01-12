@@ -48,7 +48,7 @@ locals {
     base64_payload_private = base64encode(local.payload_private)
 }
 resource "aws_ssm_document" "deploy_secret_ssh_private" {
-  name          = "deploy_secret_ssh_private"
+  name          = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -77,7 +77,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
 }
 
 resource "aws_ssm_document" "deploy_secret_ssh_public" {
-  name          = "deploy_secret_ssh_public"
+  name          = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -106,7 +106,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_public" {
 }
 
 resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {
-    name = "deploy_secret_ssh_private"
+    name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_deploy_secret_ssh_private)
@@ -119,7 +119,7 @@ resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {
 }
 
 resource "aws_ssm_association" "deploy_secret_ssh_private" {
-    association_name = "deploy_secret_ssh_private"
+    association_name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.deploy_secret_ssh_private.name
 
@@ -140,7 +140,7 @@ resource "aws_ssm_association" "deploy_secret_ssh_private" {
 }
 
 resource "aws_resourcegroups_group" "deploy_secret_ssh_public" {
-    name = "deploy_secret_ssh_public"
+    name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_deploy_secret_ssh_public)
@@ -153,7 +153,7 @@ resource "aws_resourcegroups_group" "deploy_secret_ssh_public" {
 }
 
 resource "aws_ssm_association" "deploy_secret_ssh_public" {
-    association_name = "deploy_secret_ssh_public"
+    association_name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.deploy_secret_ssh_public.name
 

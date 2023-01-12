@@ -27,7 +27,7 @@ locals {
 }
 
 resource "aws_ssm_document" "exec_port_forward_attacker" {
-  name          = "exec_port_forward_attacker"
+  name          = "exec_port_forward_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -56,7 +56,7 @@ resource "aws_ssm_document" "exec_port_forward_attacker" {
 }
 
 resource "aws_resourcegroups_group" "exec_port_forward_attacker" {
-    name = "exec_port_forward_attacker"
+    name = "exec_port_forward_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_exec_port_forward_attacker)
@@ -69,7 +69,7 @@ resource "aws_resourcegroups_group" "exec_port_forward_attacker" {
 }
 
 resource "aws_ssm_association" "exec_port_forward_attacker" {
-    association_name = "exec_port_forward_attacker"
+    association_name = "exec_port_forward_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.exec_port_forward_attacker.name
 

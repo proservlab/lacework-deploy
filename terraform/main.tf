@@ -2,6 +2,11 @@
 # DEFAULT
 ########################
 
+# unique id used for deployment
+module "deployment" {
+  source = "./modules/context/deployment"
+}
+
 # defaults
 module "default-infrastructure-context" {
   source = "./modules/context/infrastructure"
@@ -22,35 +27,37 @@ module "default-attacksimulation-context" {
 data "template_file" "attacker-infrastructure-config-file" {
   template = file("${path.module}/scenarios/simple/attacker/infrastructure.json")
   vars = {
-    attacker_aws_profile = var.attacker_aws_profile
+    # aws
+    aws_profile = var.attacker_aws_profile
+    deployment = module.deployment.id
   }
-}
-
-module "attacker-infrastructure-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
-
-  maps = [
-    module.default-infrastructure-context.config,
-    jsondecode(data.template_file.attacker-infrastructure-config-file.rendered)
-  ]
 }
 
 data "template_file" "target-infrastructure-config-file" {
   template = file("${path.module}/scenarios/simple/target/infrastructure.json")
   vars = {
     # aws
-    target_aws_profile = var.target_aws_profile
+    aws_profile = var.target_aws_profile
+    deployment = module.deployment.id
   }
 }
 
-module "target-infrastructure-config" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "0.2.0"
+locals {
+  attacker_infrastructure_config = data.template_file.attacker-infrastructure-config-file.rendered
+  target_infrastructure_config   = data.template_file.target-infrastructure-config-file.rendered
+}
 
-  maps = [
-    module.default-infrastructure-context.config,
-    jsondecode(data.template_file.target-infrastructure-config-file.rendered)
+data "utils_deep_merge_json" "attacker-infrastructure-config" {
+  input = [
+    jsonencode(module.default-infrastructure-context.config),
+    local.attacker_infrastructure_config
+  ]
+}
+
+data "utils_deep_merge_json" "target-infrastructure-config" {
+  input = [
+    jsonencode(module.default-infrastructure-context.config),
+    local.target_infrastructure_config
   ]
 }
 
@@ -62,12 +69,12 @@ module "target-infrastructure-config" {
 # set infrasturcture context
 module "attacker-infrastructure-context" {
   source = "./modules/context/infrastructure"
-  config = module.attacker-infrastructure-config.merged
+  config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config.output)
 }
 
 module "target-infrastructure-context" {
   source = "./modules/context/infrastructure"
-  config = module.target-infrastructure-config.merged
+  config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
 }
 
 #########################
@@ -80,7 +87,7 @@ module "attacker-infrastructure" {
   config = module.attacker-infrastructure-context.config
 
   providers = {
-    aws      = aws.attacker
+    aws = aws.attacker
   }
 }
 
@@ -89,7 +96,7 @@ module "target-infrastructure" {
   config = module.target-infrastructure-context.config
 
   providers = {
-    aws      = aws.target
+    aws = aws.target
   }
 }
 
@@ -116,21 +123,21 @@ data "template_file" "target-attacksurface-config-file" {
 }
 
 locals {
-  attacker_config = data.template_file.attacker-attacksurface-config-file.rendered
-  target_config = data.template_file.target-attacksurface-config-file.rendered
+  attacker_attacksurface_config = data.template_file.attacker-attacksurface-config-file.rendered
+  target_attacksurface_config   = data.template_file.target-attacksurface-config-file.rendered
 }
 
 data "utils_deep_merge_json" "attacker-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.attacker_config
+    local.attacker_attacksurface_config
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.target_config
+    local.target_attacksurface_config
   ]
 }
 
@@ -169,26 +176,26 @@ module "attacker-attacksurface" {
       attacker = module.attacker-infrastructure.config
     }
   }
-  
+
   providers = {
-    aws      = aws.attacker
-    lacework = lacework.attacker
+    aws        = aws.attacker
+    lacework   = lacework.attacker
     kubernetes = kubernetes.attacker
-    helm = helm.attacker
+    helm       = helm.attacker
   }
 
-  depends_on = [
-    module.target-infrastructure,
-    module.attacker-infrastructure,
-    module.attacker-infrastructure-context,
-    module.attacker-attacksurface-context
-  ]
+  # depends_on = [
+  #   module.target-infrastructure,
+  #   module.attacker-infrastructure,
+  #   module.attacker-infrastructure-context,
+  #   module.attacker-attacksurface-context
+  # ]
 }
 
 module "target-attacksurface" {
   source = "./modules/attack/surface"
   # attack surface config
-  config = module.attacker-attacksurface-context.config
+  config = module.target-attacksurface-context.config
 
   # infrasturcture config and deployed state
   infrastructure = {
@@ -202,18 +209,18 @@ module "target-attacksurface" {
   }
 
   providers = {
-    aws      = aws.target
-    lacework = lacework.target
+    aws        = aws.target
+    lacework   = lacework.target
     kubernetes = kubernetes.target
-    helm = helm.target
+    helm       = helm.target
   }
 
-  depends_on = [
-    module.target-infrastructure,
-    module.attacker-infrastructure,
-    module.target-infrastructure-context,
-    module.target-attacksurface-context
-  ]
+  # depends_on = [
+  #   module.target-infrastructure,
+  #   module.attacker-infrastructure,
+  #   module.target-infrastructure-context,
+  #   module.target-attacksurface-context
+  # ]
 }
 
 # #########################
@@ -221,34 +228,33 @@ module "target-attacksurface" {
 # ########################
 
 # data "template_file" "attacker-attacksimulation-config-file" {
-#   template = file("${path.module}/scenarios/demo/attacker/simulation.json")
+#   template = file("${path.module}/scenarios/simple/attacker/simulation.json")
 
 #   vars = {}
-# }
-
-# module "attacker-attacksimulation-config" {
-#   source  = "cloudposse/config/yaml//modules/deepmerge"
-#   version = "0.2.0"
-
-#   maps = [
-#     module.default-attacksimulation-context.config,
-#     jsondecode(data.template_file.attacker-attacksimulation-config-file.rendered)
-#   ]
 # }
 
 # data "template_file" "target-attacksimulation-config-file" {
-#   template = file("${path.module}/scenarios/demo/target/simulation.json")
+#   template = file("${path.module}/scenarios/simple/target/simulation.json")
 
 #   vars = {}
 # }
 
-# module "target-attacksimulation-config" {
-#   source  = "cloudposse/config/yaml//modules/deepmerge"
-#   version = "0.2.0"
+# locals {
+#   attacker_attacksimulation_config = data.template_file.attacker-attacksimulation-config-file.rendered
+#   target_attacksimulation_config   = data.template_file.target-attacksimulation-config-file.rendered
+# }
 
-#   maps = [
-#     module.default-attacksimulation-context.config,
-#     jsondecode(data.template_file.target-attacksimulation-config-file.rendered)
+# data "utils_deep_merge_json" "attacker-attacksimulation-config" {
+#   input = [
+#     jsonencode(module.default-attacksimulation-context.config),
+#     local.attacker_attacksimulation_config
+#   ]
+# }
+
+# data "utils_deep_merge_json" "target-attacksimulation-config" {
+#   input = [
+#     jsonencode(module.default-attacksimulation-context.config),
+#     local.target_attacksimulation_config
 #   ]
 # }
 
@@ -259,13 +265,13 @@ module "target-attacksurface" {
 # # set attack the context
 # module "attacker-attacksimulation-context" {
 #   source = "./modules/context/attack/simulate"
-#   config = module.attacker-attacksimulation-config.merged
+#   config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
 # }
 
 # # set attack the context
 # module "target-attacksimulation-context" {
 #   source = "./modules/context/attack/simulate"
-#   config = module.target-attacksimulation-config.merged
+#   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
 # }
 
 # #########################

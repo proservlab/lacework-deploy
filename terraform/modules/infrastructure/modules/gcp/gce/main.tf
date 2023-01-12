@@ -11,7 +11,7 @@ data "template_file" "startup" {
 }
 
 resource "google_compute_instance" "default" {
-    name         = "${var.environment}-compute"
+    name         = "compute-${var.environment}-${var.deployment}"
     machine_type = "e2-micro"
     zone         = "us-central1-a"
 
@@ -42,6 +42,7 @@ resource "google_compute_instance" "default" {
 
     labels = {
         environment = var.environment
+        deployment = var.deployment
     }
 
     metadata_startup_script = data.template_file.startup.rendered

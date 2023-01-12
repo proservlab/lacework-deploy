@@ -14,7 +14,7 @@ variable "accounts" {
 
 resource "lacework_integration_aws_cfg" "all_accounts" {
   for_each                  = var.accounts
-  name = "${each.key} ${each.value[0]}"
+  name = "${each.key}-${each.value[0]}-${var.environment}-${var.deployment}"
   credentials {
     role_arn    = "arn:aws:iam::${each.value[0]}:role/lacework_role"
     external_id = each.value[1]

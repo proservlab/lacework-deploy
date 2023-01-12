@@ -17,7 +17,7 @@ locals {
 }
 
 resource "aws_ssm_document" "connect_bad_ip" {
-  name          = "connect_bad_ip"
+  name          = "connect_bad_ip_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -46,7 +46,7 @@ resource "aws_ssm_document" "connect_bad_ip" {
 }
 
 resource "aws_resourcegroups_group" "connect_bad_ip" {
-    name = "connect_bad_ip"
+    name = "connect_bad_ip_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_connect_bad_ip)
@@ -59,7 +59,7 @@ resource "aws_resourcegroups_group" "connect_bad_ip" {
 }
 
 resource "aws_ssm_association" "connect_bad_ip" {
-    association_name = "connect_bad_ip"
+    association_name = "connect_bad_ip_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.connect_bad_ip.name
 
