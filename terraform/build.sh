@@ -171,7 +171,7 @@ if [ "all" = "${STAGE}" ]; then
         sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -out build.tfplan -detailed-exitcode
         ERR=$?
-        terraform ${ERR} apply ${PLANFILE}
+        check_tf_apply ${ERR} apply ${PLANFILE}
     fi
 elif [ "infra" = "${STAGE}" ] || [ "surface" = "${STAGE}" ] || [ "simulation" = "${STAGE}" ]; then
     STAGE=${STAGE}
