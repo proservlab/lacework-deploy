@@ -1,4 +1,14 @@
 ###########################
+# SCENARIO
+###########################
+
+variable "scenario" {
+  type        = string
+  description = "Scenario directory name"
+  default     = "simple"
+}
+
+###########################
 # REGION
 ###########################
 

@@ -25,7 +25,7 @@ module "default-attacksimulation-context" {
 ########################
 
 data "template_file" "attacker-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/infrastructure.json")
+  template = file("${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json")
   vars = {
     # deployment id
     deployment = module.deployment.id
@@ -36,7 +36,7 @@ data "template_file" "attacker-infrastructure-config-file" {
 }
 
 data "template_file" "target-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/simple/target/infrastructure.json")
+  template = file("${path.module}/scenarios/${var.scenario}/target/infrastructure.json")
   vars = {
     # deployment id
     deployment = module.deployment.id
@@ -50,7 +50,7 @@ data "template_file" "target-infrastructure-config-file" {
     # lacework
     lacework_server_url   = var.lacework_server_url
     lacework_account_name = var.lacework_account_name
-    syscall_config_path   = abspath("${path.module}/scenarios/simple/target/resources/syscall_config.yaml")
+    syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
     # slack
     slack_token = var.slack_token
@@ -129,7 +129,7 @@ module "target-infrastructure" {
 ########################
 
 data "template_file" "attacker-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/surface.json")
+  template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
 
   vars = {
     # ec2 security group trusted ingress
@@ -138,12 +138,12 @@ data "template_file" "attacker-attacksurface-config-file" {
 }
 
 data "template_file" "target-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/simple/target/surface.json")
+  template = file("${path.module}/scenarios/${var.scenario}/target/surface.json")
 
   vars = {
     # iam
-    iam_power_user_policy_path = abspath("${path.module}/scenarios/simple/target/resources/iam_power_user_policy.json")
-    iam_users_path             = abspath("${path.module}/scenarios/simple/target/resources/iam_users.json")
+    iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
+    iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
 
     # ec2 security group trusted ingress
     security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
@@ -251,13 +251,13 @@ module "target-attacksurface" {
 ########################
 
 data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/simulation.json")
+  template = file("${path.module}/scenarios/${var.scenario}/attacker/simulation.json")
 
   vars = {}
 }
 
 data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/target/simulation.json")
+  template = file("${path.module}/scenarios/${var.scenario}/target/simulation.json")
 
   vars = {}
 }
