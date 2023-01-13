@@ -19,8 +19,8 @@ resource "aws_vpc" "cluster" {
   enable_dns_support = true
   enable_dns_hostnames = true
   tags = tomap({
-    "Name"                                      = "terraform-eks-${var.environment}-node",
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "Name"                                      = "terraform-eks-${var.environment}-${var.deployment}-node",
+    "kubernetes.io/cluster/${var.cluster_name}-${var.environment}-${var.deployment}" = "shared",
   })
 }
 
@@ -33,8 +33,8 @@ resource "aws_subnet" "cluster" {
   map_public_ip_on_launch = false
 
   tags = tomap({
-    "Name"                                      = "terraform-eks-${var.environment}-node",
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "Name"                                      = "terraform-eks-${var.environment}-${var.deployment}-node",
+    "kubernetes.io/cluster/${var.cluster_name}-${var.environment}-${var.deployment}" = "shared",
     # "kubernetes.io/role/${count.index==0?"elb":"internal-elb"}" = "1",
     "kubernetes.io/role/internal-elb" = "1",
   })

@@ -67,7 +67,7 @@ resource "aws_eks_node_group" "cluster" {
 
   tags =  {
             "k8s.io/cluster-autoscaler/enabled" = "true"
-            "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+            "k8s.io/cluster-autoscaler/${var.cluster_name}-${var.environment}-${var.deployment}" = "owned"
             "Name" = "terraform-eks-worker-node"
           }
 

@@ -378,7 +378,7 @@ resource "null_resource" "gke_context_switcher" {
   }
 
   provisioner "local-exec" {
-    command = "gcloud container clusters get-credentials ${var.cluster_name} --region=${var.gcp_location}"
+    command = "gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}"
   }
 
   depends_on = [

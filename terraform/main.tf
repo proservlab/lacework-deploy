@@ -214,11 +214,11 @@ module "attacker-attacksurface" {
     }
   }
 
+  kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+
   providers = {
-    aws        = aws.attacker
-    lacework   = lacework.attacker
-    kubernetes = kubernetes.attacker
-    helm       = helm.attacker
+    aws      = aws.attacker
+    lacework = lacework.attacker
   }
 }
 
@@ -238,11 +238,11 @@ module "target-attacksurface" {
     }
   }
 
+  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+
   providers = {
-    aws        = aws.target
-    lacework   = lacework.target
-    kubernetes = kubernetes.target
-    helm       = helm.target
+    aws      = aws.target
+    lacework = lacework.target
   }
 }
 
@@ -318,6 +318,9 @@ module "attacker-attacksimulation" {
       attacker = module.attacker-infrastructure.config
     }
   }
+
+  kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+
   providers = {
     aws      = aws.attacker
     lacework = lacework.attacker
@@ -341,6 +344,9 @@ module "target-attacksimulation" {
       attacker = module.attacker-infrastructure.config
     }
   }
+
+  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+
   providers = {
     aws      = aws.target
     lacework = lacework.target

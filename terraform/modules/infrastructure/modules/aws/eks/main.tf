@@ -30,7 +30,7 @@ locals {
                     - "eks"
                     - "get-token"
                     - "--cluster-name"
-                    - "${var.cluster_name}"
+                    - "${var.cluster_name}-${var.environment}-${var.deployment}"
                   command: aws
                   env:
                   - name: AWS_PROFILE
