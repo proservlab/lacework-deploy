@@ -25,20 +25,20 @@ module "default-attacksimulation-context" {
 ########################
 
 data "template_file" "attacker-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/infrastructure.json")
+  template = file("${path.module}/scenarios/demo/attacker/infrastructure.json")
   vars = {
     # aws
     aws_profile = var.attacker_aws_profile
-    deployment = module.deployment.id
+    deployment  = module.deployment.id
   }
 }
 
 data "template_file" "target-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/simple/target/infrastructure.json")
+  template = file("${path.module}/scenarios/demo/target/infrastructure.json")
   vars = {
     # aws
     aws_profile = var.target_aws_profile
-    deployment = module.deployment.id
+    deployment  = module.deployment.id
   }
 }
 
@@ -107,7 +107,7 @@ module "target-infrastructure" {
 ########################
 
 data "template_file" "attacker-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/surface.json")
+  template = file("${path.module}/scenarios/demo/attacker/surface.json")
 
   vars = {
     # ec2 security group trusted ingress
@@ -116,11 +116,24 @@ data "template_file" "attacker-attacksurface-config-file" {
 }
 
 data "template_file" "target-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/simple/target/surface.json")
+  template = file("${path.module}/scenarios/demo/target/surface.json")
 
   vars = {
+    # iam
+    iam_power_user_policy_path = abspath("${path.module}/scenarios/demo/target/resources/iam_power_user_policy.json")
+    iam_users_path             = abspath("${path.module}/scenarios/demo/target/resources/iam_users.json")
+
     # ec2 security group trusted ingress
     security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
+
+    # rds
+    rds_igw_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_igw.id, "")
+    rds_vpc_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id, "")
+    rds_vpc_subnet             = try(module.target-infrastructure.config.context.aws.ec2[0].public_network, "")
+    rds_ec2_instance_role_name = try(module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_role.name, "")
+    rds_trusted_sg_id          = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
+    rds_root_db_username       = "dbuser"
+    rds_root_db_password       = "dbpassword"
   }
 }
 
@@ -216,13 +229,13 @@ module "target-attacksurface" {
 ########################
 
 data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/attacker/simulation.json")
+  template = file("${path.module}/scenarios/demo/attacker/simulation.json")
 
   vars = {}
 }
 
 data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/simple/target/simulation.json")
+  template = file("${path.module}/scenarios/demo/target/simulation.json")
 
   vars = {}
 }

@@ -5,7 +5,7 @@
         "trust_security_group" : true
       },
       "aws": {
-        "profile_name" : "${ target_aws_profile }",
+        "profile_name" : "${ aws_profile }",
         "ec2": {
           "enabled"            : true,
           "public_network"     : "172.17.0.0/16",
@@ -65,7 +65,7 @@
           "enabled" : true
         },
         "gcp_audit_config": {
-          "project_id" : "${ target_gcp_lacework_project }",
+          "project_id" : "${ gcp_lacework_project }",
           "enabled"    : false
         },
         "custom_policy": {
