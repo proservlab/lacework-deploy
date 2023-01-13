@@ -35,8 +35,10 @@ module "ec2" {
 
   public_network = local.config.context.aws.ec2.public_network
   public_subnet = local.config.context.aws.ec2.public_subnet
+  public_app_subnet = local.config.context.aws.ec2.public_app_subnet
   private_network = local.config.context.aws.ec2.private_network
   private_subnet = local.config.context.aws.ec2.private_subnet
+  private_app_subnet = local.config.context.aws.ec2.private_app_subnet
   private_nat_subnet = local.config.context.aws.ec2.private_nat_subnet
 }
 

@@ -105,6 +105,12 @@ variable "public_subnet" {
   default = "172.17.0.0/24"
 }
 
+variable "public_app_subnet" {
+  type = string
+  description = "public subnet"
+  default = "172.17.1.0/24"
+}
+
 variable "private_network" {
   type = string
   description = "private network"
@@ -115,6 +121,12 @@ variable "private_subnet" {
   type = string
   description = "private subnet"
   default = "172.16.100.0/24"
+}
+
+variable "private_app_subnet" {
+  type = string
+  description = "private subnet"
+  default = "172.16.101.0/24"
 }
 
 variable "private_nat_subnet" {

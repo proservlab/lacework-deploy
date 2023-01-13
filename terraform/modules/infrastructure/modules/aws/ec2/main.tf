@@ -38,8 +38,10 @@ module "vpc" {
 
   public_network = var.public_network
   public_subnet = var.public_subnet
+  public_app_subnet = var.public_app_subnet
   private_network = var.private_network
   private_subnet = var.private_subnet
+  private_app_subnet = var.private_app_subnet
   private_nat_subnet = var.private_nat_subnet
 }
 

@@ -20,8 +20,10 @@ variable "config" {
           instances             = list(any)
           public_network        = string
           public_subnet         = string
+          public_app_subnet     = string
           private_network       = string
           private_subnet        = string
+          private_app_subnet    = string
           private_nat_subnet    = string
           public_ingress_rules  = list(any)
           public_egress_rules   = list(any)
@@ -169,8 +171,10 @@ variable "config" {
           instances             = []
           public_network        = "172.17.0.0/16"
           public_subnet         = "172.17.0.0/24"
+          public_app_subnet     = "172.17.1.0/24"
           private_network       = "172.16.0.0/16"
           private_subnet        = "172.16.100.0/24"
+          private_app_subnet    = "172.16.101.0/24"
           private_nat_subnet    = "172.16.10.0/24"
           public_ingress_rules  = [
                                     {
