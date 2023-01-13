@@ -27,18 +27,40 @@ module "default-attacksimulation-context" {
 data "template_file" "attacker-infrastructure-config-file" {
   template = file("${path.module}/scenarios/demo/attacker/infrastructure.json")
   vars = {
+    # deployment id
+    deployment = module.deployment.id
+
     # aws
     aws_profile = var.attacker_aws_profile
-    deployment  = module.deployment.id
   }
 }
 
 data "template_file" "target-infrastructure-config-file" {
   template = file("${path.module}/scenarios/demo/target/infrastructure.json")
   vars = {
+    # deployment id
+    deployment = module.deployment.id
+
     # aws
     aws_profile = var.target_aws_profile
-    deployment  = module.deployment.id
+
+    # gcp
+    gcp_lacework_project = var.target_gcp_lacework_project
+
+    # lacework
+    lacework_server_url   = var.lacework_server_url
+    lacework_account_name = var.lacework_account_name
+    syscall_config_path   = abspath("${path.module}/scenarios/demo/target/resources/syscall_config.yaml")
+
+    # slack
+    slack_token = var.slack_token
+
+    # jira config
+    jira_cloud_url         = var.jira_cloud_url
+    jira_cloud_username    = var.jira_cloud_username
+    jira_cloud_api_token   = var.jira_cloud_api_token
+    jira_cloud_project_key = var.jira_cloud_project_key
+    jira_cloud_issue_type  = var.jira_cloud_issue_type
   }
 }
 
