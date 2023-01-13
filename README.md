@@ -49,34 +49,22 @@ terraform workspace select ${WORKSPACE} || terraform workspace new ${WORKSPACE}
 terraform init -upgrade
 
 # create unique deployment id
-terraform plan -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
+terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars  -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
 
 # build infrastructure
-terraform plan -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply
+terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply
 
-# build attacksurface
-terraform plan -target=module.target-attacksurface -target=module.attacker-attacksurface -out build.tfplan && terraform apply build.tf
+# build attacksurface and attacksimulation
+terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars -out build.tfplan && terraform apply build.tf
 plan
-
-# build attacksimulation
-terraform plan -target=module.target-attacksimulation -target=module.attacker-attacksimulation -out build.tfplan && terraform apply build.tfplan
 ```
 
 *Build needs to be done in this order the first time around because each layer requires info from the other. once it's build you can update the json files in scenarios and plan apply that layer and any downstream layers.*
 
 **terraform destory (needs to be done in this order)**
 ```
-# destroy attacksimulation
-terraform plan -destroy -target=module.target-attacksimulation -target=module.attacker-attacksimulation -out build.tfplan && terraform apply build.tfplan
-
-# destroy attacksurface
-terraform plan -destroy -target=module.target-attacksurface -target=module.attacker-attacksurface -out build.tfplan && terraform apply build.tfplan
-
-# destroy infrastructure
-terraform plan -destroy -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply build.tfplan
-
-# destroy deployment id
-terraform plan -destroy -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
+# destroy infrastructure attacksurface and attacksimulation
+terraform plan -destroy -var-file=env_vars/variables-<WORKSPACE>.tfvars  -out build.tfplan && terraform apply build.tfplan
 ```
 
 # SSM Access
