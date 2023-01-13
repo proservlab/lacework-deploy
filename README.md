@@ -4,13 +4,22 @@ This repo contains example deployment of both infrastructure and lacework compon
 
 Users are expected to use a terraform `workspace` when deploying the `environment` modules. Example usage:
 
-`./build.sh --workspace=myworkspace --action=apply`
+`./build.sh --workspace=<workspace> --action=apply --stage=all`
 
 For each workspace environment, variables for that workspace are read in from the `env_vars` directory. Expected format for environment related vars is `variables-<workspace>.tfvars`.
 
 The environment modules allows for the disabling and enabling of various deployment components, if all components are enabled the following related environment varaibles are required:
 
 ```
+scenario="simple"
+attacker_aws_profile = "xxxxxx"
+attacker_gcp_project = "xxxxxx"
+target_aws_profile = "xxxxxx"
+target_gcp_project = "xxxxxx"
+target_gcp_lacework_project = "xxxxxx"
+lacework_profile = "xxxxxx"
+lacework_account_name = "xxxxxx"
+lacework_server_url = "https://xxxxxx.lacework.net"
 jira_cloud_api_token = "xxxxxx"
 jira_cloud_username = "xxxxxx"
 jira_cloud_project_key = "xxxxxx"
@@ -22,6 +31,7 @@ lacework_account_name = "xxxxxx"
 lacework_server_url = "https://xxxxxx.lacework.net"
 ```
 
+Define the environment using json configuration files in the scenarios directory.
 ## Manual execution
 
 ### setup
