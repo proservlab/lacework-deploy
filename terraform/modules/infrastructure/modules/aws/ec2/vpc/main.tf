@@ -1,5 +1,5 @@
 module "public" {
-    count = var.enable_public_vpc == true ? 1 : 0
+    count = var.enable_public_vpc == true || var.enable_public_app_vpc == true ? 1 : 0
     source = "./public"
 
     name = var.name
@@ -11,10 +11,11 @@ module "public" {
     public_ingress_rules = var.public_ingress_rules
     public_network = var.public_network
     public_subnet = var.public_subnet
+    public_app_subnet = var.public_app_subnet
 }
 
 module "private" {
-    count = var.enable_private_vpc == true ? 1 : 0
+    count = var.enable_private_vpc == true || var.enable_private_app_vpc == true ? 1 : 0
     source = "./private"
 
     name = var.name
@@ -26,5 +27,6 @@ module "private" {
     private_ingress_rules = var.private_ingress_rules
     private_network = var.private_network
     private_subnet = var.private_subnet
+    private_app_subnet = var.private_app_subnet
     private_nat_subnet = var.private_nat_subnet
 }

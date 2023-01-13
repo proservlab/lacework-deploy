@@ -30,6 +30,20 @@ resource "aws_subnet" "public" {
     }
 }
 
+resource "aws_subnet" "public_app" {
+    vpc_id            = aws_vpc.public.id
+    cidr_block        = var.public_app_subnet
+    availability_zone = "us-east-1b"
+    
+    map_public_ip_on_launch = true
+    
+    tags = {
+        Name = "public-app-subnet-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
+    }
+}
+
 resource "aws_route_table" "public" {
     vpc_id = aws_vpc.public.id
 
@@ -45,6 +59,11 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table_association" "public" {
   subnet_id = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_app" {
+  subnet_id = aws_subnet.public_app.id
   route_table_id = aws_route_table.public.id
 }
 

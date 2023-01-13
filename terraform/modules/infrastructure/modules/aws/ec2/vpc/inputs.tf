@@ -147,6 +147,12 @@ variable "public_subnet" {
   default = "172.17.0.0/24"
 }
 
+variable "public_app_subnet" {
+  type = string
+  description = "public app subnet"
+  default = "172.17.1.0/24"
+}
+
 variable "private_network" {
   type = string
   description = "private network"
@@ -157,6 +163,12 @@ variable "private_subnet" {
   type = string
   description = "private subnet"
   default = "172.16.100.0/24"
+}
+
+variable "private_app_subnet" {
+  type = string
+  description = "private subnet"
+  default = "172.16.101.0/24"
 }
 
 variable "private_nat_subnet" {
@@ -171,8 +183,20 @@ variable "enable_public_vpc" {
   default = true
 }
 
+variable "enable_public_app_vpc" {
+  type = bool
+  description = "enable/disable creation of public app vpc"
+  default = true
+}
+
 variable "enable_private_vpc" {
   type = bool
   description = "enable/disable creation of private vpc"
+  default = true
+}
+
+variable "enable_private_app_vpc" {
+  type = bool
+  description = "enable/disable creation of private app vpc"
   default = true
 }
