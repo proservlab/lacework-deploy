@@ -123,22 +123,26 @@ if [ "all" = "${STAGE}" ]; then
     if [ "plan" = "${ACTION}" ]; then
         errmsg "Plan action can only be executed for indivdual stages"
         help
-    elif [ "apply" = "${ACTION}" ]; then
+    elif [ "apply" = "${ACTION}" ]; then        
         # apply unique buildid
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out buildid.tfplan
-        terraform apply buildid.tfplan
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out buildid.tfplan"
+        sleep 5
+        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out build.tfplan
+        terraform apply build.tfplan
         STAGE=${INFRASTRUCTURE}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
-        STAGE=${SURFACE}
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
-        STAGE=${SIMULATION}
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
+        # STAGE=${SURFACE}
+        # terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
+        # terraform show build.tfplan
+        # terraform apply build.tfplan
+        # STAGE=${SIMULATION}
+        # terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
+        # terraform show build.tfplan
+        # terraform apply build.tfplan
     elif [ "destroy" = "${ACTION}" ]; then
         STAGE=${SIMULATION}
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
