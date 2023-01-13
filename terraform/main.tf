@@ -109,7 +109,7 @@ module "attacker-infrastructure" {
   config = module.attacker-infrastructure-context.config
 
   providers = {
-    aws = aws.attacker
+    aws      = aws.attacker
     lacework = lacework.attacker
   }
 }
@@ -119,7 +119,7 @@ module "target-infrastructure" {
   config = module.target-infrastructure-context.config
 
   providers = {
-    aws = aws.target
+    aws      = aws.target
     lacework = lacework.target
   }
 }
