@@ -65,7 +65,7 @@ module "instances" {
     module.default-ssm-tags.ssm_default_tags,
     merge(
       {
-        Name = "${each.value.name}${var.environment}-${var.deployment}-${var.environment}-${var.deployment}"
+        Name = "${each.value.name}-${var.environment}-${var.deployment}"
         environment = var.environment
         deployment = var.deployment
         public = each.value.public

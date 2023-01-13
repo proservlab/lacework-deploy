@@ -1,8 +1,9 @@
 {
     "context": {
       "global": {
-        "environment"          : "target",
-        "trust_security_group" : true
+        "environment"           : "target",
+        "deployment"            : "${ deployment }",
+        "trust_security_group"  : true
       },
       "aws": {
         "profile_name" : "${ aws_profile }",
