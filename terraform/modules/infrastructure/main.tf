@@ -30,16 +30,23 @@ module "ec2" {
 
   public_ingress_rules = local.config.context.aws.ec2.public_ingress_rules
   public_egress_rules = local.config.context.aws.ec2.public_egress_rules
+  public_app_ingress_rules = local.config.context.aws.ec2.public_app_ingress_rules
+  public_app_egress_rules = local.config.context.aws.ec2.public_app_egress_rules
   private_ingress_rules = local.config.context.aws.ec2.private_ingress_rules
   private_egress_rules = local.config.context.aws.ec2.private_egress_rules
+  private_app_ingress_rules = local.config.context.aws.ec2.private_app_ingress_rules
+  private_app_egress_rules = local.config.context.aws.ec2.private_app_egress_rules
 
   public_network = local.config.context.aws.ec2.public_network
   public_subnet = local.config.context.aws.ec2.public_subnet
+  public_app_network = local.config.context.aws.ec2.public_app_network
   public_app_subnet = local.config.context.aws.ec2.public_app_subnet
   private_network = local.config.context.aws.ec2.private_network
   private_subnet = local.config.context.aws.ec2.private_subnet
-  private_app_subnet = local.config.context.aws.ec2.private_app_subnet
   private_nat_subnet = local.config.context.aws.ec2.private_nat_subnet
+  private_app_network = local.config.context.aws.ec2.private_app_network
+  private_app_subnet = local.config.context.aws.ec2.private_app_subnet
+  private_app_nat_subnet = local.config.context.aws.ec2.private_app_nat_subnet
 }
 
 #########################

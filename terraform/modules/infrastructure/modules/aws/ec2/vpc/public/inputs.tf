@@ -88,15 +88,3 @@ variable "public_subnet" {
   description = "public subnet"
   default = "172.17.0.0/24"
 }
-
-variable "enable_default_subnet" {
-  type = bool
-  description = "Enable/disable the creation of the default subnet"
-  default = true
-}
-
-variable "enable_app_subnet" {
-  type = bool
-  description = "Enable/disable the creation of the app subnet"
-  default = true
-}

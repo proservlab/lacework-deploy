@@ -1,6 +1,8 @@
 locals {
   public_instance_count = length([ for instance in var.instances: instance if instance.public == true ])
+  public_app_instance_count = length([ for instance in var.instances: instance if instance.public == true && instance.role == "app" ])
   private_instance_count = length([ for instance in var.instances: instance if instance.public == false ])
+  private_app_instance_count = length([ for instance in var.instances: instance if instance.public == false && instance.role == "app" ])
 }
 
 # default tags
@@ -20,6 +22,12 @@ module "ssm_profile" {
   deployment = var.deployment
 }
 
+module "ssm_app_profile" {
+  source = "./ssm-profile"
+  environment = var.environment
+  deployment = var.deployment
+}
+
 # build private and public vpcs
 module "vpc" {
   source = "./vpc"
@@ -28,7 +36,9 @@ module "vpc" {
   deployment = var.deployment
 
   enable_public_vpc = local.public_instance_count > 0 ? true : false
+  enable_public_app_vpc = local.public_app_instance_count > 0 ? true : false
   enable_private_vpc = local.private_instance_count > 0 ? true : false
+  enable_private_app_vpc = local.private_app_instance_count > 0 ? true : false
 
   private_ingress_rules = var.private_ingress_rules
   private_egress_rules = var.private_egress_rules
@@ -38,11 +48,14 @@ module "vpc" {
 
   public_network = var.public_network
   public_subnet = var.public_subnet
+  public_app_network = var.public_app_network
   public_app_subnet = var.public_app_subnet
   private_network = var.private_network
   private_subnet = var.private_subnet
-  private_app_subnet = var.private_app_subnet
   private_nat_subnet = var.private_nat_subnet
+  private_app_network = var.private_network
+  private_app_subnet = var.private_subnet
+  private_app_nat_subnet = var.private_nat_subnet
 }
 
 # instances
@@ -54,10 +67,10 @@ module "instances" {
   
   ami           = module.amis.ami_map[each.value.ami_name]
   instance_type = each.value.instance_type
-  iam_instance_profile = each.value.enable_ssm_console_access == true ? module.ssm_profile.ec2-iam-profile.name : null
+  iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
-  subnet_id = each.value.public == true ? module.vpc.public_subnet.id : module.vpc.private_subnet.id
-  vpc_security_group_ids = [ each.value.public == true ? module.vpc.public_sg.id : module.vpc.private_sg.id ]
+  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.id : module.vpc.public_subnet.id ) : (each.value.role == "app" ? module.vpc.private_app_subnet.id : module.vpc.private_subnet.id )
+  vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
   
   user_data = each.value.user_data
   user_data_base64 = each.value.user_data_base64
@@ -71,6 +84,7 @@ module "instances" {
         environment = var.environment
         deployment = var.deployment
         public = each.value.public
+        role = each.value.role
       },
       each.value.tags,
     )

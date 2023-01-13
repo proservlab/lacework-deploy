@@ -96,7 +96,6 @@ resource "aws_security_group" "private" {
   tags = {
     Name = "private-security-group-${var.environment}-${var.deployment}"
   }
-  
 }
 
 resource "aws_security_group_rule" "private_ingress_rules" {
