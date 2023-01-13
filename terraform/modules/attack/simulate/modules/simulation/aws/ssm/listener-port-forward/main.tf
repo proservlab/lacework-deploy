@@ -42,7 +42,7 @@ resource "aws_ssm_document" "exec_port_forward_target" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_port_forward_target",
+                "name": "exec_port_forward_target_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

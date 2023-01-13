@@ -57,7 +57,7 @@ resource "aws_ssm_document" "exec_docker_log4shell_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_log4shell_attacker",
+                "name": "exec_docker_log4shell_attacker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

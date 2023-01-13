@@ -9,7 +9,7 @@ resource "aws_ssm_document" "deploy_inspector_agent" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_inspector_agent",
+                "name": "deploy_inspector_agent_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

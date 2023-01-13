@@ -37,7 +37,7 @@ resource "aws_ssm_document" "exec_port_forward_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_port_forward_attacker",
+                "name": "exec_port_forward_attacker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

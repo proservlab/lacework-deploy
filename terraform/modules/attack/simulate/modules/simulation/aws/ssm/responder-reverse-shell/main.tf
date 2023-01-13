@@ -42,7 +42,7 @@ resource "aws_ssm_document" "exec_reverse_shell_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_reverse_shell_attacker",
+                "name": "exec_reverse_shell_attacker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

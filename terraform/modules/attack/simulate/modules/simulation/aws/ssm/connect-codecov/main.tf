@@ -58,7 +58,7 @@ resource "aws_ssm_document" "exec_git_codecov" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_git_codecov",
+                "name": "exec_git_codecov_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

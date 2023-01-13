@@ -42,7 +42,7 @@ resource "aws_ssm_document" "exec_docker_cpuminer" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_cpuminer",
+                "name": "exec_docker_cpuminer_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

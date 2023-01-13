@@ -44,7 +44,7 @@ resource "aws_ssm_document" "deploy_docker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_docker",
+                "name": "deploy_docker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

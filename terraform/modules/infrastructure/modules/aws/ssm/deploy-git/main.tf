@@ -29,7 +29,7 @@ resource "aws_ssm_document" "deploy_git" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_git",
+                "name": "deploy_git_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

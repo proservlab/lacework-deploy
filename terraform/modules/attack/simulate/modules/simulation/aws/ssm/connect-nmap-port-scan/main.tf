@@ -40,7 +40,7 @@ resource "aws_ssm_document" "connect_enumerate_host" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "connect_enumerate_host",
+                "name": "connect_enumerate_host_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

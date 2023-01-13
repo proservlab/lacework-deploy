@@ -26,7 +26,7 @@ resource "aws_ssm_document" "connect_oast_host" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "connect_oast_host",
+                "name": "connect_oast_host_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

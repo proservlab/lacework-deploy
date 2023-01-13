@@ -106,7 +106,7 @@ resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_compromised_keys_attacker",
+                "name": "exec_docker_compromised_keys_attacker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

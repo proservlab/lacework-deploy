@@ -41,7 +41,7 @@ resource "aws_ssm_document" "deploy_lacework_syscall" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_lacework_syscall",
+                "name": "deploy_lacework_syscall_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

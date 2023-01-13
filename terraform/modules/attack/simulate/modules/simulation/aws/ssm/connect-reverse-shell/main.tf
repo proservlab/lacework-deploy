@@ -38,7 +38,7 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_reverse_shell_target",
+                "name": "exec_reverse_shell_target_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

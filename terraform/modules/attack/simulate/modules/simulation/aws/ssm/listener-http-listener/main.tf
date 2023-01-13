@@ -80,7 +80,7 @@ resource "aws_ssm_document" "exec_http_listener_attacker" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_http_listener_attacker",
+                "name": "exec_http_listener_attacker_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

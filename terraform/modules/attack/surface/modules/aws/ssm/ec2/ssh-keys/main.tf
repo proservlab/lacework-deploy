@@ -58,7 +58,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private",
+                "name": "deploy_secret_ssh_private_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -87,7 +87,7 @@ resource "aws_ssm_document" "deploy_secret_ssh_public" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_public",
+                "name": "deploy_secret_ssh_public_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",

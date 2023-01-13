@@ -27,7 +27,7 @@ resource "aws_ssm_document" "connect_bad_ip" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "connect_bad_ip",
+                "name": "connect_bad_ip_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
