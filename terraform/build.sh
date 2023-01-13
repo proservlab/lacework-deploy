@@ -1,5 +1,6 @@
 
 #!/bin/bash
+set -x 
 
 SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"
@@ -18,6 +19,12 @@ EOH
     exit 1
 }
 
+infomsg(){
+echo "INFO: ${1}"
+}
+warnmsg(){
+echo "WARN: ${1}"
+}
 errmsg(){
 echo "ERROR: ${1}"
 }
@@ -108,10 +115,28 @@ terraform init
 BACKEND=""
 fi;
 
+check_tf_apply(){
+    if [ ${1} -eq 0 ]; then
+        warnmsg "No changes, not applying"
+    elif [ ${1} -eq 1 ]; then
+        errmsg "Terraform plan failed"
+        exit 1
+    elif [ ${1} -eq 2 ]; then
+        if [ "apply" = "${2}" ]; then
+            infomsg "Changes required, applying"
+            terraform show build.tfplan
+            terraform apply ${3}
+        else
+            warnmsg "Plan only, not applying"
+        fi
+    fi
+}
+
 # define stage types
 INFRASTRUCTURE="infrastructure"
 SURFACE="surface"
 SIMULATION="simulation"
+PLANFILE="build.tfplan"
 
 if [ "destroy" = "${ACTION}" ]; then
     DESTROY="-destroy"
@@ -125,64 +150,41 @@ if [ "all" = "${STAGE}" ]; then
         help
     elif [ "apply" = "${ACTION}" ]; then        
         # apply unique buildid
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out buildid.tfplan"
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out ${PLANFILE}"
         sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out build.tfplan
-        terraform apply build.tfplan
-        STAGE=${INFRASTRUCTURE}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
-        STAGE=${SURFACE}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
-        STAGE=${SIMULATION}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
+        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out ${PLANFILE} -detailed-exitcode
+        ERR=$?
+        check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
+        for STAGE in ${INFRASTRUCTURE} ${SURFACE} ${SIMULATION}; do
+            echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+            sleep 5
+            terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan -detailed-exitcode
+            ERR=$?
+            check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
+        done
     elif [ "destroy" = "${ACTION}" ]; then
-        STAGE=${SIMULATION}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
-        STAGE=${SURFACE}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
-        STAGE=${INFRASTRUCTURE}
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
+        for STAGE in ${SIMULATION} ${SURFACE} ${INFRASTRUCTURE}; do
+            echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+            sleep 5
+            terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan -detailed-exitcode
+            ERR=$?
+            check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
+        done
         
         # cleanup build id
         echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -target=module.deployment -out build.tfplan"
         sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out build.tfplan
-        terraform show build.tfplan
-        terraform apply build.tfplan
+        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out build.tfplan -detailed-exitcode
+        ERR=$?
+        check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
     fi
 elif [ "infra" = "${STAGE}" ] || [ "surface" = "${STAGE}" ] || [ "simulation" = "${STAGE}" ]; then
-    STAGE=${INFRASTRUCTURE}
+    STAGE=${STAGE}
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -target=module.deployment -out build.tfplan"
     sleep 5
-    terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-    terraform show build.tfplan
-    if [ "apply" = "${ACTION}" ]; then
-        terraform apply build.tfplan
-    fi
+    terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan -detailed-exitcode
+    ERR=$?
+    check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
 fi
 rm -f build.tfplan
 
