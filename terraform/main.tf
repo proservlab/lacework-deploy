@@ -88,6 +88,7 @@ module "attacker-infrastructure" {
 
   providers = {
     aws = aws.attacker
+    lacework = lacework.attacker
   }
 }
 
@@ -97,6 +98,7 @@ module "target-infrastructure" {
 
   providers = {
     aws = aws.target
+    lacework = lacework.target
   }
 }
 
