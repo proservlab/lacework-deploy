@@ -135,49 +135,49 @@ if [ "all" = "${STAGE}" ]; then
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
-        # STAGE=${SURFACE}
-        # terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        # terraform show build.tfplan
-        # terraform apply build.tfplan
-        # STAGE=${SIMULATION}
-        # terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-        # terraform show build.tfplan
-        # terraform apply build.tfplan
+        STAGE=${SURFACE}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
+        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
+        terraform show build.tfplan
+        terraform apply build.tfplan
+        STAGE=${SIMULATION}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
+        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
+        terraform show build.tfplan
+        terraform apply build.tfplan
     elif [ "destroy" = "${ACTION}" ]; then
         STAGE=${SIMULATION}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
         STAGE=${SURFACE}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
         STAGE=${INFRASTRUCTURE}
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan"
+        sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
         
         # cleanup build id
+        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -target=module.deployment -out build.tfplan"
+        sleep 5
         terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out build.tfplan
         terraform show build.tfplan
         terraform apply build.tfplan
     fi
-elif [ "infra" = "${STAGE}" ]; then
+elif [ "infra" = "${STAGE}" ] || [ "surface" = "${STAGE}" ] || [ "simulation" = "${STAGE}" ]; then
     STAGE=${INFRASTRUCTURE}
-    terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-    terraform show build.tfplan
-    if [ "apply" = "${ACTION}" ]; then
-        terraform apply build.tfplan
-    fi
-elif [ "surface" = "${STAGE}" ]; then
-    STAGE=${SURFACE}
-    terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
-    terraform show build.tfplan
-    if [ "apply" = "${ACTION}" ]; then
-        terraform apply build.tfplan
-    fi
-elif [ "simulation" = "${STAGE}" ]; then
-    STAGE=${SIMULATION}
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -target=module.deployment -out build.tfplan"
+    sleep 5
     terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out build.tfplan
     terraform show build.tfplan
     if [ "apply" = "${ACTION}" ]; then
