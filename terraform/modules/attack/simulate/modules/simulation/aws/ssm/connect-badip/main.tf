@@ -16,6 +16,12 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
+# Additional Call Home Examples
+# Outbound Connect to Known Bad IP:
+# while true; do for i in $(grep 'IPV4,' badlist.txt | awk -F',' '{ print $2 }' ); do nc -vv -w 5 $i 80; sleep 1; done; done
+# Outbound Connect to Known Bad DNS:
+# while true; do for d in $(grep 'DNS,\*' badlist.txt | awk -F',' '{ print $2 }' | sed -r 's/\*\.//'); do curl -s "http://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w ${1:-16} | head -n 1).$d"; sleep 1; done; done
+
 resource "aws_ssm_document" "connect_bad_ip" {
   name          = "connect_bad_ip_${var.environment}_${var.deployment}"
   document_type = "Command"

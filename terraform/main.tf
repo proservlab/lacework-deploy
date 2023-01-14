@@ -146,7 +146,7 @@ data "template_file" "target-attacksurface-config-file" {
     iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
 
     # ec2 security group trusted ingress
-    security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
+    security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, "")
 
     # rds
     rds_igw_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_igw.id, "")
