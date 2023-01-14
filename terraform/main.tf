@@ -149,11 +149,11 @@ data "template_file" "target-attacksurface-config-file" {
     security_group_id = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
 
     # rds
-    rds_igw_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_igw.id, "")
-    rds_vpc_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_vpc.id, "")
-    rds_vpc_subnet             = try(module.target-infrastructure.config.context.aws.ec2[0].public_network, "")
-    rds_ec2_instance_role_name = try(module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_role.name, "")
-    rds_trusted_sg_id          = try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, "")
+    rds_igw_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_igw.id, "")
+    rds_vpc_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_vpc.id, "")
+    rds_vpc_subnet             = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_network, "")
+    rds_ec2_instance_role_name = try(module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_app_role.name, "")
+    rds_trusted_sg_id          = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, "")
     rds_root_db_username       = "dbuser"
     rds_root_db_password       = "dbpassword"
   }
