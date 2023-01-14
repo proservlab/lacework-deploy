@@ -1,3 +1,7 @@
+variable "role" {
+    type = string
+    description = "role context for ec2 profile"
+}
 variable "environment" {
     type = string
     description = "name of the environment"

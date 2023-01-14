@@ -18,12 +18,14 @@ module "amis" {
 # create an ssm iam instance profile
 module "ssm_profile" {
   source = "./ssm-profile"
+  role = "default"
   environment = var.environment
   deployment = var.deployment
 }
 
 module "ssm_app_profile" {
   source = "./ssm-profile"
+  role = "app"
   environment = var.environment
   deployment = var.deployment
 }

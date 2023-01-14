@@ -1,14 +1,11 @@
 # ssm profile
-resource "random_uuid" "ssm" {
-}
-
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
-  name = "ec2_profile_${var.environment}_${var.deployment}"
+  name = "ec2_profile_${var.role}_${var.environment}_${var.deployment}"
   role = aws_iam_role.ec2-iam-role.name
 }
 
 resource "aws_iam_role" "ec2-iam-role" {
-  name        = "ec2_profile_${var.environment}_${var.deployment}"
+  name        = "ec2_profile_${var.role}_${var.environment}_${var.deployment}"
   description = "The role for EC2 resources"
   assume_role_policy = <<EOF
   {
@@ -29,7 +26,7 @@ resource "aws_iam_role" "ec2-iam-role" {
 }
 
 resource "aws_iam_policy" "ec2-describe-tags" {
-  name        = "ec2_describe_tags_${var.environment}_${var.deployment}"
+  name        = "ec2_describe_tags_${var.role}_${var.environment}_${var.deployment}"
   description = "ec2 describe tags"
 
   policy = jsonencode(
