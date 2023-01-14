@@ -80,7 +80,7 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_iam_policy" "db_get_parameters" {
-    name = "db_get_parameters"
+    name = "db_get_parameters_${var.environment}_${var.deployment}"
     policy =    <<-EOF
                 {
                     "Version": "2012-10-17",
