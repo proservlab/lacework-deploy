@@ -1,4 +1,4 @@
-resource "kubernetes_service_v1" "vote" {
+resource "kubernetes_service_v1" "rdsapp" {
     metadata {
         name = var.app
         labels = {
