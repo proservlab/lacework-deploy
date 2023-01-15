@@ -225,7 +225,7 @@ resource "kubernetes_namespace" "lacework" {
 module "lacework-daemonset" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true && length(module.eks) >0 ) ? 1 : 0
   source                                = "./modules/lacework/daemonset"
-  cluster_name                          = local.config.context.aws.eks.cluster_name
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
   environment                           = local.config.context.global.environment
   deployment                            = local.config.context.global.deployment
   lacework_agent_access_token           = local.config.context.lacework.agent.token
@@ -267,7 +267,9 @@ module "lacework-eks-audit" {
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
 
-  cluster_names = [local.config.context.aws.eks.cluster_name]
+  cluster_names = [
+    "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  ]
 
   depends_on = [
     module.eks,

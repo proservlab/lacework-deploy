@@ -2,7 +2,7 @@ resource "random_uuid" "proxyscanner" {
 }
 
 resource "lacework_integration_proxy_scanner" "proxyscanner" {
-  count = can(length(var.lacework_proxy_token)) ? 0 : 1
+  # count = can(length(var.lacework_proxy_token)) ? 0 : 1
   name = "proxyscanner-access-token-${var.environment}-${var.deployment}"
 }
 
@@ -67,7 +67,8 @@ data "template_file" "values" {
 
   vars = {
     lacework_account_name = var.lacework_account_name
-    lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
+    # lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
+    lacework_proxy_token = lacework_integration_proxy_scanner.proxyscanner.server_token
   }
 }
 

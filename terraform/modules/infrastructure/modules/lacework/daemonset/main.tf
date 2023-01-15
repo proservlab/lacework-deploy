@@ -6,7 +6,7 @@ resource "local_file" "syscall_config" {
 
 # create a token for the daemonset
 resource "lacework_agent_access_token" "agent" {
-    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    # count = can(length(var.lacework_agent_access_token)) ? 0 : 1
     name = "daemonset-agent-access-token-${var.environment}-${var.deployment}"
 }
 
@@ -38,7 +38,8 @@ resource "helm_release" "lacework" {
 
     set_sensitive {
         name  = "laceworkConfig.accessToken"
-        value = can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+        # value = can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+        value = lacework_agent_access_token.agent.token
     }
 
     set {
