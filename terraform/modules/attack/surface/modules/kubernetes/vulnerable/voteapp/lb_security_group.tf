@@ -30,8 +30,6 @@ resource "aws_security_group" "app_lb" {
 }
 
 resource "aws_security_group_rule" "target_ingress_service_port_result" {
-  count = length(var.trusted_target_source)
-
   type              = "ingress"
   from_port         = 8002
   to_port           = 8002
@@ -42,8 +40,6 @@ resource "aws_security_group_rule" "target_ingress_service_port_result" {
 }
 
 resource "aws_security_group_rule" "target_ingress_service_port_vote" {
-  count = length(var.trusted_target_source)
-
   type              = "ingress"
   from_port         = 8001
   to_port           = 8001
