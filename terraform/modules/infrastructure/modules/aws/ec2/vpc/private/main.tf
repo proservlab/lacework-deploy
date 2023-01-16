@@ -5,6 +5,10 @@ resource "aws_vpc" "private" {
   enable_dns_support = true
   tags = {
     Name = "private-vpc-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
+    role = var.role
+    public = "false"
   }
 }
 
@@ -14,6 +18,8 @@ resource "aws_internet_gateway" "private" {
 
   tags = {
     Name = "private-nat-internet-gw-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
   }
 }
 
@@ -68,6 +74,8 @@ resource "aws_subnet" "private" {
         Name = "private-subnet-${var.environment}-${var.deployment}"
         environment = var.environment
         deployment = var.deployment
+        role = var.role
+        public = "false"
     }
 }
 
@@ -81,6 +89,8 @@ resource "aws_route_table" "private" {
 
     tags = {
         Name = "default-private-nat-gw-route-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 
@@ -95,6 +105,10 @@ resource "aws_security_group" "private" {
 
   tags = {
     Name = "private-security-group-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
+    role = var.role
+    public = "false"
   }
 }
 

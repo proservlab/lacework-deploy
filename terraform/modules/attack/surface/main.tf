@@ -15,6 +15,13 @@ locals {
           for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance, "public_ip", "false") != "false"
         ]
     ])
+
+  attacker_public_security_groups = distinct(flatten([
+    for ec2 in local.attacker_ec2: 
+      [
+        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance, "public_ip", "false") != "false"
+      ]
+    ]))
   
   target_eks = can(length(var.infrastructure.deployed_state.target.context.aws.eks)) ? var.infrastructure.deployed_state.target.context.aws.eks : []
   target_ec2 = can(length(var.infrastructure.deployed_state.target.context.aws.ec2)) ? var.infrastructure.deployed_state.target.context.aws.ec2 : []
@@ -27,6 +34,13 @@ locals {
         for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance.tags_all, "public_ip", "false") != "false"
       ] 
     ])
+
+  target_public_security_groups = distinct(flatten([
+    for ec2 in local.target_ec2: 
+      [
+        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance, "public_ip", "false") != "false"
+      ]
+    ]))
 }
 
 #########################
@@ -49,14 +63,25 @@ module "iam" {
 # AWS EC2 SECURITY GROUP
 ##########################
 
+# find all public security groups
+data "aws_security_groups" "public" {
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
+  tags = {
+    environment = var.infrastructure.config.context.global.environment
+    deployment        = var.infrastructure.config.context.global.deployment
+    public = "true"
+  }
+}
+
+
 # append ingress rules
 module "ec2-add-trusted-ingress" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? length(var.config.context.aws.ec2.add_trusted_ingress.security_group_ids) : 0
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? length(data.aws_security_groups.public[0].ids) : 0
   source        = "./modules/aws/ec2/add-trusted-ingress"
   environment   = var.infrastructure.config.context.global.environment
   deployment    = var.infrastructure.config.context.global.deployment
   
-  security_group_id = var.config.context.aws.ec2.add_trusted_ingress.security_group_ids[count.index]
+  security_group_id = data.aws_security_groups.public[0].ids[count.index]
   trusted_attacker_source   = var.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
       local.attacker_eks_trusted_ips,
       local.attacker_ec2_trusted_ips
@@ -169,6 +194,7 @@ module "vulnerable-kubernetes-rdsapp" {
       local.attacker_eks_trusted_ips,
       local.attacker_ec2_trusted_ips
     ]) : []
+
   trusted_workstation_source = local.workstation_ips
   additional_trusted_sources = var.config.context.kubernetes.vulnerable.rdsapp.additional_trusted_sources
 }

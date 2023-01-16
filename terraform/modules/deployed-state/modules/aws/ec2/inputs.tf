@@ -7,8 +7,3 @@ variable "deployment" {
     type = string
     description = "unique deployment id"
 }
-
-variable "role" {
-    type = string
-    description = "role context for ec2 profile"
-}

@@ -6,6 +6,7 @@
             "trust_security_group"      : true
         },
         "aws": {
+            "region"                    : "us-east-1",
             "profile_name"              : "${ aws_profile }",
             "ec2": {
                 "enabled": true,

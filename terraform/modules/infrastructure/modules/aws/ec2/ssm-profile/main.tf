@@ -2,6 +2,10 @@
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
   name = "ec2_profile_${var.role}_${var.environment}_${var.deployment}"
   role = aws_iam_role.ec2-iam-role.name
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+  }
 }
 
 resource "aws_iam_role" "ec2-iam-role" {
@@ -44,6 +48,10 @@ resource "aws_iam_policy" "ec2-describe-tags" {
         ]
     }
   )
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ec2-ssm-policy" {

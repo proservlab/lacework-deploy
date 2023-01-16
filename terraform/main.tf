@@ -125,6 +125,30 @@ module "target-infrastructure" {
 }
 
 #########################
+# DEPLOYMENT STATE LOOKUP
+########################
+
+# module "attacker-deployed-state" {
+#   source = "./modules/deployed-state"
+#   #config = module.attacker-infrastructure-context.config
+#   config = module.target-infrastructure.infrastructure-config
+
+#   providers = {
+#     aws      = aws.attacker
+#   }
+# }
+
+# module "target-deployed-state" {
+#   source = "./modules/deployed-state"
+#   #config = module.target-infrastructure-context.config
+#   config = module.target-infrastructure.infrastructure-config
+
+#   providers = {
+#     aws      = aws.target
+#   }
+# }
+
+#########################
 # ATTACK SURFACE CONFIG
 ########################
 

@@ -46,17 +46,10 @@ output "attacker_kubernetes_services" {
   }
 }
 
-# output "ec2-instances" {
-#   value = {
-#     target   = module.target.ec2-instances
-#     attacker = module.attacker.ec2-instances
-#   }
+# output "attacker-deployed-state" {
+#   value = module.attacker-deployed-state
 # }
 
-# output "simulation_attacker_instances" {
-#   value = local.attacker
-# }
-
-# output "simulation_target_instances" {
-#   value = local.target
+# output "target-deployed-state" {
+#   value = module.target-deployed-state
 # }

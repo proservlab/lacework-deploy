@@ -100,7 +100,7 @@ resource "aws_db_instance" "database" {
   instance_class                        = "db.t3.micro"
   username                              = local.init_db_username
   password                              = local.init_db_password
-  identifier_prefix                     = "ec2rds-${var.environment}"
+  identifier                            = "ec2rds-${var.environment}-${var.deployment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true

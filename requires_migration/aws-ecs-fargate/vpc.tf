@@ -33,6 +33,8 @@ resource "aws_subnet" "main-subnet-public-1" {
     tags = {
         Name = "ecs-${var.app}-${var.environment}-main-alb-subnet-public-1"
         Tier = "Public"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 
@@ -44,6 +46,8 @@ resource "aws_subnet" "main-subnet-public-2" {
     tags = {
         Name = "ecs-${var.app}-${var.environment}-main-alb-subnet-public-2"
         Tier = "Public"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 

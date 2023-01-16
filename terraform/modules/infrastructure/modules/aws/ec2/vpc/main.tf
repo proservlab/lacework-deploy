@@ -5,6 +5,7 @@ module "public" {
     name = var.name
     environment = var.environment
     deployment = var.deployment
+    role = "default"
 
     trust_security_group = var.trust_security_group
     public_egress_rules = var.public_egress_rules
@@ -20,6 +21,7 @@ module "public-app" {
     name = var.name
     environment = var.environment
     deployment = var.deployment
+    role = "app"
 
     trust_security_group = var.trust_security_group
     public_egress_rules = var.public_app_egress_rules
@@ -35,6 +37,7 @@ module "private" {
     name = var.name
     environment = var.environment
     deployment = var.deployment
+    role = "default"
     
     trust_security_group = var.trust_security_group
     private_egress_rules = var.private_egress_rules
@@ -51,6 +54,7 @@ module "private-app" {
     name = var.name
     environment = var.environment
     deployment = var.deployment
+    role = "app"
     
     trust_security_group = var.trust_security_group
     private_egress_rules = var.private_app_egress_rules

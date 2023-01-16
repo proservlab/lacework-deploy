@@ -13,6 +13,11 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "role" {
+    type = string
+    description = "role for vpc (default or app)"
+}
+
 variable "trust_security_group" {
   type = bool
   description = "Enable endpoints within the security group to communicate on all ports and protocols."

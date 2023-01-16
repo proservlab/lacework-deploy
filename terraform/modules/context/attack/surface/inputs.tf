@@ -14,7 +14,6 @@ variable "config" {
         ec2 = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            security_group_ids          = list(string)
             trust_workstation           = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
@@ -91,7 +90,6 @@ variable "config" {
         ec2 = {
           add_trusted_ingress = {
             enabled                     = false
-            security_group_ids          = []
             trust_workstation           = false
             trust_attacker_source       = false
             trust_target_source         = false
