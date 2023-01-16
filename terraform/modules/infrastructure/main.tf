@@ -12,7 +12,7 @@ module "workstation-external-ip" {
 }
 
 #########################
-# EC2
+# AWS EC2
 #########################
 
 # ec2
@@ -50,7 +50,7 @@ module "ec2" {
 }
 
 #########################
-# EKS
+# AWS EKS
 #########################
 
 # eks
@@ -78,7 +78,7 @@ module "eks-autoscaler" {
 }
 
 #########################
-# INSPECTOR
+# AWS INSPECTOR
 #########################
 
 # inspector
@@ -90,7 +90,7 @@ module "inspector" {
 }
 
 #########################
-# SSM 
+# AWS SSM 
 #########################
 
 # ssm deploy inspector agent
@@ -136,6 +136,23 @@ module "lacework-ssm-deployment-syscall-config" {
   deployment   = local.config.context.global.deployment
 
   syscall_config = "${path.module}/modules/aws/ssm/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+}
+
+#########################
+# AWS RDS
+##########################
+
+module "rds" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.rds.enabled == true ) ? 1 : 0
+  source = "./modules/aws/rds"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  
+  igw_id                        = module.ec2[0].public_app_igw.id
+  vpc_id                        = module.ec2[0].public_app_vpc.id
+  vpc_subnet                    = module.ec2[0].public_app_network
+  ec2_instance_role_name        = module.ec2[0].ec2_instance_app_role.name
+  trusted_sg_id                 = module.ec2[0].public_app_sg.id
 }
 
 #########################

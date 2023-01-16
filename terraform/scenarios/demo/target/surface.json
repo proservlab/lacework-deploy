@@ -20,16 +20,6 @@
           }
         }
       },
-      "rds" :  {
-        "enabled"                :  true,
-        "igw_id"                 :  "${ rds_igw_id }",
-        "vpc_id"                 :  "${ rds_vpc_id }",
-        "vpc_subnet"             :  "${ rds_vpc_subnet }",
-        "ec2_instance_role_name" :  "${ rds_ec2_instance_role_name }",
-        "trusted_sg_id"          :  "${ rds_trusted_sg_id }",
-        "root_db_username"       :  "${ rds_root_db_username }",
-        "root_db_password"       :  "${ rds_root_db_password }"
-      },
       "ssm" :  {
         "vulnerable" :  {
           "docker" :  {

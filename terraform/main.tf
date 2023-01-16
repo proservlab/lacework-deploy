@@ -28,7 +28,7 @@ data "template_file" "attacker-infrastructure-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json")
   vars = {
     # deployment id
-    deployment = module.deployment.id
+    deployment = var.deployment
 
     # aws
     aws_profile = var.attacker_aws_profile
@@ -39,7 +39,7 @@ data "template_file" "target-infrastructure-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/target/infrastructure.json")
   vars = {
     # deployment id
-    deployment = module.deployment.id
+    deployment = var.deployment
 
     # aws
     aws_profile = var.target_aws_profile
@@ -132,11 +132,11 @@ data "template_file" "attacker-attacksurface-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
 
   vars = {
-    # ec2 security group trusted ingress
-    security_group_ids = jsonencode(flatten([
-      try(module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
-      try(module.attacker-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
-    ]))
+    # # ec2 security group trusted ingress
+    # security_group_ids = jsonencode(flatten([
+    #   try(module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
+    #   try(module.attacker-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
+    # ]))
   }
 }
 
@@ -148,20 +148,11 @@ data "template_file" "target-attacksurface-config-file" {
     iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
     iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
 
-    # ec2 security group trusted ingress
-    security_group_ids = jsonencode(flatten([
-      try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
-      try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
-    ]))
-
-    # rds
-    rds_igw_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_igw.id, "")
-    rds_vpc_id                 = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_vpc.id, "")
-    rds_vpc_subnet             = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_network, "")
-    rds_ec2_instance_role_name = try(module.target-infrastructure.config.context.aws.ec2[0].ec2_instance_app_role.name, "")
-    rds_trusted_sg_id          = try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, "")
-    rds_root_db_username       = "dbuser"
-    rds_root_db_password       = "dbpassword"
+    # # ec2 security group trusted ingress
+    # security_group_ids = jsonencode(flatten([
+    #   try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
+    #   try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
+    # ]))
   }
 }
 

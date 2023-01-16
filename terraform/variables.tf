@@ -8,6 +8,12 @@ variable "scenario" {
   default     = "simple"
 }
 
+variable "deployment" {
+  type        = string
+  description = "Unique deployment id"
+  default     = "00000001"
+}
+
 ###########################
 # REGION
 ###########################

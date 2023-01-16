@@ -90,25 +90,6 @@ module "vulnerable-docker-log4shellspp" {
 }
 
 #########################
-# AWS RDS
-##########################
-
-module "rds" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.rds.enabled == true ) ? 1 : 0
-  source = "./modules/aws/rds"
-  environment                   = var.infrastructure.config.context.global.environment
-  deployment                    = var.infrastructure.config.context.global.deployment
-  
-  igw_id                        = var.config.context.aws.rds.igw_id
-  vpc_id                        = var.config.context.aws.rds.vpc_id
-  vpc_subnet                    = var.config.context.aws.rds.vpc_subnet
-  ec2_instance_role_name        = var.config.context.aws.rds.ec2_instance_role_name
-  trusted_sg_id                 = var.config.context.aws.rds.trusted_sg_id
-  root_db_username              = var.config.context.aws.rds.root_db_username
-  root_db_password              = var.config.context.aws.rds.root_db_password
-}
-
-#########################
 # Kubernetes General
 #########################
 

@@ -39,12 +39,6 @@ variable "root_db_username" {
     default = "dbuser"
 }
 
-variable "root_db_password" {
-    type = string
-    description = "root admin password"
-    default = "dbpassword"
-}
-
 variable "database_name" {
     type = string
     description = "name of the database to store in parameter store"

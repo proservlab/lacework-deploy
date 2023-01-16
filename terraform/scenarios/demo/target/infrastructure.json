@@ -66,6 +66,9 @@
           "enabled"      : true,
           "cluster_name" : "target-cluster"
         },
+        "rds" :  {
+          "enabled"                 : true
+        },
         "ssm": {
           "enabled"                        : true,
           "deploy_git"                     : true,

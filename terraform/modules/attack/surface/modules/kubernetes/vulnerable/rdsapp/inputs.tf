@@ -57,12 +57,6 @@ variable "root_db_username" {
     default = "dbuser"
 }
 
-variable "root_db_password" {
-    type = string
-    description = "root admin password"
-    default = "dbpassword"
-}
-
 variable "service_account_db_user" {
     type = string 
     description = "kubernetes service account db username for rds iam auth"

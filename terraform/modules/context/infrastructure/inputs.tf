@@ -84,6 +84,9 @@ variable "config" {
           enabled               = bool
           cluster_name          = string
         })
+        rds = object({
+          enabled                       = bool
+        })
         inspector = object({
           enabled               = bool
         })
@@ -378,6 +381,9 @@ variable "config" {
         eks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+        }
+        rds = {
+          enabled                       = false
         }
         inspector = {
           enabled               = false

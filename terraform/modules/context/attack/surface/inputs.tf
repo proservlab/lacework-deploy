@@ -25,16 +25,6 @@ variable "config" {
             })
           })
         })
-        rds = object({
-          enabled                       = bool
-          igw_id                        = string
-          vpc_id                        = string
-          vpc_subnet                    = string
-          ec2_instance_role_name         = string
-          trusted_sg_id                 = string
-          root_db_username              = string
-          root_db_password              = string
-        })
         ssm = object({
           vulnerable = object({
             docker = object({
@@ -111,16 +101,6 @@ variable "config" {
               to_port = 65535
             }
           }
-        }
-        rds = {
-          enabled                       = false
-          igw_id                        = null
-          vpc_id                        = null
-          vpc_subnet                    = null
-          ec2_instance_role_name        = null
-          trusted_sg_id                 = null
-          root_db_username              = null
-          root_db_password              = null
         }
         ssm = {
           vulnerable = {

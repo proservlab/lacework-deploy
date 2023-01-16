@@ -20,7 +20,7 @@ output "target_kubernetes_services" {
   value = {
     voteapp = {
       voteapp_vote   = module.target-attacksurface.voteapp_vote_service
-      voteapp_result   = module.target-attacksurface.voteapp_result_service
+      voteapp_result = module.target-attacksurface.voteapp_result_service
     },
     log4shellapp = {
       log4shellapp = module.target-attacksurface.log4shellapp_service
@@ -35,7 +35,7 @@ output "attacker_kubernetes_services" {
   value = {
     voteapp = {
       voteapp_vote   = module.attacker-attacksurface.voteapp_vote_service
-      voteapp_result   = module.attacker-attacksurface.voteapp_result_service
+      voteapp_result = module.attacker-attacksurface.voteapp_result_service
     },
     log4shellapp = {
       log4shellapp = module.attacker-attacksurface.log4shellapp_service
