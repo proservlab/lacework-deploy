@@ -19,11 +19,11 @@ output "attacker-instances" {
 output "target_kubernetes_services" {
   value = {
     voteapp = {
-      vote   = module.target-attacksurface.vote_service
-      result = module.target-attacksurface.result_service
+      voteapp_vote   = module.target-attacksurface.voteapp_vote_service
+      voteapp_result   = module.target-attacksurface.voteapp_result_service
     },
     log4shellapp = {
-      rdsapp = module.target-attacksurface.log4shellapp_service
+      log4shellapp = module.target-attacksurface.log4shellapp_service
     },
     rdsapp = {
       rdsapp = module.target-attacksurface.rdsapp_service
@@ -34,11 +34,11 @@ output "target_kubernetes_services" {
 output "attacker_kubernetes_services" {
   value = {
     voteapp = {
-      vote   = module.attacker-attacksurface.vote_service
-      result = module.attacker-attacksurface.result_service
+      voteapp_vote   = module.attacker-attacksurface.voteapp_vote_service
+      voteapp_result   = module.attacker-attacksurface.voteapp_result_service
     },
     log4shellapp = {
-      rdsapp = module.attacker-attacksurface.log4shellapp_service
+      log4shellapp = module.attacker-attacksurface.log4shellapp_service
     },
     rdsapp = {
       rdsapp = module.attacker-attacksurface.rdsapp_service

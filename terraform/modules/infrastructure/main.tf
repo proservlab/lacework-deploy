@@ -223,7 +223,7 @@ resource "kubernetes_namespace" "lacework" {
 
 # lacework daemonset and kubernetes compliance
 module "lacework-daemonset" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true && length(module.eks) >0 ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true ) ? 1 : 0
   source                                = "./modules/lacework/daemonset"
   cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
   environment                           = local.config.context.global.environment
@@ -245,7 +245,7 @@ module "lacework-daemonset" {
 
 # lacework kubernetes admission controller
 module "lacework-admission-controller" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true && length(module.eks) >0 ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true ) ? 1 : 0
   source                = "./modules/lacework/admission-controller"
   environment           = local.config.context.global.environment
   deployment            = local.config.context.global.deployment

@@ -1,15 +1,47 @@
-output "vote_service" {
-     value = try(module.vulnerable-kubernetes-voteapp.vote_service,"")
+output "voteapp_vote_service" {
+     value = try(
+          join(":",
+               [
+                    module.vulnerable-kubernetes-voteapp[0].vote_service,
+                    module.vulnerable-kubernetes-voteapp[0].vote_service_port
+               ]
+          )
+          ,null
+     )
 }
 
-output "result_service" {
-     value = try(module.vulnerable-kubernetes-voteapp.result_service,"")
+output "voteapp_result_service" {
+     value = try(
+          join(":",
+               [
+                    module.vulnerable-kubernetes-voteapp[0].result_service,
+                    module.vulnerable-kubernetes-voteapp[0].result_service_port
+               ]
+          )
+          ,null
+     )
 }
 
 output "rdsapp_service" {
-     value = try(module.vulnerable-kubernetes-rdsapp.rdsapp_service,"")
+     value = try(
+          join(":",
+               [
+                    module.vulnerable-kubernetes-rdsapp[0].rdsapp_service,
+                    module.vulnerable-kubernetes-rdsapp[0].rdsapp_service_port
+               ]
+          )
+          ,null
+     )
 }
 
 output "log4shellapp_service" {
-     value = try(module.vulnerable-kubernetes-log4shellapp.log4shellapp_service,"")
+     value = try(
+          join(":",
+               [
+                    module.vulnerable-kubernetes-log4shellapp[0].log4shellapp_service,
+                    module.vulnerable-kubernetes-log4shellapp[0].log4shellapp_service_port
+               ]
+          )
+          ,null
+     )
 }

@@ -51,12 +51,12 @@ module "iam" {
 
 # append ingress rules
 module "ec2-add-trusted-ingress" {
-  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
+  count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? length(var.config.context.aws.ec2.add_trusted_ingress.security_group_ids) : 0
   source        = "./modules/aws/ec2/add-trusted-ingress"
   environment   = var.infrastructure.config.context.global.environment
   deployment    = var.infrastructure.config.context.global.deployment
   
-  security_group_id = var.config.context.aws.ec2.add_trusted_ingress.security_group_id
+  security_group_id = var.config.context.aws.ec2.add_trusted_ingress.security_group_ids[count.index]
   trusted_attacker_source   = var.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
       local.attacker_eks_trusted_ips,
       local.attacker_ec2_trusted_ips

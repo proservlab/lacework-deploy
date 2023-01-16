@@ -106,7 +106,7 @@
             "eks_audit_logs": {
               "enabled" : true
             },
-            "admission_controller   ": {
+            "admission_controller": {
               "enabled" : true
             }
           }
