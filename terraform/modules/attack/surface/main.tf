@@ -12,14 +12,14 @@ locals {
   attacker_ec2_trusted_ips = flatten([ 
       for ec2 in local.attacker_ec2: 
         [
-          for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance, "public_ip", "false") != "false"
+          for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance.tags_all, "public", "false") != "false"
         ]
     ])
 
   attacker_public_security_groups = distinct(flatten([
     for ec2 in local.attacker_ec2: 
       [
-        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance, "public_ip", "false") != "false"
+        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance.tags_all, "public", "false") != "false"
       ]
     ]))
   
@@ -31,14 +31,14 @@ locals {
   target_ec2_trusted_ips = flatten([ 
       for ec2 in local.target_ec2: 
       [
-        for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance.tags_all, "public_ip", "false") != "false"
+        for compute in ec2.instances: "${compute.instance.public_ip}/32" if lookup(compute.instance.tags_all, "public", "false") != "false"
       ] 
     ])
 
   target_public_security_groups = distinct(flatten([
     for ec2 in local.target_ec2: 
       [
-        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance, "public_ip", "false") != "false"
+        for compute in ec2.instances: compute.instance.vpc_security_group_ids if lookup(compute.instance.tags_all, "public", "false") != "false"
       ]
     ]))
 }
@@ -68,7 +68,7 @@ data "aws_security_groups" "public" {
   count = (var.infrastructure.config.context.global.enable_all == true) || (var.infrastructure.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
   tags = {
     environment = var.infrastructure.config.context.global.environment
-    deployment        = var.infrastructure.config.context.global.deployment
+    deployment  = var.infrastructure.config.context.global.deployment
     public = "true"
   }
 }

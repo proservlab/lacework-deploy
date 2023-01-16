@@ -18,7 +18,7 @@ resource "aws_security_group_rule" "target_ingress_rules" {
   to_port           = var.trusted_tcp_ports.to_port
   protocol          = "tcp"
   cidr_blocks       = var.trusted_target_source
-  description       = "Allow all tcp inbound from attacker public ips"
+  description       = "Allow all tcp inbound from target public ips"
   security_group_id = var.security_group_id
 }
 
