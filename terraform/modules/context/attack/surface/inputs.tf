@@ -1,11 +1,22 @@
 ############################
 # Context
-############################
-
+############################ 
 variable "config" {
   type = object({
     context = object({
+      global = object({
+        environment               = string
+        deployment                = string
+        disable_all               = bool
+        enable_all                = bool
+      })
+      gcp = object({
+        region                    = string
+        project_id                = string
+      })
       aws = object({
+        region                    = string
+        profile_name              = string
         iam = object({
           enabled                       = bool
           user_policies_path = string
@@ -81,7 +92,19 @@ variable "config" {
 
   default = {
     context = {
+      global = {
+        environment               = "infra"
+        deployment                = "default"
+        disable_all               = false
+        enable_all                = false
+      }
+      gcp = {
+        region                    = "us-central1"
+        project_id                = null
+      }
       aws = {
+        region                    = "us-east-1"
+        profile_name              = "infra"
         iam = {
           enabled                       = false
           user_policies_path            = null

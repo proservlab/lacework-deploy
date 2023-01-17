@@ -1,6 +1,12 @@
 {
   "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
     "aws" :  {
+      "region"        : "us-east-1",
+      "profile_name"  : "${ aws_profile }",
       "iam" :  {
         "enabled" :  false,
         "user_policies_path" :  "${ iam_power_user_policy_path }",
@@ -9,7 +15,6 @@
       "ec2" :  {
         "add_trusted_ingress" :  {
           "enabled"                     :  true,
-          "security_group_ids"          :  ${ security_group_ids },
           "trust_workstation"           :  true,
           "trust_attacker_source"       :  true,
           "trust_target_source"         :  true,

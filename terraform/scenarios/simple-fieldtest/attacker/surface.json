@@ -1,6 +1,12 @@
 {
   "context" :  {
+    "global": {
+      "environment"          : "attacker",
+      "deployment"           : "${ deployment }"
+    },
     "aws" :  {
+      "region"        : "us-east-1",
+      "profile_name"  : "${ aws_profile }",
       "ec2" :  {
         "add_trusted_ingress" :  {
           "enabled"                     :  true,

@@ -45,3 +45,7 @@ output "log4shellapp_service" {
           ,null
      )
 }
+
+output "compromised_credentials" {
+    value = module.iam[0].access_keys
+}

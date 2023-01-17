@@ -156,11 +156,11 @@ data "template_file" "attacker-attacksurface-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
 
   vars = {
-    # # ec2 security group trusted ingress
-    # security_group_ids = jsonencode(flatten([
-    #   try(module.attacker-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
-    #   try(module.attacker-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
-    # ]))
+    # deployment id
+    deployment = var.deployment
+
+    # aws
+    aws_profile = var.attacker_aws_profile
   }
 }
 
@@ -168,15 +168,15 @@ data "template_file" "target-attacksurface-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/target/surface.json")
 
   vars = {
+    # deployment id
+    deployment = var.deployment
+
+    # aws
+    aws_profile = var.target_aws_profile
+
     # iam
     iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
     iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
-
-    # # ec2 security group trusted ingress
-    # security_group_ids = jsonencode(flatten([
-    #   try(module.target-infrastructure.config.context.aws.ec2[0].public_sg.id, []),
-    #   try(module.target-infrastructure.config.context.aws.ec2[0].public_app_sg.id, [])
-    # ]))
   }
 }
 
@@ -224,6 +224,8 @@ module "attacker-attacksurface" {
   # attack surface config
   config = module.attacker-attacksurface-context.config
 
+  attacker = true
+
   # infrasturcture config and deployed state
   infrastructure = {
     # initial configuration reference
@@ -235,16 +237,23 @@ module "attacker-attacksurface" {
     }
   }
 
-  kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  # module providers config
+  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  attacker_aws_profile = module.attacker-infrastructure-context.config.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.aws.profile_name
 
+  # set default provider
   providers = {
-    aws      = aws.attacker
-    lacework = lacework.attacker
+    aws      = aws.target
+    lacework = lacework.target
   }
 }
 
 module "target-attacksurface" {
   source = "./modules/attack/surface"
+  
+  target = true
+
   # attack surface config
   config = module.target-attacksurface-context.config
 
@@ -259,8 +268,12 @@ module "target-attacksurface" {
     }
   }
 
+  # module providers config
   kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  attacker_aws_profile = module.attacker-infrastructure-context.config.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.aws.profile_name
 
+  # set default providers
   providers = {
     aws      = aws.target
     lacework = lacework.target
@@ -272,15 +285,41 @@ module "target-attacksurface" {
 ########################
 
 data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/attacker/simulation.json")
+  template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
 
-  vars = {}
+  vars = {
+    # deployment id
+    deployment = var.deployment
+
+    # aws
+    aws_profile = var.target_aws_profile
+
+    # variables
+    compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
+    attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_user
+    attacker_context_cloud_cryptomining_wallet = var.attacker_context_config_protonvpn_user
+    attacker_context_host_cryptomining_user = var.attacker_context_config_protonvpn_user
+  }
 }
 
 data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/target/simulation.json")
+  template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
 
-  vars = {}
+  vars = {
+    # deployment id
+    deployment = var.deployment
+
+    # aws
+    aws_profile = var.target_aws_profile
+
+    # variables
+    compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
+    attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_user
+    attacker_context_cloud_cryptomining_wallet = var.attacker_context_config_protonvpn_user
+    attacker_context_host_cryptomining_user = var.attacker_context_config_protonvpn_user
+  }
 }
 
 locals {
@@ -328,6 +367,8 @@ module "attacker-attacksimulation" {
   # attack surface config
   config = module.attacker-attacksimulation-context.config
 
+  attacker = true
+
   # infrasturcture config and deployed state
   infrastructure = {
     # initial configuration reference
@@ -340,7 +381,10 @@ module "attacker-attacksimulation" {
     }
   }
 
+  # module providers config
   kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
 
   providers = {
     aws      = aws.attacker
@@ -354,6 +398,8 @@ module "target-attacksimulation" {
   # attack surface config
   config = module.target-attacksimulation-context.config
 
+  target = true
+
   # infrasturcture config and deployed state
   infrastructure = {
     # initial configuration reference
@@ -366,7 +412,10 @@ module "target-attacksimulation" {
     }
   }
 
+  # module providers config
   kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
 
   providers = {
     aws      = aws.target

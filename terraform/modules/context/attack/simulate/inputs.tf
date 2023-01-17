@@ -5,9 +5,21 @@
 variable "config" {
   type = object({
     context = object({
-      simulation = object({
-        aws = object({
-          ssm = object({
+      global = object({
+        environment               = string
+        deployment                = string
+        disable_all               = bool
+        enable_all                = bool
+      })
+      gcp = object({
+        region                    = string
+        project_id                = string
+      })
+      aws = object({
+        region                    = string
+        profile_name              = string
+        ssm = object({
+          target = object({
             drop = object({
               malware = object({
                 eicar = object({ 
@@ -31,24 +43,15 @@ variable "config" {
               })
               codecov = object({
                 enabled                     = bool
-                host_ip                     = string
-                host_port                   = number
                 use_ssl                     = bool
                 git_origin                  = string
                 env_secrets                 = list(string)
               })
               reverse_shell = object({
                 enabled                     = bool
-                host_ip                     = string
-                host_port                   = number
               })
             })
             listener = object({
-              http = object({
-                enabled                     = bool
-                listen_ip                   = string
-                listen_port                 = number
-              })
               port_forward = object({
                 enabled                     = bool
                 port_forwards               = list(object({
@@ -57,8 +60,28 @@ variable "config" {
                                                 dst_ip        = string
                                                 description   = string
                                               }))
-                host_ip                     = string
-                host_port                   = number
+              })
+            })
+            execute = object({
+              docker_cpu_miner = object({
+                enabled                     = bool
+                nicehash_image              = string
+                nicehash_name               = string
+                nicehash_server             = string
+                nicehash_user               = string
+                minergate_name              = string
+                minergate_image             = string
+                minergate_server            = string
+                minergate_user              = string
+              })
+            })
+          })
+          attacker = object({
+            listener = object({
+              http = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
               })
             })
             responder = object({
@@ -74,17 +97,6 @@ variable "config" {
               })
             })
             execute = object({
-              docker_cpu_miner = object({
-                enabled                     = bool
-                nicehash_image              = string
-                nicehash_name               = string
-                nicehash_server             = string
-                nicehash_user               = string
-                minergate_name              = string
-                minergate_image             = string
-                minergate_server            = string
-                minergate_user              = string
-              })
               docker_log4shell_attack = object({
                 enabled                     = bool
                 attacker_http_port          = number
@@ -106,7 +118,6 @@ variable "config" {
                 minergate_user              = string
               })
             })
-            
           })
         })
       })
@@ -115,9 +126,21 @@ variable "config" {
 
   default = {
     context = {
-      simulation = {
-        aws = {
-          ssm = {
+      global = {
+        environment               = "infra"
+        deployment                = "default"
+        disable_all               = false
+        enable_all                = false
+      }
+      gcp = {
+        region                    = "us-central1"
+        project_id                = null
+      }
+      aws = {
+        region                    = "us-east-1"
+        profile_name              = "infra"
+        ssm = {
+          target = {
             drop = {
               malware = {
                 eicar = { 
@@ -141,18 +164,40 @@ variable "config" {
               }
               codecov = {
                 enabled                     = false
-                host_ip                     = null
-                host_port                   = 8080
                 use_ssl                     = false
                 git_origin                  = "git@git.localhost:repo/repo.git"
                 env_secrets                 = ["SECRET=supersecret123"]
               }
               reverse_shell = {
                 enabled                     = false
-                host_ip                     = null
-                host_port                   = 4444
               }
             }
+            listener = {
+              port_forward = {
+                enabled                     = false
+                port_forwards               = [{
+                                                src_port      = 1234
+                                                dst_port      = 4444
+                                                dst_ip        = "127.0.0.1"
+                                                description   = "Example"
+                                              }]
+              }
+            }
+            execute = {
+              docker_cpu_miner = {
+                enabled                     = false
+                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
+                nicehash_name               = "nicehash"
+                nicehash_server             = "equihash.usa.nicehash.com:3357"
+                nicehash_user               = null
+                minergate_name              = "minerd"
+                minergate_image             = "mkell43/minerd"
+                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
+                minergate_user              = null
+              }
+            }
+          }
+          attacker = {
             listener = {
               http = {
                 enabled                     = false
@@ -167,8 +212,6 @@ variable "config" {
                                                 dst_ip        = "127.0.0.1"
                                                 description   = "Example"
                                               }]
-                host_ip                     = null
-                host_port                   = 8888
               }
             }
             responder = {
@@ -184,17 +227,6 @@ variable "config" {
               }
             }
             execute = {
-              docker_cpu_miner = {
-                enabled                     = false
-                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
-                nicehash_name               = "nicehash"
-                nicehash_server             = "equihash.usa.nicehash.com:3357"
-                nicehash_user               = null
-                minergate_name              = "minerd"
-                minergate_image             = "mkell43/minerd"
-                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
-                minergate_user              = null
-              }
               docker_log4shell_attack = {
                 enabled                     = false
                 attacker_http_port          = 8088
