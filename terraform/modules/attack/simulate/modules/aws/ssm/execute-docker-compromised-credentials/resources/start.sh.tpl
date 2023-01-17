@@ -13,7 +13,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --container [aws-cli|terraform|protonvpn] --env-file=ENV_FILE
+usage: $SCRIPTNAME [-h] --container=[aws-cli|terraform|protonvpn] --script=[baseline.sh|discovery.sh] --env-file=ENV_FILE
 
 --service   the docker container to launch;
 --env-file  path to environment variable file. default: .env 
@@ -44,6 +44,10 @@ for i in "$@"; do
         CONTAINER="$${i#*=}"
         shift # past argument=value
         ;;
+    -s=*|--script=*)
+        SCRIPT="$${i#*=}"
+        shift # past argument=value
+        ;;
     -f=*|--env-file=*)
         ENV_FILE="$${i#*=}"
         shift # past argument=value
@@ -55,18 +59,22 @@ for i in "$@"; do
 done
 
 # check for required
+if [ -z "$${SCRIPT}" ]; then
+    SCRIPT=""
+fi
+
 if [ -z "$${CONTAINER}" ]; then
     errmsg "Required option not set: --container"
     help
 elif [ "$${CONTAINER}" = "protonvpn" ]; then
     CONTAINER_IMAGE="ghcr.io/tprasadtp/protonvpn:latest"
-    DOCKER_OPTS="--detach --device=/dev/net/tun --cap-add=NET_ADMIN"
+    DOCKER_OPTS="--it --device=/dev/net/tun --cap-add=NET_ADMIN"
 elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
-    DOCKER_OPTS="-it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
+    DOCKER_OPTS="--it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
 elif [ "$${CONTAINER}" = "terraform" ]; then
     CONTAINER_IMAGE="hashicorp/terraform:latest"
-    DOCKER_OPTS="-it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
+    DOCKER_OPTS="--it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
 fi
 
 if [ -z "$${ENV_FILE}" ]; then
@@ -85,6 +93,4 @@ docker run \
 $${DOCKER_OPTS} \
 -v "$${SCRIPT_DIR}/$${CONTAINER}/scripts":/scripts \
 --env-file="$${ENV_FILE}" \
-$${CONTAINER_IMAGE}
-
-docker exec -it $${CONTAINER} /bin/sh -c 'curl https://icanhazip.com 2> /dev/null || wget -q -O - https://icanhazip.com' 
+$${CONTAINER_IMAGE} $${SCRIPT}

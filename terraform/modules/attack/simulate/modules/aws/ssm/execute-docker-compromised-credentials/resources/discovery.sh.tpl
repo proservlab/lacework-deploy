@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "Baseline access for account"
+echo "Current IP: $(curl -s http://icanhazip.com)"
 opts="--output json --color off --no-cli-pager"
 for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
     echo "Discovery using AWS_REGION: $REGION"
