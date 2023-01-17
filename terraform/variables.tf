@@ -201,13 +201,13 @@ variable "attacker_context_config_protonvpn_protocol" {
   default     = "udp"
 }
 
-variable "attacker_context_config_cryptomining_cloud_wallet" {
+variable "attacker_context_cloud_cryptomining_wallet" {
   type        = string
   description = "cloud cryptomining wallet"
   default     = null
 }
 
-variable "attacker_context_config_cryptomining_host_user" {
+variable "attacker_context_host_cryptomining_user" {
   type        = string
   description = "host cryptomining user"
   default     = null

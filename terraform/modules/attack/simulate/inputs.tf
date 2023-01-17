@@ -108,7 +108,7 @@ variable "config" {
               })
               docker_compromised_credentials_attack = object({
                 enabled                     = bool
-                compromised_credentials     = string
+                compromised_credentials     = any
                 protonvpn_user              = string
                 protonvpn_password          = string
                 protonvpn_tier              = number
@@ -238,7 +238,7 @@ variable "config" {
               }
               docker_compromised_credentials_attack = {
                 enabled                     = false
-                compromised_credentials     = null
+                compromised_credentials     = {}
                 protonvpn_user              = null
                 protonvpn_password          = null
                 protonvpn_tier              = 0

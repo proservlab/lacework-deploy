@@ -47,5 +47,5 @@ output "log4shellapp_service" {
 }
 
 output "compromised_credentials" {
-    value = module.iam[0].access_keys
+    value = try(module.iam[0].access_keys, {})
 }

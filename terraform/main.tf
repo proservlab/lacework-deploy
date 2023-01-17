@@ -239,8 +239,8 @@ module "attacker-attacksurface" {
 
   # module providers config
   kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.aws.profile_name
+  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
 
   # set default provider
   providers = {
@@ -270,8 +270,8 @@ module "target-attacksurface" {
 
   # module providers config
   kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.aws.profile_name
+  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
 
   # set default providers
   providers = {
@@ -297,9 +297,9 @@ data "template_file" "attacker-attacksimulation-config-file" {
     # variables
     compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
     attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_user
-    attacker_context_cloud_cryptomining_wallet = var.attacker_context_config_protonvpn_user
-    attacker_context_host_cryptomining_user = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
+    attacker_context_cloud_cryptomining_wallet = var.attacker_context_cloud_cryptomining_wallet
+    attacker_context_host_cryptomining_user = var.attacker_context_host_cryptomining_user
   }
 }
 
@@ -316,9 +316,9 @@ data "template_file" "target-attacksimulation-config-file" {
     # variables
     compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
     attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_user
-    attacker_context_cloud_cryptomining_wallet = var.attacker_context_config_protonvpn_user
-    attacker_context_host_cryptomining_user = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
+    attacker_context_cloud_cryptomining_wallet = var.attacker_context_cloud_cryptomining_wallet
+    attacker_context_host_cryptomining_user = var.attacker_context_host_cryptomining_user
   }
 }
 
