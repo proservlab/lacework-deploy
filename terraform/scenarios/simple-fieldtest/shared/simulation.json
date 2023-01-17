@@ -1,7 +1,7 @@
 {
   "context" :  {
     "global": {
-      "environment"          : "attacker",
+      "environment"          : "shared",
       "deployment"           : "${ deployment }"
     },
     "aws" :  {
@@ -90,7 +90,7 @@
               "payload": "touch /tmp/log4shell_pwned"
             },
             "docker_compromised_credentials_attack": {
-              "enabled": false,
+              "enabled": true,
               "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
               "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
               "protonvpn_tier": 0,
