@@ -13,6 +13,8 @@ locals {
     cd ${local.attack_dir}
     ${local.aws_creds}
     echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
+    echo '${base64encode(data.template_file.auto-free.rendered)}' | base64 -d > /${local.attack_dir}/auto-free.sh
+    echo '${base64encode(data.template_file.auto-paid.rendered)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
     echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
     echo '${base64encode(data.template_file.protonvpn-baseline.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
     echo '${base64encode(data.template_file.baseline.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
@@ -58,6 +60,14 @@ data "template_file" "protonvpn-baseline" {
         protonvpn_tier = tostring(var.protonvpn_tier)
         protonvpn_protocol = var.protonvpn_protocol
     }
+}
+
+data "template_file" "auto-free" {
+    template = file("${path.module}/resources/auto-free.sh.tpl")
+}
+
+data "template_file" "auto-paid" {
+    template = file("${path.module}/resources/auto-paid.sh.tpl")
 }
 
 data "template_file" "baseline" {
