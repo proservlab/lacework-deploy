@@ -238,9 +238,9 @@ module "attacker-attacksurface" {
   }
 
   # module providers config
-  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
   # set default provider
   providers = {
@@ -251,7 +251,7 @@ module "attacker-attacksurface" {
 
 module "target-attacksurface" {
   source = "./modules/attack/surface"
-  
+
   target = true
 
   # attack surface config
@@ -269,9 +269,9 @@ module "target-attacksurface" {
   }
 
   # module providers config
-  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
   # set default providers
   providers = {
@@ -296,11 +296,11 @@ data "template_file" "attacker-attacksimulation-config-file" {
 
     # variables
     # compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
-    compromised_credentials = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
-    attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
+    compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+    attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
     attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-    attacker_context_host_cryptomining_minergate_user = var.attacker_context_host_cryptomining_minergate_user
+    attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
   }
 }
 
@@ -315,10 +315,10 @@ data "template_file" "target-attacksimulation-config-file" {
     aws_profile = var.target_aws_profile
 
     # variables
-    attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
+    attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+    attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
     attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-    attacker_context_host_cryptomining_minergate_user = var.attacker_context_host_cryptomining_minergate_user
+    attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
   }
 }
 
@@ -385,9 +385,9 @@ module "attacker-attacksimulation" {
   compromised_credentials = module.target-attacksurface.compromised_credentials
 
   # module providers config
-  kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  kubeconfig_path      = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
   providers = {
     aws      = aws.attacker
@@ -419,9 +419,9 @@ module "target-attacksimulation" {
   compromised_credentials = module.target-attacksurface.compromised_credentials
 
   # module providers config
-  kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile = module.target-infrastructure-context.config.context.aws.profile_name
+  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
   providers = {
     aws      = aws.target

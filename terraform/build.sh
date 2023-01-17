@@ -13,7 +13,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --workspace=WORK --action=ACTION [--stage=(all|infra|surface|simulation)]
+usage: $SCRIPTNAME [-h] --workspace=WORK --action=ACTION
 EOH
     exit 1
 }
@@ -43,10 +43,6 @@ for i in "$@"; do
         WORK="${i#*=}"
         shift # past argument=value
         ;;
-    -s=*|--stage=*)
-        STAGE="${i#*=}"
-        shift # past argument=value
-        ;;
     *)
       # unknown option
       ;;
@@ -64,13 +60,6 @@ if [ -z ${ACTION} ]; then
     help
 elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ]; then
     errmsg "Invalid action: --action should be one of plan, apply, refresh or destroy"
-    help
-fi
-
-if [ -z ${STAGE} ]; then
-  STAGE="any"
-elif [ "${STAGE}" != "all" ] && [ "${STAGE}" != "infra" ] && [ "${STAGE}" != "surface" ] && [ "${STAGE}" != "simulation" ]; then
-    errmsg "Invalid action: --stage should be one of all, infra, surface, simulation"
     help
 fi
 
@@ -92,7 +81,6 @@ fi
 LOCAL_BACKEND="true"
 
 echo "ACTION            = ${ACTION}"
-echo "STAGE             = ${STAGE}"
 echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
 
@@ -131,59 +119,22 @@ check_tf_apply(){
     fi
 }
 
-# define stage types
-INFRASTRUCTURE="infrastructure"
-SURFACE="attacksurface"
-SIMULATION="attacksimulation"
+# set plan file
 PLANFILE="build.tfplan"
 
-if [ "destroy" = "${ACTION}" ]; then
-    DESTROY="-destroy"
-else
-    DESTROY=""
-fi
-
-if [ "all" = "${STAGE}" ]; then
-    if [ "plan" = "${ACTION}" ]; then
-        errmsg "Plan action can only be executed for indivdual stages"
-        help
-    elif [ "apply" = "${ACTION}" ]; then        
-        # apply unique build id
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out ${PLANFILE}"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.deployment -out ${PLANFILE} -detailed-exitcode
-        ERR=$?
-        check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
-        
-        # apply infrastructure
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${INFRASTRUCTURE} -target=module.attacker-${INFRASTRUCTURE} -out ${PLANFILE}"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${INFRASTRUCTURE} -target=module.attacker-${INFRASTRUCTURE} -out ${PLANFILE} -detailed-exitcode
-        ERR=$?
-        check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
-        
-        # apply everything else
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode
-        ERR=$?
-        check_tf_apply ${ERR} ${ACTION} ${PLANFILE}
-    elif [ "destroy" = "${ACTION}" ]; then
-        echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE}"
-        sleep 5
-        terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode
-        ERR=$?
-        check_tf_apply ${ERR} apply ${PLANFILE}
-    fi
-elif [ "infra" = "${STAGE}" ] || [ "surface" = "${STAGE}" ] || [ "simulation" = "${STAGE}" ]; then
-    if [ "infra" = "${STAGE}" ]; then
-        STAGE=${INFRASTRUCTURE}
-    elif [ "surface" = "${STAGE}" ]; then
-        STAGE=${SURFACE}
-    elif [ "simulation" = "${STAGE}" ]; then
-        STAGE=${SIMULATION}
-    fi
-    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out ${PLANFILE}"
-    sleep 60
-    terraform plan ${DESTROY} ${BACKEND} ${VARS} -target=module.target-${STAGE} -target=module.attacker-${STAGE} -out ${PLANFILE} -detailed-exitcode
+if [ "plan" = "${ACTION}" ]; then
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode
+    ERR=$?
+    terraform show ${PLANFILE}
+elif [ "apply" = "${ACTION}" ]; then        
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode
+    ERR=$?
+    check_tf_apply ${ERR} apply ${PLANFILE}
+elif [ "destroy" = "${ACTION}" ]; then
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode
     ERR=$?
     check_tf_apply ${ERR} apply ${PLANFILE}
 fi
