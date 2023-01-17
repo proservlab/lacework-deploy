@@ -2,8 +2,7 @@
   "context": {
     "global": {
       "environment"          : "target",
-      "deployment"           : "${ deployment }",
-      "trust_security_group" : true
+      "deployment"           : "${ deployment }"
     },
     "aws": {
       "region"        : "us-east-1",
@@ -46,28 +45,28 @@
         "enabled"      : false
       },
       "ssm": {
-        "enabled"                        : false,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
         "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true
       },
       "lacework": {
         "server_url"   : "${ lacework_server_url }",
         "account_name" : "${ lacework_account_name }",
         "aws_audit_config": {
-          "enabled" : false
+          "enabled" : true
         },
         "gcp_audit_config": {
           "project_id" : "${ gcp_lacework_project }",
           "enabled"    : false
         },
         "custom_policy": {
-          "enabled" : false
+          "enabled" : true
         },
         "agent": {
-          "enabled" : false,
+          "enabled" : true,
 
           "kubernetes": {
             "enabled" : false,
@@ -90,19 +89,19 @@
           }
         },
         "aws_agentless": {
-          "enabled" : false
+          "enabled" : true
         },
         "gcp_agentless": {
           "enabled" : false
         },
         "alerts": {
-          "enabled" : false,
+          "enabled" : true,
           "slack": {
-            "enabled"   : false,
+            "enabled"   : true,
             "api_token" : "${ slack_token }"
           },
           "jira": {
-            "enabled"           : false,
+            "enabled"           : true,
             "cloud_url"         : "${ jira_cloud_url }",
             "cloud_username"    : "${ jira_cloud_username }",
             "cloud_api_token"   : "${ jira_cloud_api_token }",

@@ -198,13 +198,13 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
   deployment    = var.config.context.global.deployment
   region        = var.config.context.aws.region
 
-  compromised_credentials = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.compromised_credentials
+  compromised_credentials = var.compromised_credentials
   protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_user
   protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_password
   protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_tier
   protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_protocol
   protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
-  wallet = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.wallet
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.wallet
   minergate_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.minergate_user
 }
 
@@ -213,6 +213,10 @@ module "ssm-execute-docker-cpuminer" {
   source        = "./modules/aws/ssm/execute-docker-cpu-miner"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
+  minergate_user = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_user
+  minergate_image = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_image
+  minergate_server = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_server
+  minergate_name = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_name
 }
 
 module "ssm-execute-docker-log4shell-attack" {

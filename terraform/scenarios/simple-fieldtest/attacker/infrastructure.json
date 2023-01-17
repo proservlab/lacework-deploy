@@ -2,8 +2,7 @@
     "context": {
         "global": {
             "environment"                           : "attacker",
-            "deployment"                            : "${ deployment }",
-            "trust_security_group"                  : true
+            "deployment"                            : "${ deployment }"
         },
         "aws": {
             "region"        : "us-east-1",

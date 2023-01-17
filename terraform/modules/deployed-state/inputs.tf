@@ -178,7 +178,7 @@ variable "config" {
       global = {
         environment               = "infra"
         deployment                = "default"
-        trust_security_group      = false
+        trust_security_group      = true
         disable_all               = false
         enable_all                = false
       }

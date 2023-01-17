@@ -295,11 +295,12 @@ data "template_file" "attacker-attacksimulation-config-file" {
     aws_profile = var.target_aws_profile
 
     # variables
-    compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
+    # compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
+    compromised_credentials = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
     attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
     attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
-    attacker_context_cloud_cryptomining_wallet = var.attacker_context_cloud_cryptomining_wallet
-    attacker_context_host_cryptomining_user = var.attacker_context_host_cryptomining_user
+    attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+    attacker_context_host_cryptomining_minergate_user = var.attacker_context_host_cryptomining_minergate_user
   }
 }
 
@@ -314,11 +315,10 @@ data "template_file" "target-attacksimulation-config-file" {
     aws_profile = var.target_aws_profile
 
     # variables
-    compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
     attacker_context_config_protonvpn_user = var.attacker_context_config_protonvpn_user
     attacker_context_config_protonvpn_password = var.attacker_context_config_protonvpn_password
-    attacker_context_cloud_cryptomining_wallet = var.attacker_context_cloud_cryptomining_wallet
-    attacker_context_host_cryptomining_user = var.attacker_context_host_cryptomining_user
+    attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+    attacker_context_host_cryptomining_minergate_user = var.attacker_context_host_cryptomining_minergate_user
   }
 }
 
@@ -381,6 +381,9 @@ module "attacker-attacksimulation" {
     }
   }
 
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = module.target-attacksurface.compromised_credentials
+
   # module providers config
   kubeconfig_path = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
@@ -411,6 +414,9 @@ module "target-attacksimulation" {
       attacker = module.attacker-infrastructure.config
     }
   }
+
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = module.target-attacksurface.compromised_credentials
 
   # module providers config
   kubeconfig_path = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")

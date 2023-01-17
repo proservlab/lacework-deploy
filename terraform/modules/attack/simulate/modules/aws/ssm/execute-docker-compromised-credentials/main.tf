@@ -75,7 +75,7 @@ data "template_file" "cloudcrypto" {
     vars = {
         name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
         instances = 12
-        wallet = var.wallet
+        wallet = var.ethermine_wallet
         region = var.region
     }
 }

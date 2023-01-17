@@ -70,9 +70,9 @@ variable "protonvpn_protocol" {
   default = "udp"
 }
 
-variable "wallet" {
+variable "ethermine_wallet" {
   type = string
-  description = "wallet for cloud crypto"
+  description = "ethermine wallet for cloud crypto"
   default = ""
 }
 

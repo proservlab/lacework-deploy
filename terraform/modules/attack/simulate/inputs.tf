@@ -108,7 +108,6 @@ variable "config" {
               })
               docker_compromised_credentials_attack = object({
                 enabled                     = bool
-                compromised_credentials     = any
                 protonvpn_user              = string
                 protonvpn_password          = string
                 protonvpn_tier              = number
@@ -238,7 +237,6 @@ variable "config" {
               }
               docker_compromised_credentials_attack = {
                 enabled                     = false
-                compromised_credentials     = {}
                 protonvpn_user              = null
                 protonvpn_password          = null
                 protonvpn_tier              = 0
@@ -285,4 +283,8 @@ variable "attacker_aws_profile" {
 variable "target_aws_profile" {
   type = string
   description = "attacker aws profile"
+}
+
+variable "compromised_credentials" {
+  type = any
 }
