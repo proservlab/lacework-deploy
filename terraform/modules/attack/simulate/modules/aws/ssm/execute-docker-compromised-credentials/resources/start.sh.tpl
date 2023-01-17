@@ -68,13 +68,13 @@ if [ -z "$${CONTAINER}" ]; then
     help
 elif [ "$${CONTAINER}" = "protonvpn" ]; then
     CONTAINER_IMAGE="ghcr.io/tprasadtp/protonvpn:latest"
-    DOCKER_OPTS="--it --device=/dev/net/tun --cap-add=NET_ADMIN"
+    DOCKER_OPTS="--detach --device=/dev/net/tun --cap-add=NET_ADMIN"
 elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
-    DOCKER_OPTS="--it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
+    DOCKER_OPTS="-it --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
 elif [ "$${CONTAINER}" = "terraform" ]; then
     CONTAINER_IMAGE="hashicorp/terraform:latest"
-    DOCKER_OPTS="--it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
+    DOCKER_OPTS="-it --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
 fi
 
 if [ -z "$${ENV_FILE}" ]; then
