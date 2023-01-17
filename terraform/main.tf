@@ -244,8 +244,8 @@ module "attacker-attacksurface" {
 
   # set default provider
   providers = {
-    aws      = aws.target
-    lacework = lacework.target
+    aws      = aws.attacker
+    lacework = lacework.attacker
   }
 }
 

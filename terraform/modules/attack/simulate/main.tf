@@ -128,7 +128,7 @@ data "aws_instances" "attacker_port_forward" {
 module "ssm-connect-badip" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.badip.enabled == true ) ? 1 : 0
   source        = "./modules/aws/ssm/connect-badip"
-  environment   = var.config.context.global.deployment
+  environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
   # list of bad ip to select from - only a single random will be used
@@ -138,7 +138,7 @@ module "ssm-connect-badip" {
 module "ssm-connect-codecov" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true) ? 1 : 0
   source        = "./modules/aws/ssm/connect-codecov"
-  environment    = var.config.context.global.deployment
+  environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
   
@@ -149,7 +149,7 @@ module "ssm-connect-codecov" {
 module "ssm-connect-nmap-port-scan" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.nmap_port_scan.enabled == true ) ? 1 : 0
   source        = "./modules/aws/ssm/connect-nmap-port-scan"
-  environment   = var.config.context.global.deployment
+  environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
 
@@ -161,7 +161,7 @@ module "ssm-connect-nmap-port-scan" {
 module "ssm-connect-oast-host" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.oast.enabled == true ) ? 1 : 0
   source        = "./modules/aws/ssm/connect-oast-host"
-  environment    = var.config.context.global.deployment
+  environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 }
 

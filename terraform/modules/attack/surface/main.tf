@@ -26,6 +26,7 @@ data "aws_instances" "public_attacker" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+  instance_state_names = ["running"]
 }
 
 data "aws_instances" "public_target" {
@@ -36,6 +37,7 @@ data "aws_instances" "public_target" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+  instance_state_names = ["running"]
 }
 
 #########################
@@ -68,7 +70,7 @@ module "iam" {
 
 # append ingress rules
 module "ec2-add-trusted-ingress" {
-  for_each = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? toset(data.aws_security_groups.public[0].ids) : []
+  for_each = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? toset(data.aws_security_groups.public[0].ids) : toset([ for v in []: v ])
   source        = "./modules/aws/ec2/add-trusted-ingress"
   environment                   = var.config.context.global.environment
   deployment                    = var.config.context.global.deployment

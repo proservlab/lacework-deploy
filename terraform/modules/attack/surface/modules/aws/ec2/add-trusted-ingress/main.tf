@@ -1,5 +1,5 @@
 resource "aws_security_group_rule" "attacker_ingress_rules" {
-  count = length(var.trusted_attacker_source)
+  count = length(var.trusted_attacker_source) > 0 ?  1 : 0
 
   type              = "ingress"
   from_port         = var.trusted_tcp_ports.from_port
@@ -11,7 +11,7 @@ resource "aws_security_group_rule" "attacker_ingress_rules" {
 }
 
 resource "aws_security_group_rule" "target_ingress_rules" {
-  count = length(var.trusted_target_source)
+  count = length(var.trusted_target_source) > 0 ?  1 : 0
 
   type              = "ingress"
   from_port         = var.trusted_tcp_ports.from_port
@@ -23,7 +23,7 @@ resource "aws_security_group_rule" "target_ingress_rules" {
 }
 
 resource "aws_security_group_rule" "workstation_ingress_rules" {
-  count = length(var.trusted_workstation_source)
+  count = length(var.trusted_workstation_source) > 0 ?  1 : 0
 
   type              = "ingress"
   from_port         = var.trusted_tcp_ports.from_port
@@ -35,7 +35,7 @@ resource "aws_security_group_rule" "workstation_ingress_rules" {
 }
 
 resource "aws_security_group_rule" "additional_ingress_rules" {
-  count = length(var.additional_trusted_sources)
+  count = length(var.additional_trusted_sources) > 0 ?  1 : 0
 
   type              = "ingress"
   from_port         = var.trusted_tcp_ports.from_port
