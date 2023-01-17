@@ -2,6 +2,7 @@
 
 # ec2
 echo "Baseline access for account"
+echo "Current IP: $(curl -s http://icanhazip.com)"
 x=10
 opts="--output json --color off --no-cli-pager"
 while [ $x -gt 0 ]; 
