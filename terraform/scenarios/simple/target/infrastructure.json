@@ -44,6 +44,22 @@
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true
       }
+    },
+    "lacework": {
+      "server_url"   : "${ lacework_server_url }",
+      "account_name" : "${ lacework_account_name }",
+      "aws_audit_config": {
+        "enabled" : true
+      },
+      "custom_policy": {
+        "enabled" : false
+      },
+      "agent": {
+        "enabled" : true
+      },
+      "aws_agentless": {
+        "enabled" : true
+      }
     }
   }
 }
