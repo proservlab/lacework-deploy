@@ -212,3 +212,9 @@ variable "attacker_context_host_cryptomining_minergate_user" {
   description = "host cryptomining user"
   default     = null
 }
+
+variable "attacker_context_host_cryptomining_nicehash_user" {
+  type        = string
+  description = "host cryptomining user"
+  default     = null
+}
