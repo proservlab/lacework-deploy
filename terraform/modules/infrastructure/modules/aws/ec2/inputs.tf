@@ -146,7 +146,7 @@ variable "instances" {
   ]
   validation {
     condition     = length([ for instance in var.instances: instance if contains(["app","default"],instance.role) ]) > 0
-    error_message = "Role must be either 'app' or 'default'"
+    error_message = "Role must be either 'app' or 'default'."
   }
 }
 
