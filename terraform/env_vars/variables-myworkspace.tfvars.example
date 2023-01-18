@@ -36,8 +36,27 @@ lacework_account_name = "xxxxxxx"
 lacework_server_url = "https://xxxxxxx.lacework.net"
 
 ################################################################################################
+# JIRA
+# Required only when enabling Lacework alerting (can also be defined globally in variables.tfvars)
+################################################################################################
+
+# jira_cloud_api_token = "xxxxx"
+# jira_cloud_username = "xxxxx"
+# jira_cloud_project_key = "xxxxx"
+# jira_cloud_issue_type = "xxxxx"
+# jira_cloud_url = "https://xxxxx.atlassian.net"
+
+
+################################################################################################
+# SLACK
+# Required only when enabling Lacework alerting (can also be defined globally in variables.tfvars)
+################################################################################################
+
+# slack_token = "https://hooks.slack.com/services/xxxxx"
+
+################################################################################################
 # SIMULATION
-# Required only when specific scenarios are enabled (e.g. cloud_compromise)
+# Required only when specific scenarios are enabled (e.g. cloud_compromise).
 ################################################################################################
 
 # compromised credentials vpn config
