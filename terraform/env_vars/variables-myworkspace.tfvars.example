@@ -1,3 +1,51 @@
-lacework_profile = "xxxxx"
-lacework_account_name = "xxxxx"
-lacework_server_url = "https://xxxxx.lacework.net"
+################################################################################################
+# WORKSPACE VARIABLES - These variables are tied to specific workspace
+# Note: The examples below could also be globally defined in variables.tfvars
+################################################################################################
+
+################################################################################################
+# SCENARIO 
+# Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
+################################################################################################
+
+scenario="simple"
+
+################################################################################################
+# DEPLOYMENT 
+# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
+# a single cloud account
+################################################################################################
+
+deployment="00000001"
+
+################################################################################################
+# AWS 
+# Required when deploying to AWS
+################################################################################################
+
+target_aws_profile="xxxxxxx"
+attacker_aws_profile="xxxxxxx"
+
+################################################################################################
+# LACEWORK 
+# Required when enabling lacework
+################################################################################################
+
+lacework_profile = "xxxxxxx"
+lacework_account_name = "xxxxxxx"
+lacework_server_url = "https://xxxxxxx.lacework.net"
+
+################################################################################################
+# SIMULATION
+# Required only when specific scenarios are enabled (e.g. cloud_compromise)
+################################################################################################
+
+# compromised credentials vpn config
+# attacker_context_config_protonvpn_user="xxxxxxx"
+# attacker_context_config_protonvpn_password="xxxxxxx"
+
+# cloud crypto gpu mining creds
+# attacker_context_cloud_cryptomining_ethermine_wallet="xxxxxxx"
+
+# cpu crypto mining credentials
+# attacker_context_host_cryptomining_minergate_user="xxxxxxx"
