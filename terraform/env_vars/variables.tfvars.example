@@ -8,11 +8,11 @@
 # Required only when enabling Lacework alerting
 ################################################################################################
 
-jira_cloud_api_token = "xxxxx"
-jira_cloud_username = "xxxxx"
-jira_cloud_project_key = "xxxxx"
-jira_cloud_issue_type = "xxxxx"
-jira_cloud_url = "https://xxxxx.atlassian.net"
+# jira_cloud_api_token = "xxxxx"
+# jira_cloud_username = "xxxxx"
+# jira_cloud_project_key = "xxxxx"
+# jira_cloud_issue_type = "xxxxx"
+# jira_cloud_url = "https://xxxxx.atlassian.net"
 
 
 ################################################################################################
@@ -20,5 +20,5 @@ jira_cloud_url = "https://xxxxx.atlassian.net"
 # Required only when enabling Lacework alerting
 ################################################################################################
 
-slack_token = "https://hooks.slack.com/services/xxxxx"
+# slack_token = "https://hooks.slack.com/services/xxxxx"
 
