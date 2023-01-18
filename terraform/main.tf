@@ -295,7 +295,6 @@ data "template_file" "attacker-attacksimulation-config-file" {
     aws_profile = var.target_aws_profile
 
     # variables
-    # compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
     compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
     attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
@@ -315,6 +314,7 @@ data "template_file" "target-attacksimulation-config-file" {
     aws_profile = var.target_aws_profile
 
     # variables
+    compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
     attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
     attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
