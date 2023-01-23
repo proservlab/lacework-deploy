@@ -25,14 +25,12 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
                         - system:nodes
                     YAML
         mapUsers =  <<-YAML
-                    %{ if length(data.aws_iam_user.users) > 0 }
-                    %{ for iam_user in data.aws_iam_user.users ~}
+                    %{ for iam_user in data.aws_iam_user.users }
                     - groups:
                         - ${ local.read_role_name }
                       userarn: ${ iam_user.arn }
                       username: ${ reverse(split("/", iam_user.arn))[0] }
                     %{ endfor }
-                    %{ endif }
                     YAML
     }
 
