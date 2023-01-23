@@ -30,7 +30,7 @@ resource "kubernetes_config_map_v1" "aws_auth_configmap" {
                         - groups:
                             - ${ local.read_role_name }
                         userarn: ${ iam_user.arn }
-                        username: ${ split("/", iam_user.arn)[-1] }
+                        username: ${ reverse(split("/", iam_user.arn))[0] }
                         %{ endfor }
                     %{ endif }
                     EOT
@@ -60,7 +60,7 @@ resource "kubernetes_cluster_role" "read_pods" {
 resource "kubernetes_cluster_role_binding" "read_pods" {
     for_each = data.aws_iam_user.users
     metadata {
-        name      = "${local.read_role_name}-${ split("/", each.value.arn)[-1] }-role-binding"
+        name      = "${local.read_role_name}-${ reverse(split("/", each.value.arn))[0] }-role-binding"
     }
     role_ref {
         api_group = "rbac.authorization.k8s.io"
@@ -69,6 +69,6 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
     }
     subject {
         kind      = "User"
-        name      = "${ split("/", each.value.arn)[-1] }"
+        name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
 }
