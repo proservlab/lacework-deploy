@@ -92,10 +92,10 @@
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : true
+            "enabled" : false
           },
           "eks_audit_logs": {
-            "enabled" : true
+            "enabled" : false
           },
           "admission_controller": {
             "enabled" : true
