@@ -35,6 +35,12 @@ variable "config" {
             })
           })
         })
+        eks = object({
+          add_iam_user_readonly_user = object({
+            enabled = bool
+            iam_user_names =  list(string)
+          })
+        })
         ssm = object({
           vulnerable = object({
             docker = object({
@@ -121,6 +127,14 @@ variable "config" {
               from_port = 1024
               to_port = 65535
             }
+          }
+        }
+        eks = {
+          add_iam_user_readonly_user = {
+            enabled = false
+            iam_user_names =  [ 
+                                "clue.burnetes@interlacelabs"
+                              ]
           }
         }
         ssm = {

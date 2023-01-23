@@ -90,6 +90,26 @@ module "ec2-add-trusted-ingress" {
 }
 
 #########################
+# AWS EKS
+##########################
+
+# assign iam user cluster readonly role
+module "eks-auth" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
+  source      = "./modules/aws/eks/eks-auth"
+  environment       = var.config.context.global.environment
+  deployment        = var.config.context.global.deployment
+  cluster_name      = var.infrastructure.config.context.aws.eks.cluster_name
+
+  # user here needs to be created by iam module
+  iam_eks_pod_readers = var.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+
+  depends_on = [
+    module.iam
+  ]                    
+}
+
+#########################
 # AWS SSM
 # ssm tag-based surface config
 ##########################
