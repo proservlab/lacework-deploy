@@ -71,4 +71,6 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
+
+    force = true
 }
