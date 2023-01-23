@@ -17,23 +17,23 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
         namespace = "kube-system"
     }
     data = {
-        mapRoles =  <<-EOT
-                    mapRoles: |
-                        - rolearn: arn:aws:iam::${ local.aws_account_id }:role/eks-node-${ local.cluster_name }
-                        username: system:node:{{EC2PrivateDNSName}}
-                        groups:
-                            - system:bootstrappers
-                            - system:nodes
+        mapRoles =  <<-YAML
+                    - rolearn: arn:aws:iam::${ local.aws_account_id }:role/eks-node-${ local.cluster_name }
+                      username: system:node:{{EC2PrivateDNSName}}
+                      groups:
+                        - system:bootstrappers
+                        - system:nodes
+                    YAML
+        mapUsers =  <<-YAML
                     %{ if length(data.aws_iam_user.users) > 0 }
-                    mapUsers: |
-                        %{ for iam_user in data.aws_iam_user.users }
-                        - groups:
-                            - ${ local.read_role_name }
-                        userarn: ${ iam_user.arn }
-                        username: ${ reverse(split("/", iam_user.arn))[0] }
-                        %{ endfor }
+                    %{ for iam_user in data.aws_iam_user.users }
+                    - groups:
+                        - ${ local.read_role_name }
+                      userarn: ${ iam_user.arn }
+                      username: ${ reverse(split("/", iam_user.arn))[0] }
+                    %{ endfor }
                     %{ endif }
-                    EOT
+                    YAML
     }
 
     force = true
