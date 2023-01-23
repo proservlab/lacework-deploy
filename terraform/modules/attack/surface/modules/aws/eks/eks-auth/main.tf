@@ -11,7 +11,7 @@ data "aws_iam_user" "users" {
     user_name = each.key
 }
 
-resource "kubernetes_config_map_v1" "aws_auth_configmap" {
+resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
     metadata {
         name      = "aws-auth"
         namespace = "kube-system"
@@ -35,6 +35,8 @@ resource "kubernetes_config_map_v1" "aws_auth_configmap" {
                     %{ endif }
                     EOT
     }
+
+    force = true
 }
 
 resource "kubernetes_cluster_role" "read_pods" {
@@ -71,6 +73,4 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
-
-    force = true
 }
