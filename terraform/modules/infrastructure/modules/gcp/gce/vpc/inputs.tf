@@ -8,6 +8,11 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "name" {
+    type = string
+    default = "main"
+}
+
 variable "gcp_project_id" {
   type = string
 }
@@ -145,14 +150,10 @@ variable "instances" {
       name                            = "ec2-private-1"
       public                          = false
       role                            = "default"
-      instance_type                   = "e2-micro"
-      ami_name                        = "debian-cloud/debian-11"
+      instance_type                   = "t2.micro"
+      ami_name                        = "ubuntu_focal"
       tags                            = { }
-      user_data                       = <<-EOT
-                                        #! /bin/bash
-                                        sudo apt update
-                                        sudo apt -y install google-osconfig-agent
-                                        EOT
+      user_data                       = null
       user_data_base64                = null
     },
   ]
@@ -220,4 +221,28 @@ variable "private_app_nat_subnet" {
   type = string
   description = "private app nat subnet"
   default = "172.17.10.0/24"
+}
+
+variable "enable_public_vpc" {
+  type = bool
+  description = "enable/disable creation of public vpc"
+  default = true
+}
+
+variable "enable_public_app_vpc" {
+  type = bool
+  description = "enable/disable creation of public app vpc"
+  default = true
+}
+
+variable "enable_private_vpc" {
+  type = bool
+  description = "enable/disable creation of private vpc"
+  default = true
+}
+
+variable "enable_private_app_vpc" {
+  type = bool
+  description = "enable/disable creation of private app vpc"
+  default = true
 }

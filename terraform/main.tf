@@ -32,6 +32,9 @@ data "template_file" "attacker-infrastructure-config-file" {
 
     # aws
     aws_profile = var.attacker_aws_profile
+
+    # gcp
+    gcp_project = var.target_gcp_project
   }
 }
 
@@ -45,6 +48,7 @@ data "template_file" "target-infrastructure-config-file" {
     aws_profile = var.target_aws_profile
 
     # gcp
+    gcp_project          = var.target_gcp_project
     gcp_lacework_project = var.target_gcp_lacework_project
 
     # lacework
@@ -161,6 +165,9 @@ data "template_file" "attacker-attacksurface-config-file" {
 
     # aws
     aws_profile = var.attacker_aws_profile
+
+    # gcp
+    gcp_project = var.target_gcp_project
   }
 }
 
@@ -173,6 +180,9 @@ data "template_file" "target-attacksurface-config-file" {
 
     # aws
     aws_profile = var.target_aws_profile
+
+    # gcp
+    gcp_project = var.target_gcp_project
 
     # iam
     iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
@@ -382,7 +392,7 @@ module "attacker-attacksimulation" {
   }
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
-  compromised_credentials = module.target-attacksurface.compromised_credentials
+  compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
 
   # module providers config
   kubeconfig_path      = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
@@ -416,7 +426,7 @@ module "target-attacksimulation" {
   }
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
-  compromised_credentials = module.target-attacksurface.compromised_credentials
+  compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
 
   # module providers config
   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
