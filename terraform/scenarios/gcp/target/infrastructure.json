@@ -84,7 +84,7 @@
         }
       },
       "gcp_agentless": {
-        "enabled" : true
+        "enabled" : false
       }
     }
   }

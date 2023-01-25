@@ -37,7 +37,7 @@ variable "instance_type" {
 }
 
 variable "ami" {
-    type    = "debian-cloud/debian-11"
+    type    = string
 }
 
 variable "tags" {

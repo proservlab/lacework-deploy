@@ -27,6 +27,7 @@ resource "google_compute_subnetwork" "subnetwork" {
     name                                = "main-${var.environment}-${var.deployment}-private-subnetwork"
     ip_cidr_range                       = var.private_network
     region                              = var.gcp_location
+    project                             = var.gcp_project_id
     network                             = google_compute_network.vpc_network.name
     purpose                             = "PRIVATE"
   

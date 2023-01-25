@@ -8,6 +8,10 @@ output "config" {
                 ec2                       = module.ec2
                 eks                       = module.eks
             }
+            gcp = {
+                gce                       = module.gce
+                gke                       = module.gke
+            }
         }
     }
 }

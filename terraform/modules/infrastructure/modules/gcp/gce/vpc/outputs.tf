@@ -2,9 +2,9 @@
 #   value = var.enable_public_vpc == true ? module.public[0].vpc : null
 # }
 
-# output "public_subnet" {
-#   value = var.enable_public_vpc == true ? module.public[0].subnet : null
-# }
+output "public_subnet" {
+  value = var.enable_public_vpc == true ? module.public[0].subnet : null
+}
 
 # output "public_sg" {
 #   value = var.enable_public_vpc == true ? module.public[0].sg : null

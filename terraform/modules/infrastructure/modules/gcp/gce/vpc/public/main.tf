@@ -8,6 +8,7 @@ resource "google_compute_subnetwork" "subnetwork" {
   name                                  = "main-${var.environment}-${var.deployment}-public-subnetwork"
   ip_cidr_range                         = var.public_network
   region                                = var.gcp_location
+  project                               = var.gcp_project_id
   network                               = google_compute_network.vpc_network.name
   purpose                               = "PUBLIC"
 
@@ -32,7 +33,7 @@ resource "google_compute_firewall" "ingress_rules" {
 
   allow {
     protocol              = var.public_ingress_rules[count.index].protocol == "-1" ? "all" : var.public_ingress_rules[count.index].protocol
-    ports                 = [var.public_ingress_rules[count.index].from_port]
+    ports                 = var.public_ingress_rules[count.index].protocol == "-1" ? null : [ var.public_ingress_rules[count.index].from_port]
   }
 }
 
@@ -47,6 +48,6 @@ resource "google_compute_firewall" "egress_rules" {
 
   allow {
     protocol              = var.public_egress_rules[count.index].protocol == "-1" ? "all" : var.public_egress_rules[count.index].protocol
-    ports                 = [var.public_egress_rules[count.index].from_port]
+    ports                 = var.public_egress_rules[count.index].protocol == "-1" ? null : [ var.public_egress_rules[count.index].from_port]
   }
 }

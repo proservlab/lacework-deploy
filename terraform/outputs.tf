@@ -57,3 +57,7 @@ output "target-compromised-credentials" {
 # output "target-deployed-state" {
 #   value = module.target-deployed-state
 # }
+
+output "gce" {
+  value = module.target-infrastructure.config.context.gcp.gce
+}

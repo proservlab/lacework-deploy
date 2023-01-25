@@ -1,3 +1,3 @@
-output "instance" {
-  value = aws_instance.instance
-}
+# output "instance" {
+#   value = google_compute_instance.instance
+# }

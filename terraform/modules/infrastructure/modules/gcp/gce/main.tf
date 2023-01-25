@@ -11,9 +11,9 @@ module "default-osconfig-tags" {
 }
 
 # lookup latest amis
-# module "amis" {
-#   source = "./amis"
-# }
+module "amis" {
+  source = "./amis"
+}
 
 # create an ssm iam instance profile
 # module "ssm_profile" {
@@ -27,6 +27,8 @@ module "service_account" {
   source = "./service_account"
   environment = var.environment
   deployment = var.deployment
+  gcp_location  = var.gcp_location
+  gcp_project_id  = var.gcp_project_id
 }
 
 # build private and public vpcs
@@ -67,20 +69,22 @@ module "vpc" {
 #   source = "./instance"
 #   environment = var.environment
 #   deployment = var.deployment
+#   gcp_location  = var.gcp_location
+#   gcp_project_id  = var.gcp_project_id
   
 #   ami           = module.amis.ami_map[each.value.ami_name]
 #   instance_type = each.value.instance_type
-#   iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
+#   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
-#   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.id : module.vpc.public_subnet.id ) : (each.value.role == "app" ? module.vpc.private_app_subnet.id : module.vpc.private_subnet.id )
-#   vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
+#   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.name : module.vpc.public_subnet.name ) : (each.value.role == "app" ? module.vpc.private_app_subnet.name : module.vpc.private_subnet.name )
+#   # vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
   
 #   user_data = each.value.user_data
 #   user_data_base64 = each.value.user_data_base64
 
 #   # merge additional tags including ssm deployment tag
 #   tags = merge(
-#     module.default-ssm-tags.ssm_default_tags,
+#     module.default-osconfig-tags.osconfig_default_tags,
 #     merge(
 #       {
 #         Name = "${each.value.name}-${var.environment}-${var.deployment}"
