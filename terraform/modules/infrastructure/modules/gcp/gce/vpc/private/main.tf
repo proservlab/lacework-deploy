@@ -1,5 +1,6 @@
 resource "google_compute_router" "router" {
   name                                  = "main-${var.environment}-${var.deployment}-private-router"
+  project = var.google_project_id
   region  = google_compute_subnetwork.subnetwork.region
   network = google_compute_network.vpc_network.id
 }
