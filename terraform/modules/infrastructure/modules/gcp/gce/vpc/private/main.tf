@@ -58,7 +58,7 @@ resource "google_compute_firewall" "ingress_rules" {
 
   allow {
     protocol              = var.private_ingress_rules[count.index].protocol == "-1" ? "all" : var.private_ingress_rules[count.index].protocol
-    ports                 = [var.private_ingress_rules[count.index].from_port]
+    ports                 = var.private_ingress_rules[count.index].protocol == "-1" ? null : [ var.private_ingress_rules[count.index].from_port]
   }
 }
 
@@ -73,6 +73,6 @@ resource "google_compute_firewall" "egress_rules" {
 
   allow {
     protocol              = var.private_egress_rules[count.index].protocol == "-1" ? "all" : var.private_egress_rules[count.index].protocol
-    ports                 = [var.private_egress_rules[count.index].from_port]
+    ports                 = var.private_egress_rules[count.index].protocol == "-1" ? null : [ var.private_egress_rules[count.index].from_port]
   }
 }
