@@ -72,6 +72,7 @@ module "instances" {
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
   
+  name          = "${each.value.name}-${var.environment}-${var.deployment}"
   ami           = module.amis.ami_map[each.value.ami_name]
   instance_type = each.value.instance_type
   public        = each.value.public

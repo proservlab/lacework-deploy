@@ -8,6 +8,11 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "name" {
+    type = string
+    description = "instance name"
+}
+
 variable "public" {
     type = bool
     default = false

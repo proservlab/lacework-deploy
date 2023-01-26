@@ -11,7 +11,7 @@ data "template_file" "startup" {
 }
 
 resource "google_compute_instance" "instance" {
-    name         = "${var.environment}-${var.deployment}-compute"
+    name         = var.name
     machine_type = var.instance_type
     project      = var.gcp_project_id
 
