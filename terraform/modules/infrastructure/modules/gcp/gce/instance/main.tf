@@ -1,3 +1,10 @@
+locals {
+  tags = {
+    for key, value in var.tags :
+      lower(key) => lower(value)
+  }
+}
+
 data "template_file" "startup" {
     template = file("${path.module}/resources/startup.sh")
     vars = {}
@@ -6,6 +13,8 @@ data "template_file" "startup" {
 resource "google_compute_instance" "instance" {
     name         = "${var.environment}-${var.deployment}-compute"
     machine_type = var.instance_type
+    project      = var.gcp_project_id
+
     zone         = "us-central1-a"
 
     # tags = ["foo", "bar"]
@@ -22,7 +31,8 @@ resource "google_compute_instance" "instance" {
     #   }
 
     network_interface {
-        subnetwork = var.subnet_id
+        subnetwork              = var.subnet_id
+        subnetwork_project      = var.gcp_project_id
 
         dynamic "access_config" {
           for_each = var.public ? [{}] : []
@@ -34,7 +44,8 @@ resource "google_compute_instance" "instance" {
         enable-osconfig = "true"
     }
 
-    labels = var.tags
+    # converted label keys to lower
+    labels = local.tags
 
     metadata_startup_script = can(length(var.user_data)) ? var.user_data : data.template_file.startup.rendered
 

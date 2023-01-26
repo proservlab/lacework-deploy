@@ -59,5 +59,6 @@ output "target-compromised-credentials" {
 # }
 
 output "gce" {
-  value = module.target-infrastructure.config.context.gcp.gce
+  sensitive = true
+  value     = module.target-infrastructure.config.context.gcp.gce
 }
