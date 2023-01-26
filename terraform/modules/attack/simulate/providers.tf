@@ -8,12 +8,12 @@ provider "helm" {
   }
 }
 
-provider "aws" {
-  alias = "attacker"
-  profile = var.attacker_aws_profile
-}
+# provider "aws" {
+#   alias = "attacker"
+#   profile = var.attacker_aws_profile
+# }
 
-provider "aws" {
-  alias = "target"
-  profile = var.target_aws_profile
-}
+# provider "aws" {
+#   alias = "target"
+#   profile = var.target_aws_profile
+# }

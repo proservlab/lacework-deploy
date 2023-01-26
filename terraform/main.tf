@@ -224,71 +224,71 @@ module "target-attacksurface-context" {
   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
 }
 
-#########################
-# ATTACK SURFACE DEPLOYMENT
-########################
+# #########################
+# # ATTACK SURFACE DEPLOYMENT
+# ########################
 
-# deploy attacksurface
-module "attacker-attacksurface" {
-  source = "./modules/attack/surface"
-  # attack surface config
-  config = module.attacker-attacksurface-context.config
+# # deploy attacksurface
+# module "attacker-attacksurface" {
+#   source = "./modules/attack/surface"
+#   # attack surface config
+#   config = module.attacker-attacksurface-context.config
 
-  attacker = true
+#   attacker = true
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.attacker-infrastructure-context.config
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.attacker-infrastructure-context.config
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
 
-  # module providers config
-  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+#   # module providers config
+#   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
-  # set default provider
-  providers = {
-    aws      = aws.attacker
-    lacework = lacework.attacker
-  }
-}
+#   # set default provider
+#   providers = {
+#     aws      = aws.attacker
+#     lacework = lacework.attacker
+#   }
+# }
 
-module "target-attacksurface" {
-  source = "./modules/attack/surface"
+# module "target-attacksurface" {
+#   source = "./modules/attack/surface"
 
-  target = true
+#   target = true
 
-  # attack surface config
-  config = module.target-attacksurface-context.config
+#   # attack surface config
+#   config = module.target-attacksurface-context.config
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.target-infrastructure-context.config
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.target-infrastructure-context.config
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
 
-  # module providers config
-  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+#   # module providers config
+#   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
-  # set default providers
-  providers = {
-    aws      = aws.target
-    lacework = lacework.target
-  }
-}
+#   # set default providers
+#   providers = {
+#     aws      = aws.target
+#     lacework = lacework.target
+#   }
+# }
 
 #########################
 # ATTACKSIMULATION CONFIG
@@ -371,70 +371,70 @@ module "target-attacksimulation-context" {
 # ATTACKSIMULATION DEPLOYMENT
 ########################
 
-# deploy target attacksimulation
-module "attacker-attacksimulation" {
-  source = "./modules/attack/simulate"
-  # attack surface config
-  config = module.attacker-attacksimulation-context.config
+# # deploy target attacksimulation
+# module "attacker-attacksimulation" {
+#   source = "./modules/attack/simulate"
+#   # attack surface config
+#   config = module.attacker-attacksimulation-context.config
 
-  attacker = true
+#   attacker = true
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.attacker-infrastructure-context.config
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.attacker-infrastructure-context.config
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
 
-  # compromised credentials (excluded from config to avoid dynamic dependancy...)
-  compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
+#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
+#   compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
 
-  # module providers config
-  kubeconfig_path      = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+#   # module providers config
+#   kubeconfig_path      = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
-  providers = {
-    aws      = aws.attacker
-    lacework = lacework.attacker
-  }
-}
+#   providers = {
+#     aws      = aws.attacker
+#     lacework = lacework.attacker
+#   }
+# }
 
-# deploy target attacksimulation
-module "target-attacksimulation" {
-  source = "./modules/attack/simulate"
-  # attack surface config
-  config = module.target-attacksimulation-context.config
+# # deploy target attacksimulation
+# module "target-attacksimulation" {
+#   source = "./modules/attack/simulate"
+#   # attack surface config
+#   config = module.target-attacksimulation-context.config
 
-  target = true
+#   target = true
 
-  # infrasturcture config and deployed state
-  infrastructure = {
-    # initial configuration reference
-    config = module.target-infrastructure-context.config
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = module.target-infrastructure-context.config
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = module.target-infrastructure.config
-      attacker = module.attacker-infrastructure.config
-    }
-  }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = module.target-infrastructure.config
+#       attacker = module.attacker-infrastructure.config
+#     }
+#   }
 
-  # compromised credentials (excluded from config to avoid dynamic dependancy...)
-  compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
+#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
+#   compromised_credentials = try(module.target-attacksurface.compromised_credentials, "")
 
-  # module providers config
-  kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-  attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-  target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+#   # module providers config
+#   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
+#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
+#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
 
-  providers = {
-    aws      = aws.target
-    lacework = lacework.target
-  }
-}
+#   providers = {
+#     aws      = aws.target
+#     lacework = lacework.target
+#   }
+# }
