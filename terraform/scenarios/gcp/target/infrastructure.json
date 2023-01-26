@@ -39,7 +39,8 @@
             "user_data_base64" : null
           }
         ],
-        "public_subnet"                 : "172.19.0.0/24",
+        "public_network"                : "172.18.0.0/16",
+        "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
