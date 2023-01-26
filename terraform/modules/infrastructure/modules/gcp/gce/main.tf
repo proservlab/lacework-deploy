@@ -64,37 +64,38 @@ module "vpc" {
 }
 
 # instances
-# module "instances" {
-#   for_each = { for instance in var.instances: instance.name => instance }
-#   source = "./instance"
-#   environment = var.environment
-#   deployment = var.deployment
-#   gcp_location  = var.gcp_location
-#   gcp_project_id  = var.gcp_project_id
+module "instances" {
+  for_each = { for instance in var.instances: instance.name => instance }
+  source = "./instance"
+  environment = var.environment
+  deployment = var.deployment
+  gcp_location  = var.gcp_location
+  gcp_project_id  = var.gcp_project_id
   
-#   ami           = module.amis.ami_map[each.value.ami_name]
-#   instance_type = each.value.instance_type
-#   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
+  ami           = module.amis.ami_map[each.value.ami_name]
+  instance_type = each.value.instance_type
+  public        = each.value.public
+  # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
-#   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.name : module.vpc.public_subnet.name ) : (each.value.role == "app" ? module.vpc.private_app_subnet.name : module.vpc.private_subnet.name )
-#   # vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
+  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.name : module.vpc.public_subnet.name ) : (each.value.role == "app" ? module.vpc.private_app_subnet.name : module.vpc.private_subnet.name )
+  # vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
   
-#   user_data = each.value.user_data
-#   user_data_base64 = each.value.user_data_base64
+  user_data = each.value.user_data
+  user_data_base64 = each.value.user_data_base64
 
-#   # merge additional tags including ssm deployment tag
-#   tags = merge(
-#     module.default-osconfig-tags.osconfig_default_tags,
-#     merge(
-#       {
-#         Name = "${each.value.name}-${var.environment}-${var.deployment}"
-#         environment = var.environment
-#         deployment = var.deployment
-#         public = each.value.public
-#         role = each.value.role
-#       },
-#       each.value.tags,
-#     )
-#   )
-#   service_account_email = module.service_account.service_account_email
-# }
+  # merge additional tags including ssm deployment tag
+  tags = merge(
+    module.default-osconfig-tags.osconfig_default_tags,
+    merge(
+      {
+        Name = "${each.value.name}-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
+        public = each.value.public
+        role = each.value.role
+      },
+      each.value.tags,
+    )
+  )
+  service_account_email = module.service_account.service_account_email
+}

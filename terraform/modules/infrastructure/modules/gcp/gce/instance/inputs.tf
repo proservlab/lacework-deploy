@@ -8,6 +8,11 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "public" {
+    type = bool
+    default = false
+}
+
 variable "gcp_project_id" {
   type = string
 }
