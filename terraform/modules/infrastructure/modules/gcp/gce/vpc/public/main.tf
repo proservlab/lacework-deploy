@@ -6,16 +6,16 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_compute_subnetwork" "subnetwork" {
   name                                  = "main-${var.environment}-${var.deployment}-public-subnetwork"
-  ip_cidr_range                         = var.public_network
+  ip_cidr_range                         = var.public_subnet
   region                                = var.gcp_location
   project                               = var.gcp_project_id
   network                               = google_compute_network.vpc_network.name
   purpose                               = "PUBLIC"
 
-  secondary_ip_range {
-    range_name                          = "main-${var.environment}-${var.deployment}-public-secondary-ip-range"
-    ip_cidr_range                       = var.public_subnet
-  }
+  # secondary_ip_range {
+  #   range_name                          = "main-${var.environment}-${var.deployment}-public-secondary-ip-range"
+  #   ip_cidr_range                       = var.public_subnet
+  # }
   
   depends_on = [
     google_compute_network.vpc_network,
