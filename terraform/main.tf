@@ -124,6 +124,10 @@ resource "local_file" "kubeconfig" {
   }
   content  = ""
   filename = each.value
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 #########################
