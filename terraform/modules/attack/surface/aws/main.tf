@@ -1,9 +1,10 @@
 locals {
   config = var.config
-  kubeconfig_path = try(var.infrastructure.deployed_state[var.config.context.global.environment].context.aws.eks[0].kubeconfig_path, "~/.kube/config")
+  
   default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
   target_infrastructure_config = var.infrastructure.config["target"]
+  
   target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
@@ -98,20 +99,20 @@ module "ec2-add-trusted-ingress" {
 ##########################
 
 # assign iam user cluster readonly role
-module "eks-auth" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
-  source      = "./modules/eks/eks-auth"
-  environment       = var.config.context.global.environment
-  deployment        = var.config.context.global.deployment
-  cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
+# module "eks-auth" {
+#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
+#   source      = "./modules/eks/eks-auth"
+#   environment       = var.config.context.global.environment
+#   deployment        = var.config.context.global.deployment
+#   cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
 
-  # user here needs to be created by iam module
-  iam_eks_pod_readers = var.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+#   # user here needs to be created by iam module
+#   iam_eks_pod_readers = var.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
 
-  depends_on = [
-    module.iam
-  ]                    
-}
+#   depends_on = [
+#     module.iam
+#   ]                    
+# }
 
 #########################
 # AWS SSM

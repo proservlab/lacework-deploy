@@ -1,3 +1,7 @@
+locals {
+  kubeconfig_path = pathexpand("~/.kube/gcp-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+}
+
 provider "google" {
   project = local.default_infrastructure_config.context.global.environment
   region = local.default_infrastructure_config.context.gcp.region

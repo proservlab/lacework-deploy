@@ -62,24 +62,23 @@ module "eks" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks.cluster_name
+
+  depends_on = [
+    local_file.kubeconfig
+  ]
 }
 
 # eks-autoscale
-module "eks-autoscaler" {
-  count = (length(module.eks) > 0) ? 1 : 0
-  source       = "./modules/eks-autoscale"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-  region       = local.config.context.aws.region
+# module "eks-autoscaler" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+#   source       = "./modules/eks-autoscale"
+#   environment  = local.config.context.global.environment
+#   deployment   = local.config.context.global.deployment
+#   region       = local.config.context.aws.region
   
-  cluster_name = local.config.context.aws.eks.cluster_name
-  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
-
-  depends_on = [
-    module.eks,
-    data.aws_eks_cluster_auth.cluster
-  ]
-}
+#   cluster_name = local.config.context.aws.eks.cluster_name
+#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+# }
 
 #########################
 # AWS INSPECTOR
@@ -208,7 +207,6 @@ module "lacework-daemonset" {
 
   depends_on = [
     module.eks,
-    data.aws_eks_cluster_auth.cluster,
     kubernetes_namespace.lacework
   ]
 }
@@ -225,7 +223,6 @@ module "lacework-admission-controller" {
 
   depends_on = [
     module.eks,
-    data.aws_eks_cluster_auth.cluster,
     kubernetes_namespace.lacework
   ]
 }
@@ -244,7 +241,6 @@ module "lacework-eks-audit" {
 
   depends_on = [
     module.eks,
-    data.aws_eks_cluster_auth.cluster,
     kubernetes_namespace.lacework
   ]
 }

@@ -1,38 +1,13 @@
-# Copyright 2019 Jetstack Ltd.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Resource definitions for cluster and node pools
-
-# Each argument is explained, most details are pulled from the Terraform
-# documentation. Arguments set by input variables are documented in the
-# variables.tf file.
-
-# Local values assign a name to an expression, that can then be used multiple
-# times within a module. They are used here to determine the GCP region from
-# the given location, which can be either a region or zone.
 locals {
   gcp_location_parts = split("-", var.gcp_location)
   gcp_region         = format("%s-%s", local.gcp_location_parts[0], local.gcp_location_parts[1])
-}
 
-locals {
   release_channel    = var.release_channel == "" ? [] : [var.release_channel]
   min_master_version = var.release_channel == "" ? var.min_master_version : ""
   identity_namespace = var.identity_namespace == "" ? [] : [var.identity_namespace]
-}
 
-locals {
+  kubeconfig_path = pathexpand("~/.kube/gcp-${var.environment}-${var.deployment}-kubeconfig")
+
   authenticator_security_group = var.authenticator_security_group == "" ? [] : [var.authenticator_security_group]
 }
 
@@ -371,10 +346,6 @@ data "google_container_cluster" "my_cluster" {
   ]
 }
 
-locals {
-    kubeconfig_path = pathexpand("~/.kube/gcp-${var.environment}-${var.deployment}-kubeconfig")
-}
-
 resource "null_resource" "gke_context_switcher" {
 
   triggers = {
@@ -383,17 +354,15 @@ resource "null_resource" "gke_context_switcher" {
 
   depends_on = [google_container_cluster.cluster]
 
-  # update default kubeconfig
+  # update kubeconfg specific config
   provisioner "local-exec" {
-    command = "gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}"
-  }
-
-  # update csp specific config
-  provisioner "local-exec" {
-    command = "gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}"
-
-    environment = {
-      KUBECONFIG = local.kubeconfig_path
-    }
+    command = <<-EOT
+              set -e
+              gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}
+              touch ${local.kubeconfig_path}
+              truncate -s 0 ${local.kubeconfig_path}
+              export KUBECONFIG=${local.kubeconfig_path}
+              gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}"
+              EOT
   }
 }

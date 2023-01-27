@@ -1,6 +1,5 @@
 locals {
   config = var.config
-  kubeconfig_path = try(module.gke[0].kubeconfig_path, "~/.kube/config")
 }
 
 #########################
@@ -97,6 +96,10 @@ module "gke" {
     },
   ]
   identity_namespace = "${local.config.context.gcp.project_id}.svc.id.goog"
+
+  depends_on = [
+    local_file.kubeconfig
+  ]
 }
 
 #########################

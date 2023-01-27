@@ -1,3 +1,7 @@
+output "kubeconfig_path" {
+  value = local.kubeconfig_path
+}
+
 output "cluster_endpoint" {
   value = data.google_container_cluster.my_cluster.endpoint
 }

@@ -2,36 +2,23 @@ locals {
   # ugly hack to force ignoring unconfigure aws provider
   access_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_access_key"
   secret_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_secret_key"
+
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 }
 
-data "aws_eks_cluster" "cluster" {
-  count = length(module.eks) > 0 ? 1 : 0
-  name = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
-  depends_on = [
-    module.eks
-  ]
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  count = length(module.eks) > 0 ? 1 : 0
-  name = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
-
-  depends_on = [
-    module.eks
-  ]
+# create kubeconfig
+resource "local_file" "kubeconfig" {
+  content  = ""
+  filename = local.kubeconfig_path
 }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster[0].endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster[0].certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.cluster[0].token
+  config_path = local.kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    host                   = data.aws_eks_cluster.cluster[0].endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster[0].certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.cluster[0].token
+    config_path = local.kubeconfig_path
   }
 }
 

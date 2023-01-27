@@ -1,6 +1,5 @@
 locals {
   config = var.config
-  kubeconfig_path = try(var.infrastructure.deployed_state[var.config.context.global.environment].context.gcp.gke[0].kubeconfig_path, "~/.kube/config")
   default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
   target_infrastructure_config = var.infrastructure.config["target"]
@@ -22,6 +21,12 @@ locals {
 #     public = "true"
 #   }
 # }
+
+# data "google_compute_addresses" "this" {
+#     filter = "labels.environment:engineering AND labels.deployment:test AND labels.public:true"
+# }
+
+
 
 # data "gcp_instances" "public_attacker" {
 #   provider = google.attacker
