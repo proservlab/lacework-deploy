@@ -69,16 +69,16 @@ module "eks" {
 }
 
 # eks-autoscale
-# module "eks-autoscaler" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source       = "./modules/eks-autoscale"
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-#   region       = local.config.context.aws.region
+module "eks-autoscaler" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-autoscale"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
   
-#   cluster_name = local.config.context.aws.eks.cluster_name
-#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
-# }
+  cluster_name = local.config.context.aws.eks.cluster_name
+  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+}
 
 #########################
 # AWS INSPECTOR
