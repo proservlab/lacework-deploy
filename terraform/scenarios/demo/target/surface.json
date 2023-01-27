@@ -5,8 +5,6 @@
       "deployment"           : "${ deployment }"
     },
     "aws" :  {
-      "region"        : "us-east-1",
-      "profile_name"  : "${ aws_profile }",
       "iam" :  {
         "enabled" :  false,
         "user_policies_path" :  "${ iam_power_user_policy_path }",

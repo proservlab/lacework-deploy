@@ -5,11 +5,11 @@
       "deployment"           : "${ deployment }"
     },
     "aws": {
-      "region"       : "us-east-1",
+      "region"       : "${ aws_region }",
       "profile_name" : "${ aws_profile }"
     },
     "gcp": {
-      "region"               : "us-central1",
+      "region"               : "${ gcp_region }",
       "project_id"           : "${ gcp_project }",
       "gce" : {
         "enabled"                : true,
@@ -66,6 +66,7 @@
     "lacework": {
       "server_url"   : "${ lacework_server_url }",
       "account_name" : "${ lacework_account_name }",
+      "profile_name" : "${ lacework_profile }",
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
         "enabled"    : false

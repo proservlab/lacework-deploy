@@ -5,7 +5,7 @@
       "deployment"           : "${ deployment }"
     },
     "aws": {
-      "region"        : "us-east-1",
+      "region"        : "${ aws_region }",
       "profile_name"  : "${ aws_profile }",
       
       "ec2": {
@@ -69,6 +69,7 @@
     "lacework": {
       "server_url"   : "${ lacework_server_url }",
       "account_name" : "${ lacework_account_name }",
+      "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
         "enabled" : true
       },

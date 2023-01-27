@@ -58,7 +58,7 @@
 #   value = module.target-deployed-state
 # }
 
-output "gce" {
-  sensitive = true
-  value     = module.target-infrastructure.config.context.gcp.gce
-}
+# output "gce" {
+#   sensitive = true
+#   value     = module.target-infrastructure.config.context.gcp.gce
+# }

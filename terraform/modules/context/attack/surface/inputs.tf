@@ -11,12 +11,34 @@ variable "config" {
         enable_all                = bool
       })
       gcp = object({
-        region                    = string
-        project_id                = string
+        gce = object({
+          add_trusted_ingress = object({
+            enabled                     = bool
+            trust_workstation           = bool
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            additional_trusted_sources  = list(string)
+            trusted_tcp_ports           = object({
+              from_port                 = number
+              to_port                   = number
+            })
+          })
+        })
+        osconfig = object({
+          vulnerable = object({
+            docker = object({
+              log4shellapp = object({
+                enabled                   = bool
+                listen_port               = number
+              })
+            })
+          })
+          ssh_keys = object({ 
+            enabled                     = bool
+          })
+        })
       })
       aws = object({
-        region                    = string
-        profile_name              = string
         iam = object({
           enabled                       = bool
           user_policies_path = string
@@ -62,23 +84,32 @@ variable "config" {
         psp = object({
           enabled                       = bool
         })
+        aws = object({
+          vulnerable = object({
+            voteapp = object({
+              enabled                     = bool
+              vote_service_port           = number
+              result_service_port         = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
+            rdsapp = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
+          })
+        })
+        gcp = object({
+          vulnerable = object({
+
+          })
+        })
         vulnerable = object({
           log4shellapp = object({
-            enabled                     = bool
-            service_port                = number
-            trust_attacker_source       = bool
-            trust_workstation_source    = bool
-            additional_trusted_sources  = list(string)
-          })
-          voteapp = object({
-            enabled                     = bool
-            vote_service_port           = number
-            result_service_port         = number
-            trust_attacker_source       = bool
-            trust_workstation_source    = bool
-            additional_trusted_sources  = list(string)
-          })
-          rdsapp = object({
             enabled                     = bool
             service_port                = number
             trust_attacker_source       = bool
@@ -99,18 +130,40 @@ variable "config" {
   default = {
     context = {
       global = {
-        environment               = "infra"
+        environment               = "target"
         deployment                = "default"
         disable_all               = false
         enable_all                = false
       }
       gcp = {
-        region                    = "us-central1"
-        project_id                = null
+        gce = {
+          add_trusted_ingress = {
+            enabled                     = false
+            trust_workstation           = false
+            trust_attacker_source       = false
+            trust_target_source         = false
+            additional_trusted_sources  = []
+            trusted_tcp_ports           = {
+              from_port = 1024
+              to_port = 65535
+            }
+          }
+        }
+        osconfig = {
+          vulnerable = {
+            docker = {
+              log4shellapp = {
+                enabled                   = false
+                listen_port               = 8000
+              }
+            }
+          }
+          ssh_keys = {
+            enabled                     = false
+          }
+        }
       }
       aws = {
-        region                    = "us-east-1"
-        profile_name              = "infra"
         iam = {
           enabled                       = false
           user_policies_path            = null
@@ -158,24 +211,31 @@ variable "config" {
         psp = {
           enabled                       = false
         }
+        gcp = {
+          vulnerable = {}
+        }
+        aws = {
+          vulnerable = {
+            voteapp = {
+              enabled                     = false
+              vote_service_port           = 8001
+              result_service_port         = 8002
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources = []
+            }
+
+            rdsapp = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+            }
+          }
+        }
         vulnerable = {
           log4shellapp = {
-            enabled                     = false
-            service_port                = 8000
-            trust_attacker_source       = true
-            trust_workstation_source    = true
-            additional_trusted_sources  = []
-          }
-          voteapp = {
-            enabled                     = false
-            vote_service_port           = 8001
-            result_service_port         = 8002
-            trust_attacker_source       = true
-            trust_workstation_source    = true
-            additional_trusted_sources = []
-          }
-
-          rdsapp = {
             enabled                     = false
             service_port                = 8000
             trust_attacker_source       = true
@@ -191,5 +251,10 @@ variable "config" {
         }
       }
     }
+  }
+
+  validation {
+    condition     = contains(["target","attacker"],var.config.context.global.environment)
+    error_message = "Environment must be either 'target' or 'attacker'."
   }
 }

@@ -5,7 +5,7 @@
             "deployment"                            : "${ deployment }"
         },
         "aws": {
-            "region"        : "us-east-1",
+            "region"        : "${ aws_region }",
             "profile_name"  : "${ aws_profile }",
             "ec2": {
                 "enabled"                           : true,

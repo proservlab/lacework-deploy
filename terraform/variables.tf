@@ -31,13 +31,25 @@ variable "region" {
 variable "attacker_aws_profile" {
   type        = string
   description = "attacker aws profile"
-  default     = "target"
+  default     = null
+}
+
+variable "attacker_aws_region" {
+  type        = string
+  description = "attacker aws region"
+  default     = "us-east-1"
 }
 
 variable "target_aws_profile" {
   type        = string
   description = "target aws profile"
-  default     = "target"
+  default     = null
+}
+
+variable "target_aws_region" {
+  type        = string
+  description = "target aws region"
+  default     = "us-east-1"
 }
 
 ##########################
@@ -62,15 +74,33 @@ variable "target_gcp_project" {
   default     = "target"
 }
 
+variable "target_gcp_region" {
+  type        = string
+  description = "target gcp region"
+  default     = "us-central1"
+}
+
 variable "target_gcp_lacework_project" {
   type        = string
   description = "target gcp lacework profile"
   default     = "target"
 }
 
-variable "target_gcp_region" {
+variable "target_gcp_lacework_region" {
   type        = string
-  description = "target gcp region"
+  description = "target gcp lacework region"
+  default     = "us-central1"
+}
+
+variable "attacker_gcp_lacework_project" {
+  type        = string
+  description = "attacker gcp lacework profile"
+  default     = "attacker"
+}
+
+variable "attacker_gcp_lacework_region" {
+  type        = string
+  description = "attacker gcp lacework region"
   default     = "us-central1"
 }
 

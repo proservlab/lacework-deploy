@@ -31,10 +31,15 @@ data "template_file" "attacker-infrastructure-config-file" {
     deployment = var.deployment
 
     # aws
-    aws_profile = var.attacker_aws_profile
+    aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+    aws_region  = var.attacker_aws_region
 
     # gcp
-    gcp_project = var.target_gcp_project
+    gcp_project = var.attacker_gcp_project
+    gcp_region  = var.attacker_gcp_region
+
+    # lacework
+    lacework_profile = var.lacework_profile
   }
 }
 
@@ -45,15 +50,18 @@ data "template_file" "target-infrastructure-config-file" {
     deployment = var.deployment
 
     # aws
-    aws_profile = var.target_aws_profile
+    aws_profile = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+    aws_region  = var.target_aws_region
 
     # gcp
     gcp_project          = var.target_gcp_project
+    gcp_region           = var.target_gcp_region
     gcp_lacework_project = var.target_gcp_lacework_project
 
     # lacework
     lacework_server_url   = var.lacework_server_url
     lacework_account_name = var.lacework_account_name
+    lacework_profile      = var.lacework_profile
     syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
     # slack
@@ -108,49 +116,35 @@ module "target-infrastructure-context" {
 ########################
 
 # deploy infrastructure
-module "attacker-infrastructure" {
-  source = "./modules/infrastructure"
+module "attacker-aws-infrastructure" {
+  source = "./modules/infrastructure/aws"
   config = module.attacker-infrastructure-context.config
-
-  providers = {
-    aws      = aws.attacker
-    lacework = lacework.attacker
-  }
 }
 
-module "target-infrastructure" {
-  source = "./modules/infrastructure"
+module "attacker-gcp-infrastructure" {
+  source = "./modules/infrastructure/gcp"
+  config = module.attacker-infrastructure-context.config
+}
+
+module "target-aws-infrastructure" {
+  source = "./modules/infrastructure/aws"
   config = module.target-infrastructure-context.config
-
-  providers = {
-    aws      = aws.target
-    lacework = lacework.target
-  }
 }
 
-#########################
-# DEPLOYMENT STATE LOOKUP
-########################
+module "target-gcp-infrastructure" {
+  source = "./modules/infrastructure/gcp"
+  config = module.target-infrastructure-context.config
+}
 
-# module "attacker-deployed-state" {
-#   source = "./modules/deployed-state"
-#   #config = module.attacker-infrastructure-context.config
-#   config = module.target-infrastructure.infrastructure-config
+module "attacker-lacework-infrastructure" {
+  source = "./modules/infrastructure/lacework/platform"
+  config = module.attacker-infrastructure-context.config
+}
 
-#   providers = {
-#     aws      = aws.attacker
-#   }
-# }
-
-# module "target-deployed-state" {
-#   source = "./modules/deployed-state"
-#   #config = module.target-infrastructure-context.config
-#   config = module.target-infrastructure.infrastructure-config
-
-#   providers = {
-#     aws      = aws.target
-#   }
-# }
+module "target-lacework-infrastructure" {
+  source = "./modules/infrastructure/lacework/platform"
+  config = module.target-infrastructure-context.config
+}
 
 #########################
 # ATTACK SURFACE CONFIG
@@ -162,12 +156,6 @@ data "template_file" "attacker-attacksurface-config-file" {
   vars = {
     # deployment id
     deployment = var.deployment
-
-    # aws
-    aws_profile = var.attacker_aws_profile
-
-    # gcp
-    gcp_project = var.target_gcp_project
   }
 }
 
@@ -177,12 +165,6 @@ data "template_file" "target-attacksurface-config-file" {
   vars = {
     # deployment id
     deployment = var.deployment
-
-    # aws
-    aws_profile = var.target_aws_profile
-
-    # gcp
-    gcp_project = var.target_gcp_project
 
     # iam
     iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
@@ -224,71 +206,96 @@ module "target-attacksurface-context" {
   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
 }
 
-# #########################
-# # ATTACK SURFACE DEPLOYMENT
-# ########################
+#########################
+# ATTACK SURFACE DEPLOYMENT
+########################
 
-# # deploy attacksurface
-# module "attacker-attacksurface" {
-#   source = "./modules/attack/surface"
-#   # attack surface config
-#   config = module.attacker-attacksurface-context.config
+# deploy attacksurface
+module "attacker-aws-attacksurface" {
+  source = "./modules/attack/surface/aws"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
 
-#   attacker = true
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = module.attacker-infrastructure-context.config
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-infrastructure.config
-#       attacker = module.attacker-infrastructure.config
-#     }
-#   }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#   # module providers config
-#   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
 
-#   # set default provider
-#   providers = {
-#     aws      = aws.attacker
-#     lacework = lacework.attacker
-#   }
-# }
+module "attacker-gcp-attacksurface" {
+  source = "./modules/attack/surface/gcp"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
 
-# module "target-attacksurface" {
-#   source = "./modules/attack/surface"
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#   target = true
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#   # attack surface config
-#   config = module.target-attacksurface-context.config
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-gcp-infrastructure.config
+      attacker = module.attacker-gcp-infrastructure.config
+    }
+  }
+}
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = module.target-infrastructure-context.config
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-infrastructure.config
-#       attacker = module.attacker-infrastructure.config
-#     }
-#   }
+module "target-aws-attacksurface" {
+  source = "./modules/attack/surface/aws"
 
-#   # module providers config
-#   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
+  # initial configuration reference
+  config = module.target-attacksurface-context.config
 
-#   # set default providers
-#   providers = {
-#     aws      = aws.target
-#     lacework = lacework.target
-#   }
-# }
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
+
+module "target-gcp-attacksurface" {
+  source = "./modules/attack/surface/gcp"
+
+  # initial configuration reference
+  config = module.target-attacksurface-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-gcp-infrastructure.config
+      attacker = module.attacker-gcp-infrastructure.config
+    }
+  }
+}
 
 #########################
 # ATTACKSIMULATION CONFIG
@@ -302,10 +309,19 @@ data "template_file" "attacker-attacksimulation-config-file" {
     deployment = var.deployment
 
     # aws
-    aws_profile = var.target_aws_profile
+    attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+    attacker_aws_region  = var.attacker_aws_region
+    target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+    target_aws_region    = var.target_aws_region
+
+    # gcp
+    attacker_gcp_project        = var.attacker_gcp_project
+    attacker_gcp_region         = var.attacker_gcp_region
+    target_gcp_project          = var.target_gcp_project
+    target_gcp_region           = var.target_gcp_region
+    target_gcp_lacework_project = var.target_gcp_lacework_project
 
     # variables
-    # compromised_credentials = jsonencode(module.target-attacksurface.compromised_credentials)
     compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
     attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
@@ -322,7 +338,17 @@ data "template_file" "target-attacksimulation-config-file" {
     deployment = var.deployment
 
     # aws
-    aws_profile = var.target_aws_profile
+    attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+    attacker_aws_region  = var.attacker_aws_region
+    target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+    target_aws_region    = var.target_aws_region
+
+    # gcp
+    attacker_gcp_project        = var.attacker_gcp_project
+    attacker_gcp_region         = var.attacker_gcp_region
+    target_gcp_project          = var.target_gcp_project
+    target_gcp_region           = var.target_gcp_region
+    target_gcp_lacework_project = var.target_gcp_lacework_project
 
     # variables
     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
@@ -396,13 +422,8 @@ module "target-attacksimulation-context" {
 
 #   # module providers config
 #   kubeconfig_path      = try(module.attacker-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
-
-#   providers = {
-#     aws      = aws.attacker
-#     lacework = lacework.attacker
-#   }
+#   attacker_aws_profile = try(module.attacker-infrastructure-context.config.context.aws.profile_name,"")
+#   target_aws_profile   = try(module.target-infrastructure-context.config.context.aws.profile_name,"")
 # }
 
 # # deploy target attacksimulation
@@ -430,11 +451,6 @@ module "target-attacksimulation-context" {
 
 #   # module providers config
 #   kubeconfig_path      = try(module.target-infrastructure.eks[0].kubeconfig_path, "~/.kube/config")
-#   attacker_aws_profile = module.attacker-infrastructure-context.config.context.aws.profile_name
-#   target_aws_profile   = module.target-infrastructure-context.config.context.aws.profile_name
-
-#   providers = {
-#     aws      = aws.target
-#     lacework = lacework.target
-#   }
+#   attacker_aws_profile = try(module.attacker-infrastructure-context.config.context.aws.profile_name,"")
+#   target_aws_profile   = try(module.target-infrastructure-context.config.context.aws.profile_name,"")
 # }
