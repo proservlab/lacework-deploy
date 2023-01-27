@@ -111,6 +111,21 @@ module "target-infrastructure-context" {
   config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
 }
 
+########################
+# KUBECONFIG STAGING
+########################
+
+resource "local_file" "kubeconfig" {
+  for_each = {
+    aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    aws_target_kubeconfig_path = pathexpand("~/.kube/aws-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    gcp_attacker_kubeconfig_path = pathexpand("~/.kube/aws-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    gcp_target_kubeconfig_path = pathexpand("~/.kube/aws-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
+  }
+  content  = ""
+  filename = each.value
+}
+
 #########################
 # INFRASTRUCTURE DEPLOYMENT
 ########################
