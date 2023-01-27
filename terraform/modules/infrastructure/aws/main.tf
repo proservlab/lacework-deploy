@@ -62,10 +62,6 @@ module "eks" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks.cluster_name
-
-  depends_on = [
-    local_file.kubeconfig
-  ]
 }
 
 # eks-autoscale
