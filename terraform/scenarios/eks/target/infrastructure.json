@@ -71,7 +71,7 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
@@ -81,15 +81,15 @@
         "enabled" : false
       },
       "agent": {
-        "enabled" : false,
+        "enabled" : true,
 
         "kubernetes": {
-          "enabled" : false,
+          "enabled" : true,
           "proxy_scanner": {
-            "enabled" : false
+            "enabled" : true
           },
           "daemonset": {
-            "enabled"        : false,
+            "enabled"        : true,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
@@ -99,24 +99,24 @@
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : false
+            "enabled" : true
           }
         }
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_agentless": {
         "enabled" : false
       },
       "alerts": {
-        "enabled" : false,
+        "enabled" : true,
         "slack": {
-          "enabled"   : false,
+          "enabled"   : true,
           "api_token" : "${ slack_token }"
         },
         "jira": {
-          "enabled"           : false,
+          "enabled"           : true,
           "cloud_url"         : "${ jira_cloud_url }",
           "cloud_username"    : "${ jira_cloud_username }",
           "cloud_api_token"   : "${ jira_cloud_api_token }",
