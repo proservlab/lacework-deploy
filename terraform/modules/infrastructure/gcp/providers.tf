@@ -1,5 +1,5 @@
 locals{
-  kubeconfig_path = pathexpand("~/.kube/gcp-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = fileexists(try(module.gke[0].kubeconfig_path,"")) ? module.eks[0].kubeconfig_path : pathexpand("~/.kube/gcp-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 }
 
 provider "google" {
