@@ -15,7 +15,8 @@ locals {
 
 # get current context security group
 data "aws_security_groups" "public" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (
+    var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
   tags = {
     environment = var.config.context.global.environment
     deployment  = var.config.context.global.deployment
@@ -99,20 +100,20 @@ module "ec2-add-trusted-ingress" {
 ##########################
 
 # assign iam user cluster readonly role
-# module "eks-auth" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
-#   source      = "./modules/eks/eks-auth"
-#   environment       = var.config.context.global.environment
-#   deployment        = var.config.context.global.deployment
-#   cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
+module "eks-auth" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
+  source      = "./modules/eks/eks-auth"
+  environment       = var.config.context.global.environment
+  deployment        = var.config.context.global.deployment
+  cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
 
-#   # user here needs to be created by iam module
-#   iam_eks_pod_readers = var.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+  # user here needs to be created by iam module
+  iam_eks_pod_readers = var.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
 
-#   depends_on = [
-#     module.iam
-#   ]                    
-# }
+  depends_on = [
+    module.iam
+  ]                    
+}
 
 #########################
 # AWS SSM

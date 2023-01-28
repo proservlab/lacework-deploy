@@ -5,6 +5,8 @@
             "deployment"                            : "${ deployment }"
         },
         "aws": {
+            "region"        : "${ aws_region }",
+            "profile_name"  : "${ aws_profile }",
             "ec2": {
                 "enabled"                           : false,
                 "public_network"                    : "172.28.0.0/16",

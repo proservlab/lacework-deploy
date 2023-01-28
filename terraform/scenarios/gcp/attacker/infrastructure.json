@@ -5,8 +5,8 @@
             "deployment"                            : "${ deployment }"
         },
         "aws": {
-            "region"       : "${ aws_region }",
-            "profile_name": "${ aws_profile }"
+            "region"        : "${ aws_region }",
+            "profile_name"  : "${ aws_profile }"
         },
         "gcp": {
             "region"               : "${ gcp_region }",
