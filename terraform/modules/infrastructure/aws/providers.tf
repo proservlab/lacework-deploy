@@ -3,7 +3,8 @@ locals {
   access_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_access_key"
   secret_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_secret_key"
 
-  kubeconfig_path = can(fileexists(try(module.eks[0].kubeconfig_path,""))) ? module.eks[0].kubeconfig_path : pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  default_kubeconfig_path = pathexpand("~/.kube/aws-${var.config.context.global.environment}-${var.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = try(module.eks[0].kubeconfig_path, local.default_kubeconfig_path)
 }
 
 provider "kubernetes" {
