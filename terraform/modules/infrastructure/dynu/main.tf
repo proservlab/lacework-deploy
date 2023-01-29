@@ -6,7 +6,7 @@ resource "null_resource" "cname_dns_record" {
   }
   triggers = {
     dynu_api_token  = var.dynu_api_token 
-    dynu_api_token     = var.dynu_api_token
+    dynu_dns_domain = var.dynu_dns_domain
   }
   provisioner "local-exec" {
     command =   <<-EOT
@@ -38,7 +38,7 @@ resource "null_resource" "a_dns_record" {
   }
   triggers = {
     dynu_api_token  = var.dynu_api_token 
-    dynu_api_token     = var.dynu_api_token
+    dynu_dns_domain     = var.dynu_dns_domain
   }
   provisioner "local-exec" {
     command =   <<-EOT
