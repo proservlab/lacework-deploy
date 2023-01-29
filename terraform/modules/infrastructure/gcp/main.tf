@@ -132,17 +132,17 @@ module "lacework-gcp-agentless" {
   }
 }
 
-# resource "kubernetes_namespace" "lacework" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true && length(module.gke) >0 ) ) ? 1 : 0
+resource "kubernetes_namespace" "lacework" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gke.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.gke_audit_logs.enabled == true ) && can(module.gke[0].kubeconfig_path) == true ) ? 1 : 0
   
-#   metadata {
-#     name = "lacework"
-#   }
+  metadata {
+    name = "lacework"
+  }
 
-#   depends_on = [
-#     module.gke
-#   ]
-# }
+  depends_on = [
+    module.gke
+  ]
+}
 
 # lacework daemonset and kubernetes compliance
 module "lacework-daemonset" {

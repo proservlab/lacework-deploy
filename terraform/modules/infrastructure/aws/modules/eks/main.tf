@@ -6,15 +6,23 @@ locals {
     kubeconfig_path = pathexpand("~/.kube/aws-${var.environment}-${var.deployment}-kubeconfig")
 }
 
+data "aws_eks_cluster" "provider" {
+  name = aws_eks_cluster.cluster.id
+  depends_on = [
+    aws_eks_cluster.cluster
+  ]
+}
+
 data "template_file" "kubeconfig" {
   template = file("${path.module}/resources/kubeconfig.yaml.tpl")
 
   vars = {
-    cluster_endpoint = aws_eks_cluster.cluster.endpoint
-    cluster_certificate_authority = aws_eks_cluster.cluster.certificate_authority[0].data
+    cluster_endpoint = data.aws_eks_cluster.provider.endpoint
+    cluster_certificate_authority = data.aws_eks_cluster.provider.certificate_authority[0].data
+    cluster_arn = data.aws_eks_cluster.provider.arn
     aws_profile_name = var.aws_profile_name
     aws_region = var.region
-    cluster_name = "${var.cluster_name}-${var.environment}-${var.deployment}"
+    cluster_name = data.aws_eks_cluster.provider.id
   }
 }
 
