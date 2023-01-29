@@ -32,10 +32,6 @@ resource "null_resource" "gke_context_switcher" {
     command = <<-EOT
               set -e
               gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}
-              touch ${local.kubeconfig_path}
-              truncate -s 0 ${local.kubeconfig_path}
-              export KUBECONFIG=${local.kubeconfig_path}
-              gcloud container clusters get-credentials ${var.cluster_name}-${var.environment}-${var.deployment} --region=${var.gcp_location}"
               EOT
   }
 }

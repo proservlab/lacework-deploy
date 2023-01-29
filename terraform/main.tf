@@ -115,15 +115,20 @@ module "target-infrastructure-context" {
 # KUBECONFIG STAGING
 ########################
 
-resource "local_file" "kubeconfig" {
+resource "null_resource" "kubeconfig" {
   for_each = {
     aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
     aws_target_kubeconfig_path   = pathexpand("~/.kube/aws-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
     gcp_attacker_kubeconfig_path = pathexpand("~/.kube/gcp-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
     gcp_target_kubeconfig_path   = pathexpand("~/.kube/gcp-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
   }
-  content  = ""
-  filename = each.value
+
+  # stage kubeconfig
+  provisioner "local-exec" {
+    command = <<-EOT
+              touch ${each.value}
+              EOT
+  }
 }
 
 #########################
