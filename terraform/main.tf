@@ -166,6 +166,24 @@ module "target-lacework-infrastructure" {
   config = module.target-infrastructure-context.config
 }
 
+module "dns-test" {
+  source = "./modules/infrastructure/dynu"
+  dynu_api_token = var.dynu_api_token
+  dynu_dns_domain = var.dynu_dns_domain
+  records = [
+    {
+      recordType = "a"
+      recordName = "a"
+      recordValue = "8.8.8.8"
+    },
+    {
+      recordType = "cname"
+      recordName = "cname"
+      recordValue = "google.com"
+    },
+  ]
+}
+
 #########################
 # ATTACK SURFACE CONFIG
 ########################
