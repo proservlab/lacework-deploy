@@ -38,6 +38,7 @@ resource "null_resource" "eks_context_switcher" {
                 echo 'Applying Auth ConfigMap with kubectl...'
                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}-${var.environment}-${var.deployment}'
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}-${var.environment}-${var.deployment}' --alias '${var.cluster_name}-${var.region}-${var.environment}-${var.deployment}' --region=${var.region}
+                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}-${var.environment}-${var.deployment}' --alias '${var.cluster_name}-${var.region}-${var.environment}-${var.deployment}' --region=${var.region} --kubeconfig=${local.kubeconfig_path}
               EOT
   }
 }
