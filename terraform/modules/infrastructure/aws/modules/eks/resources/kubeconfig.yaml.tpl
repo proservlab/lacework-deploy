@@ -27,4 +27,4 @@ users:
         command: aws
         env:
         - name: AWS_PROFILE
-          value: ${var.aws_profile_name}
+          value: ${ aws_profile_name }

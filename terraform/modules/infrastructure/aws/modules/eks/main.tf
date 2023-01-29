@@ -12,6 +12,7 @@ data "template_file" "kubeconfig" {
   vars = {
     cluster_endpoint = aws_eks_cluster.cluster.endpoint
     cluster_certificate_authority = aws_eks_cluster.cluster.certificate_authority[0].data
+    aws_profile_name = var.aws_profile_name
     aws_region = var.region
     cluster_name = "${var.cluster_name}-${var.environment}-${var.deployment}"
   }
