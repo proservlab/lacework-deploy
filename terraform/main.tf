@@ -231,49 +231,49 @@ module "target-attacksurface-context" {
 ########################
 
 # deploy attacksurface
-# module "attacker-aws-attacksurface" {
-#   source = "./modules/attack/surface/aws"
-#   # attack surface config
-#   config = module.attacker-attacksurface-context.config
+module "attacker-aws-attacksurface" {
+  source = "./modules/attack/surface/aws"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-aws-infrastructure.config
-#       attacker = module.attacker-aws-infrastructure.config
-#     }
-#   }
-# }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
 
-# module "attacker-gcp-attacksurface" {
-#   source = "./modules/attack/surface/gcp"
-#   # attack surface config
-#   config = module.attacker-attacksurface-context.config
+module "attacker-gcp-attacksurface" {
+  source = "./modules/attack/surface/gcp"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-gcp-infrastructure.config
-#       attacker = module.attacker-gcp-infrastructure.config
-#     }
-#   }
-# }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-gcp-infrastructure.config
+      attacker = module.attacker-gcp-infrastructure.config
+    }
+  }
+}
 
 module "target-aws-attacksurface" {
   source = "./modules/attack/surface/aws"
@@ -296,26 +296,26 @@ module "target-aws-attacksurface" {
   }
 }
 
-# module "target-gcp-attacksurface" {
-#   source = "./modules/attack/surface/gcp"
+module "target-gcp-attacksurface" {
+  source = "./modules/attack/surface/gcp"
 
-#   # initial configuration reference
-#   config = module.target-attacksurface-context.config
+  # initial configuration reference
+  config = module.target-attacksurface-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = module.target-gcp-infrastructure.config
-#       attacker = module.attacker-gcp-infrastructure.config
-#     }
-#   }
-# }
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-gcp-infrastructure.config
+      attacker = module.attacker-gcp-infrastructure.config
+    }
+  }
+}
 
 #########################
 # ATTACKSIMULATION CONFIG
