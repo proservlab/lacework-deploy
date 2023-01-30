@@ -14,9 +14,8 @@ output "cluster_node_group" {
   value = aws_eks_node_group.cluster
 }
 
-
 output "cluster_name" {
-  value = var.cluster_name
+  value = aws_eks_cluster.cluster.id
 }
 
 output "cluster_endpoint" {

@@ -166,22 +166,72 @@ module "target-lacework-infrastructure" {
   config = module.target-infrastructure-context.config
 }
 
-module "dns-test" {
+locals {
+  target_aws_a_records = [
+    for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
+    [
+      for compute in ec2.instances : {
+        recordType  = "a"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-target-${var.deployment}"
+        recordValue = compute.instance.public_ip
+      } if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+  attacker_aws_a_records = [
+    for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
+    [
+      for compute in ec2.instances : {
+        recordType  = "a"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-attacker-${var.deployment}"
+        recordValue = compute.instance.public_ip
+      } if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+
+  target_gcp_a_records = [
+    for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
+    [
+      for compute in gce.instances : {
+        recordType  = "a"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-target-${var.deployment}"
+        recordValue = compute.instance.public_ip
+      } if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+  attacker_gcp_a_records = [
+    for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
+    [
+      for compute in gce.instances : {
+        recordType  = "a"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-attacker-${var.deployment}"
+        recordValue = compute.instance.public_ip
+      } if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+
+  # kubernetes service mapping
+  # cname_records =  [
+  #   for eks in can(length(module.target-infrastructure.config.context.aws.eks)) ? module.target-infrastructure.config.context.aws.eks : [] :
+  #   [
+  #     {
+  #       recordType="cname"
+  #       recordName=eks.cluster_name
+  #       recordValue=eks.cluster_nat_public_ip
+  #     } if lookup(compute.instance, "public_ip", "false") != "false"
+  #   ]
+  # ]
+}
+
+module "dynu-dns" {
   source          = "./modules/infrastructure/dynu"
   dynu_api_token  = var.dynu_api_token
   dynu_dns_domain = var.dynu_dns_domain
-  records = [
-    {
-      recordType  = "a"
-      recordName  = "a"
-      recordValue = "8.8.8.8"
-    },
-    {
-      recordType  = "cname"
-      recordName  = "cname"
-      recordValue = "google.com"
-    },
-  ]
+  records = flatten([
+    local.attacker_aws_a_records,
+    local.target_aws_a_records,
+    local.attacker_gcp_a_records,
+    local.target_gcp_a_records
+  ])
 }
 
 #########################

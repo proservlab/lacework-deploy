@@ -2,6 +2,14 @@ output "kubeconfig_path" {
   value = module.gcp-gke-kubeconfig.kubeconfig_path
 }
 
+output "cluster" {
+  value = data.google_container_cluster.my_cluster
+}
+
+output "cluster_name" {
+  value = data.google_container_cluster.my_cluster.name
+}
+
 output "cluster_endpoint" {
   value = data.google_container_cluster.my_cluster.endpoint
 }
