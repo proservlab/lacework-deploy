@@ -172,7 +172,7 @@ locals {
     [
       for compute in ec2.instances : {
         recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-target-${var.deployment}"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
         recordValue = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
@@ -182,7 +182,7 @@ locals {
     [
       for compute in ec2.instances : {
         recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-attacker-${var.deployment}"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
         recordValue = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
@@ -193,7 +193,7 @@ locals {
     [
       for compute in gce.instances : {
         recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-target-${var.deployment}"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
         recordValue = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
@@ -203,7 +203,7 @@ locals {
     [
       for compute in gce.instances : {
         recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}-attacker-${var.deployment}"
+        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
         recordValue = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
