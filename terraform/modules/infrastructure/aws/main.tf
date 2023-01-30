@@ -174,6 +174,11 @@ module "lacework-agentless" {
   deployment   = local.config.context.global.deployment
 }
 
+
+########################
+# AWS EKS Lacework
+########################
+
 resource "kubernetes_namespace" "lacework" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true ) && can(module.eks[0].kubeconfig_path) == true ) ? 1 : 0
 
@@ -183,6 +188,7 @@ resource "kubernetes_namespace" "lacework" {
 
   depends_on = [
     module.eks
+    module.eks-autoscaler
   ]
 }
 
@@ -204,6 +210,7 @@ module "lacework-daemonset" {
 
   depends_on = [
     module.eks,
+    module.eks-autoscaler
     kubernetes_namespace.lacework
   ]
 }
@@ -220,6 +227,7 @@ module "lacework-admission-controller" {
 
   depends_on = [
     module.eks,
+    module.eks-autoscaler
     kubernetes_namespace.lacework
   ]
 }
@@ -238,6 +246,7 @@ module "lacework-eks-audit" {
 
   depends_on = [
     module.eks,
+    module.eks-autoscaler
     kubernetes_namespace.lacework
   ]
 }

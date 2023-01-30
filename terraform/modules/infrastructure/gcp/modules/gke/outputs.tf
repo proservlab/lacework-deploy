@@ -1,5 +1,5 @@
 output "kubeconfig_path" {
-  value = local.kubeconfig_path
+  value = module.gcp-gke-kubeconfig.kubeconfig_path
 }
 
 output "cluster_endpoint" {

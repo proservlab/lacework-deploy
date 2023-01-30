@@ -22,6 +22,6 @@ users:
       - "--cluster"
       - "${ cluster_name }"
       - "--location"
-      - "${ gcp_region}"
+      - "${ gcp_location }"
       command: gke-gcloud-auth-plugin
       provideClusterInfo: true
