@@ -7,6 +7,11 @@ locals {
   authenticator_security_group = var.authenticator_security_group == "" ? [] : [var.authenticator_security_group]
 }
 
+data "google_compute_address" "static_ip" {
+  name    = "${var.cluster_name}-${var.environment}-${var.deployment}-nat-ip"
+  region  = "${var.gcp_location}"
+}
+
 resource "google_compute_network" "vpc_network" {
   name                    = "${var.vpc_network_name}-${var.environment}-${var.deployment}"
   auto_create_subnetworks = "false"
@@ -52,7 +57,8 @@ resource "google_compute_router_nat" "nat" {
   // refer to its attributes.
   router = google_compute_router.router[0].name
   region = google_compute_router.router[0].region
-  nat_ip_allocate_option = "AUTO_ONLY"
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips = ["${data.google_compute_address.static_ip.self_link}"]
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
   log_config {

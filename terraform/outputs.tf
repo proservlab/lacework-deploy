@@ -1,3 +1,7 @@
+output "test" {
+  value = module.target-aws-infrastructure
+}
+
 # output "target-instances" {
 #   value = [
 #     for ec2 in can(length(module.target-infrastructure.config.context.aws.ec2)) ? module.target-infrastructure.config.context.aws.ec2 : [] :

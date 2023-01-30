@@ -30,7 +30,10 @@ resource "null_resource" "eks_context_switcher" {
     always = timestamp()
   }
 
-  depends_on = [data.aws_eks_cluster.provider]
+  depends_on = [
+        data.aws_eks_cluster.provider,
+        local_file.kubeconfig
+    ]
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
@@ -42,4 +45,10 @@ resource "null_resource" "eks_context_switcher" {
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${local.kubeconfig_path}
               EOT
   }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [null_resource.eks_context_switcher]
+
+  create_duration = "60s"
 }

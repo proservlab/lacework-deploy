@@ -30,7 +30,10 @@ resource "null_resource" "gke_context_switcher" {
     always = timestamp()
   }
 
-  depends_on = [data.google_container_cluster.provider]
+  depends_on = [
+      data.google_container_cluster.provider,
+      local_file.kubeconfig
+    ]
 
   # update kubeconfg specific config
   provisioner "local-exec" {
@@ -41,4 +44,10 @@ resource "null_resource" "gke_context_switcher" {
               gcloud container clusters get-credentials ${var.cluster_name} --region=${var.gcp_location}
               EOT
   }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [null_resource.gke_context_switcher]
+
+  create_duration = "60s"
 }
