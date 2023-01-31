@@ -31,6 +31,18 @@
             },
             "user_data"        : null,
             "user_data_base64" : null
+          },
+          {
+            "name"                      : "target-private-1",
+            "public"                    : false,
+            "role"                      : "default",
+            "instance_type"             : "e2-micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
           }
         ]
       }

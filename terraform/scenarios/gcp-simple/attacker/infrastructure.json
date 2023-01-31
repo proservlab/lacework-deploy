@@ -8,7 +8,7 @@
             "region"               : "${ gcp_region }",
             "project_id"           : "${ gcp_project }",
             "gce" : {
-                "enabled"                           : false,
+                "enabled"                           : true,
                 "public_network"                    : "172.28.0.0/16",
                 "public_subnet"                     : "172.28.0.0/24",
                 "public_app_network"                : "172.29.0.0/16",

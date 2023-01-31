@@ -1,19 +1,18 @@
 resource "google_compute_network" "vpc_network" {
-  name                                  = "main-${var.environment}-${var.deployment}-public-vpc"
+  name                                  = "main-${var.environment}-${var.deployment}-public-${var.role}-vpc"
   auto_create_subnetworks               = "false"
   project                               = var.gcp_project_id
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name                                  = "main-${var.environment}-${var.deployment}-public-subnetwork"
+  name                                  = "main-${var.environment}-${var.deployment}-public-${var.role}-subnetwork"
   ip_cidr_range                         = var.public_subnet
   region                                = var.gcp_location
   project                               = var.gcp_project_id
   network                               = google_compute_network.vpc_network.name
-  purpose                               = "PUBLIC"
 
   # secondary_ip_range {
-  #   range_name                          = "main-${var.environment}-${var.deployment}-public-secondary-ip-range"
+  #   range_name                          = "main-${var.environment}-${var.deployment}-public-${var.role}-secondary-ip-range"
   #   ip_cidr_range                       = var.public_subnet
   # }
   
@@ -24,8 +23,8 @@ resource "google_compute_subnetwork" "subnetwork" {
 
 resource "google_compute_firewall" "ingress_rules" {
   count                   = length(var.public_ingress_rules)
-  name                    = "main-${var.environment}-${var.deployment}-public-ingress-rule"
-  description             = "main-${var.environment}-${var.deployment}-public-ingress-rule"
+  name                    = "main-${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
+  description             = "main-${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
   direction               = "INGRESS"
   network                 = google_compute_network.vpc_network.name
   project                 = var.gcp_project_id
@@ -39,8 +38,8 @@ resource "google_compute_firewall" "ingress_rules" {
 
 resource "google_compute_firewall" "egress_rules" {
   count                   = length(var.public_egress_rules)
-  name                    = "main-${var.environment}-${var.deployment}-public-egress-rule"
-  description             = "main-${var.environment}-${var.deployment}-public-egress-rule"
+  name                    = "main-${var.environment}-${var.deployment}-public-${var.role}-egress-rule"
+  description             = "main-${var.environment}-${var.deployment}-public-${var.role}-egress-rule"
   direction               = "EGRESS"
   network                 = google_compute_network.vpc_network.name
   project                 = var.gcp_project_id

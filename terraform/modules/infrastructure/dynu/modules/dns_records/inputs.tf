@@ -1,12 +1,3 @@
-##################################################
-# Context
-##################################################
-
-variable "config" {
-  type = any
-  description = "For validation and structure see ./modules/context/infrastructure/inputs.tf"
-}
-
 variable "dynu_api_token" {
     type = string
 }
@@ -15,7 +6,7 @@ variable "dynu_dns_domain" {
     type = string
 }
 
-variable "records" {
+variable records {
     type = list(object({
         recordType = string
         recordName = string

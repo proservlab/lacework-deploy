@@ -321,20 +321,22 @@ locals {
     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
       for compute in gce.instances : {
-        recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
-        recordValue = compute.instance.public_ip
-      } if lookup(compute.instance, "public_ip", "false") != "false"
+        recordType     = "a"
+        recordName     = "${lookup(compute.instances.labels, "name", "unknown")}"
+        recordHostName = "${lookup(compute.instances.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instances.network_interface[0].access_config[0].nat_ip
+      } if lookup(compute.instances.network_interface[0].access_config[0], "nat_ip", "false") != "false"
     ]
   ]
   attacker_gcp_a_records = [
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
       for compute in gce.instances : {
-        recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
-        recordValue = compute.instance.public_ip
-      } if lookup(compute.instance, "public_ip", "false") != "false"
+        recordType     = "a"
+        recordName     = "${lookup(compute.instances.labels, "name", "unknown")}"
+        recordHostName = "${lookup(compute.instances.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instances.network_interface[0].access_config[0].nat_ip
+      } if lookup(compute.instances.network_interface[0].access_config[0], "nat_ip", "false") != "false"
     ]
   ]
 
@@ -351,9 +353,10 @@ locals {
   # ]
 }
 
-module "target-dynu-dns" {
-  count           = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? 1 : 0
-  source          = "./modules/infrastructure/dynu"
+module "target-dynu-dns-records" {
+  source = "./modules/infrastructure/dynu"
+  config = module.target-infrastructure-context.config
+
   dynu_api_token  = var.dynu_api_token
   dynu_dns_domain = var.dynu_dns_domain
   records = flatten([
@@ -362,9 +365,10 @@ module "target-dynu-dns" {
   ])
 }
 
-module "attacker-dynu-dns" {
-  count           = (module.attacker-infrastructure-context.config.context.global.enable_all == true) || (module.attacker-infrastructure-context.config.context.global.disable_all != true && module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? 1 : 0
-  source          = "./modules/infrastructure/dynu"
+module "attacker-dynu-dns-records" {
+  source = "./modules/infrastructure/dynu"
+  config = module.attacker-infrastructure-context.config
+
   dynu_api_token  = var.dynu_api_token
   dynu_dns_domain = var.dynu_dns_domain
   records = flatten([
