@@ -1,3 +1,3 @@
-## Attack Surface Modules
+################################################## Attack Surface
 
-These modules are respondible for adding attack surface to deployed infrastructure.
+These modules are responsible for adding attack surface to deployed infrastructure.

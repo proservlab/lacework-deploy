@@ -33,6 +33,9 @@
           }
         ]
       }
-    }
+    },
+    "dynu_dns" : {
+        "enabled"                        : false
+    } 
   }
 }

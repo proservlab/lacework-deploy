@@ -40,9 +40,9 @@ variable "enable_all" {
   default       = false
 }
 
-###########################
+##################################################
 # Kubernetes Admission Controller
-###########################
+##################################################
 
 variable "cluster_name" {
   description = "the kubernetes cluster name to deploy to"
@@ -57,9 +57,9 @@ variable "lacework_account_name" {
   description = "lacework account name"
 }
 
-###########################
+##################################################
 # Slack Alerts
-###########################
+##################################################
 
 variable "enable_slack_alerts" {
   description = "enable or disable slack alerts"
@@ -73,9 +73,9 @@ variable "slack_token" {
   default     = "false"
 }
 
-###########################
+##################################################
 # Jira Alerts
-###########################
+##################################################
 variable "enable_jira_cloud_alerts" {
   description = "enable or disable slack alerts"
   type        = bool
@@ -112,9 +112,9 @@ variable "jira_cloud_username" {
   default     = "false"
 }
 
-###########################
+##################################################
 # GCP Resources
-###########################
+##################################################
 
 variable "enable_gce" {
   description = "enable disable setup of gcp instances (default 2 one with osconfig enable, one not)"
@@ -141,9 +141,9 @@ variable "enable_gke_psp" {
 }
 
 
-###########################
+##################################################
 # Lacework
-###########################
+##################################################
 
 variable "lacework_gcp_project" {
   description = "project to deploy lacework resources"
@@ -210,9 +210,9 @@ variable "enable_lacework_admission_controller" {
   default = false
 }
 
-###########################
+##################################################
 # Attack
-###########################
+##################################################
 
 variable "enable_target_attacksurface_kubernetes_voteapp" {
   description = "enable disable of deployment of vulnerable voteapp to kubernetes"

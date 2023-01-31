@@ -1,6 +1,6 @@
-#########################
+##################################################
 # DEPLOYMENT CONTEXT
-#########################
+##################################################
 
 locals {
   target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
@@ -118,13 +118,13 @@ data "aws_instances" "attacker_port_forward" {
   }
 }
 
-#########################
+##################################################
 # AWS SSM SIMULATION
-#########################
+##################################################
 
-#########################
+##################################################
 # CONNECT
-#########################
+##################################################
 module "ssm-connect-badip" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.badip.enabled == true ) ? 1 : 0
   source        = "./modules/aws/ssm/connect-badip"
@@ -175,9 +175,9 @@ module "ssm-connect-reverse-shell" {
   host_port     = var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port
 }
 
-#########################
+##################################################
 # DROP
-#########################
+##################################################
 module "ssm-drop-malware-eicar" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.drop.malware.eicar.enabled == true ) ? 1 : 0
   source        = "./modules/aws/ssm/drop-malware-eicar"
@@ -187,9 +187,9 @@ module "ssm-drop-malware-eicar" {
   eicar_path    = var.config.context.aws.ssm.target.drop.malware.eicar.eicar_path
 }
 
-#########################
+##################################################
 # EXECUTE
-#########################
+##################################################
 
 module "simulation-attacker-exec-docker-compromised-credentials" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
@@ -233,9 +233,9 @@ module "ssm-execute-docker-log4shell-attack" {
   payload = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
 }
 
-#########################
+##################################################
 # LISTENER
-#########################
+##################################################
 
 module "ssm-listener-http-listener" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.listener.http.enabled == true) ? 1 : 0
@@ -258,9 +258,9 @@ module "ssm-listener-port-forward" {
   host_port     = var.config.context.aws.ssm.attacker.responder.port_forward.listen_port
 }
 
-#########################
+##################################################
 # RESPONDER
-#########################
+##################################################
 
 module "ssm-responder-port-forward" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.responder.port_forward.enabled == true) ? 1 : 0

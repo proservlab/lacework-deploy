@@ -2,17 +2,17 @@ locals {
   config = var.config
 }
 
-#########################
+##################################################
 # GENERAL
-#########################
+##################################################
 
 module "workstation-external-ip" {
   source       = "../general/workstation-external-ip"
 }
 
-#########################
+##################################################
 # AWS EC2
-#########################
+##################################################
 
 # ec2
 module "ec2" {
@@ -48,9 +48,9 @@ module "ec2" {
   private_app_nat_subnet = local.config.context.aws.ec2.private_app_nat_subnet
 }
 
-#########################
+##################################################
 # AWS EKS
-#########################
+##################################################
 
 # eks
 module "eks" {
@@ -76,9 +76,9 @@ module "eks-autoscaler" {
   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 }
 
-#########################
+##################################################
 # AWS INSPECTOR
-#########################
+##################################################
 
 # inspector
 module "inspector" {
@@ -88,9 +88,9 @@ module "inspector" {
   deployment   = local.config.context.global.deployment
 }
 
-#########################
+##################################################
 # AWS SSM 
-#########################
+##################################################
 
 # ssm deploy inspector agent
 module "ssm-deploy-inspector-agent" {
@@ -137,9 +137,9 @@ module "lacework-ssm-deployment-syscall-config" {
   syscall_config = "${path.module}/modules/ssm/deploy-lacework-syscall-config/resources/syscall_config.yaml"
 }
 
-#########################
+##################################################
 # AWS RDS
-##########################
+##################################################
 
 module "rds" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.rds.enabled == true ) ? 1 : 0
@@ -152,112 +152,4 @@ module "rds" {
   vpc_subnet                    = module.ec2[0].public_app_network
   ec2_instance_role_name        = module.ec2[0].ec2_instance_app_role.name
   trusted_sg_id                 = module.ec2[0].public_app_sg.id
-}
-
-########################
-# AWS Lacework
-########################
-
-# lacework cloud audit and config collection
-module "lacework-audit-config" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_audit_config.enabled == true ) ? 1 : 0
-  source      = "../lacework/aws/audit-config"
-  environment = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-}
-
-# lacework agentless scanning
-module "lacework-agentless" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
-  source      = "../lacework/aws/agentless"
-  environment = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-}
-
-
-########################
-# AWS EKS Lacework
-########################
-
-module "aws-eks-kubeconfig" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && can(module.eks[0].kubeconfig_path) == true ) ? 1 : 0
-  source = "./modules/eks-kubeconfig"
-  environment = local.config.context.global.environment
-  deployment = local.config.context.global.deployment
-  aws_profile_name = local.config.context.aws.profile_name
-  region = local.config.context.aws.region
-  cluster_name = module.eks[0].cluster.id
-}
-
-resource "kubernetes_namespace" "lacework" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true ) && can(module.eks[0].kubeconfig_path) == true ) ? 1 : 0
-
-  metadata {
-    name = "lacework"
-  }
-
-  depends_on = [
-    module.eks,
-    module.eks-autoscaler,
-    module.aws-eks-kubeconfig
-  ]
-}
-
-# lacework daemonset and kubernetes compliance
-module "lacework-daemonset" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true && length(module.eks) >0 ) ? 1 : 0
-  source                                = "../lacework/kubernetes/daemonset"
-  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
-  environment                           = local.config.context.global.environment
-  deployment                            = local.config.context.global.deployment
-  lacework_agent_access_token           = local.config.context.lacework.agent.token
-  lacework_server_url                   = local.config.context.lacework.server_url
-  
-  # compliance cluster agent
-  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
-  lacework_cluster_agent_cluster_region = local.config.context.aws.region
-
-  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
-
-  depends_on = [
-    module.eks,
-    module.eks-autoscaler,
-    kubernetes_namespace.lacework
-  ]
-}
-
-# lacework kubernetes admission controller
-module "lacework-admission-controller" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true && length(module.eks) >0 ) ? 1 : 0
-  source                = "../lacework/kubernetes/admission-controller"
-  environment           = local.config.context.global.environment
-  deployment            = local.config.context.global.deployment
-  
-  lacework_account_name = local.config.context.lacework.account_name
-  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
-
-  depends_on = [
-    module.eks,
-    module.eks-autoscaler,
-    kubernetes_namespace.lacework
-  ]
-}
-
-# lacework eks audit
-module "lacework-eks-audit" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true && length(module.eks) >0 ) ? 1 : 0
-  source      = "../lacework/aws/eks-audit"
-  region      = local.config.context.aws.region
-  environment = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-
-  cluster_names = [
-    "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
-  ]
-
-  depends_on = [
-    module.eks,
-    module.eks-autoscaler,
-    kubernetes_namespace.lacework
-  ]
 }

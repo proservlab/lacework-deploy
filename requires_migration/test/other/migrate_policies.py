@@ -248,7 +248,7 @@ def createPayload (awssupppresions):
             payloadsText.append(lwapitext)
             suppcount+=1
         
-    print ("### Discarded Constraints ###")
+    print ("################################################## Discarded Constraints ##################################################")
     for policy,k,v in discardedSuppressions:   
         print ("#"+policy,k,str(v))
     
@@ -259,9 +259,9 @@ def main():
         lw = LaceworkClient() # This would leverage your default Lacework CLI profile. 
         data = lw.suppressions.get("aws")
         awssuppressions = data["data"][0]["recommendationExceptions"]
-        print  ("#### Constructing the script object")
+        print  ("################################################## Constructing the script object")
         payloads=createPayload(awssuppressions)
-        print  ("#### End of script")
+        print  ("################################################## End of script")
     except:
         logging.exception("Error fetching Exceptions from LW API")
 

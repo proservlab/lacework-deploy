@@ -13,9 +13,9 @@ RUN apk update && apk add build-base
 RUN cd /app && CGO_ENABLED=0 go build -ldflags="-w -s" -o prog prog.go
 
 
-################################################
+##################################################
 # minimal scratch image v2
-################################################
+##################################################
 
 FROM scratch
 

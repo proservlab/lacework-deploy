@@ -1,6 +1,6 @@
-############################
+##################################################
 # Context
-############################
+##################################################
 
 variable "config" {
   type = object({
@@ -170,6 +170,9 @@ variable "config" {
             cloud_issue_type    = string
           })
         })
+      })
+      dynu_dns = object({
+        enabled                 = bool
       })
     })
   })
@@ -468,6 +471,9 @@ variable "config" {
             cloud_issue_type    = null
           }
         }
+      }
+      dynu_dns = {
+        enabled                 = false
       }
     }
   }

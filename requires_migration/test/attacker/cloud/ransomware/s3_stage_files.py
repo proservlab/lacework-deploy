@@ -2,12 +2,12 @@
 
 import boto3
 
-#################################
-############ Config #############
-#################################
+##################################################
+################################################## Config ##################################################
+##################################################
 aws_cli_profile = 'default'  # The AWS CLI profile to use for the attack
 bucket_name = 'proservlab-s3-bucket-to-target'  # The S3 bucket to target with the attack
-#################################
+##################################################
 
 #Creating Session With Boto3.
 session = boto3.Session(profile_name=aws_cli_profile)

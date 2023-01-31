@@ -41,6 +41,9 @@
                 "deploy_git"                     : true,
                 "deploy_docker"                  : true
             }
+        },
+        "dynu_dns" : {
+          "enabled"                        : false
         }
     }
 }

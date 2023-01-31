@@ -9,9 +9,9 @@ locals {
   attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-#########################
+##################################################
 # DEPLOYMENT CONTEXT
-#########################
+##################################################
 
 # get current context security group
 data "aws_security_groups" "public" {
@@ -46,17 +46,17 @@ data "aws_instances" "public_target" {
   instance_state_names = ["running"]
 }
 
-#########################
+##################################################
 # GENERAL
-#########################
+##################################################
 
 module "workstation-external-ip" {
   source       = "../general/workstation-external-ip"
 }
 
-#########################
+##################################################
 # AWS IAM
-##########################
+##################################################
 
 # create iam users
 module "iam" {
@@ -70,9 +70,9 @@ module "iam" {
   users             = jsondecode(file(var.config.context.aws.iam.users_path))
 }
 
-#########################
+##################################################
 # AWS EC2 SECURITY GROUP
-##########################
+##################################################
 
 # append ingress rules
 module "ec2-add-trusted-ingress" {
@@ -95,9 +95,9 @@ module "ec2-add-trusted-ingress" {
   trusted_tcp_ports             = var.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
 }
 
-#########################
+##################################################
 # AWS EKS
-##########################
+##################################################
 
 # assign iam user cluster readonly role
 module "eks-auth" {
@@ -115,10 +115,10 @@ module "eks-auth" {
   ]                    
 }
 
-#########################
+##################################################
 # AWS SSM
 # ssm tag-based surface config
-##########################
+##################################################
 
 module "ssh-keys" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
@@ -135,9 +135,9 @@ module "vulnerable-docker-log4shellspp" {
   listen_port = var.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
 }
 
-#########################
+##################################################
 # Kubernetes General
-#########################
+##################################################
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {
@@ -155,9 +155,9 @@ module "kubenetes-psp" {
   deployment  = var.config.context.global.deployment
 }
 
-#########################
+##################################################
 # Kubernetes AWS Vulnerable
-#########################
+##################################################
 
 module "vulnerable-kubernetes-voteapp" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.vulnerable.voteapp.enabled == true) ? 1 : 0
@@ -203,9 +203,9 @@ module "vulnerable-kubernetes-rdsapp" {
   additional_trusted_sources          = var.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 }
 
-#########################
+##################################################
 # Kubernetes Vulnerable
-#########################
+##################################################
 
 module "vulnerable-kubernetes-log4shellapp" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.log4shellapp.enabled == true ) ? 1 : 0

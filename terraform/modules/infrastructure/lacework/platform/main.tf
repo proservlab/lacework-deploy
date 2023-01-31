@@ -1,18 +1,22 @@
 locals {
   config = var.config
+
+  default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]
+  attacker_infrastructure_config = var.infrastructure.config["attacker"]
+  target_infrastructure_config = var.infrastructure.config["target"]
 }
 
-#########################
+##################################################
 # GENERAL
-#########################
+##################################################
 
 module "workstation-external-ip" {
   source       = "../../general/workstation-external-ip"
 }
 
-#########################
+##################################################
 # Lacework
-#########################
+##################################################
 
 # lacework alerts
 module "lacework-alerts" {

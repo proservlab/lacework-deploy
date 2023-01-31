@@ -1,4 +1,4 @@
-## Environment Variables
+################################################## Environment Variables
 
 Environment variables are stored here. They can be defined globally via variables.tfvars or per workspace via the variables-<WORKSPACE>.tfvars.
 

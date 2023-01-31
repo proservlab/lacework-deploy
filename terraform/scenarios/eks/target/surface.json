@@ -27,6 +27,43 @@
         "add_iam_user_readonly_user": {
           "enabled": false
         }
+      },
+      "ssm" :  {
+        "vulnerable" :  {
+          "docker" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            }
+          }
+        },
+        "ssh_keys" :  {
+          "enabled" :  false
+        }
+      }
+    },
+    "kubernetes" :  {
+      "app" :  {
+        "enabled" :  true
+      },
+      "psp" :  {
+        "enabled" :  false
+      },
+      "vulnerable" :  {
+        "log4shellapp" :  {
+          "enabled" :  false
+        },
+        "voteapp" :  {
+          "enabled" :  false
+        },
+        "rdsapp" :  {
+          "enabled" :  false
+        },
+        "privileged_pod" :  {
+          "enabled" :  false
+        },
+        "root_mount_fs_pod" :  {
+          "enabled" :  false
+        }
       }
     }
   }

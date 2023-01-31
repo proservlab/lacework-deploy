@@ -1,6 +1,6 @@
-#########################
+##################################################
 # GCP
-#########################
+##################################################
 
 module "gce" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gce == true ) ? 1 : 0
@@ -66,9 +66,9 @@ module "gke" {
 #   redis_enabled = false
 # }
 
-#########################
+##################################################
 # Kubernetes
-#########################
+##################################################
 
 # example of pushing kubernetes deployment via terraform
 module "kubenetes-app" {
@@ -92,9 +92,9 @@ module "kubenetes-psp" {
   ]
 }
 
-#########################
+##################################################
 # Lacework
-#########################
+##################################################
 
 resource "kubernetes_namespace" "lacework" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && (var.enable_lacework_admission_controller || var.enable_lacework_daemonset) ) ? 1 : 0
@@ -201,9 +201,9 @@ module "lacework-osconfig-deployment" {
 # }
 
 
-#########################
+##################################################
 # Attack
-#########################
+##################################################
 
 module "attack-kubernetes-voteapp" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_gke == true && var.enable_target_attacksurface_kubernetes_voteapp == true ) ? 1 : 0

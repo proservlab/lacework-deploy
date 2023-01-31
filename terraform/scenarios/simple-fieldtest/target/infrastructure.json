@@ -124,6 +124,9 @@
           "cloud_issue_type"  : "${ jira_cloud_issue_type }"
         }
       }
+    },
+    "dynu_dns" : {
+      "enabled"                        : false
     }
   }
 }

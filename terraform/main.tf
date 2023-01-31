@@ -1,6 +1,6 @@
-#########################
+##################################################
 # DEFAULT
-########################
+##################################################
 
 # unique id used for deployment
 module "deployment" {
@@ -20,9 +20,9 @@ module "default-attacksimulation-context" {
   source = "./modules/context/attack/simulate"
 }
 
-#########################
+##################################################
 # INFRASTRUCTURE CONFIG
-########################
+##################################################
 
 data "template_file" "attacker-infrastructure-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json")
@@ -96,11 +96,11 @@ data "utils_deep_merge_json" "target-infrastructure-config" {
 }
 
 
-#########################
+##################################################
 # INFRASTRUCTURE CONTEXT
-########################
+##################################################
 
-# set infrasturcture context
+# set infrasturcture context and validate the schema
 module "attacker-infrastructure-context" {
   source = "./modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config.output)
@@ -111,10 +111,11 @@ module "target-infrastructure-context" {
   config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
 }
 
-########################
+##################################################
 # KUBECONFIG STAGING
-########################
+##################################################
 
+# stage the kubeconfig files to avoid errors
 resource "null_resource" "kubeconfig" {
   for_each = {
     aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
@@ -131,9 +132,9 @@ resource "null_resource" "kubeconfig" {
   }
 }
 
-#########################
+##################################################
 # INFRASTRUCTURE DEPLOYMENT
-########################
+##################################################
 
 # deploy infrastructure
 module "attacker-aws-infrastructure" {
@@ -156,15 +157,141 @@ module "target-gcp-infrastructure" {
   config = module.target-infrastructure-context.config
 }
 
-module "attacker-lacework-infrastructure" {
+##################################################
+# INFRASTRUCTURE LACEWORK DEPLOYMENT
+#
+# Note: Lacework Kubernetes Modules Require EKS/GKE
+##################################################
+
+module "attacker-lacework-platform-infrastructure" {
   source = "./modules/infrastructure/lacework/platform"
   config = module.attacker-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
 }
 
-module "target-lacework-infrastructure" {
+module "attacker-lacework-aws-infrastructure" {
+  source = "./modules/infrastructure/lacework/aws"
+  config = module.attacker-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
+
+module "attacker-lacework-gcp-infrastructure" {
+  source = "./modules/infrastructure/lacework/gcp"
+  config = module.attacker-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
+
+module "target-lacework-platform-infrastructure" {
   source = "./modules/infrastructure/lacework/platform"
   config = module.target-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
 }
+
+module "target-lacework-aws-infrastructure" {
+  source = "./modules/infrastructure/lacework/aws"
+  config = module.target-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
+
+module "target-lacework-gcp-infrastructure" {
+  source = "./modules/infrastructure/lacework/gcp"
+  config = module.target-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = module.target-aws-infrastructure.config
+      attacker = module.attacker-aws-infrastructure.config
+    }
+  }
+}
+
+##################################################
+# INFRASTRUCTURE DYNU DNS
+##################################################
 
 locals {
   target_aws_a_records = [
@@ -222,21 +349,31 @@ locals {
   # ]
 }
 
-module "dynu-dns" {
+module "target-dynu-dns" {
+  count           = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? 1 : 0
+  source          = "./modules/infrastructure/dynu"
+  dynu_api_token  = var.dynu_api_token
+  dynu_dns_domain = var.dynu_dns_domain
+  records = flatten([
+    local.target_aws_a_records,
+    local.target_gcp_a_records
+  ])
+}
+
+module "attacker-dynu-dns" {
+  count           = (module.attacker-infrastructure-context.config.context.global.enable_all == true) || (module.attacker-infrastructure-context.config.context.global.disable_all != true && module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? 1 : 0
   source          = "./modules/infrastructure/dynu"
   dynu_api_token  = var.dynu_api_token
   dynu_dns_domain = var.dynu_dns_domain
   records = flatten([
     local.attacker_aws_a_records,
-    local.target_aws_a_records,
-    local.attacker_gcp_a_records,
-    local.target_gcp_a_records
+    local.attacker_gcp_a_records
   ])
 }
 
-#########################
+##################################################
 # ATTACK SURFACE CONFIG
-########################
+##################################################
 
 data "template_file" "attacker-attacksurface-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
@@ -279,9 +416,9 @@ data "utils_deep_merge_json" "target-attacksurface-config" {
   ]
 }
 
-#########################
+##################################################
 # ATTACK SURFACE CONTEXT
-########################
+##################################################
 
 # set attack the context
 module "attacker-attacksurface-context" {
@@ -294,9 +431,9 @@ module "target-attacksurface-context" {
   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
 }
 
-#########################
+##################################################
 # ATTACK SURFACE DEPLOYMENT
-########################
+##################################################
 
 # deploy attacksurface
 module "attacker-aws-attacksurface" {
@@ -315,8 +452,8 @@ module "attacker-aws-attacksurface" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
 }
@@ -337,8 +474,8 @@ module "attacker-gcp-attacksurface" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-gcp-infrastructure.config
-      attacker = module.attacker-gcp-infrastructure.config
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
 }
@@ -358,8 +495,8 @@ module "target-aws-attacksurface" {
     }
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
 }
@@ -379,15 +516,15 @@ module "target-gcp-attacksurface" {
     }
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-gcp-infrastructure.config
-      attacker = module.attacker-gcp-infrastructure.config
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
 }
 
-#########################
+##################################################
 # ATTACKSIMULATION CONFIG
-########################
+##################################################
 
 data "template_file" "attacker-attacksimulation-config-file" {
   template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
@@ -465,9 +602,9 @@ data "utils_deep_merge_json" "target-attacksimulation-config" {
   ]
 }
 
-#########################
+##################################################
 # ATTACKSIMULATION CONTEXT
-########################
+##################################################
 
 # set attack the context
 module "attacker-attacksimulation-context" {
@@ -481,9 +618,9 @@ module "target-attacksimulation-context" {
   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
 }
 
-#########################
+##################################################
 # ATTACKSIMULATION DEPLOYMENT
-########################
+##################################################
 
 # # deploy target attacksimulation
 # module "attacker-attacksimulation" {

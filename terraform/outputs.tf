@@ -2,8 +2,12 @@ output "test" {
   value = module.target-aws-infrastructure
 }
 
-output "dynu_records" {
-  value = module.dynu-dns.records
+output "target_dynu_records" {
+  value = try(module.target-dynu-dns[0].records, [])
+}
+
+output "attacker_dynu_records" {
+  value = try(module.attacker-dynu-dns[0].records, [])
 }
 
 # output "target-instances" {

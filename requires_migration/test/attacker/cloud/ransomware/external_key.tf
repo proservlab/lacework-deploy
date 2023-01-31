@@ -33,9 +33,9 @@ data "aws_caller_identity" "target" {
     provider = aws.target
 }
 
-#######################
+##################################################
 # TARGET
-#######################
+##################################################
 
 # create random identifier for our bucket
 resource "random_string" "bucket_unique" {
@@ -174,9 +174,9 @@ resource "aws_iam_role_policy_attachment" "s3_target_write" {
     policy_arn = aws_iam_policy.s3_target_write[0].arn
 }
 
-#######################
+##################################################
 # ATTACKER
-#######################
+##################################################
 
 resource "aws_kms_external_key" "key" {
     count = local.enable_attacker == true ? 1 : 0

@@ -71,9 +71,9 @@ variable "lacework_server_url" {
   default     = "https://api.lacework.net"
 }
 
-###########################
+##################################################
 # Slack Alerts
-###########################
+##################################################
 
 variable "enable_slack_alerts" {
   description = "enable or disable slack alerts"
@@ -87,9 +87,9 @@ variable "slack_token" {
   default     = "false"
 }
 
-###########################
+##################################################
 # Jira Alerts
-###########################
+##################################################
 variable "enable_jira_cloud_alerts" {
   description = "enable or disable slack alerts"
   type        = bool

@@ -8,9 +8,9 @@ locals {
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-# #########################
+# ##################################################
 # # DEPLOYMENT CONTEXT
-# #########################
+# ##################################################
 
 # # get current context security group
 # data "gcp_security_groups" "public" {
@@ -50,17 +50,17 @@ locals {
 #   instance_state_names = ["running"]
 # }
 
-# #########################
+# ##################################################
 # # GENERAL
-# #########################
+# ##################################################
 
 # module "workstation-external-ip" {
 #   source       = "../general/workstation-external-ip"
 # }
 
-# #########################
+# ##################################################
 # # GCP IAM
-# ##########################
+# ##################################################
 
 # # create iam users
 # module "iam" {
@@ -74,9 +74,9 @@ locals {
 #   users             = jsondecode(file(var.config.context.aws.iam.users_path))
 # }
 
-# #########################
+# ##################################################
 # # GCP GCE SECURITY GROUP
-# ##########################
+# ##################################################
 
 # # append ingress rules
 # module "gce-add-trusted-ingress" {
@@ -99,10 +99,10 @@ locals {
 #   trusted_tcp_ports             = var.config.context.gcp.gce.add_trusted_ingress.trusted_tcp_ports
 # }
 
-# #########################
+# ##################################################
 # # GCP OSCONFIG
 # # osconfig tag-based surface config
-# ##########################
+# ##################################################
 
 # module "ssh-keys" {
 #   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
@@ -119,9 +119,9 @@ locals {
 #   listen_port = var.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
 # }
 
-# #########################
+# ##################################################
 # # Kubernetes General
-# #########################
+# ##################################################
 
 # # example of pushing kubernetes deployment via terraform
 # module "kubernetes-app" {
@@ -139,9 +139,9 @@ locals {
 #   deployment  = var.config.context.global.deployment
 # }
 
-# #########################
+# ##################################################
 # # Kubernetes GCP Vulnerable
-# #########################
+# ##################################################
 
 # # module "vulnerable-kubernetes-voteapp" {
 # #   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
@@ -162,9 +162,9 @@ locals {
 # #   additional_trusted_sources    = var.config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
 # # }
 
-# #########################
+# ##################################################
 # # Kubernetes Vulnerable
-# #########################
+# ##################################################
 
 # # module "vulnerable-kubernetes-log4shellapp" {
 # #   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.log4shellapp.enabled == true ) ? 1 : 0

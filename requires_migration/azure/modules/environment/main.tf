@@ -1,6 +1,6 @@
-#########################
+##################################################
 # AWS 
-#########################
+##################################################
 module "compute" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_compute == true ) ? 1 : 0
   source        = "../compute"
@@ -18,9 +18,9 @@ module "aks" {
 }
 
 
-#########################
+##################################################
 # Kubernetes
-#########################
+##################################################
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {
@@ -44,9 +44,9 @@ module "kubenetes-psp" {
   ]
 }
 
-#########################
+##################################################
 # Lacework
-#########################
+##################################################
 resource "kubernetes_namespace" "lacework" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && (var.enable_lacework_admission_controller || var.enable_lacework_daemonset) ) ? 1 : 0
   metadata {
@@ -128,9 +128,9 @@ module "lacework-admission-controller" {
 }
 
 
-#########################
+##################################################
 # Attack
-#########################
+##################################################
 
 module "attack-kubernetes-voteapp" {
   count = (var.enable_all == true) || (var.disable_all != true && var.enable_aks == true && var.enable_target_attacksurface_kubernetes_voteapp == true ) ? 1 : 0
