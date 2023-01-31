@@ -298,9 +298,10 @@ locals {
     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
     [
       for compute in ec2.instances : {
-        recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
-        recordValue = compute.instance.public_ip
+        recordType     = "a"
+        recordName     = "${lookup(compute.instance.tags, "Name", "unknown")}"
+        recordHostName = "${lookup(compute.instance.tags, "Name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
   ]
@@ -308,9 +309,10 @@ locals {
     for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
     [
       for compute in ec2.instances : {
-        recordType  = "a"
-        recordName  = "${lookup(compute.instance.tags, "Name", "unknown")}"
-        recordValue = compute.instance.public_ip
+        recordType     = "a"
+        recordName     = "${lookup(compute.instance.tags, "Name", "unknown")}"
+        recordHostName = "${lookup(compute.instance.tags, "Name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instance.public_ip
       } if lookup(compute.instance, "public_ip", "false") != "false"
     ]
   ]
