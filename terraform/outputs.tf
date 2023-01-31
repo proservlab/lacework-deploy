@@ -25,38 +25,38 @@ output "attacker-aws-instances" {
   ]
 }
 
-output "target_kubernetes_services" {
+output "target_aws_kubernetes_services" {
   value = {
     voteapp = {
-      voteapp_vote   = module.target-attacksurface.voteapp_vote_service
-      voteapp_result = module.target-attacksurface.voteapp_result_service
+      voteapp_vote   = module.target-aws-attacksurface.voteapp_vote_service
+      voteapp_result = module.target-aws-attacksurface.voteapp_result_service
     },
     log4shellapp = {
-      log4shellapp = module.target-attacksurface.log4shellapp_service
+      log4shellapp = module.target-aws-attacksurface.log4shellapp_service
     },
     rdsapp = {
-      rdsapp = module.target-attacksurface.rdsapp_service
+      rdsapp = module.target-aws-attacksurface.rdsapp_service
     }
   }
 }
 
-output "attacker_kubernetes_services" {
+output "attacker_aws_kubernetes_services" {
   value = {
     voteapp = {
-      voteapp_vote   = module.attacker-attacksurface.voteapp_vote_service
-      voteapp_result = module.attacker-attacksurface.voteapp_result_service
+      voteapp_vote   = module.attacker-aws-attacksurface.voteapp_vote_service
+      voteapp_result = module.attacker-aws-attacksurface.voteapp_result_service
     },
     log4shellapp = {
-      log4shellapp = module.attacker-attacksurface.log4shellapp_service
+      log4shellapp = module.attacker-aws-attacksurface.log4shellapp_service
     },
     rdsapp = {
-      rdsapp = module.attacker-attacksurface.rdsapp_service
+      rdsapp = module.attacker-aws-attacksurface.rdsapp_service
     }
   }
 }
 
 # output "target-compromised-credentials" {
-#   value = [for u, k in module.target-attacksurface.compromised_credentials : "${u}:${k.rendered}"]
+#   value = [for u, k in module.target-aws-attacksurface.compromised_credentials : "${u}:${k.rendered}"]
 # }
 
 # output "gce" {
