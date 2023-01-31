@@ -10,6 +10,7 @@ variable records {
     type = list(object({
         recordType = string
         recordName = string
+        recordHostName = string
         recordValue = string
     }))
     validation {
