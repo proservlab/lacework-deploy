@@ -11,14 +11,14 @@ output "attacker_dynu_records" {
   value = try(module.attacker-dynu-dns-records.records, [])
 }
 
-output "target-aws-instances" {
-  value = [
-    for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
-    [
-      for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
-    ]
-  ]
-}
+# output "target-aws-instances" {
+#   value = [
+#     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
+#     [
+#       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
+#     ]
+#   ]
+# }
 
 output "target-gcp-instances" {
   value = [
@@ -38,14 +38,14 @@ output "target-gcp-instances" {
 #   ]
 # }
 
-# output "attacker-gcp-instances" {
-#   value = [
-#     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
-#     [
-#       for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
-#     ]
-#   ]
-# }
+output "attacker-gcp-instances" {
+  value = [
+    for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
+    [
+      for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+    ]
+  ]
+}
 
 # output "target_aws_kubernetes_services" {
 #   value = {

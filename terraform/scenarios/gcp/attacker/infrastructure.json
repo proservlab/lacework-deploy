@@ -4,10 +4,6 @@
             "environment"                           : "attacker",
             "deployment"                            : "${ deployment }"
         },
-        "aws": {
-            "region"        : "${ aws_region }",
-            "profile_name"  : "${ aws_profile }"
-        },
         "gcp": {
             "region"               : "${ gcp_region }",
             "project_id"           : "${ gcp_project }",
