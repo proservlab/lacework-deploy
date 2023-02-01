@@ -47,7 +47,7 @@ data "google_compute_instance_group" "target_private_app_default" {
 }
 
 data "google_compute_instance" "target_public" {
-  for_each = can(length(data.google_compute_instance_group.target_public_default.instances)) ? tolist(data.google_compute_instance_group.target_public_default.instances) : []
+  for_each = can(length(data.google_compute_instance_group.target_public_default.instances)) ? toset(data.google_compute_instance_group.target_public_default.instances) : {}
   self_link = each.key
   zone = data.google_compute_zones.this.names[0]
 }
