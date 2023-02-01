@@ -24,7 +24,7 @@ output "target-gcp-instances" {
   value = [
     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
-      for compute in gce.instances : compute.instances.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instances.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+      for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
     ]
   ]
 }
@@ -42,7 +42,7 @@ output "attacker-gcp-instances" {
   value = [
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
-      for compute in gce.instances : compute.instances.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instances.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+      for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
     ]
   ]
 }

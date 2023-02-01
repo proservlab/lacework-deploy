@@ -33,7 +33,7 @@ module "ssm_app_profile" {
 # build private and public vpcs
 module "vpc" {
   source = "./vpc"
-  name = "main-${var.environment}-${var.deployment}"
+  name = "${var.environment}-${var.deployment}"
   environment = var.environment
   deployment = var.deployment
 
@@ -71,7 +71,7 @@ module "instances" {
   instance_type = each.value.instance_type
   iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
-  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.id : module.vpc.public_subnet.id ) : (each.value.role == "app" ? module.vpc.private_app_subnet.id : module.vpc.private_subnet.id )
+  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.id : module.vpc.public_subnet.id ) : (each.value.role == "app" ? module.vpc.private_app_subnet.id : module.vpc.private_subnetwork.id )
   vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
   
   user_data = each.value.user_data

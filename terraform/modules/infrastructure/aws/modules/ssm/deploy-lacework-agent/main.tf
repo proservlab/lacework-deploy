@@ -26,7 +26,7 @@ module "lacework_aws_ssm_agents_install" {
 }
 
 resource "aws_resourcegroups_group" "main" {
-    name = "main-${var.environment}-${var.deployment}"
+    name = "${var.environment}-${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query)

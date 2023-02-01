@@ -2,40 +2,36 @@
 #   value = var.enable_public_vpc == true ? module.public[0].vpc : null
 # }
 
-output "public_subnet" {
-  value = var.enable_public_vpc == true ? module.public[0].subnet : null
+output "public_network" {
+  value = var.enable_public_vpc == true && can(module.public[0].network) ? module.public[0].network : null
 }
 
-# output "public_sg" {
-#   value = var.enable_public_vpc == true ? module.public[0].sg : null
-# }
+output "public_subnetwork" {
+  value = var.enable_public_vpc == true && can(module.public[0].subnetwork) ? module.public[0].subnetwork : null
+}
 
-# output "public_igw" {
-#   value = var.enable_public_vpc == true ? module.public[0].igw : null
-# }
+output "public_app_network" {
+  value = var.enable_public_vpc == true && can(module.public-app[0].network) ? module.public-app[0].network : null
+}
 
-# output "public_app_vpc" {
-#   value = var.enable_public_app_vpc == true ? module.public-app[0].vpc : null
-# }
+output "public_app_subnetwork" {
+  value = var.enable_public_vpc == true && can(module.public-app[0].subnetwork) ? module.public-app[0].subnetwork : null
+}
 
-# output "public_app_subnet" {
-#   value = var.enable_public_app_vpc == true ? module.public-app[0].subnet : null
-# }
+output "private_network" {
+  value = var.enable_private_vpc == true && can(module.private[0].network) ? module.private[0].network : null
+}
 
-# output "public_app_sg" {
-#   value = var.enable_public_app_vpc == true ? module.public-app[0].sg : null
-# }
+output "private_subnetwork" {
+  value = var.enable_private_vpc == true && can(module.private[0].subnetwork)  ? module.private[0].subnetwork : null
+}
 
-# output "public_app_igw" {
-#   value = var.enable_public_app_vpc == true ? module.public-app[0].igw : null
-# }
+output "private_app_network" {
+  value = var.enable_private_vpc == true && can(module.private-app[0].network) ? module.private-app[0].network : null
+}
 
-# output "private_vpc" {
-#   value = var.enable_private_vpc == true ? module.private[0].vpc : null
-# }
-
-output "private_subnet" {
-  value = var.enable_private_vpc == true ? module.private[0].subnet : null
+output "private_app_subnetwork" {
+  value = var.enable_private_vpc == true && can(module.private-app[0].subnetwork) ? module.private-app[0].subnetwork : null
 }
 
 # output "private_sg" {

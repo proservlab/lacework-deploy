@@ -322,10 +322,10 @@ locals {
     [
       for compute in gce.instances : {
         recordType     = "a"
-        recordName     = "${lookup(compute.instances.labels, "name", "unknown")}"
-        recordHostName = "${lookup(compute.instances.labels, "name", "unknown")}.${var.dynu_dns_domain}"
-        recordValue    = compute.instances.network_interface[0].access_config[0].nat_ip
-      } if lookup(try(compute.instances.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+        recordName     = "${lookup(compute.instance.labels, "name", "unknown")}"
+        recordHostName = "${lookup(compute.instance.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instance.network_interface[0].access_config[0].nat_ip
+      } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
     ]
   ]
   attacker_gcp_a_records = [
@@ -333,10 +333,10 @@ locals {
     [
       for compute in gce.instances : {
         recordType     = "a"
-        recordName     = "${lookup(compute.instances.labels, "name", "unknown")}"
-        recordHostName = "${lookup(compute.instances.labels, "name", "unknown")}.${var.dynu_dns_domain}"
-        recordValue    = compute.instances.network_interface[0].access_config[0].nat_ip
-      } if lookup(try(compute.instances.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+        recordName     = "${lookup(compute.instance.labels, "name", "unknown")}"
+        recordHostName = "${lookup(compute.instance.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+        recordValue    = compute.instance.network_interface[0].access_config[0].nat_ip
+      } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
     ]
   ]
 

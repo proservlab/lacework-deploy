@@ -1,12 +1,12 @@
 resource "google_compute_router" "router" {
-  name                                  = "main-${var.environment}-${var.deployment}-private-${var.role}-router"
+  name                                  = "${var.environment}-${var.deployment}-${var.role}-router"
   project = var.gcp_project_id
   region  = google_compute_subnetwork.subnetwork.region
-  network = google_compute_network.vpc_network.id
+  network = google_compute_network.network.id
 }
 
 resource "google_compute_router_nat" "nat" {
-    name                                = "main-${var.environment}-${var.deployment}-private-${var.role}-router-nat"
+    name                                = "${var.environment}-${var.deployment}-${var.role}-router-nat"
     router                              = google_compute_router.router.name
     project                             = var.gcp_project_id
     region                              = google_compute_router.router.region
@@ -19,41 +19,41 @@ resource "google_compute_router_nat" "nat" {
     }
 }
 
-resource "google_compute_network" "vpc_network" {
-    name                                = "main-${var.environment}-${var.deployment}-private-${var.role}-vpc"
+resource "google_compute_network" "network" {
+    name                                = "${var.environment}-${var.deployment}-${var.role}-vpc"
     auto_create_subnetworks             = "false"
     project                             = var.gcp_project_id
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-    name                                = "main-${var.environment}-${var.deployment}-private-${var.role}-subnetwork"
+    name                                = "${var.environment}-${var.deployment}-${var.role}-subnetwork"
     ip_cidr_range                       = var.private_subnet
     region                              = var.gcp_location
     project                             = var.gcp_project_id
-    network                             = google_compute_network.vpc_network.name
+    network                             = google_compute_network.network.name
   
     # secondary_ip_range {
-    #     range_name                      = "main-${var.environment}-${var.deployment}-private-${var.role}-secondary-ip-range"
+    #     range_name                      = "${var.environment}-${var.deployment}-${var.role}-secondary-ip-range"
     #     ip_cidr_range                   = var.private_subnet
     # }
 
     depends_on = [
-        google_compute_network.vpc_network,
+        google_compute_network.network,
     ]
 }
 
 resource "google_compute_address" "nat-ip" {
-    name                                = "main-${var.environment}-${var.deployment}-private-${var.role}-nat-ip"
+    name                                = "${var.environment}-${var.deployment}-${var.role}-nat-ip"
     project                             = var.gcp_project_id
     region                              = var.gcp_location
 }
 
 resource "google_compute_firewall" "ingress_rules" {
   count                   = length(var.private_ingress_rules)
-  name                    = "main-${var.environment}-${var.deployment}-private-${var.role}-ingress-rule"
-  description             = "main-${var.environment}-${var.deployment}-private-${var.role}-ingress-rule"
+  name                    = "${var.environment}-${var.deployment}-${var.role}-ingress-rule"
+  description             = "${var.environment}-${var.deployment}-${var.role}-ingress-rule"
   direction               = "INGRESS"
-  network                 = google_compute_network.vpc_network.name
+  network                 = google_compute_network.network.name
   project                 = var.gcp_project_id
   source_ranges           = [var.private_ingress_rules[count.index].cidr_block]
 
@@ -65,10 +65,10 @@ resource "google_compute_firewall" "ingress_rules" {
 
 resource "google_compute_firewall" "egress_rules" {
   count                   = length(var.private_egress_rules)
-  name                    = "main-${var.environment}-${var.deployment}-private-${var.role}-egress-rule"
-  description             = "main-${var.environment}-${var.deployment}-private-${var.role}-egress-rule"
+  name                    = "${var.environment}-${var.deployment}-${var.role}-egress-rule"
+  description             = "${var.environment}-${var.deployment}-${var.role}-egress-rule"
   direction               = "EGRESS"
-  network                 = google_compute_network.vpc_network.name
+  network                 = google_compute_network.network.name
   project                 = var.gcp_project_id
   destination_ranges      = [var.private_egress_rules[count.index].cidr_block]
 

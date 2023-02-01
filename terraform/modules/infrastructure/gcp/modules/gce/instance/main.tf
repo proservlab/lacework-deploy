@@ -1,3 +1,7 @@
+data "google_compute_zones" "this" {
+    region = var.gcp_location
+}
+
 locals {
   tags = {
     for key, value in var.tags :
@@ -15,7 +19,7 @@ resource "google_compute_instance" "instance" {
     machine_type = var.instance_type
     project      = var.gcp_project_id
 
-    zone         = "us-central1-a"
+    zone         = data.google_compute_zones.this.names[0]
 
     # tags = ["foo", "bar"]
 

@@ -1,3 +1,7 @@
+data "google_compute_zones" "this" {
+    region = var.gcp_location
+}
+
 locals {
   public_instance_count = length([ for instance in var.instances: instance if instance.public == true ])
   public_app_instance_count = length([ for instance in var.instances: instance if instance.public == true && instance.role == "app" ])
@@ -34,7 +38,7 @@ module "service_account" {
 # build private and public vpcs
 module "vpc" {
   source = "./vpc"
-  name = "main-${var.environment}-${var.deployment}"
+  name = "${var.environment}-${var.deployment}"
   environment = var.environment
   deployment = var.deployment
   gcp_location  = var.gcp_location
@@ -78,7 +82,7 @@ module "instances" {
   public        = each.value.public
   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
-  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.name : module.vpc.public_subnet.name ) : (each.value.role == "app" ? module.vpc.private_app_subnet.name : module.vpc.private_subnet.name )
+  subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnetwork.name : module.vpc.public_subnetwork.name ) : (each.value.role == "app" ? module.vpc.private_app_subnetwork.name : module.vpc.private_subnetwork.name )
   # vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
   
   user_data = each.value.user_data
@@ -99,4 +103,47 @@ module "instances" {
     )
   )
   service_account_email = module.service_account.service_account_email
+}
+
+locals {
+  public_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.lables.public == "true" ]
+  public_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.lables.public == "true" ]
+  private_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.lables.public == "false" ]
+  private_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.lables.public == "false" ]
+}
+
+resource "google_compute_instance_group" "public_group" {
+  count       = local.public_instance_count > 0 ? 1 : 0
+  name        = "${var.environment}-${var.deployment}-public-default-group"
+  description = "${var.environment}-${var.deployment}-public-default-group instance group"
+  zone        = data.google_compute_zones.this.names[0]
+  network     = module.vpc.public_network.id
+  instances   = local.public_instances
+}
+
+resource "google_compute_instance_group" "public_app_group" {
+  count       = local.public_app_instance_count > 0 ? 1 : 0
+  name        = "${var.environment}-${var.deployment}-public-app-group"
+  description = "${var.environment}-${var.deployment}-public-app-group instance group"
+  zone        = data.google_compute_zones.this.names[0]
+  network     = module.vpc.public_app_network.id
+  instances   = local.public_app_instances
+}
+
+resource "google_compute_instance_group" "private_group" {
+  count       = local.private_instance_count > 0 ? 1 : 0
+  name        = "${var.environment}-${var.deployment}-private-default-group"
+  description = "${var.environment}-${var.deployment}-private-default-group instance group"
+  zone        = data.google_compute_zones.this.names[0]
+  network     = module.vpc.private_network.id
+  instances   = local.private_instances
+}
+
+resource "google_compute_instance_group" "private_app_group" {
+  count       = local.private_app_instance_count > 0 ? 1 : 0
+  name        = "${var.environment}-${var.deployment}-private-app-group"
+  description = "${var.environment}-${var.deployment}-private-app-group instance group"
+  zone        = data.google_compute_zones.this.names[0]
+  network     = module.vpc.private_app_network.id
+  instances   = local.private_app_instances
 }
