@@ -138,7 +138,7 @@ variable "config" {
       }
       aws = {
         region                    = "us-east-1"
-        profile_name              = "infra"
+        profile_name              = null
         ssm = {
           target = {
             drop = {

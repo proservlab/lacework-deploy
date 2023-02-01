@@ -1,7 +1,8 @@
 locals {
   # ugly hack to force ignoring unconfigure aws provider
-  access_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_access_key"
-  secret_key = can(length(var.config.context.aws.profile_name)) ? null : "mock_secret_key"
+  access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
+  secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  
 
   default_kubeconfig_path = pathexpand("~/.kube/aws-${var.config.context.global.environment}-${var.config.context.global.deployment}-kubeconfig")
   attacker_default_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${var.config.context.global.deployment}-kubeconfig")
