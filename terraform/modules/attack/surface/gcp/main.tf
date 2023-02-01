@@ -28,7 +28,7 @@ data "google_compute_instance_group" "target_public_default" {
     zone = data.google_compute_zones.this.names[0]
 }
 
-data "google_compute_instance_group" "target_public_app_default" {
+data "google_compute_instance_group" "target_public_app" {
     provider = google.target
     name = "target-00000001-public-app-group"
     zone = data.google_compute_zones.this.names[0]
@@ -40,127 +40,42 @@ data "google_compute_instance_group" "target_private_default" {
     zone = data.google_compute_zones.this.names[0]
 }
 
-data "google_compute_instance_group" "target_private_app_default" {
+data "google_compute_instance_group" "target_private_app" {
     provider = google.target
     name = "target-00000001-private-app-group"
     zone = data.google_compute_zones.this.names[0]
 }
 
+locals {
+   target_public_default_instances = [ for compute in data.google_compute_instance_group.target_public_default.instances: compute ]
+   target_public_app_instances = [ for compute in try(data.google_compute_instance_group.target_public_app.instances,toset([])): compute ]
+   target_private_default_instances = [ for compute in try(data.google_compute_instance_group.target_private_default.instances,toset([])): compute ]
+   target_private_app_instances = [ for compute in try(data.google_compute_instance_group.target_private_app.instances,toset([])): compute ]
+}
+
 data "google_compute_instance" "target_public" {
-  for_each = can(length(data.google_compute_instance_group.target_public_default.instances)) ? toset(data.google_compute_instance_group.target_public_default.instances) : {}
+  for_each = toset(local.target_public_default_instances)
   self_link = each.key
   zone = data.google_compute_zones.this.names[0]
 }
 
-# data "google_compute_instance" "target_public_app" {
-#   for_each = data.google_compute_instance_group.target_public_app_default.instances
-#   self_link = each.key
-#   zone = data.google_compute_zones.this.names[0]
-# }
+data "google_compute_instance" "target_public_app" {
+  for_each = toset(local.target_public_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.this.names[0]
+}
 
-# data "google_compute_instance" "target_private" {
-#   for_each = data.google_compute_instance_group.target_private_default.instances
-#   self_link = each.key
-#   zone = data.google_compute_zones.this.names[0]
-# }
+data "google_compute_instance" "target_private" {
+  for_each = toset(local.target_private_default_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.this.names[0]
+}
 
-# data "google_compute_instance" "target_private_app" {
-#   for_each = data.google_compute_instance_group.target_private_app.instances
-#   self_link = each.key
-#   zone = data.google_compute_zones.this.names[0]
-# }
-
-# get current context security group
-# data "gcp_security_groups" "public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   tags = {
-#     environment = var.config.context.global.environment
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-# }
-
-# data "google_compute_addresses" "public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:${var.config.context.global.environment} AND labels.deployment:${var.config.context.global.deployment} AND labels.role:default AND labels.public:true"
-# }
-
-# data "google_compute_addresses" "public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:${var.config.context.global.environment} AND labels.deployment:${var.config.context.global.deployment} AND labels.role:app AND labels.public:true"
-# }
-
-# data "google_compute_subnetwork" "public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "${var.config.context.global.environment}-${var.config.context.global.deployment}-public-default-subnetwork"
-# }
-
-# data "google_compute_subnetwork" "public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "${var.config.context.global.environment}-${var.config.context.global.deployment}-public-app-subnetwork"
-# }
-
-# data "google_compute_addresses" "attacker_public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:attacker AND labels.deployment:${var.config.context.global.deployment} AND labels.role:default AND labels.public:true"
-# }
-
-# data "google_compute_addresses" "attacker_public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:attacker AND labels.deployment:${var.config.context.global.deployment} AND labels.role:app AND labels.public:true"
-# }
-
-# data "google_compute_subnetwork" "attacker_public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "attacker-${var.config.context.global.deployment}-public-default-subnetwork"
-# }
-
-# data "google_compute_subnetwork" "attacker_public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "attacker-${var.config.context.global.deployment}-public-app-subnetwork"
-# }
-
-# data "google_compute_addresses" "target_public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:target AND labels.deployment:${var.config.context.global.deployment} AND labels.role:default AND labels.public:true"
-# }
-
-# data "google_compute_addresses" "target_public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.gcp.gce.instances) > 0 ) ? 1 : 0
-#   filter = "labels.environment:target AND labels.deployment:${var.config.context.global.deployment} AND labels.role:app AND labels.public:true"
-# }
-
-# data "google_compute_subnetwork" "target_public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "target-${var.config.context.global.deployment}-public-default-subnetwork"
-# }
-
-# data "google_compute_subnetwork" "target_public_app" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.enabled == true && length(var.config.context.aws.ec2.instances) > 0 ) ? 1 : 0
-#   name = "${var.config.context.global.environment}-${var.config.context.global.deployment}-public-app-subnetwork"
-# }
-
-# data "gcp_instances" "public_attacker" {
-#   provider = google.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-#   instance_state_names = ["running"]
-# }
-
-# data "gcp_instances" "public_target" {
-#   provider = google.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-#   instance_state_names = ["running"]
-# }
+data "google_compute_instance" "target_private_app" {
+  for_each = toset(local.target_private_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.this.names[0]
+}
 
 ##################################################
 # GENERAL
