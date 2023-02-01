@@ -106,10 +106,10 @@ module "instances" {
 }
 
 locals {
-  public_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.lables.public == "true" ]
-  public_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.lables.public == "true" ]
-  private_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.lables.public == "false" ]
-  private_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.lables.public == "false" ]
+  public_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
+  public_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  private_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "default" && compute.instance.labels.public == "false" ]
+  private_app_instances = [ for compute in module.instances: compute.instance.id if compute.instance.labels.role == "app" && compute.instance.labels.public == "false" ]
 }
 
 resource "google_compute_instance_group" "public_group" {
