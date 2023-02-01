@@ -47,10 +47,26 @@ data "google_compute_instance_group" "target_private_app" {
 }
 
 locals {
-   target_public_default_instances = [ for compute in data.google_compute_instance_group.target_public_default.instances: compute ]
-   target_public_app_instances = [ for compute in try(data.google_compute_instance_group.target_public_app.instances,toset([])): compute ]
-   target_private_default_instances = [ for compute in try(data.google_compute_instance_group.target_private_default.instances,toset([])): compute ]
-   target_private_app_instances = [ for compute in try(data.google_compute_instance_group.target_private_app.instances,toset([])): compute ]
+   target_public_default_instances = [ for compute in can(
+      length(
+        data.google_compute_instance_group.target_public_default.instances
+      )
+    ) ? data.google_compute_instance_group.target_public_default.instances : toset([]) : compute ]
+   target_public_app_instances = [ for compute in can(
+      length(
+        data.google_compute_instance_group.target_public_app.instances
+      )
+    ) ? data.google_compute_instance_group.target_public_app.instances : toset([]) : compute ]
+   target_private_default_instances = [ for compute in can(
+      length(
+        data.google_compute_instance_group.target_private_default.instances
+      )
+    ) ? data.google_compute_instance_group.target_private_default.instances : toset([]) : compute ]
+   target_private_app_instances = [ for compute in can(
+      length(
+        data.google_compute_instance_group.target_private_app.instances
+      )
+    ) ? data.google_compute_instance_group.target_private_app.instances : toset([]) : compute ]
 }
 
 data "google_compute_instance" "target_public" {
