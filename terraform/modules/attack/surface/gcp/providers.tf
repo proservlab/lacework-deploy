@@ -9,19 +9,19 @@ locals {
 }
 
 provider "google" {
-  project = local.default_infrastructure_config.context.global.environment
+  project = local.default_infrastructure_config.context.gcp.project_id
   region = local.default_infrastructure_config.context.gcp.region
 }
 
 provider "google" {
   alias = "attacker"
-  project = local.attacker_infrastructure_config.context.global.environment
+  project = local.attacker_infrastructure_config.context.gcp.project_id
   region = local.attacker_infrastructure_config.context.gcp.region
 }
 
 provider "google" {
   alias = "target"
-  project = local.target_infrastructure_config.context.global.environment
+  project = local.target_infrastructure_config.context.gcp.project_id
   region = local.target_infrastructure_config.context.gcp.region
 }
 

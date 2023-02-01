@@ -16,6 +16,60 @@ locals {
 # # DEPLOYMENT CONTEXT
 # ##################################################
 
+
+data "google_compute_zones" "this" {
+  provider = google.target
+  region = local.default_infrastructure_config.context.gcp.region
+}
+
+data "google_compute_instance_group" "target_public_default" {
+    provider = google.target
+    name = "target-00000001-public-default-group"
+    zone = data.google_compute_zones.this.names[0]
+}
+
+data "google_compute_instance_group" "target_public_app_default" {
+    provider = google.target
+    name = "target-00000001-public-app-group"
+    zone = data.google_compute_zones.this.names[0]
+}
+
+data "google_compute_instance_group" "target_private_default" {
+    provider = google.target
+    name = "target-00000001-private-default-group"
+    zone = data.google_compute_zones.this.names[0]
+}
+
+data "google_compute_instance_group" "target_private_app_default" {
+    provider = google.target
+    name = "target-00000001-private-app-group"
+    zone = data.google_compute_zones.this.names[0]
+}
+
+data "google_compute_instance" "target_public" {
+  for_each = can(length(data.google_compute_instance_group.target_public_default.instances)) ? tolist(data.google_compute_instance_group.target_public_default.instances) : []
+  self_link = each.key
+  zone = data.google_compute_zones.this.names[0]
+}
+
+# data "google_compute_instance" "target_public_app" {
+#   for_each = data.google_compute_instance_group.target_public_app_default.instances
+#   self_link = each.key
+#   zone = data.google_compute_zones.this.names[0]
+# }
+
+# data "google_compute_instance" "target_private" {
+#   for_each = data.google_compute_instance_group.target_private_default.instances
+#   self_link = each.key
+#   zone = data.google_compute_zones.this.names[0]
+# }
+
+# data "google_compute_instance" "target_private_app" {
+#   for_each = data.google_compute_instance_group.target_private_app.instances
+#   self_link = each.key
+#   zone = data.google_compute_zones.this.names[0]
+# }
+
 # get current context security group
 # data "gcp_security_groups" "public" {
 #   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
