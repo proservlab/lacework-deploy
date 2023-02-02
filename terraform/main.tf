@@ -21,6 +21,35 @@ module "default-attacksimulation-context" {
 }
 
 ##################################################
+# KUBECONFIG STAGING
+##################################################
+
+locals {
+  kubeconfigs = [
+    pathexpand("~/.kube/aws-attacker-${var.deployment}-kubeconfig"),
+    pathexpand("~/.kube/aws-target-${var.deployment}-kubeconfig"),
+    pathexpand("~/.kube/gcp-attacker-${var.deployment}-kubeconfig"),
+    pathexpand("~/.kube/gcp-target-${var.deployment}-kubeconfig")
+  ]
+}
+# stage the kubeconfig files to avoid errors
+resource "null_resource" "kubeconfig" {
+  triggers = {
+    always = timestamp()
+  }
+  count = length(local.kubeconfigs)
+
+  # stage kubeconfig
+  provisioner "local-exec" {
+    command     = <<-EOT
+                  mkdir -p ~/.kube
+                  touch ${local.kubeconfigs[count.index]}
+                  EOT
+    interpreter = ["bash", "-c"]
+  }
+}
+
+##################################################
 # INFRASTRUCTURE CONFIG
 ##################################################
 
@@ -109,27 +138,6 @@ module "attacker-infrastructure-context" {
 module "target-infrastructure-context" {
   source = "./modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
-}
-
-##################################################
-# KUBECONFIG STAGING
-##################################################
-
-# stage the kubeconfig files to avoid errors
-resource "null_resource" "kubeconfig" {
-  for_each = {
-    aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    aws_target_kubeconfig_path   = pathexpand("~/.kube/aws-target-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    gcp_attacker_kubeconfig_path = pathexpand("~/.kube/gcp-attacker-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    gcp_target_kubeconfig_path   = pathexpand("~/.kube/gcp-target-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
-  }
-
-  # stage kubeconfig
-  provisioner "local-exec" {
-    command = <<-EOT
-              touch ${each.value}
-              EOT
-  }
 }
 
 ##################################################

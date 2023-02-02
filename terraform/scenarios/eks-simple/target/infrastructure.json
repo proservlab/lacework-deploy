@@ -5,11 +5,11 @@
       "deployment"           : "${ deployment }"
     },
     "aws": {
-      "region"        : "us-east-1",
+      "region"        : "${ aws_region }",
       "profile_name"  : "${ aws_profile }",
       
       "ec2": {
-        "enabled"                       : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -21,20 +21,6 @@
         "private_app_subnet"            : "172.17.100.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
-          {
-            "name"                      : "target-public-1",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              "ssm_deploy_lacework"              : "true",
-              "ssm_deploy_docker"                : "true",
-              "ssm_connect_oast_host"            : "true"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          }
         ]
       },
       "eks": {
@@ -113,7 +99,7 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : true
+        "enabled"                        : false
     } 
   }
 }

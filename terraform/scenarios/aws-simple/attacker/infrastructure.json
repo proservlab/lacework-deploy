@@ -34,7 +34,7 @@
             }
         },
         "dynu_dns" : {
-            "enabled"                        : false
+            "enabled"                        : true
         } 
     }
 }

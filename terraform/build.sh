@@ -123,11 +123,15 @@ check_tf_apply(){
 PLANFILE="build.tfplan"
 
 if [ "plan" = "${ACTION}" ]; then
+    echo "Staging kubeconfig..."
+    terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
     ERR=$?
     terraform show ${PLANFILE}
 elif [ "apply" = "${ACTION}" ]; then        
+    echo "Staging kubeconfig..."
+    terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
     ERR=$?

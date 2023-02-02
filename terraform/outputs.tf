@@ -1,24 +1,19 @@
-output "test" {
-  sensitive = true
-  value     = module.target-gcp-infrastructure.config
-}
-
 output "target_dynu_records" {
-  value = try(module.target-dynu-dns-records.records, [])
+  value = (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
 }
 
 output "attacker_dynu_records" {
-  value = try(module.attacker-dynu-dns-records.records, [])
+  value = (module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.attacker-dynu-dns-records.records, []) : []
 }
 
-# output "target-aws-instances" {
-#   value = [
-#     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
-#     [
-#       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
-#     ]
-#   ]
-# }
+output "target-aws-instances" {
+  value = [
+    for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
+    [
+      for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+}
 
 output "target-gcp-instances" {
   value = [
@@ -29,14 +24,14 @@ output "target-gcp-instances" {
   ]
 }
 
-# output "attacker-aws-instances" {
-#   value = [
-#     for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
-#     [
-#       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
-#     ]
-#   ]
-# }
+output "attacker-aws-instances" {
+  value = [
+    for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
+    [
+      for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+}
 
 output "attacker-gcp-instances" {
   value = [

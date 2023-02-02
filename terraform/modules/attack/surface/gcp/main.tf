@@ -68,9 +68,9 @@ locals {
       )
     ) ? data.google_compute_instance_group.target_private_default[0].instances : toset([]) : compute ]
    target_private_app_instances = [ for compute in can(
-      can(length(
+      length(
         data.google_compute_instance_group.target_private_app[0].instances
-      ))
+      )
     ) ? data.google_compute_instance_group.target_private_app[0].instances : toset([]) : compute ]
 }
 

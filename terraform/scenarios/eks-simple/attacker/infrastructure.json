@@ -20,20 +20,6 @@
                 "private_app_subnet"                : "172.27.100.0/24",
                 "private_app_nat_subnet"            : "172.27.10.0/24",
                 "instances": [
-                    {
-                        "name"                      : "attacker-public-1",
-                        "public"                    : true,
-                        "role"                      : "default",
-                        "instance_type"             : "t2.micro",
-                        "ami_name"                  : "ubuntu_focal",
-                        "tags"                      : {
-                            "ssm_exec_docker_compromised_keys_attacker" : "true",
-                            "ssm_deploy_docker"                         : "true",
-                            "ssm_deploy_git"                            : "true"
-                        },
-                        "user_data"                 : null,
-                        "user_data_base64"          : null
-                    }
                 ]
             },
             "ssm": {
@@ -43,7 +29,7 @@
             }
         },
         "dynu_dns" : {
-            "enabled"                        : true
+            "enabled"                        : false
         } 
     }
 }
