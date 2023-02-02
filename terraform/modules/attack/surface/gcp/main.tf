@@ -12,85 +12,90 @@ locals {
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-# ##################################################
-# # DEPLOYMENT CONTEXT
-# ##################################################
+##################################################
+# DEPLOYMENT CONTEXT
+##################################################
 
 
 data "google_compute_zones" "this" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
   provider = google.target
   region = local.default_infrastructure_config.context.gcp.region
 }
 
 data "google_compute_instance_group" "target_public_default" {
-    provider = google.target
-    name = "target-00000001-public-default-group"
-    zone = data.google_compute_zones.this.names[0]
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-00000001-public-default-group"
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance_group" "target_public_app" {
-    provider = google.target
-    name = "target-00000001-public-app-group"
-    zone = data.google_compute_zones.this.names[0]
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-00000001-public-app-group"
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance_group" "target_private_default" {
-    provider = google.target
-    name = "target-00000001-private-default-group"
-    zone = data.google_compute_zones.this.names[0]
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0  
+  provider = google.target
+  name = "target-00000001-private-default-group"
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance_group" "target_private_app" {
-    provider = google.target
-    name = "target-00000001-private-app-group"
-    zone = data.google_compute_zones.this.names[0]
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-00000001-private-app-group"
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 locals {
    target_public_default_instances = [ for compute in can(
       length(
-        data.google_compute_instance_group.target_public_default.instances
+        data.google_compute_instance_group.target_public_default[0].instances
       )
-    ) ? data.google_compute_instance_group.target_public_default.instances : toset([]) : compute ]
+    ) ? data.google_compute_instance_group.target_public_default[0].instances : toset([]) : compute ]
    target_public_app_instances = [ for compute in can(
       length(
-        data.google_compute_instance_group.target_public_app.instances
+        data.google_compute_instance_group.target_public_app[0].instances
       )
-    ) ? data.google_compute_instance_group.target_public_app.instances : toset([]) : compute ]
+    ) ? data.google_compute_instance_group.target_public_app[0].instances : toset([]) : compute ]
    target_private_default_instances = [ for compute in can(
       length(
-        data.google_compute_instance_group.target_private_default.instances
+        data.google_compute_instance_group.target_private_default[0].instances
       )
-    ) ? data.google_compute_instance_group.target_private_default.instances : toset([]) : compute ]
+    ) ? data.google_compute_instance_group.target_private_default[0].instances : toset([]) : compute ]
    target_private_app_instances = [ for compute in can(
-      length(
-        data.google_compute_instance_group.target_private_app.instances
-      )
-    ) ? data.google_compute_instance_group.target_private_app.instances : toset([]) : compute ]
+      can(length(
+        data.google_compute_instance_group.target_private_app[0].instances
+      ))
+    ) ? data.google_compute_instance_group.target_private_app[0].instances : toset([]) : compute ]
 }
 
 data "google_compute_instance" "target_public" {
   for_each = toset(local.target_public_default_instances)
   self_link = each.key
-  zone = data.google_compute_zones.this.names[0]
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance" "target_public_app" {
   for_each = toset(local.target_public_app_instances)
   self_link = each.key
-  zone = data.google_compute_zones.this.names[0]
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance" "target_private" {
   for_each = toset(local.target_private_default_instances)
   self_link = each.key
-  zone = data.google_compute_zones.this.names[0]
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 data "google_compute_instance" "target_private_app" {
   for_each = toset(local.target_private_app_instances)
   self_link = each.key
-  zone = data.google_compute_zones.this.names[0]
+  zone = data.google_compute_zones.this[0].names[0]
 }
 
 ##################################################
@@ -123,7 +128,7 @@ module "workstation-external-ip" {
 
 # append ingress rules
 # module "gce-add-trusted-ingress" {
-#   for_each = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gcp.add_trusted_ingress.enabled == true ) ? toset(data.gcp_security_groups.public[0].ids) : toset([ for v in []: v ])
+#   for_each = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gcp.gce.add_trusted_ingress.enabled == true ) ? toset(data.gcp_security_groups.public[0].ids) : toset([ for v in []: v ])
 #   source        = "./modules/gce/add-trusted-ingress"
 #   environment                   = var.config.context.global.environment
 #   deployment                    = var.config.context.global.deployment
