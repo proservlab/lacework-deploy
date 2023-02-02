@@ -118,10 +118,10 @@ module "target-infrastructure-context" {
 # stage the kubeconfig files to avoid errors
 resource "null_resource" "kubeconfig" {
   for_each = {
-    aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    aws_target_kubeconfig_path   = pathexpand("~/.kube/aws-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    gcp_attacker_kubeconfig_path = pathexpand("~/.kube/gcp-${module.attacker-infrastructure-context.config.context.global.environment}-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
-    gcp_target_kubeconfig_path   = pathexpand("~/.kube/gcp-${module.target-infrastructure-context.config.context.global.environment}-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    aws_attacker_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    aws_target_kubeconfig_path   = pathexpand("~/.kube/aws-target-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    gcp_attacker_kubeconfig_path = pathexpand("~/.kube/gcp-attacker-${module.attacker-infrastructure-context.config.context.global.deployment}-kubeconfig")
+    gcp_target_kubeconfig_path   = pathexpand("~/.kube/gcp-target-${module.target-infrastructure-context.config.context.global.deployment}-kubeconfig")
   }
 
   # stage kubeconfig
