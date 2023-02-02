@@ -178,8 +178,14 @@ module "attacker-lacework-platform-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      aws = {
+        target   = try(module.target-aws-infrastructure.config, {})
+        attacker = try(module.attacker-aws-infrastructure.config, {})
+      }
+      gcp = {
+        target   = try(module.target-gcp-infrastructure.config, {})
+        attacker = try(module.attacker-gcp-infrastructure.config, {})
+      }
     }
   }
 }
@@ -199,8 +205,8 @@ module "attacker-lacework-aws-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
 }
@@ -220,8 +226,8 @@ module "attacker-lacework-gcp-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
 }
@@ -262,8 +268,8 @@ module "target-lacework-aws-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
 }
@@ -283,8 +289,8 @@ module "target-lacework-gcp-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {
-      target   = module.target-aws-infrastructure.config
-      attacker = module.attacker-aws-infrastructure.config
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
 }

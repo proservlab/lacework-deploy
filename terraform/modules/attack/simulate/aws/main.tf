@@ -18,7 +18,10 @@ locals {
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-# get current context security group
+##################################################
+# DEPLOYMENT CONTEXT
+##################################################
+
 data "aws_security_groups" "public" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true ) ? 1 : 0
   tags = {
@@ -130,6 +133,14 @@ data "aws_instances" "attacker_port_forward" {
 }
 
 ##################################################
+# GENERAL
+##################################################
+
+module "workstation-external-ip" {
+  source       = "../general/workstation-external-ip"
+}
+
+##################################################
 # AWS SSM SIMULATION
 ##################################################
 
@@ -138,7 +149,7 @@ data "aws_instances" "attacker_port_forward" {
 ##################################################
 module "ssm-connect-badip" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.badip.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/connect-badip"
+  source        = "./modules/ssm/connect-badip"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
@@ -148,7 +159,7 @@ module "ssm-connect-badip" {
 
 module "ssm-connect-codecov" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/connect-codecov"
+  source        = "./modules/ssm/connect-codecov"
   environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
@@ -159,7 +170,7 @@ module "ssm-connect-codecov" {
 
 module "ssm-connect-nmap-port-scan" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.nmap_port_scan.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/connect-nmap-port-scan"
+  source        = "./modules/ssm/connect-nmap-port-scan"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
@@ -171,14 +182,14 @@ module "ssm-connect-nmap-port-scan" {
 
 module "ssm-connect-oast-host" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.oast.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/connect-oast-host"
+  source        = "./modules/ssm/connect-oast-host"
   environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 }
 
 module "ssm-connect-reverse-shell" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/connect-reverse-shell"
+  source        = "./modules/ssm/connect-reverse-shell"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
@@ -191,7 +202,7 @@ module "ssm-connect-reverse-shell" {
 ##################################################
 module "ssm-drop-malware-eicar" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.drop.malware.eicar.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/drop-malware-eicar"
+  source        = "./modules/ssm/drop-malware-eicar"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
@@ -204,7 +215,7 @@ module "ssm-drop-malware-eicar" {
 
 module "simulation-attacker-exec-docker-compromised-credentials" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/execute-docker-compromised-credentials"
+  source        = "./modules/ssm/execute-docker-compromised-credentials"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   region        = var.config.context.aws.region
@@ -221,7 +232,7 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
 
 module "ssm-execute-docker-cpuminer" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.target == true && var.config.context.aws.ssm.target.execute.docker_cpu_miner == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/execute-docker-cpu-miner"
+  source        = "./modules/ssm/execute-docker-cpu-miner"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   minergate_user = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_user
@@ -232,7 +243,7 @@ module "ssm-execute-docker-cpuminer" {
 
 module "ssm-execute-docker-log4shell-attack" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/execute-docker-log4shell-attack"
+  source        = "./modules/ssm/execute-docker-log4shell-attack"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
@@ -250,7 +261,7 @@ module "ssm-execute-docker-log4shell-attack" {
 
 module "ssm-listener-http-listener" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.listener.http.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/listener-http-listener"
+  source        = "./modules/ssm/listener-http-listener"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
@@ -260,7 +271,7 @@ module "ssm-listener-http-listener" {
 
 module "ssm-listener-port-forward" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/listener-port-forward"
+  source        = "./modules/ssm/listener-port-forward"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   port_forwards = var.config.context.aws.ssm.target.listener.port_forward.port_forwards
@@ -275,7 +286,7 @@ module "ssm-listener-port-forward" {
 
 module "ssm-responder-port-forward" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.responder.port_forward.enabled == true) ? 1 : 0
-  source        = "./modules/aws/ssm/responder-port-forward"
+  source        = "./modules/ssm/responder-port-forward"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
@@ -284,7 +295,7 @@ module "ssm-responder-port-forward" {
 
 module "ssm-responder-reverse-shell" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.attacker == true && var.config.context.aws.ssm.attacker.responder.reverse_shell.enabled == true ) ? 1 : 0
-  source        = "./modules/aws/ssm/responder-reverse-shell"
+  source        = "./modules/ssm/responder-reverse-shell"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
