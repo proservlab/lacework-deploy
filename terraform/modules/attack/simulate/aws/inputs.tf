@@ -260,31 +260,6 @@ variable "infrastructure" {
   })
 }
 
-variable "attacker" {
-  type = bool
-  default = false
-}
-
-variable "target" {
-  type = bool
-  default = false
-}
-
-variable "kubeconfig_path" {
-  type = string
-  description = "path to kubeconfig"
-}
-
-variable "attacker_aws_profile" {
-  type = string
-  description = "attacker aws profile"
-}
-
-variable "target_aws_profile" {
-  type = string
-  description = "attacker aws profile"
-}
-
 variable "compromised_credentials" {
   type = any
 }

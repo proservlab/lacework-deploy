@@ -1,21 +1,10 @@
 {
   "context" :  {
     "global": {
-      "environment"          : "shared",
+      "environment"          : "${ environment }",
       "deployment"           : "${ deployment }"
     },
     "gcp" : {
-      "config": {
-        "target": {
-          "region"        : "${ target_aws_region }",
-          "project_id"       : "${ target_aws_profile }"
-          
-        },
-        "attacker": {
-          "region"        : "${ attacker_aws_region }",
-          "project_id"  : "${ attacker_aws_profile }"
-        }
-      },
       "osconfig" : {
         "target": {
           "drop": {
@@ -113,16 +102,6 @@
       }
     },
     "aws" :  {
-      "config": {
-        "target": {
-          "region"        : "${ target_aws_region }",
-          "profile_name"  : "${ target_aws_profile }"
-        },
-        "attacker": {
-          "region"        : "${ attacker_aws_region }",
-          "profile_name"  : "${ attacker_aws_profile }"
-        }
-      },
       "ssm" :  {
         "target": {
           "drop": {
