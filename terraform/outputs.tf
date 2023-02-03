@@ -1,7 +1,7 @@
 output "environment" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? {
     # context
     scenario   = var.scenario
@@ -26,22 +26,22 @@ output "environment" {
     lacework_account_name = var.lacework_account_name
     lacework_profile      = var.lacework_profile
     syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
-  } : ""
+  } : {}
 }
 
 output "attacker" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? (
     module.attacker-infrastructure-context.config
-  ) : ""
+  ) : {}
 }
 
 output "target" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? (
     module.target-infrastructure-context.config
   ) : ""
@@ -49,8 +49,8 @@ output "target" {
 
 output "target_dynu_records" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? (
     (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
   ) : ""
@@ -58,8 +58,8 @@ output "target_dynu_records" {
 
 output "attacker_dynu_records" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? (
     (module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.attacker-dynu-dns-records.records, []) : []
   ) : ""
@@ -67,8 +67,8 @@ output "attacker_dynu_records" {
 
 output "target-aws-instances" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? [
     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
     [
@@ -79,8 +79,8 @@ output "target-aws-instances" {
 
 output "target-gcp-instances" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? [
     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
@@ -91,20 +91,20 @@ output "target-gcp-instances" {
 
 output "attacker-aws-instances" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? [
     for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
     [
       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
     ]
-  ] : ""
+  ] : []
 }
 
 output "attacker-gcp-instances" {
   value = !(
-    coalesce(module.target-infrastructure-context, "false") == "false" &&
-    coalesce(module.attacker-infrastructure-context, "false") == "false"
+    coalesce(module.target-infrastructure-context, {}) == {} &&
+    coalesce(module.attacker-infrastructure-context, {}) == {}
     ) ? [
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
