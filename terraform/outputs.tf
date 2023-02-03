@@ -1,3 +1,11 @@
+output "attacker" {
+  value = module.attacker-infrastructure-context.config
+}
+
+output "target" {
+  value = module.target-infrastructure-context.config
+}
+
 output "target_dynu_records" {
   value = (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
 }
