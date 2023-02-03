@@ -3,6 +3,7 @@
 
 SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"
+TF_WARN_OUTPUT_ERRORS=1
 
 info(){
 cat <<EOI
