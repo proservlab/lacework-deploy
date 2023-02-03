@@ -1,7 +1,7 @@
 output "environment" {
   value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
+    coalesce(module.target-infrastructure-context, "false") == "false" &&
+    coalesce(module.attacker-infrastructure-context, "false") == "false"
     ) ? {
     # context
     scenario   = var.scenario
@@ -26,7 +26,7 @@ output "environment" {
     lacework_account_name = var.lacework_account_name
     lacework_profile      = var.lacework_profile
     syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
-  } : {}
+  } : ""
 }
 
 # output "attacker" {
