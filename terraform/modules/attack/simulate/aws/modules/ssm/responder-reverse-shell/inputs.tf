@@ -49,6 +49,6 @@ variable "payload" {
   type = string
   description = "The bash commands payload to execute when target machine connects"
   default = <<-EOT
-  touch /tmp/pwned
-  EOT
+            touch /tmp/pwned
+            EOT
 }
