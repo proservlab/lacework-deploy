@@ -29,89 +29,89 @@ output "environment" {
   } : {}
 }
 
-output "attacker" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? (
-    module.attacker-infrastructure-context.config
-  ) : {}
-}
+# output "attacker" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? (
+#     module.attacker-infrastructure-context.config
+#   ) : {}
+# }
 
-output "target" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? (
-    module.target-infrastructure-context.config
-  ) : ""
-}
+# output "target" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? (
+#     module.target-infrastructure-context.config
+#   ) : {}
+# }
 
-output "target_dynu_records" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? (
-    (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
-  ) : ""
-}
+# output "target_dynu_records" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? (
+#     (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
+#   ) : []
+# }
 
-output "attacker_dynu_records" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? (
-    (module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.attacker-dynu-dns-records.records, []) : []
-  ) : ""
-}
+# output "attacker_dynu_records" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? (
+#     (module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.attacker-dynu-dns-records.records, []) : []
+#   ) : []
+# }
 
-output "target-aws-instances" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? [
-    for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
-    [
-      for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
-    ]
-  ] : ""
-}
+# output "target-aws-instances" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? [
+#     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
+#     [
+#       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
+#     ]
+#   ] : []
+# }
 
-output "target-gcp-instances" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? [
-    for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
-    [
-      for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
-    ]
-  ] : ""
-}
+# output "target-gcp-instances" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? [
+#     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
+#     [
+#       for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+#     ]
+#   ] : []
+# }
 
-output "attacker-aws-instances" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? [
-    for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
-    [
-      for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
-    ]
-  ] : []
-}
+# output "attacker-aws-instances" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? [
+#     for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
+#     [
+#       for compute in ec2.instances : compute.instance.public_ip if lookup(compute.instance, "public_ip", "false") != "false"
+#     ]
+#   ] : []
+# }
 
-output "attacker-gcp-instances" {
-  value = !(
-    coalesce(module.target-infrastructure-context, {}) == {} &&
-    coalesce(module.attacker-infrastructure-context, {}) == {}
-    ) ? [
-    for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
-    [
-      for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
-    ]
-  ] : ""
-}
+# output "attacker-gcp-instances" {
+#   value = !(
+#     coalesce(module.target-infrastructure-context, {}) == {} &&
+#     coalesce(module.attacker-infrastructure-context, {}) == {}
+#     ) ? [
+#     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
+#     [
+#       for compute in gce.instances : compute.instance.network_interface[0].access_config[0].nat_ip if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+#     ]
+#   ] : []
+# }
 
 # # output "target_aws_kubernetes_services" {
 # #   value = {
