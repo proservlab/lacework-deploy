@@ -191,7 +191,7 @@ module "ssm-connect-oast-host" {
 }
 
 module "ssm-connect-reverse-shell" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true && length(data.aws_instances.attacker_reverse_shell[0].public_ips) > 0 ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/connect-reverse-shell"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment

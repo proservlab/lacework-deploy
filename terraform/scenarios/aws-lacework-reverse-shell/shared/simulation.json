@@ -36,7 +36,7 @@
             },
             "reverse_shell": {
               "enabled": true,
-              "host_ip": "attacker-public-1.attacker-hub.freeddns.org"
+              "host_ip": "attacker-public-1-attacker-${ deployment }.attacker-hub.freeddns.org"
             }
           },
           "listener": {
