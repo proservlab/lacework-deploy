@@ -167,8 +167,8 @@ module "ssm-connect-codecov" {
   deployment    = var.config.context.global.deployment
   
   
-  host_ip       = data.aws_instances.attacker_http_listener[0].public_ips[0]
-  host_port     = var.config.context.aws.ssm.attacker.listener.http.listen_port
+  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_ip, data.aws_instances.attacker_http_listener[0].public_ips[0])
+  host_port     = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_port, var.config.context.aws.ssm.attacker.listener.http.listen_port)
 }
 
 module "ssm-connect-nmap-port-scan" {
@@ -196,8 +196,8 @@ module "ssm-connect-reverse-shell" {
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
-  host_ip       = data.aws_instances.attacker_reverse_shell[0].public_ips[0]
-  host_port     = var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port
+  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_ip, data.aws_instances.attacker_reverse_shell[0].public_ips[0])
+  host_port     = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_port, var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
 }
 
 ##################################################
@@ -231,6 +231,7 @@ module "simulation-attacker-exec-docker-compromised-credentials" {
   protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
   ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.wallet
   minergate_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.compromised_keys_user
 }
 
 module "ssm-execute-docker-cpuminer" {
@@ -252,7 +253,7 @@ module "ssm-execute-docker-log4shell-attack" {
 
   attacker_http_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-  attacker_ip = data.aws_instances.attacker_log4shell[0].public_ips[0]
+  attacker_ip = coalesce(var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, data.aws_instances.attacker_log4shell[0].public_ips[0])
   target_ip = data.aws_instances.target_log4shell[0].public_ips[0]
   target_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload

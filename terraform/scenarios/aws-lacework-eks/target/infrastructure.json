@@ -5,10 +5,11 @@
       "deployment"           : "${ deployment }"
     },
     "aws": {
-      "region"       : "${ aws_region }",
-      "profile_name" : "${ aws_profile }",
+      "region"        : "${ aws_region }",
+      "profile_name"  : "${ aws_profile }",
+      
       "ec2": {
-        "enabled"                       : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -20,42 +21,22 @@
         "private_app_subnet"            : "172.17.100.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
-          {
-            "name"                      : "target-public-1",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              "ssm_deploy_lacework"              : "true",
-              "ssm_deploy_docker"                : "true",
-              "ssm_deploy_secret_ssh_private"    : "true",
-              "ssm_exec_docker_log4shell_target" : "true"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          },
-          {
-            "name"                      : "target-public-2",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              "ssm_deploy_lacework"          : "true"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          }
         ]
       },
+      "eks": {
+        "enabled"      : true,
+        "cluster_name" : "target-cluster"
+      },
+      "rds": {
+        "enabled"      : false
+      },
       "ssm": {
-        "enabled"                        : true,
-        "deploy_git"                     : true,
-        "deploy_docker"                  : true,
+        "enabled"                        : false,
+        "deploy_git"                     : false,
+        "deploy_docker"                  : false,
         "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_agent"          : false,
+        "deploy_lacework_syscall_config" : false
       }
     },
     "lacework": {
@@ -76,12 +57,12 @@
         "enabled" : true,
 
         "kubernetes": {
-          "enabled" : false,
+          "enabled" : true,
           "proxy_scanner": {
-            "enabled" : false
+            "enabled" : true
           },
           "daemonset": {
-            "enabled"        : false,
+            "enabled"        : true,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
@@ -91,7 +72,7 @@
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : false
+            "enabled" : true
           }
         }
       },

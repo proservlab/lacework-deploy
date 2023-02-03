@@ -42,7 +42,8 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework"          : "true"
+              "ssm_deploy_lacework"          : "true",
+              "ssm_deploy_secret_ssh_public" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

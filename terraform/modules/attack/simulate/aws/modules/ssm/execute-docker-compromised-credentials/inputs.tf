@@ -81,3 +81,8 @@ variable "minergate_user" {
   description = "minergate user for host crypto"
   default = ""
 }
+
+variable "compromised_keys_user" {
+  type = string
+  default = "kees.kompromize@interlacelabs"
+}

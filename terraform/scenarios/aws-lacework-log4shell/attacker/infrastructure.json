@@ -27,9 +27,7 @@
                         "instance_type"             : "t2.micro",
                         "ami_name"                  : "ubuntu_focal",
                         "tags"                      : {
-                            "ssm_exec_reverse_shell_attacker": "true",
-                            "ssm_exec_http_listener_attacker": "true",
-                            "ssm_exec_docker_compromised_keys_attacker": "true"
+                            "ssm_exec_docker_log4shell_attacker": "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null
@@ -38,7 +36,7 @@
             }
         },
         "dynu_dns" : {
-            "enabled"                        : false
+            "enabled"                        : true
         } 
     }
 }

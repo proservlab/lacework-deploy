@@ -46,9 +46,13 @@ variable "config" {
                 use_ssl                     = bool
                 git_origin                  = string
                 env_secrets                 = list(string)
+                host_ip                     = string
+                host_port                   = number
               })
               reverse_shell = object({
                 enabled                     = bool
+                host_ip                     = string
+                host_port                   = number
               })
             })
             listener = object({
@@ -116,6 +120,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                compromised_keys_user       = string
               })
             })
           })
@@ -167,9 +172,13 @@ variable "config" {
                 use_ssl                     = false
                 git_origin                  = "git@git.localhost:repo/repo.git"
                 env_secrets                 = ["SECRET=supersecret123"]
+                host_ip                     = null
+                host_port                   = 8080
               }
               reverse_shell = {
                 enabled                     = false
+                host_ip                     = null
+                host_port                   = 4444
               }
             }
             listener = {
@@ -246,6 +255,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                compromised_keys_user       = null
               }
             }
           }

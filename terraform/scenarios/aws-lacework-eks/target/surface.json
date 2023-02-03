@@ -1,0 +1,70 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "iam" :  {
+        "enabled" :  false,
+        "user_policies_path" :  "${ iam_power_user_policy_path }",
+        "users_path" :  "${ iam_users_path }"
+      },
+      "ec2" :  {
+        "add_trusted_ingress" :  {
+          "enabled"                     :  true,
+          "trust_workstation"           :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
+          }
+        }
+      },
+      "eks" :  {
+        "add_iam_user_readonly_user": {
+          "enabled": false
+        }
+      },
+      "ssm" :  {
+        "vulnerable" :  {
+          "docker" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            }
+          }
+        },
+        "ssh_keys" :  {
+          "enabled" :  false
+        }
+      }
+    },
+    "kubernetes" :  {
+      "app" :  {
+        "enabled" :  true
+      },
+      "psp" :  {
+        "enabled" :  false
+      },
+      "vulnerable" :  {
+        "log4shellapp" :  {
+          "enabled" :  false
+        },
+        "voteapp" :  {
+          "enabled" :  false
+        },
+        "rdsapp" :  {
+          "enabled" :  false
+        },
+        "privileged_pod" :  {
+          "enabled" :  false
+        },
+        "root_mount_fs_pod" :  {
+          "enabled" :  false
+        }
+      }
+    }
+  }
+}
