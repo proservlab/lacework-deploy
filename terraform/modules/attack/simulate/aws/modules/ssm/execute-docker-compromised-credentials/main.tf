@@ -8,8 +8,8 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     
-    if docker ps | grep aws-cli; then 
-        log "Attempt to start new session skipped - aws-cli docker is running..."; 
+    if docker ps | grep aws-cli || docker ps | grep terraform; then 
+        log "Attempt to start new session skipped - aws-cli or terraform docker is running..."; 
     else
         truncate -s 0 $LOGFILE
         log "Starting new session no existing session detected..."
