@@ -24,16 +24,18 @@ locals {
     echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
     echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
     for i in $(echo "AU CR IS JP LV NL NZ SG SK US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
-    while ! which docker; do
-        sleep 10
+    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+        log "docker not found or not ready - waiting"
+        sleep 120
     done
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="baseline.sh"
+    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="baseline.sh"  >> $LOGFILE 2>&1
     sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"
+    bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
     sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"
+    bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
     sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"
+    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
+    echo "Done." >> $LOGFILE 2>&1
     EOT
     base64_payload = base64encode(local.payload)
 }
