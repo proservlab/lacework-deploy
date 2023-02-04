@@ -10,9 +10,9 @@ locals {
     }
     truncate -s 0 $LOGFILE
     log "Checking for docker..."
-    while ! which docker; do
-        log "docker not found - waiting"
-        sleep 10
+    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+        log "docker not found or not ready - waiting"
+        sleep 120
     done
     log "docker path: $(which docker)"
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
