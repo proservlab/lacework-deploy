@@ -28,14 +28,14 @@ locals {
         log "docker not found or not ready - waiting"
         sleep 120
     done
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="baseline.sh"  >> $LOGFILE 2>&1
-    sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
-    sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
-    sleep 30
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 && while ! docker logs protonvpn 2>&1  | grep "Connected!"; do echo "sleeping..."; sleep 10; done && bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh"  >> $LOGFILE 2>&1
-    echo "Done." >> $LOGFILE 2>&1
+    log "Starting simulation..."
+    if [ "${var.protonvpn_tier}" == "0" ]; then
+    log "Protonvpn tier is free tier: ${var.protonvpn_tier}"
+    bash auto-free.sh
+    else
+    log "Protonvpn tier is paid tier: ${var.protonvpn_tier}"
+    bash auto-paid.sh
+    fi;
     EOT
     base64_payload = base64encode(local.payload)
 }
