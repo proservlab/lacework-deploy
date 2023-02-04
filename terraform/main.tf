@@ -20,6 +20,35 @@ module "default-attacksimulation-context" {
   source = "./modules/context/attack/simulate"
 }
 
+module "tfvars" {
+  source = "./modules/tfvars"
+  tfvars = {
+    # context
+    scenario   = var.scenario
+    deployment = var.deployment
+
+    # aws
+    attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+    attacker_aws_region  = var.attacker_aws_region
+    target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+    target_aws_region    = var.target_aws_region
+
+    # gcp
+    attacker_gcp_project          = var.attacker_gcp_project
+    attacker_gcp_region           = var.attacker_gcp_region
+    attacker_gcp_lacework_project = var.attacker_gcp_lacework_project
+    target_gcp_project            = var.target_gcp_project
+    target_gcp_region             = var.target_gcp_region
+    target_gcp_lacework_project   = var.target_gcp_lacework_project
+
+    # lacework
+    lacework_server_url   = var.lacework_server_url
+    lacework_account_name = var.lacework_account_name
+    lacework_profile      = var.lacework_profile
+    syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+  }
+}
+
 ##################################################
 # KUBECONFIG STAGING
 ##################################################
