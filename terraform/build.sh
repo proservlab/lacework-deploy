@@ -146,10 +146,11 @@ elif [ "destroy" = "${ACTION}" ]; then
     if [ $ERR -eq 2 ]; then
         if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
+        else
+            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve
         fi
     fi
-    check_tf_apply ${ERR} apply ${PLANFILE}
 fi
-# rm -f ${PLANFILE}
+rm -f ${PLANFILE}
 
 echo "Done."

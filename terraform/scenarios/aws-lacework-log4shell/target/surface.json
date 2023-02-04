@@ -17,6 +17,15 @@
               "to_port" :  65535
             }
           }
+        },
+        "ssm" :  {
+          "vulnerable" :  {
+            "docker" :  {
+              "log4shellapp" :  {
+                "enabled" :  true
+              }
+            }
+          }
         }
       }
     }

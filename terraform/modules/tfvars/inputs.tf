@@ -1,3 +1,0 @@
-variable "tfvars" {
-    type = any
-}

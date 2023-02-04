@@ -161,7 +161,7 @@ module "ssm-connect-badip" {
 }
 
 module "ssm-connect-codecov" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true && length(data.aws_instances.attacker_http_listener[0].public_ips) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true && length(try(data.aws_instances.attacker_http_listener[0].public_ips, [])) > 0) ? 1 : 0
   source        = "./modules/ssm/connect-codecov"
   environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
@@ -191,7 +191,7 @@ module "ssm-connect-oast-host" {
 }
 
 module "ssm-connect-reverse-shell" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true && length(try(data.aws_instances.attacker_reverse_shell[0].public_ips, [])) > 0 ) ? 1 : 0
   source        = "./modules/ssm/connect-reverse-shell"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
@@ -246,7 +246,7 @@ module "ssm-execute-docker-cpuminer" {
 }
 
 module "ssm-execute-docker-log4shell-attack" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(data.aws_instances.attacker_log4shell[0].public_ips) > 0 && length(data.aws_instances.target_log4shell[0].public_ips) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(try(data.aws_instances.attacker_log4shell[0].public_ips, [])) > 0 && length(try(data.aws_instances.target_log4shell[0].public_ips, [])) > 0) ? 1 : 0
   source        = "./modules/ssm/execute-docker-log4shell-attack"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
@@ -274,7 +274,7 @@ module "ssm-listener-http-listener" {
 }
 
 module "ssm-listener-port-forward" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true && length(data.aws_instances.attacker_port_forward[0].public_ips) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true && length(try(data.aws_instances.attacker_port_forward[0].public_ips, [])) > 0) ? 1 : 0
   source        = "./modules/ssm/listener-port-forward"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
