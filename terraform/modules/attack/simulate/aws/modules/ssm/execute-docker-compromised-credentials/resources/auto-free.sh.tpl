@@ -13,7 +13,7 @@ bash start.sh --container=protonvpn --env-file=.env-protonvpn-US >> $LOGFILE 2>&
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done
 log "Starting docker log for protonvpn-US..."
-docker logs protonvpn -f > protonvpn-US.log 2>&1 &
+docker logs protonvpn -f > /tmp/protonvpn-US.log 2>&1 &
 log "Executing baseline.sh"
 bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="baseline.sh" >> $LOGFILE 2>&1
 log "Done baseline."
@@ -26,7 +26,7 @@ bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 >> $LO
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-NL-FREE#148..."
-docker logs protonvpn -f > protonvpn-NL-FREE#148.log 2>&1 &
+docker logs protonvpn -f > /tmp/protonvpn-NL-FREE#148.log 2>&1 &
 log "Executing discovery.sh"
 bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh" >> $LOGFILE 2>&1
 log "Done discovery."
@@ -39,7 +39,7 @@ bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 >> $LOGF
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-JP-FREE#3..."
-docker logs protonvpn -f > protonvpn-JP-FREE#3.log 2>&1 &
+docker logs protonvpn -f > /tmp/protonvpn-JP-FREE#3.log 2>&1 &
 log "Executing discovery.sh"
 bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh" >> $LOGFILE 2>&1
 log "Done discovery."
@@ -52,7 +52,7 @@ bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 >> $LOG
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-US-FREE#34..."
-docker logs protonvpn -f > protonvpn-US-FREE#34.log 2>&1 &
+docker logs protonvpn -f > /tmp/protonvpn-US-FREE#34.log 2>&1 &
 log "Executing discovery.sh"
 bash start.sh --container=aws-cli --env-file=.env-aws-kees.kompromize@interlacelabs --script="discovery.sh" >> $LOGFILE 2>&1
 log "Done discovery."

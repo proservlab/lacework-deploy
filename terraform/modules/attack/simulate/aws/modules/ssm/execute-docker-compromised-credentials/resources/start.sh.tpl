@@ -96,9 +96,8 @@ docker stop $${CONTAINER} 2> /dev/null
 docker rm $${CONTAINER} 2> /dev/null
 docker pull $${CONTAINER_IMAGE}
 
-log "Running docker command: docker run --rm --name=$${CONTAINER} $${DOCKER_OPTS} -v \"$${SCRIPT_DIR}/$${CONTAINER}/scripts\":/scripts --env-file=\"$${ENV_FILE}\" $${CONTAINER_IMAGE} $${SCRIPT}"
+log "Running docker command: docker run --name=$${CONTAINER} $${DOCKER_OPTS} -v \"$${SCRIPT_DIR}/$${CONTAINER}/scripts\":/scripts --env-file=\"$${ENV_FILE}\" $${CONTAINER_IMAGE} $${SCRIPT}"
 docker run \
---rm \
 --name=$${CONTAINER} \
 $${DOCKER_OPTS} \
 -v "$${SCRIPT_DIR}/$${CONTAINER}/scripts":/scripts \
