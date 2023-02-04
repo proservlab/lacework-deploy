@@ -21,7 +21,7 @@ for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
     aws ec2 describe-elastic-gpus $opts --region "$REGION" > /dev/null 2>&1
     log "Running: aws ec2 describe-hosts $opts --region \"$REGION\""
     aws ec2 describe-hosts $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts --region \"$REGION\""
     aws ec2 describe-images --filters "Name=name,Values=ubuntu-pro-server/images/*20.04*" $opts --region "$REGION" > /dev/null 2>&1
     log "Running: aws ec2 describe-network-acls $opts --region \"$REGION\""
     aws ec2 describe-network-acls $opts --region "$REGION" > /dev/null 2>&1
@@ -29,7 +29,7 @@ for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
     aws ec2 describe-reserved-instances $opts --region "$REGION" > /dev/null 2>&1
     log "Running: aws ec2 describe-security-groups $opts --region \"$REGION\""
     aws ec2 describe-security-groups $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-snapshots $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-snapshots $opts --region \"$REGION\""
     aws ec2 describe-snapshots $opts --region "$REGION" > /dev/null 2>&1
     log "Running: aws ec2 describe-volumes $opts --region \"$REGION\""
     aws ec2 describe-volumes $opts --region "$REGION" > /dev/null 2>&1

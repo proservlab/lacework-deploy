@@ -7,36 +7,42 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
-    truncate -s 0 $LOGFILE
-    rm -rf ${local.attack_dir}
-    mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
-    cd ${local.attack_dir}
-    ${local.aws_creds}
-    echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
-    echo '${base64encode(data.template_file.auto-free.rendered)}' | base64 -d > /${local.attack_dir}/auto-free.sh
-    echo '${base64encode(data.template_file.auto-paid.rendered)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
-    echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
-    echo '${base64encode(data.template_file.protonvpn-baseline.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
-    echo '${base64encode(data.template_file.baseline.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
-    echo '${base64encode(data.template_file.discovery.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
-    echo '${base64encode(data.template_file.evasion.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
-    echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
-    echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
-    echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-    for i in $(echo "AU CR IS JP LV NL NZ SG SK US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
-        log "docker not found or not ready - waiting"
-        sleep 120
-    done
-    log "Starting simulation..."
-    if [ "${var.protonvpn_tier}" == "0" ]; then
-    log "Protonvpn tier is free tier: ${var.protonvpn_tier}"
-    log "Starting auto-free.sh..."
-    bash auto-free.sh >> $LOGFILE 2>&1
+    
+    if docker ps | grep aws-cli; then 
+        log "Attempt to start new session skipped - aws-cli docker is running..."; 
     else
-    log "Protonvpn tier is paid tier: ${var.protonvpn_tier}"
-    log "Starting auto-paid.sh..."
-    bash auto-paid.sh >> $LOGFILE 2>&1
+        truncate -s 0 $LOGFILE
+        log "Starting new session no existing session detected..."
+        rm -rf ${local.attack_dir}
+        mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
+        cd ${local.attack_dir}
+        ${local.aws_creds}
+        echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
+        echo '${base64encode(data.template_file.auto-free.rendered)}' | base64 -d > /${local.attack_dir}/auto-free.sh
+        echo '${base64encode(data.template_file.auto-paid.rendered)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
+        echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
+        echo '${base64encode(data.template_file.protonvpn-baseline.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
+        echo '${base64encode(data.template_file.baseline.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
+        echo '${base64encode(data.template_file.discovery.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
+        echo '${base64encode(data.template_file.evasion.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
+        echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
+        echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
+        echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
+        for i in $(echo "AU CR IS JP LV NL NZ SG SK US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
+        while ! which docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "Starting simulation..."
+        if [ "${var.protonvpn_tier}" == "0" ]; then
+        log "Protonvpn tier is free tier: ${var.protonvpn_tier}"
+        log "Starting auto-free.sh..."
+        bash auto-free.sh >> $LOGFILE 2>&1
+        else
+        log "Protonvpn tier is paid tier: ${var.protonvpn_tier}"
+        log "Starting auto-paid.sh..."
+        bash auto-paid.sh >> $LOGFILE 2>&1
+        fi;
     fi;
     EOT
     base64_payload = base64encode(local.payload)
