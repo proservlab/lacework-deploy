@@ -8,7 +8,7 @@ function log {
 truncate -s 0 $LOGFILE
 
 log "Starting..."
-log "Baseline access for account"
+log "Discovery access attacker simulation..."
 log "Current IP: $(curl -s http://icanhazip.com)"
 opts="--output json --color off --no-cli-pager"
 for REGION in $(aws ec2 describe-regions --output text | cut -f4); do

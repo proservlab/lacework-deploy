@@ -31,10 +31,12 @@ locals {
     log "Starting simulation..."
     if [ "${var.protonvpn_tier}" == "0" ]; then
     log "Protonvpn tier is free tier: ${var.protonvpn_tier}"
-    bash auto-free.sh
+    log "Starting auto-free.sh..."
+    bash auto-free.sh >> $LOGFILE 2>&1
     else
     log "Protonvpn tier is paid tier: ${var.protonvpn_tier}"
-    bash auto-paid.sh
+    log "Starting auto-paid.sh..."
+    bash auto-paid.sh >> $LOGFILE 2>&1
     fi;
     EOT
     base64_payload = base64encode(local.payload)
