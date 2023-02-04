@@ -33,6 +33,13 @@ infomsg(){
 echo "INFO: $${1}"
 }
 
+LOGFILE=/tmp/attacker_compromised_credentials_start.sh.log
+function log {
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+}
+truncate -s 0 $LOGFILE
+
 for i in "$@"; do
   case $i in
     -h|--help)
@@ -82,11 +89,14 @@ if [ -z "$${ENV_FILE}" ]; then
     warnmsg "Using default: $${SCRIPT_DIR}/.env"
     ENV_FILE="$${SCRIPT_DIR}/.env"
 fi
+log "Starting..."
 
+log "Removing existing containers..."
 docker stop $${CONTAINER} 2> /dev/null
 docker rm $${CONTAINER} 2> /dev/null
 docker pull $${CONTAINER_IMAGE}
 
+log "Running docker command: docker run --rm --name=$${CONTAINER} $${DOCKER_OPTS} -v \"$${SCRIPT_DIR}/$${CONTAINER}/scripts\":/scripts --env-file=\"$${ENV_FILE}\" $${CONTAINER_IMAGE} $${SCRIPT}"
 docker run \
 --rm \
 --name=$${CONTAINER} \
@@ -94,3 +104,5 @@ $${DOCKER_OPTS} \
 -v "$${SCRIPT_DIR}/$${CONTAINER}/scripts":/scripts \
 --env-file="$${ENV_FILE}" \
 $${CONTAINER_IMAGE} $${SCRIPT}
+
+log "Done."

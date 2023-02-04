@@ -1,29 +1,40 @@
 #!/bin/bash
-echo "Baseline access for account"
-echo "Current IP: $(curl -s http://icanhazip.com)"
+
+LOGFILE=/tmp/attacker_compromised_credentials_discovery.sh.log
+function log {
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+}
+truncate -s 0 $LOGFILE
+
+log "Starting..."
+log "Baseline access for account"
+log "Current IP: $(curl -s http://icanhazip.com)"
 opts="--output json --color off --no-cli-pager"
 for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
-    echo "Discovery using AWS_REGION: $REGION"
-    echo "Running: aws iam list-users $opts --region \"$REGION\""
+    log "Discovery using AWS_REGION: $REGION"
+    log "Running: aws iam list-users $opts --region \"$REGION\""
     aws iam list-users $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws s3api list-buckets $opts --region \"$REGION\""
+    log "Running: aws s3api list-buckets $opts --region \"$REGION\""
     aws s3api list-buckets $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-elastic-gpus $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-elastic-gpus $opts --region \"$REGION\""
     aws ec2 describe-elastic-gpus $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-hosts $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-hosts $opts --region \"$REGION\""
     aws ec2 describe-hosts $opts --region "$REGION" > /dev/null 2>&1
     echo "Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts --region \"$REGION\""
     aws ec2 describe-images --filters "Name=name,Values=ubuntu-pro-server/images/*20.04*" $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-network-acls $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-network-acls $opts --region \"$REGION\""
     aws ec2 describe-network-acls $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-reserved-instances $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-reserved-instances $opts --region \"$REGION\""
     aws ec2 describe-reserved-instances $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-security-groups $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-security-groups $opts --region \"$REGION\""
     aws ec2 describe-security-groups $opts --region "$REGION" > /dev/null 2>&1
     echo "Running: aws ec2 describe-snapshots $opts --region \"$REGION\""
     aws ec2 describe-snapshots $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-volumes $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-volumes $opts --region \"$REGION\""
     aws ec2 describe-volumes $opts --region "$REGION" > /dev/null 2>&1
-    echo "Running: aws ec2 describe-vpcs $opts --region \"$REGION\""
+    log "Running: aws ec2 describe-vpcs $opts --region \"$REGION\""
     aws ec2 describe-vpcs $opts --region "$REGION" > /dev/null 2>&1
 done
+
+log "Done."
