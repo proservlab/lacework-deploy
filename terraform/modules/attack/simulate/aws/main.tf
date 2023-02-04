@@ -246,7 +246,7 @@ module "ssm-execute-docker-cpuminer" {
 }
 
 module "ssm-execute-docker-log4shell-attack" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(try(data.aws_instances.attacker_log4shell[0].public_ips, [])) > 0 && length(try(data.aws_instances.target_log4shell[0].public_ips, [])) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(data.aws_instances.attacker_log4shell[0].public_ips) > 0 && length(data.aws_instances.target_log4shell[0].public_ips) > 0) ? 1 : 0
   source        = "./modules/ssm/execute-docker-log4shell-attack"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
