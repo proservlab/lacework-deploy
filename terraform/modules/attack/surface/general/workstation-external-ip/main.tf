@@ -1,3 +1,11 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../../../context/deployment"
+}
+
 data "http" "workstation-external-ip" {
   url = "http://ipv4.icanhazip.com"
 }

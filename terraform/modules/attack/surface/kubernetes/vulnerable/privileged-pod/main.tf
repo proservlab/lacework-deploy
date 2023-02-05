@@ -1,3 +1,11 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../../../../context/deployment"
+}
+
 resource "kubernetes_deployment" "vulnerable_privileged_pod" {
   metadata {
     name = "vulnerable-privileged-pod"

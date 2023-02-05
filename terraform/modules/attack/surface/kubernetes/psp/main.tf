@@ -1,3 +1,11 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../../../context/deployment"
+}
+
 resource "kubernetes_pod_security_policy" "privileged" {
   metadata {
     name = "privileged"

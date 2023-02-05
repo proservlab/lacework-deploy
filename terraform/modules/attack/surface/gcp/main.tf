@@ -1,3 +1,15 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../../context/deployment"
+}
+
+##################################################
+# LOCALS
+##################################################
+
 locals {
   config = var.config
   default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]

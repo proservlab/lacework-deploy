@@ -1,3 +1,11 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../../../../context/deployment"
+}
+
 resource "kubernetes_deployment" "vulnerable_root_mount_fs_pod" {
   metadata {
     name = "vulnerable-root-mount-fs-pod"
