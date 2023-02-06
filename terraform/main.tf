@@ -669,6 +669,30 @@ module "attacker-aws-attacksimulation" {
 }
 
 # deploy target attacksimulation
+module "attacker-gcp-attacksimulation" {
+  source = "./modules/attack/simulate/gcp"
+  # attack surface config
+  config = module.attacker-attacksimulation-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
+    }
+  }
+
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
+}
+
+# deploy target attacksimulation
 module "target-aws-attacksimulation" {
   source = "./modules/attack/simulate/aws"
   # attack surface config
@@ -690,4 +714,28 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+}
+
+# deploy target attacksimulation
+module "target-gcp-attacksimulation" {
+  source = "./modules/attack/simulate/gcp"
+  # attack surface config
+  config = module.target-attacksimulation-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
+    }
+  }
+
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
 }
