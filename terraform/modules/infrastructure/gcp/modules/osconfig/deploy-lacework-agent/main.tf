@@ -8,7 +8,7 @@ resource "lacework_agent_access_token" "agent" {
 
 resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
-  project     = var.gcp_project
+  project     = var.gcp_project_id
   location    = var.gcp_location
   name        = "lacework-install-policy"
   description = "OS policy to install Lacework agent"

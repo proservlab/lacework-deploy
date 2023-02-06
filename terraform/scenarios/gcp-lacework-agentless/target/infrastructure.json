@@ -20,7 +20,6 @@
         "private_app_subnet"            : "172.17.100.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
-          
           {
             "name"                      : "target-public-1",
             "public"                    : true,
