@@ -3,7 +3,7 @@ resource "random_uuid" "agent" {
 
 resource "lacework_agent_access_token" "agent" {
     count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "endpoint-agent-access-token-${var.environment}-${var.deployment}"
+    name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
 }
 
 module "lacework_aws_ssm_agents_install" {

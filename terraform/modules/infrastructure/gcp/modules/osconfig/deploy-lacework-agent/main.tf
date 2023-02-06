@@ -3,7 +3,7 @@ resource "random_uuid" "agent" {
 
 resource "lacework_agent_access_token" "agent" {
     count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "endpoint-agent-access-token-${var.environment}-${var.deployment}"
+    name = "endpoint-gcp-agent-access-token-${var.environment}-${var.deployment}"
 }
 
 resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
