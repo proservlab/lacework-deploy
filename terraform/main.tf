@@ -53,74 +53,127 @@ resource "null_resource" "kubeconfig" {
 # INFRASTRUCTURE CONFIG
 ##################################################
 
-data "template_file" "attacker-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json")
-  vars = {
-    # deployment id
-    deployment = var.deployment
-
-    # aws
-    aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-    aws_region  = var.attacker_aws_region
-
-    # gcp
-    gcp_project = var.attacker_gcp_project
-    gcp_region  = var.attacker_gcp_region
-
-    # lacework
-    lacework_profile = var.lacework_profile
-  }
-}
-
-data "template_file" "target-infrastructure-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/target/infrastructure.json")
-  vars = {
-    # deployment id
-    deployment = var.deployment
-
-    # aws
-    aws_profile = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-    aws_region  = var.target_aws_region
-
-    # gcp
-    gcp_project          = var.target_gcp_project
-    gcp_region           = var.target_gcp_region
-    gcp_lacework_project = var.target_gcp_lacework_project
-
-    # lacework
-    lacework_server_url   = var.lacework_server_url
-    lacework_account_name = var.lacework_account_name
-    lacework_profile      = var.lacework_profile
-    syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
-
-    # slack
-    slack_token = var.slack_token
-
-    # jira config
-    jira_cloud_url         = var.jira_cloud_url
-    jira_cloud_username    = var.jira_cloud_username
-    jira_cloud_api_token   = var.jira_cloud_api_token
-    jira_cloud_project_key = var.jira_cloud_project_key
-    jira_cloud_issue_type  = var.jira_cloud_issue_type
-  }
-}
-
 locals {
-  attacker_infrastructure_config = data.template_file.attacker-infrastructure-config-file.rendered
-  target_infrastructure_config   = data.template_file.target-infrastructure-config-file.rendered
+  attacker-infrastructure-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json",
+    {
+      # deployment id
+      deployment = var.deployment
+
+      # aws
+      aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+      aws_region  = var.attacker_aws_region
+
+      # gcp
+      gcp_project = var.attacker_gcp_project
+      gcp_region  = var.attacker_gcp_region
+
+      # lacework
+      lacework_profile = var.lacework_profile
+    }
+  )
+  target-infrastructure-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/target/infrastructure.json",
+    {
+      # deployment id
+      deployment = var.deployment
+
+      # aws
+      aws_profile = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+      aws_region  = var.target_aws_region
+
+      # gcp
+      gcp_project          = var.target_gcp_project
+      gcp_region           = var.target_gcp_region
+      gcp_lacework_project = var.target_gcp_lacework_project
+
+      # lacework
+      lacework_server_url   = var.lacework_server_url
+      lacework_account_name = var.lacework_account_name
+      lacework_profile      = var.lacework_profile
+      syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+
+      # slack
+      slack_token = var.slack_token
+
+      # jira config
+      jira_cloud_url         = var.jira_cloud_url
+      jira_cloud_username    = var.jira_cloud_username
+      jira_cloud_api_token   = var.jira_cloud_api_token
+      jira_cloud_project_key = var.jira_cloud_project_key
+      jira_cloud_issue_type  = var.jira_cloud_issue_type
+    }
+  )
 }
+
+# data "template_file" "attacker-infrastructure-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json")
+#   vars = {
+#     # deployment id
+#     deployment = var.deployment
+
+#     # aws
+#     aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+#     aws_region  = var.attacker_aws_region
+
+#     # gcp
+#     gcp_project = var.attacker_gcp_project
+#     gcp_region  = var.attacker_gcp_region
+
+#     # lacework
+#     lacework_profile = var.lacework_profile
+#   }
+# }
+
+# data "template_file" "target-infrastructure-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/target/infrastructure.json")
+#   vars = {
+#     # deployment id
+#     deployment = var.deployment
+
+#     # aws
+#     aws_profile = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+#     aws_region  = var.target_aws_region
+
+#     # gcp
+#     gcp_project          = var.target_gcp_project
+#     gcp_region           = var.target_gcp_region
+#     gcp_lacework_project = var.target_gcp_lacework_project
+
+#     # lacework
+#     lacework_server_url   = var.lacework_server_url
+#     lacework_account_name = var.lacework_account_name
+#     lacework_profile      = var.lacework_profile
+#     syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+
+#     # slack
+#     slack_token = var.slack_token
+
+#     # jira config
+#     jira_cloud_url         = var.jira_cloud_url
+#     jira_cloud_username    = var.jira_cloud_username
+#     jira_cloud_api_token   = var.jira_cloud_api_token
+#     jira_cloud_project_key = var.jira_cloud_project_key
+#     jira_cloud_issue_type  = var.jira_cloud_issue_type
+#   }
+# }
+
+# locals {
+#   attacker_infrastructure_config = data.template_file.attacker-infrastructure-config-file.rendered
+#   target_infrastructure_config   = data.template_file.target-infrastructure-config-file.rendered
+# }
 
 data "utils_deep_merge_json" "attacker-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.attacker_infrastructure_config
+    local.attacker-infrastructure-config-file
   ]
 }
 
 data "utils_deep_merge_json" "target-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.target_infrastructure_config
+    local.target-infrastructure-config-file
   ]
 }
 
@@ -395,44 +448,59 @@ module "attacker-dynu-dns-records" {
 # ATTACK SURFACE CONFIG
 ##################################################
 
-data "template_file" "attacker-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
-
-  vars = {
-    # deployment id
-    deployment = var.deployment
-  }
-}
-
-data "template_file" "target-attacksurface-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/target/surface.json")
-
-  vars = {
-    # deployment id
-    deployment = var.deployment
-
-    # iam
-    iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
-    iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
-  }
-}
-
 locals {
-  attacker_attacksurface_config = data.template_file.attacker-attacksurface-config-file.rendered
-  target_attacksurface_config   = data.template_file.target-attacksurface-config-file.rendered
+  attacker-attacksurface-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/attacker/surface.json",
+    {
+      # deployment id
+      deployment = var.deployment
+    }
+  )
+  target-attacksurface-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/target/surface.json",
+    {
+      # deployment id
+      deployment = var.deployment
+
+      # iam
+      iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
+      iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+    }
+  )
 }
+# data "template_file" "attacker-attacksurface-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/attacker/surface.json")
+
+#   vars = {
+#     # deployment id
+#     deployment = var.deployment
+#   }
+# }
+
+# data "template_file" "target-attacksurface-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/target/surface.json")
+
+#   vars = {
+#     # deployment id
+#     deployment = var.deployment
+
+#     # iam
+#     iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
+#     iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+#   }
+# }
 
 data "utils_deep_merge_json" "attacker-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.attacker_attacksurface_config
+    local.attacker-attacksurface-config-file
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.target_attacksurface_config
+    local.target-attacksurface-config-file
   ]
 }
 
@@ -546,81 +614,140 @@ module "target-gcp-attacksurface" {
 # ATTACKSIMULATION CONFIG
 ##################################################
 
-data "template_file" "attacker-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
-
-  vars = {
-    # environment
-    environment = "attacker"
-    deployment  = var.deployment
-
-    # aws
-    attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-    attacker_aws_region  = var.attacker_aws_region
-    target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-    target_aws_region    = var.target_aws_region
-
-    # gcp
-    attacker_gcp_project        = var.attacker_gcp_project
-    attacker_gcp_region         = var.attacker_gcp_region
-    target_gcp_project          = var.target_gcp_project
-    target_gcp_region           = var.target_gcp_region
-    target_gcp_lacework_project = var.target_gcp_lacework_project
-
-    # variables
-    compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
-    attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
-    attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-    attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
-  }
-}
-
-data "template_file" "target-attacksimulation-config-file" {
-  template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
-
-  vars = {
-    # environment
-    environment = "target"
-    deployment  = var.deployment
-
-    # aws
-    attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-    attacker_aws_region  = var.attacker_aws_region
-    target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-    target_aws_region    = var.target_aws_region
-
-    # gcp
-    attacker_gcp_project        = var.attacker_gcp_project
-    attacker_gcp_region         = var.attacker_gcp_region
-    target_gcp_project          = var.target_gcp_project
-    target_gcp_region           = var.target_gcp_region
-    target_gcp_lacework_project = var.target_gcp_lacework_project
-
-    # variables
-    attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
-    attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
-    attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-    attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
-  }
-}
-
 locals {
-  attacker_attacksimulation_config = data.template_file.attacker-attacksimulation-config-file.rendered
-  target_attacksimulation_config   = data.template_file.target-attacksimulation-config-file.rendered
+
+  attacker-attacksimulation-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/shared/simulation.json",
+    {
+      # environment
+      environment = "attacker"
+      deployment  = var.deployment
+
+      # aws
+      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+      attacker_aws_region  = var.attacker_aws_region
+      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+      target_aws_region    = var.target_aws_region
+
+      # gcp
+      attacker_gcp_project        = var.attacker_gcp_project
+      attacker_gcp_region         = var.attacker_gcp_region
+      target_gcp_project          = var.target_gcp_project
+      target_gcp_region           = var.target_gcp_region
+      target_gcp_lacework_project = var.target_gcp_lacework_project
+
+      # variables
+      compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+      attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+      attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+      attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+    }
+  )
+  target-attacksimulation-config-file = templatefile(
+    "${path.module}/scenarios/${var.scenario}/shared/simulation.json",
+    {
+      # environment
+      environment = "target"
+      deployment  = var.deployment
+
+      # aws
+      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+      attacker_aws_region  = var.attacker_aws_region
+      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+      target_aws_region    = var.target_aws_region
+
+      # gcp
+      attacker_gcp_project        = var.attacker_gcp_project
+      attacker_gcp_region         = var.attacker_gcp_region
+      target_gcp_project          = var.target_gcp_project
+      target_gcp_region           = var.target_gcp_region
+      target_gcp_lacework_project = var.target_gcp_lacework_project
+
+      # variables
+      attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+      attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+      attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+    }
+  )
 }
+
+# data "template_file" "attacker-attacksimulation-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
+
+#   vars = {
+#     # environment
+#     environment = "attacker"
+#     deployment  = var.deployment
+
+#     # aws
+#     attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+#     attacker_aws_region  = var.attacker_aws_region
+#     target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+#     target_aws_region    = var.target_aws_region
+
+#     # gcp
+#     attacker_gcp_project        = var.attacker_gcp_project
+#     attacker_gcp_region         = var.attacker_gcp_region
+#     target_gcp_project          = var.target_gcp_project
+#     target_gcp_region           = var.target_gcp_region
+#     target_gcp_lacework_project = var.target_gcp_lacework_project
+
+#     # variables
+#     compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+#     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+#     attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+#     attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+#     attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+#   }
+# }
+
+# data "template_file" "target-attacksimulation-config-file" {
+#   template = file("${path.module}/scenarios/${var.scenario}/shared/simulation.json")
+
+#   vars = {
+#     # environment
+#     environment = "target"
+#     deployment  = var.deployment
+
+#     # aws
+#     attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+#     attacker_aws_region  = var.attacker_aws_region
+#     target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+#     target_aws_region    = var.target_aws_region
+
+#     # gcp
+#     attacker_gcp_project        = var.attacker_gcp_project
+#     attacker_gcp_region         = var.attacker_gcp_region
+#     target_gcp_project          = var.target_gcp_project
+#     target_gcp_region           = var.target_gcp_region
+#     target_gcp_lacework_project = var.target_gcp_lacework_project
+
+#     # variables
+#     attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+#     attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+#     attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+#     attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+#   }
+# }
+
+# locals {
+#   attacker_attacksimulation_config = data.template_file.attacker-attacksimulation-config-file.rendered
+#   target_attacksimulation_config   = data.template_file.target-attacksimulation-config-file.rendered
+# }
 
 data "utils_deep_merge_json" "attacker-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.attacker_attacksimulation_config
+    local.attacker-attacksimulation-config-file
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.target_attacksimulation_config
+    local.target-attacksimulation-config-file
   ]
 }
 

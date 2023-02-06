@@ -17,17 +17,17 @@ locals {
         mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
         cd ${local.attack_dir}
         ${local.aws_creds}
-        echo '${base64encode(data.template_file.start.rendered)}' | base64 -d > /${local.attack_dir}/start.sh
-        echo '${base64encode(data.template_file.auto-free.rendered)}' | base64 -d > /${local.attack_dir}/auto-free.sh
-        echo '${base64encode(data.template_file.auto-paid.rendered)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
-        echo '${base64encode(data.template_file.protonvpn.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
-        echo '${base64encode(data.template_file.protonvpn-baseline.rendered)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
-        echo '${base64encode(data.template_file.baseline.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
-        echo '${base64encode(data.template_file.discovery.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
-        echo '${base64encode(data.template_file.evasion.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
-        echo '${base64encode(data.template_file.cloudransom.rendered)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
-        echo '${base64encode(data.template_file.cloudcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
-        echo '${base64encode(data.template_file.hostcrypto.rendered)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
+        echo '${base64encode(local.start)}' | base64 -d > /${local.attack_dir}/start.sh
+        echo '${base64encode(local.auto-free)}' | base64 -d > /${local.attack_dir}/auto-free.sh
+        echo '${base64encode(local.auto-paid)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
+        echo '${base64encode(local.protonvpn)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
+        echo '${base64encode(local.protonvpn-baseline)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
+        echo '${base64encode(local.baseline)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
+        echo '${base64encode(local.discovery)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
+        echo '${base64encode(local.evasion)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
+        echo '${base64encode(local.cloudransom)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
+        echo '${base64encode(local.cloudcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
+        echo '${base64encode(local.hostcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
         for i in $(echo "AU CR IS JP LV NL NZ SG SK US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
         while ! which docker > /dev/null || ! docker ps > /dev/null; do
             log "docker not found or not ready - waiting"
@@ -46,81 +46,162 @@ locals {
     fi;
     EOT
     base64_payload = base64encode(local.payload)
+
+    protonvpn       = templatefile(
+                                "${path.module}/resources/protonvpn.env.tpl", 
+                                {
+                                    protonvpn_user = var.protonvpn_user
+                                    protonvpn_password = var.protonvpn_password
+                                    protonvpn_server = var.protonvpn_server
+                                    protonvpn_tier = tostring(var.protonvpn_tier)
+                                    protonvpn_protocol = var.protonvpn_protocol
+                                }
+                            )
+    protonvpn-baseline  = templatefile(
+                                "${path.module}/resources/protonvpn.env.tpl", 
+                                {
+                                    protonvpn_user = var.protonvpn_user
+                                    protonvpn_password = var.protonvpn_password
+                                    protonvpn_server = "US"
+                                    protonvpn_tier = tostring(var.protonvpn_tier)
+                                    protonvpn_protocol = var.protonvpn_protocol
+                                }
+                            )
+    auto-free   = templatefile(
+                                "${path.module}/resources/auto-free.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    auto-paid   = templatefile(
+                                "${path.module}/resources/auto-paid.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    baseline    = templatefile(
+                                "${path.module}/resources/baseline.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    discovery   = templatefile(
+                                "${path.module}/resources/discovery.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    evasion     = templatefile(
+                                "${path.module}/resources/evasion.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    cloudransom = templatefile(
+                                "${path.module}/resources/cloudransom.sh.tpl",
+                                {
+                                    
+                                }
+                            )
+    cloudcrypto = templatefile(
+                                "${path.module}/resources/cloudcrypto.tf.tpl",
+                                {
+                                    name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
+                                    instances = 12
+                                    wallet = var.ethermine_wallet
+                                    region = var.region
+                                }
+                            )
+    hostcrypto  = templatefile(
+                                "${path.module}/resources/hostcrypto.tf.tpl",
+                                {
+                                    name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
+                                    region = var.region
+                                    instances = 1
+                                    minergate_user = var.minergate_user
+                                }
+                            )
+    start       = templatefile(
+                                "${path.module}/resources/start.sh.tpl",
+                                {
+                                    
+                                }
+                            )
 }
 
-data "template_file" "protonvpn" {
-    template = file("${path.module}/resources/protonvpn.env.tpl")
+# data "template_file" "protonvpn" {
+#     template = file("${path.module}/resources/protonvpn.env.tpl")
 
-    vars = {
-        protonvpn_user = var.protonvpn_user
-        protonvpn_password = var.protonvpn_password
-        protonvpn_server = var.protonvpn_server
-        protonvpn_tier = tostring(var.protonvpn_tier)
-        protonvpn_protocol = var.protonvpn_protocol
-    }
-}
+#     vars = {
+#         protonvpn_user = var.protonvpn_user
+#         protonvpn_password = var.protonvpn_password
+#         protonvpn_server = var.protonvpn_server
+#         protonvpn_tier = tostring(var.protonvpn_tier)
+#         protonvpn_protocol = var.protonvpn_protocol
+#     }
+# }
 
-data "template_file" "protonvpn-baseline" {
-    template = file("${path.module}/resources/protonvpn.env.tpl")
+# data "template_file" "protonvpn-baseline" {
+#     template = file("${path.module}/resources/protonvpn.env.tpl")
 
-    vars = {
-        protonvpn_user = var.protonvpn_user
-        protonvpn_password = var.protonvpn_password
-        protonvpn_server = "US"
-        protonvpn_tier = tostring(var.protonvpn_tier)
-        protonvpn_protocol = var.protonvpn_protocol
-    }
-}
+#     vars = {
+#         protonvpn_user = var.protonvpn_user
+#         protonvpn_password = var.protonvpn_password
+#         protonvpn_server = "US"
+#         protonvpn_tier = tostring(var.protonvpn_tier)
+#         protonvpn_protocol = var.protonvpn_protocol
+#     }
+# }
 
-data "template_file" "auto-free" {
-    template = file("${path.module}/resources/auto-free.sh.tpl")
-}
+# data "template_file" "auto-free" {
+#     template = file("${path.module}/resources/auto-free.sh.tpl")
+# }
 
-data "template_file" "auto-paid" {
-    template = file("${path.module}/resources/auto-paid.sh.tpl")
-}
+# data "template_file" "auto-paid" {
+#     template = file("${path.module}/resources/auto-paid.sh.tpl")
+# }
 
-data "template_file" "baseline" {
-    template = file("${path.module}/resources/baseline.sh.tpl")
-}
+# data "template_file" "baseline" {
+#     template = file("${path.module}/resources/baseline.sh.tpl")
+# }
 
-data "template_file" "discovery" {
-    template = file("${path.module}/resources/discovery.sh.tpl")
-}
+# data "template_file" "discovery" {
+#     template = file("${path.module}/resources/discovery.sh.tpl")
+# }
 
-data "template_file" "evasion" {
-    template = file("${path.module}/resources/evasion.sh.tpl")
-}
+# data "template_file" "evasion" {
+#     template = file("${path.module}/resources/evasion.sh.tpl")
+# }
 
-data "template_file" "cloudransom" {
-    template = file("${path.module}/resources/cloudransom.sh.tpl")
-}
+# data "template_file" "cloudransom" {
+#     template = file("${path.module}/resources/cloudransom.sh.tpl")
+# }
 
-data "template_file" "cloudcrypto" {
-    template = file("${path.module}/resources/cloudcrypto.tf.tpl")
+# data "template_file" "cloudcrypto" {
+#     template = file("${path.module}/resources/cloudcrypto.tf.tpl")
 
-    vars = {
-        name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
-        instances = 12
-        wallet = var.ethermine_wallet
-        region = var.region
-    }
-}
+#     vars = {
+#         name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
+#         instances = 12
+#         wallet = var.ethermine_wallet
+#         region = var.region
+#     }
+# }
 
-data "template_file" "hostcrypto" {
-    template = file("${path.module}/resources/hostcrypto.tf.tpl")
+# data "template_file" "hostcrypto" {
+#     template = file("${path.module}/resources/hostcrypto.tf.tpl")
 
-    vars = {
-        name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
-        region = var.region
-        instances = 1
-        minergate_user = var.minergate_user
-    }
-}
+#     vars = {
+#         name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
+#         region = var.region
+#         instances = 1
+#         minergate_user = var.minergate_user
+#     }
+# }
 
-data "template_file" "start" {
-    template = file("${path.module}/resources/start.sh.tpl")
-}
+# data "template_file" "start" {
+#     template = file("${path.module}/resources/start.sh.tpl")
+# }
 
 resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
   name          = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"

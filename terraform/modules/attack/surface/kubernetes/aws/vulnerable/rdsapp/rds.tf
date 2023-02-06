@@ -152,20 +152,35 @@ resource "aws_db_instance" "database" {
   }
 }
 
-data "template_file" "database" {
-  template = file("${path.module}/resources/bootstrap.sql.tpl")
-
-  vars = {
-    iam_db_user = local.service_account_db_user
-    database_name = local.database_name
-  }
+locals {
+  
+  database = templatefile(
+                          "${path.module}/resources/bootstrap.sql.tpl",
+                          {
+                            iam_db_user = local.service_account_db_user
+                            database_name = local.database_name
+                          }
+                        )
+  rds_cert = templatefile(
+                          "${path.module}/resources/rds-combined-ca-bundle.pem",
+                          {}
+                        )
 }
 
-data "template_file" "rds_cert" {
-    template = file("${path.module}/resources/rds-combined-ca-bundle.pem")
+# data "template_file" "database" {
+#   template = file("${path.module}/resources/bootstrap.sql.tpl")
 
-    vars = {}
-}
+#   vars = {
+#     iam_db_user = local.service_account_db_user
+#     database_name = local.database_name
+#   }
+# }
+
+# data "template_file" "rds_cert" {
+#     template = file("${path.module}/resources/rds-combined-ca-bundle.pem")
+
+#     vars = {}
+# }
 
 # bootstrap iam user
 resource "kubernetes_job_v1" "database_bootstrap" {
@@ -183,8 +198,8 @@ resource "kubernetes_job_v1" "database_bootstrap" {
           command = ["/bin/sh", "-c"]
           args =    [
                     <<EOT
-                    echo ${base64encode(data.template_file.rds_cert.rendered)} | base64 -d > rds-combined-ca-bundle.pem && \
-                    /bin/sh <<< $(echo ${base64encode("mysql --ssl-ca=rds-combined-ca-bundle.pem --ssl-mode=REQUIRED -h $DB_APP_URL -u${local.init_db_username} -p${local.init_db_password} <<< $(echo ${base64encode(data.template_file.database.rendered)} | base64 -d)")} | base64 -d)
+                    echo ${base64encode(local.rds_cert)} | base64 -d > rds-combined-ca-bundle.pem && \
+                    /bin/sh <<< $(echo ${base64encode("mysql --ssl-ca=rds-combined-ca-bundle.pem --ssl-mode=REQUIRED -h $DB_APP_URL -u${local.init_db_username} -p${local.init_db_password} <<< $(echo ${base64encode(local.database)} | base64 -d)")} | base64 -d)
                     EOT
           ]
           env {

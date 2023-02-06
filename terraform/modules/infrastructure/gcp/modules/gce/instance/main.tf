@@ -3,16 +3,19 @@ data "google_compute_zones" "this" {
 }
 
 locals {
-  tags = {
-    for key, value in var.tags :
-      lower(key) => lower(value)
-  }
+    tags = {
+        for key, value in var.tags : lower(key) => lower(value)
+    }
+    startup = templatefile(
+                            "${path.module}/resources/startup.sh",
+                            {} 
+                        )
 }
 
-data "template_file" "startup" {
-    template = file("${path.module}/resources/startup.sh")
-    vars = {}
-}
+# data "template_file" "startup" {
+#     template = file("${path.module}/resources/startup.sh")
+#     vars = {}
+# }
 
 resource "google_compute_instance" "instance" {
     name         = var.name
@@ -51,7 +54,7 @@ resource "google_compute_instance" "instance" {
     # converted label keys to lower
     labels = local.tags
 
-    metadata_startup_script = can(length(var.user_data)) ? var.user_data : data.template_file.startup.rendered
+    metadata_startup_script = can(length(var.user_data)) ? var.user_data : local.startup
 
     service_account {
         # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.

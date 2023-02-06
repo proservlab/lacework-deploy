@@ -31,13 +31,25 @@ resource "aws_iam_access_key" "user_access_keys" {
   ]
 }
 
-# credentials template for each user - could be improved
-data "template_file" "access_keys" {
-  for_each = { for i in var.users : i.name => i }
-  template = <<-EOT
-    AWS_ACCESS_KEY_ID=${aws_iam_access_key.user_access_keys[each.key].id}
-    AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.user_access_keys[each.key].secret}
-    AWS_DEFAULT_REGION=${var.region}
-    AWS_DEFAULT_OUTPUT=json
-    EOT
+locals {
+  access_keys = { for user in var.users: user.name => {
+                    rendered =  <<-EOT
+                                AWS_ACCESS_KEY_ID=${aws_iam_access_key.user_access_keys[user.name].id}
+                                AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.user_access_keys[user.name].secret}
+                                AWS_DEFAULT_REGION=${var.region}
+                                AWS_DEFAULT_OUTPUT=json
+                                EOT
+                  } 
+                }
 }
+
+# credentials template for each user - could be improved
+# data "template_file" "access_keys" {
+#   for_each = { for i in var.users : i.name => i }
+#   template = <<-EOT
+#     AWS_ACCESS_KEY_ID=${aws_iam_access_key.user_access_keys[each.key].id}
+#     AWS_SECRET_ACCESS_KEY=${aws_iam_access_key.user_access_keys[each.key].secret}
+#     AWS_DEFAULT_REGION=${var.region}
+#     AWS_DEFAULT_OUTPUT=json
+#     EOT
+# }

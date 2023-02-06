@@ -1,27 +1,38 @@
 locals {
     kubeconfig_path = pathexpand("~/.kube/aws-${var.environment}-${var.deployment}-kubeconfig")
+    kubeconfig = templatefile(
+                                "${path.module}/resources/kubeconfig.yaml.tpl",
+                                {
+                                  cluster_endpoint = data.aws_eks_cluster.provider.endpoint
+                                  cluster_certificate_authority = data.aws_eks_cluster.provider.certificate_authority[0].data
+                                  cluster_arn = data.aws_eks_cluster.provider.arn
+                                  aws_profile_name = var.aws_profile_name
+                                  aws_region = var.region
+                                  cluster_name = data.aws_eks_cluster.provider.id
+                                }
+                              )
 }
 
 data "aws_eks_cluster" "provider" {
   name = "${var.cluster_name}"
 }
 
-data "template_file" "kubeconfig" {
-  template = file("${path.module}/resources/kubeconfig.yaml.tpl")
+# data "template_file" "kubeconfig" {
+#   template = file("${path.module}/resources/kubeconfig.yaml.tpl")
 
-  vars = {
-    cluster_endpoint = data.aws_eks_cluster.provider.endpoint
-    cluster_certificate_authority = data.aws_eks_cluster.provider.certificate_authority[0].data
-    cluster_arn = data.aws_eks_cluster.provider.arn
-    aws_profile_name = var.aws_profile_name
-    aws_region = var.region
-    cluster_name = data.aws_eks_cluster.provider.id
-  }
-}
+#   vars = {
+#     cluster_endpoint = data.aws_eks_cluster.provider.endpoint
+#     cluster_certificate_authority = data.aws_eks_cluster.provider.certificate_authority[0].data
+#     cluster_arn = data.aws_eks_cluster.provider.arn
+#     aws_profile_name = var.aws_profile_name
+#     aws_region = var.region
+#     cluster_name = data.aws_eks_cluster.provider.id
+#   }
+# }
 
 resource "local_file" "kubeconfig" {
   filename = local.kubeconfig_path
-  content = data.template_file.kubeconfig.rendered
+  content = local.kubeconfig
 }
 
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)

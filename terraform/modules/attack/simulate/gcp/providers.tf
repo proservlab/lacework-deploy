@@ -9,18 +9,21 @@ locals {
 }
 
 provider "google" {
+  credentials = can(length(local.default_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
   project = local.default_infrastructure_config.context.gcp.project_id
   region = local.default_infrastructure_config.context.gcp.region
 }
 
 provider "google" {
   alias = "attacker"
+  credentials = can(length(local.attacker_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
   project = local.attacker_infrastructure_config.context.gcp.project_id
   region = local.attacker_infrastructure_config.context.gcp.region
 }
 
 provider "google" {
   alias = "target"
+  credentials = can(length(local.target_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
   project = local.target_infrastructure_config.context.gcp.project_id
   region = local.target_infrastructure_config.context.gcp.region
 }

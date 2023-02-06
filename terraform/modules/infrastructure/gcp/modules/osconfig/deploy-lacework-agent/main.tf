@@ -10,7 +10,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   project     = var.gcp_project_id
   location    = var.gcp_location
-  name        = "lacework-install-policy"
+  name        = "lacework-install-policy-${var.environment}-${var.deployment}"
   description = "OS policy to install Lacework agent"
 
   instance_filter {
@@ -18,7 +18,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
     inclusion_labels {
       labels = {
-        osconfig_deploy_lacework = "true"
+        osconfig_deploy_lacework = true
       }
     }
   }

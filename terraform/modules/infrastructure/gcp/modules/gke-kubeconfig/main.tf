@@ -1,5 +1,14 @@
 locals {
   kubeconfig_path = pathexpand("~/.kube/gcp-${var.environment}-${var.deployment}-kubeconfig")
+  kubeconfig = templatefile(
+                              "${path.module}/resources/kubeconfig.yaml.tpl",
+                              {
+                                cluster_endpoint = data.google_container_cluster.provider.endpoint
+                                cluster_certificate_authority = data.google_container_cluster.provider.master_auth[0].cluster_ca_certificate
+                                gcp_location = var.gcp_location
+                                cluster_name = "${var.cluster_name}"
+                              }
+                            )
 }
 
 data "google_container_cluster" "provider" {
@@ -7,20 +16,20 @@ data "google_container_cluster" "provider" {
   location = var.gcp_location
 }
 
-data "template_file" "kubeconfig" {
-  template = file("${path.module}/resources/kubeconfig.yaml.tpl")
+# data "template_file" "kubeconfig" {
+#   template = file("${path.module}/resources/kubeconfig.yaml.tpl")
 
-  vars = {
-    cluster_endpoint = data.google_container_cluster.provider.endpoint
-    cluster_certificate_authority = data.google_container_cluster.provider.master_auth[0].cluster_ca_certificate
-    gcp_region = var.gcp_location
-    cluster_name = "${var.cluster_name}"
-  }
-}
+#   vars = {
+#     cluster_endpoint = data.google_container_cluster.provider.endpoint
+#     cluster_certificate_authority = data.google_container_cluster.provider.master_auth[0].cluster_ca_certificate
+#     gcp_region = var.gcp_location
+#     cluster_name = "${var.cluster_name}"
+#   }
+# }
 
 resource "local_file" "kubeconfig" {
   filename = local.kubeconfig_path
-  content = data.template_file.kubeconfig.rendered
+  content = local.kubeconfig
 }
 
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)

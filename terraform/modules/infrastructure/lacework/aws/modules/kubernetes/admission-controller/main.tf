@@ -62,15 +62,26 @@ resource "tls_locally_signed_cert" "admission" {
   validity_period_hours = 2400000
 }
 
-data "template_file" "values" {
-  template = file("${path.module}/resources/values.yaml.tpl")
-
-  vars = {
-    lacework_account_name = var.lacework_account_name
-    # lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
-    lacework_proxy_token = lacework_integration_proxy_scanner.proxyscanner.server_token
-  }
+locals {
+    values = templatefile(
+                            "${path.module}/resources/values.yaml.tpl",
+                            {
+                              lacework_account_name = var.lacework_account_name
+                              # lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
+                              lacework_proxy_token = lacework_integration_proxy_scanner.proxyscanner.server_token
+                            }
+                          )
 }
+
+# data "template_file" "values" {
+#   template = file("${path.module}/resources/values.yaml.tpl")
+
+#   vars = {
+#     lacework_account_name = var.lacework_account_name
+#     # lacework_proxy_token = can(length(var.lacework_proxy_token)) ? var.lacework_proxy_token : lacework_integration_proxy_scanner.proxyscanner[0].server_token
+#     lacework_proxy_token = lacework_integration_proxy_scanner.proxyscanner.server_token
+#   }
+# }
 
 resource "helm_release" "admission-controller" {
     name       = "lacework-admission-controller-${var.environment}-${var.deployment}"
@@ -81,7 +92,7 @@ resource "helm_release" "admission-controller" {
     namespace = "lacework"
     force_update = true
     
-    values = [data.template_file.values.rendered]
+    values = [local.values]
 
     set {
         name  = "webhooks.caBundle"
