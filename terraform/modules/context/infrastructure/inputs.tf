@@ -45,7 +45,6 @@ variable "config" {
           enabled               = bool
           deploy_git            = bool
           deploy_docker         = bool
-          deploy_inspector_agent = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
         })
@@ -283,7 +282,6 @@ variable "config" {
           enabled               = false
           deploy_git            = false
           deploy_docker         = false
-          deploy_inspector_agent = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
         }
