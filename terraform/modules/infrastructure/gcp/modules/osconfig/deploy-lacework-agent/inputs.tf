@@ -12,7 +12,7 @@ variable "gcp_location" {
     type = string
 }
 
-variable "gcp_project" {
+variable "gcp_project_id" {
     type    = string
 }
 
