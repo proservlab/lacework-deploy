@@ -10,7 +10,7 @@
           "drop": {
             "malware": {
               "eicar": { 
-                "enabled": false,
+                "enabled": true,
                 "eicar_path": "/tmp/eicar"
               }
             }
