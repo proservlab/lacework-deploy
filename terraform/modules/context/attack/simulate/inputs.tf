@@ -14,10 +14,12 @@ variable "config" {
       gcp = object({
         region                    = string
         project_id                = string
+        enabled                   = bool
       })
       aws = object({
         region                    = string
         profile_name              = string
+        enabled                   = bool
         ssm = object({
           target = object({
             drop = object({
@@ -140,10 +142,12 @@ variable "config" {
       gcp = {
         region                    = "us-central1"
         project_id                = null
+        enabled                   = false
       }
       aws = {
         region                    = "us-east-1"
         profile_name              = null
+        enabled                   = false
         ssm = {
           target = {
             drop = {
