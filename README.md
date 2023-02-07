@@ -32,9 +32,9 @@ lacework_server_url = "https://xxxxxx.lacework.net"
 ```
 
 Define the environment using json configuration files in the scenarios directory.
-################################################## Manual execution
+## Manual execution
 
-################################################## setup
+## setup
 1. download install or upgrade to terraform 1.3.7. download zip files can be found here: https://releases.hashicorp.com/terraform/1.3.7/
 2. create two aws profiles (attacker and target) they can be the same cloud account just make sure the names are present
 3. create a name lacework profile `lacework configure -j <APIKEY> --profile=<LACEWORK_PROFILENAME>
@@ -50,10 +50,10 @@ lacework_server_url = "<LACEWORK URL (e.g. https://mytenant.lacework.net)"
 
 **terraform build**
 ```
-################################################## change to terraform directory
+## change to terraform directory
 cd lacework-deploy/terraform
 
-################################################## initial setup and workspace creation
+## initial setup and workspace creation
 WORKSPACE=<WORKSPACE>
 terraform workspace select ${WORKSPACE} || terraform workspace new ${WORKSPACE}
 terraform init -upgrade
@@ -81,18 +81,18 @@ terraform plan -destroy -var-file=env_vars/variables-<WORKSPACE>.tfvars  -out bu
 
 All AWS instances are setup with SSM management. They can be access via aws-cli ssm commands. This applies to public and private instances as well as cluster nodes.
 
-################################################## List SSM Managed Instances
+## List SSM Managed Instances
 
 Output a json list of instance id, state, privateip, publicip and tags for all ssm managed instances
 `export ENV=<target|attacker>; aws ssm describe-instance-information --profile=$ENV | jq -r '.InstanceInformationList[] | .InstanceId' | xargs -I '{}' aws ec2 --profile=$ENV describe-instances --instance-id {} | jq -r '.Reservations[] | .Instances[] | { Name:(.Tags|from_entries.Name), InstanceId:.InstanceId, State:.State.Name, PublicIpAddress:.PublicIpAddress, PrivateIpAddress:.PrivateIpAddress }'`
 
-################################################## Connect to Shell on SSM Managed Instance
+## Connect to Shell on SSM Managed Instance
 
 ` aws ssm start-session  --target "<INSTANCE_ID>" --profile=<target|attacker>`
 
 # Metatdata
 
-################################################## AWS Meta-Data
+## AWS Meta-Data
 
 Retrieve public ip address of host on aws from the local machine:
 `curl -s "http://169.254.169.254/latest/meta-data/public-ipv4"`
@@ -100,7 +100,7 @@ Retrieve public ip address of host on aws from the local machine:
 Retrieve instance tags of host on aws from local machine:
 `curl -s "http://169.254.169.254/latest/meta-data/tags/instance"`
 
-################################################## GCP Meta-Data
+## GCP Meta-Data
 
 Reteive meta data for compute instance from the local machine:
 `curl -s "http://metadata.google.internal/computeMetadata/v1/instance/"`
