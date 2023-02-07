@@ -115,46 +115,46 @@ module "gke" {
 ##################################################
 
 # osconfig deploy git
-# module "osconfig-deploy-git" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.deploy_git== true ) ? 1 : 0
-#   source       = "./modules/osconfig/deploy-git"
-#   gcp_project_id                      = local.config.context.gcp.project_id
-#   gcp_location                        = local.config.context.gcp.region
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-# }
+module "osconfig-deploy-git" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_git== true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-git"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+}
 
-# # osconfig deploy docker
-# module "osconfig-deploy-docker" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled && local.config.context.aws.ssm.deploy_docker== true ) ? 1 : 0
-#   source       = "./modules/osconfig/deploy-docker"
-#   gcp_project_id                      = local.config.context.gcp.project_id
-#   gcp_location                        = local.config.context.gcp.region
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-# }
+# osconfig deploy docker
+module "osconfig-deploy-docker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true  && local.config.context.gcp.osconfig.deploy_docker== true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-docker"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+}
 
 # osconfig deploy lacework agent
 module "osconfig-deploy-lacework-agent" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_agent == true ) ? 1 : 0
   source       = "./modules/osconfig/deploy-lacework-agent"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-  gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
 
   lacework_agent_access_token = local.config.context.lacework.agent.token
   lacework_server_url         = local.config.context.lacework.server_url
 }
 
-# # osconfig deploy lacework syscall_config.yaml
-# module "lacework-osconfig-deployment-syscall-config" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled && local.config.context.aws.ssm.deploy_lacework_syscall_config == true ) ? 1 : 0
-#   source       = "./modules/osconfig/deploy-lacework-syscall-config"
-#   gcp_project_id                      = local.config.context.gcp.project_id
-#   gcp_location                        = local.config.context.gcp.region
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
+# osconfig deploy lacework syscall_config.yaml
+module "lacework-osconfig-deployment-syscall-config" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_syscall_config == true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-lacework-syscall-config"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
 
-#   syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
-# }
+  syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+}

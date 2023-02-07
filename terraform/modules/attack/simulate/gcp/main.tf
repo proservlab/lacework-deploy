@@ -87,7 +87,7 @@ locals {
 #   instance_tags = {
 #     environment = "target"
 #     deployment  = var.config.context.global.deployment
-#     ssm_exec_git_codecov_target = "true"
+#     ssm_connect_codecov = "true"
 #   }
 # }
 

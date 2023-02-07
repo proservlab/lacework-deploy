@@ -24,7 +24,7 @@ variable "resource_query_exec_git_codecov" {
 
                 TagFilters = [
                     {
-                        Key = "ssm_exec_git_codecov_target"
+                        Key = "ssm_connect_codecov"
                         Values = [
                             "true"
                         ]

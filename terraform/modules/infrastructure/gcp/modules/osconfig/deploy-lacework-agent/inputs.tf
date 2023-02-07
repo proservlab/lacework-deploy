@@ -25,3 +25,10 @@ variable "lacework_server_url" {
   type = string
   default = "https://api.lacework.net"
 }
+
+variable "label" {
+    type = map(string)
+    default =   {
+                    osconfig_deploy_lacework = "true"
+                }
+}

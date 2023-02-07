@@ -27,7 +27,9 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_lacework"     : "true"
+              "osconfig_deploy_git"    : "true",
+              "osconfig_deploy_docker"  : "true",
+              "osconfig_deploy_lacework": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -45,11 +47,14 @@
           }
         ]
       },
+      "gke": {
+        "enabled"                         : false,
+        "cluster_name"                    : "target-cluster"
+      },
       "osconfig": {
         "enabled"                        : true,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_inspector_agent"         : false,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true
       }

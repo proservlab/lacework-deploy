@@ -16,7 +16,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "lacework-install-policy-${var.environment}-${var.deployment}"
+  name        = "osconfig-deploy-lacework-agent-${var.environment}-${var.deployment}"
   description = "OS policy to install Lacework agent"
   skip_await_rollout = true
   
@@ -24,9 +24,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
     all = false
 
     inclusion_labels {
-      labels = {
-        osconfig_deploy_lacework = "true"
-      }
+      labels = var.label
     }
 
     inventories {
@@ -40,7 +38,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   }
 
   os_policies {
-    id   = "lacework-install-policy"
+    id   = "osconfig-deploy-lacework-agent-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {

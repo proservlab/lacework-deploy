@@ -19,12 +19,6 @@ variable "gcp_project_id" {
 variable "label" {
     type = map(string)
     default =   {
-                    osconfig_deploy_malware_eicar = "true"
+                    osconfig_deploy_docker = "true"
                 }
-}
-
-variable "eicar_path" {
-  type = string
-  description = "Path to write eicar file (hostname will be appended)"
-  default = "/tmp/eicar"
 }

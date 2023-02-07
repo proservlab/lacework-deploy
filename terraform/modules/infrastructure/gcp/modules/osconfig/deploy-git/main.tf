@@ -1,32 +1,26 @@
 locals {
-    nmap_download = "https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap?raw=true"
-    nmap_path = "/tmp/nmap"
-    nmap_ports = join(",",var.nmap_scan_ports)
-    nmap_scan_host = var.nmap_scan_host
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_connect_enumerate_host.log
+    LOGFILE=/tmp/ssm_deploy_git.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "scan target: ${local.nmap_scan_host} ${local.nmap_ports}"
-    log "checking for nmap"
-    if ! which nmap; then
-        log "nmap not found"
-        log "downloading: ${local.nmap_download}"
-        if [ -f ${local.nmap_path} ]; then
-            curl -L -o ${local.nmap_path} ${local.nmap_download} >> $LOGFILE 2>&1
-            chmod 755 ${local.nmap_path} >> $LOGFILE 2>&1
-        fi
-        log "using nmap: ${local.nmap_path}"
-        ${local.nmap_path} -sS -p ${local.nmap_ports} ${local.nmap_scan_host} >> $LOGFILE 2>&1
-    else
-        nmap -sS -p ${local.nmap_ports} ${local.nmap_scan_host} >> $LOGFILE 2>&1
+    log "Checking for git..."
+    if ! which git; then
+        log "git not found installation required"
+        sudo apt-get update
+        sudo apt-get install -y \
+            git
     fi
-    log "done"
+    log "git path: $(which docker)"
     EOT
     base64_payload = base64encode(local.payload)
+}
+
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
 }
 
 resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
@@ -34,8 +28,8 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
-  description = "Connect codecov"
+  name        = "osconfig-deploy-git-${var.environment}-${var.deployment}"
+  description = "Deploy git"
   skip_await_rollout = true
   
   instance_filter {
@@ -56,7 +50,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   }
 
   os_policies {
-    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    id   = "osconfig-deploy-git-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {

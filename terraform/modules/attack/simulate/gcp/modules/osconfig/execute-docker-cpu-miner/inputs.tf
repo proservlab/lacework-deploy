@@ -8,25 +8,20 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-# variable "nicehash_image" {
-#     type = string
-#     description = "nicehash docker image"
-# }
+variable "gcp_location" {
+    type = string
+}
 
-# variable "nicehash_name" {
-#     type = string
-#     description = "nicehash docker name"
-# }
+variable "gcp_project_id" {
+    type    = string
+}
 
-# variable "nicehash_server" {
-#     type = string
-#     description = "nicehash server"
-# }
-
-# variable "nicehash_user" {
-#     type = string
-#     description = "nicehash user"
-# }
+variable "label" {
+    type = map(string)
+    default =   {
+                    osconfig_exec_docker_cpuminer = "true"
+                }
+}
 
 variable "minergate_image" {
     type = string
@@ -45,29 +40,4 @@ variable "minergate_server" {
 variable "minergate_user" {
     type = string
     description = "minergate user"
-}
-
-variable "resource_query_exec_docker_cpuminer" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
-
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_docker_cpuminer"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
 }
