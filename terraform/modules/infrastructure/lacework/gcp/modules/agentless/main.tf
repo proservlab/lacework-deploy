@@ -3,7 +3,7 @@ module "lacework_gcp_agentless_scanning_project_single_region" {
   version = "~> 0.1"
 
   project_filter_list = [
-    "proservlab-root"
+    var.gcp_project_id
   ]
 
   global                    = true

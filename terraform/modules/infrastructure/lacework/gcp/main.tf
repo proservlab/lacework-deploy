@@ -39,11 +39,7 @@ module "lacework-gcp-audit-config" {
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
   gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.gcp.region
-
-  providers = {
-    google = google.lacework
-  }
+  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
 }
 
 module "lacework-gcp-agentless" {
@@ -52,15 +48,11 @@ module "lacework-gcp-agentless" {
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
   gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.gcp.region
+  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
 
   project_filter_list = [
     var.config.context.gcp.project_id
   ]
-
-  providers = {
-    google = google.lacework
-  }
 }
 
 

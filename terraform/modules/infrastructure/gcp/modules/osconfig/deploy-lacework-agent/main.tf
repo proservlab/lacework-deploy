@@ -1,6 +1,11 @@
 resource "random_uuid" "agent" {
 }
 
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
+}
+
 resource "lacework_agent_access_token" "agent" {
     count = can(length(var.lacework_agent_access_token)) ? 0 : 1
     name = "endpoint-gcp-agent-access-token-${var.environment}-${var.deployment}"
@@ -9,18 +14,29 @@ resource "lacework_agent_access_token" "agent" {
 resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   project     = var.gcp_project_id
-  location    = var.gcp_location
+  location    = data.google_compute_zones.available.names[0]
+  
   name        = "lacework-install-policy-${var.environment}-${var.deployment}"
   description = "OS policy to install Lacework agent"
-
+  skip_await_rollout = true
+  
   instance_filter {
     all = false
 
     inclusion_labels {
       labels = {
-        osconfig_deploy_lacework = true
+        osconfig_deploy_lacework = "true"
       }
     }
+
+    inventories {
+      os_short_name = "ubuntu"
+    }
+
+    inventories {
+      os_short_name = "debian"
+    }
+
   }
 
   os_policies {
@@ -56,7 +72,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "/$HOME/os-policy-tf.out"
+            output_file_path = "$HOME/os-policy-tf.out"
             script           = "if test -f /var/lib/lacework/config/config.json; then exit 100; else exit 101; fi"
           }
           enforce {
@@ -73,6 +89,58 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
     disruption_budget {
       fixed = 1
     }
-    min_wait_duration = "3.5s"
+    min_wait_duration = "600s"
+  }
+}
+
+
+resource "google_os_config_os_policy_assignment" "test" {
+
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "test-install-policy-${var.environment}-${var.deployment}"
+  description = "OS policy to install test"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
+
+    inclusion_labels {
+      labels = {
+        osconfig_deploy_lacework = "true"
+      }
+    }
+
+  }
+
+  os_policies {
+    id   = "test-install-policy"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "touch-file"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if date > /tmp/testrun.txt; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "date > /tmp/enforce.txt && exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      fixed = 1
+    }
+    min_wait_duration = "600s"
   }
 }
