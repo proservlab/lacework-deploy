@@ -12,7 +12,7 @@ provider "google" {
 
 provider "google" {
   alias = "lacework"
-  credentials = can(length(var.config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
+  credentials = can(length(var.config.context.gcp_audit_config.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
   project = var.config.context.lacework.gcp_audit_config.project_id
   region = var.config.context.gcp.region
 }
