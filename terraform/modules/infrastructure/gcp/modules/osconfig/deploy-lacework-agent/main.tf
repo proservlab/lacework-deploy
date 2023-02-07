@@ -87,59 +87,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   rollout {
     disruption_budget {
-      fixed = 1
-    }
-    min_wait_duration = "600s"
-  }
-}
-
-
-resource "google_os_config_os_policy_assignment" "test" {
-
-  project     = var.gcp_project_id
-  location    = data.google_compute_zones.available.names[0]
-  
-  name        = "test-install-policy-${var.environment}-${var.deployment}"
-  description = "OS policy to install test"
-  skip_await_rollout = true
-  
-  instance_filter {
-    all = false
-
-    inclusion_labels {
-      labels = {
-        osconfig_deploy_lacework = "true"
-      }
-    }
-
-  }
-
-  os_policies {
-    id   = "test-install-policy"
-    mode = "ENFORCEMENT"
-
-    resource_groups {
-      resources {
-        id = "touch-file"
-        exec {
-          validate {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "if date > /tmp/testrun.txt; then exit 100; else exit 101; fi"
-          }
-          enforce {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "date > /tmp/enforce.txt && exit 100"
-          }
-        }
-      }
-    }
-  }
-
-  rollout {
-    disruption_budget {
-      fixed = 1
+      percent = 100
     }
     min_wait_duration = "600s"
   }
