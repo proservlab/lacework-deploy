@@ -1,6 +1,6 @@
 module "aws_config" {
   source  = "lacework/config/aws"
-  version = "~> 0.7.1"
+  version = "~> 0.9.0"
 }
 
 module "aws_cloudtrail" {

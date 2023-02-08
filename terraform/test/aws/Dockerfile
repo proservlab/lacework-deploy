@@ -25,4 +25,12 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && unzip awscliv2.zip \
     && ./aws/install
 
+# latest terraform
+RUN mkdir -p /workspace/terraform 
+COPY env_vars/ /workspace/terraform
+COPY modules/ /workspace/terraform
+COPY build.sh /workspace/terraform
+COPY *.tf /workspace/terraform
+
+
 ENTRYPOINT [ "/bin/bash" ]
