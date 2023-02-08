@@ -25,15 +25,15 @@ RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud
     && tar -xf google-cloud-cli-416.0.0-linux-x86_64.tar.gz \
     && ./google-cloud-sdk/install.sh -q
 
-# latest terraform
-RUN mkdir -p /workspace/terraform 
-COPY env_vars/ /workspace/terraform
-COPY modules/ /workspace/terraform
-COPY build.sh /workspace/terraform
-COPY *.tf /workspace/terraform
-
 ENV PATH="${PATH}:/google-cloud-sdk/bin"
 
 RUN gcloud components update --quiet
+
+# latest terraform
+RUN mkdir -p /workspace/terraform
+COPY env_vars /workspace/terraform/env_vars
+COPY modules /workspace/terraform/modules
+COPY build.sh /workspace/terraform
+COPY *.tf /workspace/terraform
 
 ENTRYPOINT [ "/bin/bash" ]
