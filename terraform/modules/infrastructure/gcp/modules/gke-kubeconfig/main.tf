@@ -5,6 +5,7 @@ locals {
                               {
                                 cluster_endpoint = data.google_container_cluster.provider.endpoint
                                 cluster_certificate_authority = data.google_container_cluster.provider.master_auth[0].cluster_ca_certificate
+                                gcp_project_id = var.gcp_project_id
                                 gcp_location = var.gcp_location
                                 cluster_name = "${var.cluster_name}"
                               }
