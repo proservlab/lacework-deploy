@@ -3,7 +3,7 @@ clusters:
 - cluster:
     server: ${ cluster_endpoint }
     certificate-authority-data: ${ cluster_certificate_authority }
-    name: gke_${ gcp_project_id }_${ gcp_location }_${ cluster_name }
+  name: gke_${ gcp_project_id }_${ gcp_location }_${ cluster_name }
 contexts:
 - context:
     cluster: gke_${ gcp_project_id }_${ gcp_location }_${ cluster_name }
