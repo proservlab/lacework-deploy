@@ -27,7 +27,7 @@ RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud
 
 ENV PATH="${PATH}:/google-cloud-sdk/bin"
 
-# RUN gcloud components update --quiet
+RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 # add kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \

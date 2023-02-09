@@ -48,6 +48,7 @@ resource "null_resource" "gke_context_switcher" {
   provisioner "local-exec" {
     command = <<-EOT
               set -e
+              export CLOUDSDK_CORE_PROJECT=${var.gcp_project_id}
               gcloud container clusters get-credentials ${var.cluster_name} --region=${var.gcp_location}
               export KUBECONFIG=${local.kubeconfig_path}
               gcloud container clusters get-credentials ${var.cluster_name} --region=${var.gcp_location}

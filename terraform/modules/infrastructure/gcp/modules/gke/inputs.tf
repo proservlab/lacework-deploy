@@ -68,16 +68,17 @@ variable "cloud_nat_logging_filter" {
 
 variable "vpc_subnetwork_cidr_range" {
   type = string
-  default = "10.0.0.0/16"
+  default = "10.0.16.0/20"
 }
 
 variable "cluster_secondary_range_name" {
   type = string
+  default = "services"
 }
 
 variable "cluster_secondary_range_cidr" {
   type = string
-  default = "10.2.0.0/24"
+  default = "10.16.0.0/12"
 }
 
 variable "services_secondary_range_name" {
@@ -86,12 +87,12 @@ variable "services_secondary_range_name" {
 
 variable "services_secondary_range_cidr" {
   type = string
-  default = "10.1.0.0/24"
+  default = "10.1.0.0/20"
 }
 
 variable "master_ipv4_cidr_block" {
   type    = string
-  default = "10.0.0.0/28"
+  default = "172.16.0.0/28"
 }
 
 variable "access_private_images" {
