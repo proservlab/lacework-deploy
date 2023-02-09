@@ -97,7 +97,7 @@ module "gke" {
   cluster_secondary_range_cidr  = "10.2.0.0/24"
   services_secondary_range_name = "services"
   services_secondary_range_cidr = "10.1.0.0/24"
-  master_ipv4_cidr_block        = "10.0.0.0/24"
+  master_ipv4_cidr_block        = "172.16.0.0/28"
   access_private_images         = "false"
   http_load_balancing_disabled  = "false"
   master_authorized_networks_cidr_blocks = [

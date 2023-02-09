@@ -38,6 +38,7 @@ resource "google_compute_instance" "default" {
 
     metadata = {
         enable-osconfig = "true"
+        enable-oslogin = "true"
     }
 
     labels = {

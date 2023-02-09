@@ -65,6 +65,8 @@ module "vpc" {
   private_app_network = var.private_network
   private_app_subnet = var.private_subnet
   private_app_nat_subnet = var.private_nat_subnet
+
+  service_account_email = module.service_account.service_account_email
 }
 
 # instances

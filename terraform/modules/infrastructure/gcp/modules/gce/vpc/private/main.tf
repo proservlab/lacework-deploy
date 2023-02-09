@@ -77,3 +77,18 @@ resource "google_compute_firewall" "egress_rules" {
     ports                 = var.private_egress_rules[count.index].protocol == "-1" ? null : [ var.private_egress_rules[count.index].from_port]
   }
 }
+
+resource "google_compute_firewall" "allow_ssh" {
+  name                    = "${var.environment}-${var.deployment}-${var.role}-iap-rule"
+  network                 = google_compute_network.network.name
+  project                 = var.gcp_project_id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  # Allow SSH only from IAP
+  source_ranges           = ["35.235.240.0/20"]
+  target_service_accounts = [var.service_account_email]
+}

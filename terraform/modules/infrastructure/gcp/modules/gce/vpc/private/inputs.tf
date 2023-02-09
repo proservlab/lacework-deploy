@@ -113,3 +113,7 @@ variable "private_nat_subnet" {
   description = "private nat subnet"
   default = "172.16.10.0/24"
 }
+
+variable "service_account_email" {
+    type = string
+}

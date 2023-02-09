@@ -27,6 +27,6 @@ output "cluster_subnetwork" {
 }
 
 output "cluster_nat_public_ip" {
-  value = data.google_compute_address.static_ip
+  value = google_compute_address.static_ip
 }
 

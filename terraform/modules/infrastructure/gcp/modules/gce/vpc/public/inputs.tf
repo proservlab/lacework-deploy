@@ -107,3 +107,7 @@ variable "public_app_subnet" {
   description = "subnet"
   default = "172.19.0.0/24"
 }
+
+variable "service_account_email" {
+    type = string
+}

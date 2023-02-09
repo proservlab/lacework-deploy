@@ -1,15 +1,19 @@
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
+}
+
 locals {
-  gcp_location_parts = split("-", var.gcp_location)
-  gcp_region         = format("%s-%s", local.gcp_location_parts[0], local.gcp_location_parts[1])
+  gcp_region         = data.google_compute_zones.available.names[0]
   release_channel    = var.release_channel == "" ? [] : [var.release_channel]
   min_master_version = var.release_channel == "" ? var.min_master_version : ""
   identity_namespace = var.identity_namespace == "" ? [] : [var.identity_namespace]
   authenticator_security_group = var.authenticator_security_group == "" ? [] : [var.authenticator_security_group]
 }
 
-data "google_compute_address" "static_ip" {
+resource "google_compute_address" "static_ip" {
   name    = "${var.cluster_name}-${var.environment}-${var.deployment}-nat-ip"
-  region  = "${var.gcp_location}"
+  region  = var.gcp_location
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -20,17 +24,18 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_compute_subnetwork" "vpc_subnetwork" {
   name    = "${var.vpc_subnetwork_name}-${var.environment}-${var.deployment}"
-  region  = local.gcp_region
+  region  = var.gcp_location
   project = var.gcp_project_id
 
   ip_cidr_range = var.vpc_subnetwork_cidr_range
 
-  network = var.vpc_network_name
+  network = google_compute_network.vpc_network.name
 
   secondary_ip_range {
     range_name    = var.cluster_secondary_range_name
     ip_cidr_range = var.cluster_secondary_range_cidr
   }
+  
   secondary_ip_range {
     range_name    = var.services_secondary_range_name
     ip_cidr_range = var.services_secondary_range_cidr
@@ -45,20 +50,20 @@ resource "google_compute_subnetwork" "vpc_subnetwork" {
 
 resource "google_compute_router" "router" {
   count   = var.enable_cloud_nat ? 1 : 0
-  name    = format("%s-router", "${var.cluster_name}-${var.environment}-${var.deployment}")
-  region  = local.gcp_region
+  name    = "${var.cluster_name}-${var.environment}-${var.deployment}-router"
+  region  = var.gcp_location
   network = google_compute_network.vpc_network.self_link
 }
 
 resource "google_compute_router_nat" "nat" {
   count = var.enable_cloud_nat ? 1 : 0
-  name  = format("%s-nat", "${var.cluster_name}-${var.environment}-${var.deployment}")
+  name  = "${var.cluster_name}-${var.environment}-${var.deployment}-nat"
   // Because router has the count attribute set we have to use [0] here to
   // refer to its attributes.
   router = google_compute_router.router[0].name
   region = google_compute_router.router[0].region
   nat_ip_allocate_option = "MANUAL_ONLY"
-  nat_ips = ["${data.google_compute_address.static_ip.self_link}"]
+  nat_ips = ["${google_compute_address.static_ip.self_link}"]
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
   log_config {
@@ -127,8 +132,8 @@ resource "google_container_cluster" "cluster" {
     }
   }
 
-  network    = var.vpc_network_name
-  subnetwork = var.vpc_subnetwork_name
+  network    = google_compute_network.vpc_network.name
+  subnetwork = google_compute_subnetwork.vpc_subnetwork.name
 
   ip_allocation_policy {
     cluster_secondary_range_name  = var.cluster_secondary_range_name
@@ -163,7 +168,6 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "node_pool" {
-  provider = google
   location = google_container_cluster.cluster.location
   count = length(var.node_pools)
   name = format("%s-pool", lookup(var.node_pools[count.index], "name", format("%03d", count.index + 1)))
@@ -224,7 +228,7 @@ resource "google_container_node_pool" "node_pool" {
 }
 
 data "google_container_cluster" "my_cluster" {
-  name     = "${var.cluster_name}-${var.environment}-${var.deployment}"
+  name     = google_container_cluster.cluster.name
   location = var.gcp_location
 
   depends_on = [

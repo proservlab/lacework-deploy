@@ -1,4 +1,4 @@
-data "google_compute_zones" "this" {
+data "google_compute_zones" "available" {
     region = var.gcp_location
 }
 
@@ -22,7 +22,7 @@ resource "google_compute_instance" "instance" {
     machine_type = var.instance_type
     project      = var.gcp_project_id
 
-    zone         = data.google_compute_zones.this.names[0]
+    zone         = data.google_compute_zones.available.names[0]
 
     # tags = ["foo", "bar"]
 
@@ -49,6 +49,7 @@ resource "google_compute_instance" "instance" {
 
     metadata = {
         enable-osconfig = "true"
+        enable-oslogin = "true"
     }
 
     # converted label keys to lower

@@ -14,6 +14,8 @@ module "public" {
     public_ingress_rules = var.public_ingress_rules
     public_network = var.public_network
     public_subnet = var.public_subnet
+
+    service_account_email = var.service_account_email
 }
 
 module "public-app" {
@@ -32,6 +34,8 @@ module "public-app" {
     public_ingress_rules = var.public_app_ingress_rules
     public_network = var.public_app_network
     public_subnet = var.public_app_subnet
+
+    service_account_email = var.service_account_email
 }
 
 module "private" {
@@ -51,6 +55,8 @@ module "private" {
     private_network = var.private_network
     private_subnet = var.private_subnet
     private_nat_subnet = var.private_nat_subnet
+
+    service_account_email = var.service_account_email
 }
 
 module "private-app" {
@@ -70,4 +76,6 @@ module "private-app" {
     private_network = var.private_app_network
     private_subnet = var.private_app_subnet
     private_nat_subnet = var.private_app_nat_subnet
+
+    service_account_email = var.service_account_email
 }
