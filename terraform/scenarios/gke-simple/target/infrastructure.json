@@ -20,34 +20,10 @@
         "private_app_subnet"            : "172.17.100.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
-          {
-            "name"                      : "target-public-1",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "e2-micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          },
-          {
-            "name"                      : "target-private-1",
-            "public"                    : false,
-            "role"                      : "default",
-            "instance_type"             : "e2-micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          }
         ]
       },
       "gke": {
-        "enabled"                         : false,
+        "enabled"                         : true,
         "cluster_name"                    : "target-cluster"
       }
     },
