@@ -176,7 +176,7 @@ resource "google_container_node_pool" "node_pool" {
 
   autoscaling {
     min_node_count = lookup(var.node_pools[count.index], "autoscaling_min_node_count", 2)
-    max_node_count = lookup(var.node_pools[count.index], "autoscaling_max_node_count", 3)
+    max_node_count = lookup(var.node_pools[count.index], "autoscaling_max_node_count", 5)
   }
 
   version = lookup(var.node_pools[count.index], "version", "")

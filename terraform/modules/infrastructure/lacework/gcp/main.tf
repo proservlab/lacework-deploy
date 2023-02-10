@@ -101,3 +101,18 @@ module "lacework-admission-controller" {
     module.lacework-namespace
   ]
 }
+
+# lacework gke audit
+module "lacework-gke-audit" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gke.enabled == true && local.config.context.lacework.agent.kubernetes.gke_audit_logs.enabled == true  ) ? 1 : 0
+  source                              = "./modules/gke-audit"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+
+  gcp_project_id                      = local.config.context.gcp.project_id
+  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
+
+  depends_on = [
+    module.lacework-namespace
+  ]
+}
