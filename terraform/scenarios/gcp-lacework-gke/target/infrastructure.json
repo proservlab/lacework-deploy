@@ -8,7 +8,7 @@
       "region"               : "${ gcp_region }",
       "project_id"           : "${ gcp_project }",
       "gce" : {
-        "enabled"                : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -25,13 +25,6 @@
       "gke": {
         "enabled"                         : true,
         "cluster_name"                    : "target-cluster"
-      },
-      "osconfig": {
-        "enabled"                        : false,
-        "deploy_git"                     : true,
-        "deploy_docker"                  : true,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
       }
     },
     "lacework": {
@@ -52,22 +45,22 @@
         "enabled" : true,
 
         "kubernetes": {
-          "enabled" : false,
+          "enabled" : true,
           "proxy_scanner": {
-            "enabled" : false
+            "enabled" : true
           },
           "daemonset": {
-            "enabled"        : false,
+            "enabled"        : true,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
             "enabled" : false
           },
-          "eks_audit_logs": {
+          "gke_audit_logs": {
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : false
+            "enabled" : true
           }
         }
       },

@@ -18,6 +18,55 @@
             }
           }
         }
+      },
+      "kubernetes" :  {
+        "aws": {
+          "app" :  {
+            "enabled" :  false
+          },
+          "psp" :  {
+            "enabled" :  false
+          },
+          "vulnerable" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            },
+            "voteapp" :  {
+              "enabled" :  false
+            },
+            "rdsapp" :  {
+              "enabled" :  false
+            },
+            "privileged_pod" :  {
+              "enabled" :  false
+            },
+            "root_mount_fs_pod" :  {
+              "enabled" :  false
+            }
+          }
+        },
+        "gcp": {
+          "app" :  {
+            "enabled" :  false
+          },
+          "psp" :  {
+            "enabled" :  false
+          },
+          "vulnerable" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            },
+            "voteapp" :  {
+              "enabled" :  false
+            },
+            "privileged_pod" :  {
+              "enabled" :  false
+            },
+            "root_mount_fs_pod" :  {
+              "enabled" :  false
+            }
+          }
+        }
       }
     }
   }

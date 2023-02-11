@@ -190,7 +190,7 @@ resource "google_container_node_pool" "node_pool" {
     machine_type = lookup(
       var.node_pools[count.index],
       "node_config_machine_type",
-      "n1-standard-1",
+      "n1-standard-2",
     )
 
     service_account = google_service_account.default.email

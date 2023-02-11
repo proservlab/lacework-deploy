@@ -84,7 +84,7 @@ module "gke" {
       autoscaling_max_node_count = 3
       management_auto_upgrade    = true
       management_auto_repair     = true
-      node_config_machine_type   = "n1-standard-1"
+      node_config_machine_type   = "n1-standard-2"
       node_config_disk_type      = "pd-standard"
       node_config_disk_size_gb   = 100
       node_config_preemptible    = false

@@ -8,7 +8,7 @@
       "region"               : "${ gcp_region }",
       "project_id"           : "${ gcp_project }",
       "gce" : {
-        "enabled"                       : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -36,31 +36,31 @@
       },
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
-        "enabled"    : true
+        "enabled"    : false
       },
       "custom_policy": {
         "enabled" : false
       },
       "agent": {
-        "enabled" : true,
+        "enabled" : false,
 
         "kubernetes": {
-          "enabled" : true,
+          "enabled" : false,
           "proxy_scanner": {
-            "enabled" : true
+            "enabled" : false
           },
           "daemonset": {
-            "enabled"        : true,
+            "enabled"        : false,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
             "enabled" : false
           },
           "gke_audit_logs": {
-            "enabled" : true
+            "enabled" : false
           },
           "admission_controller": {
-            "enabled" : true
+            "enabled" : false
           }
         }
       },
@@ -68,7 +68,7 @@
         "enabled" : false
       },
       "gcp_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

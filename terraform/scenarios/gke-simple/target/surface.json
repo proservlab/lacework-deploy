@@ -47,7 +47,7 @@
         },
         "gcp": {
           "app" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "psp" :  {
             "enabled" :  false
