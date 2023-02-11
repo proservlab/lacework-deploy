@@ -131,13 +131,11 @@ if [ "plan" = "${ACTION}" ]; then
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
     ERR=$?
     terraform show ${PLANFILE}
-if [ "refresh" = "${ACTION}" ]; then
+elif [ "plan" = "${ACTION}" ]; then
     echo "Staging kubeconfig..."
     terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
-    terraform refresh ${BACKEND} ${VARS}
-    ERR=$?
-    terraform show ${PLANFILE}
+    terraform refresh ${BACKEND} ${VARS} -compact-warnings
 elif [ "apply" = "${ACTION}" ]; then        
     echo "Staging kubeconfig..."
     terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings

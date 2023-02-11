@@ -47,128 +47,122 @@ locals {
     EOT
     base64_payload_private = base64encode(local.payload_private)
 }
-resource "aws_ssm_document" "deploy_secret_ssh_private" {
-  name          = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
-  document_type = "Command"
 
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "deploy secret ssh private",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "60",
-                    "runCommand": [
-                        "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
 }
 
-resource "aws_ssm_document" "deploy_secret_ssh_public" {
-  name          = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
-  document_type = "Command"
+resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-private" {
 
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "deploy secret ssh public",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_public_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "60",
-                    "runCommand": [
-                        "echo '${local.base64_payload_public}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-deploy-secret-ssh-private-${var.environment}-${var.deployment}"
+  description = "Deploy secret ssh private key"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
+
+    inclusion_labels {
+      labels = var.private_label
+    }
+
+    inventories {
+      os_short_name = "ubuntu"
+    }
+
+    inventories {
+      os_short_name = "debian"
+    }
+
+  }
+
+  os_policies {
+    id   = "osconfig-deploy-secret-ssh-private-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if false; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = "600s"
+  }
 }
 
-resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {
-    name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
+resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-public" {
 
-    resource_query {
-        query = jsonencode(var.resource_query_deploy_secret_ssh_private)
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-deploy-secret-ssh-public-${var.environment}-${var.deployment}"
+  description = "Deploy secret ssh public key"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
+
+    inclusion_labels {
+      labels = var.public_label
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
-    }
-}
-
-resource "aws_ssm_association" "deploy_secret_ssh_private" {
-    association_name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
-
-    name = aws_ssm_document.deploy_secret_ssh_private.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.deploy_secret_ssh_private.name,
-        ]
+    inventories {
+      os_short_name = "ubuntu"
     }
 
-    compliance_severity = "HIGH"
-
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
-}
-
-resource "aws_resourcegroups_group" "deploy_secret_ssh_public" {
-    name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
-
-    resource_query {
-        query = jsonencode(var.resource_query_deploy_secret_ssh_public)
+    inventories {
+      os_short_name = "debian"
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
+  }
+
+  os_policies {
+    id   = "deploy-secret-ssh-public-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if false; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload_public}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+        }
+      }
     }
-}
+  }
 
-resource "aws_ssm_association" "deploy_secret_ssh_public" {
-    association_name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
-
-    name = aws_ssm_document.deploy_secret_ssh_public.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.deploy_secret_ssh_public.name,
-        ]
+  rollout {
+    disruption_budget {
+      percent = 100
     }
-
-    compliance_severity = "HIGH"
-
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
+    min_wait_duration = "600s"
+  }
 }

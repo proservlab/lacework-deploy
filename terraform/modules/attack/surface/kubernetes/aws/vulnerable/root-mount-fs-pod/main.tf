@@ -3,14 +3,14 @@
 ##################################################
 
 module "id" {
-  source = "../../../../../context/deployment"
+  source = "../../../../../../context/deployment"
 }
 
-resource "kubernetes_deployment" "vulnerable_privileged_pod" {
+resource "kubernetes_deployment" "vulnerable_root_mount_fs_pod" {
   metadata {
-    name = "vulnerable-privileged-pod"
+    name = "vulnerable-root-mount-fs-pod"
     labels = {
-      app = "vulnerable-privileged-pod"
+      app = "vulnerable-root-mount-fs-pod"
     }
     namespace = "default"
   }
@@ -20,14 +20,14 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
 
     selector {
         match_labels = {
-            app = "vulnerable-privileged-pod"
+            app = "vulnerable-root-mount-fs-pod"
         }
     }
 
     template {
       metadata {
         labels = {
-            app = "vulnerable-privileged-pod"
+            app = "vulnerable-root-mount-fs-pod"
         }
       }
 
@@ -37,9 +37,17 @@ resource "kubernetes_deployment" "vulnerable_privileged_pod" {
             name  = "nginx"
             command = ["tail"]
             args = ["-f", "/dev/null"] 
-            security_context {
-                privileged = true
+            volume_mount {
+              name = "test-volume"
+              mount_path = "/host"
             }
+        }
+        volume {
+          name = "test-volume"
+          host_path {
+            path = "/"
+            type = "Directory"
+          }
         }
       }
     }

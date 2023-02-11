@@ -79,14 +79,21 @@ variable "config" {
         })
       })
       kubernetes = object({
-        app = object({
-          enabled                       = bool
-        })
-        psp = object({
-          enabled                       = bool
-        })
         aws = object({
+          app = object({
+            enabled                       = bool
+          })
+          psp = object({
+            enabled                       = bool
+          })
           vulnerable = object({
+            log4shellapp = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
             voteapp = object({
               enabled                     = bool
               vote_service_port           = number
@@ -102,26 +109,43 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
             })
+            privileged_pod = object({
+              enabled                     = bool
+            })
+            root_mount_fs_pod = object({
+              enabled                     = bool
+            })
           })
         })
         gcp = object({
+          app = object({
+            enabled                       = bool
+          })
+          psp = object({
+            enabled                       = bool
+          })
           vulnerable = object({
-
-          })
-        })
-        vulnerable = object({
-          log4shellapp = object({
-            enabled                     = bool
-            service_port                = number
-            trust_attacker_source       = bool
-            trust_workstation_source    = bool
-            additional_trusted_sources  = list(string)
-          })
-          privileged_pod = object({
-            enabled                     = bool
-          })
-          root_mount_fs_pod = object({
-            enabled                     = bool
+            log4shellapp = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
+            voteapp = object({
+              enabled                     = bool
+              vote_service_port           = number
+              result_service_port         = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
+            privileged_pod = object({
+              enabled                     = bool
+            })
+            root_mount_fs_pod = object({
+              enabled                     = bool
+            })
           })
         })
       })
@@ -206,17 +230,52 @@ variable "config" {
         }
       }
       kubernetes = {
-        app = {
-          enabled                       = false
-        }
-        psp = {
-          enabled                       = false
-        }
         gcp = {
-          vulnerable = {}
+          app = {
+            enabled                       = false
+          }
+          psp = {
+            enabled                       = false
+          }
+          vulnerable = {
+            log4shellapp = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+            }
+            voteapp = {
+              enabled                     = false
+              vote_service_port           = 8001
+              result_service_port         = 8002
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources = []
+            }
+            privileged_pod = {
+              enabled = false
+            }
+            root_mount_fs_pod = {
+              enabled = false
+            }
+          }
         }
         aws = {
+          app = {
+            enabled                       = false
+          }
+          psp = {
+            enabled                       = false
+          }
           vulnerable = {
+            log4shellapp = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+            }
             voteapp = {
               enabled                     = false
               vote_service_port           = 8001
@@ -233,21 +292,12 @@ variable "config" {
               trust_workstation_source    = true
               additional_trusted_sources  = []
             }
-          }
-        }
-        vulnerable = {
-          log4shellapp = {
-            enabled                     = false
-            service_port                = 8000
-            trust_attacker_source       = true
-            trust_workstation_source    = true
-            additional_trusted_sources  = []
-          }
-          privileged_pod = {
-            enabled = false
-          }
-          root_mount_fs_pod = {
-            enabled = false
+            privileged_pod = {
+              enabled = false
+            }
+            root_mount_fs_pod = {
+              enabled = false
+            }
           }
         }
       }

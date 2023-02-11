@@ -8,52 +8,24 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_deploy_secret_ssh_private" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
-
-                TagFilters = [
-                    {
-                        Key = "ssm_deploy_secret_ssh_private"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "gcp_location" {
+    type = string
 }
 
-variable "resource_query_deploy_secret_ssh_public" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "gcp_project_id" {
+    type    = string
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_deploy_secret_ssh_public"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "private_label" {
+    type = map(string)
+    default =   {
+                    osconfig_deploy_secret_ssh_private = "true"
+                }
+}
+
+variable "public_label" {
+    type = map(string)
+    default =   {
+                    osconfig_deploy_secret_ssh_public = "true"
+                }
 }

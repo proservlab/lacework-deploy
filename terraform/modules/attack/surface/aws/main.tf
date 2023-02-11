@@ -157,16 +157,16 @@ module "vulnerable-docker-log4shellspp" {
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.app.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/app"
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.app.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/app"
   environment = var.config.context.global.environment
   deployment  = var.config.context.global.deployment
 }
 
 # example of applying pod security policy
 module "kubenetes-psp" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.psp.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/psp"
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.psp.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/psp"
   environment = var.config.context.global.environment
   deployment  = var.config.context.global.deployment
 }
@@ -219,36 +219,32 @@ module "vulnerable-kubernetes-rdsapp" {
   additional_trusted_sources          = var.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 }
 
-##################################################
-# Kubernetes Vulnerable
-##################################################
-
 module "vulnerable-kubernetes-log4shellapp" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
-  source                        = "../kubernetes/vulnerable/log4shellapp"
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
+  source                        = "../kubernetes/aws/vulnerable/log4shellapp"
   environment                   = var.config.context.global.environment
   deployment                    = var.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-  service_port                  = var.config.context.kubernetes.vulnerable.log4shellapp.service_port
-  trusted_attacker_source       = var.config.context.kubernetes.vulnerable.log4shellapp.trust_attacker_source ? flatten([
+  service_port                  = var.config.context.kubernetes.aws.vulnerable.log4shellapp.service_port
+  trusted_attacker_source       = var.config.context.kubernetes.aws.vulnerable.log4shellapp.trust_attacker_source ? flatten([
     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-  additional_trusted_sources    = var.config.context.kubernetes.vulnerable.log4shellapp.additional_trusted_sources
+  additional_trusted_sources    = var.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
 }
 
 module "vulnerable-kubernetes-privileged-pod" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/vulnerable/privileged-pod"
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/vulnerable/privileged-pod"
   environment = var.config.context.global.environment
   deployment  = var.config.context.global.deployment
 }
 
 module "vulnerable-kubernetes-root-mount-fs-pod" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/vulnerable/root-mount-fs-pod"
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/vulnerable/root-mount-fs-pod"
   environment = var.config.context.global.environment
   deployment  = var.config.context.global.deployment
 }

@@ -12,10 +12,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
-
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.6.0"
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "2.19.0"
     }
   }
 }
+
+data "aws_caller_identity" "current" {}
