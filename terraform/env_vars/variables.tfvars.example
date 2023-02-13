@@ -43,6 +43,6 @@
 ##################################################
 
 # dynu api
-dynu_api_token = "xxxxx"
-dynu_dns_domain = "xxxxx"
+# dynu_api_token = "xxxxx"
+# dynu_dns_domain = "xxxxx"
 
