@@ -1,0 +1,113 @@
+{
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "gcp": {
+      "region"               : "${ gcp_region }",
+      "project_id"           : "${ gcp_project }",
+      "gce" : {
+        "enabled"                       : true,
+        "public_network"                : "172.18.0.0/16",
+        "public_subnet"                 : "172.18.0.0/24",
+        "public_app_network"            : "172.19.0.0/16",
+        "public_app_subnet"             : "172.19.0.0/24",
+        "private_network"               : "172.16.0.0/16",
+        "private_subnet"                : "172.16.100.0/24",
+        "private_nat_subnet"            : "172.16.10.0/24",
+        "private_app_network"           : "172.17.0.0/16",
+        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_nat_subnet"        : "172.17.10.0/24",
+        "instances": [
+          {
+            "name"                      : "target-public-1",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "e2-micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "osconfig_deploy_lacework"                  : "true",
+              "osconfig_exec_reverse_shell_target"        : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
+          }
+        ]
+      },
+      "gke": {
+        "enabled"                         : false,
+        "cluster_name"                    : "target-cluster"
+      },
+      "osconfig": {
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true
+      }
+    },
+    "lacework": {
+      "server_url"   : "${ lacework_server_url }",
+      "account_name" : "${ lacework_account_name }",
+      "profile_name" : "${ lacework_profile }",
+      "aws_audit_config": {
+        "enabled" : false
+      },
+      "gcp_audit_config": {
+        "project_id" : "${ gcp_lacework_project }",
+        "enabled"    : true
+      },
+      "custom_policy": {
+        "enabled" : false
+      },
+      "agent": {
+        "enabled" : true,
+
+        "kubernetes": {
+          "enabled" : false,
+          "proxy_scanner": {
+            "enabled" : false
+          },
+          "daemonset": {
+            "enabled"        : false,
+            "syscall_config_path" : "${ syscall_config_path }"
+          },
+          "compliance": {
+            "enabled" : false
+          },
+          "eks_audit_logs": {
+            "enabled" : false
+          },
+          "admission_controller": {
+            "enabled" : false
+          }
+        }
+      },
+      "aws_agentless": {
+        "enabled" : false
+      },
+      "gcp_agentless": {
+        "enabled" : true
+      },
+      "alerts": {
+        "enabled" : false,
+        "slack": {
+          "enabled"   : false,
+          "api_token" : "${ slack_token }"
+        },
+        "jira": {
+          "enabled"           : false,
+          "cloud_url"         : "${ jira_cloud_url }",
+          "cloud_username"    : "${ jira_cloud_username }",
+          "cloud_api_token"   : "${ jira_cloud_api_token }",
+          "cloud_project_key" : "${ jira_cloud_project_key }",
+          "cloud_issue_type"  : "${ jira_cloud_issue_type }"
+        }
+      }
+    },
+    "dynu_dns" : {
+      "enabled"                        : false
+    }
+  }
+}
