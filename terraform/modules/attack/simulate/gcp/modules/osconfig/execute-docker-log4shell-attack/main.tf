@@ -51,12 +51,12 @@ data "google_compute_zones" "available" {
   region    = var.gcp_location
 }
 
-resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-log4shell-attacker" {
+resource "google_os_config_os_policy_assignment" "osconfig-exec-docker-log4shell-attacker" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-execute-docker-log4shell-attacker-${var.environment}-${var.deployment}"
+  name        = "osconfig-exec-docker-log4shell-attacker-${var.environment}-${var.deployment}"
   description = "Execute docker log4shell attack"
   skip_await_rollout = true
   
@@ -78,7 +78,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-log4sh
   }
 
   os_policies {
-    id   = "osconfig-execute-docker-log4shell-attacker-${var.environment}-${var.deployment}"
+    id   = "osconfig-exec-docker-log4shell-attacker-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {
