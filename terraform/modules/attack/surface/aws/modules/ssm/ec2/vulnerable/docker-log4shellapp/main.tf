@@ -3,7 +3,7 @@ locals {
     name = "log4shell"
     listen_port=var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_docker_log4shell_target.log
+    LOGFILE=/tmp/ssm_attacker_exec_docker_log4shell_target.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

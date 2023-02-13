@@ -9,7 +9,7 @@ locals {
     minergate_user=var.minergate_user
 
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_docker_cpuminer.log
+    LOGFILE=/tmp/osconfig_attacker_exec_docker_cpuminer.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

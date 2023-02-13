@@ -2,7 +2,7 @@ locals {
     attack_dir = "/cloud-tunnel"
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_docker_compromised_keys_attacker.log
+    LOGFILE=/tmp/osconfig_attacker_exec_docker_compromised_keys_attacker.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

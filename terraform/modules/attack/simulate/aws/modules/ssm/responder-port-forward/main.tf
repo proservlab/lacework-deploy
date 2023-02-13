@@ -1,7 +1,7 @@
 locals {
     listen_port = var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/attacker_exec_port_forward.log
+    LOGFILE=/tmp/ssm_attacker_exec_port_forward.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

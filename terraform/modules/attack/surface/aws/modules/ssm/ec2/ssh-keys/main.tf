@@ -10,7 +10,7 @@ locals {
     ssh_authorized_keys_path = "/home/ubuntu/.ssh/authorized_keys"
 
     payload_public = <<-EOT
-    LOGFILE=/tmp/attacksurface_agentless_public_key.log
+    LOGFILE=/tmp/ssm_attacksurface_agentless_public_key.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -27,7 +27,7 @@ locals {
     base64_payload_public = base64encode(local.payload_public)
 
     payload_private = <<-EOT
-    LOGFILE=/tmp/attacksurface_agentless_private_key.log
+    LOGFILE=/tmp/ssm_attacksurface_agentless_private_key.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
