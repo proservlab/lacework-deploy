@@ -167,21 +167,6 @@ locals {
                         )
 }
 
-# data "template_file" "database" {
-#   template = file("${path.module}/resources/bootstrap.sql.tpl")
-
-#   vars = {
-#     iam_db_user = local.service_account_db_user
-#     database_name = local.database_name
-#   }
-# }
-
-# data "template_file" "rds_cert" {
-#     template = file("${path.module}/resources/rds-combined-ca-bundle.pem")
-
-#     vars = {}
-# }
-
 # bootstrap iam user
 resource "kubernetes_job_v1" "database_bootstrap" {
   metadata {

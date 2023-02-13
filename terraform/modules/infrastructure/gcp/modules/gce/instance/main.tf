@@ -12,11 +12,6 @@ locals {
                         )
 }
 
-# data "template_file" "startup" {
-#     template = file("${path.module}/resources/startup.sh")
-#     vars = {}
-# }
-
 resource "google_compute_instance" "instance" {
     name         = var.name
     machine_type = var.instance_type

@@ -17,19 +17,6 @@ data "aws_eks_cluster" "provider" {
   name = "${var.cluster_name}"
 }
 
-# data "template_file" "kubeconfig" {
-#   template = file("${path.module}/resources/kubeconfig.yaml.tpl")
-
-#   vars = {
-#     cluster_endpoint = data.aws_eks_cluster.provider.endpoint
-#     cluster_certificate_authority = data.aws_eks_cluster.provider.certificate_authority[0].data
-#     cluster_arn = data.aws_eks_cluster.provider.arn
-#     aws_profile_name = var.aws_profile_name
-#     aws_region = var.region
-#     cluster_name = data.aws_eks_cluster.provider.id
-#   }
-# }
-
 resource "local_file" "kubeconfig" {
   filename = local.kubeconfig_path
   content = local.kubeconfig

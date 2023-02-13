@@ -250,14 +250,14 @@ module "workstation-external-ip" {
 
 # append ingress rules
 module "gce-add-trusted-ingress" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true && length(local.default_infrastructure_deployed.gcp.gce) > 0 ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
   source        = "./modules/gce/add-trusted-ingress"
   environment                   = var.config.context.global.environment
   deployment                    = var.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
   
-  network                       = local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name
+  network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name,null)
   trusted_attacker_source       = var.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
     [ for ip in local.attacker_app_public_ips: "${ip}/32" ]

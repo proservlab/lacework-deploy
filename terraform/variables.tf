@@ -261,5 +261,5 @@ variable "dynu_api_token" {
 
 variable "dynu_dns_domain" {
   type    = string
-  default = null
+  default = "unset"
 }

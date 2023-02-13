@@ -17,17 +17,6 @@ data "google_container_cluster" "provider" {
   location = var.gcp_location
 }
 
-# data "template_file" "kubeconfig" {
-#   template = file("${path.module}/resources/kubeconfig.yaml.tpl")
-
-#   vars = {
-#     cluster_endpoint = data.google_container_cluster.provider.endpoint
-#     cluster_certificate_authority = data.google_container_cluster.provider.master_auth[0].cluster_ca_certificate
-#     gcp_region = var.gcp_location
-#     cluster_name = "${var.cluster_name}"
-#   }
-# }
-
 resource "local_file" "kubeconfig" {
   filename = local.kubeconfig_path
   content = local.kubeconfig
