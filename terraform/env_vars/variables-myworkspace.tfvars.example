@@ -23,17 +23,17 @@ deployment="00000001"
 # Required when deploying to AWS
 ##################################################
 
-target_aws_profile="xxxxxxx"
-attacker_aws_profile="xxxxxxx"
+# target_aws_profile="xxxxxxx"
+# attacker_aws_profile="xxxxxxx"
 
 ##################################################
 # GCP 
 # Required when deploying to GCP
 ##################################################
 
-attacker_gcp_project = "xxxxxxx"
-target_gcp_project = "xxxxxxx"
-target_gcp_lacework_project = "xxxxxxx"
+# attacker_gcp_project = "xxxxxxx"
+# target_gcp_project = "xxxxxxx"
+# target_gcp_lacework_project = "xxxxxxx"
 
 ##################################################
 # LACEWORK 
