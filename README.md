@@ -4,7 +4,7 @@ This repo contains example deployment of both infrastructure and lacework compon
 
 Users are expected to use a terraform `workspace` when deploying the `environment` modules. Example usage:
 
-`./build.sh --workspace=<workspace> --action=apply --stage=all`
+`./build.sh --workspace=<workspace> --action=apply`
 
 For each workspace environment, variables for that workspace are read in from the `env_vars` directory. Expected format for environment related vars is `variables-<workspace>.tfvars`.
 
