@@ -47,7 +47,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-connect-oast" {
   }
 
   os_policies {
-    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    id   = "osconfig-connect-oast-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {

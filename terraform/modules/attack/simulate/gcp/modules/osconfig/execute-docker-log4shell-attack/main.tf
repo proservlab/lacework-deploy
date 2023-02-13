@@ -78,7 +78,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-log4sh
   }
 
   os_policies {
-    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    id   = "osconfig-execute-docker-log4shell-attacker-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {

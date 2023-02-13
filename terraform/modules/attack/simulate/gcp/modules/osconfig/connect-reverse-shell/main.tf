@@ -59,7 +59,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-connect-reverse-shell
   }
 
   os_policies {
-    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    id   = "osconfig-connect-reverse-shell-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {

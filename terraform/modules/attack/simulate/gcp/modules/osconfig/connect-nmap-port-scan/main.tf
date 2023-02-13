@@ -61,7 +61,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-connect-nmap-port-sca
   }
 
   os_policies {
-    id   = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
+    id   = "osconfig-connect-nmap-port-scan-${var.environment}-${var.deployment}"
     mode = "ENFORCEMENT"
 
     resource_groups {
