@@ -5,6 +5,7 @@
       "deployment"           : "${ deployment }"
     },
     "gcp" : {
+      "enabled": false,
       "osconfig" : {
         "target": {
           "drop": {

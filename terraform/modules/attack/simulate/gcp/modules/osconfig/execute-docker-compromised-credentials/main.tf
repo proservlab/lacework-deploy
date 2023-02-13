@@ -130,13 +130,18 @@ locals {
                             )
 }
 
-resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
+}
+
+resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-compromised-credentials" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
-  description = "Connect codecov"
+  name        = "osconfig-execute-docker-compromised-credentials-${var.environment}-${var.deployment}"
+  description = "Execute docker compromised credentials"
   skip_await_rollout = true
   
   instance_filter {

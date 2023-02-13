@@ -21,7 +21,7 @@ data "google_compute_zones" "available" {
   region    = var.gcp_location
 }
 
-resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+resource "google_os_config_os_policy_assignment" "osconfig-connect-badip" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]

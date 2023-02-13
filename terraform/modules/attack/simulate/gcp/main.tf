@@ -12,17 +12,16 @@ module "id" {
 
 locals {
   config = var.config
-  
   default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
   target_infrastructure_config = var.infrastructure.config["target"]
-  
+
   default_infrastructure_deployed = var.infrastructure.deployed_state[var.config.context.global.environment].context
   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
-  # target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.gcp.gke[0].cluster_nat_public_ip}/32"],[])
-  # attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.gcp.gke[0].cluster_nat_public_ip}/32"],[])
+  # target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.gcp.eks[0].cluster_nat_public_ip}/32"],[])
+  # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.gcp.eks[0].cluster_nat_public_ip}/32"],[])
 
   attacker = var.config.context.global.environment == "attacker" ? true : false
   target = var.config.context.global.environment == "target" ? true : false
@@ -32,285 +31,400 @@ locals {
 # DEPLOYMENT CONTEXT
 ##################################################
 
-# data "aws_security_groups" "public" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   tags = {
-#     environment = var.config.context.global.environment
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-# }
+# attacker
+data "google_compute_zones" "attacker" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.attacker
+  region = local.attacker_infrastructure_config.context.gcp.region
+}
 
-# data "aws_instances" "public_attacker" {
-#   provider = aws.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-# }
+data "google_compute_instance_group" "attacker_public_default" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.attacker
+  name = "attacker-${var.config.context.global.deployment}-public-default-group"
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# data "aws_instances" "public_target" {
-#   provider = aws.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     public = "true"
-#   }
-# }
+data "google_compute_instance_group" "attacker_public_app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.attacker
+  name = "attacker-${var.config.context.global.deployment}-public-app-group"
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# data "aws_instances" "target_reverse_shell" {
-#   provider = aws.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_reverse_shell_target = "true"
-#   }
-# }
+data "google_compute_instance_group" "attacker_private_default" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0  
+  provider = google.attacker
+  name = "attacker-${var.config.context.global.deployment}-private-default-group"
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# data "aws_instances" "target_log4shell" {
-#   provider = aws.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_docker_log4shell_target = "true"
-#   }
-# }
+data "google_compute_instance_group" "attacker_private_app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.attacker
+  name = "attacker-${var.config.context.global.deployment}-private-app-group"
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
+# target
+data "google_compute_zones" "target" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.target
+  region = local.target_infrastructure_config.context.gcp.region
+}
 
-# data "aws_instances" "target_codecov" {
-#   provider = aws.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     ssm_connect_codecov = "true"
-#   }
-# }
+data "google_compute_instance_group" "target_public_default" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-${var.config.context.global.deployment}-public-default-group"
+  zone = data.google_compute_zones.target[0].names[0]
+}
 
-# data "aws_instances" "target_port_forward" {
-#   provider = aws.target
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_port_forward_target = "true"
-#   }
-# }
+data "google_compute_instance_group" "target_public_app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-${var.config.context.global.deployment}-public-app-group"
+  zone = data.google_compute_zones.target[0].names[0]
+}
 
+data "google_compute_instance_group" "target_private_default" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0  
+  provider = google.target
+  name = "target-${var.config.context.global.deployment}-private-default-group"
+  zone = data.google_compute_zones.target[0].names[0]
+}
 
-# data "aws_instances" "attacker_http_listener" {
-#   provider = aws.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_http_listener_attacker = "true"
-#   }
-# }
+data "google_compute_instance_group" "target_private_app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true ) ? 1 : 0
+  provider = google.target
+  name = "target-${var.config.context.global.deployment}-private-app-group"
+  zone = data.google_compute_zones.target[0].names[0]
+}
+locals {
+  # attacker
+  attacker_public_default_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.attacker_public_default[0].instances
+    )
+  ) ? data.google_compute_instance_group.attacker_public_default[0].instances : toset([]) : compute ]
+  attacker_public_app_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.attacker_public_app[0].instances
+    )
+  ) ? data.google_compute_instance_group.attacker_public_app[0].instances : toset([]) : compute ]
+  attacker_private_default_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.attacker_private_default[0].instances
+    )
+  ) ? data.google_compute_instance_group.attacker_private_default[0].instances : toset([]) : compute ]
+  attacker_private_app_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.attacker_private_app[0].instances
+    )
+  ) ? data.google_compute_instance_group.attacker_private_app[0].instances : toset([]) : compute ]
 
-# data "aws_instances" "attacker_reverse_shell" {
-#   provider = aws.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_reverse_shell_attacker = "true"
-#   }
-# }
+  # target
+  target_public_default_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.target_public_default[0].instances
+    )
+  ) ? data.google_compute_instance_group.target_public_default[0].instances : toset([]) : compute ]
+  target_public_app_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.target_public_app[0].instances
+    )
+  ) ? data.google_compute_instance_group.target_public_app[0].instances : toset([]) : compute ]
+  target_private_default_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.target_private_default[0].instances
+    )
+  ) ? data.google_compute_instance_group.target_private_default[0].instances : toset([]) : compute ]
+  target_private_app_instances = [ for compute in can(
+    length(
+      data.google_compute_instance_group.target_private_app[0].instances
+    )
+  ) ? data.google_compute_instance_group.target_private_app[0].instances : toset([]) : compute ]
+}
 
-# data "aws_instances" "attacker_log4shell" {
-#   provider = aws.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_docker_log4shell_attacker = "true"
-#   }
-# }
+# attacker
+data "google_compute_instance" "attacker_public" {
+  for_each = toset(local.attacker_public_default_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# data "aws_instances" "attacker_port_forward" {
-#   provider = aws.attacker
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = var.config.context.global.deployment
-#     ssm_exec_port_forward_attacker = "true"
-#   }
-# }
+data "google_compute_instance" "attacker_public_app" {
+  for_each = toset(local.attacker_public_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# ##################################################
-# # GENERAL
-# ##################################################
+data "google_compute_instance" "attacker_private" {
+  for_each = toset(local.attacker_private_default_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# module "workstation-external-ip" {
-#   source       = "../general/workstation-external-ip"
-# }
+data "google_compute_instance" "attacker_private_app" {
+  for_each = toset(local.attacker_private_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.attacker[0].names[0]
+}
 
-# ##################################################
-# # AWS SSM SIMULATION
-# ##################################################
+# target
+data "google_compute_instance" "target_public" {
+  for_each = toset(local.target_public_default_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.target[0].names[0]
+}
 
-# ##################################################
-# # CONNECT
-# ##################################################
-# module "ssm-connect-badip" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.badip.enabled == true ) ? 1 : 0
-#   source        = "./modules/ssm/connect-badip"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+data "google_compute_instance" "target_public_app" {
+  for_each = toset(local.target_public_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.target[0].names[0]
+}
+
+data "google_compute_instance" "target_private" {
+  for_each = toset(local.target_private_default_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.target[0].names[0]
+}
+
+data "google_compute_instance" "target_private_app" {
+  for_each = toset(local.target_private_app_instances)
+  self_link = each.key
+  zone = data.google_compute_zones.target[0].names[0]
+}
+
+locals {
+  # attacker scenario public ips
+  attacker_http_listener = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_http_listener_attacker","false") == "true"
+  ]
+
+  attacker_reverse_shell = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_reverse_shell_attacker","false") == "true"
+  ]
+
+  attacker_log4shell = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_docker_log4shell_attacker","false") == "true"
+  ]
+
+  attacker_port_forward = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_port_forward_attacker","false") == "true"
+  ]
+
+  # target scenario public ips
+  target_log4shell = [ 
+    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_docker_log4shell_target","false") == "true"
+  ]
+}
+
+##################################################
+# GENERAL
+##################################################
+
+module "workstation-external-ip" {
+  source       = "../general/workstation-external-ip"
+}
+
+##################################################
+# GCP OSCONFIG SIMULATION
+##################################################
+
+##################################################
+# CONNECT
+##################################################
+
+module "osconfig-connect-badip" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.connect.badip.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/connect-badip"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
   
-#   # list of bad ip to select from - only a single random will be used
-#   iplist_url    = var.config.context.aws.ssm.target.connect.badip.iplist_url
-# }
+  # list of bad ip to select from - only a single random will be used
+  iplist_url    = var.config.context.gcp.osconfig.target.connect.badip.iplist_url
+}
 
-# module "ssm-connect-codecov" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true && length(try(data.aws_instances.attacker_http_listener[0].public_ips, [])) > 0) ? 1 : 0
-#   source        = "./modules/ssm/connect-codecov"
-#   environment    = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+module "osconfig-connect-codecov" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.connect.codecov.enabled == true && length(try(local.attacker_http_listener, [])) > 0) ? 1 : 0
+  source        = "./modules/osconfig/connect-codecov"
+  environment    = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
   
   
-#   host_ip       = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_ip, data.aws_instances.attacker_http_listener[0].public_ips[0])
-#   host_port     = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_port, var.config.context.aws.ssm.attacker.listener.http.listen_port)
-# }
+  host_ip       = coalesce(var.config.context.gcp.osconfig.target.connect.codecov.host_ip, local.attacker_http_listener[0])
+  host_port     = coalesce(var.config.context.gcp.osconfig.target.connect.codecov.host_port, var.config.context.gcp.osconfig.attacker.listener.http.listen_port)
+}
 
-# module "ssm-connect-nmap-port-scan" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.nmap_port_scan.enabled == true ) ? 1 : 0
-#   source        = "./modules/ssm/connect-nmap-port-scan"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+module "osconfig-connect-nmap-port-scan" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.connect.nmap_port_scan.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/connect-nmap-port-scan"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
   
 
-#   # scan local reverse shell target if available else portquiz
-#   nmap_scan_host = var.config.context.aws.ssm.target.connect.nmap_port_scan.nmap_scan_host
-#   nmap_scan_ports = var.config.context.aws.ssm.target.connect.nmap_port_scan.nmap_scan_ports
-# }
+  # scan local reverse shell target if available else portquiz
+  nmap_scan_host = var.config.context.gcp.osconfig.target.connect.nmap_port_scan.nmap_scan_host
+  nmap_scan_ports = var.config.context.gcp.osconfig.target.connect.nmap_port_scan.nmap_scan_ports
+}
 
-# module "ssm-connect-oast-host" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.oast.enabled == true ) ? 1 : 0
-#   source        = "./modules/ssm/connect-oast-host"
-#   environment    = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
-# }
+module "osconfig-connect-oast-host" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.connect.oast.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/connect-oast-host"
+  environment    = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+}
 
-# module "ssm-connect-reverse-shell" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true && length(try(data.aws_instances.attacker_reverse_shell[0].public_ips, [])) > 0 ) ? 1 : 0
-#   source        = "./modules/ssm/connect-reverse-shell"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+module "osconfig-connect-reverse-shell" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.connect.reverse_shell.enabled == true && length(try(local.attacker_reverse_shell, [])) > 0 ) ? 1 : 0
+  source        = "./modules/osconfig/connect-reverse-shell"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-#   host_ip       = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_ip, data.aws_instances.attacker_reverse_shell[0].public_ips[0])
-#   host_port     = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_port, var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
-# }
+  host_ip       = coalesce(var.config.context.gcp.osconfig.target.connect.reverse_shell.host_ip, local.attacker_reverse_shell[0])
+  host_port     = coalesce(var.config.context.gcp.osconfig.target.connect.reverse_shell.host_port, var.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port)
+}
 
-# ##################################################
-# # DROP
-# ##################################################
-# module "ssm-drop-malware-eicar" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.drop.malware.eicar.enabled == true ) ? 1 : 0
-#   source        = "./modules/ssm/drop-malware-eicar"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+##################################################
+# DROP
+##################################################
 
-#   eicar_path    = var.config.context.aws.ssm.target.drop.malware.eicar.eicar_path
-# }
+module "osconfig-drop-malware-eicar" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.drop.malware.eicar.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/drop-malware-eicar"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-# ##################################################
-# # EXECUTE
-# ##################################################
+  eicar_path    = var.config.context.gcp.osconfig.target.drop.malware.eicar.eicar_path
+}
+
+##################################################
+# EXECUTE
+##################################################
 
 # module "simulation-attacker-exec-docker-compromised-credentials" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
-#   source        = "./modules/ssm/execute-docker-compromised-credentials"
+#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
+#   source        = "./modules/osconfig/execute-docker-compromised-credentials"
 #   environment   = var.config.context.global.environment
 #   deployment    = var.config.context.global.deployment
-#   region        = local.default_infrastructure_config.context.aws.region
+#   region        = local.default_infrastructure_config.context.gcp.region
 
 #   compromised_credentials = var.compromised_credentials
-#   protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_user
-#   protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_password
-#   protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_tier
-#   protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_protocol
-#   protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
-#   ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.wallet
-#   minergate_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.minergate_user
-#   compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.compromised_keys_user
+#   protonvpn_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_user
+#   protonvpn_password = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_password
+#   protonvpn_tier = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_tier
+#   protonvpn_protocol = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_protocol
+#   protonvpn_server = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
+#   ethermine_wallet = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.wallet
+#   minergate_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.minergate_user
+#   compromised_keys_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.compromised_keys_user
 # }
 
-# module "ssm-execute-docker-cpuminer" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.execute.docker_cpu_miner == true ) ? 1 : 0
-#   source        = "./modules/ssm/execute-docker-cpu-miner"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
-#   minergate_user = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_user
-#   minergate_image = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_image
-#   minergate_server = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_server
-#   minergate_name = var.config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_name
-# }
+module "osconfig-execute-docker-cpuminer" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.target == true && var.config.context.gcp.osconfig.target.execute.docker_cpu_miner == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-cpu-miner"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-# module "ssm-execute-docker-log4shell-attack" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(data.aws_instances.attacker_log4shell[0].public_ips) > 0 && length(data.aws_instances.target_log4shell[0].public_ips) > 0) ? 1 : 0
-#   source        = "./modules/ssm/execute-docker-log4shell-attack"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+  minergate_user = var.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_user
+  minergate_image = var.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_image
+  minergate_server = var.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_server
+  minergate_name = var.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_name
+}
 
-#   attacker_http_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
-#   attacker_ldap_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-#   attacker_ip = coalesce(var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, data.aws_instances.attacker_log4shell[0].public_ips[0])
-#   target_ip = data.aws_instances.target_log4shell[0].public_ips[0]
-#   target_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
-#   payload = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
-# }
+module "osconfig-execute-docker-log4shell-attack" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.enabled == true && length(local.attacker_log4shell) > 0 && length(local.target_log4shell) > 0) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-log4shell-attack"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-# ##################################################
-# # LISTENER
-# ##################################################
+  attacker_http_port = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_http_port
+  attacker_ldap_port = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ldap_port
+  attacker_ip = coalesce(var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ip, local.attacker_log4shell[0])
+  target_ip = local.target_log4shell[0]
+  target_port = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.target_port
+  payload = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.payload
+}
 
-# module "ssm-listener-http-listener" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.listener.http.enabled == true) ? 1 : 0
-#   source        = "./modules/ssm/listener-http-listener"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+##################################################
+# LISTENER
+##################################################
 
-#   listen_ip     = "0.0.0.0"
-#   listen_port   = var.config.context.aws.ssm.attacker.listener.http.listen_port
-# }
+module "osconfig-listener-http-listener" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.listener.http.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/listener-http-listener"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-# module "ssm-listener-port-forward" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true && length(try(data.aws_instances.attacker_port_forward[0].public_ips, [])) > 0) ? 1 : 0
-#   source        = "./modules/ssm/listener-port-forward"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
-#   port_forwards = var.config.context.aws.ssm.target.listener.port_forward.port_forwards
-  
-#   host_ip       = data.aws_instances.attacker_port_forward[0].public_ips[0]
-#   host_port     = var.config.context.aws.ssm.attacker.responder.port_forward.listen_port
-# }
+  listen_ip     = "0.0.0.0"
+  listen_port   = var.config.context.gcp.osconfig.attacker.listener.http.listen_port
+}
 
-# ##################################################
-# # RESPONDER
-# ##################################################
+module "osconfig-listener-port-forward" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.target.listener.port_forward.enabled == true && length(try(local.attacker_port_forward, [])) > 0) ? 1 : 0
+  source        = "./modules/osconfig/listener-port-forward"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-# module "ssm-responder-port-forward" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.responder.port_forward.enabled == true) ? 1 : 0
-#   source        = "./modules/ssm/responder-port-forward"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+  port_forwards = var.config.context.gcp.osconfig.target.listener.port_forward.port_forwards
+  host_ip       = local.attacker_port_forward[0]
+  host_port     = var.config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
+}
 
-#   listen_port   = var.config.context.aws.ssm.attacker.responder.port_forward.listen_port
-# }
+##################################################
+# RESPONDER
+##################################################
 
-# module "ssm-responder-reverse-shell" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.responder.reverse_shell.enabled == true ) ? 1 : 0
-#   source        = "./modules/ssm/responder-reverse-shell"
-#   environment   = var.config.context.global.environment
-#   deployment    = var.config.context.global.deployment
+module "osconfig-responder-port-forward" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.responder.port_forward.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/responder-port-forward"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-#   listen_ip     = var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_ip
-#   listen_port   = var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port
-#   payload       = var.config.context.aws.ssm.attacker.responder.reverse_shell.payload
-# }
+  listen_port   = var.config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
+}
+
+module "osconfig-responder-reverse-shell" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.responder.reverse_shell.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/responder-reverse-shell"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  listen_ip     = var.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_ip
+  listen_port   = var.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port
+  payload       = var.config.context.gcp.osconfig.attacker.responder.reverse_shell.payload
+}

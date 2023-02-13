@@ -90,6 +90,18 @@ Output a json list of instance id, state, privateip, publicip and tags for all s
 
 ` aws ssm start-session  --target "<INSTANCE_ID>" --profile=<target|attacker>`
 
+# OSConfig Access
+
+All GCP instances are enabled for osconfig access. They can be access via the gcloud cli compute ssh command.
+
+## List instances
+
+`gcloud compute instances list`
+
+## Connect to Shell on OSConfig Managed Instance
+
+`gcloud compute ssh <instance name>`
+
 # Metatdata
 
 ## AWS Meta-Data

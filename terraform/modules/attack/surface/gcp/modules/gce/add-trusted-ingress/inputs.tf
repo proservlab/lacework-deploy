@@ -8,7 +8,15 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "security_group_id" {
+variable "gcp_location" {
+    type = string
+}
+
+variable "gcp_project_id" {
+    type    = string
+}
+
+variable "network" {
     type = string
 }
 

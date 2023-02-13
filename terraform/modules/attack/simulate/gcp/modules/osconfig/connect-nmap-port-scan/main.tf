@@ -29,13 +29,18 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
-resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
+}
+
+resource "google_os_config_os_policy_assignment" "osconfig-connect-nmap-port-scan" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-connect-codecov-${var.environment}-${var.deployment}"
-  description = "Connect codecov"
+  name        = "osconfig-connect-nmap-port-scan-${var.environment}-${var.deployment}"
+  description = "Connect nmap port scan"
   skip_await_rollout = true
   
   instance_filter {

@@ -62,6 +62,7 @@ data "google_compute_instance_group" "attacker_private_app" {
   name = "attacker-${var.config.context.global.deployment}-private-app-group"
   zone = data.google_compute_zones.attacker[0].names[0]
 }
+
 # target
 data "google_compute_zones" "target" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
@@ -195,6 +196,30 @@ data "google_compute_instance" "target_private_app" {
   zone = data.google_compute_zones.target[0].names[0]
 }
 
+locals {
+  # attacker scenario public ips
+  attacker_public_ips = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
+
+  attacker_app_public_ips = [ 
+    for instance in data.google_compute_instance.attacker_public_app:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
+
+  # target scenario public ips
+  target_public_ips = [ 
+    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
+
+  target_app_public_ips = [ 
+    for instance in data.google_compute_instance.target_public_app:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
+}
+
 ##################################################
 # GENERAL
 ##################################################
@@ -224,25 +249,27 @@ module "workstation-external-ip" {
 ##################################################
 
 # append ingress rules
-# module "gce-add-trusted-ingress" {
-#   for_each = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gcp.gce.add_trusted_ingress.enabled == true ) ? toset(data.gcp_security_groups.public[0].ids) : toset([ for v in []: v ])
-#   source        = "./modules/gce/add-trusted-ingress"
-#   environment                   = var.config.context.global.environment
-#   deployment                    = var.config.context.global.deployment
+module "gce-add-trusted-ingress" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.gce.add_trusted_ingress.enabled == true && length(local.default_infrastructure_deployed.gcp.gce) > 0 ) ? 1 : 0
+  source        = "./modules/gce/add-trusted-ingress"
+  environment                   = var.config.context.global.environment
+  deployment                    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
   
-#   security_group_id             = each.key
-#   trusted_attacker_source       = var.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
-#     [ for ip in data.gcp_instances.public_attacker[0].public_ips: "${ip}/32" ],
-#     local.attacker_gke_public_ip
-#   ])  : []
-#   trusted_target_source         = var.config.context.gcp.gce.add_trusted_ingress.trust_target_source ? flatten([
-#     [ for ip in data.gcp_instances.public_target[0].public_ips: "${ip}/32" ],
-#     local.target_gke_public_ip
-#   ]) : []
-#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-#   additional_trusted_sources    = var.config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
-#   trusted_tcp_ports             = var.config.context.gcp.gce.add_trusted_ingress.trusted_tcp_ports
-# }
+  network                       = local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name
+  trusted_attacker_source       = var.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in local.attacker_public_ips: "${ip}/32" ],
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+  ])  : []
+  trusted_target_source         = var.config.context.gcp.gce.add_trusted_ingress.trust_target_source ? flatten([
+    [ for ip in local.target_public_ips: "${ip}/32" ],
+    [ for ip in local.target_app_public_ips: "${ip}/32" ]
+  ]) : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = var.config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
+  trusted_tcp_ports             = var.config.context.gcp.gce.add_trusted_ingress.trusted_tcp_ports
+}
 
 ##################################################
 # GCP OSCONFIG
