@@ -1,7 +1,7 @@
 # Lacework agent: adding a build stage
 
 ARG DcVersion=*
-FROM lacework/datacollector:latest-sidecar AS agent-build-image
+FROM lacework/datacollector:6.3.0-sidecar AS agent-build-image
 
 FROM ubuntu:latest as lw-agent-provider
 ARG DcVersion
