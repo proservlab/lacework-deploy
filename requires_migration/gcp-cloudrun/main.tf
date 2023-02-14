@@ -15,6 +15,10 @@ terraform {
   }
 }
 
+provider "lacework" {
+    profile = var.lacework_profile
+}
+
 provider "google" {
   project = var.gcp_project_id
   region = var.gcp_location
@@ -88,7 +92,7 @@ resource "google_cloud_run_service" "default" {
         }
         env {
           name = "LaceworkServerUrl"
-          value = data.lacework_user_profile.current.url
+          value = "https://${data.lacework_user_profile.current.url}"
         }
         env {
           name = "LaceworkAccessToken"

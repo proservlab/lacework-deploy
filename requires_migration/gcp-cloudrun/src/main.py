@@ -2,12 +2,14 @@ import os
 
 from flask import Flask
 
-app = Flask(__name__)
+import subprocess
 
+app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
     name = os.environ.get("NAME", "World")
+    # test = subprocess.check_output("cat /var/lib/lacework/datacollector/config.json", shell=True)
     return "Hello: {}!".format(name)
 
 

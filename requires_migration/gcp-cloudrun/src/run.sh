@@ -2,6 +2,8 @@
 
 # Start Lacework agent in the background
 /var/lib/lacework/datacollector &
+touch /var/log/lacework/datacollector.log
+tail -f /var/log/lacework/datacollector.log &
 
 # Start your application
 # Run the web service on container startup. Here we use the 
