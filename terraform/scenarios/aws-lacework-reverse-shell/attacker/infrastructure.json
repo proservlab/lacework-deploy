@@ -27,7 +27,8 @@
                         "instance_type"             : "t2.micro",
                         "ami_name"                  : "ubuntu_focal",
                         "tags"                      : {
-                            "ssm_exec_reverse_shell_attacker": "true"
+                            "owner"                                     : "lacework",
+                            "ssm_exec_reverse_shell_attacker"           : "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null
