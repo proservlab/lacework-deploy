@@ -19,6 +19,7 @@
                 "private_app_network"               : "172.26.0.0/16",
                 "private_app_subnet"                : "172.27.100.0/24",
                 "private_app_nat_subnet"            : "172.27.10.0/24",
+                "public_ingress_rules"              : [],
                 "instances": [
                 ]
             },
