@@ -325,21 +325,21 @@ module "osconfig-drop-malware-eicar" {
 ##################################################
 
 # module "simulation-attacker-exec-docker-compromised-credentials" {
-#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
+#   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.enabled == true) ? 1 : 0
 #   source        = "./modules/osconfig/execute-docker-compromised-credentials"
 #   environment   = var.config.context.global.environment
 #   deployment    = var.config.context.global.deployment
 #   region        = local.default_infrastructure_config.context.gcp.region
 
 #   compromised_credentials = var.compromised_credentials
-#   protonvpn_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_user
-#   protonvpn_password = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_password
-#   protonvpn_tier = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_tier
-#   protonvpn_protocol = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_protocol
-#   protonvpn_server = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
-#   ethermine_wallet = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.wallet
-#   minergate_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.minergate_user
-#   compromised_keys_user = var.config.context.gcp.osconfig.attacker.execute.docker_compromised_credentials_attack.compromised_keys_user
+#   protonvpn_user = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_user
+#   protonvpn_password = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_password
+#   protonvpn_tier = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_tier
+#   protonvpn_protocol = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_protocol
+#   protonvpn_server = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_server
+#   ethermine_wallet = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.wallet
+#   minergate_user = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
+#   compromised_keys_user = var.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
 # }
 
 module "osconfig-execute-docker-cpuminer" {

@@ -223,22 +223,93 @@ module "ssm-drop-malware-eicar" {
 # EXECUTE
 ##################################################
 
-module "simulation-attacker-exec-docker-compromised-credentials" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.enabled == true) ? 1 : 0
-  source        = "./modules/ssm/execute-docker-compromised-credentials"
+module "simulation-attacker-exec-docker-composite-compromised-credentials" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.enabled == true) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-composite-compromised-credentials"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   region        = local.default_infrastructure_config.context.aws.region
 
   compromised_credentials = var.compromised_credentials
-  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_user
-  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_password
-  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_tier
-  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_protocol
-  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.protonvpn_server
-  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.wallet
-  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.minergate_user
-  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_compromised_credentials_attack.compromised_keys_user
+  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_user
+  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_password
+  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_tier
+  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_protocol
+  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_server
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.wallet
+  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
+}
+module "simulation-attacker-exec-docker-composite-cloud-ransomware" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.enabled == true) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-composite-cloud-ransomware"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
+
+  compromised_credentials = var.compromised_credentials
+  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_user
+  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_password
+  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_tier
+  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_protocol
+  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_server
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.wallet
+  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.compromised_keys_user
+}
+
+module "simulation-attacker-exec-docker-composite-defense-evasion" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.enabled == true) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-composite-defense-evasion"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
+
+  compromised_credentials = var.compromised_credentials
+  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_user
+  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_password
+  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_tier
+  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_protocol
+  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_server
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.wallet
+  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.compromised_keys_user
+}
+
+module "simulation-attacker-exec-docker-composite-cloud-cryptomining" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.enabled == true) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-composite-cloud-cryptomining"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
+
+  compromised_credentials = var.compromised_credentials
+  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_user
+  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_password
+  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_tier
+  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_protocol
+  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_server
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.wallet
+  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.compromised_keys_user
+}
+
+module "simulation-attacker-exec-docker-composite-host-cryptomining" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.enabled == true) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-composite-host-cryptomining"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
+
+  compromised_credentials = var.compromised_credentials
+  protonvpn_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_user
+  protonvpn_password = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_password
+  protonvpn_tier = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_tier
+  protonvpn_protocol = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_protocol
+  protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_server
+  ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.wallet
+  minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.minergate_user
+  compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.compromised_keys_user
 }
 
 module "ssm-execute-docker-cpuminer" {

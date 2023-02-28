@@ -87,7 +87,47 @@
               "target_port": 8000,
               "payload": "touch /tmp/log4shell_pwned"
             },
-            "docker_compromised_credentials_attack": {
+            "docker_composite_compromised_credentials_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_cloud_ransomware_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_defense_evasion_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_cloud_cryptomining_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_host_cryptomining_attack": {
               "enabled": false,
               "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
               "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
@@ -184,7 +224,47 @@
               "target_port": 8000,
               "payload": "touch /tmp/log4shell_pwned"
             },
-            "docker_compromised_credentials_attack": {
+            "docker_composite_compromised_credentials_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_cloud_ransomware_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_defense_evasion_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_cloud_cryptomining_attack": {
+              "enabled": false,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
+            },
+            "docker_composite_host_cryptomining_attack": {
               "enabled": false,
               "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
               "protonvpn_password": "${ attacker_context_config_protonvpn_password }",

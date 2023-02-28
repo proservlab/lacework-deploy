@@ -107,7 +107,55 @@ variable "config" {
                 target_port                 = number
                 payload                     = string
               })
-              docker_compromised_credentials_attack = object({
+              docker_composite_compromised_credentials_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_ransomware_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_defense_evasion_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_cryptomining_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_host_cryptomining_attack = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -219,7 +267,55 @@ variable "config" {
                 target_port                 = number
                 payload                     = string
               })
-              docker_compromised_credentials_attack = object({
+              docker_composite_compromised_credentials_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_ransomware_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_defense_evasion_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_cryptomining_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                compromised_keys_user       = string
+              })
+              docker_composite_host_cryptomining_attack = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -351,7 +447,55 @@ variable "config" {
                 target_port                 = null
                 payload                     = "touch /tmp/log4shell_pwned"
               }
-              docker_compromised_credentials_attack = {
+              docker_composite_compromised_credentials_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_ransomware_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_defense_evasion_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_cryptomining_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_host_cryptomining_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -472,7 +616,55 @@ variable "config" {
                 target_port                 = null
                 payload                     = "touch /tmp/log4shell_pwned"
               }
-              docker_compromised_credentials_attack = {
+              docker_composite_compromised_credentials_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_ransomware_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_defense_evasion_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_cryptomining_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                compromised_keys_user       = null
+              },
+              docker_composite_host_cryptomining_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null

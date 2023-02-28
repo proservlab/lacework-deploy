@@ -20,6 +20,10 @@ locals {
     ssm_exec_port_forward_target    = "false"
     ssm_exec_port_forward_attacker  = "false"
     ssm_exec_docker_compromised_keys_attacker = "false"
+    ssm_exec_docker_defense_evasion_attacker = "false"
+    ssm_exec_docker_cloud_ransomware_attacker = "false"
+    ssm_exec_docker_cloud_cryptomining_attacker = "false"
+    ssm_exec_docker_host_cryptomining_attacker = "false"
   }
   osconfig_default_tags = {
     osconfig_connect_bad_ip              = "false"
@@ -43,5 +47,9 @@ locals {
     osconfig_exec_port_forward_target    = "false"
     osconfig_exec_port_forward_attacker  = "false"
     osconfig_exec_docker_compromised_keys_attacker = "false"
+    osconfig_exec_docker_defense_evasion_attacker = "false"
+    osconfig_exec_docker_cloud_ransomware_attacker = "false"
+    osconfig_exec_docker_cloud_cryptomining_attacker = "false"
+    osconfig_exec_docker_host_cryptomining_attacker = "false"
   }
 }
