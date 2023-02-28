@@ -1,5 +1,6 @@
 locals {
     iplist_url = var.iplist_url
+    iplist_base64 = base64encode(file("${path.module}/resources/threatdb.csv"))
     payload = <<-EOT
     LOGFILE=/tmp/ssm_attacker_connect_badip.log
     function log {
@@ -7,11 +8,10 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "finding bad ip: ${local.iplist_url}"
-    BADIP=$(curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\")
-    log "found bad ip: $BADIP"
-    ping -c 10 -w 5 $BADIP >> $LOGFILE 2>&1
-    log "done"
+    echo ${local.iplist_base64} | base64 -d > threatdb.csv
+    log "enumerating bad ips in threatdb.csv"
+    for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
+    log "done."
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -41,7 +41,7 @@ resource "aws_ssm_document" "connect_bad_ip" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "1200",
                     "runCommand": [
                         "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
                     ]
