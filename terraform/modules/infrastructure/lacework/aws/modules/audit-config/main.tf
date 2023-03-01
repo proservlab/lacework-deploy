@@ -7,6 +7,7 @@ module "aws_cloudtrail" {
   source  = "lacework/cloudtrail/aws"
   version = "~> 2.3.1"
 
+  cloudtrail_name = "lacework-cloudtrail-${var.environment}-${var.deployment}"
   use_existing_iam_role = true
   iam_role_name         = module.aws_config.iam_role_name
   iam_role_arn          = module.aws_config.iam_role_arn

@@ -22,48 +22,48 @@ resource "helm_release" "lacework" {
     force_update = true
 
     set {
-        name  = "laceworkConfig.kubernetesCluster"
+        name  = "windowsAgent.agentConfig.kubernetesCluster"
         value = var.cluster_name
     }
 
     set {
-        name  = "laceworkConfig.env"
+        name  = "windowsAgent.agentConfig.env"
         value = var.environment
     }
 
     set {
-        name  = "laceworkConfig.serverUrl"
+        name  = "windowsAgent.agentConfig.serverUrl"
         value = var.lacework_server_url
     }
 
     set_sensitive {
-        name  = "laceworkConfig.accessToken"
+        name  = "windowsAgent.agentConfig.accessToken"
         # value = can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
         value = lacework_agent_access_token.agent.token
     }
 
     set {
-        name  = "clusterAgent.enable"
+        name  = "windowsAgent.enable"
         value = var.lacework_cluster_agent_enable
     }
 
     set {
-        name  = "clusterAgent.image.repository"
+        name  = "windowsAgent.image.repository"
         value = var.lacework_cluster_agent_image_repository
     }
 
-    set {
-        name  = "clusterAgent.clusterType"
-        value = var.lacework_cluster_agent_cluster_type
-    }
+    # set {
+    #     name  = "windowsAgent.clusterType"
+    #     value = var.lacework_cluster_agent_cluster_type
+    # }
+
+    # set {
+    #     name  = "windowsAgent.clusterRegion"
+    #     value = var.lacework_cluster_agent_cluster_region
+    # }
 
     set {
-        name  = "clusterAgent.clusterRegion"
-        value = var.lacework_cluster_agent_cluster_region
-    }
-
-    set {
-        name  = "image.repository"
+        name  = "windowsAgent.image.repository"
         value = var.lacework_image_repository
     }
 
