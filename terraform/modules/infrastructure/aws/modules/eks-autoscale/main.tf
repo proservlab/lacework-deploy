@@ -72,7 +72,7 @@ resource "helm_release" "cluster-autoscaler" {
   name        = "cluster-autoscaler-${var.environment}-${var.deployment}"
   
   namespace   = "kube-system"
-  repository  = "kubernetes/autoscaler"
+  repository  = "https://kubernetes.github.io/autoscaler"
   chart       = "cluster-autoscaler"
   force_update = true
 
