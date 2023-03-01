@@ -83,6 +83,10 @@ variable "config" {
           enabled               = bool
           cluster_name          = string
         })
+        eks-windows = object({
+          enabled               = bool
+          cluster_name          = string
+        })
         rds = object({
           enabled                       = bool
         })
@@ -387,6 +391,11 @@ variable "config" {
         eks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+        }
+
+        eks-windows = {
+          enabled               = false
+          cluster_name          = "infra-windows-cluster"
         }
         rds = {
           enabled                       = false

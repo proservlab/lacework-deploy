@@ -88,6 +88,18 @@ module "eks-autoscaler" {
   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 }
 
+# eks
+module "eks-windows" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-windows"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
+  aws_profile_name = local.config.context.aws.profile_name
+
+  cluster_name = local.config.context.aws.eks.cluster_name
+}
+
 ##################################################
 # AWS INSPECTOR
 ##################################################

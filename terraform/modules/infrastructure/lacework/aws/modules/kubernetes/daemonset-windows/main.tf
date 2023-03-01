@@ -12,13 +12,13 @@ resource "lacework_agent_access_token" "agent" {
 
 # use the local chart to apply (current workaround for syscall_config.yaml)
 resource "helm_release" "lacework" {
-    name       = "lacework-${var.environment}-${var.deployment}"
+    name       = "lacework-agent-windows-${var.environment}-${var.deployment}"
     repository = "${path.module}/helm-charts"
     chart      = "lacework-agent-windows"
     version    = "1.4.0"
 
-    create_namespace =  false
-    namespace =  "lacework"
+    create_namespace =  true
+    namespace =  "lacework-windows"
     force_update = true
 
     set {

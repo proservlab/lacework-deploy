@@ -77,6 +77,14 @@ resource "helm_release" "cluster-autoscaler" {
   force_update = true
 
   set{
+    name = "image.repository"
+    value = "registry.k8s.io/autoscaling/cluster-autoscaler"
+  }
+  set{
+    name = "image.tag"
+    value="v1.22.2"
+  }
+  set{
     name  = "cloudProvider"
     value = "aws"
   }

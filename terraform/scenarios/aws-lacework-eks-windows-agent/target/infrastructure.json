@@ -25,8 +25,12 @@
         ]
       },
       "eks": {
-        "enabled"      : true,
+        "enabled"      : false,
         "cluster_name" : "target-cluster"
+      },
+      "eks-windows": {
+        "enabled"      : true,
+        "cluster_name" : "target-windows-cluster"
       },
       "rds": {
         "enabled"      : false
@@ -61,6 +65,10 @@
           "enabled" : true,
           "proxy_scanner": {
             "enabled" : false
+          },
+          "daemonset": {
+            "enabled"        : true,
+            "syscall_config_path" : "${ syscall_config_path }"
           },
           "daemonset-windows": {
             "enabled"        : true,

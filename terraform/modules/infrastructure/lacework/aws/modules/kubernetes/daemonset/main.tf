@@ -12,7 +12,7 @@ resource "lacework_agent_access_token" "agent" {
 
 # use the local chart to apply (current workaround for syscall_config.yaml)
 resource "helm_release" "lacework" {
-    name       = "lacework-${var.environment}-${var.deployment}"
+    name       = "lacework-agent-${var.environment}-${var.deployment}"
     repository = "${path.module}/helm-charts"
     chart      = "lacework-agent"
     version    = "6.2.2"
