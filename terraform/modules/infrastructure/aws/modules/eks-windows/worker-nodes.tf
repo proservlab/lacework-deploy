@@ -10,7 +10,7 @@ data "aws_ami" "eks_optimized_ami" {
 
   filter {
     name   = "name"
-    values = ["Windows_Server-2019-English-Core-EKS_Optimized-${var.eks_cluster_version}-*"]
+    values = ["Windows_Server-2019-English-Core-EKS_Optimized-${var.cluster_version}-*"]
   }
 }
 
@@ -65,7 +65,7 @@ resource "aws_iam_role_policy_attachment" "node-AmazonSSMPatchAssociation" {
 
 
 resource "aws_eks_node_group" "cluster" {
-  cluster_name    = aws_eks_cluster.cluster.name
+  cluster_name    = aws_eks_cluster.eks_windows.name
   node_group_name = var.cluster_name
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = [ for subnet in aws_subnet.cluster: subnet.id ]
@@ -170,7 +170,7 @@ resource "aws_eks_node_group" "node_group_windows" {
 
 resource "aws_launch_template" "eks_windows_nodegroup_lt" {
   name                   = "${var.cluster_name}-${var.environment}-${var.deployment}-eks-windows-nodegroup-lt"
-  vpc_security_group_ids = [aws_security_group.windows_sg.id, aws_security_group.cluster_sg.id]
+  vpc_security_group_ids = [aws_security_group.cluster.id]
   image_id               = data.aws_ami.eks_optimized_ami.id
   instance_type          = "t3.large"
 
@@ -178,7 +178,7 @@ resource "aws_launch_template" "eks_windows_nodegroup_lt" {
 <powershell>
 [string]$EKSBinDir = "$env:ProgramFiles\Amazon\EKS"
 [string]$EKSBootstrapScriptFile = "$env:ProgramFiles\Amazon\EKS\Start-EKSBootstrap.ps1"
-& $EKSBootstrapScriptFile -EKSClusterName "${aws_eks_cluster.eks_windows.name}" -APIServerEndpoint "${aws_eks_cluster.eks_windows.endpoint}" -Base64ClusterCA "${aws_eks_cluster.cluster.certificate_authority[0].data}" -DNSClusterIP "10.0.0.10" 3>&1 4>&1 5>&1 6>&1
+& $EKSBootstrapScriptFile -EKSClusterName "${aws_eks_cluster.eks_windows.name}" -APIServerEndpoint "${aws_eks_cluster.eks_windows.endpoint}" -Base64ClusterCA "${aws_eks_cluster.eks_windows.certificate_authority[0].data}" -DNSClusterIP "10.0.0.10" 3>&1 4>&1 5>&1 6>&1
 </powershell>
 EOF
   )}"
@@ -228,7 +228,7 @@ resource "aws_autoscaling_group" "eks-windows-nodegroup-asg" {
     id      = aws_launch_template.eks_windows_nodegroup_lt.id
     version = "$Latest"
   }
-  vpc_zone_identifier = data.aws_subnets.private_subnets.ids
+  vpc_zone_identifier = [ for subnet in aws_subnet.cluster: subnet.id ]
   health_check_type   = "EC2"
 
   lifecycle {

@@ -1,11 +1,11 @@
 data "tls_certificate" "cluster" {
-  url = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+  url = aws_eks_cluster.eks_windows.identity[0].oidc[0].issuer
 }
 
 resource "aws_iam_openid_connect_provider" "cluster" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
-  url             = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+  url             = aws_eks_cluster.eks_windows.identity[0].oidc[0].issuer
 
 }
 
@@ -31,9 +31,9 @@ resource "aws_iam_role" "aws-node" {
 }
 
 resource "aws_eks_identity_provider_config" "cluster" {
-  cluster_name = aws_eks_cluster.cluster.name
+  cluster_name = aws_eks_cluster.eks_windows.name
   oidc {
-    client_id                     = substr(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, -32, -1)
+    client_id                     = substr(aws_eks_cluster.eks_windows.identity[0].oidc[0].issuer, -32, -1)
     identity_provider_config_name = "cluster-${var.environment}-oidc"
     issuer_url                    = "https://${aws_iam_openid_connect_provider.cluster.url}"
   }

@@ -12,5 +12,5 @@ module "aws-eks-kubeconfig" {
   deployment = var.deployment
   aws_profile_name = var.aws_profile_name
   region = var.region
-  cluster_name = aws_eks_cluster.cluster.id
+  cluster_name = aws_eks_cluster.eks_windows.id
 }

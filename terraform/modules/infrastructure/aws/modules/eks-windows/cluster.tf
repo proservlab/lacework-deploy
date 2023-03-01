@@ -122,13 +122,13 @@ resource "kubernetes_config_map" "configmap" {
 - groups:
   - system:bootstrappers
   - system:nodes
-  rolearn: arn:aws:iam::${data.aws_caller_identity.account_id.account_id}:role/eks-node-group-linux-role
+  rolearn: arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-node-group-linux-role
   username: system:node:{{EC2PrivateDNSName}}
 - groups:
   - eks:kube-proxy-windows
   - system:bootstrappers
   - system:nodes
-  rolearn: arn:aws:iam::${data.aws_caller_identity.account_id.account_id}:role/eks-node-group-windows-role
+  rolearn: arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-node-group-windows-role
   username: system:node:{{EC2PrivateDNSName}}
 EOT
   }
