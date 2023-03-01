@@ -1,7 +1,7 @@
 # create the syscall_config file
 resource "local_file" "syscall_config" {
     content  = var.syscall_config
-    filename = "${path.module}/helm-charts/lacework-agent/config/syscall_config.yaml"
+    filename = "${path.module}/helm-charts/lacework-agent-windows/config/syscall_config.yaml"
 }
 
 # create a token for the daemonset
