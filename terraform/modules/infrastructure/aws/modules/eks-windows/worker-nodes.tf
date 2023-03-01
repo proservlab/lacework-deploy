@@ -4,6 +4,10 @@
 #  * EKS Node Group to launch worker nodes
 #
 
+data "aws_eks_cluster" "eks_windows" {
+  name = aws_eks_cluster.eks_windows.name
+}
+
 data "aws_ami" "eks_optimized_ami" {
   most_recent = true
   owners      = ["amazon"]

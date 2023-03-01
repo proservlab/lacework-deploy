@@ -97,7 +97,7 @@ module "eks-windows" {
   region       = local.config.context.aws.region
   aws_profile_name = local.config.context.aws.profile_name
 
-  cluster_name = local.config.context.aws.eks.cluster_name
+  cluster_name = local.config.context.aws.eks-windows.cluster_name
 }
 
 ##################################################
