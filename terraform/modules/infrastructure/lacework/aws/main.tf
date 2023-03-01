@@ -55,7 +55,7 @@ module "lacework-agentless" {
 ##################################################
 
 module "lacework-namespace" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true )  ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true )  ) ? 1 : 0
   source                                = "./modules/kubernetes/namespace"
 }
 
@@ -74,6 +74,27 @@ module "lacework-daemonset" {
   lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+
+  depends_on = [
+    module.lacework-namespace
+  ]
+}
+
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset-windows" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset-windows"
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
+  lacework_cluster_agent_cluster_region = local.config.context.aws.region
+
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
   depends_on = [
     module.lacework-namespace
