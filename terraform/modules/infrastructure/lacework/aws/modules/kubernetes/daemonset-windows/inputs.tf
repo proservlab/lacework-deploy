@@ -28,7 +28,7 @@ variable "lacework_image_repository" {
 
 variable "lacework_image_tag" {
     type    = string
-    default = "6.3.0"
+    default = "1.4.0.3081"
 }
 
 variable "lacework_cluster_agent_enable" {
