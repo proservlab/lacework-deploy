@@ -44,6 +44,9 @@
     "kubernetes" :  {
       "aws": {
         "app" :  {
+          "enabled" :  false
+        },
+        "app-windows" :  {
           "enabled" :  true
         },
         "psp" :  {

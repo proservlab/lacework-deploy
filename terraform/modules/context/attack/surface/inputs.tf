@@ -83,6 +83,9 @@ variable "config" {
           app = object({
             enabled                       = bool
           })
+          app-windows = object({
+            enabled                       = bool
+          })
           psp = object({
             enabled                       = bool
           })
@@ -232,6 +235,9 @@ variable "config" {
       kubernetes = {
         gcp = {
           app = {
+            enabled                       = false
+          }
+          app-windows = {
             enabled                       = false
           }
           psp = {

@@ -163,6 +163,13 @@ module "kubernetes-app" {
   deployment  = var.config.context.global.deployment
 }
 
+module "kubernetes-app-windows" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.app-windows.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/app-windows"
+  environment = var.config.context.global.environment
+  deployment  = var.config.context.global.deployment
+}
+
 # example of applying pod security policy
 module "kubenetes-psp" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.kubernetes.aws.psp.enabled == true ) ? 1 : 0
