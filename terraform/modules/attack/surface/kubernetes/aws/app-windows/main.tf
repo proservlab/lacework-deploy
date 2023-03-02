@@ -13,7 +13,7 @@ module "id" {
 
 resource "kubernetes_namespace" "namespace" {
   metadata {
-    name = var.environment
+    name = "${var.environment}-windows"
   }
 }
 
@@ -23,7 +23,7 @@ resource "kubernetes_deployment" "app" {
     labels = {
       app = "example-app-windows"
     }
-    namespace = var.environment
+    namespace = "${var.environment}-windows"
   }
 
   spec {
