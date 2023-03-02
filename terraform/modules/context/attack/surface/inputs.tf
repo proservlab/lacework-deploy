@@ -237,9 +237,6 @@ variable "config" {
           app = {
             enabled                       = false
           }
-          app-windows = {
-            enabled                       = false
-          }
           psp = {
             enabled                       = false
           }
@@ -269,6 +266,9 @@ variable "config" {
         }
         aws = {
           app = {
+            enabled                       = false
+          }
+          app-windows = {
             enabled                       = false
           }
           psp = {
