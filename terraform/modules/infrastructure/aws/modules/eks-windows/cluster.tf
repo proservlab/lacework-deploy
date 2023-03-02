@@ -69,7 +69,6 @@ resource "aws_cloudwatch_log_group" "example" {
 
 
 ## EKS Cluster
-
 resource "aws_eks_cluster" "eks_windows" {
   name     = "${var.cluster_name}-${var.environment}-${var.deployment}"
   role_arn = aws_iam_role.cluster.arn
@@ -89,54 +88,6 @@ resource "aws_eks_cluster" "eks_windows" {
     aws_iam_role_policy_attachment.cluster-AmazonEKSVPCResourceController,
     aws_cloudwatch_log_group.example
   ]
-}
-
-## EKS Cluster Addon
-
-resource "aws_eks_addon" "eks_windows_addon" {
-  cluster_name = aws_eks_cluster.eks_windows.name
-  addon_name   = "vpc-cni"
-}
-
-## Enable VPC CNI Windows Support
-
-resource "kubernetes_config_map" "amazon_vpc_cni_windows" {
-  depends_on = [
-    aws_eks_cluster.eks_windows
-  ]
-  metadata {
-    name      = "amazon-vpc-cni"
-    namespace = "kube-system"
-  }
-
-  data = {
-    enable-windows-ipam : "true"
-  }
-}
-
-## AWS CONFIGMAP
-
-resource "kubernetes_config_map" "configmap" {
-  data = {
-    "mapRoles" = <<EOT
-- groups:
-  - system:bootstrappers
-  - system:nodes
-  rolearn: arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-node-group-linux-role
-  username: system:node:{{EC2PrivateDNSName}}
-- groups:
-  - eks:kube-proxy-windows
-  - system:bootstrappers
-  - system:nodes
-  rolearn: arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-node-group-windows-role
-  username: system:node:{{EC2PrivateDNSName}}
-EOT
-  }
-
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
 }
 
 

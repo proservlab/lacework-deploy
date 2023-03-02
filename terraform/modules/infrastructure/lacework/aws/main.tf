@@ -96,9 +96,9 @@ module "lacework-daemonset-windows" {
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
-  depends_on = [
-    module.lacework-namespace
-  ]
+  # depends_on = [
+  #   module.lacework-namespace
+  # ]
 }
 
 # lacework kubernetes admission controller

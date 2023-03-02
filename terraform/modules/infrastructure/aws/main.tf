@@ -100,6 +100,20 @@ module "eks-windows" {
   cluster_name = local.config.context.aws.eks-windows.cluster_name
 }
 
+module "eks-windows-configmap" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-windows-configmap"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
+  cluster_name = local.config.context.aws.eks-windows.cluster_name
+  cluster_endpoint = module.eks-windows[0].cluster_endpoint
+  cluster_ca_cert = module.eks-windows[0].cluster_ca_cert
+  cluster_sg = module.eks-windows[0].cluster_sg_id
+  cluster_subnet = module.eks-windows[0].cluster_subnet
+  cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
+}
+
 ##################################################
 # AWS INSPECTOR
 ##################################################

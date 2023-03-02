@@ -44,28 +44,19 @@ resource "helm_release" "lacework" {
 
     set {
         name  = "windowsAgent.enable"
-        value = var.lacework_cluster_agent_enable
+        value = true
     }
-
-    set {
-        name  = "windowsAgent.image.repository"
-        value = var.lacework_cluster_agent_image_repository
-    }
-
-    # set {
-    #     name  = "windowsAgent.clusterType"
-    #     value = var.lacework_cluster_agent_cluster_type
-    # }
-
-    # set {
-    #     name  = "windowsAgent.clusterRegion"
-    #     value = var.lacework_cluster_agent_cluster_region
-    # }
 
     set {
         name  = "windowsAgent.image.repository"
         value = var.lacework_image_repository
     }
+
+    set {
+        name  = "windowsAgent.image.tag"
+        value = var.lacework_image_tag
+    }
+
 
     depends_on = [
         local_file.syscall_config

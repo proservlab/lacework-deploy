@@ -9,7 +9,7 @@ spec:
       app: windows-server-iis-ltsc2022
       tier: backend
       track: stable
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:

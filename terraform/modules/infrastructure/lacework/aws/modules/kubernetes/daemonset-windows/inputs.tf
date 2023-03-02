@@ -26,6 +26,11 @@ variable "lacework_image_repository" {
     default = "lacework/datacollector-windows"
 }
 
+variable "lacework_image_tag" {
+    type    = string
+    default = "6.3.0"
+}
+
 variable "lacework_cluster_agent_enable" {
     type    = bool
     default = false
