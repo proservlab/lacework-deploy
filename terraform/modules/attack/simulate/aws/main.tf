@@ -71,6 +71,16 @@ data "aws_instances" "target_reverse_shell" {
   }
 }
 
+data "aws_instances" "target_vuln_npm_app" {
+  provider = aws.target
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
+  instance_tags = {
+    environment = "target"
+    deployment  = var.config.context.global.deployment
+    ssm_exec_vuln_npm_app_target = "true"
+  }
+}
+
 data "aws_instances" "target_log4shell" {
   provider = aws.target
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
@@ -119,6 +129,16 @@ data "aws_instances" "attacker_reverse_shell" {
     environment = "attacker"
     deployment  = var.config.context.global.deployment
     ssm_exec_reverse_shell_attacker = "true"
+  }
+}
+
+data "aws_instances" "attacker_vuln_npm_app" {
+  provider = aws.attacker
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
+  instance_tags = {
+    environment = "attacker"
+    deployment  = var.config.context.global.deployment
+    ssm_exec_vuln_npm_app_attacker = "true"
   }
 }
 
@@ -335,6 +355,17 @@ module "ssm-execute-docker-log4shell-attack" {
   target_ip = data.aws_instances.target_log4shell[0].public_ips[0]
   target_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
+}
+
+module "ssm-execute-vuln-npm-app-attack" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.enabled == true && length(try(data.aws_instances.attacker_vuln_npm_app[0].public_ips,[])) > 0 && length(try(data.aws_instances.target_vuln_npm_app[0].public_ips,[])) > 0) ? 1 : 0
+  source        = "./modules/ssm/execute-vuln-npm-app-attack"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+
+  target_ip = data.aws_instances.target_vuln_npm_app[0].public_ips[0]
+  target_port = var.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.target_port
+  payload = var.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.payload
 }
 
 ##################################################

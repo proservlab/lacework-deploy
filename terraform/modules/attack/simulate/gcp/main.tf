@@ -209,6 +209,12 @@ locals {
       && lookup(instance.labels,"osconfig_exec_reverse_shell_attacker","false") == "true"
   ]
 
+  attacker_vuln_npm_app = [ 
+    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
+  ]
+
   attacker_log4shell = [ 
     for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
@@ -222,6 +228,12 @@ locals {
   ]
 
   # target scenario public ips
+  target_vuln_npm_app = [ 
+    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
+  ]
+
   target_log4shell = [ 
     for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
@@ -370,6 +382,19 @@ module "osconfig-execute-docker-log4shell-attack" {
   target_ip = local.target_log4shell[0]
   target_port = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.target_port
   payload = var.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.payload
+}
+
+module "osconfig-execute-vuln-npm-app-attack" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.enabled == true && local.attacker == true && var.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.enabled == true && length(local.attacker_vuln_npm_app) > 0 && length(local.target_vuln_npm_app) > 0) ? 1 : 0
+  source        = "./modules/osconfig/execute-vuln-npm-app-attack"
+  environment   = var.config.context.global.environment
+  deployment    = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  target_ip = local.target_vuln_npm_app[0]
+  target_port = var.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.target_port
+  payload = var.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.payload
 }
 
 ##################################################

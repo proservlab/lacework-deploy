@@ -285,7 +285,7 @@ module "ssh-keys" {
   gcp_location = local.default_infrastructure_config.context.gcp.region
 }
 
-module "vulnerable-docker-log4shellspp" {
+module "vulnerable-docker-log4shellapp" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
   source = "./modules/osconfig/gce/vulnerable/docker-log4shellapp"
   environment = var.config.context.global.environment
@@ -293,7 +293,18 @@ module "vulnerable-docker-log4shellspp" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  listen_port = var.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
+  listen_port = var.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.listen_port
+}
+
+module "vulnerable-npm-app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.osconfig.vulnerable.npm_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/gce/vulnerable/npm-app"
+  environment = var.config.context.global.environment
+  deployment  = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  listen_port = var.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
 }
 
 ##################################################

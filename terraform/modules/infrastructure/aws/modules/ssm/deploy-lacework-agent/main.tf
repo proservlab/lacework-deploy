@@ -10,7 +10,7 @@ module "lacework_aws_ssm_agents_install" {
     source  = "lacework/ssm-agent/aws"
     version = "~> 0.8"
 
-    aws_resources_prefix = "${var.environment}-${var.deployment}"
+    aws_resources_prefix = "${var.environment}-${var.deployment}-"
 
     # tags to add to the lacework data collector
     lacework_agent_tags = {

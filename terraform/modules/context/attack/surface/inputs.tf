@@ -33,6 +33,10 @@ variable "config" {
                 listen_port               = number
               })
             })
+            npm_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
           })
           ssh_keys = object({ 
             enabled                     = bool
@@ -71,6 +75,10 @@ variable "config" {
                 enabled                   = bool
                 listen_port               = number
               })
+            })
+            npm_app = object({
+              enabled                   = bool
+              listen_port               = number
             })
           })
           ssh_keys = object({ 
@@ -184,6 +192,10 @@ variable "config" {
                 enabled                   = false
                 listen_port               = 8000
               }
+            },
+            npm_app = {
+              enabled                   = false
+              listen_port               = 8089
             }
           }
           ssh_keys = {
@@ -225,6 +237,10 @@ variable "config" {
                 enabled                   = false
                 listen_port               = 8000
               }
+            },
+            npm_app = {
+              enabled                   = false
+              listen_port               = 8089
             }
           }
           ssh_keys = {

@@ -98,6 +98,12 @@ variable "config" {
               })
             })
             execute = object({
+              vuln_npm_app_attack = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                payload                     = string
+              })
               docker_log4shell_attack = object({
                 enabled                     = bool
                 attacker_http_port          = number
@@ -258,6 +264,12 @@ variable "config" {
               })
             })
             execute = object({
+              vuln_npm_app_attack = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                payload                     = string
+              })
               docker_log4shell_attack = object({
                 enabled                     = bool
                 attacker_http_port          = number
@@ -438,6 +450,12 @@ variable "config" {
               }
             }
             execute = {
+              vuln_npm_app_attack = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8089
+                payload                     = "touch /tmp/vuln_npm_app_pwned"
+              }
               docker_log4shell_attack = {
                 enabled                     = false
                 attacker_http_port          = 8088
@@ -607,6 +625,12 @@ variable "config" {
               }
             }
             execute = {
+              vuln_npm_app_attack = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8089
+                payload                     = "touch /tmp/vuln_npm_app_pwned"
+              }
               docker_log4shell_attack = {
                 enabled                     = false
                 attacker_http_port          = 8088
