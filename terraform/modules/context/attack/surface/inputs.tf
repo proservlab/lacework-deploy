@@ -37,6 +37,10 @@ variable "config" {
               enabled                   = bool
               listen_port               = number
             })
+            python3_twisted_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
           })
           ssh_keys = object({ 
             enabled                     = bool
@@ -77,6 +81,10 @@ variable "config" {
               })
             })
             npm_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
+            python3_twisted_app = object({
               enabled                   = bool
               listen_port               = number
             })
@@ -197,6 +205,10 @@ variable "config" {
               enabled                   = false
               listen_port               = 8089
             }
+            python3_twisted_app = {
+              enabled                   = false
+              listen_port               = 8090
+            }
           }
           ssh_keys = {
             enabled                     = false
@@ -241,6 +253,10 @@ variable "config" {
             npm_app = {
               enabled                   = false
               listen_port               = 8089
+            }
+            python3_twisted_app = {
+              enabled                   = false
+              listen_port               = 8090
             }
           }
           ssh_keys = {

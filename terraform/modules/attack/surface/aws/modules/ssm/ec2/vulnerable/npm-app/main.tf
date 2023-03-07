@@ -25,6 +25,7 @@ locals {
     git clone ${local.repo} && \
     cd CVE-2021-21315-PoC && \
     echo ${local.index_js_base64} | base64 -d > index.js
+    npm install >> $LOGFILE 2>&1
 
     screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
     screen -S vuln_npm_app_target -X colon "logfile flush 0^M"

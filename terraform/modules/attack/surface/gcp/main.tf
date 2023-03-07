@@ -307,6 +307,17 @@ module "vulnerable-npm-app" {
   listen_port = var.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
 }
 
+module "vulnerable-python3-twisted-app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.gcp.osconfig.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/gce/vulnerable/python3-twisted-app"
+  environment = var.config.context.global.environment
+  deployment  = var.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  listen_port = var.config.context.gcp.osconfig.vulnerable.python3_twisted_app.listen_port
+}
+
 ##################################################
 # Kubernetes General
 ##################################################

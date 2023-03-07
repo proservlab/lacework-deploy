@@ -160,6 +160,15 @@ module "vulnerable-npm-app" {
   listen_port = var.config.context.aws.ssm.vulnerable.npm_app.listen_port
 }
 
+module "vulnerable-python3-twisted-app" {
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.ssm.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
+  source = "./modules/ssm/ec2/vulnerable/python3-twisted-app"
+  environment = var.config.context.global.environment
+  deployment  = var.config.context.global.deployment
+  
+  listen_port = var.config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
+}
+
 ##################################################
 # Kubernetes General
 ##################################################
