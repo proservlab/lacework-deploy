@@ -65,7 +65,7 @@ locals {
       aws_region  = var.attacker_aws_region
 
       # gcp
-      gcp_project = var.attacker_gcp_project
+      gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       gcp_region  = var.attacker_gcp_region
 
       # lacework
@@ -83,9 +83,9 @@ locals {
       aws_region  = var.target_aws_region
 
       # gcp
-      gcp_project          = var.target_gcp_project
+      gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       gcp_region           = var.target_gcp_region
-      gcp_lacework_project = var.target_gcp_lacework_project
+      gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # lacework
       lacework_server_url   = var.lacework_server_url
@@ -555,11 +555,11 @@ locals {
       target_aws_region    = var.target_aws_region
 
       # gcp
-      attacker_gcp_project        = var.attacker_gcp_project
+      attacker_gcp_project        = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       attacker_gcp_region         = var.attacker_gcp_region
-      target_gcp_project          = var.target_gcp_project
+      target_gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region           = var.target_gcp_region
-      target_gcp_lacework_project = var.target_gcp_lacework_project
+      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # variables
       compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
@@ -586,11 +586,11 @@ locals {
       target_aws_region    = var.target_aws_region
 
       # gcp
-      attacker_gcp_project        = var.attacker_gcp_project
+      attacker_gcp_project        = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       attacker_gcp_region         = var.attacker_gcp_region
-      target_gcp_project          = var.target_gcp_project
+      target_gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region           = var.target_gcp_region
-      target_gcp_lacework_project = var.target_gcp_lacework_project
+      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user

@@ -59,7 +59,7 @@ variable "target_aws_region" {
 variable "attacker_gcp_project" {
   type        = string
   description = "attacker gcp project"
-  default     = "attacker"
+  default     = null
 }
 
 variable "attacker_gcp_region" {
@@ -71,7 +71,7 @@ variable "attacker_gcp_region" {
 variable "target_gcp_project" {
   type        = string
   description = "target gcp profile"
-  default     = "target"
+  default     = null
 }
 
 variable "target_gcp_region" {
@@ -83,7 +83,7 @@ variable "target_gcp_region" {
 variable "target_gcp_lacework_project" {
   type        = string
   description = "target gcp lacework profile"
-  default     = "target"
+  default     = null
 }
 
 variable "target_gcp_lacework_region" {
@@ -95,7 +95,7 @@ variable "target_gcp_lacework_region" {
 variable "attacker_gcp_lacework_project" {
   type        = string
   description = "attacker gcp lacework profile"
-  default     = "attacker"
+  default     = null
 }
 
 variable "attacker_gcp_lacework_region" {
