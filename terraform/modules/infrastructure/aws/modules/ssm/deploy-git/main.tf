@@ -37,7 +37,7 @@ resource "aws_ssm_document" "deploy_git" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "120",
                     "runCommand": [
                         "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
                     ]

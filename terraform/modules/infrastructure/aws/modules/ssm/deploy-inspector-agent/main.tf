@@ -17,7 +17,7 @@ resource "aws_ssm_document" "deploy_inspector_agent" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "120",
                     "runCommand": [
                         "wget https://inspector-agent.amazonaws.com/linux/latest/install -P /tmp 2>/dev/null || curl -O  https://inspector-agent.amazonaws.com/linux/latest/install -o /tmp/install",
                         "/bin/bash /tmp/install"
