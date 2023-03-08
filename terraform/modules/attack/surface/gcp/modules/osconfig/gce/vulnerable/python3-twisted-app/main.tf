@@ -35,7 +35,7 @@ locals {
         screen -d -L -Logfile /tmp/vuln_python3_twisted_app_target.log -S vuln_python3_twisted_app_target -m python3 /vuln_python3_twisted_app/app.py
         screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
-        sleep 1795
+        sleep 1800
         screen -ls | grep vuln_python3_twisted_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
     else
         log "python twisted vulnerability required the following package installed:"

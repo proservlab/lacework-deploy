@@ -7,8 +7,14 @@ function log {
 }
 truncate -s 0 $LOGFILE
 
+log "Setting User-agent: AWS_EXECUTION_ENV=evasion"
+export AWS_EXECUTION_ENV="evasion"
+
 log "Starting..."
+
+# install preqs
 yum install -y jq
+
 opts="--output json --color off --no-cli-pager"
 # evasion inspector
 for row in $(aws inspector list-assessment-runs --output json --color off --no-cli-pager | jq -r '.[] | @base64'); do

@@ -7,6 +7,9 @@ function log {
 }
 truncate -s 0 $LOGFILE
 
+log "Setting User-agent: AWS_EXECUTION_ENV=discovery"
+export AWS_EXECUTION_ENV="discovery"
+
 log "Starting..."
 log "Discovery access attacker simulation..."
 log "Current IP: $(curl -s http://icanhazip.com)"

