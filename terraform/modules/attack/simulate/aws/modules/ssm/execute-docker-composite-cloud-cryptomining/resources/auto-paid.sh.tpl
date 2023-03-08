@@ -69,4 +69,40 @@ log "Executing ${script}"
 bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
 log "Done ${script}."
 
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
+log "Start protonvpn with .env-protonvpn-paid-LV"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-LV >> $LOGFILE 2>&1
+log "Wait for connection..."
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
+log "Starting docker log for protonvpn-LV..."
+docker logs protonvpn -f > /tmp/protonvpn-SG.log 2>&1 &
+log "Executing ${script}"
+bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+log "Done ${script}."
+
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
+log "Start protonvpn with .env-protonvpn-paid-CR"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-CR >> $LOGFILE 2>&1
+log "Wait for connection..."
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
+log "Starting docker log for protonvpn-CR..."
+docker logs protonvpn -f > /tmp/protonvpn-SG.log 2>&1 &
+log "Executing ${script}"
+bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+log "Done ${script}."
+
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
+log "Start protonvpn with .env-protonvpn-paid-IS"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-IS >> $LOGFILE 2>&1
+log "Wait for connection..."
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
+log "Starting docker log for protonvpn-IS..."
+docker logs protonvpn -f > /tmp/protonvpn-SG.log 2>&1 &
+log "Executing ${script}"
+bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+log "Done ${script}."
+
 log "Attack simulation complete."
