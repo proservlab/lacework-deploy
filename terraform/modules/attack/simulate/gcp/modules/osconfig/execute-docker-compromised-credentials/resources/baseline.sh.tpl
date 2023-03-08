@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOGFILE=/tmp/attacker_compromised_credentials_baseline.sh.log
+LOGFILE=/tmp/attacker_${attack_type}_baseline.sh.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

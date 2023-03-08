@@ -131,4 +131,17 @@ aws kms put-key-policy \
     --key-id "$KEY_ID" \
     --policy file://./key_material/new_key_policy.json >> $LOGFILE 2>&1
 
+log "Sleeping 60 seconds..."
+sleep 60
+
+log "Disabling created key: $KEY_ID"
+aws kms disable-key \
+    --key-id "$KEY_ID"
+
+log "Scheduling delete key (7 days): $KEY_ID"
+aws kms schedule-key-deletion \
+    --key-id "$KEY_ID" \
+    --pending-window-in-days 7
+
+
 log "Done."

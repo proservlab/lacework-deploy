@@ -13,7 +13,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --container=[aws-cli|terraform|protonvpn] --script=[baseline.sh|discovery.sh] --env-file=ENV_FILE
+usage: $SCRIPTNAME [-h] --container=[aws-cli|terraform|protonvpn] --script=[baseline.sh|discovery.sh|cloudcrypt|hostcrypto] --env-file=ENV_FILE
 
 --service   the docker container to launch;
 --env-file  path to environment variable file. default: .env 
@@ -33,7 +33,7 @@ infomsg(){
 echo "INFO: $${1}"
 }
 
-LOGFILE=/tmp/attacker_compromised_credentials_start.sh.log
+LOGFILE=/tmp/attacker_${attack_type}_start.sh.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -82,6 +82,7 @@ elif [ "$${CONTAINER}" = "aws-cli" ]; then
 elif [ "$${CONTAINER}" = "terraform" ]; then
     CONTAINER_IMAGE="hashicorp/terraform:latest"
     DOCKER_OPTS="-i --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
+    SCRIPT="/bin/sh -c \"cd $SCRIPT && terraform init && terraform apply -auto-approve && sleep 600 && terraform destroy -auto-approve\""
 fi
 
 if [ -z "$${ENV_FILE}" ]; then
