@@ -7,6 +7,8 @@ function log {
 }
 truncate -s 0 $LOGFILE
 
+log "Starting..."
+
 log "Setting User-agent: AWS_EXECUTION_ENV=ransomware"
 export AWS_EXECUTION_ENV="ransomware"
 

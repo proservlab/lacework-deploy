@@ -7,6 +7,8 @@ function log {
 }
 truncate -s 0 $LOGFILE
 
+log "Starting..."
+
 log "Setting User-agent: AWS_EXECUTION_ENV=ransomware"
 export AWS_EXECUTION_ENV="ransomware"
 
@@ -129,4 +131,4 @@ aws kms put-key-policy \
     --key-id "$KEY_ID" \
     --policy file://./key_material/new_key_policy.json >> $LOGFILE 2>&1
 
-log "Don
+log "Done."
