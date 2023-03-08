@@ -8,8 +8,8 @@ function log {
 truncate -s 0 $LOGFILE
 
 log "Starting..."
-log "Start protonvpn with .env-protonvpn-US"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-US >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-paid-US"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-US >> $LOGFILE 2>&1
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done
 log "Starting docker log for protonvpn-US..."
@@ -21,8 +21,8 @@ log "Done baseline."
 
 log "Wait 60 seconds before starting attacker ${script}..."
 sleep 60
-log "Start protonvpn with .env-protonvpn-AU"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-AU >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-paid-AU"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-AU >> $LOGFILE 2>&1
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-AU..."
@@ -34,8 +34,8 @@ log "Done ${script}."
 
 log "Wait 60 seconds before starting attacker ${script}..."
 sleep 60
-log "Start protonvpn with .env-protonvpn-JP"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-paid-JP"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-JP >> $LOGFILE 2>&1
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-JP..."
@@ -47,8 +47,8 @@ log "Done ${script}."
 
 log "Wait 60 seconds before starting attacker ${script}..."
 sleep 60
-log "Start protonvpn with .env-protonvpn-NL"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-paid-NL"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-NL >> $LOGFILE 2>&1
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-NL..."
@@ -59,8 +59,8 @@ log "Done ${script}."
 
 log "Wait 60 seconds before starting attacker ${script}..."
 sleep 60
-log "Start protonvpn with .env-protonvpn-SG"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-SG >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-paid-SG"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-SG >> $LOGFILE 2>&1
 log "Wait for connection..."
 while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
 log "Starting docker log for protonvpn-SG..."

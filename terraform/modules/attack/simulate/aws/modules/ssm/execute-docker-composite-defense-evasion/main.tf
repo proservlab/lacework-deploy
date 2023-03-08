@@ -24,6 +24,7 @@ locals {
         echo '${base64encode(local.auto-free)}' | base64 -d > /${local.attack_dir}/auto-free.sh
         echo '${base64encode(local.auto-paid)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
         echo '${base64encode(local.protonvpn)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
+        echo '${base64encode(local.protonvpn-paid)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-paid
         echo '${base64encode(local.protonvpn-baseline)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
         echo '${base64encode(local.baseline)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
         echo '${base64encode(local.discovery)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
@@ -31,7 +32,12 @@ locals {
         echo '${base64encode(local.cloudransom)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
         echo '${base64encode(local.cloudcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
         echo '${base64encode(local.hostcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-        for i in $(echo "AU CR IS JP LV NL NZ SG SK US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
+        for i in $(echo "US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
+        while ! which docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        for i in $(echo "AU CR IS JP LV NL NZ SG SK US"); do cp .env-protonvpn-paid .env-protonvpn-paid-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-paid-$i; done
         while ! which docker > /dev/null || ! docker ps > /dev/null; do
             log "docker not found or not ready - waiting"
             sleep 120
@@ -57,6 +63,16 @@ locals {
                                     protonvpn_password = var.protonvpn_password
                                     protonvpn_server = var.protonvpn_server
                                     protonvpn_tier = tostring(var.protonvpn_tier)
+                                    protonvpn_protocol = var.protonvpn_protocol
+                                }
+                            )
+    protonvpn-paid       = templatefile(
+                                "${path.module}/resources/protonvpn.env.tpl", 
+                                {
+                                    protonvpn_user = var.protonvpn_user
+                                    protonvpn_password = var.protonvpn_password
+                                    protonvpn_server = var.protonvpn_server
+                                    protonvpn_tier = 1
                                     protonvpn_protocol = var.protonvpn_protocol
                                 }
                             )
