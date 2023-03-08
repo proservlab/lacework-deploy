@@ -72,7 +72,7 @@ locals {
                                     protonvpn_user = var.protonvpn_user
                                     protonvpn_password = var.protonvpn_password
                                     protonvpn_server = var.protonvpn_server
-                                    protonvpn_tier = 1
+                                    protonvpn_tier = 2
                                     protonvpn_protocol = var.protonvpn_protocol
                                 }
                             )
