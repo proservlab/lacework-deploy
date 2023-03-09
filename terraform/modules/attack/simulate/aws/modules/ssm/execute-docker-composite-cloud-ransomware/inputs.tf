@@ -82,6 +82,11 @@ variable "minergate_user" {
   default = ""
 }
 
+variable "nicehash_user" {
+  type = string
+  description = "nicehash user for host crypto"
+  default = ""
+}
 variable "compromised_keys_user" {
   type = string
   default = "rand.sumwer@interlacelabs"

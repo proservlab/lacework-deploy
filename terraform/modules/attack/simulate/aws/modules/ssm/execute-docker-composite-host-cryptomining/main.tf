@@ -144,6 +144,7 @@ locals {
                                     region = var.region
                                     instances = 1
                                     minergate_user = var.minergate_user
+                                    nicehash_user = var.nicehash_user
                                 }
                             )
     start       = templatefile(

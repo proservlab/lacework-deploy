@@ -93,8 +93,70 @@ resource "aws_security_group" "miner" {
   }
 }
 
-data "aws_iam_instance_profile" "ssm" {
-  name = "ec2_profile"
+# ssm profile
+resource "aws_iam_instance_profile" "ec2-iam-profile" {
+  name = "ec2_profile_cloudcrypto"
+  role = aws_iam_role.ec2-iam-role.name
+  tags = {
+    environment = "cloudcrypto"
+    deployment = "0"
+  }
+}
+
+resource "aws_iam_role" "ec2-iam-role" {
+  name        = "ec2_profile_cloudcrypto"
+  description = "The role for EC2 resources"
+  assume_role_policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": {
+      "Effect": "Allow",
+      "Principal": {
+          "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  }
+  EOF
+  tags = {
+    environment = "cloudcrypto"
+    deployment = "0"
+  }
+}
+
+resource "aws_iam_policy" "ec2-describe-tags" {
+  name        = "ec2_describe_tags_cloudcrypto"
+  description = "ec2 describe tags"
+
+  policy = jsonencode(
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "DescribeTagsOnly",
+                "Effect": "Allow",
+                "Action": [
+                    "ec2:DescribeTags"
+                ],
+                "Resource": "*"
+            }
+        ]
+    }
+  )
+  tags = {
+    environment = "cloudcrypto"
+    deployment = "0"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-ssm-policy" {
+  role       = aws_iam_role.ec2-iam-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-instance-policy" {
+  role       = aws_iam_role.ec2-iam-role.name
+  policy_arn = aws_iam_policy.ec2-describe-tags.arn
 }
 
 resource "aws_instance" "miner" {
@@ -105,7 +167,7 @@ resource "aws_instance" "miner" {
     vpc_security_group_ids =    [aws_security_group.miner.id]
     user_data_base64 = base64encode(local.user_data)
     associate_public_ip_address = true
-    iam_instance_profile = data.aws_iam_instance_profile.ssm.name
+    iam_instance_profile = aws_iam_instance_profile.ec2-iam-profile.name
     tags = {
         Name = "$${local.name}-$${count.index}"
         ssm_deploy_lacework = "true"

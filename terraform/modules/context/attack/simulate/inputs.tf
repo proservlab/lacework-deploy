@@ -123,6 +123,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_cloud_ransomware_attack = object({
@@ -135,6 +136,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_defense_evasion_attack = object({
@@ -147,6 +149,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_cloud_cryptomining_attack = object({
@@ -159,6 +162,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_host_cryptomining_attack = object({
@@ -171,6 +175,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
             })
@@ -289,6 +294,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_cloud_ransomware_attack = object({
@@ -301,6 +307,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_defense_evasion_attack = object({
@@ -313,6 +320,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_cloud_cryptomining_attack = object({
@@ -325,6 +333,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
               docker_composite_host_cryptomining_attack = object({
@@ -337,6 +346,7 @@ variable "config" {
                 protonvpn_protocol          = string
                 wallet                      = string
                 minergate_user              = string
+                nicehash_user               = string
                 compromised_keys_user       = string
               })
             })
@@ -475,6 +485,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_cloud_ransomware_attack = {
@@ -487,6 +498,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_defense_evasion_attack = {
@@ -499,6 +511,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_cloud_cryptomining_attack = {
@@ -511,6 +524,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_host_cryptomining_attack = {
@@ -523,6 +537,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               }
             }
@@ -650,6 +665,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_cloud_ransomware_attack = {
@@ -662,6 +678,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_defense_evasion_attack = {
@@ -674,6 +691,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_cloud_cryptomining_attack = {
@@ -686,6 +704,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               },
               docker_composite_host_cryptomining_attack = {
@@ -698,6 +717,7 @@ variable "config" {
                 protonvpn_protocol          = "udp"
                 wallet                      = null
                 minergate_user              = null
+                nicehash_user               = null
                 compromised_keys_user       = null
               }
             }

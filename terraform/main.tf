@@ -567,6 +567,7 @@ locals {
       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+      attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
     }
   )
   target-attacksimulation-config-file = templatefile(
@@ -597,6 +598,7 @@ locals {
       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+      attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
     }
   )
 }

@@ -329,6 +329,7 @@ module "simulation-attacker-exec-docker-composite-host-cryptomining" {
   protonvpn_server = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_server
   ethermine_wallet = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.wallet
   minergate_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.minergate_user
+  nicehash_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.nicehash_user
   compromised_keys_user = var.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.compromised_keys_user
 }
 

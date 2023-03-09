@@ -97,6 +97,7 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "kees.kompromize@interlacelabs"
             },
             "docker_composite_cloud_ransomware_attack": {
@@ -108,6 +109,7 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "rand.sumwer@interlacelabs"
             },
             "docker_composite_defense_evasion_attack": {
@@ -119,6 +121,7 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "dee.fensivason@interlacelabs"
             },
             "docker_composite_cloud_cryptomining_attack": {
@@ -130,6 +133,7 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "claude.kripto@interlacelabs"
             },
             "docker_composite_host_cryptomining_attack": {
@@ -141,6 +145,7 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "haust.kripto@interlacelabs"
             }
           }
