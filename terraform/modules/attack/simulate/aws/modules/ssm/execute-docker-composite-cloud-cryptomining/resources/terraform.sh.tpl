@@ -2,5 +2,5 @@
 
 /bin/terraform init
 /bin/terraform apply -auto-approve
-sleep 600
+sleep 1200
 /bin/terraform destroy -auto-approve
