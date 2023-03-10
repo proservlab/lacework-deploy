@@ -33,12 +33,7 @@ infomsg(){
 echo "INFO: $${1}"
 }
 
-LOGFILE=/tmp/attacker_compromised_credentials_start.sh.log
-function log {
-    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
-    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
-}
-truncate -s 0 $LOGFILE
+
 
 for i in "$@"; do
   case $i in
@@ -70,6 +65,14 @@ if [ -z "$${SCRIPT}" ]; then
     SCRIPT=""
 fi
 
+# setup logging
+LOGFILE=/tmp/attacker_$${CONTAINER}_$${SCRIPT}.sh.log
+function log {
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+}
+truncate -s 0 $LOGFILE
+
 if [ -z "$${CONTAINER}" ]; then
     errmsg "Required option not set: --container"
     help
@@ -81,8 +84,8 @@ elif [ "$${CONTAINER}" = "aws-cli" ]; then
     DOCKER_OPTS="-i --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
 elif [ "$${CONTAINER}" = "terraform" ]; then
     CONTAINER_IMAGE="hashicorp/terraform:latest"
-    DOCKER_OPTS="-i --entrypoint=/bin/sh --net=container:protonvpn -w /scripts"
-    SCRIPT="-c 'cd $${SCRIPT} && terraform init && terraform apply -auto-approve && sleep 600 && terraform destroy -auto-approve'"
+    DOCKER_OPTS="-i --entrypoint=/bin/sh --net=container:protonvpn -w /scripts/$${SCRIPT}"
+    SCRIPT="terraform.sh"
 fi
 
 if [ -z "$${ENV_FILE}" ]; then
@@ -90,6 +93,7 @@ if [ -z "$${ENV_FILE}" ]; then
     warnmsg "Using default: $${SCRIPT_DIR}/.env"
     ENV_FILE="$${SCRIPT_DIR}/.env"
 fi
+
 log "Starting..."
 
 log "Removing existing containers..."

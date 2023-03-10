@@ -31,7 +31,9 @@ locals {
         echo '${base64encode(local.evasion)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
         echo '${base64encode(local.cloudransom)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
         echo '${base64encode(local.cloudcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
+        echo '${base64encode(local.terraform)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/terraform.sh
         echo '${base64encode(local.hostcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
+        echo '${base64encode(local.terraform)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/terraform.sh
         for i in $(echo "US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
         while ! which docker > /dev/null || ! docker ps > /dev/null; do
             log "docker not found or not ready - waiting"
@@ -140,13 +142,20 @@ locals {
     hostcrypto  = templatefile(
                                 "${path.module}/resources/hostcrypto.tf.tpl",
                                 {
-                                    name = "crypto-cpu-miner-${var.environment}-${var.deployment}"
+                                    name = "host-cpu-miner-${var.environment}-${var.deployment}"
                                     region = var.region
                                     instances = 1
                                     minergate_user = var.minergate_user
                                     nicehash_user = var.nicehash_user
                                 }
                             )
+
+    terraform  = templatefile(
+                                "${path.module}/resources/terraform.sh.tpl",
+                                {
+                                }
+                            )
+                            
     start       = templatefile(
                                 "${path.module}/resources/start.sh.tpl",
                                 {

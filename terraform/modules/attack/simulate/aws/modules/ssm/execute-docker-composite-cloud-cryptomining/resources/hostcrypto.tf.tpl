@@ -38,8 +38,8 @@ locals {
     name            = "${ name }"
     instances       = ${ instances }
     user_data       = <<-EOT
-                      #!/bin/bash
-                      # install docker
+                      #!/bin/bash -x
+                      
                       sudo apt-get remove -y docker docker-engine docker.io containerd runc
                       sudo apt-get update
                       sudo apt-get install -y \
@@ -58,8 +58,9 @@ locals {
                         docker-ce-cli \
                         containerd.io \
                         docker-compose-plugin
-                      # sudo docker run --rm -d --network=host --name minerd_miner mkell43/minerd -a cryptonight -o stratum+tcp://eth.pool.minergate.com:45791 -u ${ minergate_user } -p x
-                      sudo docker run -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l equihash.usa.nicehash.com:3357 -u ${ nicehash_user }
+                      
+                      sudo docker run -d --network=host --name xmrig_miner xmrig/xmrig -o us-east.ethash-hub.miningpoolhub.com:20535 -u ${ minergate_user } -p x
+                      sudo docker run -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l :3357 -u ${ nicehash_user }
                       EOT
     ami_map = {
         ubuntu_focal = data.aws_ami.ubuntu_focal.id
@@ -130,16 +131,16 @@ resource "aws_security_group" "miner" {
 
 # ssm profile
 resource "aws_iam_instance_profile" "ec2-iam-profile" {
-  name = "ec2_profile_cloudcrypto"
+  name = "ec2_profile_hostcrypto"
   role = aws_iam_role.ec2-iam-role.name
   tags = {
-    environment = "cloudcrypto"
+    environment = "hostcrypto"
     deployment = "0"
   }
 }
 
 resource "aws_iam_role" "ec2-iam-role" {
-  name        = "ec2_profile_cloudcrypto"
+  name        = "ec2_profile_hostcrypto"
   description = "The role for EC2 resources"
   assume_role_policy = <<EOF
   {
@@ -154,13 +155,13 @@ resource "aws_iam_role" "ec2-iam-role" {
   }
   EOF
   tags = {
-    environment = "cloudcrypto"
+    environment = "hostcrypto"
     deployment = "0"
   }
 }
 
 resource "aws_iam_policy" "ec2-describe-tags" {
-  name        = "ec2_describe_tags_cloudcrypto"
+  name        = "ec2_describe_tags_hostcrypto"
   description = "ec2 describe tags"
 
   policy = jsonencode(
@@ -179,7 +180,7 @@ resource "aws_iam_policy" "ec2-describe-tags" {
     }
   )
   tags = {
-    environment = "cloudcrypto"
+    environment = "hostcrypto"
     deployment = "0"
   }
 }
@@ -196,19 +197,18 @@ resource "aws_iam_role_policy_attachment" "ec2-instance-policy" {
 
 resource "aws_instance" "miner" {
     count           = local.instances
-    ami             = "ami-0d70b8dd4ec1e2d1e"
+    ami             = data.aws_ami.ubuntu_focal.id
     instance_type   = "t2.micro"
     
     subnet_id = aws_subnet.public.id
     vpc_security_group_ids =    [aws_security_group.miner.id]
 
-    # user_data_base64 = base64encode(data.template_file.user_data.rendered)
     user_data_base64 = base64encode(local.user_data)
     
     associate_public_ip_address = true
     
     # borrowed from existing environment
-    iam_instance_profile = data.aws_iam_instance_profile.ssm.name
+    iam_instance_profile = aws_iam_instance_profile.ec2-iam-profile.name
 
     # leverage existing ssm deployment of lacework
     tags = {
