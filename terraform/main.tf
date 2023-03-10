@@ -565,6 +565,7 @@ locals {
       compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
@@ -596,6 +597,7 @@ locals {
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
