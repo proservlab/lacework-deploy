@@ -67,7 +67,6 @@ resource "aws_vpc_endpoint" "vpc_gateway_endpoint" {
   for_each = local.vpc_gateway_endpoints
   vpc_id          = aws_vpc.private.id
   service_name    = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_name
-  subnet_ids      = [ aws_subnet.private.id ]
   vpc_endpoint_type = data.aws_vpc_endpoint_service.vpc_gateway_endpoint[each.key].service_type
   tags = {
     Name = "private-vpcepg-${each.key}"
