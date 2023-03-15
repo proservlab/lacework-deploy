@@ -27,3 +27,8 @@ variable "records" {
         error_message = "Type must be either 'a' or 'cname'."
     }
 }
+
+variable "parent" {
+  type = string
+  default = null
+} 

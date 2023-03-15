@@ -23,3 +23,15 @@ output "workstation_ip" {
 output "infrastructure-config" {
     value = var.config
 }
+
+output "default_provider" {
+    value = {
+        profile                     = local.profile
+        region                      = local.region
+        access_key                  = local.access_key
+        secret_key                  = local.secret_key
+        skip_credentials_validation = true
+        skip_metadata_api_check     = true
+        skip_requesting_account_id  = true
+    }
+}

@@ -13,3 +13,8 @@ variable "infrastructure" {
     deployed_state = any
   })
 }
+
+variable "parent" {
+  type = string
+  default = null
+}

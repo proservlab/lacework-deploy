@@ -17,3 +17,8 @@ variable "infrastructure" {
 variable "compromised_credentials" {
   type = any
 }
+
+variable "parent" {
+  type = string
+  default = null
+} 

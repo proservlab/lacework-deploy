@@ -192,6 +192,8 @@ module "attacker-lacework-platform-infrastructure" {
       }
     }
   }
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 module "attacker-lacework-aws-infrastructure" {
@@ -213,6 +215,8 @@ module "attacker-lacework-aws-infrastructure" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 module "attacker-lacework-gcp-infrastructure" {
@@ -234,6 +238,8 @@ module "attacker-lacework-gcp-infrastructure" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  parent = module.attacker-gcp-infrastructure.id
 }
 
 module "target-lacework-platform-infrastructure" {
@@ -255,6 +261,8 @@ module "target-lacework-platform-infrastructure" {
       attacker = module.attacker-aws-infrastructure.config
     }
   }
+
+  parent = module.target-aws-infrastructure.id
 }
 
 module "target-lacework-aws-infrastructure" {
@@ -276,6 +284,8 @@ module "target-lacework-aws-infrastructure" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  parent = module.target-aws-infrastructure.id
 }
 
 module "target-lacework-gcp-infrastructure" {
@@ -297,6 +307,8 @@ module "target-lacework-gcp-infrastructure" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  parent = module.target-gcp-infrastructure.id
 }
 
 ##################################################
@@ -373,6 +385,8 @@ module "target-dynu-dns-records" {
     local.target_aws_a_records,
     local.target_gcp_a_records
   ])
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 module "attacker-dynu-dns-records" {
@@ -385,6 +399,8 @@ module "attacker-dynu-dns-records" {
     local.attacker_aws_a_records,
     local.attacker_gcp_a_records
   ])
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 ##################################################
@@ -466,6 +482,8 @@ module "attacker-aws-attacksurface" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 module "attacker-gcp-attacksurface" {
@@ -488,6 +506,8 @@ module "attacker-gcp-attacksurface" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  parent = module.attacker-gcp-infrastructure.id
 }
 
 module "target-aws-attacksurface" {
@@ -509,6 +529,8 @@ module "target-aws-attacksurface" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  parent = module.target-aws-infrastructure.id
 }
 
 module "target-gcp-attacksurface" {
@@ -530,6 +552,8 @@ module "target-gcp-attacksurface" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  parent = module.target-gcp-infrastructure.id
 }
 
 ##################################################
@@ -661,6 +685,8 @@ module "attacker-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+
+  parent = module.attacker-aws-infrastructure.id
 }
 
 # deploy target attacksimulation
@@ -685,6 +711,8 @@ module "attacker-gcp-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
+
+  parent = module.attacker-gcp-infrastructure.id
 }
 
 # deploy target attacksimulation
@@ -709,6 +737,8 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+
+  parent = module.target-aws-infrastructure.id
 }
 
 # deploy target attacksimulation
@@ -733,4 +763,6 @@ module "target-gcp-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
+
+  parent = module.target-gcp-infrastructure.id
 }

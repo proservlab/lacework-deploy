@@ -4,7 +4,13 @@
 SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"
 
+# output errors should be listed as warnings
 export TF_WARN_OUTPUT_ERRORS=1
+
+# used to prevent errors on empty provider destroy
+export AWS_REGION="us-east-1"
+export AWS_ACCESS_KEY_ID="mock_access_key"
+export AWS_SECRET_ACCESS_KEY="mock_secret_key"
 
 info(){
 cat <<EOI
@@ -157,5 +163,9 @@ elif [ "destroy" = "${ACTION}" ]; then
     fi
 fi
 rm -f ${PLANFILE}
+
+unset AWS_REGION
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
 
 echo "Done."

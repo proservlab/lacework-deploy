@@ -2,6 +2,8 @@ locals {
   # ugly hack to force ignoring unconfigure aws provider
   access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
   secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
+  region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
 
   default_kubeconfig_path = pathexpand("~/.kube/aws-${var.config.context.global.environment}-${var.config.context.global.deployment}-kubeconfig")
   kubeconfig_path = try(module.eks[0].kubeconfig_path, local.default_kubeconfig_path)
@@ -18,8 +20,8 @@ provider "helm" {
 }
 
 provider "aws" {
-  profile = var.config.context.aws.profile_name
-  region = var.config.context.aws.region
+  profile = local.profile
+  region = local.region
   access_key                  = local.access_key
   secret_key                  = local.secret_key
   skip_credentials_validation = true
