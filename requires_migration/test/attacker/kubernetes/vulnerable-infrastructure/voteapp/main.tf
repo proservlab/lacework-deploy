@@ -418,18 +418,6 @@ resource "kubernetes_deployment_v1" "maintenance" {
                     name  = "maintenance"
                     command =  [ "tail" ]
                     args =  [ "-f", "/dev/null" ]
-                    env {
-                        name = "AWS_ACCESS_KEY_ID"
-                        value = "AKIA35U2TGKSG6XGJRNV"
-                    }
-                    env {
-                        name = "AWS_SECRET_ACCESS_KEY"
-                        value = "uGsq6jtVs1yV0TEpQ3+VKNeN2mAlw3YCQV+xCOaN"
-                    }
-                    env {
-                        name = "AWS_DEFAULT_REGION"
-                        value = "us-west-2"
-                    }
                 }
                 
             }

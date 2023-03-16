@@ -257,13 +257,6 @@ spec:
           name: backup-credentials
           readOnly: true
         args: ["-f","/dev/null"]
-        env:
-        - name: AWS_ACCESS_KEY_ID
-          value: AKIA35U2TGKSG6XGJRNV
-        - name: AWS_SECRET_ACCESS_KEY
-          value: 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
-        - name: AWS_DEFAULT_REGION
-          value: us-west-2
         name: maintenance
       volumes:
       - name: backup-credentials
