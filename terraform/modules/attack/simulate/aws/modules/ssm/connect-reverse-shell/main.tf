@@ -28,7 +28,7 @@ locals {
 }
 
 resource "aws_ssm_document" "exec_reverse_shell_target" {
-  name          = "exec_reverse_shell_target_${var.environment}_${var.deployment}"
+  name          = "exec_reverse_shell_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -38,7 +38,7 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_reverse_shell_target_${var.environment}_${var.deployment}",
+                "name": "exec_reverse_shell_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -57,7 +57,7 @@ resource "aws_ssm_document" "exec_reverse_shell_target" {
 }
 
 resource "aws_resourcegroups_group" "exec_reverse_shell_target" {
-    name = "exec_reverse_shell_target_${var.environment}_${var.deployment}"
+    name = "exec_reverse_shell_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode(var.resource_query_exec_reverse_shell_target)
@@ -70,7 +70,7 @@ resource "aws_resourcegroups_group" "exec_reverse_shell_target" {
 }
 
 resource "aws_ssm_association" "exec_reverse_shell_target" {
-    association_name = "exec_reverse_shell_target_${var.environment}_${var.deployment}"
+    association_name = "exec_reverse_shell_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.exec_reverse_shell_target.name
 

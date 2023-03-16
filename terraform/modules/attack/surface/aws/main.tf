@@ -29,6 +29,10 @@ locals {
 # DEPLOYMENT CONTEXT
 ##################################################
 
+resource "time_sleep" "wait" {
+  create_duration = "120s"
+}
+
 # get current context security group
 data "aws_security_groups" "public" {
   count = (var.config.context.global.enable_all == true) || (
@@ -48,7 +52,10 @@ data "aws_instances" "public_attacker" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+
   instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "public_target" {
@@ -59,7 +66,10 @@ data "aws_instances" "public_target" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+
   instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 ##################################################

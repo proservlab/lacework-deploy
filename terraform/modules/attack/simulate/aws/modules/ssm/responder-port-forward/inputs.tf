@@ -8,7 +8,7 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_exec_port_forward_attacker" {
+variable "resource_query_exec_port_forward_responder_attacker" {
     type    = object({
       ResourceTypeFilters = list(string)
       TagFilters  = list(object({

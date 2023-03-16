@@ -32,6 +32,10 @@ locals {
 # DEPLOYMENT CONTEXT
 ##################################################
 
+resource "time_sleep" "wait" {
+  create_duration = "120s"
+}
+
 data "aws_security_groups" "public" {
   count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true) ? 1 : 0
   tags = {
@@ -49,6 +53,10 @@ data "aws_instances" "public_attacker" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "public_target" {
@@ -59,6 +67,10 @@ data "aws_instances" "public_target" {
     deployment  = var.config.context.global.deployment
     public = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "target_reverse_shell" {
@@ -69,6 +81,10 @@ data "aws_instances" "target_reverse_shell" {
     deployment  = var.config.context.global.deployment
     ssm_exec_reverse_shell_target = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "target_vuln_npm_app" {
@@ -79,6 +95,10 @@ data "aws_instances" "target_vuln_npm_app" {
     deployment  = var.config.context.global.deployment
     ssm_exec_vuln_npm_app_target = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "target_log4shell" {
@@ -89,6 +109,10 @@ data "aws_instances" "target_log4shell" {
     deployment  = var.config.context.global.deployment
     ssm_exec_docker_log4shell_target = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "target_codecov" {
@@ -99,6 +123,10 @@ data "aws_instances" "target_codecov" {
     deployment  = var.config.context.global.deployment
     ssm_connect_codecov = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "target_port_forward" {
@@ -109,6 +137,10 @@ data "aws_instances" "target_port_forward" {
     deployment  = var.config.context.global.deployment
     ssm_exec_port_forward_target = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 
@@ -120,6 +152,10 @@ data "aws_instances" "attacker_http_listener" {
     deployment  = var.config.context.global.deployment
     ssm_exec_http_listener_attacker = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "attacker_reverse_shell" {
@@ -130,6 +166,10 @@ data "aws_instances" "attacker_reverse_shell" {
     deployment  = var.config.context.global.deployment
     ssm_exec_reverse_shell_attacker = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait] 
 }
 
 data "aws_instances" "attacker_vuln_npm_app" {
@@ -140,6 +180,10 @@ data "aws_instances" "attacker_vuln_npm_app" {
     deployment  = var.config.context.global.deployment
     ssm_exec_vuln_npm_app_attacker = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "attacker_log4shell" {
@@ -150,6 +194,10 @@ data "aws_instances" "attacker_log4shell" {
     deployment  = var.config.context.global.deployment
     ssm_exec_docker_log4shell_attacker = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "attacker_port_forward" {
@@ -160,6 +208,10 @@ data "aws_instances" "attacker_port_forward" {
     deployment  = var.config.context.global.deployment
     ssm_exec_port_forward_attacker = "true"
   }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
 }
 
 ##################################################
@@ -188,13 +240,13 @@ module "ssm-connect-badip" {
 }
 
 module "ssm-connect-codecov" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true && length(try(data.aws_instances.attacker_http_listener[0].public_ips, [])) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.codecov.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/connect-codecov"
   environment    = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   
   
-  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_ip, data.aws_instances.attacker_http_listener[0].public_ips[0])
+  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_ip, try(data.aws_instances.attacker_http_listener[0].public_ips[0], "127.0.0.1"))
   host_port     = coalesce(var.config.context.aws.ssm.target.connect.codecov.host_port, var.config.context.aws.ssm.attacker.listener.http.listen_port)
 }
 
@@ -218,12 +270,12 @@ module "ssm-connect-oast-host" {
 }
 
 module "ssm-connect-reverse-shell" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true && length(try(data.aws_instances.attacker_reverse_shell[0].public_ips, [])) > 0 ) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.target == true && var.config.context.aws.ssm.target.connect.reverse_shell.enabled == true )? 1 : 0
   source        = "./modules/ssm/connect-reverse-shell"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
-  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_ip, data.aws_instances.attacker_reverse_shell[0].public_ips[0])
+  host_ip       = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_ip, try(data.aws_instances.attacker_reverse_shell[0].public_ips[0], "127.0.0.1"))
   host_port     = coalesce(var.config.context.aws.ssm.target.connect.reverse_shell.host_port, var.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
 }
 
@@ -345,21 +397,21 @@ module "ssm-execute-docker-cpuminer" {
 }
 
 module "ssm-execute-docker-log4shell-attack" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true && length(try(data.aws_instances.attacker_log4shell[0].public_ips,[])) > 0 && length(try(data.aws_instances.target_log4shell[0].public_ips,[])) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-log4shell-attack"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
 
   attacker_http_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-  attacker_ip = coalesce(var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, data.aws_instances.attacker_log4shell[0].public_ips[0])
-  target_ip = data.aws_instances.target_log4shell[0].public_ips[0]
+  attacker_ip = coalesce(var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, try(data.aws_instances.attacker_log4shell[0].public_ips[0], "127.0.0.1"))
+  target_ip = try(data.aws_instances.target_log4shell[0].public_ips[0], "127.0.0.1")
   target_port = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = var.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
 }
 
 module "ssm-execute-vuln-npm-app-attack" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.enabled == true && length(try(data.aws_instances.attacker_vuln_npm_app[0].public_ips,[])) > 0 && length(try(data.aws_instances.target_vuln_npm_app[0].public_ips,[])) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-vuln-npm-app-attack"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
@@ -384,13 +436,13 @@ module "ssm-listener-http-listener" {
 }
 
 module "ssm-listener-port-forward" {
-  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true && length(try(data.aws_instances.attacker_port_forward[0].public_ips, [])) > 0) ? 1 : 0
+  count = (var.config.context.global.enable_all == true) || (var.config.context.global.disable_all != true && var.config.context.aws.enabled == true && local.attacker == true && var.config.context.aws.ssm.target.listener.port_forward.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/listener-port-forward"
   environment   = var.config.context.global.environment
   deployment    = var.config.context.global.deployment
   port_forwards = var.config.context.aws.ssm.target.listener.port_forward.port_forwards
   
-  host_ip       = data.aws_instances.attacker_port_forward[0].public_ips[0]
+  host_ip       = try(data.aws_instances.attacker_port_forward[0].public_ips[0], "127.0.0.1")
   host_port     = var.config.context.aws.ssm.attacker.responder.port_forward.listen_port
 }
 
