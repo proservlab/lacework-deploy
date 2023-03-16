@@ -48,35 +48,6 @@ lacework_account_name = "<LACEWORK ACCOUNT NAME (e.g. mytenant)>"
 lacework_server_url = "<LACEWORK URL (e.g. https://mytenant.lacework.net)"
 ```
 
-**terraform build**
-```
-## change to terraform directory
-cd lacework-deploy/terraform
-
-## initial setup and workspace creation
-WORKSPACE=<WORKSPACE>
-terraform workspace select ${WORKSPACE} || terraform workspace new ${WORKSPACE}
-terraform init -upgrade
-
-# create unique deployment id
-terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars  -target=module.deployment -out=build.tfplan && terraform apply build.tfplan
-
-# build infrastructure
-terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars -target=module.target-infrastructure -target=module.attacker-infrastructure -out build.tfplan && terraform apply
-
-# build attacksurface and attacksimulation
-terraform plan -var-file=env_vars/variables-<WORKSPACE>.tfvars -out build.tfplan && terraform apply build.tf
-plan
-```
-
-*Build needs to be done in this order the first time around because each layer requires info from the other. once it's build you can update the json files in scenarios and plan apply that layer and any downstream layers.*
-
-**terraform destory (needs to be done in this order)**
-```
-# destroy infrastructure attacksurface and attacksimulation
-terraform plan -destroy -var-file=env_vars/variables-<WORKSPACE>.tfvars  -out build.tfplan && terraform apply build.tfplan
-```
-
 # SSM Access
 
 All AWS instances are setup with SSM management. They can be access via aws-cli ssm commands. This applies to public and private instances as well as cluster nodes.
