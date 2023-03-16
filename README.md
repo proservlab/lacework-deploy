@@ -50,6 +50,10 @@ Retrieve instance tags of host on aws from local machine:
 Reteive meta data for compute instance from the local machine:
 `curl -s "http://metadata.google.internal/computeMetadata/v1/instance/"`
 
+# Proton VPN Credentials
+
+Note that when configuring the `attacker_context_config_protonvpn_user` and `attacker_context_config_protonvpn_password` these values **should NOT** be your protonvpn login username and password but the OpenVPN/IKEv2 credentials. Details on obtaining these credentials are found under the `Finding your OpenVPN / IKEv2 credentials` section [here](https://protonvpn.com/support/vpn-login/#:~:text=Note%3A%20For%20existing%20Proton%20Mail,the%20top%20right%20hand%20corner.)
+
 # Future
 
 Currently security related tests are focused in AWS and are developed to leverage SSM. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.
