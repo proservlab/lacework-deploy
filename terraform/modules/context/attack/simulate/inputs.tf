@@ -11,6 +11,18 @@ variable "config" {
         disable_all               = bool
         enable_all                = bool
       })
+      azure = object({
+        enabled                   = bool
+        runbook = object({
+          target = object({
+            execute = object({
+              touch_file = object({
+                enabled                     = bool
+              })
+            })
+          })
+        })
+      })
       gcp = object({
         region                    = string
         project_id                = string
@@ -363,6 +375,18 @@ variable "config" {
         deployment                = "default"
         disable_all               = false
         enable_all                = false
+      }
+      azure = {
+        enabled                   = false
+        runbook = {
+          target = {
+            execute = {
+              touch_file = {
+                enabled           = false
+              }
+            }
+          }
+        }
       }
       gcp = {
         region                    = "us-central1"

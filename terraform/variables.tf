@@ -104,6 +104,21 @@ variable "attacker_gcp_lacework_region" {
   default     = "us-central1"
 }
 
+##################################################
+# AZURE
+##################################################
+
+variable "attacker_azure_region" {
+  type        = string
+  description = "attacker azure region"
+  default     = "West US 2"
+}
+
+variable "target_azure_region" {
+  type        = string
+  description = "target azure region"
+  default     = "West US 2"
+}
 
 ##################################################
 # LACEWORK

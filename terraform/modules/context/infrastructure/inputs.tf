@@ -12,6 +12,31 @@ variable "config" {
         disable_all               = bool
         enable_all                = bool
       })
+      azure = object({
+        region                  = string
+        compute = object({
+          enabled               = bool
+          instances             = list(any)
+          public_network        = string
+          public_subnet         = string
+          public_app_network    = string
+          public_app_subnet     = string
+          private_network       = string
+          private_subnet        = string
+          private_nat_subnet    = string
+          private_app_network   = string
+          private_app_subnet    = string
+          private_app_nat_subnet = string
+          public_ingress_rules  = list(any)
+          public_egress_rules   = list(any)
+          public_app_ingress_rules  = list(any)
+          public_app_egress_rules   = list(any)
+          private_ingress_rules = list(any)
+          private_egress_rules  = list(any)
+          private_app_ingress_rules = list(any)
+          private_app_egress_rules  = list(any)
+        })
+      })
       gcp = object({
         region                    = string
         project_id                = string
@@ -192,6 +217,95 @@ variable "config" {
         trust_security_group      = true
         disable_all               = false
         enable_all                = false
+      }
+      azure = {
+        region                  = "West US 2"
+        compute = {
+          enabled               = false
+          instances             = []
+          public_network        = "172.18.0.0/16"
+          public_subnet         = "172.18.0.0/24"
+          public_app_network    = "172.19.0.0/16"
+          public_app_subnet     = "172.19.0.0/24"
+          private_network       = "172.16.0.0/16"
+          private_subnet        = "172.16.100.0/24"
+          private_nat_subnet    = "172.16.10.0/24"
+          private_app_network       = "172.17.0.0/16"
+          private_app_subnet        = "172.17.100.0/24"
+          private_app_nat_subnet    = "172.17.10.0/24"
+          public_ingress_rules  = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    },
+                                  ]
+          public_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+          public_app_ingress_rules  = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    },
+                                  ]
+          public_app_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+          private_ingress_rules = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    }
+                                  ]
+          private_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+          private_app_ingress_rules = [
+                                    {
+                                      from_port   = 22
+                                      to_port     = 22
+                                      protocol    = "tcp"
+                                      cidr_block  = "0.0.0.0/0"
+                                      description = "allow ssh inbound"
+                                    }
+                                  ]
+          private_app_egress_rules = [ 
+                                  {
+                                    from_port = 0
+                                    to_port = 0
+                                    protocol = "-1"
+                                    cidr_block = "0.0.0.0/0"
+                                    description = "allow all outbound"
+                                  }
+                                ]
+        }
       }
       gcp = {
         region                    = "us-central1"

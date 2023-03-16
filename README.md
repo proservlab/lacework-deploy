@@ -8,7 +8,7 @@ Users are expected to use a terraform `workspace` when deploying the `environmen
 
 For each workspace environment, variables for that workspace are read in from the `env_vars` directory. Expected format for environment related vars is `variables-<workspace>.tfvars`.
 
-The environment modules allows for the disabling and enabling of various deployment components, if all components are enabled the following related environment varaibles are required:
+The environment modules allows for the disabling and enabling of various deployment components, if all components are enabled the following related environment variables are required:
 
 ```
 scenario="simple"

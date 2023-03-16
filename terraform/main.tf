@@ -68,6 +68,9 @@ locals {
       gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       gcp_region  = var.attacker_gcp_region
 
+      # azure
+      azure_region = var.attacker_azure_region
+
       # lacework
       lacework_profile = var.lacework_profile
     }
@@ -86,6 +89,9 @@ locals {
       gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       gcp_region           = var.target_gcp_region
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+
+      # azure
+      azure_region = var.target_azure_region
 
       # lacework
       lacework_server_url   = var.lacework_server_url
@@ -151,6 +157,11 @@ module "attacker-gcp-infrastructure" {
   config = module.attacker-infrastructure-context.config
 }
 
+# module "attacker-azure-infrastructure" {
+#   source = "./modules/infrastructure/azure"
+#   config = module.attacker-infrastructure-context.config
+# }
+
 module "target-aws-infrastructure" {
   source = "./modules/infrastructure/aws"
   config = module.target-infrastructure-context.config
@@ -160,6 +171,11 @@ module "target-gcp-infrastructure" {
   source = "./modules/infrastructure/gcp"
   config = module.target-infrastructure-context.config
 }
+
+# module "target-azure-infrastructure" {
+#   source = "./modules/infrastructure/azure"
+#   config = module.target-infrastructure-context.config
+# }
 
 ##################################################
 # INFRASTRUCTURE LACEWORK DEPLOYMENT
@@ -242,6 +258,29 @@ module "attacker-lacework-gcp-infrastructure" {
   parent = module.attacker-gcp-infrastructure.id
 }
 
+# module "attacker-lacework-azure-infrastructure" {
+#   source = "./modules/infrastructure/lacework/azure"
+#   config = module.attacker-infrastructure-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   parent = module.attacker-azure-infrastructure.id
+# }
+
 module "target-lacework-platform-infrastructure" {
   source = "./modules/infrastructure/lacework/platform"
   config = module.target-infrastructure-context.config
@@ -311,6 +350,29 @@ module "target-lacework-gcp-infrastructure" {
   parent = module.target-gcp-infrastructure.id
 }
 
+# module "target-lacework-azure-infrastructure" {
+#   source = "./modules/infrastructure/lacework/azure"
+#   config = module.target-infrastructure-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   parent = module.target-azure-infrastructure.id
+# }
+
 ##################################################
 # INFRASTRUCTURE DYNU DNS
 ##################################################
@@ -361,6 +423,29 @@ locals {
       } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
     ]
   ]
+
+  # target_azure_a_records = [
+  #   for azcompute in can(length(module.target-azure-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
+  #   [
+  #     for compute in azcompute.instances : {
+  #       recordType     = "a"
+  #       recordName     = "${lookup(compute.instance.labels, "name", "unknown")}"
+  #       recordHostName = "${lookup(compute.instance.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+  #       recordValue    = compute.instance.network_interface[0].access_config[0].nat_ip
+  #     } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+  #   ]
+  # ]
+  # attacker_azure_a_records = [
+  #   for azcompute in can(length(module.attacker-azure-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
+  #   [
+  #     for compute in azcompute.instances : {
+  #       recordType     = "a"
+  #       recordName     = "${lookup(compute.instance.labels, "name", "unknown")}"
+  #       recordHostName = "${lookup(compute.instance.labels, "name", "unknown")}.${var.dynu_dns_domain}"
+  #       recordValue    = compute.instance.network_interface[0].access_config[0].nat_ip
+  #     } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+  #   ]
+  # ]
 
   # kubernetes service mapping
   # cname_records =  [
@@ -510,6 +595,30 @@ module "attacker-gcp-attacksurface" {
   parent = module.attacker-gcp-infrastructure.id
 }
 
+# module "attacker-azure-attacksurface" {
+#   source = "./modules/attack/surface/azure"
+#   # attack surface config
+#   config = module.attacker-attacksurface-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   parent = module.attacker-azure-infrastructure.id
+# }
+
 module "target-aws-attacksurface" {
   source = "./modules/attack/surface/aws"
 
@@ -556,6 +665,29 @@ module "target-gcp-attacksurface" {
   parent = module.target-gcp-infrastructure.id
 }
 
+# module "target-azure-attacksurface" {
+#   source = "./modules/attack/surface/azure"
+
+#   # initial configuration reference
+#   config = module.target-attacksurface-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   parent = module.target-azure-infrastructure.id
+# }
+
 ##################################################
 # ATTACKSIMULATION CONFIG
 ##################################################
@@ -584,6 +716,10 @@ locals {
       target_gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region           = var.target_gcp_region
       target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+
+      # azure
+      attacker_azure_region = var.attacker_azure_region
+      target_azure_region   = var.target_azure_region
 
       # variables
       compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
@@ -617,6 +753,10 @@ locals {
       target_gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region           = var.target_gcp_region
       target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+
+      # azure
+      attacker_azure_region = var.attacker_azure_region
+      target_azure_region   = var.target_azure_region
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
@@ -716,6 +856,36 @@ module "attacker-gcp-attacksimulation" {
 }
 
 # deploy target attacksimulation
+# module "attacker-azure-attacksimulation" {
+#   source = "./modules/attack/simulate/azure"
+#   # attack surface config
+#   config = module.attacker-attacksimulation-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
+#   # compromised_credentials = try(module.target-azure-attacksurface.compromised_credentials, "")
+#   compromised_credentials = null
+
+#   resource_group = try(module.attacker-azure-infrastructure.resource_group, null)
+
+#   parent = module.attacker-azure-infrastructure.id
+# }
+
+
+# deploy target attacksimulation
 module "target-aws-attacksimulation" {
   source = "./modules/attack/simulate/aws"
   # attack surface config
@@ -766,3 +936,31 @@ module "target-gcp-attacksimulation" {
 
   parent = module.target-gcp-infrastructure.id
 }
+
+# deploy target attacksimulation
+# module "target-azure-attacksimulation" {
+#   source = "./modules/attack/simulate/azure"
+#   # attack surface config
+#   config = module.target-attacksimulation-context.config
+
+#   # infrasturcture config and deployed state
+#   infrastructure = {
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-azure-infrastructure.config, {})
+#       attacker = try(module.attacker-azure-infrastructure.config, {})
+#     }
+#   }
+
+#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
+#   compromised_credentials = null
+
+#   resource_group = try(module.target-azure-infrastructure.resource_group, null)
+
+#   parent = module.target-azure-infrastructure.id
+# }
