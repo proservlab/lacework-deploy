@@ -1,0 +1,45 @@
+##################################################
+# WORKSPACE VARIABLES - These variables are tied to specific workspace
+# Note: The examples below could also be globally defined in variables.tfvars
+##################################################
+
+##################################################
+# SCENARIO 
+# Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
+##################################################
+
+scenario="simple"
+
+##################################################
+# DEPLOYMENT 
+# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
+# a single cloud account
+##################################################
+
+deployment="00000001"
+
+##################################################
+# AWS 
+# Required when deploying to AWS
+##################################################
+
+# target_aws_profile="xxxxxxx"
+# attacker_aws_profile="xxxxxxx"
+
+##################################################
+# GCP 
+# Required when deploying to GCP
+##################################################
+
+# attacker_gcp_project = "xxxxxxx"
+# target_gcp_project = "xxxxxxx"
+# target_gcp_lacework_project = "xxxxxxx"
+
+##################################################
+# LACEWORK 
+# Required when enabling lacework
+##################################################
+
+lacework_profile = "xxxxxxx"
+lacework_account_name = "xxxxxxx"
+lacework_server_url = "https://xxxxxxx.lacework.net"

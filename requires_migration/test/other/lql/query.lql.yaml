@@ -1,0 +1,11 @@
+queryId: MyLQL
+queryText: |-
+  {
+      source {
+          LW_CFG_K8S_CLUSTER_PODSECURITYPOLICY psp
+      }
+      return distinct {
+        psp.*
+      }
+  }
+

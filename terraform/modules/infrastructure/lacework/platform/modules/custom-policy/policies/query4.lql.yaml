@@ -1,0 +1,26 @@
+---
+queryId: TF_AWS_CTA_Example
+queryText: |-
+  {
+      SOURCE {
+          LW_CFG_AWS
+      }
+      FILTER {
+          RESOURCE_TYPE = 'ec2:instance'
+          and API_KEY = 'describe-instances'
+          and RESOURCE_CONFIG:State.Name <> 'terminated'
+          and (not value_exists(RESOURCE_TAGS)
+          or RESOURCE_TAGS = '{}')
+      }
+      RETURN DISTINCT {
+          ACCOUNT_ALIAS,
+          ACCOUNT_ID,
+          RESOURCE_CONFIG,
+          RESOURCE_ID,
+          RESOURCE_REGION,
+          RESOURCE_TYPE,
+          SERVICE,
+          CASE WHEN RESOURCE_CONFIG:State.Name <> 'terminated' AND NOT value_exists(RESOURCE_TAGS) THEN 'Ec2InstanceWithoutTags'
+          END as REASON
+      }
+  }

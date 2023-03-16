@@ -1,0 +1,48 @@
+##################################################
+# GLOBAL VARIABLES - These variables are shared amoungst multiple workspaces
+# Note: The examples below could also be workspace specific
+##################################################
+
+##################################################
+# JIRA
+# Required only when enabling Lacework alerting
+##################################################
+
+# jira_cloud_api_token = "xxxxx"
+# jira_cloud_username = "xxxxx"
+# jira_cloud_project_key = "xxxxx"
+# jira_cloud_issue_type = "xxxxx"
+# jira_cloud_url = "https://xxxxx.atlassian.net"
+
+
+##################################################
+# SLACK
+# Required only when enabling Lacework alerting
+##################################################
+
+# slack_token = "https://hooks.slack.com/services/xxxxx"
+
+##################################################
+# SIMULATION
+# Required only when specific scenarios are enabled (e.g. cloud_compromise).
+##################################################
+
+# compromised credentials vpn config
+# attacker_context_config_protonvpn_user="xxxxxxx"
+# attacker_context_config_protonvpn_password="xxxxxxx"
+
+# cloud crypto gpu mining creds
+# attacker_context_cloud_cryptomining_ethermine_wallet="xxxxxxx"
+
+# cpu crypto mining credentials
+# attacker_context_host_cryptomining_minergate_user="xxxxxxx"
+
+##################################################
+# DYNU DNS 
+# Required when enabling dns records
+##################################################
+
+# dynu api
+# dynu_api_token = "xxxxx"
+# dynu_dns_domain = "xxxxx"
+

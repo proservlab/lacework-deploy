@@ -1,0 +1,62 @@
+resource "kubernetes_deployment" "vulnerable_privileged_pod" {
+  metadata {
+    name = var.app
+    labels = {
+      app = var.app
+    }
+    namespace = var.namespace
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+        match_labels = {
+            app = var.app
+        }
+    }
+
+    template {
+      metadata {
+        labels = {
+            app = var.app
+        }
+      }
+
+      spec {
+        service_account_name = "database"
+        container {
+            image = "${aws_ecr_repository.repo.repository_url}:${var.tag}"
+            name  = var.app
+            command = ["/app/entrypoint.sh"]
+            args = ["/app/boostrap.sh"]
+            env {
+                name = "DB_APP_URL"
+                value = split(":", aws_db_instance.database.endpoint)[0]
+            }
+            env {
+                name = "DB_USER_NAME"
+                value = var.service_account_db_user
+            }
+            env {
+                name = "DB_NAME"
+                value = var.database_name
+            }
+            env {
+                name = "DB_PORT"
+                value = var.database_port
+            }
+            env {
+                name = "DB_REGION"
+                value = var.region
+            }
+        }
+        
+      }
+    }
+  }
+
+  depends_on = [
+    kubernetes_job_v1.database_bootstrap
+  ]
+}

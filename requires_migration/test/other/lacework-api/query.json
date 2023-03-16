@@ -1,0 +1,13 @@
+{ 
+	"timeFilter": { 
+		"startTime": "2022-09-15T00:00:00Z", "endTime": "2022-09-16T00:00:00Z"
+	}, 
+	"returns": [ 
+		"vulnId",
+        "status",
+		"severity",  
+        "featureKey",
+        "fixInfo",
+		"machineTags" 
+	]
+}

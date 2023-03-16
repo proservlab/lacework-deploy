@@ -1,0 +1,72 @@
+{
+    "context" :  {
+      "global": {
+        "environment"          : "target",
+        "deployment"           : "${ deployment }"
+      },
+      "gcp" :  {
+        "gce" :  {
+          "add_trusted_ingress" :  {
+            "enabled"                     :  true,
+            "trust_workstation"           :  true,
+            "trust_attacker_source"       :  true,
+            "trust_target_source"         :  true,
+            "additional_trusted_sources"  :  [],
+            "trusted_tcp_ports"           :  {
+              "from_port" :  0,
+              "to_port" :  65535
+            }
+          }
+        }
+      },
+      "kubernetes" :  {
+        "aws": {
+          "app" :  {
+            "enabled" :  false
+          },
+          "psp" :  {
+            "enabled" :  false
+          },
+          "vulnerable" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            },
+            "voteapp" :  {
+              "enabled" :  false
+            },
+            "rdsapp" :  {
+              "enabled" :  false
+            },
+            "privileged_pod" :  {
+              "enabled" :  false
+            },
+            "root_mount_fs_pod" :  {
+              "enabled" :  false
+            }
+          }
+        },
+        "gcp": {
+          "app" :  {
+            "enabled" :  false
+          },
+          "psp" :  {
+            "enabled" :  false
+          },
+          "vulnerable" :  {
+            "log4shellapp" :  {
+              "enabled" :  false
+            },
+            "voteapp" :  {
+              "enabled" :  false
+            },
+            "privileged_pod" :  {
+              "enabled" :  false
+            },
+            "root_mount_fs_pod" :  {
+              "enabled" :  false
+            }
+          }
+        }
+      }
+    }
+  }
