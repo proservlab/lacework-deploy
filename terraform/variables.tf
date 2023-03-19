@@ -108,10 +108,34 @@ variable "attacker_gcp_lacework_region" {
 # AZURE
 ##################################################
 
+variable "attacker_azure_subscription" {
+  type        = string
+  description = "attacker azure subscription"
+  default     = null
+}
+
+variable "attacker_azure_tenant" {
+  type        = string
+  description = "attacker azure tenant"
+  default     = null
+}
+
 variable "attacker_azure_region" {
   type        = string
   description = "attacker azure region"
   default     = "West US 2"
+}
+
+variable "target_azure_subscription" {
+  type        = string
+  description = "target azure subscription"
+  default     = null
+}
+
+variable "target_azure_tenant" {
+  type        = string
+  description = "target azure tenant"
+  default     = null
 }
 
 variable "target_azure_region" {

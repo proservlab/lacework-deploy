@@ -5,6 +5,9 @@
             "deployment"                            : "${ deployment }"
         },
         "azure": {
+            "region"                                : "${ azure_region }",
+            "subscription"                          : "${ azure_subscription }",
+            "tenant"                                : "${ azure_tenant }",
             "compute" : {
                 "enabled"                           : false,
                 "public_network"                    : "172.28.0.0/16",

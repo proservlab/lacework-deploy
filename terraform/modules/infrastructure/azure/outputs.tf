@@ -1,6 +1,3 @@
-output "ssh_key_path" { value = module.compute.ssh_key_path }
-output "public_ip" { value = module.compute.public_ip }
-
 output "id" {
     value = module.id.id
 }
@@ -26,8 +23,4 @@ output "workstation_ip" {
 
 output "infrastructure-config" {
     value = var.config
-}
-
-output "resource_group" {
-    value = module.compute.resource_group
 }

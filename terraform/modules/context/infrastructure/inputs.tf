@@ -14,6 +14,8 @@ variable "config" {
       })
       azure = object({
         region                  = string
+        subscription            = string
+        tenant                  = string
         compute = object({
           enabled               = bool
           instances             = list(any)
@@ -220,6 +222,8 @@ variable "config" {
       }
       azure = {
         region                  = "West US 2"
+        subscription            = null
+        tenant                  = null
         compute = {
           enabled               = false
           instances             = []

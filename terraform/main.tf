@@ -69,7 +69,9 @@ locals {
       gcp_region  = var.attacker_gcp_region
 
       # azure
-      azure_region = var.attacker_azure_region
+      azure_subscription = can(length(var.attacker_azure_subscription)) ? var.attacker_azure_subscription : ""
+      azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      azure_region       = var.attacker_azure_region
 
       # lacework
       lacework_profile = var.lacework_profile
@@ -91,7 +93,9 @@ locals {
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # azure
-      azure_region = var.target_azure_region
+      azure_subscription = can(length(var.target_azure_subscription)) ? var.target_azure_subscription : ""
+      azure_tenant       = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      azure_region       = var.target_azure_region
 
       # lacework
       lacework_server_url   = var.lacework_server_url
@@ -157,10 +161,10 @@ module "attacker-gcp-infrastructure" {
   config = module.attacker-infrastructure-context.config
 }
 
-# module "attacker-azure-infrastructure" {
-#   source = "./modules/infrastructure/azure"
-#   config = module.attacker-infrastructure-context.config
-# }
+module "attacker-azure-infrastructure" {
+  source = "./modules/infrastructure/azure"
+  config = module.attacker-infrastructure-context.config
+}
 
 module "target-aws-infrastructure" {
   source = "./modules/infrastructure/aws"
@@ -172,10 +176,10 @@ module "target-gcp-infrastructure" {
   config = module.target-infrastructure-context.config
 }
 
-# module "target-azure-infrastructure" {
-#   source = "./modules/infrastructure/azure"
-#   config = module.target-infrastructure-context.config
-# }
+module "target-azure-infrastructure" {
+  source = "./modules/infrastructure/azure"
+  config = module.target-infrastructure-context.config
+}
 
 ##################################################
 # INFRASTRUCTURE LACEWORK DEPLOYMENT
@@ -710,6 +714,14 @@ locals {
       target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
       target_aws_region    = var.target_aws_region
 
+      # azure
+      attacker_azure_subscription = can(length(var.attacker_azure_subscription)) ? var.attacker_azure_subscription : ""
+      attacker_azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      attacker_azure_region       = var.attacker_azure_region
+      target_azure_subscription   = can(length(var.target_azure_subscription)) ? var.target_azure_subscription : ""
+      target_azure_tenant         = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      target_azure_region         = var.target_azure_region
+
       # gcp
       attacker_gcp_project        = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       attacker_gcp_region         = var.attacker_gcp_region
@@ -746,6 +758,14 @@ locals {
       attacker_aws_region  = var.attacker_aws_region
       target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
       target_aws_region    = var.target_aws_region
+
+      # azure
+      attacker_azure_subscription = can(length(var.attacker_azure_subscription)) ? var.attacker_azure_subscription : ""
+      attacker_azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      attacker_azure_region       = var.attacker_azure_region
+      target_azure_subscription   = can(length(var.target_azure_subscription)) ? var.target_azure_subscription : ""
+      target_azure_tenant         = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      target_azure_region         = var.target_azure_region
 
       # gcp
       attacker_gcp_project        = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""

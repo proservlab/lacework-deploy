@@ -2,7 +2,7 @@
 
 This repo contains example deployment of both infrastructure and lacework components, including security related testing scenarios.
 
-Users are expected to use a terraform `workspace` when deploying the `environment` modules. Example usage:
+Example usage:
 
 `./build.sh --workspace=<workspace> --action=apply`
 
