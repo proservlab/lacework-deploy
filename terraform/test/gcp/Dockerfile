@@ -12,7 +12,11 @@ RUN apt-get update \
         less \
         git \
         vim \
-        jq
+        jq \
+        python3-pip
+
+# install asciinema
+RUN python3 -m pip install asciinema
 
 # install terraform
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg \
