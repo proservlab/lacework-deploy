@@ -10,7 +10,7 @@ output "config" {
             }
             azure = {
                 compute                       = module.compute
-                # aks                           = module.gke
+                # aks                           = module.aks
                 aks                           = null
             }
         }

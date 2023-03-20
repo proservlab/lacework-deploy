@@ -19,10 +19,6 @@ provider "helm" {
 }
 
 provider "azurerm" {
-#   subscription_id = local.subscription
-#   tenant_id = local.tenant
-#   use_cli = false
-#   skip_provider_registration = true
   features {}
 }
 

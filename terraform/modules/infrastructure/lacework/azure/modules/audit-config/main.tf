@@ -19,7 +19,7 @@ module "activity-log" {
   version = "~> 2.0"
 
   use_existing_ad_application = true
-  all_subscriptions = true
+  all_subscriptions           = true
   application_id              = module.az_ad_application.application_id
   application_password        = module.az_ad_application.application_password
   service_principal_id        = module.az_ad_application.service_principal_id
