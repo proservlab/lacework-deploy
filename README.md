@@ -8,7 +8,7 @@ Example usage:
 
 For each workspace environment, variables for that workspace are read in from the `env_vars` directory. Expected format for environment related vars is `variables-<workspace>.tfvars`.
 
-The environment modules allows for the disabling and enabling of various deployment components, if all components are enabled the following related environment variables are required:
+The environment modules allows for the disabling and enabling of various deployment components, if all components are enabled the following related environment varaibles are required:
 
 ```
 scenario="simple"
@@ -87,6 +87,10 @@ Retrieve instance tags of host on aws from local machine:
 
 Reteive meta data for compute instance from the local machine:
 `curl -s "http://metadata.google.internal/computeMetadata/v1/instance/"`
+
+# Proton VPN Credentials
+
+Note that when configuring the `attacker_context_config_protonvpn_user` and `attacker_context_config_protonvpn_password` these values **should NOT** be your protonvpn login username and password but the OpenVPN/IKEv2 credentials. Details on obtaining these credentials are found under the `Finding your OpenVPN / IKEv2 credentials` section [here](https://protonvpn.com/support/vpn-login/#:~:text=Note%3A%20For%20existing%20Proton%20Mail,the%20top%20right%20hand%20corner.)
 
 # Future
 
