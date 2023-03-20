@@ -2,20 +2,8 @@ locals {
     ssh_key_path = pathexpand("~/.ssh/azure-public.pem")
 }
 
-resource "null_resource" "trusted-local-source" {
-    provisioner "local-exec" {
-        command = "echo $(dig +short @resolver1.opendns.com myip.opendns.com)/32 > /tmp/local-trusted-source.txt"
-    }
-}
-
-data "local_file" "trusted-source" {
-    filename = "/tmp/local-trusted-source.txt"
-    depends_on = [null_resource.trusted-local-source]
-}
-
-
-locals {
-    trusted_source              = trimspace(data.local_file.trusted-source.content)
+module "workstation-external-ip" {
+  source       = "../../../general/workstation-external-ip"
 }
 
 data "azurerm_platform_image" "ubuntu_image" {
@@ -90,7 +78,7 @@ resource "azurerm_network_security_group" "myterraformnsg" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "22"
-        source_address_prefix      = local.trusted_source
+        source_address_prefix      = module.workstation-external-ip.cidr
         destination_address_prefix = "*"
     }
 

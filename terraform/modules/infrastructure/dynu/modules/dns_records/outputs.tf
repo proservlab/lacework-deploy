@@ -1,11 +1,11 @@
 output "records" {
-    value = var.records
+    value = restapi_object.record
 }
 
 output "cname_records" {
-    value = null_resource.cname_dns_record
+    value = [ for r in restapi_object.record: r if r.data.recordType == "A" ]
 }
 
 output "a_records" {
-    value = null_resource.a_dns_record
+    value = [ for r in restapi_object.record: r if r.data.recordType == "CNAME" ]
 }

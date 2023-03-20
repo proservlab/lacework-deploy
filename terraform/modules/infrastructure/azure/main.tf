@@ -32,7 +32,7 @@ module "compute" {
   source       = "./modules/compute"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
-  region = local.config.context.azure.region
+  region       = local.config.context.azure.region
   
   # list of instances to configure
   instances = local.config.context.azure.compute.instances

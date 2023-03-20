@@ -1,12 +1,14 @@
 variable "dynu_api_token" {
     type = string
+    description = "The API key for your Dynu account"
 }
 
 variable "dynu_dns_domain" {
     type = string
+    description = "The hostname you want to update"
 }
 
-variable records {
+variable "records" {
     type = list(object({
         recordType = string
         recordName = string
