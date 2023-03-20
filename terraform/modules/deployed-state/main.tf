@@ -1,5 +1,5 @@
 locals {
-    environment = var.config.context.global.environment
+    environment = local.config.context.global.environment
     deployment = var.config.context.global.deployment
     
     # aws enabled entities

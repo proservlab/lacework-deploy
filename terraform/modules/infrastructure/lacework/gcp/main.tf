@@ -10,10 +10,14 @@ module "id" {
 # LOCALS
 ##################################################
 
-locals {
-  config = var.config
+module "default-config" {
+  source = "../../../context/infrastructure"
+}
 
-  default_infrastructure_config = var.infrastructure.config[var.config.context.global.environment]
+locals {
+  config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+
+  default_infrastructure_config = var.infrastructure.config[local.config.context.global.environment]
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
   target_infrastructure_config = var.infrastructure.config["target"]
   
@@ -51,7 +55,7 @@ module "lacework-gcp-agentless" {
   gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
 
   project_filter_list = [
-    var.config.context.gcp.project_id
+    local.config.context.gcp.project_id
   ]
 }
 

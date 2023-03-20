@@ -2,6 +2,11 @@
 # Context
 ##################################################
 
+variable "parent" {
+  type = list(string)
+  default = []
+} 
+
 variable "config" {
   type = any
   description = "Schema defined in modules/context/infrastructure"
@@ -27,8 +32,3 @@ variable "records" {
         error_message = "Type must be either 'a' or 'cname'."
     }
 }
-
-variable "parent" {
-  type = string
-  default = null
-} 

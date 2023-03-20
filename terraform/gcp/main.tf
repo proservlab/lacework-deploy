@@ -10,14 +10,26 @@ module "deployment" {
 # defaults
 module "default-infrastructure-context" {
   source = "../modules/context/infrastructure"
+
+  parent = [
+    module.deployment.id
+  ]
 }
 
 module "default-attacksurface-context" {
   source = "../modules/context/attack/surface"
+
+  parent = [
+    module.deployment.id
+  ]
 }
 
 module "default-attacksimulation-context" {
   source = "../modules/context/attack/simulate"
+
+  parent = [
+    module.deployment.id
+  ]
 }
 
 ##################################################
@@ -139,11 +151,28 @@ data "utils_deep_merge_json" "target-infrastructure-config" {
 module "attacker-infrastructure-context" {
   source = "../modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config.output)
+
+  parent = [
+    module.deployment.id
+  ]
 }
 
 module "target-infrastructure-context" {
   source = "../modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
+
+  parent = [
+    module.deployment.id
+  ]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [
+    module.attacker-infrastructure-context,
+    module.target-infrastructure-context
+  ]
+
+  destroy_duration = "120s"
 }
 
 ##################################################
@@ -159,6 +188,15 @@ module "target-infrastructure-context" {
 module "attacker-gcp-infrastructure" {
   source = "../modules/infrastructure/gcp"
   config = module.attacker-infrastructure-context.config
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "attacker-azure-infrastructure" {
@@ -174,6 +212,15 @@ module "attacker-gcp-infrastructure" {
 module "target-gcp-infrastructure" {
   source = "../modules/infrastructure/gcp"
   config = module.target-infrastructure-context.config
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "target-azure-infrastructure" {
@@ -207,7 +254,18 @@ module "attacker-lacework-platform-infrastructure" {
     }
   }
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "attacker-lacework-aws-infrastructure" {
@@ -253,7 +311,18 @@ module "attacker-lacework-gcp-infrastructure" {
     }
   }
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "attacker-lacework-azure-infrastructure" {
@@ -299,7 +368,18 @@ module "target-lacework-platform-infrastructure" {
     }
   }
 
-  parent = module.target-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "target-lacework-aws-infrastructure" {
@@ -345,7 +425,18 @@ module "target-lacework-gcp-infrastructure" {
     }
   }
 
-  parent = module.target-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "target-lacework-azure-infrastructure" {
@@ -469,7 +560,15 @@ module "target-dynu-dns-records" {
     local.target_gcp_a_records
   ])
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+  ]
 }
 
 module "attacker-dynu-dns-records" {
@@ -483,7 +582,15 @@ module "attacker-dynu-dns-records" {
     local.attacker_gcp_a_records
   ])
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+  ]
 }
 
 ##################################################
@@ -533,11 +640,37 @@ data "utils_deep_merge_json" "target-attacksurface-config" {
 module "attacker-attacksurface-context" {
   source = "../modules/context/attack/surface"
   config = jsondecode(data.utils_deep_merge_json.attacker-attacksurface-config.output)
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 module "target-attacksurface-context" {
   source = "../modules/context/attack/surface"
   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 ##################################################
@@ -590,7 +723,22 @@ module "attacker-gcp-attacksurface" {
     }
   }
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "attacker-azure-attacksurface" {
@@ -660,7 +808,22 @@ module "target-gcp-attacksurface" {
     }
   }
 
-  parent = module.target-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # module "target-azure-attacksurface" {
@@ -805,12 +968,54 @@ data "utils_deep_merge_json" "target-attacksimulation-config" {
 module "attacker-attacksimulation-context" {
   source = "../modules/context/attack/simulate"
   config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # surface
+    module.attacker-gcp-attacksurface.id,
+    module.target-gcp-attacksurface.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # set attack the context
 module "target-attacksimulation-context" {
   source = "../modules/context/attack/simulate"
   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # surface
+    module.attacker-gcp-attacksurface.id,
+    module.target-gcp-attacksurface.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 ##################################################
@@ -866,7 +1071,30 @@ module "attacker-gcp-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
 
-  parent = module.attacker-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # surface
+    module.attacker-gcp-attacksurface.id,
+    module.target-gcp-attacksurface.id,
+
+    # simulation context
+    module.attacker-attacksimulation-context.id,
+    module.target-attacksimulation-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # deploy target attacksimulation
@@ -948,7 +1176,30 @@ module "target-gcp-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
 
-  parent = module.target-gcp-infrastructure.id
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-gcp-infrastructure.id,
+    module.target-gcp-infrastructure.id,
+
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
+
+    # surface
+    module.attacker-gcp-attacksurface.id,
+    module.target-gcp-attacksurface.id,
+
+    # simulation context
+    module.attacker-attacksimulation-context.id,
+    module.target-attacksimulation-context.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
 }
 
 # deploy target attacksimulation

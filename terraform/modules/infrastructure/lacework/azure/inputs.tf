@@ -2,6 +2,11 @@
 # Context
 ##################################################
 
+variable "parent" {
+  type = list(string)
+  default = []
+} 
+
 variable "config" {
   type = any
   description = "Schema defined in modules/context/infrastructure"
@@ -12,9 +17,4 @@ variable "infrastructure" {
     config = any
     deployed_state = any
   })
-}
-
-variable "parent" {
-  type = string
-  default = null
 }

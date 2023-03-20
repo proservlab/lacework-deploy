@@ -23,6 +23,6 @@ variable "resource_group" {
 }
 
 variable "parent" {
-  type = string
-  default = null
+  type = list(string)
+  default = []
 } 

@@ -1,5 +1,13 @@
+##################################################
+# CONFIG
+##################################################
+
+module "default-config" {
+  source = "../../../../../context/infrastructure"
+}
+
 locals {
-  config = var.config
+  config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
 }
 
 ##################################################

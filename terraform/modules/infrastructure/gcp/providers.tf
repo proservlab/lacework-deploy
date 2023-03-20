@@ -1,5 +1,5 @@
 locals{
-  default_kubeconfig_path = pathexpand("~/.kube/gcp-${var.config.context.global.environment}-${var.config.context.global.deployment}-kubeconfig")
+  default_kubeconfig_path = pathexpand("~/.kube/gcp-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   kubeconfig_path = try(module.gke[0].kubeconfig_path, local.default_kubeconfig_path)
 }
 

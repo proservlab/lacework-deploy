@@ -19,6 +19,6 @@ variable "compromised_credentials" {
 }
 
 variable "parent" {
-  type = string
-  default = null
+  type = list(string)
+  default = []
 } 

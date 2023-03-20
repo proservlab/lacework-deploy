@@ -1,0 +1,4 @@
+variable "parent" {
+  type = list(string)
+  default = []
+} 

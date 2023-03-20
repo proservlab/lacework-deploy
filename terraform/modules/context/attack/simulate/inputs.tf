@@ -2,6 +2,11 @@
 # Context
 ##################################################
 
+variable "parent" {
+  type = list(string)
+  default = []
+} 
+
 variable "config" {
   type = object({
     context = object({
@@ -371,7 +376,7 @@ variable "config" {
   default = {
     context = {
       global = {
-        environment               = "infra"
+        environment               = "target"
         deployment                = "default"
         disable_all               = false
         enable_all                = false

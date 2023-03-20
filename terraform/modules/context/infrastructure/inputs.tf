@@ -2,6 +2,11 @@
 # Context
 ##################################################
 
+variable "parent" {
+  type = list(string)
+  default = []
+} 
+
 variable "config" {
   type = object({
     context = object({

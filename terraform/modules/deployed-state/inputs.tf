@@ -176,7 +176,7 @@ variable "config" {
   default = {
     context = {
       global = {
-        environment               = "infra"
+        environment               = "target"
         deployment                = "default"
         trust_security_group      = true
         disable_all               = false
