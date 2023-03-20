@@ -44,6 +44,7 @@ locals {
     # pathexpand("~/.kube/gcp-target-${var.deployment}-kubeconfig")
     pathexpand("~/.kube/azure-attacker-${var.deployment}-kubeconfig"),
     pathexpand("~/.kube/azure-target-${var.deployment}-kubeconfig")
+    pathexpand("~/.kube/azure-target-default-kubeconfig")
   ]
 }
 # stage the kubeconfig files to avoid errors
