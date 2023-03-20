@@ -12,7 +12,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--live]
+usage: $SCRIPTNAME [-h] [--standalone]
 EOH
     exit 1
 }
@@ -34,8 +34,8 @@ for i in "$@"; do
         shift # past argument=value
         help
         ;;
-    -l|--live)
-        LIVE="${i#*=}"
+    -s|--standalone)
+        STANDALONE="${i#*=}"
         shift # past argument=value
         ;;
     *)
@@ -44,10 +44,10 @@ for i in "$@"; do
   esac
 done
 
-if ! [ -z ${LIVE} ]; then
-    MOUNT="-v $HOME/.aws:/root/.aws -v $HOME/.lacework.toml:/root/.lacework.toml -v ${PWD}:/workspace/terraform"
-else
+if ! [ -z ${STANDALONE} ]; then
     MOUNT="-v $HOME/.aws:/root/.aws -v $HOME/.lacework.toml:/root/.lacework.toml -v "${PWD}/env_vars":/workspace/terraform/env_vars -v "${PWD}/scenarios":/workspace/terraform/scenarios"
+else
+    MOUNT="-v $HOME/.aws:/root/.aws -v $HOME/.lacework.toml:/root/.lacework.toml -v ${PWD}:/workspace/terraform"
 fi
 
 echo "LIVE            = ${LIVE}"

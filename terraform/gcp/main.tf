@@ -201,7 +201,10 @@ module "attacker-lacework-platform-infrastructure" {
     }
 
     # deployed state configuration reference
-    deployed_state = {}
+    deployed_state = {
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
+    }
   }
 
   parent = module.attacker-gcp-infrastructure.id
@@ -290,7 +293,10 @@ module "target-lacework-platform-infrastructure" {
     }
 
     # deployed state configuration reference
-    deployed_state = {}
+    deployed_state = {
+      target   = try(module.target-gcp-infrastructure.config, {})
+      attacker = try(module.attacker-gcp-infrastructure.config, {})
+    }
   }
 
   parent = module.target-gcp-infrastructure.id

@@ -203,7 +203,10 @@ module "attacker-lacework-platform-infrastructure" {
     }
 
     # deployed state configuration reference
-    deployed_state = {}
+    deployed_state = {
+      target   = try(module.target-azure-infrastructure.config, {})
+      attacker = try(module.attacker-azure-infrastructure.config, {})
+    }
   }
 
   parent = module.attacker-azure-infrastructure.id
@@ -719,10 +722,6 @@ locals {
       # target_gcp_region           = var.target_gcp_region
       # target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
-      # azure
-      attacker_azure_region = var.attacker_azure_region
-      target_azure_region   = var.target_azure_region
-
       # variables
       compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
@@ -763,10 +762,6 @@ locals {
       # target_gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       # target_gcp_region           = var.target_gcp_region
       # target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
-
-      # azure
-      attacker_azure_region = var.attacker_azure_region
-      target_azure_region   = var.target_azure_region
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
