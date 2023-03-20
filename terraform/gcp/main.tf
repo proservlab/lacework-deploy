@@ -195,7 +195,10 @@ module "attacker-lacework-platform-infrastructure" {
   infrastructure = {
 
     # initial configuration reference
-    config = {}
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
     # deployed state configuration reference
     deployed_state = {}
@@ -281,7 +284,10 @@ module "target-lacework-platform-infrastructure" {
   infrastructure = {
 
     # initial configuration reference
-    config = {}
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
     # deployed state configuration reference
     deployed_state = {}
