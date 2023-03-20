@@ -71,6 +71,9 @@ elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}"
     help
 fi
 
+# set provider to first segement of workspace name
+PROVIDER=$(awk -F '-' '{ print $1 }' <<< ${WORK})
+
 # use variables.tfvars if it exists
 if [ -f "env_vars/variables.tfvars" ]; then
   VARS="-var-file=env_vars/variables.tfvars"
@@ -91,6 +94,10 @@ LOCAL_BACKEND="true"
 echo "ACTION            = ${ACTION}"
 echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
+echo "PROVIDER          = ${PROVIDER}"
+
+# change directory to provider directory
+cd $PROVIDER
 
 # ensure formatting
 terraform fmt
