@@ -141,6 +141,10 @@ variable "config" {
           project_id            = string
           enabled               = bool
         })
+        azure_audit_config      = object({
+          project_id            = string
+          enabled               = bool
+        })
         custom_policy = object({
           enabled               = bool
         })
@@ -538,6 +542,10 @@ variable "config" {
           enabled               = false
         }
         gcp_audit_config            = {
+          project_id            = null
+          enabled               = false
+        }
+        azure_audit_config          = {
           project_id            = null
           enabled               = false
         }
