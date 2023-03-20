@@ -40,7 +40,7 @@ locals {
   kubeconfigs = [
     pathexpand("~/.kube/aws-attacker-${var.deployment}-kubeconfig"),
     pathexpand("~/.kube/aws-target-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/aws-target-default-kubeconfig"),
+    pathexpand("~/.kube/aws-target-default-kubeconfig")
     # pathexpand("~/.kube/gcp-attacker-${var.deployment}-kubeconfig"),
     # pathexpand("~/.kube/gcp-target-${var.deployment}-kubeconfig")
   ]
