@@ -2,7 +2,11 @@
 
 This repo contains example deployment of both infrastructure and lacework components, including security related testing scenarios.
 
+<<<<<<< HEAD
 # Pre-requisites
+=======
+Example usage:
+>>>>>>> 08b7747 (update README.md)
 
 Before getting started ensure all of the required configuration outlined in the [pre-requisites guide](PREREQS.md) are complete.
 
