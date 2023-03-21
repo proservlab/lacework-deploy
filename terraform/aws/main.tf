@@ -550,51 +550,51 @@ locals {
   # ]
 }
 
-module "target-dynu-dns-records" {
-  source = "../modules/infrastructure/dynu"
-  config = module.target-infrastructure-context.config
+# module "target-dynu-dns-records" {
+#   source = "../modules/infrastructure/dynu"
+#   config = module.target-infrastructure-context.config
 
-  dynu_api_token  = var.dynu_api_token
-  dynu_dns_domain = var.dynu_dns_domain
-  records = flatten([
-    local.target_aws_a_records
-    # ,
-    # local.target_gcp_a_records
-  ])
+#   dynu_api_token  = var.dynu_api_token
+#   dynu_dns_domain = var.dynu_dns_domain
+#   records = flatten([
+#     local.target_aws_a_records
+#     # ,
+#     # local.target_gcp_a_records
+#   ])
 
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
+#   parent = [
+#     # infrastructure context
+#     module.attacker-infrastructure-context.id,
+#     module.target-infrastructure-context.id,
 
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-  ]
-}
+#     # infrastructure
+#     module.attacker-aws-infrastructure.id,
+#     module.target-aws-infrastructure.id,
+#   ]
+# }
 
-module "attacker-dynu-dns-records" {
-  source = "../modules/infrastructure/dynu"
-  config = module.attacker-infrastructure-context.config
+# module "attacker-dynu-dns-records" {
+#   source = "../modules/infrastructure/dynu"
+#   config = module.attacker-infrastructure-context.config
 
-  dynu_api_token  = var.dynu_api_token
-  dynu_dns_domain = var.dynu_dns_domain
-  records = flatten([
-    local.attacker_aws_a_records
-    # ,
-    # local.attacker_gcp_a_records
-  ])
+#   dynu_api_token  = var.dynu_api_token
+#   dynu_dns_domain = var.dynu_dns_domain
+#   records = flatten([
+#     local.attacker_aws_a_records
+#     # ,
+#     # local.attacker_gcp_a_records
+#   ])
 
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
+#   parent = [
+#     # infrastructure context
+#     module.attacker-infrastructure-context.id,
+#     module.target-infrastructure-context.id,
 
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-  ]
-}
+#     # infrastructure
+#     module.attacker-aws-infrastructure.id,
+#     module.target-aws-infrastructure.id,
+#   ]
+# }
 
 ##################################################
 # ATTACK SURFACE CONFIG

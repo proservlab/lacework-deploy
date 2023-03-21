@@ -56,7 +56,6 @@
           "enabled" : true
         },
         "gcp_audit_config": {
-          "project_id" : "${ gcp_lacework_project }",
           "enabled"    : false
         },
         "custom_policy": {
