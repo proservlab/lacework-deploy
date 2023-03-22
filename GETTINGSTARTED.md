@@ -6,11 +6,11 @@
 
 The scenarios folder container pre-packaged configuration for a scenario. Each scenario contains configuration for `attacker` and `target` infrastructure, attack surface and simluation. 
 
-* <attacker/target>/infrastructure.json: Contains configuration details for components like compute, ssm software deployment for lacework agent, git and docker, in addition to lacework specific configuration (e.g. cloud audit & config). 
+* `terraform/scenarios/attacker|target/infrastructure.json`: Contains configuration details for components like compute, ssm software deployment for lacework agent, git and docker, in addition to lacework specific configuration (e.g. cloud audit & config). 
 
-* <attacker/target>/surface.json: Contains configfuration details for components related to attack surface, like opening network ports.
+* `terraform/scenarios/attacker|target/surface.json`: Contains configfuration details for components related to attack surface, like opening network ports.
 
-* <shared>/simulation.json: Container combined configuration for attacker and target. Configuration here relates specifically to attack scenarios (e.g. reverse shell initiation and listener).
+* `terraform/scenarios/shared/simulation.json`: Container combined configuration for attacker and target. Configuration here relates specifically to attack scenarios (e.g. reverse shell initiation and listener).
 
 Execution of the simulation tasks and the software deployment tasks are handled differently in each CSP. For AWS SSM is used, GCP OSConfig and Azure Runbooks. Each of the simulation scenarios will repeat over 30 minutes, with the exception being composite alerts repeating every 2 hours.
 
