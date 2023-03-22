@@ -32,18 +32,6 @@
             },
             "user_data"        : null,
             "user_data_base64" : null
-          },
-          {
-            "name"                      : "target-public-2",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
           }
         ]
       },
@@ -93,7 +81,7 @@
         }
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_agentless": {
         "enabled" : false

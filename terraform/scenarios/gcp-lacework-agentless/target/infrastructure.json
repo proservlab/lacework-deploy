@@ -28,8 +28,6 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_git"    : "true",
-              "osconfig_deploy_docker"  : "true",
               "osconfig_deploy_lacework": "true"
             },
             "user_data"        : null,

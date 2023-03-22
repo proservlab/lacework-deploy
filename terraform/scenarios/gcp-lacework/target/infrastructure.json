@@ -4,10 +4,10 @@
       "environment"          : "target",
       "deployment"           : "${ deployment }"
     },
-    "aws": {
-      "region"       : "${ aws_region }",
-      "profile_name" : "${ aws_profile }",
-      "ec2": {
+    "gcp": {
+      "region"               : "${ gcp_region }",
+      "project_id"           : "${ gcp_project }",
+      "gce" : {
         "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
@@ -25,33 +25,24 @@
             "name"                      : "target-public-1",
             "public"                    : true,
             "role"                      : "default",
-            "instance_type"             : "t2.micro",
+            "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework"              : "false"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
-          },
-          {
-            "name"                      : "target-public-2",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              
+              "osconfig_deploy_lacework": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
           }
         ]
       },
-      "ssm": {
+      "gke": {
+        "enabled"                         : false,
+        "cluster_name"                    : "target-cluster"
+      },
+      "osconfig": {
         "enabled"                        : true,
         "deploy_git"                     : false,
         "deploy_docker"                  : false,
-        "deploy_inspector_agent"         : false,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true
       }
@@ -61,10 +52,11 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_audit_config": {
-        "enabled"    : false
+        "project_id" : "${ gcp_lacework_project }",
+        "enabled"    : true
       },
       "custom_policy": {
         "enabled" : false
@@ -93,7 +85,7 @@
         }
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_agentless": {
         "enabled" : false
@@ -115,7 +107,7 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
-    } 
+      "enabled"                        : false
+    }
   }
 }
