@@ -16,6 +16,7 @@ module "default-config" {
 
 locals {
   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+  enabled = try(length(var.config), {}) == {} ? false : true
 
   default_infrastructure_config = var.infrastructure.config[local.config.context.global.environment]
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
@@ -223,6 +224,20 @@ locals {
     for instance in data.google_compute_instance.target_public_app:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
   ]
+
+  public_networks = ((
+      local.config.context.global.environment == "attacker" 
+      && ( 
+        length(local.attacker_public_ips) > 0 
+        || length(local.attacker_app_public_ips) > 0
+      ) 
+    ) || (
+      local.config.context.global.environment == "target" 
+      && ( 
+        length(local.target_public_ips) > 0 
+        || length(local.target_app_public_ips) > 0
+      ) 
+    )) ? true : false
 }
 
 ##################################################
@@ -262,7 +277,7 @@ module "gce-add-trusted-ingress" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
   
-  network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name,null)
+  network                       = local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name
   trusted_attacker_source       = local.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
     [ for ip in local.attacker_app_public_ips: "${ip}/32" ]

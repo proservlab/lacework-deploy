@@ -65,6 +65,32 @@ module "ec2" {
 }
 
 ##################################################
+# DYNU
+##################################################
+
+locals {
+  records = [
+    for ec2 in can(length(module.ec2)) ? module.ec2 : [] :
+    [
+      for compute in ec2.instances : {
+        recordType     = "a"
+        recordName     = "${lookup(compute.instance.tags, "Name", "unknown")}"
+        recordHostName = "${lookup(compute.instance.tags, "Name", "unknown")}.${coalesce(local.config.context.dynu_dns.dns_domain, "unknown")}"
+        recordValue    = compute.instance.public_ip
+      } if lookup(compute.instance, "public_ip", "false") != "false"
+    ]
+  ]
+}
+
+module "dns-records" {
+  count           = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.dynu_dns.enabled == true ) ? 1 : 0
+  source          = "../dynu/dns_records"
+  dynu_api_token  = local.config.context.dynu_dns.api_token
+  dynu_dns_domain = local.config.context.dynu_dns.dns_domain
+  records         = local.records
+}
+
+##################################################
 # AWS EKS
 ##################################################
 

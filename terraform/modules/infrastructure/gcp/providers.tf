@@ -26,3 +26,18 @@ provider "lacework" {
   api_key    = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-key"
   api_secret = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-secret"
 }
+
+provider "restapi" {
+  uri                  = "https://api.dynu.com/v2"
+  write_returns_object = true
+  debug                = true
+
+  headers = {
+    "API-Key" = var.config.context.dynu_dns.api_token,
+    "Content-Type" = "application/json"
+  }
+
+  create_method  = "POST"
+  update_method  = "PUT"
+  destroy_method = "DELETE"
+}

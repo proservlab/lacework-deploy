@@ -4,10 +4,10 @@
             "environment"                           : "attacker",
             "deployment"                            : "${ deployment }"
         },
-        "aws": {
-            "region"        : "${ aws_region }",
-            "profile_name"  : "${ aws_profile }",
-            "ec2": {
+        "gcp": {
+            "region"               : "${ gcp_region }",
+            "project_id"           : "${ gcp_project }",
+            "gce" : {
                 "enabled"                           : true,
                 "public_network"                    : "172.28.0.0/16",
                 "public_subnet"                     : "172.28.0.0/24",
@@ -25,20 +25,21 @@
                         "name"                      : "attacker-public-1",
                         "public"                    : true,
                         "role"                      : "default",
-                        "instance_type"             : "t2.micro",
+                        "instance_type"             : "e2-micro",
                         "ami_name"                  : "ubuntu_focal",
-                        "tags"                      : {
-                            "owner"                                     : "lacework",
-                            "ssm_exec_reverse_shell_attacker"           : "true"
+                        "tags": {
+                          "osconfig_exec_reverse_shell_attacker" : "true"
                         },
-                        "user_data"                 : null,
-                        "user_data_base64"          : null
-                    }
+                        "user_data"        : null,
+                        "user_data_base64" : null
+                      }
                 ]
             }
         },
         "dynu_dns" : {
-            "enabled"                        : false
+            "enabled"                        : true,
+            "api_token"                      : "${ dynu_api_token }",
+            "dns_domain"                     : "${ dynu_dns_domain }"
         } 
     }
 }

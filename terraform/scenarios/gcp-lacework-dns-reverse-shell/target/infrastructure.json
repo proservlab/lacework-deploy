@@ -28,7 +28,8 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              
+              "osconfig_deploy_lacework"                  : "true",
+              "osconfig_exec_reverse_shell_target"        : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -40,11 +41,11 @@
         "cluster_name"                    : "target-cluster"
       },
       "osconfig": {
-        "enabled"                        : false,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true
       }
     },
     "lacework": {
@@ -56,13 +57,13 @@
       },
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
-        "enabled"    : false
+        "enabled"    : true
       },
       "custom_policy": {
         "enabled" : false
       },
       "agent": {
-        "enabled" : false,
+        "enabled" : true,
 
         "kubernetes": {
           "enabled" : false,
@@ -88,7 +89,7 @@
         "enabled" : false
       },
       "gcp_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "alerts": {
         "enabled" : false,

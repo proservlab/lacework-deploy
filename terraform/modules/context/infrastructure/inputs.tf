@@ -216,6 +216,8 @@ variable "config" {
       })
       dynu_dns = object({
         enabled                 = bool
+        api_token               = string
+        dns_domain              = string
       })
     })
   })
@@ -620,6 +622,8 @@ variable "config" {
       }
       dynu_dns = {
         enabled                 = false
+        api_token               = null
+        dns_domain              = null
       }
     }
   }

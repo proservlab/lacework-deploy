@@ -4,8 +4,8 @@
         "environment"          : "target",
         "deployment"           : "${ deployment }"
       },
-      "gcp" :  {
-        "gce" :  {
+      "aws" :  {
+        "ec2" :  {
           "add_trusted_ingress" :  {
             "enabled"                     :  true,
             "trust_workstation"           :  true,

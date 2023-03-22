@@ -64,3 +64,29 @@ module "compute" {
   private_app_subnet = local.config.context.azure.compute.private_app_subnet
   private_app_nat_subnet = local.config.context.azure.compute.private_app_nat_subnet
 }
+
+##################################################
+# DYNU
+##################################################
+
+# locals {
+#   records = [
+#     for gce in can(length(module.gce)) ? module.gce : [] :
+#     [
+#       for compute in gce.instances : {
+#         recordType     = "a"
+#         recordName     = "${lookup(compute.instance.labels, "name", "unknown")}"
+#         recordHostName = "${lookup(compute.instance.labels, "name", "unknown")}.${coalesce(local.config.context.dynu_dns.dns_domain, "unknown")}"
+#         recordValue    = compute.instance.network_interface[0].access_config[0].nat_ip
+#       } if lookup(try(compute.instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false"
+#     ]
+#   ]
+# }
+
+# module "dns-records" {
+#   count           = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.dynu_dns.enabled == true  ) ? 1 : 0
+#   source          = "../dynu/dns_records"
+#   dynu_api_token  = local.config.context.dynu_dns.api_token
+#   dynu_dns_domain = local.config.context.dynu_dns.dns_domain
+#   records         = local.records
+# }

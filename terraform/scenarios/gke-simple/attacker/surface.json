@@ -7,10 +7,10 @@
     "gcp" :  {
       "gce" :  {
         "add_trusted_ingress" :  {
-          "enabled"                     :  true,
-          "trust_workstation"           :  true,
-          "trust_attacker_source"       :  true,
-          "trust_target_source"         :  true,
+          "enabled"                     :  false,
+          "trust_workstation"           :  false,
+          "trust_attacker_source"       :  false,
+          "trust_target_source"         :  false,
           "additional_trusted_sources"  :  [],
           "trusted_tcp_ports"           :  {
             "from_port" :  0,

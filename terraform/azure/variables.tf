@@ -292,13 +292,17 @@ variable "attacker_context_host_cryptomining_nicehash_user" {
 # DYNU
 ##################################################
 
+##################################################
+# DYNU
+##################################################
+
 # dns hostname provisioning api key
 variable "dynu_api_token" {
   type    = string
-  default = null
+  default = ""
 }
 
 variable "dynu_dns_domain" {
   type    = string
-  default = "unset"
+  default = ""
 }
