@@ -44,8 +44,22 @@ data "aws_security_groups" "public" {
   tags = {
     environment = local.config.context.global.environment
     deployment  = local.config.context.global.deployment
-    public = "true"
+    role        = "default"
+    public      = "true"
   }
+  depends_on = [time_sleep.wait]
+}
+
+data "aws_security_groups" "public_app" {
+  count = (local.config.context.global.enable_all == true) || (
+    local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
+  tags = {
+    environment = local.config.context.global.environment
+    deployment  = local.config.context.global.deployment
+    role        = "app"
+    public      = "true"
+  }
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "public_attacker" {
@@ -106,12 +120,12 @@ module "iam" {
 
 # append ingress rules
 module "ec2-add-trusted-ingress" {
-  for_each = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? toset(data.aws_security_groups.public[0].ids) : toset([ for v in []: v ])
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
   source        = "./modules/ec2/add-trusted-ingress"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   
-  security_group_id             = each.key
+  security_group_id             = data.aws_security_groups.public[0].ids[0]
   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
     local.attacker_eks_public_ip
@@ -123,6 +137,30 @@ module "ec2-add-trusted-ingress" {
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
+
+  depends_on = [time_sleep.wait]
+}
+
+module "ec2-add-trusted-ingress-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
+  source        = "./modules/ec2/add-trusted-ingress"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  
+  security_group_id             = data.aws_security_groups.public_app[0].ids[0]
+  trusted_attacker_source       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
+    [ for ip in data.aws_instances.public_target[0].public_ips: "${ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources
+  trusted_tcp_ports             = local.config.context.aws.ec2.add_app_trusted_ingress.trusted_tcp_ports
+
+  depends_on = [time_sleep.wait]
 }
 
 ##################################################

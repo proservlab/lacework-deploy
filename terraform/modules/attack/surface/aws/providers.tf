@@ -25,6 +25,8 @@ locals {
 }
 
 provider "aws" {
+  max_retries = 40
+
   profile                     = local.profile
   region                      = local.region
   access_key                  = local.access_key
@@ -35,6 +37,8 @@ provider "aws" {
 }
 
 provider "aws" {
+  max_retries = 40
+
   alias = "attacker"
   profile                     = local.attacker_profile
   region                      = local.attacker_region
@@ -46,6 +50,8 @@ provider "aws" {
 }
 
 provider "aws" {
+  max_retries = 40
+
   alias = "target"
   profile                     = local.target_profile
   region                      = local.target_region

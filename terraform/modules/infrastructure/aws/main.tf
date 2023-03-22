@@ -38,56 +38,33 @@ module "ec2" {
   deployment   = local.config.context.global.deployment
 
   # list of instances to configure
-  instances = local.config.context.aws.ec2.instances
+  instances                           = local.config.context.aws.ec2.instances
 
   # allow endpoints inside their own security group to communicate
-  trust_security_group = local.config.context.global.trust_security_group
+  trust_security_group                = local.config.context.global.trust_security_group
 
-  public_ingress_rules = local.config.context.aws.ec2.public_ingress_rules
-  public_egress_rules = local.config.context.aws.ec2.public_egress_rules
-  public_app_ingress_rules = local.config.context.aws.ec2.public_app_ingress_rules
-  public_app_egress_rules = local.config.context.aws.ec2.public_app_egress_rules
-  private_ingress_rules = local.config.context.aws.ec2.private_ingress_rules
-  private_egress_rules = local.config.context.aws.ec2.private_egress_rules
-  private_app_ingress_rules = local.config.context.aws.ec2.private_app_ingress_rules
-  private_app_egress_rules = local.config.context.aws.ec2.private_app_egress_rules
+  public_ingress_rules                = local.config.context.aws.ec2.public_ingress_rules
+  public_egress_rules                 = local.config.context.aws.ec2.public_egress_rules
+  public_app_ingress_rules            = local.config.context.aws.ec2.public_app_ingress_rules
+  public_app_egress_rules             = local.config.context.aws.ec2.public_app_egress_rules
+  private_ingress_rules               = local.config.context.aws.ec2.private_ingress_rules
+  private_egress_rules                = local.config.context.aws.ec2.private_egress_rules
+  private_app_ingress_rules           = local.config.context.aws.ec2.private_app_ingress_rules
+  private_app_egress_rules            = local.config.context.aws.ec2.private_app_egress_rules
 
-  public_network = local.config.context.aws.ec2.public_network
-  public_subnet = local.config.context.aws.ec2.public_subnet
-  public_app_network = local.config.context.aws.ec2.public_app_network
-  public_app_subnet = local.config.context.aws.ec2.public_app_subnet
-  private_network = local.config.context.aws.ec2.private_network
-  private_subnet = local.config.context.aws.ec2.private_subnet
-  private_nat_subnet = local.config.context.aws.ec2.private_nat_subnet
-  private_app_network = local.config.context.aws.ec2.private_app_network
-  private_app_subnet = local.config.context.aws.ec2.private_app_subnet
-  private_app_nat_subnet = local.config.context.aws.ec2.private_app_nat_subnet
-}
+  public_network                      = local.config.context.aws.ec2.public_network
+  public_subnet                       = local.config.context.aws.ec2.public_subnet
+  public_app_network                  = local.config.context.aws.ec2.public_app_network
+  public_app_subnet                   = local.config.context.aws.ec2.public_app_subnet
+  private_network                     = local.config.context.aws.ec2.private_network
+  private_subnet                      = local.config.context.aws.ec2.private_subnet
+  private_nat_subnet                  = local.config.context.aws.ec2.private_nat_subnet
+  private_app_network                 = local.config.context.aws.ec2.private_app_network
+  private_app_subnet                  = local.config.context.aws.ec2.private_app_subnet
+  private_app_nat_subnet              = local.config.context.aws.ec2.private_app_nat_subnet
 
-##################################################
-# DYNU
-##################################################
-
-locals {
-  records = [
-    for ec2 in can(length(module.ec2)) ? module.ec2 : [] :
-    [
-      for compute in ec2.instances : {
-        recordType     = "a"
-        recordName     = "${lookup(compute.instance.tags, "Name", "unknown")}"
-        recordHostName = "${lookup(compute.instance.tags, "Name", "unknown")}.${coalesce(local.config.context.dynu_dns.dns_domain, "unknown")}"
-        recordValue    = compute.instance.public_ip
-      } if lookup(compute.instance, "public_ip", "false") != "false"
-    ]
-  ]
-}
-
-module "dns-records" {
-  count           = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.dynu_dns.enabled == true ) ? 1 : 0
-  source          = "../dynu/dns_records"
-  dynu_api_token  = local.config.context.dynu_dns.api_token
-  dynu_dns_domain = local.config.context.dynu_dns.dns_domain
-  records         = local.records
+  enable_dynu_dns                     = local.config.context.dynu_dns.enabled
+  dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
 }
 
 ##################################################

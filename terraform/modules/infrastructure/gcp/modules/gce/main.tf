@@ -3,6 +3,11 @@ data "google_compute_zones" "this" {
 }
 
 locals {
+  public_compute_instances = var.enable_dynu_dns == true ? flatten([
+    [ for compute in module.instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ],
+    [ for compute in module.instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  ]) : []
+  
   public_instance_count = length([ for instance in var.instances: instance if instance.public == true ])
   public_app_instance_count = length([ for instance in var.instances: instance if instance.public == true && instance.role == "app" ])
   private_instance_count = length([ for instance in var.instances: instance if instance.public == false ])
@@ -104,6 +109,19 @@ locals {
   public_app_instances = [ for compute in module.instances: compute.instance.self_link if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
   private_instances = [ for compute in module.instances: compute.instance.self_link if compute.instance.labels.role == "default" && compute.instance.labels.public == "false" ]
   private_app_instances = [ for compute in module.instances: compute.instance.self_link if compute.instance.labels.role == "app" && compute.instance.labels.public == "false" ]
+}
+
+module "dns-records" {
+  count           = length(local.public_compute_instances)
+  source          = "../../../dynu/dns_record"
+  dynu_dns_domain = var.dynu_dns_domain
+  
+  record        = {
+        recordType     = "A"
+        recordName     = "${lookup(local.public_compute_instances[count.index].labels, "name", "unknown")}"
+        recordHostName = "${lookup(local.public_compute_instances[count.index].labels, "name", "unknown")}.${coalesce(var.dynu_dns_domain, "unknown")}"
+        recordValue    = local.public_compute_instances[count.index].network_interface[0].access_config[0].nat_ip
+      }
 }
 
 resource "google_compute_instance_group" "public_group" {

@@ -20,6 +20,8 @@ provider "helm" {
 }
 
 provider "aws" {
+  max_retries = 40
+
   profile = local.profile
   region = local.region
   access_key                  = local.access_key

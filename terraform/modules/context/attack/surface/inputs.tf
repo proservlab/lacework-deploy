@@ -29,11 +29,33 @@ variable "config" {
               to_port                   = number
             })
           })
+          add_app_trusted_ingress = object({
+            enabled                     = bool
+            trust_workstation           = bool
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            additional_trusted_sources  = list(string)
+            trusted_tcp_ports           = object({
+              from_port                 = number
+              to_port                   = number
+            })
+          })
         })
       })
       gcp = object({
         gce = object({
           add_trusted_ingress = object({
+            enabled                     = bool
+            trust_workstation           = bool
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            additional_trusted_sources  = list(string)
+            trusted_tcp_ports           = object({
+              from_port                 = number
+              to_port                   = number
+            })
+          })
+          add_app_trusted_ingress = object({
             enabled                     = bool
             trust_workstation           = bool
             trust_attacker_source       = bool
@@ -75,6 +97,17 @@ variable "config" {
         })
         ec2 = object({
           add_trusted_ingress = object({
+            enabled                     = bool
+            trust_workstation           = bool
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            additional_trusted_sources  = list(string)
+            trusted_tcp_ports           = object({
+              from_port                 = number
+              to_port                   = number
+            })
+          })
+          add_app_trusted_ingress = object({
             enabled                     = bool
             trust_workstation           = bool
             trust_attacker_source       = bool
@@ -211,12 +244,34 @@ variable "config" {
               from_port = 1024
               to_port = 65535
             }
+          },
+          add_app_trusted_ingress = {
+            enabled                     = false
+            trust_workstation           = false
+            trust_attacker_source       = false
+            trust_target_source         = false
+            additional_trusted_sources  = []
+            trusted_tcp_ports           = {
+              from_port = 1024
+              to_port = 65535
+            }
           }
         }
       }
       gcp = {
         gce = {
           add_trusted_ingress = {
+            enabled                     = false
+            trust_workstation           = false
+            trust_attacker_source       = false
+            trust_target_source         = false
+            additional_trusted_sources  = []
+            trusted_tcp_ports           = {
+              from_port = 1024
+              to_port = 65535
+            }
+          },
+          add_app_trusted_ingress = {
             enabled                     = false
             trust_workstation           = false
             trust_attacker_source       = false
@@ -258,6 +313,17 @@ variable "config" {
         }
         ec2 = {
           add_trusted_ingress = {
+            enabled                     = false
+            trust_workstation           = false
+            trust_attacker_source       = false
+            trust_target_source         = false
+            additional_trusted_sources  = []
+            trusted_tcp_ports           = {
+              from_port = 1024
+              to_port = 65535
+            }
+          },
+          add_app_trusted_ingress = {
             enabled                     = false
             trust_workstation           = false
             trust_attacker_source       = false

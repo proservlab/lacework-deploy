@@ -17,6 +17,8 @@ terraform {
 # ------------------------------------------------------------------------------
 
 provider "aws" {
+  max_retries = 40
+
     region = var.region
     profile = var.profile
 }

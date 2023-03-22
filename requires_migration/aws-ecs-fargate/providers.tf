@@ -25,6 +25,8 @@ provider "docker" {
 }
 
 provider "aws" {
+  max_retries = 40
+
   profile = "${var.environment}"
   region  = "${var.region}"
 

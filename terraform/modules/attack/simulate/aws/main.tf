@@ -47,6 +47,8 @@ data "aws_security_groups" "public" {
     deployment  = local.config.context.global.deployment
     public = "true"
   }
+
+  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "public_attacker" {

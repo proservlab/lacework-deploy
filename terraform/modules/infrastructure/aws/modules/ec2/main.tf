@@ -1,4 +1,7 @@
 locals {
+  public_compute_instances = var.enable_dynu_dns == true ? flatten([
+    [ for ec2 in module.instances: ec2.instance if lookup(ec2.instance.tags, "public", "false") == "true" ]
+  ]) : []
   public_instance_count = length([ for instance in var.instances: instance if instance.public == true ])
   public_app_instance_count = length([ for instance in var.instances: instance if instance.public == true && instance.role == "app" ])
   private_instance_count = length([ for instance in var.instances: instance if instance.public == false ])
@@ -91,4 +94,17 @@ module "instances" {
       each.value.tags,
     )
   )
+}
+
+module "dns-records" {
+  for_each = { for instance in local.public_compute_instances: lookup(instance.tags, "Name", "unknown") => instance }
+  source          = "../../../dynu/dns_record"
+  dynu_dns_domain = var.dynu_dns_domain
+  
+  record        = {
+        recordType     = "A"
+        recordName     = "${each.key}"
+        recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
+        recordValue    = each.value.public_ip
+      }
 }

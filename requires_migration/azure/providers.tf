@@ -1,5 +1,7 @@
 # needed for attacker ecr
 provider "aws" {
+  max_retries = 40
+
   alias   = "main"
   region  = var.aws_region
   profile = "proservlab"

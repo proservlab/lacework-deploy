@@ -8,12 +8,16 @@ terraform {
 }
 
 provider "aws" {
+  max_retries = 40
+
     alias = "attacker"
     region  = "us-east-1"
     profile = "attacker"
 }
 
 provider "aws" {
+  max_retries = 40
+
     alias = "target"
     region  = "us-east-1"
     profile = "default"
