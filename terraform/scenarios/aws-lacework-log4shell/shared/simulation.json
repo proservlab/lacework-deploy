@@ -84,7 +84,6 @@
               "enabled": true,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
-              "attacker_ip": "attacker-public-1-attacker-${ deployment }.attacker-hub.freeddns.org",
               "target_port": 8000,
               "payload": "touch /tmp/log4shell_pwned"
             },
