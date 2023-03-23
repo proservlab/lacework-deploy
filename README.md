@@ -2,11 +2,7 @@
 
 This repo contains example deployment of both infrastructure and lacework components, including security related testing scenarios.
 
-<<<<<<< HEAD
 # Pre-requisites
-=======
-Example usage:
->>>>>>> 08b7747 (update README.md)
 
 Before getting started ensure all of the required configuration outlined in the [pre-requisites guide](PREREQS.md) are complete.
 
@@ -53,10 +49,6 @@ Retrieve instance tags of host on aws from local machine:
 
 Reteive meta data for compute instance from the local machine:
 `curl -s "http://metadata.google.internal/computeMetadata/v1/instance/"`
-
-# Proton VPN Credentials
-
-Note that when configuring the `attacker_context_config_protonvpn_user` and `attacker_context_config_protonvpn_password` these values **should NOT** be your protonvpn login username and password but the OpenVPN/IKEv2 credentials. Details on obtaining these credentials are found under the `Finding your OpenVPN / IKEv2 credentials` section [here](https://protonvpn.com/support/vpn-login/#:~:text=Note%3A%20For%20existing%20Proton%20Mail,the%20top%20right%20hand%20corner.)
 
 # Future
 
