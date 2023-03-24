@@ -28,7 +28,7 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework"              : "false"
+              "ssm_deploy_lacework"              : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
