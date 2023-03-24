@@ -36,8 +36,7 @@
               "env_secrets": ["SECRET=supersecret123"]
             },
             "reverse_shell": {
-              "enabled": true,
-              "host_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }"
+              "enabled": true
             }
           },
           "listener": {
@@ -85,6 +84,7 @@
               "enabled": true,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
+              "attacker_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8000,
               "payload": "touch /tmp/log4shell_pwned"
             },
