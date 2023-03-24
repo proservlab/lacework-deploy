@@ -4,10 +4,11 @@
       "environment"          : "target",
       "deployment"           : "${ deployment }"
     },
-    "aws": {
-      "region"       : "${ aws_region }",
-      "profile_name" : "${ aws_profile }",
-      "ec2": {
+    "azure": {
+      "region"                          : "${ azure_region }",
+      "subscription"                    : "${ azure_subscription }",
+      "tenant"                          : "${ azure_tenant }",
+      "compute" : {
         "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
@@ -25,29 +26,28 @@
             "name"                      : "target-public-1",
             "public"                    : true,
             "role"                      : "default",
-            "instance_type"             : "t2.micro",
+            "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework"              : "true",
-              "ssm_deploy_docker"                : "true",
-              "ssm_exec_docker_log4shell_target" : "true",
-              "ssm_deploy_inspector_agent"       : "true"
+              "runbook_deploy_git"    : "true",
+              "runbook_deploy_docker"  : "true",
+              "runbook_deploy_lacework": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
           }
         ]
       },
-      "inspector": {
-        "enabled"                        : true
+      "aks": {
+        "enabled"                         : false,
+        "cluster_name"                    : "target-cluster"
       },
-      "ssm": {
-        "enabled"                        : true,
-        "deploy_git"                     : true,
-        "deploy_docker"                  : true,
-        "deploy_inspector_agent"         : true,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+      "runbook": {
+        "enabled"                        : false,
+        "deploy_git"                     : false,
+        "deploy_docker"                  : false,
+        "deploy_lacework_agent"          : false,
+        "deploy_lacework_syscall_config" : false
       }
     },
     "lacework": {
@@ -55,10 +55,13 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_audit_config": {
         "enabled"    : false
+      },
+      "azure_audit_config": {
+        "enabled"    : true
       },
       "custom_policy": {
         "enabled" : false
@@ -87,7 +90,7 @@
         }
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_agentless": {
         "enabled" : false
@@ -109,7 +112,7 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
-    } 
+      "enabled"                        : false
+    }
   }
 }

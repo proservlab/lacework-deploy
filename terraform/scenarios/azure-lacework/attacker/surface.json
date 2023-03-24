@@ -4,13 +4,13 @@
       "environment"          : "attacker",
       "deployment"           : "${ deployment }"
     },
-    "aws" :  {
-      "ec2" :  {
+    "azure" :  {
+      "compute" :  {
         "add_trusted_ingress" :  {
           "enabled"                     :  false,
-          "trust_workstation"           :  false,
-          "trust_attacker_source"       :  false,
-          "trust_target_source"         :  false,
+          "trust_workstation"           :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
           "additional_trusted_sources"  :  [],
           "trusted_tcp_ports"           :  {
             "from_port" :  0,
