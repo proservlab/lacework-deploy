@@ -29,7 +29,7 @@ data "azurerm_platform_image" "windowsserver_image" {
 }
 
 resource "azurerm_resource_group" "rg" {
-    name     = local.resource_group_name
+    name     = "rg-${var.environment}-${var.deployment}"
     location = var.region
 
     tags = {
@@ -42,7 +42,7 @@ resource "azurerm_virtual_network" "network" {
     name                = "vnet-${var.environment}-${var.deployment}"
     address_space       = ["10.0.0.0/16"]
     location            = var.region
-    resource_group_name = local.resource_group_name
+    resource_group_name = azurerm_resource_group.rg.name
 
     tags = {
         environment = var.environment
@@ -51,7 +51,7 @@ resource "azurerm_virtual_network" "network" {
 
 resource "azurerm_subnet" "subnet" {
     name                 = "subnet-${var.environment}-${var.deployment}"
-    resource_group_name  = local.resource_group_name
+    resource_group_name  = azurerm_resource_group.rg.name
     virtual_network_name = azurerm_virtual_network.network.name
     address_prefixes       = ["10.0.2.0/24"]
 }
@@ -59,7 +59,7 @@ resource "azurerm_subnet" "subnet" {
 resource "azurerm_public_ip" "ip" {
     name                         = "ip-${var.environment}-${var.deployment}"
     location                     = var.region
-    resource_group_name          = local.resource_group_name
+    resource_group_name          = azurerm_resource_group.rg.name
     allocation_method            = "Dynamic"
 
     tags = {
@@ -71,7 +71,7 @@ resource "azurerm_public_ip" "ip" {
 resource "azurerm_network_security_group" "sg" {
     name                = "sg-${var.environment}-${var.deployment}"
     location            = var.region
-    resource_group_name = local.resource_group_name
+    resource_group_name = azurerm_resource_group.rg.name
     
     security_rule {
         name                       = "SSH"
@@ -94,7 +94,7 @@ resource "azurerm_network_security_group" "sg" {
 resource "azurerm_network_interface" "nic" {
     name                        = "nic-${var.environment}-${var.deployment}"
     location                    = var.region
-    resource_group_name         = local.resource_group_name
+    resource_group_name         = azurerm_resource_group.rg.name
 
     ip_configuration {
         name                          = "nic-config-${var.environment}-${var.deployment}"
@@ -118,7 +118,7 @@ resource "azurerm_network_interface_security_group_association" "sg" {
 resource "random_id" "randomId" {
     keepers = {
         # Generate a new ID only when a new resource group is defined
-        resource_group = local.resource_group_name
+        resource_group = azurerm_resource_group.rg.name
     }
     
     byte_length = 8
@@ -134,7 +134,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance }
     name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
-    resource_group_name   = local.resource_group_name
+    resource_group_name   = azurerm_resource_group.rg.name
     network_interface_ids = [azurerm_network_interface.nic.id]
     size                  = "Standard_DS1_v2"
 
