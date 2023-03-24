@@ -1,0 +1,55 @@
+################################################################################################
+# WORKSPACE VARIABLES - These variables are tied to specific workspace
+# Note: The examples below could also be globally defined in variables.tfvars
+################################################################################################
+
+################################################################################################
+# SCENARIO 
+# Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
+################################################################################################
+
+scenario="azure-simple"
+
+################################################################################################
+# DEPLOYMENT 
+# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
+# a single cloud account
+################################################################################################
+
+deployment="azsimp1"
+
+################################################################################################
+# AZURE 
+# Required when deploying to AZURE
+################################################################################################
+
+# attacker_azure_subscription = "30d2be40-c1cc-4802-9f61-24890455bcd5"
+# attacker_azure_tenant = "ca029b3c-7723-48b2-b436-6636116dcab8"
+attacker_azure_region = "West US 2"
+target_azure_region = "West US 2"
+# target_azure_subscription = "30d2be40-c1cc-4802-9f61-24890455bcd5"
+# target_azure_tenant = "ca029b3c-7723-48b2-b436-6636116dcab8"
+
+################################################################################################
+# LACEWORK 
+# Required when enabling lacework
+################################################################################################
+
+lacework_profile = "<YOUR LACEWORK PROFILE NAME>"
+lacework_account_name = "<YOUR LACEWORK ACCOUNT NAME>"
+lacework_server_url = "https://<YOUR LACEWORK ACCOUNT NAME>.lacework.net"
+
+################################################################################################
+# SIMULATION
+# Required only when specific scenarios are enabled (e.g. cloud_compromise)
+################################################################################################
+
+# compromised credentials vpn config
+# attacker_context_config_protonvpn_user="xxxxxxx"
+# attacker_context_config_protonvpn_password="xxxxxxx"
+
+# cloud crypto gpu mining creds
+# attacker_context_cloud_cryptomining_ethermine_wallet="xxxxxxx"
+
+# cpu crypto mining credentials
+# attacker_context_host_cryptomining_minergate_user="xxxxxxx"

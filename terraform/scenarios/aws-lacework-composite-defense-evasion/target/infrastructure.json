@@ -8,7 +8,7 @@
       "region"       : "${ aws_region }",
       "profile_name" : "${ aws_profile }",
       "ec2": {
-        "enabled"                       : false,
+        "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -21,7 +21,25 @@
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "public_ingress_rules"          : [],
         "instances": [
+          {
+            "name"                      : "target-public-1",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "ssm_deploy_lacework"              : "true",
+              "ssm_deploy_docker"                : "true",
+              "ssm_exec_docker_log4shell_target" : "true",
+              "ssm_deploy_inspector_agent"       : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
+          }
         ]
+      },
+      "inspector": {
+        "enabled"                        : true
       },
       "ssm": {
         "enabled"                        : true,
@@ -37,7 +55,7 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_audit_config": {
         "enabled"    : false
@@ -46,7 +64,7 @@
         "enabled" : false
       },
       "agent": {
-        "enabled" : false,
+        "enabled" : true,
 
         "kubernetes": {
           "enabled" : false,
@@ -69,7 +87,7 @@
         }
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_agentless": {
         "enabled" : false

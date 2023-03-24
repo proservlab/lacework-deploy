@@ -1,5 +1,6 @@
 locals {
     ssh_key_path = pathexpand("~/.ssh/azure-public.pem")
+    resource_group_name = "rg-${var.environment}-${var.deployment}"
 }
 
 module "workstation-external-ip" {
@@ -27,48 +28,50 @@ data "azurerm_platform_image" "windowsserver_image" {
     sku       = "2019-Datacenter"
 }
 
-resource "azurerm_resource_group" "myterraformgroup" {
-    name     = "myResourceGroup"
+resource "azurerm_resource_group" "rg" {
+    name     = local.resource_group_name
     location = var.region
 
     tags = {
-        environment = "Terraform Demo"
+        environment = var.environment
+        deployment = var.deployment
     }
 }
 
-resource "azurerm_virtual_network" "myterraformnetwork" {
-    name                = "myVnet"
+resource "azurerm_virtual_network" "network" {
+    name                = "vnet-${var.environment}-${var.deployment}"
     address_space       = ["10.0.0.0/16"]
     location            = var.region
-    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    resource_group_name = local.resource_group_name
 
     tags = {
         environment = var.environment
     }
 }
 
-resource "azurerm_subnet" "myterraformsubnet" {
-    name                 = "mySubnet"
-    resource_group_name  = azurerm_resource_group.myterraformgroup.name
-    virtual_network_name = azurerm_virtual_network.myterraformnetwork.name
+resource "azurerm_subnet" "subnet" {
+    name                 = "subnet-${var.environment}-${var.deployment}"
+    resource_group_name  = local.resource_group_name
+    virtual_network_name = azurerm_virtual_network.network.name
     address_prefixes       = ["10.0.2.0/24"]
 }
 
-resource "azurerm_public_ip" "myterraformpublicip" {
-    name                         = "myPublicIP"
+resource "azurerm_public_ip" "ip" {
+    name                         = "ip-${var.environment}-${var.deployment}"
     location                     = var.region
-    resource_group_name          = azurerm_resource_group.myterraformgroup.name
+    resource_group_name          = local.resource_group_name
     allocation_method            = "Dynamic"
 
     tags = {
-        environment = "Terraform Demo"
+        environment = var.environment
+        deployment  = var.deployment
     }
 }
 
-resource "azurerm_network_security_group" "myterraformnsg" {
-    name                = "myNetworkSecurityGroup"
+resource "azurerm_network_security_group" "sg" {
+    name                = "sg-${var.environment}-${var.deployment}"
     location            = var.region
-    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    resource_group_name = local.resource_group_name
     
     security_rule {
         name                       = "SSH"
@@ -83,20 +86,21 @@ resource "azurerm_network_security_group" "myterraformnsg" {
     }
 
     tags = {
-        environment = "Terraform Demo"
+        environment = var.environment
+        deployment  = var.deployment
     }
 }
 
-resource "azurerm_network_interface" "myterraformnic" {
-    name                        = "myNIC"
+resource "azurerm_network_interface" "nic" {
+    name                        = "nic-${var.environment}-${var.deployment}"
     location                    = var.region
-    resource_group_name         = azurerm_resource_group.myterraformgroup.name
+    resource_group_name         = local.resource_group_name
 
     ip_configuration {
-        name                          = "myNicConfiguration"
-        subnet_id                     = azurerm_subnet.myterraformsubnet.id
+        name                          = "nic-config-${var.environment}-${var.deployment}"
+        subnet_id                     = azurerm_subnet.subnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.myterraformpublicip.id
+        public_ip_address_id          = azurerm_public_ip.ip.id
     }
 
     tags = {
@@ -106,31 +110,32 @@ resource "azurerm_network_interface" "myterraformnic" {
 }
 
 # Connect the security group to the network interface
-resource "azurerm_network_interface_security_group_association" "example" {
-    network_interface_id      = azurerm_network_interface.myterraformnic.id
-    network_security_group_id = azurerm_network_security_group.myterraformnsg.id
+resource "azurerm_network_interface_security_group_association" "sg" {
+    network_interface_id      = azurerm_network_interface.nic.id
+    network_security_group_id = azurerm_network_security_group.sg.id
 }
 
 resource "random_id" "randomId" {
     keepers = {
         # Generate a new ID only when a new resource group is defined
-        resource_group = azurerm_resource_group.myterraformgroup.name
+        resource_group = local.resource_group_name
     }
     
     byte_length = 8
 }
 
-resource "tls_private_key" "example_ssh" {
+resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits = 4096
 }
 
 
-resource "azurerm_linux_virtual_machine" "myterraformvm" {
-    name                  = "myVM"
+resource "azurerm_linux_virtual_machine" "instances" {
+    for_each              = { for instance in var.instances: instance.name => instance }
+    name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
-    resource_group_name   = azurerm_resource_group.myterraformgroup.name
-    network_interface_ids = [azurerm_network_interface.myterraformnic.id]
+    resource_group_name   = local.resource_group_name
+    network_interface_ids = [azurerm_network_interface.nic.id]
     size                  = "Standard_DS1_v2"
 
     os_disk {
@@ -146,13 +151,13 @@ resource "azurerm_linux_virtual_machine" "myterraformvm" {
         version   = data.azurerm_platform_image.ubuntu_image.version
     }
 
-    computer_name  = "myvm"
+    computer_name  = "${each.key}-${var.environment}-${var.deployment}"
     admin_username = "azureuser"
     disable_password_authentication = true
         
     admin_ssh_key {
         username       = "azureuser"
-        public_key     = tls_private_key.example_ssh.public_key_openssh
+        public_key     = tls_private_key.ssh.public_key_openssh
     }
 
 
@@ -163,7 +168,7 @@ resource "azurerm_linux_virtual_machine" "myterraformvm" {
 }
 
 resource "local_file" "ssh-key" {
-    content  = tls_private_key.example_ssh.private_key_pem
+    content  = tls_private_key.ssh.private_key_pem
     filename = local.ssh_key_path
     file_permission = "0400"
 }
