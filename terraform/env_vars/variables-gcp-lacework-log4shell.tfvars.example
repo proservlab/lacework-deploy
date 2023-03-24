@@ -1,0 +1,53 @@
+################################################################################################
+# WORKSPACE VARIABLES - These variables are tied to specific workspace
+# Note: The examples below could also be globally defined in variables.tfvars
+################################################################################################
+
+################################################################################################
+# SCENARIO 
+# Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
+################################################################################################
+
+scenario="gcp-lacework-log4shell"
+
+################################################################################################
+# DEPLOYMENT 
+# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
+# a single cloud account
+################################################################################################
+
+deployment="gcpl4s1"
+
+################################################################################################
+# GCP 
+# Required when deploying to GCP
+################################################################################################
+
+target_gcp_project="<YOUR TARGET PROJECT NAME>"
+target_gcp_lacework_project="<YOUR TARGET LACEWORK PROJECT NAME>"
+attacker_gcp_project="<YOUR ATTACKER PROJECT NAME>"
+attacker_gcp_lacework_project="<YOUR TARGET LACEWORK PROJECT NAME>"
+
+################################################################################################
+# LACEWORK 
+# Required when enabling lacework
+################################################################################################
+
+lacework_profile = "<YOUR LACEWORK PROFILE NAME>"
+lacework_account_name = "<YOUR LACEWORK ACCOUNT NAME>"
+lacework_server_url = "https://<YOUR LACEWORK ACCOUNT NAME>.lacework.net"
+
+################################################################################################
+# SIMULATION
+# Required only when specific scenarios are enabled (e.g. cloud_compromise)
+################################################################################################
+
+# compromised credentials vpn config
+# attacker_context_config_protonvpn_user="xxxxxxx"
+# attacker_context_config_protonvpn_password="xxxxxxx"
+
+# cloud crypto gpu mining creds
+# attacker_context_cloud_cryptomining_ethermine_wallet="xxxxxxx"
+
+# cpu crypto mining credentials
+# attacker_context_host_cryptomining_minergate_user="xxxxxxx"
