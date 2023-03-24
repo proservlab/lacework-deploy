@@ -264,7 +264,7 @@ module "vulnerable-kubernetes-voteapp" {
   vote_service_port             = local.config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
   result_service_port           = local.config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source ? flatten([
-    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    [ for ip in try(data.aws_instances.public_attacker[0].public_ips, []): "${ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
@@ -305,7 +305,7 @@ module "vulnerable-kubernetes-log4shellapp" {
 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.log4shellapp.service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4shellapp.trust_attacker_source ? flatten([
-    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    [ for ip in try(data.aws_instances.public_attacker[0].public_ips, []): "${ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
