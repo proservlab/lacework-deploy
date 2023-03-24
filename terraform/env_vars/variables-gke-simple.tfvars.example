@@ -8,7 +8,7 @@
 # Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
 ################################################################################################
 
-scenario="aws-simple"
+scenario="gke-simple"
 
 ################################################################################################
 # DEPLOYMENT 
@@ -16,15 +16,17 @@ scenario="aws-simple"
 # a single cloud account
 ################################################################################################
 
-deployment="awssimp1"
+deployment="gkesimp1"
 
 ################################################################################################
-# AWS 
-# Required when deploying to AWS
+# GCP 
+# Required when deploying to GCP
 ################################################################################################
 
-attacker_aws_profile = "<YOUR ATTACKER AWS PROFILE NAME>"
-target_aws_profile = "<YOUR TARGET AWS PROFILE NAME>"
+target_gcp_project="<YOUR TARGET PROJECT NAME>"
+target_gcp_lacework_project="<YOUR TARGET LACEWORK PROJECT NAME>"
+attacker_gcp_project="<YOUR ATTACKER PROJECT NAME>"
+attacker_gcp_lacework_project="<YOUR TARGET LACEWORK PROJECT NAME>"
 
 ################################################################################################
 # LACEWORK 

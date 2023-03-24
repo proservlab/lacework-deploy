@@ -8,7 +8,7 @@
 # Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
 ################################################################################################
 
-scenario="aws-simple"
+scenario="aws-lacework-log4shell"
 
 ################################################################################################
 # DEPLOYMENT 
@@ -16,7 +16,7 @@ scenario="aws-simple"
 # a single cloud account
 ################################################################################################
 
-deployment="awssimp1"
+deployment="awsl4s1"
 
 ################################################################################################
 # AWS 

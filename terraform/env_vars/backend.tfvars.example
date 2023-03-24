@@ -1,6 +1,0 @@
-terraform_backend_bucket = "YOURACCOUNT-terraform-states"
-terraform_backend_region = "us-east-1"
-terraform_backend_profile = "xxxxx"
-terraform_backend_key     = "development/service-name.tfstate"
-terraform_backend_encrypt = true
-terraform_backend_dynamodb_table = "terraform-lock"
