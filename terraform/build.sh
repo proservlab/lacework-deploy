@@ -72,7 +72,7 @@ elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}"
 fi
 
 # set provider to first segement of workspace name
-PROVIDER=$(awk -F '-' '{ print $1 }' <<< ${WORK})
+PROVIDER=$(echo ${WORK} | awk -F '-' '{ print $1 }')
 
 # use variables.tfvars if it exists
 if [ -f "env_vars/variables.tfvars" ]; then
