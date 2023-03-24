@@ -23,12 +23,12 @@ deployment="azsimp1"
 # Required when deploying to AZURE
 ################################################################################################
 
-# attacker_azure_subscription = "30d2be40-c1cc-4802-9f61-24890455bcd5"
-# attacker_azure_tenant = "ca029b3c-7723-48b2-b436-6636116dcab8"
+# attacker_azure_subscription = "xxxxxxxx"
+# attacker_azure_tenant = "xxxxxxxx"
 attacker_azure_region = "West US 2"
 target_azure_region = "West US 2"
-# target_azure_subscription = "30d2be40-c1cc-4802-9f61-24890455bcd5"
-# target_azure_tenant = "ca029b3c-7723-48b2-b436-6636116dcab8"
+# target_azure_subscription = "xxxxxxxx"
+# target_azure_tenant = "xxxxxxxx"
 
 ################################################################################################
 # LACEWORK 
