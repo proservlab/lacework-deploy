@@ -19,8 +19,8 @@ bash start.sh --container=aws-cli --env-file=.env-aws-${compromised_keys_user} -
 log "Done baseline."
 
 
-log "Wait 60 seconds before starting attacker ${script}..."
-sleep 60
+log "Wait 1 hour before starting attacker ${script}..."
+sleep 3600
 log "Start protonvpn with .env-protonvpn-NL-FREE#148"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 >> $LOGFILE 2>&1
 log "Wait for connection..."
@@ -32,8 +32,8 @@ bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_
 log "Done ${script}."
 
 
-log "Wait 60 seconds before starting attacker ${script}..."
-sleep 60
+log "Wait 1 hour before starting attacker ${script}..."
+sleep 3600
 log "Start protonvpn with .env-protonvpn-JP-FREE#3"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 >> $LOGFILE 2>&1
 log "Wait for connection..."
@@ -45,8 +45,8 @@ bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_
 log "Done ${script}."
 
 
-log "Wait 60 seconds before starting attacker ${script}..."
-sleep 60
+log "Wait 1 hour before starting attacker ${script}..."
+sleep 3600
 log "Start protonvpn with .env-protonvpn-US-FREE#34"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 >> $LOGFILE 2>&1
 log "Wait for connection..."
