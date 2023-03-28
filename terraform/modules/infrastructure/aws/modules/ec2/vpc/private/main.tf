@@ -1,3 +1,5 @@
+data "aws_availability_zones" "available" {}
+
 # private resources 
 resource "aws_vpc" "private" {
   cidr_block = var.private_network
@@ -43,7 +45,7 @@ resource "aws_nat_gateway" "private" {
 resource "aws_subnet" "nat_gateway" {
   vpc_id            = aws_vpc.private.id
   cidr_block        = var.private_nat_subnet
-  availability_zone = "us-east-1b"
+  availability_zone = data.aws_availability_zones.available.names[0]
   
   tags = {
     Name = "private-nat-gw-subnet-${var.environment}-${var.deployment}"
@@ -68,7 +70,7 @@ resource "aws_route_table_association" "nat_gateway" {
 resource "aws_subnet" "private" {
     vpc_id            = aws_vpc.private.id
     cidr_block        = var.private_subnet
-    availability_zone = "us-east-1b"
+    availability_zone = data.aws_availability_zones.available.names[0]
     
     tags = {
         Name = "private-subnet-${var.environment}-${var.deployment}"
