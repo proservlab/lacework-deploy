@@ -243,6 +243,49 @@ check_terraform_cli() {
     fi
 }
 
+function aws_check_vpcs {
+    local min_vpcs=8
+    while [[ $# -gt 0 ]]
+    do
+        key="$1"
+        case $key in
+            -r|--region)
+            region="$2"
+            shift # past argument
+            shift # past value
+            ;;
+            *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+        esac
+    done
+
+    if [[ -z $region ]]; then
+        region=$(aws configure get region)
+    fi
+
+    # Get the number of VPCs deployed in the default region
+    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])')
+
+    echo "number of VPCs deployed in the $region region: $vpcs"
+
+    # Get the remaining VPC service quota for instances
+    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
+
+    echo "vpc service quota: $vpc_quota"
+    
+    # Calculate the remaining vpcs
+    remaining_vpcs=$((vpc_quota - vpcs))
+
+    echo "remaining VPC service quota for instances: $remaining_vpcs"
+    
+    if [ $remaining_vpcs -lt $min_vpcs ]; then
+        echo "the remaining deployable vpc count is less than $min_vpcs. increase the vpc quota for this account or choose another account/region to proceed."
+        exit 1
+    fi
+}
+
 function select_aws_profile {
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
@@ -284,19 +327,6 @@ function select_gcp_project {
     echo "Organization: $org_name ($org_id)"
 }
 
-function select_option {
-  PS3="$1"
-  shift
-  select opt in "$@"; do
-    if [[ "$opt" ]]; then
-      echo "$opt"
-      break
-    else
-      echo "Invalid option. Try another one."
-    fi
-  done
-}
-
 function select_azure_subscription {
     # Get the current tenant
     local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
@@ -315,10 +345,25 @@ function select_azure_subscription {
     echo "Current tenant: $tenant_id"
 }
 
-check_terraform_cli
-check_aws_cli
-check_gcloud_cli
-check_azure_cli
+function select_option {
+  PS3="$1"
+  shift
+  select opt in "$@"; do
+    if [[ "$opt" ]]; then
+      echo "$opt"
+      break
+    else
+      echo "Invalid option. Try another one."
+    fi
+  done
+}
+
+
+# aws_check_vpcs
+# check_terraform_cli
+# check_aws_cli
+# check_gcloud_cli
+# check_azure_cli
 
 # select_aws_profile
 # select_gcp_project
