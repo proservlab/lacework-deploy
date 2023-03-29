@@ -1,9 +1,53 @@
 FROM ubuntu:22.04
 
-RUN apt update \
-    && apt install -y ca-certificates openssh-client \
-    wget curl iptables supervisor \
-    && rm -rf /var/lib/apt/list/*
+#############
+# IAC
+#############
+
+# install base
+RUN apt-get update \
+    && apt-get install -y \
+        software-properties-common \
+        gnupg2 \
+        curl \
+        unzip \
+        gpg \
+        wget \
+        less \
+        git \
+        vim \
+        jq \
+        python3-pip \
+	&& rm -rf /var/lib/apt/list/*
+
+# install asciinema
+RUN python3 -m pip install asciinema
+
+# install terraform
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list \
+    && apt update \
+    && apt install terraform
+
+# install aws-cli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install
+
+# install aws session manager
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb" \
+    && dpkg -i session-manager-plugin.deb
+
+# add kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# latest terraform
+RUN mkdir -p /workspace/terraform
+
+##################
+# DIND
+##################
 
 ENV DOCKER_CHANNEL=stable \
 	DOCKER_VERSION=23.0.1 \
@@ -50,11 +94,6 @@ RUN set -eux; \
 	docker --version; \
 	docker buildx version
 
-COPY modprobe startup.sh /usr/local/bin/
-COPY supervisor/ /etc/supervisor/conf.d/
-COPY logger.sh /opt/bash-utils/logger.sh
-
-RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/modprobe
 VOLUME /var/lib/docker
 
 # Docker compose installation
@@ -62,8 +101,6 @@ RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOS
 	&& chmod +x /usr/local/bin/docker-compose && docker-compose version
 	
 # Create a symlink to the docker binary in /usr/local/lib/docker/cli-plugins
-# for users which uses 'docker compose' instead of 'docker-compose'
 RUN ln -s /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
 
-ENTRYPOINT ["startup.sh"]
-CMD ["bash"]
+ENTRYPOINT ["/bin/bash"]

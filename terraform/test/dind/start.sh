@@ -59,4 +59,4 @@ docker rm deploy-dind
 fi;
 
 sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock --name=deploy-aws-dind -w /workspace/terraform -it $MOUNT deploy-aws-dind:latest \
-&& docker exec -it deploy-aws-dind /bin/sh
+&& docker exec -it deploy-aws-dind /bin/bash
