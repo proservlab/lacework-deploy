@@ -16,6 +16,7 @@ module "default-config" {
 
 locals {
   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+  default_infrastructure_config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
 }
 
 ##################################################
@@ -83,43 +84,44 @@ module "eks" {
   cluster_name = local.config.context.aws.eks.cluster_name
 }
 
+
 # eks-autoscale
-module "eks-autoscaler" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
-  source       = "./modules/eks-autoscale"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-  region       = local.config.context.aws.region
+# module "eks-autoscaler" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+#   source       = "./modules/eks-autoscale"
+#   environment  = local.config.context.global.environment
+#   deployment   = local.config.context.global.deployment
+#   region       = local.config.context.aws.region
   
-  cluster_name = local.config.context.aws.eks.cluster_name
-  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
-}
+#   cluster_name = local.config.context.aws.eks.cluster_name
+#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+# }
 
-# eks
-module "eks-windows" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
-  source       = "./modules/eks-windows"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-  region       = local.config.context.aws.region
-  aws_profile_name = local.config.context.aws.profile_name
+# # eks
+# module "eks-windows" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+#   source       = "./modules/eks-windows"
+#   environment  = local.config.context.global.environment
+#   deployment   = local.config.context.global.deployment
+#   region       = local.config.context.aws.region
+#   aws_profile_name = local.config.context.aws.profile_name
 
-  cluster_name = local.config.context.aws.eks-windows.cluster_name
-}
+#   cluster_name = local.config.context.aws.eks-windows.cluster_name
+# }
 
-module "eks-windows-configmap" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
-  source       = "./modules/eks-windows-configmap"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
+# module "eks-windows-configmap" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+#   source       = "./modules/eks-windows-configmap"
+#   environment  = local.config.context.global.environment
+#   deployment   = local.config.context.global.deployment
 
-  cluster_name = local.config.context.aws.eks-windows.cluster_name
-  cluster_endpoint = module.eks-windows[0].cluster_endpoint
-  cluster_ca_cert = module.eks-windows[0].cluster_ca_cert
-  cluster_sg = module.eks-windows[0].cluster_sg_id
-  cluster_subnet = module.eks-windows[0].cluster_subnet
-  cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
-}
+#   cluster_name = local.config.context.aws.eks-windows.cluster_name
+#   cluster_endpoint = module.eks-windows[0].cluster_endpoint
+#   cluster_ca_cert = module.eks-windows[0].cluster_ca_cert
+#   cluster_sg = module.eks-windows[0].cluster_sg_id
+#   cluster_subnet = module.eks-windows[0].cluster_subnet
+#   cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
+# }
 
 ##################################################
 # AWS INSPECTOR

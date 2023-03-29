@@ -3,23 +3,36 @@ locals {
   access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
   secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
   
-
   default_kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   attacker_default_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${var.config.context.global.deployment}-kubeconfig")
   target_default_kubeconfig_path = pathexpand("~/.kube/aws-target-${var.config.context.global.deployment}-kubeconfig")
   
-  kubeconfig_path = try(local.default_infrastructure_config.deployed_state[local.config.context.global.environment].eks[0].kubeconfig_path, local.default_kubeconfig_path)
-  attacker_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["attacker"].eks[0].kubeconfig_path, local.attacker_default_kubeconfig_path)
-  target_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["target"].eks[0].kubeconfig_path, local.target_default_kubeconfig_path)
+  kube_count = (local.default_infrastructure_config.context.global.enable_all == true) || (local.default_infrastructure_config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true ) ? 1 : 0
+}
+
+data "aws_eks_cluster" "cluster" {
+  count = local.kube_count
+  name = "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+}
+
+data "aws_eks_cluster_auth" "cluster-auth" {
+  count = local.kube_count
+  name = "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
 }
 
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  host                    = local.kube_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+  cluster_ca_certificate  = local.kube_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+  token                   = local.kube_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+  config_path             = local.kube_count > 0 ? null : local.default_kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    host                    = local.kube_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+    cluster_ca_certificate  = local.kube_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+    token                   = local.kube_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+    config_path             = local.kube_count > 0 ? null : local.default_kubeconfig_path
   }
 }
 

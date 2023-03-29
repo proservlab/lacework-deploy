@@ -5,7 +5,7 @@
       "deployment"           : "${ deployment }"
     },
     "aws" :  {
-      "enabled" : true,
+      "enabled" : false,
       "ssm" :  {
         "target": {
           "drop": {
