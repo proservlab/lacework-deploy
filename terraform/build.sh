@@ -113,7 +113,7 @@ if [ -z ${LOCAL_BACKEND} ]; then
 terraform init -backend-config=env_vars/init.tfvars
 BACKEND="-var-file=env_vars/backend.tfvars"
 else
-terraform init
+terraform init -upgrade
 BACKEND=""
 fi;
 
