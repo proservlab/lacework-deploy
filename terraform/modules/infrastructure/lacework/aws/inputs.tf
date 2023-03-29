@@ -18,3 +18,8 @@ variable "infrastructure" {
     deployed_state = any
   })
 }
+
+variable "cluster_name" {
+  type = string
+  default = null
+}

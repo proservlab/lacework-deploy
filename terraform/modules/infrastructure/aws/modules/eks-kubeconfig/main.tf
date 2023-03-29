@@ -23,27 +23,26 @@
 # }
 
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
-# resource "null_resource" "eks_context_switcher" {
-#   triggers = {
-#     always = timestamp()
-#   }
+resource "null_resource" "eks_context_switcher" {
+  triggers = {
+    always = timestamp()
+  }
 
-#   depends_on = [
-#         data.aws_eks_cluster.provider,
-#         local_file.kubeconfig
-#     ]
+  depends_on = [
+        data.aws_eks_cluster.provider,
+        local_file.kubeconfig
+    ]
 
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command = <<-EOT
-#                 set -e
-#                 echo 'Applying Auth ConfigMap with kubectl...'
-#                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
-#                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
-#                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${local.kubeconfig_path}
-#               EOT
-#   }
-# }
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                set -e
+                echo 'Applying Auth ConfigMap with kubectl...'
+                aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
+                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
+              EOT
+  }
+}
 
 # resource "time_sleep" "wait_60_seconds" {
 #   depends_on = [null_resource.eks_context_switcher]

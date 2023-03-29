@@ -37,24 +37,20 @@ module "default-attacksimulation-context" {
 ##################################################
 
 locals {
-  kubeconfigs = [
-    pathexpand("~/.kube/aws-attacker-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/aws-target-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/aws-target-default-kubeconfig")
-  ]
+  kubeconfig_path = pathexpand("~/.kube/config")
 }
-# stage the kubeconfig files to avoid errors
+# stage the kubeconfig files to avoid provider errors
 resource "null_resource" "kubeconfig" {
+  count = fileexists(local.kubeconfig_path) ? 0 : 1
   triggers = {
     always = timestamp()
   }
-  count = length(local.kubeconfigs)
 
   # stage kubeconfig
   provisioner "local-exec" {
     command     = <<-EOT
                   mkdir -p ~/.kube
-                  touch ${local.kubeconfigs[count.index]}
+                  touch ${local.kubeconfig_path}
                   EOT
     interpreter = ["bash", "-c"]
   }
@@ -256,6 +252,8 @@ module "attacker-lacework-aws-infrastructure" {
     }
   }
 
+  cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -323,6 +321,8 @@ module "target-lacework-aws-infrastructure" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context
@@ -444,6 +444,8 @@ module "attacker-aws-attacksurface" {
     }
   }
 
+  cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -481,6 +483,8 @@ module "target-aws-attacksurface" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context
@@ -658,6 +662,8 @@ module "attacker-aws-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
+  cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -707,6 +713,8 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+
+  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context
