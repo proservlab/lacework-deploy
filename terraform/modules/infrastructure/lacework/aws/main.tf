@@ -21,6 +21,10 @@ locals {
   attacker_infrastructure_config = var.infrastructure.config["attacker"]
   target_infrastructure_config = var.infrastructure.config["target"]
   
+  default_infrastructure_deployed = var.infrastructure.deployed_state[local.config.context.global.environment].context
+  attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
+  target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
+
   target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }

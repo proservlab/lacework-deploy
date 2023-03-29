@@ -18,29 +18,36 @@ locals {
   kubeconfig_path = pathexpand("~/.kube/config")
 }
 
+data "aws_eks_clusters" "deployed" {}
+
+locals {
+  cluster_name  = "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  cluster_count = length([ for cluster in data.aws_eks_clusters.deployed.names: cluster if cluster == local.cluster_name ])
+}
+
 data "aws_eks_cluster" "cluster" {
-  count = local.kube_count
+  count = local.cluster_count
   name = local.default_infrastructure_deployed.aws.eks[0].cluster_name
 }
 
 data "aws_eks_cluster_auth" "cluster-auth" {
-  count = local.kube_count
+  count = local.cluster_count
   name = local.default_infrastructure_deployed.aws.eks[0].cluster_name
 }
 
 provider "kubernetes" {
-  host                    = local.kube_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-  cluster_ca_certificate  = local.kube_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-  token                   = local.kube_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-  config_path             = local.kube_count > 0 ? null : local.kubeconfig_path
+  host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+  cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+  token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+  config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    host                    = local.kube_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-    cluster_ca_certificate  = local.kube_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-    token                   = local.kube_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-    config_path             = local.kube_count > 0 ? null : local.kubeconfig_path
+    host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+    cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+    token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+    config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
   }
 }
 

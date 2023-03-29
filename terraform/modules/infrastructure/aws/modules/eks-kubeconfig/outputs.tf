@@ -1,3 +1,3 @@
-# output "kubeconfig_path" {
-#     value = local.kubeconfig_path
-# }
+output "kubeconfig_path" {
+    value = local.kubeconfig_path
+}
