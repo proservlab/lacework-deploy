@@ -444,7 +444,8 @@ module "attacker-aws-attacksurface" {
     }
   }
 
-  cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
   parent = [
     # infrastructure context
@@ -484,7 +485,8 @@ module "target-aws-attacksurface" {
     }
   }
 
-  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context

@@ -22,5 +22,5 @@ module "aws_cloudtrail" {
 
   external_id_length         = 1000
   
-  wait_time = "30s"
+  wait_time = "120s"
 }

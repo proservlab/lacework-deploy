@@ -24,20 +24,32 @@ data "aws_eks_cluster_auth" "cluster-auth" {
 }
 
 provider "kubernetes" {
-  host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-  cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-  token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-  config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+  config_context_cluster = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].arn : null
+    config_path = pathexpand("~/.kube/config")
 }
 
 provider "helm" {
   kubernetes {
-    host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-    cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-    token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-    config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+    config_context_cluster = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].arn : null
+    config_path = pathexpand("~/.kube/config")
   }
 }
+
+# provider "kubernetes" {
+#   host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+#   cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+#   token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+#   config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+# }
+
+# provider "helm" {
+#   kubernetes {
+#     host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+#     cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+#     token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+#     config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+#   }
+# }
 
 provider "aws" {
   max_retries = 40

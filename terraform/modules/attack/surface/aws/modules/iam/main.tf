@@ -9,17 +9,57 @@ resource "aws_iam_user" "users" {
   }
 }
 
-# add inline policy to user - this could be improved with roles
-resource "aws_iam_user_policy" "user_policies" {
+resource "aws_iam_policy" "policy" {
+  for_each = var.user_policies
+  name     = each.key
+  path        = "/"
+
+  policy = jsonencode(each.value)
+}
+
+# policy   = jsonencode(var.user_policies[each.value.policy])
+data "aws_iam_policy" "policy" {
   for_each = { for i in var.users : i.name => i }
-  name     = "iam-policy-${var.environment}-${var.deployment}-${each.value.name}"
-  user     = each.key
-  policy   = jsonencode(var.user_policies[each.value.policy])
+  name = each.value.policy
+
+  depends_on = [
+    aws_iam_policy.policy
+  ]
+}
+
+# resource "aws_iam_policy_attachment" "attach" {
+#   for_each = { for i in var.users : i.name => i }
+#   name       = "${each.key}-${each.value.policy}"
+#   users      = [each.key]
+  
+#   policy_arn = data.aws_iam_policy.policy[each.key].arn
+
+#   depends_on = [
+#     aws_iam_user.users
+#   ]
+# }
+
+resource "aws_iam_user_policy_attachment" "test-attach" {
+  for_each = { for i in var.users : i.name => i }
+  user       = each.key
+  policy_arn = data.aws_iam_policy.policy[each.key].arn
 
   depends_on = [
     aws_iam_user.users
   ]
 }
+
+# # add inline policy to user - this could be improved with roles
+# resource "aws_iam_user_policy" "user_policies" {
+#   for_each = { for i in var.users : i.name => i }
+#   name     = "iam-policy-${var.environment}-${var.deployment}-${each.value.name}"
+#   user     = each.key
+#   policy   = jsonencode(var.user_policies[each.value.policy])
+
+#   depends_on = [
+#     aws_iam_user.users
+#   ]
+# }
 
 # create access keys
 resource "aws_iam_access_key" "user_access_keys" {

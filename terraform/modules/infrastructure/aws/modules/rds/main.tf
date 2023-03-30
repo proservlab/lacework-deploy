@@ -11,7 +11,7 @@ resource "random_string" "root_db_password" {
 
 locals {
   init_db_username = var.root_db_username
-  init_db_password = random_string.root_db_password
+  init_db_password = random_string.root_db_password.result
   
   database_port = var.database_port
 
