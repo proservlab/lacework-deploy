@@ -11,7 +11,7 @@ import json
 import sys
 import boto3
 
-DB_APP_URL = os.environ.get("DB_SERVICE_URL")
+DB_APP_URL = os.environ.get("DB_APP_URL")
 DB_USER_NAME = os.environ.get("DB_USER_NAME")
 DB_NAME = os.environ.get("DB_NAME")
 DB_PORT = os.environ.get("DB_PORT")
