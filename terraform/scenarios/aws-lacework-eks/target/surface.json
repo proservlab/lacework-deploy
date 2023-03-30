@@ -51,10 +51,10 @@
         },
         "vulnerable" :  {
           "log4shellapp" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "voteapp" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "rdsapp" :  {
             "enabled" :  false
