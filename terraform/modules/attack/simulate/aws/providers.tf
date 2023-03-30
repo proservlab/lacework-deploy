@@ -21,7 +21,7 @@ locals {
 data "aws_eks_clusters" "deployed" {}
 
 locals {
-  cluster_name  = "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  cluster_name  = coalesce(var.cluster_name, "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}")
   cluster_count = length([ for cluster in data.aws_eks_clusters.deployed.names: cluster if cluster == local.cluster_name ])
 }
 
