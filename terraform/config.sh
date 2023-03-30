@@ -1,5 +1,12 @@
 #!/bin/bash
 
+SCRIPTNAME=$(basename $0)
+VERSION="1.0.0"
+
+# SCENARIO
+SCENARIO=""
+CONFIG_FILE=""
+
 # AWS
 ATTACKER_AWS_PROJECT=""
 ATTACKER_AWS_LOCATION=""
@@ -20,6 +27,23 @@ TARGET_GCP_LOCATION=""
 TARGET_GCP_LACEWORK_PROJECT=""
 TARGET_GCP_LACEWORK_LOCATION=""
 
+help(){
+cat <<EOH
+usage: $SCRIPTNAME
+EOH
+    exit 1
+}
+
+infomsg(){
+echo "INFO: ${1}"
+}
+warnmsg(){
+echo "WARN: ${1}"
+}
+errmsg(){
+echo "ERROR: ${1}"
+}
+
 # setup logging function
 #LOGFILE=/tmp/example.log
 function log {
@@ -33,39 +57,74 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# choose the scenario
+function select_scenario {
+    # Retrieve list of AWS profiles
+    scenarios=$(ls -1 scenarios)
+
+    
+    # Ask user to select AWS profile
+    infomsg "Select the scenario to configure:"
+    PS3="Scenario number: "
+    select scenario in $scenarios; do
+        if [ -n "$scenario" ]; then
+            infomsg "Selected scenario: $scenario"
+            SCENARIO=$scenario
+            CONFIG_FILE="env_vars/variables-$SCENARIO.tfvars"
+            break
+        else
+            errmsg "Invalid selection. Try again."
+        fi
+    done
+}
+
+function check_file_exists {
+  if [ -e "$1" ]; then
+    read -p "File '$1' already exists. Do you want to overwrite it? (y/n) " -n 1 -r
+    echo    # move to a new line after user input
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      return 0  # User confirmed, return success code
+    else
+      return 1  # User did not confirm, return error code
+    fi
+  else
+    return 0  # File does not exist, return success code
+  fi
+}
+
 # Check if aws-cli is installed and install if not
 check_aws_cli() {
     if command_exists aws &> /dev/null; then
-        log "aws-cli installed."
+        infomsg "aws-cli installed."
     else
-        log "aws-cli is not installed."
+        infomsg "aws-cli is not installed."
         read -rp "Would you like to install it? (y/n): " install_aws_cli
         case "$install_gcloud_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
-                    log "installing aws-cli for linux..."
+                    infomsg "installing aws-cli for linux..."
                     sudo apt-get update
                     sudo apt-get install -y awscli
                 elif [[ $(uname -s) == "Darwin" ]]; then
-                    log "installing aws-cli for mac..."
+                    infomsg "installing aws-cli for mac..."
                     if ! command_exists brew &> /dev/null; then
-                        log "brew is not installed. please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     brew install awscli
                 else
-                    log "Unsupported operating system. Please install aws-cli manually."
+                    errmsg "Unsupported operating system. Please install aws-cli manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                log "aws cli will not be installed."
-                log "aws cli is required to proceed. please install it manually."
+                errmsg "aws cli will not be installed."
+                errmsg "aws cli is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                log "invalid input. aws cli will not be installed"
-                log "aws cli is required to proceed. please install it manually."
+                errmsg "invalid input. aws cli will not be installed"
+                errmsg "aws cli is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -75,36 +134,36 @@ check_aws_cli() {
 # Check if gcloud is installed and install if not
 check_gcloud_cli() {
     if command_exists gcloud &> /dev/null; then
-        log "gcloud cli installed."
+        infomsg "gcloud cli installed."
     else
-        log "gcloud cli is not installed."
+        infomsg "gcloud cli is not installed."
         read -rp "Would you like to install it? (y/n): " install_gcloud_cli
         case "$install_gcloud_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
-                    log "installing gcloud for linux..."
+                    infomsg "installing gcloud for linux..."
                     curl https://sdk.cloud.google.com | bash
-                    log -l $SHELL
+                    infomsg -l $SHELL
                 elif [[ $(uname -s) == "Darwin" ]]; then
-                    log "installing gcloud for mac..."
+                    infomsg "installing gcloud for mac..."
                     if ! command_exists brew &> /dev/null; then
-                        echo "brew is not installed. please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     brew install google-cloud-sdk
                 else
-                    log "Unsupported operating system. Please install gcloud manually."
+                    errmsg "Unsupported operating system. Please install gcloud manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                log "gcloud cli will not be installed."
-                log "gcloud cli is required to proceed. please install it manually."
+                infomsg "gcloud cli will not be installed."
+                infomsg "gcloud cli is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                log "invalid input. gcloud cli will not be installed"
-                log "gcloud cli is required to proceed. please install it manually."
+                infomsg "invalid input. gcloud cli will not be installed"
+                infomsg "gcloud cli is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -114,35 +173,35 @@ check_gcloud_cli() {
 # Check if Azure CLI is installed and install if necessary
 check_azure_cli() {
     if command_exists az &> /dev/null; then
-        log "azure cli installed."
+        infomsg "azure cli installed."
     else
         read -rp "azure cli is not installed. Would you like to install it? (y/n) " install_azure
         case "$install_azure" in
             y|Y )
                 if [[ "$(uname -s)" == "Darwin" ]]; then
-                    log "installing azure cli for mac..."
+                    infomsg "installing azure cli for mac..."
                     if ! command_exists brew &> /dev/null; then
-                        log "brew is not installed. please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     brew install azure-cli
                 elif [[ "$(uname -s)" == "Linux" ]]; then
-                    log "installing azure cli for linux..."
+                    infomsg "installing azure cli for linux..."
                     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
                 else
-                    log "unsupported operating system. please install azure cli manually."
-                    log "azure cli is required to proceed. Please install it manually."
+                    errmsg "unsupported operating system. please install azure cli manually."
+                    errmsg "azure cli is required to proceed. Please install it manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                log "azure cli will not be installed."
-                log "azure cli is required to proceed. please install it manually."
+                errmsg "azure cli will not be installed."
+                errmsg "azure cli is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                log "invalid input. azure cli will not be installed"
-                log "azure cli is required to proceed. please install it manually."
+                errmsg "invalid input. azure cli will not be installed"
+                errmsg "azure cli is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -152,7 +211,7 @@ check_azure_cli() {
 # check if lacework cli is installed
 check_lacework_cli() {
     if command_exists lacework &> /dev/null; then
-        log "lacework cli installed."
+        infomsg "lacework cli installed."
     else
         read -p "Lacework CLI is not installed. Would you like to install it? (y/n) " install_lacework
         case "$install_lacework" in
@@ -165,26 +224,26 @@ check_lacework_cli() {
                     # check if brew is installed
                     if ! command_exists brew &> /dev/null
                     then
-                        log "brew is not installed. please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     # install for macOS using brew
                     brew tap lacework/homebrew-lacework-cli
                     brew install lacework-cli
                 else
-                    log "unsupported operating system."
-                    log "lacework cli is required to proceed. please install it manually."
+                    errmsg "unsupported operating system."
+                    errmsg "lacework cli is required to proceed. please install it manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                log "lacework cli will not be installed."
-                log "lacework cli is required to proceed. please install it manually."
+                errmsg "lacework cli will not be installed."
+                errmsg "lacework cli is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                log "invalid input. lacework cli will not be installed"
-                log "lacework cli is required to proceed. please install it manually."
+                errmsg "invalid input. lacework cli will not be installed"
+                errmsg "lacework cli is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -196,7 +255,7 @@ check_terraform_cli() {
         installed_version=$(terraform version | head -n1 | grep -oP 'v\d+\.\d+\.\d+')
         required_version="v1.4.0"
         if [[ "$(printf '%s\n' "$required_version" "$installed_version" | sort -V | head -n1)" != "$required_version" ]]; then
-            log "terraform version $required_version or higher is required."
+            infomsg "terraform version $required_version or higher is required."
             read -p "do you want to upgrade the terraform cli version to 1.4.2? (y/n) " upgrade_terraform_cli
             case "$upgrade_terraform_cli" in
                 y|Y )
@@ -209,30 +268,30 @@ check_terraform_cli() {
                         # check if brew is installed
                         if ! command_exists brew &> /dev/null
                         then
-                            log "brew is not installed. please install brew first: https://brew.sh/"
+                            errmsg "brew is not installed. please install brew first: https://brew.sh/"
                             exit 1
                         fi
                         # install for macOS using brew
                         brew install terraform
                     else
-                        log "unsupported operating system."
-                        log "terraform version $required_version or higher is required. please install it manually."
+                        errmsg "unsupported operating system."
+                        errmsg "terraform version $required_version or higher is required. please install it manually."
                         exit 1
                     fi
                     ;;
                 n|N )
-                    log "terraform cli will not be upgraded."
-                    log "terraform version $required_version or higher is required. please install it manually."
+                    errmsg "terraform cli will not be upgraded."
+                    errmsg "terraform version $required_version or higher is required. please install it manually."
                     exit 1
                     ;;
                 * )
-                    log "terraform cli will not be upgraded."
-                    log "terraform version $required_version or higher is required. please install it manually."
+                    errmsg "terraform cli will not be upgraded."
+                    errmsg "terraform version $required_version or higher is required. please install it manually."
                     exit 1
                     ;;
             esac
         else
-            log "terraform version $installed_version is installed and supported."
+            infomsg "terraform version $installed_version is installed and supported."
         fi
     else
         read -p "terraform cli is not installed. do you want to install it? (y/n) " install_terraform_cli
@@ -247,24 +306,24 @@ check_terraform_cli() {
                     # check if brew is installed
                     if ! command_exists brew &> /dev/null
                     then
-                        log "brew is not installed. please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     # install for macOS using brew
                     brew install terraform
                 else
-                    log "unsupported operating system."
-                    log "terraform cli is required to proceed. please install it manually."
+                    errmsg "unsupported operating system."
+                    errmsg "terraform cli is required to proceed. please install it manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                log "terraform cli will not be installed."
-                log "terraform cli is required to proceed. please install it manually."
+                errmsg "terraform cli will not be installed."
+                errmsg "terraform cli is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                log "terraform cli is required to proceed. please install it manually."
+                errmsg "terraform cli is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -283,7 +342,7 @@ function aws_check_vpcs {
             shift # past value
             ;;
             *)
-            log "Unknown option: $1"
+            errmsg "Unknown option: $1"
             exit 1
             ;;
         esac
@@ -296,20 +355,20 @@ function aws_check_vpcs {
     # Get the number of VPCs deployed in the default region
     vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])')
 
-    log "number of VPCs deployed in the $region region: $vpcs"
+    infomsg "number of VPCs deployed in the $region region: $vpcs"
 
     # Get the remaining VPC service quota for instances
     vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
 
-    log "vpc service quota: $vpc_quota"
+    infomsg "vpc service quota: $vpc_quota"
     
     # Calculate the remaining vpcs
     remaining_vpcs=$((vpc_quota - vpcs))
 
-    log "remaining VPC service quota for instances: $remaining_vpcs"
+    infomsg "remaining VPC service quota for instances: $remaining_vpcs"
     
     if [ $remaining_vpcs -lt $min_vpcs ]; then
-        log "the remaining deployable vpc count is less than $min_vpcs. increase the vpc quota for this account or choose another account/region to proceed."
+        errmsg "the remaining deployable vpc count is less than $min_vpcs. increase the vpc quota for this account or choose another account/region to proceed."
         exit 1
     fi
 }
@@ -323,24 +382,24 @@ function select_aws_profile {
     environments="attacker target"
     for environment in $environments; do 
         # Ask user to select AWS profile
-        log "Select the $environment AWS profile:"
+        infomsg "Select the $environment AWS profile:"
         PS3="Profile number: "
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
-                log "Selected $environment aws profile: $profile_name"
+                infomsg "Selected $environment aws profile: $profile_name"
                 break
             else
-                log "Invalid selection. Try again."
+                errmsg "Invalid selection. Try again."
             fi
         done
 
-        log "Please choose the $environment aws region from the list below:"
+        infomsg "Please choose the $environment aws region from the list below:"
         select region in $region_list; do
             if [ -n "$region" ]; then
-                log "Selected $environment aws region: $region"
+                infomsg "Selected $environment aws region: $region"
                 break
             else
-                log "Invalid selection. Try again."
+                errmsg "Invalid selection. Try again."
             fi
         done
 
@@ -365,24 +424,24 @@ function select_gcp_project {
         PS3="Please select the $environment gcp project: "
         select project_id in $projects; do
             if [[ -n "$project_id" ]]; then
-                log "Selected $environment gcp project: $project_id"
+                infomsg "Selected $environment gcp project: $project_id"
                 break
             else
-                log "Invalid selection. Please try again."
+                errmsg "Invalid selection. Please try again."
             fi
         done
 
-        log "Fetching valid GCP locations..."
+        infomsg "Fetching valid GCP locations..."
         locations=$(gcloud compute regions list --project=$project_id --format="value(name)")
 
         # Prompt the user to select a region
         PS3="Please select a locations: "
         select location in $locations; do
             if [[ -n "$location" ]]; then
-                log "Selected location: $location"
+                infomsg "Selected location: $location"
                 break
             else
-                log "Invalid selection. Please try again."
+                errmsg "Invalid selection. Please try again."
             fi
         done
         
@@ -408,13 +467,31 @@ function select_azure_subscription {
     select opt in $options; do
         if [[ -n "$opt" ]]; then
             local subscription_id=$(echo "$opt" | cut -d ' ' -f1)
-            log "selected subscription: $subscription_id"
+            infomsg "selected subscription: $subscription_id"
             break
         fi
     done
 
     # Print the selected subscription and organization
-    log "Current tenant: $tenant_id"
+    infomsg "Current tenant: $tenant_id"
+}
+
+function select_lacework_profile {
+    # Get the current tenant
+    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
+
+    local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
+    local IFS=$'\n'
+    select opt in $options; do
+        if [[ -n "$opt" ]]; then
+            local subscription_id=$(echo "$opt" | cut -d ' ' -f1)
+            infomsg "selected subscription: $subscription_id"
+            break
+        fi
+    done
+
+    # Print the selected subscription and organization
+    infomsg "Current tenant: $tenant_id"
 }
 
 function select_option {
@@ -422,13 +499,56 @@ function select_option {
   shift
   select opt in "$@"; do
     if [[ "$opt" ]]; then
-      log "$opt"
+      infomsg "$opt"
       break
     else
-      log "Invalid option. Try another one."
+      infomsg "Invalid option. Try another one."
     fi
   done
 }
+
+select_scenario
+
+if check_file_exists $CONFIG_FILE; then
+    infomsg "Configuration file will be overwritten: $CONFIG_FILE"
+    
+    select_aws_profile
+    select_
+    # Continue with your file operations here
+    cat <<-EOF > $CONFIG_FILE
+scenario="$SCENARIO"
+
+################################################################################################
+# DEPLOYMENT 
+# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
+# a single cloud account
+################################################################################################
+
+deployment="$DEPLOYMENT"
+
+################################################################################################
+# AWS 
+# Required when deploying to AWS
+################################################################################################
+
+attacker_aws_profile = "$ATTACKER_AWS_PROFILE"
+attacker_aws_region = "$ATTACKER_AWS_REGION"
+target_aws_profile = "$TARGET_AWS_PROFILE"
+target_aws_region = "$TARGET_AWS_REGION"
+
+################################################################################################
+# LACEWORK 
+# Required when enabling lacework
+################################################################################################
+
+lacework_profile = "$LACEWORK_PROFILE"
+lacework_account_name = "$LACEWORK_ACCOUNT"
+lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+EOF
+else
+  errmsg "Existing configuration file found exiting."
+  exit 1
+fi
 
 # select_gcp_project 
 # echo "ATTACKER_GCP_PROJECT: $ATTACKER_GCP_PROJECT"
@@ -438,11 +558,11 @@ function select_option {
 # echo "LACEWORK_GCP_PROJECT: $LACEWORK_GCP_PROJECT"
 # echo "LACEWORK_GCP_LOCATION: $LACEWORK_GCP_LOCATION"
 
-select_aws_profile
-echo "ATTACKER_AWS_PROFILE=$ATTACKER_AWS_PROFILE"
-echo "ATTACKER_AWS_REGION=$ATTACKER_AWS_REGION"
-echo "TARGET_AWS_PROFILE=$TARGET_AWS_PROFILE"
-echo "TARGET_AWS_REGION=$TARGET_AWS_REGION"
+# select_aws_profile
+# echo "ATTACKER_AWS_PROFILE=$ATTACKER_AWS_PROFILE"
+# echo "ATTACKER_AWS_REGION=$ATTACKER_AWS_REGION"
+# echo "TARGET_AWS_PROFILE=$TARGET_AWS_PROFILE"
+# echo "TARGET_AWS_REGION=$TARGET_AWS_REGION"
 
 # select_aws_region
 # aws_check_vpcs
