@@ -38,8 +38,8 @@ resource "null_resource" "eks_context_switcher" {
   }
 }
 
-# resource "time_sleep" "wait_60_seconds" {
-#   depends_on = [null_resource.eks_context_switcher]
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [null_resource.eks_context_switcher]
 
-#   create_duration = "60s"
-# }
+  create_duration = "60s"
+}
