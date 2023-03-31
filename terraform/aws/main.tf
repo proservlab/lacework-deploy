@@ -243,7 +243,7 @@ module "attacker-lacework-aws-infrastructure" {
 
     # config create delay
     time_sleep.infra_wait_120_seconds.id
-    
+
   ]
 }
 
