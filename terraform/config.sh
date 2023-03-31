@@ -500,9 +500,6 @@ function select_lacework_profile {
             break
         fi
     done
-
-    # Print the selected subscription and organization
-    infomsg "Current tenant: $tenant_id"
 }
 
 function output_aws_config {
