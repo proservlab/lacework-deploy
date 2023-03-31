@@ -15,14 +15,14 @@ locals {
 }
 
 locals {
-    automation_account_name = "development-automation"
+    automation_account_name = "development-automation-${var.environment}-${var.deployment}"
 }
 
 data "azurerm_subscription" "current" {
 }
 
 resource "azurerm_role_definition" "run_command_vm" {
-    name        = "RunCommandVM"
+    name        = "RunCommandVM-${var.environment}-${var.deployment}"
     scope       = data.azurerm_subscription.current.id
     description = "Allow stopping and starting VMs in the current subscription"
 
@@ -60,7 +60,7 @@ resource "azurerm_role_assignment" "vm_contributor" {
 }
 
 resource "azurerm_resource_group_template_deployment" "ARMdeploy-automation-acct" {
-    name                = "ARMdeploy-Automation-Start"
+    name                = "ARMdeploy-Automation-Start-${var.environment}-${var.deployment}"
     resource_group_name = var.resource_group.name
 
     # "Incremental" ADDS the resource to already existing resources. "Complete" destroys all other resources and creates the new one
@@ -96,7 +96,7 @@ resource "azurerm_automation_module" "Azure-MI-Automation-module" {
 }
 
 resource "azurerm_automation_account" "development" {
-    name                = "development"
+    name                = local.automation_account_name
     location            = var.resource_group.location
     resource_group_name = var.resource_group.name
     sku_name            = "Basic"
@@ -108,7 +108,7 @@ resource "azurerm_automation_account" "development" {
 }
 
 resource "azurerm_automation_runbook" "demo_rb" {
-    name                    = "Demo-Runbook"
+    name                    = "Demo-Runbook-${var.environment}-${var.deployment}"
     location                = var.resource_group.location
     resource_group_name     = var.resource_group.name
     automation_account_name = azurerm_automation_account.development.name
@@ -129,7 +129,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
 }
 
 resource "azurerm_automation_schedule" "hourly" {
-  name                    = "Hourly"
+  name                    = "Hourly-${var.environment}-${var.deployment}"
   resource_group_name     = var.resource_group.name
   automation_account_name = local.automation_account_name
   frequency               = "Hour"

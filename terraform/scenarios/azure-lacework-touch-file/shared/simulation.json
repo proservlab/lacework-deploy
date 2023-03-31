@@ -9,7 +9,7 @@
       "runbook" : {
         "target": {
           "execute": {
-            "touch-file": {
+            "touch_file": {
               "enabled": true
             }
           }

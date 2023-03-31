@@ -14,13 +14,13 @@ Write-Output "Account ID of current context: " $AzureContext.Account.Id
 
 #Get all Azure VMs which are in running state and are running Windows
 $myAzureVMs = Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object {$_.PowerState -eq "VM running" -and $_.StorageProfile.OSDisk.OSType -eq "Linux"}
-$myAzureVMs | ForEach-Object -Parallel {
-    Write-Output "VM Name: " $_.Name
-    $out = Invoke-AzVMRunCommand `
-        -ResourceGroupName $_.ResourceGroupName `
-        -VMName $_.Name `
-        -CommandId 'RunShellScript' `
+# $myAzureVMs | ForEach-Object -Parallel {
+#     Write-Output "VM Name: " $_.Name
+#     # $out = Invoke-AzVMRunCommand `
+#     #     -ResourceGroupName $_.ResourceGroupName `
+#     #     -VMName $_.Name `
+#     #     -CommandId 'RunShellScript' `
         
-        -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash -"
-    $out
-}
+#     #     -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash -"
+#     # $out
+# }

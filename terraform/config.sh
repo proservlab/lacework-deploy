@@ -732,6 +732,8 @@ if check_file_exists $CONFIG_FILE; then
             elif [ "$PROVIDER" == "azure" ]; then
                 output_azure_config > $CONFIG_FILE
             fi
+            infomsg "configuration file updated."
+            infomsg "to apply run: ./build.sh --workspace=$SCENARIO --action=apply"
             ;;
         n|N )
             warnmsg "configuration file will not be updated."

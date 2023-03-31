@@ -235,7 +235,7 @@ module "runbook-exec-touch-file" {
   source        = "./modules/runbook/exec-touch-file"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
-  region        = local.config.context.azure.region
+  region        = local.default_infrastructure_config.context.azure.region
   resource_group = var.resource_group
 }
 
