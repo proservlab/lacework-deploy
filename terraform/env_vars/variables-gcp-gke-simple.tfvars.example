@@ -8,7 +8,7 @@
 # Required, defines where the scenario configuration should be found (i.e. ./scenarios/<scenario>/)
 ################################################################################################
 
-scenario="gke-simple"
+scenario="gcp-gke-simple"
 
 ################################################################################################
 # DEPLOYMENT 

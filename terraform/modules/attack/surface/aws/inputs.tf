@@ -18,3 +18,13 @@ variable "infrastructure" {
     deployed_state = any
   })
 }
+
+variable "compromised_credentials" {
+  type = any
+  default = ""
+}
+
+variable "cluster_name" {
+  type = string
+  default = null
+}

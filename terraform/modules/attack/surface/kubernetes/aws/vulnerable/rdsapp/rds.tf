@@ -8,7 +8,7 @@ resource "random_string" "root_db_password" {
 
 locals {
   init_db_username = var.root_db_username
-  init_db_password = random_string.root_db_password
+  init_db_password = random_string.root_db_password.result
 
   service_account_db_user = var.service_account_db_user
   service_account = var.service_account

@@ -1,3 +1,5 @@
+data "aws_availability_zones" "available" {}
+
 # public resources
 resource "aws_vpc" "public" {
   cidr_block = var.public_network
@@ -25,7 +27,7 @@ resource "aws_internet_gateway" "public" {
 resource "aws_subnet" "public" {
     vpc_id            = aws_vpc.public.id
     cidr_block        = var.public_subnet
-    availability_zone = "us-east-1b"
+    availability_zone = data.aws_availability_zones.available.names[0]
     
     map_public_ip_on_launch = true
     

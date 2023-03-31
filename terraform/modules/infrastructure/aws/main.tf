@@ -16,6 +16,7 @@ module "default-config" {
 
 locals {
   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+  default_infrastructure_config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
 }
 
 ##################################################
@@ -82,6 +83,7 @@ module "eks" {
 
   cluster_name = local.config.context.aws.eks.cluster_name
 }
+
 
 # eks-autoscale
 module "eks-autoscaler" {

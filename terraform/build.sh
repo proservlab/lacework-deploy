@@ -5,7 +5,7 @@ SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"
 
 # output errors should be listed as warnings
-# export TF_WARN_OUTPUT_ERRORS=1
+export TF_WARN_OUTPUT_ERRORS=1
 
 # used to prevent errors on empty provider destroy
 export AWS_REGION="us-east-1"
@@ -113,7 +113,7 @@ if [ -z ${LOCAL_BACKEND} ]; then
 terraform init -backend-config=env_vars/init.tfvars
 BACKEND="-var-file=env_vars/backend.tfvars"
 else
-terraform init
+terraform init -upgrade
 BACKEND=""
 fi;
 

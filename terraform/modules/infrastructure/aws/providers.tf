@@ -5,17 +5,39 @@ locals {
   profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
   region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
 
-  default_kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
-  kubeconfig_path = try(module.eks[0].kubeconfig_path, local.default_kubeconfig_path)
+  kubeconfig_path = pathexpand("~/.kube/config")
+}
+
+data "aws_eks_clusters" "deployed" {}
+
+locals {
+  cluster_name  = "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  cluster_count = length([ for cluster in data.aws_eks_clusters.deployed.names: cluster if cluster == local.cluster_name ])
+}
+
+data "aws_eks_cluster" "cluster" {
+  count = local.cluster_count
+  name = local.cluster_name
+}
+
+data "aws_eks_cluster_auth" "cluster-auth" {
+  count = local.cluster_count
+  name = local.cluster_name
 }
 
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+  cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+  token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+  config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
+    cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
+    token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
+    config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
   }
 }
 

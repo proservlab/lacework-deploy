@@ -1,5 +1,5 @@
 locals {
-    kubeconfig_path = pathexpand("~/.kube/aws-${var.environment}-${var.deployment}-kubeconfig")
+    kubeconfig_path = pathexpand("~/.kube/config")
     kubeconfig = templatefile(
                                 "${path.module}/resources/kubeconfig.yaml.tpl",
                                 {
@@ -17,11 +17,6 @@ data "aws_eks_cluster" "provider" {
   name = "${var.cluster_name}"
 }
 
-resource "local_file" "kubeconfig" {
-  filename = local.kubeconfig_path
-  content = local.kubeconfig
-}
-
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
 resource "null_resource" "eks_context_switcher" {
   triggers = {
@@ -29,9 +24,8 @@ resource "null_resource" "eks_context_switcher" {
   }
 
   depends_on = [
-        data.aws_eks_cluster.provider,
-        local_file.kubeconfig
-    ]
+    data.aws_eks_cluster.provider
+  ]
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
@@ -40,7 +34,6 @@ resource "null_resource" "eks_context_switcher" {
                 echo 'Applying Auth ConfigMap with kubectl...'
                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
-                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${local.kubeconfig_path}
               EOT
   }
 }

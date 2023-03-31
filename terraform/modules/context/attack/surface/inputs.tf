@@ -87,6 +87,9 @@ variable "config" {
           ssh_keys = object({ 
             enabled                     = bool
           })
+          aws_credentials = object({ 
+            enabled                     = bool
+          })
         })
       })
       aws = object({
@@ -144,6 +147,10 @@ variable "config" {
           })
           ssh_keys = object({ 
             enabled                     = bool
+          })
+          aws_credentials = object({ 
+            enabled                     = bool
+            compromised_keys_user       = string
           })
         })
       })
@@ -303,6 +310,9 @@ variable "config" {
           ssh_keys = {
             enabled                     = false
           }
+          aws_credentials = {
+            enabled                     = false
+          }
         }
       }
       aws = {
@@ -362,6 +372,10 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
+          }
+          aws_credentials = { 
+            enabled                     = false
+            compromised_keys_user       = null
           }
         }
       }

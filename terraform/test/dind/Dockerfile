@@ -1,0 +1,106 @@
+FROM ubuntu:22.04
+
+#############
+# IAC
+#############
+
+# install base
+RUN apt-get update \
+    && apt-get install -y \
+        software-properties-common \
+        gnupg2 \
+        curl \
+        unzip \
+        gpg \
+        wget \
+        less \
+        git \
+        vim \
+        jq \
+        python3-pip \
+	&& rm -rf /var/lib/apt/list/*
+
+# install asciinema
+RUN python3 -m pip install asciinema
+
+# install terraform
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list \
+    && apt update \
+    && apt install terraform
+
+# install aws-cli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install
+
+# install aws session manager
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb" \
+    && dpkg -i session-manager-plugin.deb
+
+# add kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# latest terraform
+RUN mkdir -p /workspace/terraform
+
+##################
+# DIND
+##################
+
+ENV DOCKER_CHANNEL=stable \
+	DOCKER_VERSION=23.0.1 \
+	DOCKER_COMPOSE_VERSION=v2.16.0 \
+	BUILDX_VERSION=v0.10.3 \
+	DEBUG=false
+
+# Docker and buildx installation
+RUN set -eux; \
+	\
+	arch="$(uname -m)"; \
+	case "$arch" in \
+        # amd64
+		x86_64) dockerArch='x86_64' ; buildx_arch='linux-amd64' ;; \
+        # arm32v6
+		armhf) dockerArch='armel' ; buildx_arch='linux-arm-v6' ;; \
+        # arm32v7
+		armv7) dockerArch='armhf' ; buildx_arch='linux-arm-v7' ;; \
+        # arm64v8
+		aarch64) dockerArch='aarch64' ; buildx_arch='linux-arm64' ;; \
+		*) echo >&2 "error: unsupported architecture ($arch)"; exit 1 ;;\
+	esac; \
+	\
+	if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${dockerArch}/docker-${DOCKER_VERSION}.tgz"; then \
+		echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for '${dockerArch}'"; \
+		exit 1; \
+	fi; \
+	\
+	tar --extract \
+		--file docker.tgz \
+		--strip-components 1 \
+		--directory /usr/local/bin/ \
+	; \
+	rm docker.tgz; \
+	if ! wget -O docker-buildx "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.${buildx_arch}"; then \
+		echo >&2 "error: failed to download 'buildx-${BUILDX_VERSION}.${buildx_arch}'"; \
+		exit 1; \
+	fi; \
+	mkdir -p /usr/local/lib/docker/cli-plugins; \
+	chmod +x docker-buildx; \
+	mv docker-buildx /usr/local/lib/docker/cli-plugins/docker-buildx; \
+	\
+	dockerd --version; \
+	docker --version; \
+	docker buildx version
+
+VOLUME /var/lib/docker
+
+# Docker compose installation
+RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose \
+	&& chmod +x /usr/local/bin/docker-compose && docker-compose version
+	
+# Create a symlink to the docker binary in /usr/local/lib/docker/cli-plugins
+RUN ln -s /usr/local/bin/docker-compose /usr/local/lib/docker/cli-plugins/docker-compose
+
+ENTRYPOINT ["/bin/bash"]

@@ -11,6 +11,7 @@ locals {
     region          = var.region
 }
 
+data "aws_availability_zones" "available" {}
 data "aws_caller_identity" "current" {}
 
 resource "aws_vpc" "public" {
@@ -33,7 +34,7 @@ resource "aws_internet_gateway" "public" {
 resource "aws_subnet" "public" {
     vpc_id            = aws_vpc.public.id
     cidr_block        = "172.20.10.0/24"
-    availability_zone = "us-east-1b"
+    availability_zone = data.aws_availability_zones.available.names[0]
     
     map_public_ip_on_launch = true
     

@@ -195,6 +195,16 @@ module "ssh-keys" {
   deployment  = local.config.context.global.deployment
 }
 
+module "aws-credentials" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
+  source = "./modules/ssm/ec2/aws-credentials"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  compromised_credentials = var.compromised_credentials
+  compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user
+}
+
 module "vulnerable-docker-log4shellapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
   source = "./modules/ssm/ec2/vulnerable/docker-log4shellapp"
