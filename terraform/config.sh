@@ -511,6 +511,7 @@ function output_aws_config {
     else
         $OUTPUT=" > $1"
     fi
+
     cat <<-EOF $OUTPUT
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
