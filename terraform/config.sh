@@ -589,7 +589,7 @@ function output_azure_config {
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
 attacker_azure_subscription = "$ATTACKER_AZURE_LOCATION"
-attacker_azure_subscription = "$ATTACKER_AZURE_SUBSCRIPTION"
+attacker_azure_region = "$ATTACKER_AZURE_SUBSCRIPTION"
 target_azure_subscription = "$TARGET_AZURE_SUBSCRIPTION"
 target_azure_region = "$TARGET_AZURE_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
