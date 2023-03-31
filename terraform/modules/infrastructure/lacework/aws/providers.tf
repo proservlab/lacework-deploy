@@ -42,7 +42,7 @@ provider "helm" {
 provider "aws" {
   max_retries = 40
 
-  profile                     = var.config.context.aws.profile_name  == "default" ? null : var.config.context.aws.profile_name
+  profile                     = var.config.context.aws.profile_name
   region                      = var.config.context.aws.region
   access_key                  = local.access_key
   secret_key                  = local.secret_key
