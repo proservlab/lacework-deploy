@@ -7,6 +7,10 @@ VERSION="1.0.0"
 SCENARIO=""
 CONFIG_FILE=""
 
+# LACEWORK
+LACEWORK_PROFILE=""
+LACEWORK_ACCOUNT=""
+
 # AWS
 ATTACKER_AWS_PROJECT=""
 ATTACKER_AWS_LOCATION=""
@@ -26,6 +30,14 @@ TARGET_GCP_PROJECT=""
 TARGET_GCP_LOCATION=""
 TARGET_GCP_LACEWORK_PROJECT=""
 TARGET_GCP_LACEWORK_LOCATION=""
+
+# PROTONVPN
+ATTACKER_PROTONVPN_USER=""
+ATTACKER_PROTONVPN_PASSWORD=""
+
+# DYNDNS API TOKEN
+DYNU_DNS_DOMAIN=""
+DYNU_DNS_API_TOKEN=""
 
 help(){
 cat <<EOH
@@ -478,20 +490,96 @@ function select_azure_subscription {
 
 function select_lacework_profile {
     # Get the current tenant
-    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
-
-    local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
+    local options=$(lacework configure list | sed 's/>/ /' | tail -n +3 | cut -d " " -f5 | head -n -2)
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
-            local subscription_id=$(echo "$opt" | cut -d ' ' -f1)
-            infomsg "selected subscription: $subscription_id"
+            LACEWORK_PROFILE=$opt
+            infomsg "selected lacework profile: $LACEWORK_PROFILE"
+            LACEWORK_ACCOUNT=$(lacework configure show account --profile=$LACEWORK_PROFILE)
             break
         fi
     done
 
     # Print the selected subscription and organization
     infomsg "Current tenant: $tenant_id"
+}
+
+function output_aws_config {
+    if [[ -z $1 ]]; then
+        $OUTPUT=""
+    else
+        $OUTPUT=" > $1"
+    fi
+    cat <<-EOF $OUTPUT
+scenario="$SCENARIO"
+deployment="$DEPLOYMENT"
+attacker_aws_profile = "$ATTACKER_AWS_PROFILE"
+attacker_aws_region = "$ATTACKER_AWS_REGION"
+target_aws_profile = "$TARGET_AWS_PROFILE"
+target_aws_region = "$TARGET_AWS_REGION"
+lacework_profile = "$LACEWORK_PROFILE"
+lacework_account_name = "$LACEWORK_ACCOUNT"
+lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
+attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+dynu_api_token = "$DYNU_DNS_API_TOKEN"
+dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+EOF
+}
+
+function output_gcp_config {
+    if [[ -z $1 ]]; then
+        $OUTPUT=""
+    else
+        $OUTPUT=" > $1"
+    fi
+    cat <<-EOF $OUTPUT
+scenario="$SCENARIO"
+deployment="$DEPLOYMENT"
+target_gcp_project="$TARGET_GCP_PROJECT"
+target_gcp_region="$TARGET_GCP_LOCATION"
+target_gcp_lacework_project="$TARGET_GCP_LACEWORK_PROJECT"
+target_gcp_lacework_region="$TARGET_GCP_LACEWORK_LOCATION"
+attacker_gcp_project="$ATTACKER_GCP_PROJECT"
+attacker_gcp_region="$ATTACKER_GCP_LOCATION"
+attacker_gcp_lacework_project="$ATTACKER_GCP_LACEWORK_PROJECT"
+attacker_gcp_lacework_region="$ATTACKER_GCP_LACEWORK_LOCATION"
+lacework_profile = "$LACEWORK_PROFILE"
+lacework_account_name = "$LACEWORK_ACCOUNT"
+lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
+attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+dynu_api_token = "$DYNU_DNS_API_TOKEN"
+dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+EOF
+}
+
+function output_azure_config {
+    if [[ -z $1 ]]; then
+        $OUTPUT=""
+    else
+        $OUTPUT=" > $1"
+    fi
+    cat <<-EOF $OUTPUT
+scenario="$SCENARIO"
+deployment="$DEPLOYMENT"
+ATTACKER_AZURE_SUBSCRIPTION=""
+ATTACKER_AZURE_LOCATION=""
+TARGET_AZURE_SUBSCRIPTION=""
+TARGET_AZURE_LOCATION=""
+attacker_azure_subscription = "$ATTACKER_AZURE_LOCATION"
+attacker_azure_subscription = "$ATTACKER_AZURE_SUBSCRIPTION"
+target_azure_subscription = "$TARGET_AZURE_SUBSCRIPTION"
+target_azure_region = "$TARGET_AZURE_LOCATION"
+lacework_profile = "$LACEWORK_PROFILE"
+lacework_account_name = "$LACEWORK_ACCOUNT"
+lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
+attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+dynu_api_token = "$DYNU_DNS_API_TOKEN"
+dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+EOF
 }
 
 function select_option {
@@ -507,114 +595,62 @@ function select_option {
   done
 }
 
+# scenario selection
 select_scenario
 
 if check_file_exists $CONFIG_FILE; then
     infomsg "Configuration file will be overwritten: $CONFIG_FILE"
     
-    select_aws_profile
-    select_
-    # Continue with your file operations here
-    cat <<-EOF > $CONFIG_FILE
-scenario="$SCENARIO"
 
-################################################################################################
-# DEPLOYMENT 
-# Required, default is 00000001 and should be changed if deploying multiple scenarios to 
-# a single cloud account
-################################################################################################
+    # set provider to first segement of workspace name
+    PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
+    
+    # preflight
+    check_terraform_cli
+    check_lacework_cli
 
-deployment="$DEPLOYMENT"
+    # lacework selection 
+    select_lacework_profile
+    
+    # provider preflight
+    if [ "$PROVIDER" == "aws" ]; then
+        check_aws_cli
+        select_aws_profile
+        output_aws_config
+    elif [ "$PROVIDER" == "gcp" ]; then
+        check_gcloud_cli
+        select_gcp_project
+        output_gcp_config
+    elif [ "$PROVIDER" == "azure" ]; then
+        check_azure_cli
+        select_azure_subscription
+        output_azure_config
+    fi
 
-################################################################################################
-# AWS 
-# Required when deploying to AWS
-################################################################################################
-
-attacker_aws_profile = "$ATTACKER_AWS_PROFILE"
-attacker_aws_region = "$ATTACKER_AWS_REGION"
-target_aws_profile = "$TARGET_AWS_PROFILE"
-target_aws_region = "$TARGET_AWS_REGION"
-
-################################################################################################
-# LACEWORK 
-# Required when enabling lacework
-################################################################################################
-
-lacework_profile = "$LACEWORK_PROFILE"
-lacework_account_name = "$LACEWORK_ACCOUNT"
-lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
-EOF
+    read -p "do you want protonvpn credentials? (y/n) " protonvpn_config
+    case "$protonvpn_config" in
+        y|Y )
+    
+    read -p "do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
+    case "$overwrite_config" in
+        y|Y )
+            if [ "$PROVIDER" == "aws" ]; then
+                output_aws_config $CONFIG_FILE
+            elif [ "$PROVIDER" == "gcp" ]; then
+                output_gcp_config $CONFIG_FILE
+            elif [ "$PROVIDER" == "azure" ]; then
+                output_azure_config $CONFIG_FILE
+            fi
+            ;;
+        n|N )
+            warnmsg "configuration file will not be updated."
+            ;;
+        * )
+            errmsg "unknown option: $1"
+            warnmsg "configuration file will not be updated."
+            ;;
+    esac
 else
   errmsg "Existing configuration file found exiting."
   exit 1
 fi
-
-# select_gcp_project 
-# echo "ATTACKER_GCP_PROJECT: $ATTACKER_GCP_PROJECT"
-# echo "ATTACKER_GCP_LOCATION: $ATTACKER_GCP_LOCATION"
-# echo "TARGET_GCP_PROJECT: $TARGET_GCP_PROJECT"
-# echo "TARGET_GCP_LOCATION: $TARGET_GCP_LOCATION"
-# echo "LACEWORK_GCP_PROJECT: $LACEWORK_GCP_PROJECT"
-# echo "LACEWORK_GCP_LOCATION: $LACEWORK_GCP_LOCATION"
-
-# select_aws_profile
-# echo "ATTACKER_AWS_PROFILE=$ATTACKER_AWS_PROFILE"
-# echo "ATTACKER_AWS_REGION=$ATTACKER_AWS_REGION"
-# echo "TARGET_AWS_PROFILE=$TARGET_AWS_PROFILE"
-# echo "TARGET_AWS_REGION=$TARGET_AWS_REGION"
-
-# select_aws_region
-# aws_check_vpcs
-# check_terraform_cli
-# check_aws_cli
-# check_gcloud_cli
-# check_azure_cli
-
-# select_aws_profile
-# select_gcp_project
-# select_azure_subscription
-
-# # Prompt user for values
-# read -p "Enter environment: " environment
-# read -p "Enter deployment: " deployment
-
-# # Prompt user to choose boolean values
-# echo "Select a value for trust_security_group:"
-# PS3="Choice: "
-# select trust_security_group in "true" "false"; do
-#     case $trust_security_group in
-#         true|false)
-#             break
-#             ;;
-#         *)
-#             echo "Invalid selection. Try again."
-#             ;;
-#     esac
-# done
-
-# echo "Select a value for disable_all:"
-# PS3="Choice: "
-# select disable_all in "true" "false"; do
-#     case $disable_all in
-#         true|false)
-#             break
-#             ;;
-#         *)
-#             echo "Invalid selection. Try again."
-#             ;;
-#     esac
-# done
-
-# echo "Select a value for enable_all:"
-# PS3="Choice: "
-# select enable_all in "true" "false"; do
-#     case $enable_all in
-#         true|false)
-#             break
-#             ;;
-#         *)
-#             echo "Invalid selection. Try again."
-#             ;;
-#     esac
-# done
