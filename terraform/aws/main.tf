@@ -198,7 +198,7 @@ resource "time_sleep" "infra_wait_120_seconds" {
     module.target-infrastructure-context
   ]
 
-  creatcreate_duration = "120s"
+  create_duration = "120s"
 }
 
 ##################################################
