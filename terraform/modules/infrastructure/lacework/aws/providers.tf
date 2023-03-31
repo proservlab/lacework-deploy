@@ -1,7 +1,9 @@
 locals {
   # ugly hack to force ignoring unconfigure aws provider
-  access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
-  secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  access_key = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
+  secret_key = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  profile = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") == "false" ? null : local.default_infrastructure_config.context.aws.profile_name
+  region = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") == "false" ? "us-east-1" : local.default_infrastructure_config.context.aws.region
   
   kubeconfig_path = pathexpand("~/.kube/config")
 }
@@ -42,13 +44,12 @@ provider "helm" {
 provider "aws" {
   max_retries = 40
 
-  profile                     = var.config.context.aws.profile_name
-  region                      = var.config.context.aws.region
+  profile                     = local.profile
+  region                      = local.region
   access_key                  = local.access_key
   secret_key                  = local.secret_key
   skip_credentials_validation = true
   skip_metadata_api_check     = true
-  skip_region_validation      = true
   skip_requesting_account_id  = true
 }
 
