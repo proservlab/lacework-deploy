@@ -489,7 +489,7 @@ function select_azure_subscription {
     local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
     
     # iterate through the attack and target environments
-    environments="attacker target lacework"
+    environments="attacker target"
     for environment in $environments; do
         infomsg "select the $environment azure subscription:"
         local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
@@ -588,10 +588,6 @@ function output_azure_config {
     cat <<-EOF
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
-ATTACKER_AZURE_SUBSCRIPTION=""
-ATTACKER_AZURE_LOCATION=""
-TARGET_AZURE_SUBSCRIPTION=""
-TARGET_AZURE_LOCATION=""
 attacker_azure_subscription = "$ATTACKER_AZURE_LOCATION"
 attacker_azure_subscription = "$ATTACKER_AZURE_SUBSCRIPTION"
 target_azure_subscription = "$TARGET_AZURE_SUBSCRIPTION"
