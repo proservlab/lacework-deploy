@@ -627,9 +627,33 @@ if check_file_exists $CONFIG_FILE; then
         output_azure_config
     fi
 
-    read -p "do you want protonvpn credentials? (y/n) " protonvpn_config
+    read -p "do you want to configure protonvpn credentials? (y/n) " protonvpn_config
     case "$protonvpn_config" in
-        y|Y )
+        y|Y ) 
+            infomsg "not yet complete"
+            ;;
+        n|N )
+            infomsg "skipping config of protonvpn."
+            ;;
+        * )
+            errmsg "unknown option: $protonvpn_config"
+            warnmsg "configuration file will not be updated."
+            ;;
+    esac
+
+    read -p "do you want to configure dynu dns credentials? (y/n) " dynu_config
+    case "$dynu_config" in
+        y|Y ) 
+            infomsg "not yet complete"
+            ;;
+        n|N )
+            infomsg "skipping config of dynu dns."
+            ;;
+        * )
+            errmsg "unknown option: $dynu_config"
+            warnmsg "configuration file will not be updated."
+            ;;
+    esac
     
     read -p "do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
     case "$overwrite_config" in
@@ -646,7 +670,7 @@ if check_file_exists $CONFIG_FILE; then
             warnmsg "configuration file will not be updated."
             ;;
         * )
-            errmsg "unknown option: $1"
+            errmsg "unknown option: $overwrite_config"
             warnmsg "configuration file will not be updated."
             ;;
     esac
