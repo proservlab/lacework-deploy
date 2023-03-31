@@ -269,7 +269,11 @@ check_lacework_cli() {
 
 check_terraform_cli() {
     if command_exists terraform &> /dev/null; then
-        installed_version=$(terraform version | head -n1 | grep -oP 'v\d+\.\d+\.\d+')
+        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            installed_version=$(terraform version | head -n1 | grep -oP 'v\d+\.\d+\.\d+')
+        elif [[ "$OSTYPE" == "darwin"* ]]; then
+            installed_version=$(terraform version | head -n1 | grep -oE 'v\d+\.\d+\.\d+')
+        fi
         required_version="v1.4.0"
         if [[ "$(printf '%s\n' "$required_version" "$installed_version" | sort -V | head -n1)" != "$required_version" ]]; then
             infomsg "terraform version $required_version or higher is required."
@@ -530,7 +534,7 @@ function select_azure_subscription {
 function select_lacework_profile {
     infomsg "select a lacework profile:"
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | tail -n +3 | cut -d " " -f5 | head -n -2)
+    local options=$(lacework configure list | sed 's/>/ /' | awk -v m=2 -v n=3 'NR<=m{next};NR>n+m{print line[NR%n]};{line[NR%n]=$0}' | cut -d " " -f5)
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
