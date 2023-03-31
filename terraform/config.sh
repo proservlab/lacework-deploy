@@ -503,13 +503,7 @@ function select_lacework_profile {
 }
 
 function output_aws_config {
-    if [[ -z $1 ]]; then
-        $OUTPUT=""
-    else
-        $OUTPUT=" > $1"
-    fi
-
-    cat <<-EOF $OUTPUT
+    cat <<-EOF 
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
 attacker_aws_profile = "$ATTACKER_AWS_PROFILE"
@@ -527,12 +521,7 @@ EOF
 }
 
 function output_gcp_config {
-    if [[ -z $1 ]]; then
-        $OUTPUT=""
-    else
-        $OUTPUT=" > $1"
-    fi
-    cat <<-EOF $OUTPUT
+    cat <<-EOF 
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
 target_gcp_project="$TARGET_GCP_PROJECT"
@@ -554,12 +543,7 @@ EOF
 }
 
 function output_azure_config {
-    if [[ -z $1 ]]; then
-        $OUTPUT=""
-    else
-        $OUTPUT=" > $1"
-    fi
-    cat <<-EOF $OUTPUT
+    cat <<-EOF
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
 ATTACKER_AZURE_SUBSCRIPTION=""
@@ -599,13 +583,21 @@ select_scenario
 if check_file_exists $CONFIG_FILE; then
     infomsg "Configuration file will be overwritten: $CONFIG_FILE"
     
-
     # set provider to first segement of workspace name
     PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
     
     # preflight
     check_terraform_cli
     check_lacework_cli
+
+    # deployment id
+    read -p "provide a unique deployment id or hit enter to use default [00000001]:" deployment_id
+    if [ "$deployment_id" == "" ]; then
+        DEPLOYMENT="000000001"
+    else
+        DEPLOYMENT=$deployment_id
+    fi
+    infomsg "deployment id set: $DEPLOYMENT"
 
     # lacework selection 
     select_lacework_profile
@@ -657,11 +649,11 @@ if check_file_exists $CONFIG_FILE; then
     case "$overwrite_config" in
         y|Y )
             if [ "$PROVIDER" == "aws" ]; then
-                output_aws_config $CONFIG_FILE
+                output_aws_config > $CONFIG_FILE
             elif [ "$PROVIDER" == "gcp" ]; then
-                output_gcp_config $CONFIG_FILE
+                output_gcp_config > $CONFIG_FILE
             elif [ "$PROVIDER" == "azure" ]; then
-                output_azure_config $CONFIG_FILE
+                output_azure_config > $CONFIG_FILE
             fi
             ;;
         n|N )
