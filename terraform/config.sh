@@ -499,7 +499,7 @@ function select_azure_subscription {
         done
 
         infomsg "Retrieving list of Azure regions..."
-        regions=($(az account list-locations --query "[?subscriptionId=='$subscription_id'].name" --output tsv))
+        regions=($(az account list-locations --query "[].name" --output tsv))
         if [ ${#regions[@]} -eq 0 ]; then
             echo "No valid Azure regions found for subscription $subscription_id."
             return 1
@@ -657,6 +657,9 @@ function select_option {
     fi
   done
 }
+
+select_azure_subscription
+exit
 
 clear
 # scenario selection
