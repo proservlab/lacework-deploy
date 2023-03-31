@@ -54,7 +54,7 @@ provider "helm" {
 provider "aws" {
   max_retries = 40
 
-  profile                     = local.profile
+  profile                     = local.profile == "default" ? null : local.profile
   region                      = local.region
   access_key                  = local.access_key
   secret_key                  = local.secret_key
@@ -67,7 +67,7 @@ provider "aws" {
   max_retries = 40
 
   alias = "attacker"
-  profile                     = local.attacker_profile
+  profile                     = local.attacker_profile == "default" ? null : local.profile
   region                      = local.attacker_region
   access_key                  = local.attacker_access_key
   secret_key                  = local.attacker_secret_key
@@ -80,7 +80,7 @@ provider "aws" {
   max_retries = 40
 
   alias = "target"
-  profile                     = local.target_profile
+  profile                     = local.target_profile == "default" ? null : local.profile
   region                      = local.target_region
   access_key                  = local.target_access_key
   secret_key                  = local.target_secret_key
