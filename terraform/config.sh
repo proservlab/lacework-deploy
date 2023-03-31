@@ -401,7 +401,7 @@ function select_aws_profile {
     environments="attacker target"
     for environment in $environments; do 
         # Ask user to select AWS profile
-        infomsg "Select the $environment AWS profile:"
+        infomsg "select the $environment AWS profile:"
         PS3="Profile number: "
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
@@ -441,6 +441,7 @@ function select_gcp_project {
     # iterate through the attack and target environments
     environments="attacker target lacework"
     for environment in $environments; do 
+        infomsg "select the $environment gcp project:"
         # Prompt the user to select a project
         PS3="Please select the $environment gcp project: "
         select project_id in $projects; do
@@ -473,8 +474,8 @@ function select_gcp_project {
             TARGET_GCP_PROJECT=$project_id
             TARGET_GCP_LOCATION=$location
         else
-            LACEWORK_GCP_PROJECT=$project_id
-            LACEWORK_GCP_LOCATION=$location
+            TARGET_GCP_LACEWORK_PROJECT=$project_id
+            TARGET_GCP_LACEWORK_LOCATION=$location
         fi;
     done;
 }
@@ -482,19 +483,48 @@ function select_gcp_project {
 function select_azure_subscription {
     # Get the current tenant
     local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
+    
+    # iterate through the attack and target environments
+    environments="attacker target lacework"
+    for environment in $environments; do
+        infomsg "select the $environment azure subscription:"
+        local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
+        local IFS=$'\n'
+        select opt in $options; do
+            if [[ -n "$opt" ]]; then
+                local subscription_id=$(echo "$opt" | cut -d ' ' -f1)
+                infomsg "selected subscription: $subscription_id"
+                break
+            fi
+        done
 
-    local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
-    local IFS=$'\n'
-    select opt in $options; do
-        if [[ -n "$opt" ]]; then
-            local subscription_id=$(echo "$opt" | cut -d ' ' -f1)
-            infomsg "selected subscription: $subscription_id"
-            break
+        infomsg "Retrieving list of Azure regions..."
+        regions=($(az account list-locations --query "[?subscriptionId=='$subscription_id'].name" --output tsv))
+        if [ ${#regions[@]} -eq 0 ]; then
+            echo "No valid Azure regions found for subscription $subscription_id."
+            return 1
         fi
-    done
+        PS3="Enter the number of the Azure region you want to use: "
+        select region in "${regions[@]}"; do
+            if [[ -n $region ]]; then
+                echo "You chose the Azure region: $region"
+                break
+            else
+                echo "Invalid selection. Please try again."
+            fi
+        done
+
+        if [ "$environment" == "attacker" ]; then
+            ATTACKER_AZURE_SUBSCRIPTION=$subscription_id
+            ATTACKER_AZURE_LOCATION=$region
+        elif [ "$environment" == "target" ]; then
+            TARGET_AZURE_SUBSCRIPTION=$subscription_id
+            TARGET_AZURE_LOCATION=$region
+        fi;
+    done;
 
     # Print the selected subscription and organization
-    infomsg "Current tenant: $tenant_id"
+    # infomsg "Current tenant: $tenant_id"
 }
 
 function select_lacework_profile {
@@ -540,8 +570,6 @@ target_gcp_lacework_project="$TARGET_GCP_LACEWORK_PROJECT"
 target_gcp_lacework_region="$TARGET_GCP_LACEWORK_LOCATION"
 attacker_gcp_project="$ATTACKER_GCP_PROJECT"
 attacker_gcp_region="$ATTACKER_GCP_LOCATION"
-attacker_gcp_lacework_project="$ATTACKER_GCP_LACEWORK_PROJECT"
-attacker_gcp_lacework_region="$ATTACKER_GCP_LACEWORK_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
