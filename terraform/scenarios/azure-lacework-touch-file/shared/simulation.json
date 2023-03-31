@@ -5,12 +5,12 @@
       "deployment"           : "${ deployment }"
     },
     "azure" : {
-      "enabled": false,
+      "enabled": true,
       "runbook" : {
         "target": {
           "execute": {
             "touch-file": {
-              "enabled": false
+              "enabled": true
             }
           }
         }
