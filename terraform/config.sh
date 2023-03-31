@@ -92,7 +92,8 @@ function select_scenario {
 
 function check_file_exists {
   if [ -e "$1" ]; then
-    read -p "File '$1' already exists. Do you want to overwrite it? (y/n) " -n 1 -r
+    
+    read -p "> File '$1' already exists. Do you want to overwrite it? (y/n) " -n 1 -r
     echo    # move to a new line after user input
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       return 0  # User confirmed, return success code
@@ -110,7 +111,8 @@ check_aws_cli() {
         infomsg "aws-cli installed."
     else
         infomsg "aws-cli is not installed."
-        read -rp "Would you like to install it? (y/n): " install_aws_cli
+        
+        read -p "> Would you like to install it? (y/n): " install_aws_cli
         case "$install_gcloud_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -149,7 +151,8 @@ check_gcloud_cli() {
         infomsg "gcloud cli installed."
     else
         infomsg "gcloud cli is not installed."
-        read -rp "Would you like to install it? (y/n): " install_gcloud_cli
+        
+        read -r "> would you like to install it? (y/n): " install_gcloud_cli
         case "$install_gcloud_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -164,7 +167,7 @@ check_gcloud_cli() {
                     fi
                     brew install google-cloud-sdk
                 else
-                    errmsg "Unsupported operating system. Please install gcloud manually."
+                    errmsg "unsupported operating system. Please install gcloud manually."
                     exit 1
                 fi
                 ;;
@@ -187,7 +190,8 @@ check_azure_cli() {
     if command_exists az &> /dev/null; then
         infomsg "azure cli installed."
     else
-        read -rp "azure cli is not installed. Would you like to install it? (y/n) " install_azure
+        
+        read -p "> azure cli is not installed. Would you like to install it? (y/n) " install_azure
         case "$install_azure" in
             y|Y )
                 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -225,7 +229,8 @@ check_lacework_cli() {
     if command_exists lacework &> /dev/null; then
         infomsg "lacework cli installed."
     else
-        read -p "Lacework CLI is not installed. Would you like to install it? (y/n) " install_lacework
+        
+        read -p "> Lacework CLI is not installed. Would you like to install it? (y/n) " install_lacework
         case "$install_lacework" in
             y|Y )
                 # check if on Linux or macOS
@@ -268,7 +273,8 @@ check_terraform_cli() {
         required_version="v1.4.0"
         if [[ "$(printf '%s\n' "$required_version" "$installed_version" | sort -V | head -n1)" != "$required_version" ]]; then
             infomsg "terraform version $required_version or higher is required."
-            read -p "do you want to upgrade the terraform cli version to 1.4.2? (y/n) " upgrade_terraform_cli
+            
+            read -p "> do you want to upgrade the terraform cli version to 1.4.2? (y/n) " upgrade_terraform_cli
             case "$upgrade_terraform_cli" in
                 y|Y )
                     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -306,7 +312,8 @@ check_terraform_cli() {
             infomsg "terraform version $installed_version is installed and supported."
         fi
     else
-        read -p "terraform cli is not installed. do you want to install it? (y/n) " install_terraform_cli
+        
+        read -p "> terraform cli is not installed. do you want to install it? (y/n) " install_terraform_cli
         case "$install_terraform_cli" in
             y|Y )
                 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -418,9 +425,11 @@ function select_aws_profile {
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AWS_PROFILE=$profile_name
             ATTACKER_AWS_REGION=$region
+            aws_check_vpcs -r $ATTACKER_AWS_REGION
         elif [ "$environment" == "target" ]; then
             TARGET_AWS_PROFILE=$profile_name
             TARGET_AWS_REGION=$region
+            aws_check_vpcs -r $TARGET_AWS_REGION
         fi;
     done;
 }
@@ -489,6 +498,7 @@ function select_azure_subscription {
 }
 
 function select_lacework_profile {
+    infomsg "select a lacework profile:"
     # Get the current tenant
     local options=$(lacework configure list | sed 's/>/ /' | tail -n +3 | cut -d " " -f5 | head -n -2)
     local IFS=$'\n'
@@ -564,6 +574,49 @@ dynu_dns_domain = "$DYNU_DNS_DOMAIN"
 EOF
 }
 
+function config_protonvpn {
+    read -p "> do you want to configure protonvpn credentials? (y/n) " protonvpn_config
+    case "$protonvpn_config" in
+        y|Y ) 
+            clear
+            read -p "> protonvpn user: " protonvpn_user
+            ATTACKER_PROTONVPN_USER=$protonvpn_user
+            clear
+            read -p "> protonvpn password: " protonvpn_password
+            ATTACKER_PROTONVPN_PASSWORD=$protonvpn_password
+            ;;
+        n|N )
+            infomsg "skipping config of protonvpn."
+            ;;
+        * )
+            errmsg "unknown option: $protonvpn_config"
+            warnmsg "protonvpn configuration will not be updated."
+            ;;
+    esac
+    
+}
+
+function config_dynu {
+    read -p "> do you want to configure dynu dns credentials? (y/n) " dynu_config
+    case "$dynu_config" in
+        y|Y ) 
+            clear
+            read -p "> dynu dns domain: " dynu_dns_domain
+            DYNU_DNS_DOMAIN=$dynu_dns_domain
+            clear
+            read -p "> dynu dns api token: " dynu_api_token
+            DYNU_DNS_API_TOKEN=$dynu_api_token
+            ;;
+        n|N )
+            infomsg "skipping config of dynu dns."
+            ;;
+        * )
+            errmsg "unknown option: $dynu_config"
+            warnmsg "dynu dns configuration will not be updated."
+            ;;
+    esac
+}
+
 function select_option {
   PS3="$1"
   shift
@@ -577,9 +630,11 @@ function select_option {
   done
 }
 
+clear
 # scenario selection
 select_scenario
 
+clear
 if check_file_exists $CONFIG_FILE; then
     infomsg "Configuration file will be overwritten: $CONFIG_FILE"
     
@@ -591,7 +646,8 @@ if check_file_exists $CONFIG_FILE; then
     check_lacework_cli
 
     # deployment id
-    read -p "provide a unique deployment id or hit enter to use default [00000001]:" deployment_id
+    clear
+    read -p "> provide a unique deployment id or hit enter to use default [00000001]:" deployment_id
     if [ "$deployment_id" == "" ]; then
         DEPLOYMENT="000000001"
     else
@@ -600,52 +656,45 @@ if check_file_exists $CONFIG_FILE; then
     infomsg "deployment id set: $DEPLOYMENT"
 
     # lacework selection 
+    clear
     select_lacework_profile
     
+
     # provider preflight
+    clear
     if [ "$PROVIDER" == "aws" ]; then
         check_aws_cli
+        clear
         select_aws_profile
+        clear
+        config_protonvpn
+        clear
+        config_dynu
+        clear
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
+        clear
         select_gcp_project
+        clear
+        config_protonvpn
+        clear
+        config_dynu
+        clear
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
+        clear
         select_azure_subscription
+        clear
+        config_protonvpn
+        clear
+        config_dynu
+        clear
         output_azure_config
     fi
-
-    read -p "do you want to configure protonvpn credentials? (y/n) " protonvpn_config
-    case "$protonvpn_config" in
-        y|Y ) 
-            infomsg "not yet complete"
-            ;;
-        n|N )
-            infomsg "skipping config of protonvpn."
-            ;;
-        * )
-            errmsg "unknown option: $protonvpn_config"
-            warnmsg "configuration file will not be updated."
-            ;;
-    esac
-
-    read -p "do you want to configure dynu dns credentials? (y/n) " dynu_config
-    case "$dynu_config" in
-        y|Y ) 
-            infomsg "not yet complete"
-            ;;
-        n|N )
-            infomsg "skipping config of dynu dns."
-            ;;
-        * )
-            errmsg "unknown option: $dynu_config"
-            warnmsg "configuration file will not be updated."
-            ;;
-    esac
     
-    read -p "do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
+    read -p "> do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
     case "$overwrite_config" in
         y|Y )
             if [ "$PROVIDER" == "aws" ]; then
