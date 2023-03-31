@@ -658,9 +658,6 @@ function select_option {
   done
 }
 
-select_azure_subscription
-exit
-
 clear
 # scenario selection
 select_scenario
