@@ -14,7 +14,7 @@ module "aws_cloudtrail" {
   source  = "lacework/cloudtrail/aws"
   version = "~> 2.5.1"
 
-  cloudtrail_name = "lacework-cloudtrail-${var.environment}-${var.deployment}"
+  # cloudtrail_name = "lacework-cloudtrail-${var.environment}-${var.deployment}"
   use_existing_iam_role       = false
   # iam_role_name               = module.aws_config.iam_role_name
   # iam_role_arn                = module.aws_config.iam_role_arn
@@ -27,7 +27,7 @@ module "aws_cloudtrail" {
   bucket_logs_enabled         = true
   bucket_versioning_enabled   = true
 
-  external_id_length         = 1000
+  # external_id_length         = 1000
 
   tags                       = {
     environment = var.environment
