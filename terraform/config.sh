@@ -269,7 +269,11 @@ check_lacework_cli() {
 
 check_terraform_cli() {
     if command_exists terraform &> /dev/null; then
-        installed_version=$(terraform version | head -n1 | grep -oP 'v\d+\.\d+\.\d+')
+        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            installed_version=$(terraform version | head -n1 | grep -oP 'v\d+\.\d+\.\d+')
+        elif [[ "$OSTYPE" == "darwin"* ]]; then
+            installed_version=$(terraform version | head -n1 | grep -oE 'v\d+\.\d+\.\d+')
+        fi
         required_version="v1.4.0"
         if [[ "$(printf '%s\n' "$required_version" "$installed_version" | sort -V | head -n1)" != "$required_version" ]]; then
             infomsg "terraform version $required_version or higher is required."
@@ -485,7 +489,7 @@ function select_azure_subscription {
     local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
     
     # iterate through the attack and target environments
-    environments="attacker target lacework"
+    environments="attacker target"
     for environment in $environments; do
         infomsg "select the $environment azure subscription:"
         local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
@@ -530,7 +534,7 @@ function select_azure_subscription {
 function select_lacework_profile {
     infomsg "select a lacework profile:"
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | tail -n +3 | cut -d " " -f5 | head -n -2)
+    local options=$(lacework configure list | sed 's/>/ /' | awk -v m=2 -v n=3 'NR<=m{next};NR>n+m{print line[NR%n]};{line[NR%n]=$0}' | cut -d " " -f5)
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
@@ -584,12 +588,8 @@ function output_azure_config {
     cat <<-EOF
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
-ATTACKER_AZURE_SUBSCRIPTION=""
-ATTACKER_AZURE_LOCATION=""
-TARGET_AZURE_SUBSCRIPTION=""
-TARGET_AZURE_LOCATION=""
-attacker_azure_subscription = "$ATTACKER_AZURE_LOCATION"
 attacker_azure_subscription = "$ATTACKER_AZURE_SUBSCRIPTION"
+attacker_azure_region = "$ATTACKER_AZURE_LOCATION"
 target_azure_subscription = "$TARGET_AZURE_SUBSCRIPTION"
 target_azure_region = "$TARGET_AZURE_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
@@ -732,6 +732,8 @@ if check_file_exists $CONFIG_FILE; then
             elif [ "$PROVIDER" == "azure" ]; then
                 output_azure_config > $CONFIG_FILE
             fi
+            infomsg "configuration file updated."
+            infomsg "to apply run: ./build.sh --workspace=$SCENARIO --action=apply"
             ;;
         n|N )
             warnmsg "configuration file will not be updated."
