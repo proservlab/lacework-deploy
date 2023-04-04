@@ -43,6 +43,40 @@ module "workstation-external-ip" {
 }
 
 ##################################################
+# AWS LACEWORK AUDIT AND CONFIG
+##################################################
+
+# lacework cloud audit and config collection
+module "lacework-audit-config" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_audit_config.enabled == true ) ? 1 : 0
+  source      = "./modules/audit-config"
+  environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# lacework module seems to intermittently fail if we don't add it first?
+resource "time_sleep" "lacework_wait_30" {
+  create_duration = "30s"
+
+  depends_on = [
+    null_resource.eks_wait
+  ]
+}
+
+# lacework agentless scanning
+module "lacework-agentless" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+  source      = "./modules/agentless"
+  environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
+  depends_on = [
+    time_sleep.lacework_wait_30
+  ]
+}
+
+
+##################################################
 # AWS EC2
 ##################################################
 
@@ -156,14 +190,14 @@ module "eks-autoscaler" {
   cluster_name = local.config.context.aws.eks.cluster_name
   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 
-  depends_on = [
-    module.eks
-  ]
-
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    module.eks-windows
+  ]
 }
 
 module "eks-windows-configmap" {
@@ -179,14 +213,130 @@ module "eks-windows-configmap" {
   cluster_subnet = module.eks-windows[0].cluster_subnet
   cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
 
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
   depends_on = [
     module.eks-windows
+  ]
+}
+
+##################################################
+# AWS EKS Lacework
+##################################################
+
+module "lacework-namespace" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && ( local.config.context.aws.eks.enabled == true || local.config.context.aws.eks-windows.enabled == true) && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true )  ) ? 1 : 0
+  source                                = "./modules/kubernetes/namespace"
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
+}
+
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset"
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
+  lacework_cluster_agent_cluster_region = local.config.context.aws.region
+
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    time_sleep.wait_30,
+    module.lacework-namespace
+  ]
+}
+
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset-windows" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset-windows"
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
+  lacework_cluster_agent_cluster_region = local.config.context.aws.region
+
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    time_sleep.wait_30,
+    module.lacework-namespace
+  ]
+}
+
+# lacework kubernetes admission controller
+module "lacework-admission-controller" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
+  source                = "./modules/kubernetes/admission-controller"
+  environment           = local.config.context.global.environment
+  deployment            = local.config.context.global.deployment
+  
+  lacework_account_name = local.config.context.lacework.account_name
+  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    time_sleep.wait_30,
+    module.lacework-namespace
+  ]
+}
+
+# lacework eks audit
+module "lacework-eks-audit" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true  ) ? 1 : 0
+  source      = "./modules/eks-audit"
+  region      = local.config.context.aws.region
+  environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+
+  cluster_names = [
+    "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
   ]
 
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30,
+    module.lacework-namespace
+  ]
 }
 
 ##################################################
