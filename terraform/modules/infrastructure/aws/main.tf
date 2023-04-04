@@ -17,6 +17,21 @@ module "default-config" {
 locals {
   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
   default_infrastructure_config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+
+  cluster_name                        = try(module.eks[0].cluster.id, "cluster")
+  cluster_endpoint                    = try(module.eks[0].cluster.endpoint, null)
+  cluster_ca_cert                     = try(module.eks[0].cluster.certificate_authority[0].data, null)
+  cluster_oidc_issuer                 = try(module.eks[0].cluster.identity[0].oidc[0].issuer, null)
+  cluster_security_group              = try(module.eks[0].cluster_sg_id, null)
+  cluster_subnet                      = try(module.eks[0].cluster_subnet, null)
+  cluster_vpc_id                      = try(module.eks[0].cluster_vpc_id, null)
+  cluster_node_role_arn               = try(module.eks[0].cluster_node_role_arn, null)
+  cluster_vpc_subnet                  = try(module.eks[0].cluster_vpc_subnet, null)
+  cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
+  cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
+
+  aws_region = local.default_infrastructure_config.context.aws.profile_name
+  aws_profile_name = local.default_infrastructure_config.context.aws.region
 }
 
 ##################################################
@@ -95,6 +110,15 @@ module "eks-autoscaler" {
   
   cluster_name = local.config.context.aws.eks.cluster_name
   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+
+  depends_on = [
+    module.eks
+  ]
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 }
 
 # eks
@@ -121,6 +145,15 @@ module "eks-windows-configmap" {
   cluster_sg = module.eks-windows[0].cluster_sg_id
   cluster_subnet = module.eks-windows[0].cluster_subnet
   cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
+
+  depends_on = [
+    module.eks-windows
+  ]
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 }
 
 ##################################################

@@ -8,19 +8,14 @@ terraform {
       source  = "lacework/lacework"
       version = "~> 1.4"
     }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.9.0"
-    }
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "2.19.0"
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.9.0"
     }
   }
 }
-
-data "aws_caller_identity" "current" {}

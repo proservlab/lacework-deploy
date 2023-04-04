@@ -14,3 +14,9 @@ module "aws-eks-kubeconfig" {
   region = var.region
   cluster_name = aws_eks_cluster.cluster.id
 }
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [module.aws-eks-kubeconfig]
+
+  create_duration = "60s"
+}
