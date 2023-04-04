@@ -12,6 +12,11 @@ resource "kubernetes_service_account" "maintenance" {
         namespace = local.maintenance_app_namespace
     }
     # automount_service_account_token = false
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
 
 resource "kubernetes_cluster_role" "maintenance" {
@@ -35,23 +40,32 @@ resource "kubernetes_cluster_role" "maintenance" {
                             "patch",
                             "delete"
                         ]
-  }
+    }
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
+
 }
 
 resource "kubernetes_cluster_role_binding" "maintenance" {
-  metadata {
-    name      = "${local.maintenance_app_name}-role-binding"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = local.maintenance_app_role_name
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = local.maintenance_app_service_account
-    namespace = local.maintenance_app_namespace
-  }
+    metadata {
+        name      = "${local.maintenance_app_name}-role-binding"
+    }
+    role_ref {
+        api_group = "rbac.authorization.k8s.io"
+        kind      = "ClusterRole"
+        name      = local.maintenance_app_role_name
+    }
+    subject {
+        kind      = "ServiceAccount"
+        name      = local.maintenance_app_service_account
+        namespace = local.maintenance_app_namespace
+    }
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
 
 resource "kubernetes_service_v1" "maintenance" {
@@ -70,7 +84,9 @@ resource "kubernetes_service_v1" "maintenance" {
     }
 
     depends_on = [
-      kubernetes_deployment_v1.maintenance
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance,
+        kubernetes_deployment_v1.maintenance
     ]
 }
 
@@ -84,6 +100,10 @@ resource "kubernetes_secret" "maintenance" {
     data = {
         "credentials" = var.secret_credentials
     }
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 resource "kubernetes_deployment_v1" "maintenance" {
     metadata {
@@ -134,6 +154,11 @@ resource "kubernetes_deployment_v1" "maintenance" {
             
         }
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 
 /* 

@@ -33,7 +33,9 @@ resource "kubernetes_service_v1" "result" {
     }
 
     depends_on = [
-      kubernetes_deployment_v1.result
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance,
+        kubernetes_deployment_v1.result
     ]
 }
 
@@ -74,7 +76,9 @@ resource "kubernetes_deployment_v1" "result" {
         }
     }
     depends_on = [
-      kubernetes_deployment_v1.db,
-      kubernetes_deployment_v1.redis
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance,
+        kubernetes_deployment_v1.db,
+        kubernetes_deployment_v1.redis
     ]
 }

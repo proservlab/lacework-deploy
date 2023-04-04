@@ -11,6 +11,11 @@ resource "kubernetes_service_account" "db" {
         name = local.db_app_service_account
         namespace = local.db_app_namespace
     }
+
+    depends_on = [
+      kubernetes_namespace.app,
+      kubernetes_namespace.maintenance
+    ]
 }
 
 resource "kubernetes_cluster_role" "db" {
@@ -32,6 +37,7 @@ resource "kubernetes_cluster_role" "db" {
                                 "watch",
                             ]
     }
+    
 }
 
 resource "kubernetes_cluster_role_binding" "db" {
@@ -48,6 +54,11 @@ resource "kubernetes_cluster_role_binding" "db" {
     name      = local.db_app_service_account
     namespace = local.db_app_namespace
   }
+
+  depends_on = [
+    kubernetes_namespace.app,
+    kubernetes_namespace.maintenance 
+  ]   
 }
 
 resource "kubernetes_service_v1" "db" {
@@ -73,6 +84,11 @@ resource "kubernetes_service_v1" "db" {
         # type = "LoadBalancer"
         cluster_ip = "None"
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
 resource "kubernetes_persistent_volume_claim_v1" "db" {
     metadata {
@@ -87,6 +103,11 @@ resource "kubernetes_persistent_volume_claim_v1" "db" {
             }
         }
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
 resource "kubernetes_deployment_v1" "db" {
     metadata {
@@ -152,4 +173,9 @@ resource "kubernetes_deployment_v1" "db" {
             }
         }
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }

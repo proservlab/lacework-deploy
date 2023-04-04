@@ -28,20 +28,20 @@ locals {
   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 
-  cluster_name                        = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster.id, "cluster")
-  cluster_endpoint                    = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster.endpoint, null)
-  cluster_ca_cert                     = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster.certificate_authority[0].data, null)
-  cluster_oidc_issuer                 = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster.identity[0].oidc[0].issuer, null)
-  cluster_security_group              = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_sg_id, null)
-  cluster_subnet                      = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_subnet, null)
-  cluster_vpc_id                      = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_vpc_id, null)
-  cluster_node_role_arn               = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_node_role_arn, null)
-  cluster_vpc_subnet                  = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_vpc_subnet, null)
-  cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_openid_connect_provider.arn, null)
-  cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.config.context.aws.eks[0].cluster_openid_connect_provider.url, null)
+  cluster_name                        = try(local.default_infrastructure_deployed.aws.eks[0].cluster.id, "cluster")
+  cluster_endpoint                    = try(local.default_infrastructure_deployed.aws.eks[0].cluster.endpoint, null)
+  cluster_ca_cert                     = try(local.default_infrastructure_deployed.aws.eks[0].cluster.certificate_authority[0].data, null)
+  cluster_oidc_issuer                 = try(local.default_infrastructure_deployed.aws.eks[0].cluster.identity[0].oidc[0].issuer, null)
+  cluster_security_group              = try(local.default_infrastructure_deployed.aws.eks[0].cluster_sg_id, null)
+  cluster_subnet                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_subnet, null)
+  cluster_vpc_id                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_id, null)
+  cluster_node_role_arn               = try(local.default_infrastructure_deployed.aws.eks[0].cluster_node_role_arn, null)
+  cluster_vpc_subnet                  = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_subnet, null)
+  cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn, null)
+  cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url, null)
 
-  aws_region = local.default_infrastructure_config.context.aws.profile_name
-  aws_profile_name = local.default_infrastructure_config.context.aws.region
+  aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
+  aws_region = local.default_infrastructure_config.context.aws.region
 }
 
 ##################################################
@@ -179,31 +179,6 @@ module "ec2-add-trusted-ingress-app" {
 }
 
 ##################################################
-# AWS EKS
-##################################################
-
-# assign iam user cluster readonly role
-module "eks-auth" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
-  source      = "./modules/eks/eks-auth"
-  environment       = local.config.context.global.environment
-  deployment        = local.config.context.global.deployment
-  cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
-
-  # user here needs to be created by iam module
-  iam_eks_pod_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
-
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
-
-  depends_on = [
-    module.iam
-  ]                    
-}
-
-##################################################
 # AWS SSM
 # ssm tag-based surface config
 ##################################################
@@ -251,6 +226,62 @@ module "vulnerable-python3-twisted-app" {
   listen_port = local.config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
 }
 
+#################################################
+# EKS WAIT
+#################################################
+
+resource "null_resource" "eks_wait" {
+  triggers = {
+    always = timestamp()
+    
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                set -e
+                if [ "cluster" != "${ local.cluster_name }" ]; then
+                  echo 'Wait for kubernetes...'
+                  aws eks wait cluster-active --profile '${local.aws_profile_name}' --name '${local.cluster_name}'
+                fi;
+              EOT
+  }
+}
+
+resource "time_sleep" "wait_30" {
+  create_duration = "30s"
+
+  depends_on = [
+    null_resource.eks_wait
+  ]
+}
+
+##################################################
+# AWS EKS
+##################################################
+
+# assign iam user cluster readonly role
+module "eks-auth" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
+  source      = "./modules/eks/eks-auth"
+  environment       = local.config.context.global.environment
+  deployment        = local.config.context.global.deployment
+  cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
+
+  # user here needs to be created by iam module
+  iam_eks_pod_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.iam,
+    time_sleep.wait_30
+  ]                    
+}
+
 ##################################################
 # Kubernetes General
 ##################################################
@@ -266,6 +297,10 @@ module "kubernetes-app" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 module "kubernetes-app-windows" {
@@ -278,6 +313,10 @@ module "kubernetes-app-windows" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 # example of applying pod security policy
@@ -291,6 +330,10 @@ module "kubenetes-psp" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 ##################################################
@@ -319,6 +362,10 @@ module "vulnerable-kubernetes-voteapp" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 module "vulnerable-kubernetes-rdsapp" {
@@ -349,6 +396,10 @@ module "vulnerable-kubernetes-rdsapp" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 module "vulnerable-kubernetes-log4shellapp" {
@@ -365,6 +416,15 @@ module "vulnerable-kubernetes-log4shellapp" {
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 module "vulnerable-kubernetes-privileged-pod" {
@@ -377,6 +437,10 @@ module "vulnerable-kubernetes-privileged-pod" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }
 
 module "vulnerable-kubernetes-root-mount-fs-pod" {
@@ -389,4 +453,8 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
+  depends_on = [
+    time_sleep.wait_30
+  ]
 }

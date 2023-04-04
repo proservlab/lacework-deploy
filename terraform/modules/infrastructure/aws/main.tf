@@ -30,8 +30,8 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
-  aws_region = local.default_infrastructure_config.context.aws.profile_name
-  aws_profile_name = local.default_infrastructure_config.context.aws.region
+  aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
+  aws_region = local.default_infrastructure_config.context.aws.region
 }
 
 ##################################################
@@ -99,6 +99,51 @@ module "eks" {
   cluster_name = local.config.context.aws.eks.cluster_name
 }
 
+# eks
+module "eks-windows" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-windows"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
+  aws_profile_name = local.config.context.aws.profile_name
+
+  cluster_name = local.config.context.aws.eks-windows.cluster_name
+}
+
+#################################################
+# EKS WAIT
+#################################################
+
+resource "null_resource" "eks_wait" {
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                set -e
+                if [ "cluster" != "${ local.cluster_name }" ]; then
+                  echo 'Wait for kubernetes...'
+                  aws eks wait cluster-active --profile '${local.aws_profile_name}' --name '${local.cluster_name}'
+                fi;
+              EOT
+  }
+
+  depends_on = [
+    module.eks
+  ]
+}
+
+resource "time_sleep" "wait_30" {
+  create_duration = "30s"
+
+  depends_on = [
+    null_resource.eks_wait
+  ]
+}
+
 
 # eks-autoscale
 module "eks-autoscaler" {
@@ -119,18 +164,6 @@ module "eks-autoscaler" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
-}
-
-# eks
-module "eks-windows" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
-  source       = "./modules/eks-windows"
-  environment  = local.config.context.global.environment
-  deployment   = local.config.context.global.deployment
-  region       = local.config.context.aws.region
-  aws_profile_name = local.config.context.aws.profile_name
-
-  cluster_name = local.config.context.aws.eks-windows.cluster_name
 }
 
 module "eks-windows-configmap" {

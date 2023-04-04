@@ -194,43 +194,7 @@ module "target-aws-infrastructure" {
 
 ##################################################
 # INFRASTRUCTURE LACEWORK DEPLOYMENT
-#
-# Note: Lacework Kubernetes Modules Require EKS/GKE
 ##################################################
-
-module "attacker-lacework-platform-infrastructure" {
-  source = "../modules/infrastructure/lacework/platform"
-  config = module.attacker-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-aws-infrastructure.config, {})
-      attacker = try(module.attacker-aws-infrastructure.config, {})
-    }
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
 
 module "attacker-lacework-aws-infrastructure" {
   source = "../modules/infrastructure/lacework/aws"
@@ -268,9 +232,45 @@ module "attacker-lacework-aws-infrastructure" {
   ]
 }
 
-module "target-lacework-platform-infrastructure" {
-  source = "../modules/infrastructure/lacework/platform"
+module "target-lacework-aws-infrastructure" {
+  source = "../modules/infrastructure/lacework/aws"
   config = module.target-infrastructure-context.config
+
+  # infrasturcture config and deployed state
+  infrastructure = {
+
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
+
+  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
+
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
+
+    # config destory delay
+    time_sleep.wait_120_seconds.id
+  ]
+}
+
+module "attacker-lacework-platform-infrastructure" {
+  source = "../modules/infrastructure/lacework/platform"
+  config = module.attacker-infrastructure-context.config
 
   # infrasturcture config and deployed state
   infrastructure = {
@@ -302,8 +302,10 @@ module "target-lacework-platform-infrastructure" {
   ]
 }
 
-module "target-lacework-aws-infrastructure" {
-  source = "../modules/infrastructure/lacework/aws"
+
+
+module "target-lacework-platform-infrastructure" {
+  source = "../modules/infrastructure/lacework/platform"
   config = module.target-infrastructure-context.config
 
   # infrasturcture config and deployed state
@@ -321,8 +323,6 @@ module "target-lacework-aws-infrastructure" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
-
-  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context

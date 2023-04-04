@@ -11,6 +11,11 @@ resource "kubernetes_service_account" "vote" {
         name = local.vote_app_service_account
         namespace = local.vote_app_namespace
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 
 resource "kubernetes_cluster_role" "vote" {
@@ -31,22 +36,31 @@ resource "kubernetes_cluster_role" "vote" {
                                 "watch",
                             ]
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 
 resource "kubernetes_cluster_role_binding" "vote" {
-  metadata {
-    name      = "${local.vote_app_name}-role-binding"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = local.vote_app_role_name
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = local.vote_app_service_account
-    namespace = local.vote_app_namespace
-  }
+    metadata {
+        name      = "${local.vote_app_name}-role-binding"
+    }
+    role_ref {
+        api_group = "rbac.authorization.k8s.io"
+        kind      = "ClusterRole"
+        name      = local.vote_app_role_name
+    }
+    subject {
+        kind      = "ServiceAccount"
+        name      = local.vote_app_service_account
+        namespace = local.vote_app_namespace
+    }
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 
 resource "kubernetes_service_v1" "vote" {
@@ -75,6 +89,10 @@ resource "kubernetes_service_v1" "vote" {
 
         type = "LoadBalancer"
     }
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance
+    ]
 }
 resource "kubernetes_deployment_v1" "vote" {
     metadata {
@@ -111,7 +129,9 @@ resource "kubernetes_deployment_v1" "vote" {
     }
 
     depends_on = [
-      kubernetes_deployment_v1.db,
-      kubernetes_deployment_v1.redis
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance,
+        kubernetes_deployment_v1.db,
+        kubernetes_deployment_v1.redis
     ]
 }

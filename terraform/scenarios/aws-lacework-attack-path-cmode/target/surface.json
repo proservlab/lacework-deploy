@@ -65,13 +65,16 @@
           },
           "vulnerable" :  {
             "log4shellapp" :  {
-              "enabled" :  true
+              "enabled" :  true,
+              "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "voteapp" :  {
-              "enabled" :  false
+              "enabled" :  true,
+              "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "rdsapp" :  {
-              "enabled" :  true
+              "enabled" :  true,
+              "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "privileged_pod" :  {
               "enabled" :  false

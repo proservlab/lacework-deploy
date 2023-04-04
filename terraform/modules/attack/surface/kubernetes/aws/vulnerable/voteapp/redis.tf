@@ -27,6 +27,11 @@ resource "kubernetes_service_v1" "redis" {
         # type = "LoadBalancer"
         cluster_ip = "None"
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
 resource "kubernetes_deployment_v1" "redis" {
     metadata {
@@ -64,4 +69,9 @@ resource "kubernetes_deployment_v1" "redis" {
             }
         }
     }
+
+    depends_on = [
+        kubernetes_namespace.app,
+        kubernetes_namespace.maintenance 
+    ] 
 }
