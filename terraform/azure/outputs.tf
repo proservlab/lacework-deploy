@@ -4,7 +4,7 @@ output "ssh_key" {
 output "instances" {
   value = [for instance in module.target-azure-infrastructure.instances : {
     name              = instance.name
-    network_interface = instance.network_interface_ids[0]
+    public_ip = instance.public_ip_address
   }]
 }
 
