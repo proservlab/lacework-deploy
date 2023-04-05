@@ -2,7 +2,10 @@ output "ssh_key" {
   value = module.target-azure-infrastructure.ssh_key_path
 }
 output "instances" {
-  value = module.target-azure-infrastructure.instances
+  value = [for instance in module.target-azure-infrastructure.instances : {
+    name              = instance.name
+    network_interface = instance.network_interface_ids[0]
+  }]
 }
 
 # output "environment" {

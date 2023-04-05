@@ -57,7 +57,8 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "ip" {
-    name                         = "ip-${var.environment}-${var.deployment}"
+    for_each                     = { for instance in var.instances: instance.name => instance }
+    name                         = "ip-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
     resource_group_name          = azurerm_resource_group.rg.name
     allocation_method            = "Dynamic"
@@ -92,15 +93,16 @@ resource "azurerm_network_security_group" "sg" {
 }
 
 resource "azurerm_network_interface" "nic" {
-    name                        = "nic-${var.environment}-${var.deployment}"
+    for_each                    = { for instance in var.instances: instance.name => instance }
+    name                        = "nic-${ each.key }-${var.environment}-${var.deployment}"
     location                    = var.region
     resource_group_name         = azurerm_resource_group.rg.name
 
     ip_configuration {
-        name                          = "nic-config-${var.environment}-${var.deployment}"
+        name                          = "nic-config-${each.key}-${var.environment}-${var.deployment}"
         subnet_id                     = azurerm_subnet.subnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.ip.id
+        public_ip_address_id          = azurerm_public_ip.ip[each.key].id
     }
 
     tags = {
@@ -111,8 +113,9 @@ resource "azurerm_network_interface" "nic" {
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg" {
-    network_interface_id      = azurerm_network_interface.nic.id
-    network_security_group_id = azurerm_network_security_group.sg.id
+    for_each                    = { for instance in var.instances: instance.name => instance }
+    network_interface_id        = azurerm_network_interface.nic[each.key].id
+    network_security_group_id   = azurerm_network_security_group.sg.id
 }
 
 resource "random_id" "randomId" {
@@ -135,7 +138,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = azurerm_resource_group.rg.name
-    network_interface_ids = [azurerm_network_interface.nic.id]
+    network_interface_ids = [azurerm_network_interface.nic[each.key].id]
     size                  = "Standard_DS1_v2"
 
     os_disk {
