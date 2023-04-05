@@ -25,6 +25,9 @@ locals {
   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
+  resource_group = try(local.default_infrastructure_deployed.azure.compute[0].resource_group, null)
+  public_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_security_group, null)
+
   # target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   # attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
@@ -36,6 +39,31 @@ locals {
 resource "time_sleep" "wait" {
   create_duration = "120s"
 }
+
+# need security group and resource group
+resource "azurerm_network_security_rule" "example" {
+  count = try(local.default_infrastructure_deployed.azure.compute[0], "false") != "false" ? 1 : 0
+  name                        = "test123"
+  priority                    = 100
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = local.resource_group.name
+  network_security_group_name = local.public_security_group.name
+
+  depends_on = [
+    time_sleep.wait
+  ]
+}
+
+# data "azurerm_public_ips" "example" {
+#   resource_group_name = "pip-test"
+#   attachment_status   = "Attached"
+# }
 
 # # get current context security group
 # data "aws_security_groups" "public" {

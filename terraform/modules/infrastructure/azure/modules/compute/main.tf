@@ -89,6 +89,7 @@ resource "azurerm_network_security_group" "sg" {
     tags = {
         environment = var.environment
         deployment  = var.deployment
+        public      = "true"
     }
 }
 

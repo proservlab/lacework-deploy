@@ -36,21 +36,6 @@
             },
             "user_data"        : null,
             "user_data_base64" : null
-          },
-          {
-            "name"                      : "target-public-2",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "e2-micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              "runbook_deploy_git"    : "true",
-              "runbook_deploy_docker"  : "true",
-              "runbook_deploy_lacework": "true",
-              "runbook_touch_file": "true"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null
           }
         ]
       },
