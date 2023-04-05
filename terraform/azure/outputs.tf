@@ -1,3 +1,10 @@
+output "ssh_key" {
+  value = module.target-azure-infrastructure.ssh_key_path
+}
+output "instances" {
+  value = module.target-azure-infrastructure.instances
+}
+
 # output "environment" {
 #   value = {
 #     # context

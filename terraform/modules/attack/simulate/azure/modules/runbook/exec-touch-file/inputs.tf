@@ -17,3 +17,9 @@ variable "resource_group" {
     type = any
     description = "azure resource group for runbook from compute"
 }
+
+variable "tag" {
+    type = string
+    description = "tag associated with this runbook"
+    default = "runbook_touch_file"
+}

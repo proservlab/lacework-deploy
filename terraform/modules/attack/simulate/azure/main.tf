@@ -232,11 +232,12 @@ module "workstation-external-ip" {
 
 module "runbook-exec-touch-file" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.enabled == true && local.target == true && local.config.context.azure.runbook.target.execute.touch_file.enabled == true ) ? 1 : 0
-  source        = "./modules/runbook/exec-touch-file"
-  environment   = local.config.context.global.environment
-  deployment    = local.config.context.global.deployment
-  region        = local.config.context.azure.region
-  resource_group = var.resource_group
+  source          = "./modules/runbook/exec-touch-file"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.default_infrastructure_config.context.azure.region
+  resource_group  = var.resource_group
+  tag             = "runbook_touch_file"
 }
 
 # ##################################################

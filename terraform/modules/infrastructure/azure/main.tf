@@ -90,3 +90,23 @@ module "compute" {
 #   dynu_dns_domain = local.config.context.dynu_dns.dns_domain
 #   records         = local.records
 # }
+
+##################################################
+# AZURE Lacework
+##################################################
+
+# lacework cloud audit and config collection
+module "lacework-audit-config" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.azure_audit_config.enabled == true ) ? 1 : 0
+  source      = "./modules/audit-config"
+  environment = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# lacework agentless scanning
+# module "lacework-agentless" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+#   source      = "./modules/agentless"
+#   environment = local.config.context.global.environment
+#   deployment   = local.config.context.global.deployment
+# }

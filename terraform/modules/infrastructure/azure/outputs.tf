@@ -24,3 +24,15 @@ output "workstation_ip" {
 output "infrastructure-config" {
     value = var.config
 }
+
+output "resource_group" {
+    value = length(module.compute) > 0 ? module.compute[0].resource_group : null
+}
+
+output "ssh_key_path" {
+    value = length(module.compute) > 0 ? module.compute[0].ssh_key_path : null
+}
+
+output "instances" {
+    value = length(module.compute) > 0 ? module.compute[0].instances : null
+}

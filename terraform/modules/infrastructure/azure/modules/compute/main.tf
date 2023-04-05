@@ -161,10 +161,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
 
-    tags = {
-        environment = var.environment
-        deployment = var.deployment
-    }
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},each.value.tags)
 }
 
 resource "local_file" "ssh-key" {

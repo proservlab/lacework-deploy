@@ -237,40 +237,6 @@ module "attacker-lacework-platform-infrastructure" {
   ]
 }
 
-module "attacker-lacework-azure-infrastructure" {
-  source = "./modules/infrastructure/lacework/azure"
-  config = module.attacker-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-azure-infrastructure.config, {})
-      attacker = try(module.attacker-azure-infrastructure.config, {})
-    }
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-azure-infrastructure.id,
-    module.target-azure-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
-
 module "target-lacework-platform-infrastructure" {
   source = "./modules/infrastructure/lacework/platform"
   config = module.target-infrastructure-context.config
@@ -286,40 +252,6 @@ module "target-lacework-platform-infrastructure" {
 
     # deployed state configuration reference
     deployed_state = {}
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-azure-infrastructure.id,
-    module.target-azure-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
-
-module "target-lacework-azure-infrastructure" {
-  source = "./modules/infrastructure/lacework/azure"
-  config = module.target-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-azure-infrastructure.config, {})
-      attacker = try(module.attacker-azure-infrastructure.config, {})
-    }
   }
 
   parent = [
@@ -660,7 +592,7 @@ module "attacker-azure-attacksimulation" {
   # compromised_credentials = try(module.target-azure-attacksurface.compromised_credentials, "")
   compromised_credentials = null
 
-  resource_group = try(module.attacker-azure-infrastructure.resource_group, null)
+  resource_group = module.attacker-azure-infrastructure.resource_group
 
   parent = [
     # infrastructure context
@@ -711,7 +643,7 @@ module "target-azure-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = null
 
-  resource_group = try(module.target-azure-infrastructure.resource_group, null)
+  resource_group = module.target-azure-infrastructure.resource_group
 
   parent = [
     # infrastructure context

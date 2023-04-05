@@ -1,3 +1,3 @@
-# output "ssh_key_path" { value = local.ssh_key_path }
-# output "public_ip" { value = azurerm_public_ip.ip }
-# output "resource_group" { value = azurerm_resource_group.rg }
+output "ssh_key_path" { value = local.ssh_key_path }
+output "instances" { value = azurerm_linux_virtual_machine.instances }
+output "resource_group" { value = azurerm_resource_group.rg }
