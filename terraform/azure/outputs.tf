@@ -3,8 +3,9 @@ output "ssh_key" {
 }
 output "instances" {
   value = [for instance in module.target-azure-infrastructure.instances : {
-    name              = instance.name
-    public_ip = instance.public_ip_address
+    name       = instance.name
+    public_ip  = instance.public_ip_address
+    admin_user = instance.admin_username
   }]
 }
 

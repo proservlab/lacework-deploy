@@ -215,3 +215,8 @@ variable "private_app_nat_subnet" {
   description = "private app nat subnet"
   default = "172.17.10.0/24"
 }
+
+variable "admin_user" {
+  type = string
+  default = "azureuser"
+}

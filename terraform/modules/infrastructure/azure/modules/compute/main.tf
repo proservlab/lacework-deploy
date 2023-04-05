@@ -155,11 +155,11 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
     computer_name  = "${each.key}-${var.environment}-${var.deployment}"
-    admin_username = "azureuser"
+    admin_username = var.admin_user
     disable_password_authentication = true
         
     admin_ssh_key {
-        username       = "azureuser"
+        username       = var.admin_user
         public_key     = tls_private_key.ssh.public_key_openssh
     }
 

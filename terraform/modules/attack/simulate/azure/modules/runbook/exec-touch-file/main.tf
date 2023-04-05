@@ -122,7 +122,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
                                 automation_account      = azurerm_user_assigned_identity.development_automation.principal_id
                                 base64_payload          = local.base64_payload
                                 module_name             = basename(abspath(path.module))
-                                tag                     = "azure"
+                                tag                     = var.tag
                             })
     depends_on = [
         azurerm_resource_group_template_deployment.ARMdeploy-automation-acct
