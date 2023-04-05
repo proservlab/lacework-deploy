@@ -19,7 +19,14 @@ $myAzureVMs = Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object 
 #$myAzureVMs | ForEach-Object -Parallel {
 $myAzureVMs | ForEach-Object {
     Write-Output "VM Name: " $_.Name
-    if ($_.Tags.GetEnumerator() -contains @{Key="${ tag }"; Value="true"}){
+    $hasTag = $false
+    foreach ($tag in $_.Tags.GetEnumerator()) {
+        if ($tag.Key -eq "${ tag }" -and $tag.Value -eq "true"){
+            $hasTag = $true
+            break
+        }
+    }
+    if ($hasTag){
         Write-Output "Tag Found: ${ tag }"
         $out = Invoke-AzVMRunCommand `
             -ResourceGroupName $_.ResourceGroupName `
