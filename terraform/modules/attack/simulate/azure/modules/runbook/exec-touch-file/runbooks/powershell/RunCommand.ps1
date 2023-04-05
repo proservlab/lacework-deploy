@@ -26,6 +26,7 @@ $myAzureVMs = Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object 
 # powershell v5 hack for parallelism
 $jobs = @()
 foreach ($myAzureVM in $myAzureVMs) {
+    Write-Output "VM Name: " $myAzureVM.Name
     $hasTag = $false
     foreach ($tag in $myAzureVM.Tags.GetEnumerator()) {
         if ($tag.Key -eq "${ tag }" -and $tag.Value -eq "true"){
