@@ -25,7 +25,6 @@ $myAzureVMs | ForEach-Object {
             -ResourceGroupName $_.ResourceGroupName `
             -VMName $_.Name `
             -CommandId 'RunShellScript' `
-            
             -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash -"
         $out
     } else {
