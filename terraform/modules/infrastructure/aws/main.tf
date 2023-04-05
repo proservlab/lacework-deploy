@@ -43,7 +43,7 @@ module "workstation-external-ip" {
 }
 
 ##################################################
-# AWS LACEWORK AUDIT AND CONFIG
+# AWS Lacework Audit & Config
 ##################################################
 
 # lacework cloud audit and config collection
@@ -52,14 +52,9 @@ module "lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
-}
-
-# lacework module seems to intermittently fail if we don't add it first?
-resource "time_sleep" "lacework_wait_30" {
-  create_duration = "30s"
 
   depends_on = [
-    null_resource.eks_wait
+    module.id
   ]
 }
 
@@ -71,7 +66,15 @@ module "lacework-agentless" {
   deployment   = local.config.context.global.deployment
 
   depends_on = [
-    time_sleep.lacework_wait_30
+    module.lacework-audit-config
+  ]
+}
+
+resource "time_sleep" "lacework_wait_30" {
+  create_duration = "30s"
+  depends_on = [
+    module.lacework-audit-config,
+    module.lacework-agentless
   ]
 }
 
@@ -115,6 +118,10 @@ module "ec2" {
 
   enable_dynu_dns                     = local.config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
+
+  depends_on = [
+    time_sleep.lacework_wait_30
+  ]
 }
 
 ##################################################
@@ -166,6 +173,7 @@ resource "null_resource" "eks_wait" {
   }
 
   depends_on = [
+    time_sleep.lacework_wait_30,
     module.eks
   ]
 }
