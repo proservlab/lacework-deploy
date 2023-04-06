@@ -19,8 +19,10 @@ TARGET_AWS_LOCATION=""
 
 # AZURE
 ATTACKER_AZURE_SUBSCRIPTION=""
+ATTACKER_AZURE_TENANT=""
 ATTACKER_AZURE_LOCATION=""
 TARGET_AZURE_SUBSCRIPTION=""
+TARGET_AZURE_TENANT=""
 TARGET_AZURE_LOCATION=""
 
 # GCP
@@ -520,9 +522,11 @@ function select_azure_subscription {
 
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AZURE_SUBSCRIPTION=$subscription_id
+            ATTACKER_AZURE_TENANT=$tenant_id
             ATTACKER_AZURE_LOCATION=$region
         elif [ "$environment" == "target" ]; then
             TARGET_AZURE_SUBSCRIPTION=$subscription_id
+            TARGET_AZURE_TENANT=$tenant_id
             TARGET_AZURE_LOCATION=$region
         fi;
     done;
@@ -589,8 +593,10 @@ function output_azure_config {
 scenario="$SCENARIO"
 deployment="$DEPLOYMENT"
 attacker_azure_subscription = "$ATTACKER_AZURE_SUBSCRIPTION"
+attacker_azure_tenant = "$ATTACKER_AZURE_TENANT"
 attacker_azure_region = "$ATTACKER_AZURE_LOCATION"
 target_azure_subscription = "$TARGET_AZURE_SUBSCRIPTION"
+target_azure_tenant = "$TARGET_AZURE_TENANT"
 target_azure_region = "$TARGET_AZURE_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"

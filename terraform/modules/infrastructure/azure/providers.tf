@@ -20,6 +20,8 @@ provider "helm" {
 
 provider "azurerm" {
   features {}
+  tenant_id = local.tenant
+  subscription_id = local.subscription
 }
 
 provider "lacework" {

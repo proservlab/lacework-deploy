@@ -13,9 +13,14 @@ variable "region" {
     description = "azure region"
 }
 
-variable "resource_group" {
+variable "public_resource_group" {
     type = any
-    description = "azure resource group for runbook from compute"
+    description = "public azure resource group for runbook from compute"
+}
+
+variable "private_resource_group" {
+    type = any
+    description = "private azure resource group for runbook from compute"
 }
 
 variable "tag" {

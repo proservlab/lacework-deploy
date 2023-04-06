@@ -3,13 +3,13 @@ locals {
   tenant = coalesce(local.default_infrastructure_config.context.azure.tenant, "false") == "false" ? null : local.default_infrastructure_config.context.azure.tenant
   region = coalesce(local.default_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" : local.default_infrastructure_config.context.azure.region
 
-  attacker_access_key = coalesce(local.attacker_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
-  attacker_secret_key = coalesce(local.attacker_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
-  attacker_profile = coalesce(local.attacker_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.attacker_infrastructure_config.context.azure.region
+  attacker_subscription = coalesce(local.attacker_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
+  attacker_tenant = coalesce(local.attacker_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
+  attacker_region = coalesce(local.attacker_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.attacker_infrastructure_config.context.azure.region
 
-  target_access_key = coalesce(local.target_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.target_infrastructure_config.context.azure.subscription
-  target_secret_key = coalesce(local.target_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.target_infrastructure_config.context.azure.tenant
-  target_profile = coalesce(local.target_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
+  target_subscription = coalesce(local.target_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.target_infrastructure_config.context.azure.subscription
+  target_tenant = coalesce(local.target_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.target_infrastructure_config.context.azure.tenant
+  target_region = coalesce(local.target_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
 
   default_kubeconfig_path = pathexpand("~/.kube/azure-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   attacker_default_kubeconfig_path = pathexpand("~/.kube/azure-attacker-${var.config.context.global.deployment}-kubeconfig")
@@ -32,6 +32,22 @@ provider "helm" {
 
 provider "azurerm" {
   features {}
+  tenant_id = local.tenant
+  subscription_id = local.subscription
+}
+
+provider "azurerm" {
+  alias = "attacker"
+  features {}
+  tenant_id = local.attacker_tenant
+  subscription_id = local.attacker_subscription
+}
+
+provider "azurerm" {
+  alias = "target"
+  features {}
+  tenant_id = local.target_tenant
+  subscription_id = local.target_subscription
 }
 
 provider "lacework" {

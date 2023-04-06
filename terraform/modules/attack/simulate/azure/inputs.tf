@@ -18,7 +18,11 @@ variable "compromised_credentials" {
   type = any
 }
 
-variable "resource_group" {
+variable "public_resource_group" {
+  type = any
+}
+
+variable "private_resource_group" {
   type = any
 }
 

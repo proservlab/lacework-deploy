@@ -592,7 +592,8 @@ module "attacker-azure-attacksimulation" {
   # compromised_credentials = try(module.target-azure-attacksurface.compromised_credentials, "")
   compromised_credentials = null
 
-  resource_group = module.attacker-azure-infrastructure.resource_group
+  public_resource_group  = module.attacker-azure-infrastructure.public_resource_group
+  private_resource_group = module.attacker-azure-infrastructure.private_resource_group
 
   parent = [
     # infrastructure context
@@ -643,7 +644,8 @@ module "target-azure-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = null
 
-  resource_group = module.target-azure-infrastructure.resource_group
+  public_resource_group  = module.target-azure-infrastructure.public_resource_group
+  private_resource_group = module.target-azure-infrastructure.private_resource_group
 
   parent = [
     # infrastructure context

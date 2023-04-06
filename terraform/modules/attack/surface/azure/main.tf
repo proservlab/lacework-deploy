@@ -25,8 +25,13 @@ locals {
   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
-  resource_group = try(local.default_infrastructure_deployed.azure.compute[0].resource_group, null)
+  public_resource_group = try(local.default_infrastructure_deployed.azure.compute[0].public_resource_group, null)
   public_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_security_group, null)
+  private_resource_group = try(local.default_infrastructure_deployed.azure.compute[0].private_resource_group, null)
+  private_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_security_group, null)
+
+  attacker_public_resource_group = "public-rg-attacker-${local.config.context.global.deployment}"
+  target_public_resource_group = "public-rg-target-${local.config.context.global.deployment}"
 
   # target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   # attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
@@ -40,80 +45,63 @@ resource "time_sleep" "wait" {
   create_duration = "120s"
 }
 
-# need security group and resource group
-resource "azurerm_network_security_rule" "example" {
-  count = try(local.default_infrastructure_deployed.azure.compute[0], "false") != "false" ? 1 : 0
-  name                        = "test123"
-  priority                    = 100
-  direction                   = "Outbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "*"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  resource_group_name         = local.resource_group.name
-  network_security_group_name = local.public_security_group.name
+# data "azurerm_public_ips" "public_attacker" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
+#   resource_group_name = local.attacker_public_resource_group
+#   attachment_status   = "Attached"
 
-  depends_on = [
-    time_sleep.wait
-  ]
+#   provider = azurerm.attacker
+#   depends_on = [time_sleep.wait]
+# }
+
+# data "azurerm_public_ips" "public_target" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
+#   resource_group_name = local.target_public_resource_group
+#   attachment_status   = "Attached"
+
+#   provider = azurerm.target
+#   depends_on = [time_sleep.wait]
+# }
+
+##################################################
+# GENERAL
+##################################################
+
+module "workstation-external-ip" {
+  source       = "../general/workstation-external-ip"
 }
 
-# data "azurerm_public_ips" "example" {
-#   resource_group_name = "pip-test"
-#   attachment_status   = "Attached"
-# }
+##################################################
+# AZURE COMPUTE SECURITY GROUP
+##################################################
 
-# # get current context security group
-# data "aws_security_groups" "public" {
-#   count = (local.config.context.global.enable_all == true) || (
-#     local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   tags = {
-#     environment = local.config.context.global.environment
-#     deployment  = local.config.context.global.deployment
-#     public = "true"
-#   }
-# }
+# append ingress rules
+# module "compute-add-trusted-ingress" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
+#   source        = "./modules/compute/add-trusted-ingress"
+#   environment                   = local.config.context.global.environment
+#   deployment                    = local.config.context.global.deployment
+  
+#   resource_group                = local.public_resource_group
+#   security_group                = local.public_security_group
 
-# data "aws_instances" "public_attacker" {
-#   provider = aws.attacker
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   instance_tags = {
-#     environment = "attacker"
-#     deployment  = local.config.context.global.deployment
-#     public = "true"
-#   }
-
-#   instance_state_names = ["running"]
-
-#   depends_on = [time_sleep.wait]
-# }
-
-# data "aws_instances" "public_target" {
-#   provider = aws.target
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   instance_tags = {
-#     environment = "target"
-#     deployment  = local.config.context.global.deployment
-#     public = "true"
-#   }
-
-#   instance_state_names = ["running"]
+#   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
+#     [ for ip in data.azurerm_public_ips.public_attacker[0].public_ips: "${ip}/32" ],
+#     # local.attacker_eks_public_ip
+#   ])  : []
+#   trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
+#     [ for ip in data.azurerm_public_ips.public_target[0].public_ips: "${ip}/32" ],
+#     # local.target_eks_public_ip
+#   ]) : []
+#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
+#   additional_trusted_sources    = local.config.context.azure.compute.add_trusted_ingress.additional_trusted_sources
+#   trusted_tcp_ports             = local.config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
 
 #   depends_on = [time_sleep.wait]
 # }
 
 # ##################################################
-# # GENERAL
-# ##################################################
-
-# module "workstation-external-ip" {
-#   source       = "../general/workstation-external-ip"
-# }
-
-# ##################################################
-# # AWS IAM
+# # AZURE IAM
 # ##################################################
 
 # # create iam users
@@ -129,32 +117,7 @@ resource "azurerm_network_security_rule" "example" {
 # }
 
 # ##################################################
-# # AWS EC2 SECURITY GROUP
-# ##################################################
-
-# # append ingress rules
-# module "ec2-add-trusted-ingress" {
-#   for_each = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? toset(data.aws_security_groups.public[0].ids) : toset([ for v in []: v ])
-#   source        = "./modules/ec2/add-trusted-ingress"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
-  
-#   security_group_id             = each.key
-#   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
-#     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
-#     local.attacker_eks_public_ip
-#   ])  : []
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
-#     [ for ip in data.aws_instances.public_target[0].public_ips: "${ip}/32" ],
-#     local.target_eks_public_ip
-#   ]) : []
-#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-#   additional_trusted_sources    = local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
-#   trusted_tcp_ports             = local.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
-# }
-
-# ##################################################
-# # AWS EKS
+# # AZURE AKS
 # ##################################################
 
 # # assign iam user cluster readonly role
@@ -174,7 +137,7 @@ resource "azurerm_network_security_rule" "example" {
 # }
 
 # ##################################################
-# # AWS SSM
+# # AZURE RUNBOOKS
 # # ssm tag-based surface config
 # ##################################################
 
@@ -239,7 +202,7 @@ resource "azurerm_network_security_rule" "example" {
 # }
 
 # ##################################################
-# # Kubernetes AWS Vulnerable
+# # Kubernetes AKS Vulnerable
 # ##################################################
 
 # module "vulnerable-kubernetes-voteapp" {
