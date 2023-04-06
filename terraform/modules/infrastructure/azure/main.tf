@@ -32,7 +32,7 @@ module "workstation-external-ip" {
 
 # compute
 module "compute" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.enabled == true && can(length(local.config.context.azure.compute.instances))) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.enabled == true ) ? 1 : 0
   source       = "./modules/compute"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
