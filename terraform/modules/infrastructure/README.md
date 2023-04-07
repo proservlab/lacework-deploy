@@ -1,4 +1,4 @@
-################################################## Infrastructure
+## Infrastructure
 
 These modules are the foundation of the deployment (compute, kubernetes and lacework). 
 
