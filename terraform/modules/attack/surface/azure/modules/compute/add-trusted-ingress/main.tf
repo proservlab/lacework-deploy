@@ -6,7 +6,7 @@ resource "azurerm_network_security_rule" "attacker_ingress_rules" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "${var.trusted_tcp_ports.from_port}-${var.trusted_tcp_ports.to_port}"
-  source_address_prefix       = flatten([
+  source_address_prefixes       = flatten([
     var.trusted_attacker_source,
     var.trusted_target_source,
     var.trusted_workstation_source,
