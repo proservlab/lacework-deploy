@@ -45,23 +45,23 @@ resource "time_sleep" "wait" {
   create_duration = "120s"
 }
 
-# data "azurerm_public_ips" "public_attacker" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   resource_group_name = local.attacker_public_resource_group
-#   attachment_status   = "Attached"
+data "azurerm_public_ips" "public_attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  resource_group_name = local.attacker_public_resource_group
+  attachment_status   = "Attached"
 
-#   provider = azurerm.attacker
-#   depends_on = [time_sleep.wait]
-# }
+  provider = azurerm.attacker
+  depends_on = [time_sleep.wait]
+}
 
-# data "azurerm_public_ips" "public_target" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   resource_group_name = local.target_public_resource_group
-#   attachment_status   = "Attached"
+data "azurerm_public_ips" "public_target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  resource_group_name = local.target_public_resource_group
+  attachment_status   = "Attached"
 
-#   provider = azurerm.target
-#   depends_on = [time_sleep.wait]
-# }
+  provider = azurerm.target
+  depends_on = [time_sleep.wait]
+}
 
 ##################################################
 # GENERAL
@@ -76,29 +76,29 @@ module "workstation-external-ip" {
 ##################################################
 
 # append ingress rules
-# module "compute-add-trusted-ingress" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
-#   source        = "./modules/compute/add-trusted-ingress"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+module "compute-add-trusted-ingress" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
+  source        = "./modules/compute/add-trusted-ingress"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
   
-#   resource_group                = local.public_resource_group
-#   security_group                = local.public_security_group
+  resource_group                = local.public_resource_group.name
+  security_group                = local.public_security_group.name
 
-#   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
-#     [ for ip in data.azurerm_public_ips.public_attacker[0].public_ips: "${ip}/32" ],
-#     # local.attacker_eks_public_ip
-#   ])  : []
-#   trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
-#     [ for ip in data.azurerm_public_ips.public_target[0].public_ips: "${ip}/32" ],
-#     # local.target_eks_public_ip
-#   ]) : []
-#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-#   additional_trusted_sources    = local.config.context.azure.compute.add_trusted_ingress.additional_trusted_sources
-#   trusted_tcp_ports             = local.config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
+  trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips,[]): "${ip.ip_address}/32" ],
+    # local.attacker_eks_public_ip
+  ])  : []
+  trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_target[0].public_ips, []): "${ip.ip_address}/32" ],
+    # local.target_eks_public_ip
+  ]) : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.azure.compute.add_trusted_ingress.additional_trusted_sources
+  trusted_tcp_ports             = local.config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
 
-#   depends_on = [time_sleep.wait]
-# }
+  depends_on = [time_sleep.wait]
+}
 
 # ##################################################
 # # AZURE IAM
