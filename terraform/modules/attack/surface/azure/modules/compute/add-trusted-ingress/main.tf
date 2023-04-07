@@ -13,6 +13,6 @@ resource "azurerm_network_security_rule" "attacker_ingress_rules" {
     var.additional_trusted_sources
   ])
   destination_address_prefix  = "*"
-  resource_group_name         = var.resource_group.name
-  network_security_group_name = var.security_group.name
+  resource_group_name         = var.resource_group
+  network_security_group_name = var.security_group
 }
