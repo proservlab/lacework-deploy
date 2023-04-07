@@ -155,13 +155,13 @@ resource "azurerm_network_interface" "nic" {
     for_each                    = { for instance in var.instances: instance.name => instance }
     name                        = "nic-${ each.key }-${var.environment}-${var.deployment}"
     location                    = var.region
-    resource_group_name         = each.value.public == "true" ? azurerm_resource_group.rg.name : azurerm_resource_group.rg-private.name
+    resource_group_name         = each.value.public == true ? azurerm_resource_group.rg.name : azurerm_resource_group.rg-private.name
 
     ip_configuration {
         name                          = "nic-config-${each.key}-${var.environment}-${var.deployment}"
-        subnet_id                     = each.value.public == "true" ? azurerm_subnet.subnet.id : azurerm_subnet.subnet-private.id 
+        subnet_id                     = each.value.public == true ? azurerm_subnet.subnet.id : azurerm_subnet.subnet-private.id 
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = each.value.public == "true" ? azurerm_public_ip.ip[each.key].id : null
+        public_ip_address_id          = each.value.public == true ? azurerm_public_ip.ip[each.key].id : null
     }
 
     tags = {
@@ -175,7 +175,7 @@ resource "azurerm_network_interface" "nic" {
 resource "azurerm_network_interface_security_group_association" "sg" {
     for_each                    = { for instance in var.instances: instance.name => instance }
     network_interface_id        = azurerm_network_interface.nic[each.key].id
-    network_security_group_id   = each.value.public == "true" ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
+    network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
 }
 
 resource "random_id" "randomId" {
@@ -197,7 +197,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance }
     name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
-    resource_group_name   = each.value.public == "true" ? azurerm_resource_group.rg.name :azurerm_resource_group.rg-private.name
+    resource_group_name   = each.value.public == true ? azurerm_resource_group.rg.name :azurerm_resource_group.rg-private.name
     network_interface_ids = [azurerm_network_interface.nic[each.key].id]
     size                  = "Standard_DS1_v2"
 
@@ -224,7 +224,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == "true" ? "true" : "false"}"},each.value.tags)
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
 resource "local_file" "ssh-key" {
