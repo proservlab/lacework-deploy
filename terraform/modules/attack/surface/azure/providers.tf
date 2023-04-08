@@ -1,15 +1,15 @@
 locals {
-  subscription = coalesce(local.default_infrastructure_config.context.azure.subscription, "false") == "false" ? null : local.default_infrastructure_config.context.azure.subscription
-  tenant = coalesce(local.default_infrastructure_config.context.azure.tenant, "false") == "false" ? null : local.default_infrastructure_config.context.azure.tenant
-  region = coalesce(local.default_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" : local.default_infrastructure_config.context.azure.region
+  subscription = try(length(local.default_infrastructure_config.context.azure.subscription), "false") == "false" ? null : local.default_infrastructure_config.context.azure.subscription
+  tenant = try(length(local.default_infrastructure_config.context.azure.tenant), "false") == "false" ? null : local.default_infrastructure_config.context.azure.tenant
+  region = try(length(local.default_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" : local.default_infrastructure_config.context.azure.region
 
-  attacker_subscription = coalesce(local.attacker_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
-  attacker_tenant = coalesce(local.attacker_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
-  attacker_region = coalesce(local.attacker_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.attacker_infrastructure_config.context.azure.region
+  attacker_subscription = try(length(local.attacker_infrastructure_config.context.azure.subscription), "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
+  attacker_tenant = try(length(local.attacker_infrastructure_config.context.azure.tenant), "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
+  attacker_region = try(length(local.attacker_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" :  local.attacker_infrastructure_config.context.azure.region
 
-  target_subscription = coalesce(local.target_infrastructure_config.context.azure.subscription, "false") != "false" ? null : local.target_infrastructure_config.context.azure.subscription
-  target_tenant = coalesce(local.target_infrastructure_config.context.azure.tenant, "false") != "false" ? null : local.target_infrastructure_config.context.azure.tenant
-  target_region = coalesce(local.target_infrastructure_config.context.azure.region, "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
+  target_subscription = try(length(local.target_infrastructure_config.context.azure.subscription), "false") != "false" ? null : local.target_infrastructure_config.context.azure.subscription
+  target_tenant = try(length(local.target_infrastructure_config.context.azure.tenant), "false") != "false" ? null : local.target_infrastructure_config.context.azure.tenant
+  target_region = try(length(local.target_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
 
   default_kubeconfig_path = pathexpand("~/.kube/azure-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   attacker_default_kubeconfig_path = pathexpand("~/.kube/azure-attacker-${var.config.context.global.deployment}-kubeconfig")

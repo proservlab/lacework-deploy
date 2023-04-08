@@ -31,7 +31,7 @@
               "runbook_deploy_git"    : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
-              "runbook_touch_file": "true"
+              "runbook_exec_touch_file": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -46,7 +46,7 @@
               "runbook_deploy_git"    : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
-              "runbook_touch_file": "true"
+              "runbook_exec_touch_file": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

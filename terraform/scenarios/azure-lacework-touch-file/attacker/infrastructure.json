@@ -22,6 +22,21 @@
                 "private_app_nat_subnet"            : "172.27.10.0/24",
                 "public_ingress_rules"              : [],
                 "instances": [
+                    {
+                        "name"                      : "attacker-public-1",
+                        "public"                    : true,
+                        "role"                      : "default",
+                        "instance_type"             : "t2.micro",
+                        "ami_name"                  : "ubuntu_focal",
+                        "tags": {
+                            "runbook_deploy_lacework"               : "true",
+                            "runbook_deploy_docker"                 : "true",
+                            "runbook_exec_docker_log4shell_target"  : "true",
+                            "runbook_exec_touch_file"               : "true"
+                        },
+                        "user_data"        : null,
+                        "user_data_base64" : null
+                    }
                 ]
             }
         },

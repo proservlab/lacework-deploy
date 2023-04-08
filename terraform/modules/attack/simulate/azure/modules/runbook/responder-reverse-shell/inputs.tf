@@ -18,29 +18,9 @@ variable "public_resource_group" {
     description = "public azure resource group for runbook from compute"
 }
 
-variable "public_automation_account" {
-    type = string
-    description = "automation account name"
-}
-
-variable "public_automation_princial_id"{
-    type = string
-    description = "automation account principal id"
-}
-
 variable "private_resource_group" {
     type = any
     description = "private azure resource group for runbook from compute"
-}
-
-variable "private_automation_account"{
-    type = string
-    description = "automation account name"
-}
-
-variable "private_automation_princial_id"{
-    type = string
-    description = "automation account principal id"
 }
 
 variable "tag" {

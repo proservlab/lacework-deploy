@@ -385,9 +385,178 @@ variable "config" {
         enabled                   = false
         runbook = {
           target = {
+            drop = {
+              malware = {
+                eicar = { 
+                  enabled                     = false
+                  eicar_path                  = "/tmp/eicar"
+                }
+              }
+            }
+            connect = {
+              badip = {
+                enabled                     = false
+                iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+              }
+              nmap_port_scan = {
+                enabled                     = false
+                nmap_scan_host              = "portquiz.net"
+                nmap_scan_ports             = [80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636]
+              }
+              oast = {
+                enabled                     = false
+              }
+              codecov = {
+                enabled                     = false
+                use_ssl                     = false
+                git_origin                  = "git@git.localhost:repo/repo.git"
+                env_secrets                 = ["SECRET=supersecret123"]
+                host_ip                     = null
+                host_port                   = 8080
+              }
+              reverse_shell = {
+                enabled                     = false
+                host_ip                     = null
+                host_port                   = 4444
+              }
+            }
+            listener = {
+              port_forward = {
+                enabled                     = false
+                port_forwards               = [{
+                                                src_port      = 1234
+                                                dst_port      = 4444
+                                                dst_ip        = "127.0.0.1"
+                                                description   = "Example"
+                                              }]
+              }
+            }
             execute = {
               touch_file = {
                 enabled           = false
+              }
+              docker_cpu_miner = {
+                enabled                     = false
+                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
+                nicehash_name               = "nicehash"
+                nicehash_server             = "equihash.usa.nicehash.com:3357"
+                nicehash_user               = null
+                minergate_name              = "minerd"
+                minergate_image             = "mkell43/minerd"
+                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
+                minergate_user              = null
+              }
+            }
+          }
+          attacker = {
+            listener = {
+              http = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = 8080
+              }
+              port_forward = {
+                enabled                     = false
+                port_forwards               = [{
+                                                src_port      = 1234
+                                                dst_port      = 4444
+                                                dst_ip        = "127.0.0.1"
+                                                description   = "Example"
+                                              }]
+              }
+            }
+            responder = {
+              reverse_shell = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "touch /tmp/pwned"
+              }
+              port_forward = {
+                enabled                     = false
+                listen_port                 = 8888
+              }
+            }
+            execute = {
+              vuln_npm_app_attack = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8089
+                payload                     = "touch /tmp/vuln_npm_app_pwned"
+              }
+              docker_log4shell_attack = {
+                enabled                     = false
+                attacker_http_port          = 8088
+                attacker_ldap_port          = 1389
+                attacker_ip                 = null
+                target_ip                   = null
+                target_port                 = null
+                payload                     = "touch /tmp/log4shell_pwned"
+              }
+              docker_composite_compromised_credentials_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                nicehash_user               = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_ransomware_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                nicehash_user               = null
+                compromised_keys_user       = null
+              },
+              docker_composite_defense_evasion_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                nicehash_user               = null
+                compromised_keys_user       = null
+              },
+              docker_composite_cloud_cryptomining_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                nicehash_user               = null
+                compromised_keys_user       = null
+              },
+              docker_composite_host_cryptomining_attack = {
+                enabled                     = false
+                compromised_credentials     = {}
+                protonvpn_user              = null
+                protonvpn_password          = null
+                protonvpn_tier              = 0
+                protonvpn_server            = "RANDOM"
+                protonvpn_protocol          = "udp"
+                wallet                      = null
+                minergate_user              = null
+                nicehash_user               = null
+                compromised_keys_user       = null
               }
             }
           }

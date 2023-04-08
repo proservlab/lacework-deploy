@@ -73,7 +73,7 @@ locals {
     osconfig_exec_docker_host_cryptomining_attacker = "false"
   }
   runbook_default_tags = {
-    runbook_touch_file                  = "false"
+    runbook_exec_touch_file                  = "false"
     runbook_connect_bad_ip              = "false"
     runbook_connect_enumerate_host      = "false"
     runbook_connect_oast_host           = "false"

@@ -46,5 +46,16 @@ variable "private_automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_exec_touch_file"
+    default = "runbook_exec_reverse_shell_target"
+}
+
+variable "host_ip" {
+  type = string
+  description = "IP address of attacker"
+}
+
+variable "host_port" {
+  type = number
+  description = "Port address of attacker"
+  default = 4444
 }

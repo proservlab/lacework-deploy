@@ -27,6 +27,18 @@ locals {
 
 #   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
 #   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
+  
+  any_target_simulation_enabled = anytrue(flatten([ 
+    for category in try(local.config.context.azure.runbook.target,[]): [
+      for task in category: task.enabled 
+    ]
+  ]))
+
+  any_attacker_simulation_enabled = anytrue(flatten([ 
+    for category in try(local.config.context.azure.runbook.attacker,[]): [
+      for task in category: task.enabled 
+    ]
+  ]))
 
   attacker = local.config.context.global.environment == "attacker" ? true : false
   target = local.config.context.global.environment == "target" ? true : false
@@ -230,6 +242,16 @@ module "workstation-external-ip" {
 # AZURE RUNBOOK SIMULATION
 ##################################################
 
+module "automation-account" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.enabled == true && ((local.target == true && local.any_target_simulation_enabled) || (local.attacker == true && local.any_attacker_simulation_enabled)) )  ? 1 : 0
+  source          = "./modules/automation/account"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.default_infrastructure_config.context.azure.region
+  public_resource_group  = var.public_resource_group
+  private_resource_group  = var.private_resource_group
+}
+
 module "runbook-exec-touch-file" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.enabled == true && local.target == true && local.config.context.azure.runbook.target.execute.touch_file.enabled == true ) ? 1 : 0
   source          = "./modules/runbook/exec-touch-file"
@@ -237,8 +259,15 @@ module "runbook-exec-touch-file" {
   deployment      = local.config.context.global.deployment
   region          = local.default_infrastructure_config.context.azure.region
   public_resource_group  = var.public_resource_group
+  public_automation_account = module.automation-account[0].public_automation_account_name
+  public_automation_princial_id = module.automation-account[0].public_automation_princial_id
   private_resource_group  = var.private_resource_group
-  tag             = "runbook_touch_file"
+  private_automation_account = module.automation-account[0].private_automation_account_name
+  private_automation_princial_id = module.automation-account[0].private_automation_princial_id
+  tag             = "runbook_exec_touch_file"
+  depends_on = [
+    module.automation-account
+  ]
 }
 
 # ##################################################

