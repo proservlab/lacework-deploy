@@ -30,6 +30,16 @@ locals {
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
+resource "null_resource" "log" {
+  triggers = {
+    log_message = jsonencode(local.config)
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.config)}'"
+  }
+}
+
 ##################################################
 # DEPLOYMENT CONTEXT
 ##################################################
@@ -277,7 +287,7 @@ module "gce-add-trusted-ingress" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
   
-  network                       = local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name
+  network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name, null)
   trusted_attacker_source       = local.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
     [ for ip in local.attacker_app_public_ips: "${ip}/32" ]

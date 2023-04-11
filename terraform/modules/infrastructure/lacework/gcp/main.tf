@@ -25,6 +25,16 @@ locals {
   attacker_gke_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.gcp.gke[0].cluster_nat_public_ip}/32"],[])
 }
 
+resource "null_resource" "log" {
+  triggers = {
+    log_message = jsonencode(local.config)
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.config)}'"
+  }
+}
+
 ##################################################
 # GENERAL
 ##################################################
@@ -43,7 +53,7 @@ module "lacework-gcp-audit-config" {
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
   gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
+  gcp_location                        = local.config.context.gcp.region
 }
 
 module "lacework-gcp-agentless" {
@@ -52,7 +62,7 @@ module "lacework-gcp-agentless" {
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
   gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
+  gcp_location                        = local.config.context.gcp.region
 
   project_filter_list = [
     local.config.context.gcp.project_id
@@ -82,7 +92,7 @@ module "lacework-daemonset" {
   
   # compliance cluster agent
   lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
-  lacework_cluster_agent_cluster_region = local.config.context.aws.region
+  lacework_cluster_agent_cluster_region = local.config.context.gcp.region
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
@@ -114,7 +124,7 @@ module "lacework-gke-audit" {
   deployment                          = local.config.context.global.deployment
 
   gcp_project_id                      = local.config.context.gcp.project_id
-  gcp_location                        = local.config.context.lacework.gcp_audit_config.project_id
+  gcp_location                        = local.config.context.gcp.region
 
   depends_on = [
     module.lacework-namespace

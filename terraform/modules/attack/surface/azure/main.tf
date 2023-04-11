@@ -43,7 +43,7 @@ resource "null_resource" "log" {
   }
 
   provisioner "local-exec" {
-    command = "echo '${jsonencode(local.config)}' | jq"
+    command = "echo '${jsonencode(local.config)}'"
   }
 }
 
