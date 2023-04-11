@@ -37,6 +37,16 @@ locals {
   # attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
+resource "null_resource" "log" {
+  triggers = {
+    log_message = jsonencode(local.config)
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.config)}' | jq"
+  }
+}
+
 ##################################################
 # DEPLOYMENT CONTEXT
 ##################################################
@@ -45,17 +55,17 @@ resource "time_sleep" "wait" {
   create_duration = "120s"
 }
 
-data "azurerm_public_ips" "public_attacker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
-  resource_group_name = local.attacker_public_resource_group
-  attachment_status   = "Attached"
+# data "azurerm_public_ips" "public_attacker" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true && local.attacker_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+#   resource_group_name = local.attacker_public_resource_group
+#   attachment_status   = "Attached"
 
-  provider = azurerm.attacker
-  depends_on = [time_sleep.wait]
-}
+#   provider = azurerm.attacker
+#   depends_on = [time_sleep.wait]
+# }
 
 data "azurerm_public_ips" "public_target" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
   resource_group_name = local.target_public_resource_group
   attachment_status   = "Attached"
 
@@ -86,7 +96,7 @@ module "compute-add-trusted-ingress" {
   security_group                = local.public_security_group.name
 
   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
-    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips,[]): "${ip.ip_address}/32" ],
+    # [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips,[]): "${ip.ip_address}/32" ],
     # local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([

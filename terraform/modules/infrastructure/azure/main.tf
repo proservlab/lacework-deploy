@@ -27,6 +27,18 @@ module "workstation-external-ip" {
 }
 
 ##################################################
+# AZURE Resource Group
+##################################################
+
+module "resource-group" {
+  source = "./modules/resource-group"
+  name = "resource-group"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.azure.region
+}
+
+##################################################
 # AZURE COMPUTE
 ##################################################
 
