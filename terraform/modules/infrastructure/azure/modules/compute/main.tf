@@ -1,5 +1,5 @@
 locals {
-    ssh_key_path = pathexpand("~/.ssh/azure-public.pem")
+    ssh_key_path = pathexpand("~/.ssh/azure-${var.environment}-${var.deployment}.pem")
     resource_group_name = var.resource_group.name
 }
 
