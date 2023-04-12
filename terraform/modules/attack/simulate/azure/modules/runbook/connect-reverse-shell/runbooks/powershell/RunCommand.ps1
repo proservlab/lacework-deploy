@@ -44,7 +44,7 @@ foreach ($myAzureVM in $myAzureVMs) {
                 -ResourceGroupName $resourceGroup `
                 -VMName $name `
                 -CommandId 'RunShellScript' `
-                -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash -"
+                -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
             $out
         }
         $jobs += Start-Job -ScriptBlock $scriptblock -ArgumentList $myAzureVM.ResourceGroupName,$myAzureVM.Name

