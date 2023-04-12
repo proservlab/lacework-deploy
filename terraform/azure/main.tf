@@ -592,12 +592,9 @@ module "attacker-azure-attacksimulation" {
   # compromised_credentials = try(module.target-azure-attacksurface.compromised_credentials, "")
   compromised_credentials = null
 
-  public_resource_group           = module.attacker-azure-infrastructure.public_resource_group
-  private_resource_group          = module.attacker-azure-infrastructure.private_resource_group
-  attacker_public_resource_group  = module.attacker-azure-infrastructure.public_resource_group
-  attacker_private_resource_group = module.attacker-azure-infrastructure.private_resource_group
-  target_public_resource_group    = module.target-azure-infrastructure.public_resource_group
-  target_private_resource_group   = module.target-azure-infrastructure.private_resource_group
+  resource_group          = module.attacker-azure-infrastructure.resource_group
+  attacker_resource_group = module.attacker-azure-infrastructure.resource_group
+  target_resource_group   = module.target-azure-infrastructure.resource_group
 
   parent = [
     # infrastructure context
@@ -648,12 +645,9 @@ module "target-azure-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = null
 
-  public_resource_group           = module.target-azure-infrastructure.public_resource_group
-  private_resource_group          = module.target-azure-infrastructure.private_resource_group
-  attacker_public_resource_group  = module.attacker-azure-infrastructure.public_resource_group
-  attacker_private_resource_group = module.attacker-azure-infrastructure.private_resource_group
-  target_public_resource_group    = module.target-azure-infrastructure.public_resource_group
-  target_private_resource_group   = module.target-azure-infrastructure.private_resource_group
+  resource_group          = module.attacker-azure-infrastructure.resource_group
+  attacker_resource_group = module.attacker-azure-infrastructure.resource_group
+  target_resource_group   = module.target-azure-infrastructure.resource_group
 
   parent = [
     # infrastructure context

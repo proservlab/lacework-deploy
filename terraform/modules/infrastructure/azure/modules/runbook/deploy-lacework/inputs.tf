@@ -13,32 +13,17 @@ variable "region" {
     description = "azure region"
 }
 
-variable "public_resource_group" {
-    type = any
-    description = "public azure resource group for runbook from compute"
+variable "resource_group" {
+  description = "resource group"
+  type = any
 }
 
-variable "public_automation_account" {
+variable "automation_account" {
     type = string
     description = "automation account name"
 }
 
-variable "public_automation_princial_id"{
-    type = string
-    description = "automation account principal id"
-}
-
-variable "private_resource_group" {
-    type = any
-    description = "private azure resource group for runbook from compute"
-}
-
-variable "private_automation_account"{
-    type = string
-    description = "automation account name"
-}
-
-variable "private_automation_princial_id"{
+variable "automation_princial_id"{
     type = string
     description = "automation account principal id"
 }

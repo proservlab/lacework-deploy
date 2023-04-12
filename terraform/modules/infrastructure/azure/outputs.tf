@@ -26,12 +26,8 @@ output "infrastructure-config" {
     value = var.config
 }
 
-output "public_resource_group" {
-    value = length(module.compute) > 0 ? module.compute[0].public_resource_group : null
-}
-
-output "private_resource_group" {
-    value = length(module.compute) > 0 ? module.compute[0].private_resource_group : null
+output "resource_group" {
+    value = module.resource_group
 }
 
 output "ssh_key_path" {

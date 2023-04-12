@@ -46,8 +46,7 @@ module "automation-account" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
-  public_resource_group  = module.compute[0].public_resource_group
-  private_resource_group  = module.compute[0].private_resource_group
+  resource_group  = module.compute[0].resource_group
 
   depends_on = [
     module.compute
@@ -103,6 +102,12 @@ module "compute" {
   private_app_network = local.config.context.azure.compute.private_app_network
   private_app_subnet = local.config.context.azure.compute.private_app_subnet
   private_app_nat_subnet = local.config.context.azure.compute.private_app_nat_subnet
+
+  resource_group = module.resource-group.resource_group
+
+  depends_on = [
+    module.resource-group
+  ]
 }
 
 ##################################################
@@ -115,12 +120,10 @@ module "runbook-deploy-lacework" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
-  public_resource_group  = module.compute[0].public_resource_group
-  public_automation_account = module.automation-account[0].public_automation_account_name
-  public_automation_princial_id = module.automation-account[0].public_automation_princial_id
-  private_resource_group  = module.compute[0].private_resource_group
-  private_automation_account = module.automation-account[0].private_automation_account_name
-  private_automation_princial_id = module.automation-account[0].private_automation_princial_id
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
   tag             = "runbook_deploy_lacework"
 
   lacework_agent_access_token = local.config.context.lacework.agent.token

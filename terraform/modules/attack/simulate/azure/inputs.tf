@@ -18,27 +18,15 @@ variable "compromised_credentials" {
   type = any
 }
 
-variable "public_resource_group" {
+variable "resource_group" {
   type = any
 }
 
-variable "private_resource_group" {
+variable "target_resource_group" {
   type = any
 }
 
-variable "target_public_resource_group" {
-  type = any
-}
-
-variable "target_private_resource_group" {
-  type = any
-}
-
-variable "attacker_public_resource_group" {
-  type = any
-}
-
-variable "attacker_private_resource_group" {
+variable "attacker_resource_group" {
   type = any
 }
 

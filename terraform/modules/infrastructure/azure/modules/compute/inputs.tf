@@ -14,6 +14,11 @@ variable "region" {
   type        = string
 }
 
+variable "resource_group" {
+  description = "resource group"
+  type = any
+}
+
 variable "trust_security_group" {
   type = bool
   description = "Enable endpoints within the security group to communicate on all ports and protocols."

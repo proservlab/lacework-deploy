@@ -1,6 +1,6 @@
 locals {
     ssh_key_path = pathexpand("~/.ssh/azure-public.pem")
-    public_resource_group_name = "public-rg-${var.environment}-${var.deployment}"
+    resource_group_name = var.resource_group.name
 }
 
 module "workstation-external-ip" {
@@ -28,21 +28,11 @@ data "azurerm_platform_image" "windowsserver_image" {
     sku       = "2019-Datacenter"
 }
 
-resource "azurerm_resource_group" "rg" {
-    name     = "public-rg-${var.environment}-${var.deployment}"
-    location = var.region
-
-    tags = {
-        environment = var.environment
-        deployment = var.deployment
-    }
-}
-
 resource "azurerm_virtual_network" "network" {
     name                = "public-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.public_network]
     location            = var.region
-    resource_group_name = azurerm_resource_group.rg.name
+    resource_group_name = var.resource_group.name
 
     tags = {
         environment = var.environment
@@ -51,26 +41,16 @@ resource "azurerm_virtual_network" "network" {
 
 resource "azurerm_subnet" "subnet" {
     name                 = "public-subnet-${var.environment}-${var.deployment}"
-    resource_group_name  = azurerm_resource_group.rg.name
+    resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network.name
     address_prefixes       = [var.public_subnet]
-}
-
-resource "azurerm_resource_group" "rg-private" {
-    name     = "private-rg-${var.environment}-${var.deployment}"
-    location = var.region
-
-    tags = {
-        environment = var.environment
-        deployment = var.deployment
-    }
 }
 
 resource "azurerm_virtual_network" "network-private" {
     name                = "private-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.private_network]
     location            = var.region
-    resource_group_name = azurerm_resource_group.rg-private.name
+    resource_group_name = var.resource_group.name
 
     tags = {
         environment = var.environment
@@ -79,7 +59,7 @@ resource "azurerm_virtual_network" "network-private" {
 
 resource "azurerm_subnet" "subnet-private" {
     name                 = "private-subnet-${var.environment}-${var.deployment}"
-    resource_group_name  = azurerm_resource_group.rg-private.name
+    resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network-private.name
     address_prefixes       = [var.private_subnet]
 }
@@ -88,7 +68,7 @@ resource "azurerm_public_ip" "ip" {
     for_each                     = { for instance in var.instances: instance.name => instance if instance.public == true  }
     name                         = "ip-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
-    resource_group_name          = azurerm_resource_group.rg.name
+    resource_group_name          = var.resource_group.name
     allocation_method            = "Dynamic"
 
     tags = {
@@ -100,7 +80,7 @@ resource "azurerm_public_ip" "ip" {
 resource "azurerm_network_security_group" "sg" {
     name                = "public-sg-${var.environment}-${var.deployment}"
     location            = var.region
-    resource_group_name = azurerm_resource_group.rg.name
+    resource_group_name = var.resource_group.name
 
     tags = {
         environment = var.environment
@@ -111,7 +91,7 @@ resource "azurerm_network_security_group" "sg" {
 
 resource "azurerm_network_security_rule" "public_ingress_rules" {
   count = length(var.public_ingress_rules)
-  name                        = "sg-ingress-${var.environment}-${var.deployment}-${count.index}"
+  name                        = "public-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
@@ -120,14 +100,14 @@ resource "azurerm_network_security_rule" "public_ingress_rules" {
   destination_port_range      = "${var.public_ingress_rules[count.index].from_port}-${var.public_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.public_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.rg.name
+  resource_group_name         = var.resource_group.name
   network_security_group_name = azurerm_network_security_group.sg.name
 }
 
 resource "azurerm_network_security_group" "sg-private" {
     name                = "private-sg-${var.environment}-${var.deployment}"
     location            = var.region
-    resource_group_name = azurerm_resource_group.rg-private.name
+    resource_group_name = var.resource_group.name
 
     tags = {
         environment = var.environment
@@ -147,7 +127,7 @@ resource "azurerm_network_security_rule" "private_ingress_rules" {
   destination_port_range      = "${var.private_ingress_rules[count.index].from_port}-${var.private_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.private_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.rg-private.name
+  resource_group_name         = var.resource_group.name
   network_security_group_name = azurerm_network_security_group.sg-private.name
 }
 
@@ -155,7 +135,7 @@ resource "azurerm_network_interface" "nic" {
     for_each                    = { for instance in var.instances: instance.name => instance }
     name                        = "nic-${ each.key }-${var.environment}-${var.deployment}"
     location                    = var.region
-    resource_group_name         = each.value.public == true ? azurerm_resource_group.rg.name : azurerm_resource_group.rg-private.name
+    resource_group_name         = var.resource_group.name
 
     ip_configuration {
         name                          = "nic-config-${each.key}-${var.environment}-${var.deployment}"
@@ -181,7 +161,7 @@ resource "azurerm_network_interface_security_group_association" "sg" {
 resource "random_id" "randomId" {
     keepers = {
         # Generate a new ID only when a new resource group is defined
-        resource_group = azurerm_resource_group.rg.name
+        resource_group = var.resource_group.name
     }
     
     byte_length = 8
@@ -197,7 +177,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance }
     name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
-    resource_group_name   = each.value.public == true ? azurerm_resource_group.rg.name :azurerm_resource_group.rg-private.name
+    resource_group_name   = var.resource_group.name
     network_interface_ids = [azurerm_network_interface.nic[each.key].id]
     size                  = "Standard_DS1_v2"
 

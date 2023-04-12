@@ -29,8 +29,15 @@ locals {
   attacker_automation_account  = local.attacker_infrastructure_deployed.azure.automation_account
   target_automation_account  = local.target_infrastructure_deployed.azure.automation_account
 
-#   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
-#   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
+  resource_group = try(local.default_infrastructure_deployed.azure.compute[0].resource_group, null)
+  public_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_security_group, null)
+  private_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_security_group, null)
+
+  attacker_resource_group = local.attacker_infrastructure_deployed.azure.compute[0].resource_group
+  target_resource_group = local.target_infrastructure_deployed.azure.compute[0].resource_group
+
+  # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
+  # attacker_aks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
   
   any_target_simulation_enabled = anytrue(flatten([ 
     for category in try(local.config.context.azure.runbook.target,[]): [
@@ -70,10 +77,10 @@ data "azurerm_resources" "attacker_reverse_shell" {
   provider = azurerm.attacker
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
   
-  resource_group_name = var.attacker_public_resource_group.name
+  resource_group_name = local.attacker_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
   required_tags = {
-    environment = "attacker"
+    environment       = "attacker"
     deployment        = local.config.context.global.deployment
     runbook_exec_reverse_shell_attacker = "true"
   }
@@ -84,7 +91,7 @@ data "azurerm_virtual_machine" "attacker_reverse_shell" {
   provider = azurerm.attacker
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.attacker_reverse_shell[0].resources[0].name
-  resource_group_name = var.attacker_public_resource_group.name
+  resource_group_name = local.attacker_resource_group.name
 
   depends_on = [
     data.azurerm_resources.attacker_reverse_shell
@@ -113,12 +120,11 @@ module "runbook-connect-reverse-shell" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
-  public_resource_group  = var.public_resource_group
-  public_automation_account = local.target_automation_account[0].public_automation_account_name
-  public_automation_princial_id = local.target_automation_account[0].public_automation_princial_id
-  private_resource_group  = var.private_resource_group
-  private_automation_account = local.target_automation_account[0].private_automation_account_name
-  private_automation_princial_id = local.target_automation_account[0].private_automation_princial_id
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+  
   tag             = "runbook_exec_touch_file"
 
   host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, try(data.azurerm_virtual_machine.attacker_reverse_shell[0].public_ip_address, "127.0.0.1"))
@@ -139,12 +145,11 @@ module "runbook-exec-touch-file" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
-  public_resource_group  = var.public_resource_group
-  public_automation_account = local.target_automation_account[0].public_automation_account_name
-  public_automation_princial_id = local.target_automation_account[0].public_automation_princial_id
-  private_resource_group  = var.private_resource_group
-  private_automation_account = local.target_automation_account[0].private_automation_account_name
-  private_automation_princial_id = local.target_automation_account[0].private_automation_princial_id
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
   tag             = "runbook_exec_touch_file"
 }
 
@@ -162,12 +167,11 @@ module "runbook-responder-reverse-shell" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
-  public_resource_group  = var.public_resource_group
-  public_automation_account = local.attacker_automation_account[0].public_automation_account_name
-  public_automation_princial_id = local.attacker_automation_account[0].public_automation_princial_id
-  private_resource_group  = var.private_resource_group
-  private_automation_account = local.attacker_automation_account[0].private_automation_account_name
-  private_automation_princial_id = local.attacker_automation_account[0].private_automation_princial_id
+  
+  resource_group  = local.attacker_automation_account[0].resource_group
+  automation_account = local.attacker_automation_account[0].automation_account_name
+  automation_princial_id = local.attacker_automation_account[0].automation_princial_id
+
   tag             = "runbook_exec_reverse_shell_attacker"
 
   listen_ip     = local.config.context.azure.runbook.attacker.responder.reverse_shell.listen_ip
