@@ -68,7 +68,7 @@ resource "time_sleep" "wait" {
 
 data "azurerm_resources" "attacker_reverse_shell" {
   provider = azurerm.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.enabled == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
   
   resource_group_name = var.attacker_public_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
@@ -82,7 +82,7 @@ data "azurerm_resources" "attacker_reverse_shell" {
 
 data "azurerm_virtual_machine" "attacker_reverse_shell" {
   provider = azurerm.attacker
-  count = length(data.azurerm_resources.attacker_reverse_shell) > 0 && try(length(data.azurerm_resources.attacker_reverse_shell[0].resources),0) >0 ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.attacker_reverse_shell[0].resources[0].name
   resource_group_name = var.attacker_public_resource_group.name
 
