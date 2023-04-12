@@ -34,7 +34,7 @@ locals {
   private_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_security_group, null)
 
   attacker_resource_group = local.attacker_infrastructure_deployed.azure.compute[0].resource_group
-  target_resource_group = local.attacker_infrastructure_deployed.azure.compute[0].resource_group
+  target_resource_group = local.target_infrastructure_deployed.azure.compute[0].resource_group
 
   # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
   # attacker_aks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
@@ -99,11 +99,11 @@ module "compute-add-trusted-ingress" {
   security_group                = local.public_security_group.name
 
   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
-    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips,[]): "${ip.ip_address}/32" ],
+    [ for ip in data.azurerm_public_ips.public_attacker[0].public_ips: "${ip.ip_address}/32" ],
     # local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
-    [ for ip in try(data.azurerm_public_ips.public_target[0].public_ips, []): "${ip.ip_address}/32" ],
+    [ for ip in data.azurerm_public_ips.public_target[0].public_ips: "${ip.ip_address}/32" ],
     # local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
