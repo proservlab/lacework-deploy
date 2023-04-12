@@ -27,7 +27,7 @@ output "infrastructure-config" {
 }
 
 output "resource_group" {
-    value = module.resource_group
+    value = module.resource-group
 }
 
 output "ssh_key_path" {
