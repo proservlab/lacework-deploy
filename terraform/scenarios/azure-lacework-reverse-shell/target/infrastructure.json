@@ -31,7 +31,8 @@
               "runbook_deploy_git"    : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
-              "runbook_exec_touch_file": "true"
+              "runbook_exec_touch_file": "true",
+              "runbook_exec_reverse_shell_target": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -45,8 +46,7 @@
             "tags": {
               "runbook_deploy_git"    : "true",
               "runbook_deploy_docker"  : "true",
-              "runbook_deploy_lacework": "true",
-              "runbook_exec_reverse_shell_target": "true"
+              "runbook_deploy_lacework": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -61,7 +61,7 @@
         "enabled"                        : false,
         "deploy_git"                     : false,
         "deploy_docker"                  : false,
-        "deploy_lacework_agent"          : false,
+        "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : false
       }
     },

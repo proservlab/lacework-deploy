@@ -125,7 +125,7 @@ module "runbook-connect-reverse-shell" {
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
-  tag             = "runbook_exec_touch_file"
+  tag             = "runbook_exec_reverse_shell_target"
 
   host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, try(data.azurerm_virtual_machine.attacker_reverse_shell[0].public_ip_address, "127.0.0.1"))
   host_port     = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_port, local.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
