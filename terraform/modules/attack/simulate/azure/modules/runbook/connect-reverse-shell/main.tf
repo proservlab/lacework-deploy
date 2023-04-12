@@ -4,7 +4,7 @@ locals {
     host_port = var.host_port
 
     payload = <<-EOT
-    MAX_WAIT=300
+    MAX_WAIT=1800
     SECONDS_WAITED=0
     CHECK_INTERVAL=5
 

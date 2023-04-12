@@ -4,7 +4,7 @@ locals {
     listen_ip = var.listen_ip
     base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
-    MAX_WAIT=300
+    MAX_WAIT=1800
     SECONDS_WAITED=0
     CHECK_INTERVAL=5
 
