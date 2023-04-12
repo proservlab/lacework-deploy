@@ -41,6 +41,30 @@ variable "config" {
             })
           })
         })
+        runbook = object({
+          vulnerable = object({
+            docker = object({
+              log4shellapp = object({
+                enabled                   = bool
+                listen_port               = number
+              })
+            })
+            npm_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
+            python3_twisted_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
+          })
+          ssh_keys = object({ 
+            enabled                     = bool
+          })
+          aws_credentials = object({ 
+            enabled                     = bool
+          })
+        })
       })
       gcp = object({
         gce = object({
@@ -262,6 +286,30 @@ variable "config" {
               from_port = 1024
               to_port = 65535
             }
+          }
+        }
+        runbook = {
+          vulnerable = {
+            docker = {
+              log4shellapp = {
+                enabled                   = false
+                listen_port               = 8000
+              }
+            },
+            npm_app = {
+              enabled                   = false
+              listen_port               = 8089
+            }
+            python3_twisted_app = {
+              enabled                   = false
+              listen_port               = 8090
+            }
+          }
+          ssh_keys = {
+            enabled                     = false
+          }
+          aws_credentials = {
+            enabled                     = false
           }
         }
       }

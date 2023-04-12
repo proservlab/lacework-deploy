@@ -43,6 +43,17 @@ variable "config" {
           private_app_ingress_rules = list(any)
           private_app_egress_rules  = list(any)
         })
+        aks = object({
+          enabled               = bool
+          cluster_name          = string
+        })
+        runbook = object({
+          enabled               = bool
+          deploy_git            = bool
+          deploy_docker         = bool
+          deploy_lacework_agent = bool
+          deploy_lacework_syscall_config = bool
+        })
       })
       gcp = object({
         region                    = string
@@ -320,6 +331,17 @@ variable "config" {
                                     description = "allow all outbound"
                                   }
                                 ]
+        }
+        aks = {
+          enabled               = false
+          cluster_name          = "infra-cluster"
+        }
+        runbook = {
+          enabled               = false
+          deploy_git            = false
+          deploy_docker         = false
+          deploy_lacework_agent = false
+          deploy_lacework_syscall_config = false
         }
       }
       gcp = {

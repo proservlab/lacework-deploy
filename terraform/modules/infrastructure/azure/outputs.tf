@@ -12,6 +12,7 @@ output "config" {
                 compute                       = module.compute
                 # aks                           = module.aks
                 aks                           = null
+                automation_account            = module.automation-account
             }
         }
     }

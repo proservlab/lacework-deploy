@@ -69,6 +69,11 @@ resource "azurerm_resource_group_template_deployment" "ARMdeploy-automation-acct
     })
     # the actual ARM template file we will use
     template_content = file("${path.module}/user-id-template.json")
+
+    timeouts {
+        create = "10m"
+        delete = "30m"
+    }
 }
 
 resource "azurerm_automation_module" "Azure-MI-Automation-module" {

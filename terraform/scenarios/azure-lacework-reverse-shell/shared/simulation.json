@@ -1,0 +1,27 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "azure" : {
+      "enabled": true,
+      "runbook" : {
+        "target": {
+          "connect": {
+            "reverse_shell": {
+              "enabled": true
+            }
+          }
+        },
+        "attacker": {
+          "responder": {
+            "reverse_shell": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

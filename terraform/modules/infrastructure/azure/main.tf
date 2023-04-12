@@ -37,6 +37,24 @@ module "workstation-external-ip" {
 }
 
 ##################################################
+# AZURE RUNBOOK SIMULATION
+##################################################
+
+module "automation-account" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.enabled == true ) ? 1 : 0
+  source          = "./modules/automation/account"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  public_resource_group  = module.compute[0].public_resource_group
+  private_resource_group  = module.compute[0].private_resource_group
+
+  depends_on = [
+    module.compute
+  ]
+}
+
+##################################################
 # AZURE Resource Group
 ##################################################
 
@@ -86,6 +104,35 @@ module "compute" {
   private_app_subnet = local.config.context.azure.compute.private_app_subnet
   private_app_nat_subnet = local.config.context.azure.compute.private_app_nat_subnet
 }
+
+##################################################
+# RUBOOK
+##################################################
+
+module "runbook-deploy-lacework" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_agent == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-lacework"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  public_resource_group  = module.compute[0].public_resource_group
+  public_automation_account = module.automation-account[0].public_automation_account_name
+  public_automation_princial_id = module.automation-account[0].public_automation_princial_id
+  private_resource_group  = module.compute[0].private_resource_group
+  private_automation_account = module.automation-account[0].private_automation_account_name
+  private_automation_princial_id = module.automation-account[0].private_automation_princial_id
+  tag             = "runbook_deploy_lacework"
+
+  lacework_agent_access_token = local.config.context.lacework.agent.token
+  lacework_server_url         = local.config.context.lacework.server_url
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
+
 
 ##################################################
 # DYNU

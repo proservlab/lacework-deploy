@@ -20,9 +20,169 @@ variable "config" {
         enabled                   = bool
         runbook = object({
           target = object({
+            drop = object({
+              malware = object({
+                eicar = object({ 
+                  enabled                     = bool
+                  eicar_path                  = string
+                })
+              })
+            })
+            connect = object({
+              badip = object({
+                enabled                     = bool
+                iplist_url                  = string
+              })
+              nmap_port_scan = object({
+                enabled                     = bool
+                nmap_scan_host              = string
+                nmap_scan_ports             = list(number)
+              })
+              oast = object({
+                enabled                     = bool
+              })
+              codecov = object({
+                enabled                     = bool
+                use_ssl                     = bool
+                git_origin                  = string
+                env_secrets                 = list(string)
+                host_ip                     = string
+                host_port                   = number
+              })
+              reverse_shell = object({
+                enabled                     = bool
+                host_ip                     = string
+                host_port                   = number
+              })
+            })
+            listener = object({
+              port_forward = object({
+                enabled                     = bool
+                port_forwards               = list(object({
+                                                src_port      = number
+                                                dst_port      = number
+                                                dst_ip        = string
+                                                description   = string
+                                              }))
+              })
+            })
             execute = object({
               touch_file = object({
                 enabled                     = bool
+              })
+              docker_cpu_miner = object({
+                enabled                     = bool
+                nicehash_image              = string
+                nicehash_name               = string
+                nicehash_server             = string
+                nicehash_user               = string
+                minergate_name              = string
+                minergate_image             = string
+                minergate_server            = string
+                minergate_user              = string
+              })
+            })
+          })
+          attacker = object({
+            listener = object({
+              http = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+              })
+            })
+            responder = object({
+              reverse_shell = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+              })
+              port_forward = object({
+                enabled                     = bool
+                listen_port                 = number
+              })
+            })
+            execute = object({
+              vuln_npm_app_attack = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                payload                     = string
+              })
+              docker_log4shell_attack = object({
+                enabled                     = bool
+                attacker_http_port          = number
+                attacker_ldap_port          = number
+                attacker_ip                 = string
+                target_ip                   = string
+                target_port                 = number
+                payload                     = string
+              })
+              docker_composite_compromised_credentials_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                nicehash_user               = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_ransomware_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                nicehash_user               = string
+                compromised_keys_user       = string
+              })
+              docker_composite_defense_evasion_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                nicehash_user               = string
+                compromised_keys_user       = string
+              })
+              docker_composite_cloud_cryptomining_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                nicehash_user               = string
+                compromised_keys_user       = string
+              })
+              docker_composite_host_cryptomining_attack = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                protonvpn_user              = string
+                protonvpn_password          = string
+                protonvpn_tier              = number
+                protonvpn_server            = string
+                protonvpn_protocol          = string
+                wallet                      = string
+                minergate_user              = string
+                nicehash_user               = string
+                compromised_keys_user       = string
               })
             })
           })

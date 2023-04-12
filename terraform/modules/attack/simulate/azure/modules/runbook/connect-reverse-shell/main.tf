@@ -46,7 +46,7 @@ data "azurerm_subscription" "current" {
 #####################################################
 
 resource "azurerm_automation_runbook" "demo_rb" {
-    name                    = "${tag}-runbook-${var.environment}-${var.deployment}"
+    name                    = "${var.tag}-runbook-${var.environment}-${var.deployment}"
     location                = var.public_resource_group.location
     resource_group_name     = var.public_resource_group.name
     automation_account_name = var.public_automation_account
@@ -65,7 +65,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
 }
 
 resource "azurerm_automation_schedule" "hourly" {
-  name                    = "${tag}-schedule-${var.environment}-${var.deployment}"
+  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}"
   resource_group_name     = var.public_resource_group.name
   automation_account_name = var.public_automation_account
   frequency               = "Hour"
@@ -88,7 +88,7 @@ resource "azurerm_automation_job_schedule" "demo_sched" {
 #####################################################
 
 resource "azurerm_automation_runbook" "demo_rb_private" {
-    name                    = "${tag}-runbook-${var.environment}-${var.deployment}"
+    name                    = "${var.tag}-runbook-${var.environment}-${var.deployment}"
     location                = var.private_resource_group.location
     resource_group_name     = var.private_resource_group.name
     automation_account_name = var.private_automation_account
@@ -107,7 +107,7 @@ resource "azurerm_automation_runbook" "demo_rb_private" {
 }
 
 resource "azurerm_automation_schedule" "hourly_private" {
-  name                    = "${tag}-schedule-${var.environment}-${var.deployment}"
+  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}"
   resource_group_name     = var.private_resource_group.name
   automation_account_name = var.private_automation_account
   frequency               = "Hour"

@@ -46,25 +46,26 @@ variable "private_automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_exec_reverse_shell_attacker"
+    default = "runbook_deploy_lacework"
 }
 
-variable "listen_ip" {
-  type = string
-  description = "IP address of attacker"
-  default = "0.0.0.0"
+variable "lacework_agent_tags" {
+  type        = map(string)
+  description = "A map/dictionary of Tags to be assigned to the Lacework datacollector"
+  default     = {}
 }
 
-variable "listen_port" {
-  type = number
-  description = "Port address of attacker"
-  default = 4444
+variable "lacework_agent_temp_path" {
+  type        = string
+  description = "The temporary path for the Lacework installation script"
+  default     = "/tmp"
 }
 
-variable "payload" {
-  type = string
-  description = "The bash commands payload to execute when target machine connects"
-  default = <<-EOT
-            touch /tmp/pwned
-            EOT
+variable "lacework_agent_access_token" {
+    type    = string
+}
+
+variable "lacework_server_url" {
+    type    = string
+    default = "https://api.lacework.net"
 }
