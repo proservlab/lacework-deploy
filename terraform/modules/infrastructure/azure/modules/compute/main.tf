@@ -118,7 +118,7 @@ resource "azurerm_network_security_group" "sg-private" {
 
 resource "azurerm_network_security_rule" "private_ingress_rules" {
   count = length(var.private_ingress_rules)
-  name                        = "sg-ingress-${var.environment}-${var.deployment}-${count.index}"
+  name                        = "private-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
