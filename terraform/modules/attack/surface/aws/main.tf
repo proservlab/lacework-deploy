@@ -28,6 +28,13 @@ locals {
   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 
+  default_public_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  default_public_app_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+  target_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  target_public_app_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+  attacker_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  attacker_app_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+
   cluster_name                        = try(local.default_infrastructure_deployed.aws.eks[0].cluster.id, "cluster")
   cluster_endpoint                    = try(local.default_infrastructure_deployed.aws.eks[0].cluster.endpoint, null)
   cluster_ca_cert                     = try(local.default_infrastructure_deployed.aws.eks[0].cluster.certificate_authority[0].data, null)
@@ -60,31 +67,6 @@ resource "null_resource" "log" {
 
 resource "time_sleep" "wait" {
   create_duration = "120s"
-}
-
-# get current context security group
-data "aws_security_groups" "public" {
-  count = (local.config.context.global.enable_all == true) || (
-    local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-  tags = {
-    environment = local.config.context.global.environment
-    deployment  = local.config.context.global.deployment
-    role        = "default"
-    public      = "true"
-  }
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_security_groups" "public_app" {
-  count = (local.config.context.global.enable_all == true) || (
-    local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
-  tags = {
-    environment = local.config.context.global.environment
-    deployment  = local.config.context.global.deployment
-    role        = "app"
-    public      = "true"
-  }
-  depends_on = [time_sleep.wait]
 }
 
 data "aws_instances" "public_attacker" {
@@ -150,7 +132,7 @@ module "ec2-add-trusted-ingress" {
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   
-  security_group_id             = data.aws_security_groups.public[0].ids[0]
+  security_group_id             = local.default_public_sg
   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
     local.attacker_eks_public_ip
@@ -172,7 +154,7 @@ module "ec2-add-trusted-ingress-app" {
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   
-  security_group_id             = data.aws_security_groups.public_app[0].ids[0]
+  security_group_id             = local.default_public_app_sg
   trusted_attacker_source       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
     local.attacker_eks_public_ip
@@ -281,10 +263,7 @@ module "eks-auth" {
   # user here needs to be created by iam module
   iam_eks_pod_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     module.iam,
@@ -303,10 +282,7 @@ module "kubernetes-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -319,10 +295,7 @@ module "kubernetes-app-windows" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -336,10 +309,7 @@ module "kubenetes-psp" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -368,10 +338,7 @@ module "vulnerable-kubernetes-voteapp" {
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -402,10 +369,7 @@ module "vulnerable-kubernetes-rdsapp" {
   trusted_workstation_source          = [module.workstation-external-ip.cidr]
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -427,10 +391,7 @@ module "vulnerable-kubernetes-log4shellapp" {
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -443,10 +404,7 @@ module "vulnerable-kubernetes-privileged-pod" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -459,10 +417,7 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30

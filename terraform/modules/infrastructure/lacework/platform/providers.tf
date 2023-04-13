@@ -1,6 +1,50 @@
+provider "kubernetes" {
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
+}
+
+provider "helm" {
+  kubernetes {
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
+  }
+}
+
+provider "aws" {
+  profile = var.default_aws_profile
+  region = var.default_aws_region
+}
+
+provider "aws" {
+  alias = "attacker"
+  profile = var.attacker_aws_profile
+  region = var.attacker_aws_region
+}
+
+provider "aws" {
+  alias = "target"
+  profile = var.target_aws_profile
+  region = var.target_aws_region
+}
+
 provider "lacework" {
-  profile    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? local.default_infrastructure_config.context.lacework.profile_name : null
-  account    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-account"
-  api_key    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-api-key"
-  api_secret = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-api-secret"
+  profile    = var.default_lacework_profile
 }

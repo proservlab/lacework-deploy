@@ -669,8 +669,15 @@ clear
 select_scenario
 
 clear
+
+if [ -e "$CONFIG_FILE" ]; then
+    infomsg "Existing config file:"
+    echo "$(cat $CONFIG_FILE)"
+fi
+
 if check_file_exists $CONFIG_FILE; then
     infomsg "Configuration file will be overwritten: $CONFIG_FILE"
+    read -p "> hit enter to continue"
     
     # set provider to first segement of workspace name
     PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')

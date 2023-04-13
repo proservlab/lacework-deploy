@@ -37,24 +37,29 @@ module "default-attacksimulation-context" {
 ##################################################
 
 locals {
+  default_kubeconfig_path  = pathexpand("~/.kube/config")
+  attacker_kubeconfig_path = pathexpand("~/.kube/azure-attacker-${var.deployment}-kubeconfig")
+  target_kubeconfig_path   = pathexpand("~/.kube/azure-target-${var.deployment}-kubeconfig")
+
   kubeconfigs = [
-    pathexpand("~/.kube/azure-attacker-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/azure-target-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/azure-target-default-kubeconfig")
+    local.default_kubeconfig_path,
+    local.attacker_kubeconfig_path,
+    local.target_kubeconfig_path
   ]
 }
-# stage the kubeconfig files to avoid errors
+
+# stage the kubeconfig files to avoid provider errors
 resource "null_resource" "kubeconfig" {
+  for_each = toset([for k in local.kubeconfigs : k if !fileexists(k)])
   triggers = {
     always = timestamp()
   }
-  count = length(local.kubeconfigs)
 
   # stage kubeconfig
   provisioner "local-exec" {
     command     = <<-EOT
                   mkdir -p ~/.kube
-                  touch ${local.kubeconfigs[count.index]}
+                  touch ${each.key}
                   EOT
     interpreter = ["bash", "-c"]
   }
@@ -173,6 +178,24 @@ module "attacker-azure-infrastructure" {
   source = "./modules/infrastructure/azure"
   config = module.attacker-infrastructure-context.config
 
+  default_azure_subscription          = var.attacker_azure_subscription
+  default_azure_tenant                = var.attacker_azure_tenant
+  default_azure_region                = var.attacker_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -186,6 +209,24 @@ module "attacker-azure-infrastructure" {
 module "target-azure-infrastructure" {
   source = "./modules/infrastructure/azure"
   config = module.target-infrastructure-context.config
+
+  default_azure_subscription          = var.target_azure_subscription
+  default_azure_tenant                = var.target_azure_tenant
+  default_azure_region                = var.target_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -203,40 +244,6 @@ module "target-azure-infrastructure" {
 # Note: Lacework Kubernetes Modules Require EKS/GKE
 ##################################################
 
-module "attacker-lacework-platform-infrastructure" {
-  source = "./modules/infrastructure/lacework/platform"
-  config = module.attacker-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-azure-infrastructure.config, {})
-      attacker = try(module.attacker-azure-infrastructure.config, {})
-    }
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-azure-infrastructure.id,
-    module.target-azure-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
-
 module "target-lacework-platform-infrastructure" {
   source = "./modules/infrastructure/lacework/platform"
   config = module.target-infrastructure-context.config
@@ -253,6 +260,12 @@ module "target-lacework-platform-infrastructure" {
     # deployed state configuration reference
     deployed_state = {}
   }
+
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -373,6 +386,24 @@ module "attacker-azure-attacksurface" {
     }
   }
 
+  default_azure_subscription          = var.attacker_azure_subscription
+  default_azure_tenant                = var.attacker_azure_tenant
+  default_azure_region                = var.attacker_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -410,6 +441,24 @@ module "target-azure-attacksurface" {
       attacker = try(module.attacker-azure-infrastructure.config, {})
     }
   }
+
+  default_azure_subscription          = var.target_azure_subscription
+  default_azure_tenant                = var.target_azure_tenant
+  default_azure_region                = var.target_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -596,6 +645,24 @@ module "attacker-azure-attacksimulation" {
   attacker_resource_group = module.attacker-azure-infrastructure.resource_group
   target_resource_group   = module.target-azure-infrastructure.resource_group
 
+  default_azure_subscription          = var.attacker_azure_subscription
+  default_azure_tenant                = var.attacker_azure_tenant
+  default_azure_region                = var.attacker_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -648,6 +715,24 @@ module "target-azure-attacksimulation" {
   resource_group          = module.attacker-azure-infrastructure.resource_group
   attacker_resource_group = module.attacker-azure-infrastructure.resource_group
   target_resource_group   = module.target-azure-infrastructure.resource_group
+
+  default_azure_subscription          = var.target_azure_subscription
+  default_azure_tenant                = var.target_azure_tenant
+  default_azure_region                = var.target_azure_region
+  attacker_azure_subscription         = var.attacker_azure_subscription
+  attacker_azure_tenant               = var.attacker_azure_tenant
+  attacker_azure_region               = var.attacker_azure_region
+  target_azure_subscription           = var.target_azure_subscription
+  target_azure_tenant                 = var.target_azure_tenant
+  target_azure_region                 = var.target_azure_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context

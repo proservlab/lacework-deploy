@@ -8,59 +8,53 @@ locals {
   target_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["target"].eks[0].kubeconfig_path, local.target_default_kubeconfig_path)
 }
 
-provider "google" {
-  #credentials = can(length(local.default_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
-  access_token = can(length(local.attacker_infrastructure_config.context.gcp.project_id)) ? null : "xxxxxxx"
-  project = local.default_infrastructure_config.context.gcp.project_id
-  region = local.default_infrastructure_config.context.gcp.region
-}
-
-provider "google" {
-  alias = "attacker"
-  #credentials = can(length(local.attacker_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
-  access_token = can(length(local.attacker_infrastructure_config.context.gcp.project_id)) ? null : "xxxxxxx"
-  project = local.attacker_infrastructure_config.context.gcp.project_id
-  region = local.attacker_infrastructure_config.context.gcp.region
-}
-
-provider "google" {
-  alias = "target"
-  #credentials = can(length(local.target_infrastructure_config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
-  access_token = can(length(local.attacker_infrastructure_config.context.gcp.project_id)) ? null : "xxxxxxx"
-  project = local.target_infrastructure_config.context.gcp.project_id
-  region = local.target_infrastructure_config.context.gcp.region
-}
-
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  config_path = var.default_kubeconfig
 }
-
 provider "kubernetes" {
   alias = "attacker"
-  config_path = local.attacker_kubeconfig_path
+  config_path = var.attacker_kubeconfig
 }
-
 provider "kubernetes" {
   alias = "target"
-  config_path = local.target_kubeconfig_path
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    config_path = var.default_kubeconfig
   }
 }
-
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = local.attacker_kubeconfig_path
+    config_path = var.attacker_kubeconfig
   }
 }
-
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = local.target_kubeconfig_path
+    config_path = var.default_kubeconfig
   }
+}
+
+provider "google" {
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
+provider "google" {
+  alias = "attacker"
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
+provider "google" {
+  alias = "target"
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
+provider "lacework" {
+  profile    = var.default_lacework_profile
 }

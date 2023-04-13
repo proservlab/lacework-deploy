@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.19.0"
     }
+    lacework = {
+      source  = "lacework/lacework"
+      version = "~> 1.4"
+    }
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.9.0"

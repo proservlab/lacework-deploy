@@ -3,12 +3,12 @@ locals {
   tenant = try(length(local.default_infrastructure_config.context.azure.tenant), "false") == "false" ? null : local.default_infrastructure_config.context.azure.tenant
   region = try(length(local.default_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" : local.default_infrastructure_config.context.azure.region
 
-  attacker_subscription = try(length(local.attacker_infrastructure_config.context.azure.subscription), "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
-  attacker_tenant = try(length(local.attacker_infrastructure_config.context.azure.tenant), "false") != "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
+  attacker_subscription = try(length(local.attacker_infrastructure_config.context.azure.subscription), "false") == "false" ? null : local.attacker_infrastructure_config.context.azure.subscription
+  attacker_tenant = try(length(local.attacker_infrastructure_config.context.azure.tenant), "false") == "false" ? null : local.attacker_infrastructure_config.context.azure.tenant
   attacker_region = try(length(local.attacker_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" :  local.attacker_infrastructure_config.context.azure.region
 
-  target_subscription = try(length(local.target_infrastructure_config.context.azure.subscription), "false") != "false" ? null : local.target_infrastructure_config.context.azure.subscription
-  target_tenant = try(length(local.target_infrastructure_config.context.azure.tenant), "false") != "false" ? null : local.target_infrastructure_config.context.azure.tenant
+  target_subscription = try(length(local.target_infrastructure_config.context.azure.subscription), "false") == "false" ? null : local.target_infrastructure_config.context.azure.subscription
+  target_tenant = try(length(local.target_infrastructure_config.context.azure.tenant), "false") == "false" ? null : local.target_infrastructure_config.context.azure.tenant
   target_region = try(length(local.target_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
 
   default_kubeconfig_path = pathexpand("~/.kube/azure-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
@@ -21,38 +21,55 @@ locals {
 }
 
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
   }
 }
 
 provider "azurerm" {
   features {}
-  tenant_id = local.tenant
-  subscription_id = local.subscription
+  tenant_id = var.default_azure_tenant
+  subscription_id = var.default_azure_subscription
 }
 
 provider "azurerm" {
   alias = "attacker"
   features {}
-  tenant_id = local.attacker_tenant
-  subscription_id = local.attacker_subscription
+  tenant_id = var.attacker_azure_tenant
+  subscription_id = var.attacker_azure_subscription
 }
 
 provider "azurerm" {
   alias = "target"
   features {}
-  tenant_id = local.target_tenant
-  subscription_id = local.target_subscription
+  tenant_id = var.target_azure_tenant
+  subscription_id = var.target_azure_subscription
 }
 
 provider "lacework" {
-  profile    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? local.default_infrastructure_config.context.lacework.profile_name : null
-  account    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-account"
-  api_key    = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-api-key"
-  api_secret = can(length(local.default_infrastructure_config.context.lacework.profile_name)) ? null : "my-api-secret"
+  profile    = var.default_lacework_profile
 }

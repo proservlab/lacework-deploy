@@ -121,10 +121,7 @@ module "lacework-namespace" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && ( local.config.context.aws.eks.enabled == true || local.config.context.aws.eks-windows.enabled == true) && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true )  ) ? 1 : 0
   source                                = "./modules/kubernetes/namespace"
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30
@@ -147,10 +144,7 @@ module "lacework-daemonset" {
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30,
@@ -174,10 +168,7 @@ module "lacework-daemonset-windows" {
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30,
@@ -195,10 +186,7 @@ module "lacework-admission-controller" {
   lacework_account_name = local.config.context.lacework.account_name
   lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30,
@@ -218,10 +206,7 @@ module "lacework-eks-audit" {
     "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
   ]
 
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
+
 
   depends_on = [
     time_sleep.wait_30,

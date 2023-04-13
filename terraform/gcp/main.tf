@@ -37,24 +37,29 @@ module "default-attacksimulation-context" {
 ##################################################
 
 locals {
+  default_kubeconfig_path  = pathexpand("~/.kube/config")
+  attacker_kubeconfig_path = pathexpand("~/.kube/gcp-attacker-${var.deployment}-kubeconfig")
+  target_kubeconfig_path   = pathexpand("~/.kube/gcp-target-${var.deployment}-kubeconfig")
+
   kubeconfigs = [
-    pathexpand("~/.kube/gcp-attacker-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/gcp-target-${var.deployment}-kubeconfig"),
-    pathexpand("~/.kube/gcp-target-default-kubeconfig")
+    local.default_kubeconfig_path,
+    local.attacker_kubeconfig_path,
+    local.target_kubeconfig_path
   ]
 }
-# stage the kubeconfig files to avoid errors
+
+# stage the kubeconfig files to avoid provider errors
 resource "null_resource" "kubeconfig" {
+  for_each = toset([for k in local.kubeconfigs : k if !fileexists(k)])
   triggers = {
     always = timestamp()
   }
-  count = length(local.kubeconfigs)
 
   # stage kubeconfig
   provisioner "local-exec" {
     command     = <<-EOT
                   mkdir -p ~/.kube
-                  touch ${local.kubeconfigs[count.index]}
+                  touch ${each.key}
                   EOT
     interpreter = ["bash", "-c"]
   }
@@ -172,6 +177,21 @@ module "attacker-gcp-infrastructure" {
   source = "../modules/infrastructure/gcp"
   config = module.attacker-infrastructure-context.config
 
+  default_gcp_project                 = var.attacker_gcp_project
+  default_gcp_region                  = var.attacker_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -185,6 +205,21 @@ module "attacker-gcp-infrastructure" {
 module "target-gcp-infrastructure" {
   source = "../modules/infrastructure/gcp"
   config = module.target-infrastructure-context.config
+
+  default_gcp_project                 = var.target_gcp_project
+  default_gcp_region                  = var.target_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -201,74 +236,6 @@ module "target-gcp-infrastructure" {
 #
 # Note: Lacework Kubernetes Modules Require EKS/GKE
 ##################################################
-
-module "attacker-lacework-platform-infrastructure" {
-  source = "../modules/infrastructure/lacework/platform"
-  config = module.attacker-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-gcp-infrastructure.config, {})
-      attacker = try(module.attacker-gcp-infrastructure.config, {})
-    }
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-gcp-infrastructure.id,
-    module.target-gcp-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
-
-module "attacker-lacework-gcp-infrastructure" {
-  source = "../modules/infrastructure/lacework/gcp"
-  config = module.attacker-infrastructure-context.config
-
-  # infrasturcture config and deployed state
-  infrastructure = {
-
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
-
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-gcp-infrastructure.config, {})
-      attacker = try(module.attacker-gcp-infrastructure.config, {})
-    }
-  }
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-gcp-infrastructure.id,
-    module.target-gcp-infrastructure.id,
-
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
 
 module "target-lacework-platform-infrastructure" {
   source = "../modules/infrastructure/lacework/platform"
@@ -289,6 +256,12 @@ module "target-lacework-platform-infrastructure" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -323,6 +296,21 @@ module "target-lacework-gcp-infrastructure" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  default_gcp_project                 = var.target_gcp_project
+  default_gcp_region                  = var.target_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -443,6 +431,21 @@ module "attacker-gcp-attacksurface" {
     }
   }
 
+  default_gcp_project                 = var.attacker_gcp_project
+  default_gcp_region                  = var.attacker_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -480,6 +483,21 @@ module "target-gcp-attacksurface" {
       attacker = try(module.attacker-gcp-infrastructure.config, {})
     }
   }
+
+  default_gcp_project                 = var.target_gcp_project
+  default_gcp_region                  = var.target_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -695,6 +713,21 @@ module "attacker-gcp-attacksimulation" {
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
 
+  default_gcp_project                 = var.attacker_gcp_project
+  default_gcp_region                  = var.attacker_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -743,6 +776,21 @@ module "target-gcp-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-gcp-attacksurface.compromised_credentials, "")
+
+  default_gcp_project                 = var.target_gcp_project
+  default_gcp_region                  = var.target_gcp_region
+  attacker_gcp_project                = var.attacker_gcp_project
+  attacker_gcp_region                 = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context

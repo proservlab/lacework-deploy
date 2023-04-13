@@ -8,7 +8,7 @@
       "region"       : "${ aws_region }",
       "profile_name" : "${ aws_profile }",
       "ec2": {
-        "enabled"                       : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -63,19 +63,19 @@
         ]
       },
       "eks": {
-        "enabled"      : true,
+        "enabled"      : false,
         "cluster_name" : "target-cluster"
       },
       "rds" :  {
-        "enabled"                 : true
+        "enabled"                 : false
       },
       "ssm": {
-        "enabled"                        : true,
-        "deploy_git"                     : true,
-        "deploy_docker"                  : true,
+        "enabled"                        : false,
+        "deploy_git"                     : false,
+        "deploy_docker"                  : false,
         "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_agent"          : false,
+        "deploy_lacework_syscall_config" : false
       }
     },
     "lacework": {
@@ -83,7 +83,7 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_audit_config": {
         "enabled"    : false
@@ -92,30 +92,30 @@
         "enabled" : false
       },
       "agent": {
-        "enabled" : true,
+        "enabled" : false,
 
         "kubernetes": {
-          "enabled" : true,
+          "enabled" : false,
           "proxy_scanner": {
-            "enabled" : true
+            "enabled" : false
           },
           "daemonset": {
-            "enabled"        : true,
+            "enabled"        : false,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : true
+            "enabled" : false
           },
           "eks_audit_logs": {
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : true
+            "enabled" : false
           }
         }
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "gcp_agentless": {
         "enabled" : false

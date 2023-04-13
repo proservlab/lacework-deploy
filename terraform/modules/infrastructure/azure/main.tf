@@ -46,10 +46,11 @@ module "automation-account" {
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
-  resource_group  = module.compute[0].resource_group
+  resource_group  = module.resource-group.resource_group
 
   depends_on = [
-    module.compute
+    module.compute,
+    module.resource-group
   ]
 }
 

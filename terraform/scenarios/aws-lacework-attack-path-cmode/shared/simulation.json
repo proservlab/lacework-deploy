@@ -5,49 +5,49 @@
       "deployment"           : "${ deployment }"
     },
     "aws" :  {
-      "enabled" : true,
+      "enabled" : false,
       "ssm" :  {
         "target": {
           "drop": {
             "malware": {
               "eicar": { 
-                "enabled": true,
+                "enabled": false,
                 "eicar_path": "/tmp/eicar"
               }
             }
           },
           "connect": {
             "badip": {
-              "enabled": true,
+              "enabled": false,
               "iplist_url": "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
             },
             "nmap_port_scan": {
-              "enabled": true,
+              "enabled": false,
               "nmap_scan_host": "portquiz.net",
               "nmap_scan_ports": [80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636]
             },
             "oast": {
-              "enabled": true
+              "enabled": false
             },
             "codecov": {
-              "enabled": true,
+              "enabled": false,
               "use_ssl": false,
               "git_origin": "git@git.localhost:repo/repo.git",
               "env_secrets": ["SECRET=supersecret123"]
             },
             "reverse_shell": {
-              "enabled": true
+              "enabled": false
             }
           },
           "listener": {
             "port_forward": {
-              "enabled": true,
+              "enabled": false,
               "port_forwards": []
             }
           },
           "execute": {
             "docker_cpu_miner": {
-              "enabled": true,
+              "enabled": false,
               "nicehash_image": "a2ncer/nheqminer_cpu:latest",
               "nicehash_name": "nicehash",
               "nicehash_server": "equihash.usa.nicehash.com:3357",
@@ -62,26 +62,26 @@
         "attacker": {
           "listener": {
             "http": {
-              "enabled": true,
+              "enabled": false,
               "listen_ip": "0.0.0.0",
               "listen_port": 8080
             }
           },
           "responder": {
             "reverse_shell": {
-              "enabled": true,
+              "enabled": false,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
               "payload": "touch /tmp/pwned"
             },
             "port_forward": {
-              "enabled": true,
+              "enabled": false,
               "listen_port": 8888
             }
           },
           "execute": {
             "docker_log4shell_attack": {
-              "enabled": true,
+              "enabled": false,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
               "attacker_ip": null,

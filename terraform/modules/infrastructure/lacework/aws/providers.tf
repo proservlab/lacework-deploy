@@ -7,45 +7,52 @@ locals {
 }
 
 provider "kubernetes" {
-  alias = "main"
-  host                   = try(length(local.cluster_endpoint), "false" ) != "false" ? local.cluster_endpoint : "http://localhost"
-  cluster_ca_certificate = try(length(local.cluster_ca_cert), "false" ) != "false" ? base64decode(local.cluster_ca_cert) : null
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["--region", local.aws_region, "--profile", local.aws_profile_name, "eks", "get-token", "--cluster-name", local.cluster_name] 
-    command     = "aws"
-  }
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
-  alias = "main"
   kubernetes {
-    host                   = try(length(local.cluster_endpoint), "false" ) != "false" ? local.cluster_endpoint : "http://localhost"
-    cluster_ca_certificate = try(length(local.cluster_ca_cert), "false" ) != "false" ? base64decode(local.cluster_ca_cert) : null
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["--region", local.aws_region, "--profile", local.aws_profile_name, "eks", "get-token", "--cluster-name", local.cluster_name]
-      command     = "aws"
-    }
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
   }
 }
 
 provider "aws" {
-  max_retries = 40
+  profile = var.default_aws_profile
+  region = var.default_aws_region
+}
 
-  profile = var.config.context.aws.profile_name
-  region = var.config.context.aws.region
-  access_key                  = local.access_key
-  secret_key                  = local.secret_key
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_region_validation      = true
-  skip_requesting_account_id  = true
+provider "aws" {
+  alias = "attacker"
+  profile = var.attacker_aws_profile
+  region = var.attacker_aws_region
+}
+
+provider "aws" {
+  alias = "target"
+  profile = var.target_aws_profile
+  region = var.target_aws_region
 }
 
 provider "lacework" {
-  profile    = can(length(var.config.context.lacework.profile_name)) ? var.config.context.lacework.profile_name : null
-  account    = can(length(var.config.context.lacework.profile_name)) ? null : "my-account"
-  api_key    = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-key"
-  api_secret = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-secret"
+  profile    = var.default_lacework_profile
 }

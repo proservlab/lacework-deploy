@@ -37,11 +37,20 @@ module "default-attacksimulation-context" {
 ##################################################
 
 locals {
-  kubeconfig_path = pathexpand("~/.kube/config")
+  default_kubeconfig_path  = pathexpand("~/.kube/config")
+  attacker_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${var.deployment}-kubeconfig")
+  target_kubeconfig_path   = pathexpand("~/.kube/aws-target-${var.deployment}-kubeconfig")
+
+  kubeconfigs = [
+    local.default_kubeconfig_path,
+    local.attacker_kubeconfig_path,
+    local.target_kubeconfig_path
+  ]
 }
+
 # stage the kubeconfig files to avoid provider errors
 resource "null_resource" "kubeconfig" {
-  count = fileexists(local.kubeconfig_path) ? 0 : 1
+  for_each = toset([for k in local.kubeconfigs : k if !fileexists(k)])
   triggers = {
     always = timestamp()
   }
@@ -50,7 +59,7 @@ resource "null_resource" "kubeconfig" {
   provisioner "local-exec" {
     command     = <<-EOT
                   mkdir -p ~/.kube
-                  touch ${local.kubeconfig_path}
+                  touch ${each.key}
                   EOT
     interpreter = ["bash", "-c"]
   }
@@ -168,6 +177,21 @@ module "attacker-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
   config = module.attacker-infrastructure-context.config
 
+  default_aws_profile                 = var.attacker_aws_profile
+  default_aws_region                  = var.attacker_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -181,6 +205,21 @@ module "attacker-aws-infrastructure" {
 module "target-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
   config = module.target-infrastructure-context.config
+
+  default_aws_profile                 = var.target_aws_profile
+  default_aws_region                  = var.target_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -215,6 +254,12 @@ module "target-lacework-platform-infrastructure" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context
@@ -339,6 +384,21 @@ module "attacker-aws-attacksurface" {
   cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
+  default_aws_profile                 = var.attacker_aws_profile
+  default_aws_region                  = var.attacker_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -376,6 +436,21 @@ module "target-aws-attacksurface" {
       attacker = try(module.attacker-aws-infrastructure.config, {})
     }
   }
+
+  default_aws_profile                 = var.target_aws_profile
+  default_aws_region                  = var.target_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
   cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
@@ -558,6 +633,21 @@ module "attacker-aws-attacksimulation" {
 
   cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
 
+  default_aws_profile                 = var.attacker_aws_profile
+  default_aws_region                  = var.attacker_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
+
   parent = [
     # infrastructure context
     module.attacker-infrastructure-context.id,
@@ -609,6 +699,21 @@ module "target-aws-attacksimulation" {
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
   cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+
+  default_aws_profile                 = var.target_aws_profile
+  default_aws_region                  = var.target_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.target_kubeconfig_path
+  attacker_kubeconfig                 = local.attacker_kubeconfig_path
+  target_kubeconfig                   = local.target_kubeconfig_path
+  default_lacework_profile            = var.lacework_profile
+  default_lacework_account_name       = var.lacework_account_name
+  default_lacework_server_url         = var.lacework_server_url
+  default_lacework_agent_access_token = var.lacework_agent_access_token
+  default_lacework_proxy_token        = var.lacework_proxy_token
 
   parent = [
     # infrastructure context

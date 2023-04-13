@@ -4,27 +4,55 @@ locals{
 }
 
 
-provider "google" {
-  credentials = can(length(var.config.context.gcp.project_id)) ? null : "{\"type\": \"service_account\", \"project_id\": \"default\"}"
-  project = var.config.context.gcp.project_id
-  region = var.config.context.gcp.region
-}
-
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
   }
 }
 
+provider "google" {
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
+provider "google" {
+  alias = "attacker"
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
+provider "google" {
+  alias = "target"
+  project = var.default_gcp_project
+  region = var.default_gcp_region
+}
+
 provider "lacework" {
-  profile    = can(length(var.config.context.lacework.profile_name)) ? var.config.context.lacework.profile_name : null
-  account    = can(length(var.config.context.lacework.profile_name)) ? null : "my-account"
-  api_key    = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-key"
-  api_secret = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-secret"
+  profile    = var.default_lacework_profile
 }
 
 provider "restapi" {

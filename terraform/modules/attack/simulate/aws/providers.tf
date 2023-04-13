@@ -18,73 +18,53 @@ locals {
   kubeconfig_path = pathexpand("~/.kube/config")
 }
 
-data "aws_eks_clusters" "deployed" {}
-
-locals {
-  cluster_name  = coalesce(var.cluster_name, "${local.default_infrastructure_config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}")
-  cluster_count = length([ for cluster in data.aws_eks_clusters.deployed.names: cluster if cluster == local.cluster_name ])
-}
-
-data "aws_eks_cluster" "cluster" {
-  count = local.cluster_count
-  name = local.default_infrastructure_deployed.aws.eks[0].cluster_name
-}
-
-data "aws_eks_cluster_auth" "cluster-auth" {
-  count = local.cluster_count
-  name = local.default_infrastructure_deployed.aws.eks[0].cluster_name
-}
-
 provider "kubernetes" {
-  host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-  cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-  token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-  config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
   kubernetes {
-    host                    = local.cluster_count > 0 ? data.aws_eks_cluster.cluster[0].endpoint : null
-    cluster_ca_certificate  = local.cluster_count > 0 ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : null
-    token                   = local.cluster_count > 0 ? data.aws_eks_cluster_auth.cluster-auth[0].token : null
-    config_path             = local.cluster_count > 0 ? null : local.kubeconfig_path
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
   }
 }
 
 provider "aws" {
-  max_retries = 40
-
-  profile                     = local.profile
-  region                      = local.region
-  access_key                  = local.access_key
-  secret_key                  = local.secret_key
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
+  profile = var.default_aws_profile
+  region = var.default_aws_region
 }
 
 provider "aws" {
-  max_retries = 40
-
   alias = "attacker"
-  profile                     = local.attacker_profile
-  region                      = local.attacker_region
-  access_key                  = local.attacker_access_key
-  secret_key                  = local.attacker_secret_key
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
+  profile = var.attacker_aws_profile
+  region = var.attacker_aws_region
 }
 
 provider "aws" {
-  max_retries = 40
-
   alias = "target"
-  profile                     = local.target_profile
-  region                      = local.target_region
-  access_key                  = local.target_access_key
-  secret_key                  = local.target_secret_key
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
+  profile = var.target_aws_profile
+  region = var.target_aws_region
+}
+
+provider "lacework" {
+  profile    = var.default_lacework_profile
 }

@@ -9,26 +9,57 @@ locals {
 }
 
 provider "kubernetes" {
-  config_path = local.kubeconfig_path
+  config_path = var.default_kubeconfig
+}
+provider "kubernetes" {
+  alias = "attacker"
+  config_path = var.attacker_kubeconfig
+}
+provider "kubernetes" {
+  alias = "target"
+  config_path = var.target_kubeconfig
 }
 
 provider "helm" {
   kubernetes {
-    config_path = local.kubeconfig_path
+    config_path = var.default_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "attacker"
+  kubernetes {
+    config_path = var.attacker_kubeconfig
+  }
+}
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = var.default_kubeconfig
   }
 }
 
 provider "azurerm" {
   features {}
-  tenant_id = local.tenant
-  subscription_id = local.subscription
+  tenant_id = var.default_azure_tenant
+  subscription_id = var.default_azure_subscription
+}
+
+provider "azurerm" {
+  alias = "attacker"
+  features {}
+  tenant_id = var.attacker_azure_tenant
+  subscription_id = var.attacker_azure_subscription
+}
+
+provider "azurerm" {
+  alias = "target"
+  features {}
+  tenant_id = var.target_azure_tenant
+  subscription_id = var.target_azure_subscription
 }
 
 provider "lacework" {
-  profile    = can(length(var.config.context.lacework.profile_name)) ? var.config.context.lacework.profile_name : null
-  account    = can(length(var.config.context.lacework.profile_name)) ? null : "my-account"
-  api_key    = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-key"
-  api_secret = can(length(var.config.context.lacework.profile_name)) ? null : "my-api-secret"
+  profile    = var.default_lacework_profile
 }
 
 provider "restapi" {

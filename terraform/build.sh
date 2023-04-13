@@ -8,9 +8,9 @@ VERSION="1.0.0"
 export TF_WARN_OUTPUT_ERRORS=1
 
 # used to prevent errors on empty provider destroy
-export AWS_REGION="us-east-1"
-export AWS_ACCESS_KEY_ID="mock_access_key"
-export AWS_SECRET_ACCESS_KEY="mock_secret_key"
+# export AWS_REGION="us-east-1"
+# export AWS_ACCESS_KEY_ID="mock_access_key"
+# export AWS_SECRET_ACCESS_KEY="mock_secret_key"
 
 info(){
 cat <<EOI

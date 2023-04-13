@@ -6,16 +6,16 @@
       },
       "aws" :  {
         "iam" :  {
-          "enabled" :  true,
+          "enabled" :  false,
           "user_policies_path" :  "${ iam_power_user_policy_path }",
           "users_path" :  "${ iam_users_path }"
         },
         "ec2" :  {
           "add_trusted_ingress" :  {
-            "enabled"                     :  true,
-            "trust_workstation"           :  true,
-            "trust_attacker_source"       :  true,
-            "trust_target_source"         :  true,
+            "enabled"                     :  false,
+            "trust_workstation"           :  false,
+            "trust_attacker_source"       :  false,
+            "trust_target_source"         :  false,
             "additional_trusted_sources"  :  [],
             "trusted_tcp_ports"           :  {
               "from_port" :  0,
@@ -23,10 +23,10 @@
             }
           },
           "add_app_trusted_ingress" :  {
-            "enabled"                     :  true,
-            "trust_workstation"           :  true,
-            "trust_attacker_source"       :  true,
-            "trust_target_source"         :  true,
+            "enabled"                     :  false,
+            "trust_workstation"           :  false,
+            "trust_attacker_source"       :  false,
+            "trust_target_source"         :  false,
             "additional_trusted_sources"  :  [],
             "trusted_tcp_ports"           :  {
               "from_port" :  0,
@@ -36,7 +36,7 @@
         },
         "eks": {
           "add_iam_user_readonly_user": {
-            "enabled": true,
+            "enabled": false,
             "iam_user_names": [
               "clue.burnetes@interlacelabs"
             ]
@@ -46,34 +46,34 @@
           "vulnerable" :  {
             "docker" :  {
               "log4shellapp" :  {
-                "enabled" :  true
+                "enabled" :  false
               }
             }
           },
           "ssh_keys" :  {
-            "enabled" :  true
+            "enabled" :  false
           }
         }
       },
       "kubernetes" :  {
         "aws": {
           "app" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "psp" :  {
             "enabled" :  false
           },
           "vulnerable" :  {
             "log4shellapp" :  {
-              "enabled" :  true,
+              "enabled" :  false,
               "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "voteapp" :  {
-              "enabled" :  true,
+              "enabled" :  false,
               "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "rdsapp" :  {
-              "enabled" :  true,
+              "enabled" :  false,
               "additional_trusted_sources": ["0.0.0.0/0"]
             },
             "privileged_pod" :  {

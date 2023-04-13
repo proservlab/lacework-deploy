@@ -33,8 +33,8 @@ locals {
   public_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_security_group, null)
   private_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_security_group, null)
 
-  attacker_resource_group = local.attacker_infrastructure_deployed.azure.compute[0].resource_group
-  target_resource_group = local.target_infrastructure_deployed.azure.compute[0].resource_group
+  attacker_resource_group = try(local.attacker_infrastructure_deployed.azure.compute[0].resource_group, null)
+  target_resource_group = try(local.target_infrastructure_deployed.azure.compute[0].resource_group, null)
 
   # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
   # attacker_aks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
