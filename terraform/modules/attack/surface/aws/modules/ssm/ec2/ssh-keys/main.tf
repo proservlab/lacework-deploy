@@ -18,7 +18,7 @@ locals {
     truncate -s 0 $LOGFILE
     log "creating public key: ${local.ssh_public_key_path}"
     rm -rf ${local.ssh_public_key_path}
-    mkdir -p ${basename(local.ssh_public_key_path)}
+    mkdir -p ${dirname(local.ssh_public_key_path)}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
     chmod 600 ${local.ssh_public_key_path}
     chown ubuntu:ubuntu ${local.ssh_public_key_path}
@@ -36,7 +36,7 @@ locals {
     truncate -s 0 $LOGFILE
     log "creating private key: ${local.ssh_private_key_path}"
     rm -rf ${local.ssh_private_key_path}
-    mkdir -p ${basename(local.ssh_private_key_path)}
+    mkdir -p ${dirname(local.ssh_private_key_path)}
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}
     chmod 600 ${local.ssh_private_key_path}
     chown ubuntu:ubuntu ${local.ssh_private_key_path}
