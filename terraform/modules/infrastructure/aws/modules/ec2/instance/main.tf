@@ -1,3 +1,7 @@
+locals {
+  ubuntu_secondary_disk = "/dev/xvdb"
+}
+
 resource "aws_instance" "instance" {
   ami           = var.ami
   instance_type = var.instance_type
@@ -16,10 +20,10 @@ resource "aws_instance" "instance" {
     #!/bin/bash
     sudo apt update -y
     sudo apt install xfsprogs -y
-    sudo mkfs -t xfs /dev/nvme1n1
+    sudo mkfs -t xfs ${local.ubuntu_secondary_disk}
     sudo mkdir /data
-    sudo mount /dev/nvme1n1 /data
-    BLK_ID=$(sudo blkid /dev/nvme1n1 | cut -f2 -d" ")
+    sudo mount ${local.ubuntu_secondary_disk} /data
+    BLK_ID=$(sudo blkid ${local.ubuntu_secondary_disk} | cut -f2 -d" ")
     if [[ -z $BLK_ID ]]; then
       echo "Hmm ... no block ID found ... "
       exit 1
@@ -48,7 +52,7 @@ resource "aws_ebs_volume" "secondary" {
 
 resource "aws_volume_attachment" "instance" {
   count = var.enable_secondary_volume == true ? 1 : 0
-  device_name  = "/dev/xvdb"
+  device_name  = local.ubuntu_secondary_disk
   volume_id    = aws_ebs_volume.secondary[0].id
   instance_id  = aws_instance.instance.id
   force_detach = true
