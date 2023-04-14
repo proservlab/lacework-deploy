@@ -38,6 +38,8 @@ resource "aws_instance" "instance" {
     fi
     echo "$BLK_ID     /data   xfs    defaults   0   2" | sudo tee --append /etc/fstab
     sudo mount -a >> $LOGFILE 2>&1
+    log "Creating docker directory on data drive..."
+    ln -sf /data/var/lib/docker /var/lib/docker >> $LOGFILE 2>&1
     log "Bootstrapping Complete!"
     EOF
   ) : var.user_data_base64

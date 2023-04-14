@@ -19,6 +19,13 @@
           }
         },
         "ssm" :  {
+          "vulnerable" :  {
+            "docker" :  {
+              "log4shellapp" :  {
+                "enabled" :  true
+              }
+            }
+          },
           "ssh_keys" :  {
             "enabled" :  true,
             "ssh_private_key_path" : "/data/backup/home/ubuntu/.ssh/secret_key",
