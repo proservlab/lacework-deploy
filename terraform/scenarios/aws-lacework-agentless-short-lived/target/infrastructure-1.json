@@ -34,6 +34,18 @@
             "user_data_base64" : null
           },
           {
+            "name"                      : "short-lived-15m",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
+          },
+          {
             "name"                      : "short-lived-30m",
             "public"                    : true,
             "role"                      : "default",

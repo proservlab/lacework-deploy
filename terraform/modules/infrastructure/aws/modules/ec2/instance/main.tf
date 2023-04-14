@@ -18,19 +18,27 @@ resource "aws_instance" "instance" {
   user_data_base64 = var.enable_secondary_volume == true ? base64encode(
     <<-EOF
     #!/bin/bash
-    sudo apt update -y
-    sudo apt install xfsprogs -y
-    sudo mkfs -t xfs ${local.ubuntu_secondary_disk}
-    sudo mkdir /data
-    sudo mount ${local.ubuntu_secondary_disk} /data
+    LOGFILE=/tmp/user-data.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "Starting..."
+    sudo apt update -y >> $LOGFILE 2>&1
+    sudo apt install xfsprogs -y >> $LOGFILE 2>&1
+    sudo mkfs -t xfs ${local.ubuntu_secondary_disk} >> $LOGFILE 2>&1
+    sudo mkdir /data >> $LOGFILE 2>&1
+    sudo mount ${local.ubuntu_secondary_disk} /data >> $LOGFILE 2>&1
     BLK_ID=$(sudo blkid ${local.ubuntu_secondary_disk} | cut -f2 -d" ")
+    log "BLK_ID: $BLK_ID"
     if [[ -z $BLK_ID ]]; then
-      echo "Hmm ... no block ID found ... "
+      log "Hmm ... no block ID found ... "
       exit 1
     fi
     echo "$BLK_ID     /data   xfs    defaults   0   2" | sudo tee --append /etc/fstab
-    sudo mount -a
-    echo "Bootstrapping Complete!"
+    sudo mount -a >> $LOGFILE 2>&1
+    log "Bootstrapping Complete!"
     EOF
   ) : var.user_data_base64
 
