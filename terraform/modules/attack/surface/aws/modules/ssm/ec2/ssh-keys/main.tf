@@ -4,10 +4,10 @@ resource "tls_private_key" "ssh" {
 }
 locals {
     ssh_private_key = base64encode(tls_private_key.ssh.private_key_pem)
-    ssh_private_key_path = "/home/ubuntu/.ssh/secret_key"
+    ssh_private_key_path = var.ssh_private_key_path
     ssh_public_key = base64encode(chomp(tls_private_key.ssh.public_key_openssh))
-    ssh_public_key_path = "/home/ubuntu/.ssh/secret_key.pub"
-    ssh_authorized_keys_path = "/home/ubuntu/.ssh/authorized_keys"
+    ssh_public_key_path = var.ssh_public_key_path
+    ssh_authorized_keys_path = var.ssh_authorized_keys_path
 
     payload_public = <<-EOT
     LOGFILE=/tmp/ssm_attacksurface_agentless_public_key.log
@@ -18,6 +18,7 @@ locals {
     truncate -s 0 $LOGFILE
     log "creating public key: ${local.ssh_public_key_path}"
     rm -rf ${local.ssh_public_key_path}
+    mkdir -p ${basename(local.ssh_public_key_path)}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
     chmod 600 ${local.ssh_public_key_path}
     chown ubuntu:ubuntu ${local.ssh_public_key_path}
@@ -35,6 +36,7 @@ locals {
     truncate -s 0 $LOGFILE
     log "creating private key: ${local.ssh_private_key_path}"
     rm -rf ${local.ssh_private_key_path}
+    mkdir -p ${basename(local.ssh_private_key_path)}
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}
     chmod 600 ${local.ssh_private_key_path}
     chown ubuntu:ubuntu ${local.ssh_private_key_path}

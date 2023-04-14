@@ -80,6 +80,8 @@ module "instances" {
   user_data = each.value.user_data
   user_data_base64 = each.value.user_data_base64
 
+  enable_secondary_volume = each.value.enable_secondary_volume
+
   # merge additional tags including ssm deployment tag
   tags = merge(
     module.default-ssm-tags.ssm_default_tags,

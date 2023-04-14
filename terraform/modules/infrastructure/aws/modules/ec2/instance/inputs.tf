@@ -36,12 +36,17 @@ variable "tags" {
     default = {}
 }
 
-variable user_data {
+variable "user_data" {
     type    = string
     default = null
 }
 
-variable user_data_base64 {
+variable "user_data_base64" {
     type    = string
     default = null
+}
+
+variable "enable_secondary_volume" {
+    type = bool
+    default = false
 }

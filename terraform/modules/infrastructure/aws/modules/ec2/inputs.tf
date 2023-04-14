@@ -127,6 +127,7 @@ variable "instances" {
       role                            = string
       instance_type                   = string
       ami_name                        = string
+      enable_secondary_volume         = bool
       tags                            = map(any)
       user_data                       = string
       user_data_base64                = string
@@ -138,6 +139,7 @@ variable "instances" {
       public                          = false
       role                            = "default"
       instance_type                   = "t2.micro"
+      enable_secondary_volume         = false
       ami_name                        = "ubuntu_focal"
       tags                            = { }
       user_data                       = null

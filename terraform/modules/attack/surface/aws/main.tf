@@ -180,6 +180,9 @@ module "ssh-keys" {
   source = "./modules/ssm/ec2/ssh-keys"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
+  ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
+  ssh_private_key_path = local.config.context.aws.ssm.ssh_keys.ssh_private_key_path
+  ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
 }
 
 module "aws-credentials" {

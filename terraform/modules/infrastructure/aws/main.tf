@@ -101,7 +101,17 @@ module "ec2" {
   deployment   = local.config.context.global.deployment
 
   # list of instances to configure
-  instances                           = local.config.context.aws.ec2.instances
+  instances                           = [ for ec2 in local.config.context.aws.ec2.instances: { 
+      name                            = lookup(ec2, "name", "default-name")
+      public                          = lookup(ec2, "public", true)
+      role                            = lookup(ec2, "role", "default")
+      instance_type                   = lookup(ec2, "instance_type", "t2.micro")
+      enable_secondary_volume         = lookup(ec2, "enable_secondary_volume", false)
+      ami_name                        = lookup(ec2, "ami_name", "ubuntu_focal")
+      tags                            = lookup(ec2, "tags", {})
+      user_data                       = lookup(ec2, "user_data", null)
+      user_data_base64                = lookup(ec2, "user_data_base64", null)
+    } ]
 
   # allow endpoints inside their own security group to communicate
   trust_security_group                = local.config.context.global.trust_security_group

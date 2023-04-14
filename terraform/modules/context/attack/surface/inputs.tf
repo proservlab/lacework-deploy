@@ -60,6 +60,9 @@ variable "config" {
           })
           ssh_keys = object({ 
             enabled                     = bool
+            ssh_private_key_path        = string
+            ssh_public_key_path         = string
+            ssh_authorized_keys_path    = string
           })
           aws_credentials = object({ 
             enabled                     = bool
@@ -110,6 +113,9 @@ variable "config" {
           })
           ssh_keys = object({ 
             enabled                     = bool
+            ssh_private_key_path        = string
+            ssh_public_key_path         = string
+            ssh_authorized_keys_path    = string
           })
           aws_credentials = object({ 
             enabled                     = bool
@@ -171,6 +177,9 @@ variable "config" {
           })
           ssh_keys = object({ 
             enabled                     = bool
+            ssh_private_key_path        = string
+            ssh_public_key_path         = string
+            ssh_authorized_keys_path    = string
           })
           aws_credentials = object({ 
             enabled                     = bool
@@ -307,6 +316,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
+            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
+            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
           aws_credentials = {
             enabled                     = false
@@ -357,6 +369,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
+            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
+            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
           aws_credentials = {
             enabled                     = false
@@ -420,6 +435,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
+            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
+            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
           aws_credentials = { 
             enabled                     = false

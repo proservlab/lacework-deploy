@@ -1,0 +1,31 @@
+{
+    "context" :  {
+      "global": {
+        "environment"          : "target",
+        "deployment"           : "${ deployment }"
+      },
+      "aws" :  {
+        "ec2" :  {
+          "add_trusted_ingress" :  {
+            "enabled"                     :  true,
+            "trust_workstation"           :  true,
+            "trust_attacker_source"       :  true,
+            "trust_target_source"         :  true,
+            "additional_trusted_sources"  :  [],
+            "trusted_tcp_ports"           :  {
+              "from_port" :  0,
+              "to_port" :  65535
+            }
+          }
+        },
+        "ssm" :  {
+          "ssh_keys" :  {
+            "enabled" :  true,
+            "ssh_private_key_path" : "/data/backup/home/ubuntu/.ssh/secret_key",
+            "ssh_public_key_path"  : "/data/backup/home/ubuntu/.ssh/secret_key.pub",
+            "ssh_authorized_keys_path" : "/data/backup/home/ubuntu/.ssh/authorized_keys"
+          }
+        }
+      }
+    }
+  }
