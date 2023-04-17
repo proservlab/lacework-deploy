@@ -53,11 +53,11 @@ foreach ($myAzureVM in $myAzureVMs) {
     }
 }
 
-# foreach ($job in $jobs) {
-#     $null = $job | Wait-Job
-#     $result = $job | Receive-Job
-#     Write-Host "Result: $result"
-# }
+foreach ($job in $jobs) {
+    $null = $job | Wait-Job
+    $result = $job | Receive-Job
+    Write-Host "Result: $result"
+}
 
 # powershell v7 required (currently terraform doesn't _easily_ support v7 provisioning)
 # $myAzureVMs | ForEach-Object -Parallel {
