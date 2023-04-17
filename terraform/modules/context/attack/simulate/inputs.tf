@@ -127,6 +127,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -140,6 +141,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -153,6 +155,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -166,6 +169,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -179,6 +183,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -298,6 +303,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -311,6 +317,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -324,6 +331,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -337,6 +345,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -350,6 +359,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -469,6 +479,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -482,6 +493,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -495,6 +507,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -508,6 +521,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -521,6 +535,7 @@ variable "config" {
                 protonvpn_tier              = number
                 protonvpn_server            = string
                 protonvpn_protocol          = string
+                protonvpn_privatekey        = string
                 wallet                      = string
                 minergate_user              = string
                 nicehash_user               = string
@@ -661,6 +676,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -674,6 +690,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -687,6 +704,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -700,6 +718,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -713,6 +732,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -841,6 +861,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -854,6 +875,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -867,6 +889,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -880,6 +903,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -893,6 +917,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -1021,6 +1046,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -1034,6 +1060,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -1047,6 +1074,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -1060,6 +1088,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null
@@ -1073,6 +1102,7 @@ variable "config" {
                 protonvpn_tier              = 0
                 protonvpn_server            = "RANDOM"
                 protonvpn_protocol          = "udp"
+                protonvpn_privatekey        = null
                 wallet                      = null
                 minergate_user              = null
                 nicehash_user               = null

@@ -36,6 +36,7 @@ TARGET_GCP_LACEWORK_LOCATION=""
 # PROTONVPN
 ATTACKER_PROTONVPN_USER=""
 ATTACKER_PROTONVPN_PASSWORD=""
+ATTACKER_PROTONVPN_PRIVATEKEY=""
 
 # DYNDNS API TOKEN
 DYNU_DNS_DOMAIN=""
@@ -563,6 +564,7 @@ lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_token = "$DYNU_DNS_API_TOKEN"
 dynu_dns_domain = "$DYNU_DNS_DOMAIN"
 EOF
@@ -583,6 +585,7 @@ lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_token = "$DYNU_DNS_API_TOKEN"
 dynu_dns_domain = "$DYNU_DNS_DOMAIN"
 EOF
@@ -603,6 +606,7 @@ lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
+attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_token = "$DYNU_DNS_API_TOKEN"
 dynu_dns_domain = "$DYNU_DNS_DOMAIN"
 EOF
@@ -618,6 +622,8 @@ function config_protonvpn {
             clear
             read -p "> protonvpn password: " protonvpn_password
             ATTACKER_PROTONVPN_PASSWORD=$protonvpn_password
+            read -p "> protonvpn wireguard private key (optional): " protonvpn_privatekey
+            ATTACKER_PROTONVPN_PRIVATEKEY=$protonvpn_privatekey
             ;;
         n|N )
             infomsg "skipping config of protonvpn."

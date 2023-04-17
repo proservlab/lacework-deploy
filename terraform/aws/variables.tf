@@ -270,6 +270,12 @@ variable "attacker_context_config_protonvpn_protocol" {
   default     = "udp"
 }
 
+variable "attacker_context_config_protonvpn_privatekey" {
+  type        = string
+  description = "protonvpn privatekey"
+  default     = "udp"
+}
+
 variable "attacker_context_cloud_cryptomining_ethermine_wallet" {
   type        = string
   description = "cloud cryptomining ethermine wallet"

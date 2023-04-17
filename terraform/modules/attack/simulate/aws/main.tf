@@ -324,6 +324,7 @@ module "simulation-attacker-exec-docker-composite-compromised-credentials" {
   protonvpn_tier = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_tier
   protonvpn_protocol = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_protocol
   protonvpn_server = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_server
+  protonvpn_privatekey = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_privatekey
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
@@ -341,6 +342,7 @@ module "simulation-attacker-exec-docker-composite-cloud-ransomware" {
   protonvpn_tier = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_tier
   protonvpn_protocol = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_protocol
   protonvpn_server = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_server
+  protonvpn_privatekey = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.protonvpn_privatekey
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.compromised_keys_user
@@ -359,6 +361,7 @@ module "simulation-attacker-exec-docker-composite-defense-evasion" {
   protonvpn_tier = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_tier
   protonvpn_protocol = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_protocol
   protonvpn_server = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_server
+  protonvpn_privatekey = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.protonvpn_privatekey
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.compromised_keys_user
@@ -377,6 +380,7 @@ module "simulation-attacker-exec-docker-composite-cloud-cryptomining" {
   protonvpn_tier = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_tier
   protonvpn_protocol = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_protocol
   protonvpn_server = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_server
+  protonvpn_privatekey = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.protonvpn_privatekey
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.compromised_keys_user
@@ -395,6 +399,7 @@ module "simulation-attacker-exec-docker-composite-host-cryptomining" {
   protonvpn_tier = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_tier
   protonvpn_protocol = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_protocol
   protonvpn_server = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_server
+  protonvpn_privatekey = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.protonvpn_privatekey
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.minergate_user
   nicehash_user = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.nicehash_user

@@ -66,6 +66,7 @@ locals {
                                     protonvpn_server = var.protonvpn_server
                                     protonvpn_tier = tostring(var.protonvpn_tier)
                                     protonvpn_protocol = var.protonvpn_protocol
+                                    protonvpn_privatekey = try(length(var.protonvpn_privatekey), "false") != "false" ? var.protonvpn_privatekey : ""
                                 }
                             )
     protonvpn-paid       = templatefile(
@@ -76,6 +77,7 @@ locals {
                                     protonvpn_server = var.protonvpn_server
                                     protonvpn_tier = 2
                                     protonvpn_protocol = var.protonvpn_protocol
+                                    protonvpn_privatekey = try(length(var.protonvpn_privatekey), "false") != "false" ? var.protonvpn_privatekey : ""
                                 }
                             )
     protonvpn-baseline  = templatefile(
@@ -86,6 +88,7 @@ locals {
                                     protonvpn_server = "US"
                                     protonvpn_tier = tostring(var.protonvpn_tier)
                                     protonvpn_protocol = var.protonvpn_protocol
+                                    protonvpn_privatekey = try(length(var.protonvpn_privatekey), "false") != "false" ? var.protonvpn_privatekey : ""
                                 }
                             )
     auto-free   = templatefile(
@@ -164,18 +167,18 @@ locals {
                             )
 }
 
-resource "aws_ssm_document" "exec_docker_cloud_cryptomining_attacker" {
-  name          = "exec_docker_cloud_cryptomining_${var.environment}_${var.deployment}"
+resource "aws_ssm_document" "this" {
+  name          = "exec_${var.tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "start docker based composite alert",
+        "description": "attack simulation",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_docker_cloud_cryptomining_attacker_${var.environment}_${var.deployment}",
+                "name": "exec_${var.tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -183,9 +186,9 @@ resource "aws_ssm_document" "exec_docker_cloud_cryptomining_attacker" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "5400",
+                    "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
+                        "echo '${local.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -193,11 +196,24 @@ resource "aws_ssm_document" "exec_docker_cloud_cryptomining_attacker" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_docker_cloud_cryptomining_attacker" {
-    name = "exec_cloud_cryptomining_${var.environment}_${var.deployment}"
+resource "aws_resourcegroups_group" "this" {
+    name = "exec_${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_docker_cloud_cryptomining_attacker)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -206,22 +222,22 @@ resource "aws_resourcegroups_group" "exec_docker_cloud_cryptomining_attacker" {
     }
 }
 
-resource "aws_ssm_association" "exec_docker_cloud_cryptomining_attacker" {
-    association_name = "exec_docker_cloud_cryptomining_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "this" {
+    association_name = "exec_${var.tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.exec_docker_cloud_cryptomining_attacker.name
+    name = aws_ssm_document.this.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_docker_cloud_cryptomining_attacker.name,
+            aws_resourcegroups_group.this.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
     # every 2 hours
-    schedule_expression = "cron(0 */2 * * ? *)"
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

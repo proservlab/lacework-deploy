@@ -12,29 +12,19 @@ variable "region" {
   type    = string
 }
 
-variable "resource_query_exec_docker_cloud_cryptomining_attacker" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "tag" {
+  type = string
+  default = "ssm_exec_docker_cloud_cryptomining_attacker"
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_docker_cloud_cryptomining_attacker"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "timeout" {
+  type = number
+  default = 5400
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0 */2 * * ? *)"
 }
 
 variable "compromised_credentials" {
@@ -68,6 +58,12 @@ variable "protonvpn_protocol" {
   type = string
   description = "protonvpn protocol"
   default = "udp"
+}
+
+variable "protonvpn_privatekey" {
+  type = string
+  description = "protonvpn wireguard private key"
+  default = ""
 }
 
 variable "ethermine_wallet" {
