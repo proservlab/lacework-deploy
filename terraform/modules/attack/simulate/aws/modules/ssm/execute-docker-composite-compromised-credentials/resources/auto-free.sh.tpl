@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# set max vpn wait to 5 minutes
+MAX_WAIT=300
+CHECK_INTERVAL=5
+
 LOGFILE=/tmp/attacker_${attack_type}_auto-free.sh.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -11,50 +15,102 @@ log "Starting..."
 log "Start protonvpn with .env-protonvpn-US"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-US >> $LOGFILE 2>&1
 log "Wait for connection..."
-while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done
-log "Starting docker log for protonvpn-US..."
-docker logs protonvpn -f > /tmp/protonvpn-US.log 2>&1 &
-log "Executing baseline.sh"
-bash start.sh --container=aws-cli --env-file=.env-aws-${compromised_keys_user} --script="baseline.sh" >> $LOGFILE 2>&1
-log "Done baseline."
+SECONDS_WAITED=0
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do 
+    log "waiting for connection...";
+    SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+    if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+        log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+        break
+    fi
+    sleep $CHECK_INTERVAL;
+done
+if [ $SECONDS_WAITED -lt $MAX_WAIT ]; then
+    log "Starting docker log for protonvpn-US..."
+    docker logs protonvpn -f > /tmp/protonvpn-US.log 2>&1 &
+    log "Executing baseline.sh"
+    bash start.sh --container=aws-cli --env-file=.env-aws-${compromised_keys_user} --script="baseline.sh" >> $LOGFILE 2>&1
+    log "Done baseline."
+else
+    log "VPN connect timeout - skipping"
+fi;
 
 
-log "Wait 1 hour before starting attacker ${script}..."
-sleep 3600
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
 log "Start protonvpn with .env-protonvpn-NL-FREE#148"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-NL-FREE#148 >> $LOGFILE 2>&1
 log "Wait for connection..."
-while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
-log "Starting docker log for protonvpn-NL-FREE#148..."
-docker logs protonvpn -f > /tmp/protonvpn-NL-FREE#148.log 2>&1 &
-log "Executing ${script}"
-bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
-log "Done ${script}."
+SECONDS_WAITED=0
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do 
+    log "waiting for connection...";
+    SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+    if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+        log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+        break
+    fi
+    sleep $CHECK_INTERVAL;
+done
+if [ $SECONDS_WAITED -lt $MAX_WAIT ]; then
+    log "Starting docker log for protonvpn-NL-FREE#148..."
+    docker logs protonvpn -f > /tmp/protonvpn-NL-FREE#148.log 2>&1 &
+    log "Executing ${script}"
+    bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+    log "Done ${script}."
+else
+    log "VPN connect timeout - skipping"
+fi;
 
 
-log "Wait 1 hour before starting attacker ${script}..."
-sleep 3600
+
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
 log "Start protonvpn with .env-protonvpn-JP-FREE#3"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-JP-FREE#3 >> $LOGFILE 2>&1
 log "Wait for connection..."
-while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
-log "Starting docker log for protonvpn-JP-FREE#3..."
-docker logs protonvpn -f > /tmp/protonvpn-JP-FREE#3.log 2>&1 &
-log "Executing ${script}"
-bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
-log "Done ${script}."
+SECONDS_WAITED=0
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do 
+    log "waiting for connection...";
+    SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+    if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+        log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+        break
+    fi
+    sleep $CHECK_INTERVAL;
+done
+if [ $SECONDS_WAITED -lt $MAX_WAIT ]; then
+    log "Starting docker log for protonvpn-JP-FREE#3..."
+    docker logs protonvpn -f > /tmp/protonvpn-JP-FREE#3.log 2>&1 &
+    log "Executing ${script}"
+    bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+    log "Done ${script}."
+else
+    log "VPN connect timeout - skipping"
+fi;
 
-
-log "Wait 1 hour before starting attacker ${script}..."
-sleep 3600
+log "Wait 60 seconds before starting attacker ${script}..."
+sleep 60
 log "Start protonvpn with .env-protonvpn-US-FREE#34"
 bash start.sh --container=protonvpn --env-file=.env-protonvpn-US-FREE#34 >> $LOGFILE 2>&1
 log "Wait for connection..."
-while ! docker logs protonvpn 2>&1  | grep "Connected!"; do log "waiting for connection..."; sleep 10; done 
-log "Starting docker log for protonvpn-US-FREE#34..."
-docker logs protonvpn -f > /tmp/protonvpn-US-FREE#34.log 2>&1 &
-log "Executing ${script}"
-bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
-log "Done ${script}."
+SECONDS_WAITED=0
+while ! docker logs protonvpn 2>&1  | grep "Connected!"; do 
+    log "waiting for connection...";
+    SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
+    if [ $SECONDS_WAITED -ge $MAX_WAIT ]; then
+        log "Connection is still not available after waiting for $((MAX_WAIT / 60)) minutes."
+        break
+    fi
+    sleep $CHECK_INTERVAL;
+done
+if [ $SECONDS_WAITED -lt $MAX_WAIT ]; then
+    log "Starting docker log for protonvpn-US-FREE#34..."
+    docker logs protonvpn -f > /tmp/protonvpn-US-FREE#34.log 2>&1 &
+    log "Executing ${script}"
+    bash start.sh --container=${script_type} --env-file=.env-aws-${compromised_keys_user} --script="${script}" >> $LOGFILE 2>&1
+    log "Done ${script}."
+else
+    log "VPN connect timeout - skipping"
+fi;
 
 log "Attack simulation complete."
