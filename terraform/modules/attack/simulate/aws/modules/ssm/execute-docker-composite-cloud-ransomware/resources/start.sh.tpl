@@ -77,7 +77,7 @@ if [ -z "$${CONTAINER}" ]; then
     errmsg "Required option not set: --container"
     help
 elif [ "$${CONTAINER}" = "protonvpn" ]; then
-    CONTAINER_IMAGE="ghcr.io/tprasadtp/protonvpn:latest"
+    CONTAINER_IMAGE="ghcr.io/tprasadtp/protonvpn:5.2.1"
     DOCKER_OPTS="--detach --device=/dev/net/tun --cap-add=NET_ADMIN"
 elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
