@@ -31,3 +31,8 @@ variable "public_access_cidr" {
   description = "public ip address cidr allowed to access kubernetes api (default: [ '0.0.0.0/0' ])"
   default     = [ "0.0.0.0/0" ]
 }
+
+variable "kubeconfig_path" {
+  type = string
+  description = "kubeconfig path"
+}

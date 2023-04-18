@@ -7,9 +7,6 @@ output "attacker_ssh_key" {
 }
 
 output "instances" {
-  value = [for instance in module.target-azure-infrastructure.instances : {
-    name       = instance.name
-    public_ip  = instance.public_ip_address
-    admin_user = instance.admin_username
-  }]
+  sensitive = false
+  value     = module.target-azure-infrastructure.instances
 }

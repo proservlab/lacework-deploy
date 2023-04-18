@@ -44,17 +44,17 @@
     "kubernetes" :  {
       "aws": {
         "app" :  {
-          "enabled" :  true
+          "enabled" :  false
         },
         "psp" :  {
           "enabled" :  false
         },
         "vulnerable" :  {
           "log4shellapp" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "voteapp" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "rdsapp" :  {
             "enabled" :  false

@@ -15,36 +15,39 @@ locals {
   target_profile = coalesce(local.target_infrastructure_config.context.aws.profile_name, "false") == "false" ? null : local.target_infrastructure_config.context.aws.profile_name
   target_region = coalesce(local.target_infrastructure_config.context.aws.profile_name, "false") == "false" ? "us-east-1" : local.target_infrastructure_config.context.aws.region
   
-  kubeconfig_path = pathexpand("~/.kube/config")
+  default_kubeconfig_path = try(local.default_infrastructure_deployed.aws.eks[0].kubeconfig_path, pathexpand("~/.kube/config"))
+  attacker_kubeconfig_path = try(local.attacker_infrastructure_deployed.aws.eks[0].kubeconfig_path, pathexpand("~/.kube/config"))
+  target_kubeconfig_path = try(local.target_infrastructure_deployed.aws.eks[0].kubeconfig_path, pathexpand("~/.kube/config"))
 }
 
 provider "kubernetes" {
-  config_path = var.default_kubeconfig
+  config_path = local.default_kubeconfig_path
 }
+
 provider "kubernetes" {
   alias = "attacker"
-  config_path = var.attacker_kubeconfig
+  config_path = local.attacker_kubeconfig_path
 }
 provider "kubernetes" {
   alias = "target"
-  config_path = var.target_kubeconfig
+  config_path = local.target_kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    config_path = var.default_kubeconfig
+    config_path = local.default_kubeconfig_path
   }
 }
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = var.attacker_kubeconfig
+    config_path = local.attacker_kubeconfig_path
   }
 }
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = var.default_kubeconfig
+    config_path = local.target_kubeconfig_path
   }
 }
 

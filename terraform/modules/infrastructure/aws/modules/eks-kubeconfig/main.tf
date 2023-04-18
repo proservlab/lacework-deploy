@@ -1,3 +1,9 @@
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [null_resource.eks_context_switcher]
+
+  create_duration = "60s"
+}
+
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
 resource "null_resource" "eks_context_switcher" {
   triggers = {
@@ -11,6 +17,8 @@ resource "null_resource" "eks_context_switcher" {
                 echo 'Applying Auth ConfigMap with kubectl...'
                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
+                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig ${var.kubeconfig_path}
               EOT
   }
 }
+

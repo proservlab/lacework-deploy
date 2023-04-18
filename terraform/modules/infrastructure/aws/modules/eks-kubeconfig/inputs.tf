@@ -20,3 +20,8 @@ variable "aws_profile_name" {
   description = "aws profile name"
   type        = string
 }
+
+variable "kubeconfig_path" {
+  type = string
+  description = "kubeconfig path"
+}

@@ -2,9 +2,9 @@
 # Outputs
 #
 
-# output "kubeconfig_path" {
-#   value = module.aws-eks-kubeconfig.kubeconfig_path
-# }
+output "kubeconfig_path" {
+  value = module.aws-eks-kubeconfig.kubeconfig_path
+}
 
 output "cluster" {
   value = aws_eks_cluster.eks_windows
