@@ -52,12 +52,13 @@ foreach ($myAzureVM in $myAzureVMs) {
         Write-Output "Tag Not Found Skipping: ${ tag }"
     }
 }
-
+Write-Output "Started all jobs. Receiving results."
 foreach ($job in $jobs) {
-    $null = $job | Wait-Job
+    $job | Wait-Job
     $result = $job | Receive-Job
-    Write-Host "Result: $result"
+    Write-Output "Result: $result"
 }
+Write-Output "Done."
 
 # powershell v7 required (currently terraform doesn't _easily_ support v7 provisioning)
 # $myAzureVMs | ForEach-Object -Parallel {
