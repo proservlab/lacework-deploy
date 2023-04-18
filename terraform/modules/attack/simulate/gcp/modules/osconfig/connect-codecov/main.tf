@@ -52,7 +52,7 @@ locals {
 #####################################################
 
 locals {
-  tag = [for k,v in var.label: replace(k, "_", "-")][0]
+  tag = [for k,v in var.label: replace(replace(k, "_", "-"),"osconfig_","")[0]
 }
 
 resource "random_id" "this" {
