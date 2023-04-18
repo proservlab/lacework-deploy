@@ -8,27 +8,17 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_deploy_git" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "tag" {
+  type = string
+  default = "ssm_deploy_git"
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_deploy_git"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
 }

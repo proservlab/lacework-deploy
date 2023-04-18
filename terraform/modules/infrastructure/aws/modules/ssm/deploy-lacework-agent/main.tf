@@ -25,11 +25,28 @@ module "lacework_aws_ssm_agents_install" {
     }
 }
 
-resource "aws_resourcegroups_group" "main" {
-    name = "${var.environment}-${var.deployment}"
+###########################
+# SSM 
+###########################
+
+resource "aws_resourcegroups_group" "this" {
+    name = "${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -38,15 +55,15 @@ resource "aws_resourcegroups_group" "main" {
     }
 }
 
-resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
-    association_name = "install-lacework-agents-group-${var.environment}-${var.deployment}"
+resource "aws_ssm_association" "this" {
+    association_name = "${var.tag}_${var.environment}_${var.deployment}"
 
     name = module.lacework_aws_ssm_agents_install.ssm_document_name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.main.name,
+            aws_resourcegroups_group.this.name,
         ]
     }
 
@@ -57,8 +74,8 @@ resource "aws_ssm_association" "lacework_aws_ssm_agents_install" {
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

@@ -1,15 +1,40 @@
-resource "aws_ssm_document" "deploy_inspector_agent" {
-  name          = "deploy_inspector_agent_${var.environment}_${var.deployment}"
+locals {
+    payload = <<-EOT
+    LOGFILE=/tmp/${var.tag}.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "Checking for /opt/aws/awsagent/bin/awsagent..."
+    if [ ! -f /opt/aws/awsagent/bin/awsagent ]; then
+        log "Inspector not found. Installing inspector agent..."
+        wget https://inspector-agent.amazonaws.com/linux/latest/install -P /tmp 2>/dev/null || curl -O  https://inspector-agent.amazonaws.com/linux/latest/install -o /tmp/install
+        /bin/bash /tmp/install >> $LOGFILE 2>&1
+    else
+        log "Inspector agent found - skipping"
+    fi;
+    log "Done."
+    EOT
+    base64_payload = base64encode(local.payload)
+}
+
+###########################
+# SSM 
+###########################
+
+resource "aws_ssm_document" "this" {
+  name          = "${var.tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "deploy inspector agent",
+        "description": "attack simulation",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_inspector_agent_${var.environment}_${var.deployment}",
+                "name": "${var.tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -17,10 +42,9 @@ resource "aws_ssm_document" "deploy_inspector_agent" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "120",
+                    "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "wget https://inspector-agent.amazonaws.com/linux/latest/install -P /tmp 2>/dev/null || curl -O  https://inspector-agent.amazonaws.com/linux/latest/install -o /tmp/install",
-                        "/bin/bash /tmp/install"
+                        "echo '${local.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -28,11 +52,24 @@ resource "aws_ssm_document" "deploy_inspector_agent" {
     })
 }
 
-resource "aws_resourcegroups_group" "deploy_inspector_agent" {
-    name = "deploy_inspector_agent_${var.environment}_${var.deployment}"
+resource "aws_resourcegroups_group" "this" {
+    name = "${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_inspector_agent)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -41,23 +78,23 @@ resource "aws_resourcegroups_group" "deploy_inspector_agent" {
     }
 }
 
-resource "aws_ssm_association" "deploy_inspector_agent" {
-    association_name = "deploy_inspector_agent_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "this" {
+    association_name = "${var.tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.deploy_inspector_agent.name
+    name = aws_ssm_document.this.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_inspector_agent.name,
+            aws_resourcegroups_group.this.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    # schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
-    # apply_only_at_cron_interval = false
+    apply_only_at_cron_interval = false
 }

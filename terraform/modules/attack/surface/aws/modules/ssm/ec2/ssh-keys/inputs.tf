@@ -8,6 +8,26 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "private_tag" {
+  type = string
+  default = "ssm_deploy_secret_ssh_private"
+}
+
+variable "public_tag" {
+  type = string
+  default = "ssm_deploy_secret_ssh_public"
+}
+
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
+}
+
 variable "resource_query_deploy_secret_ssh_private" {
     type    = object({
       ResourceTypeFilters = list(string)

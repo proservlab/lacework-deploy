@@ -43,11 +43,11 @@
         "cluster_name"                    : "target-cluster"
       },
       "runbook": {
-        "enabled"                        : false,
+        "enabled"                        : true,
         "deploy_git"                     : false,
         "deploy_docker"                  : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true
       }
     },
     "lacework": {

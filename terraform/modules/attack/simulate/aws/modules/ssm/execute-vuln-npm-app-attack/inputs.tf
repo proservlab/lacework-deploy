@@ -8,6 +8,21 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "tag" {
+  type = string
+  default = "ssm_exec_vuln_npm_app_attacker"
+}
+
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
+}
+
 variable "resource_query_exec_vuln_npm_app_attacker" {
     type    = object({
       ResourceTypeFilters = list(string)

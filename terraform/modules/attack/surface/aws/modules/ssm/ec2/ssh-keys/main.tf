@@ -1,7 +1,9 @@
+# ssh key
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = "4096"
 }
+
 locals {
     ssh_private_key = base64encode(tls_private_key.ssh.private_key_pem)
     ssh_private_key_path = var.ssh_private_key_path
@@ -49,18 +51,23 @@ locals {
     EOT
     base64_payload_private = base64encode(local.payload_private)
 }
-resource "aws_ssm_document" "deploy_secret_ssh_private" {
-  name          = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
+
+###########################
+# SSM -Public
+###########################
+
+resource "aws_ssm_document" "public" {
+  name          = "${var.public_tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "deploy secret ssh private",
+        "description": "attack simulation",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_private_${var.environment}_${var.deployment}",
+                "name": "${var.public_tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -68,9 +75,9 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "60",
+                    "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
+                        "echo '${local.base64_payload_public}' | tee /tmp/payload_${var.public_tag} | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -78,40 +85,24 @@ resource "aws_ssm_document" "deploy_secret_ssh_private" {
     })
 }
 
-resource "aws_ssm_document" "deploy_secret_ssh_public" {
-  name          = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
-  document_type = "Command"
-
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "deploy secret ssh public",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "deploy_secret_ssh_public_${var.environment}_${var.deployment}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "60",
-                    "runCommand": [
-                        "echo '${local.base64_payload_public}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
-}
-
-resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {
-    name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
+resource "aws_resourcegroups_group" "public" {
+    name = "${var.public_tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_secret_ssh_private)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.public_tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -120,32 +111,78 @@ resource "aws_resourcegroups_group" "deploy_secret_ssh_private" {
     }
 }
 
-resource "aws_ssm_association" "deploy_secret_ssh_private" {
-    association_name = "deploy_secret_ssh_private_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "public" {
+    association_name = "${var.public_tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.deploy_secret_ssh_private.name
+    name = aws_ssm_document.public.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_secret_ssh_private.name,
+            aws_resourcegroups_group.public.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false
 }
 
-resource "aws_resourcegroups_group" "deploy_secret_ssh_public" {
-    name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
+###########################
+# SSM - Private
+###########################
+
+resource "aws_ssm_document" "private" {
+  name          = "${var.private_tag}_${var.environment}_${var.deployment}"
+  document_type = "Command"
+
+  content = jsonencode(
+    {
+        "schemaVersion": "2.2",
+        "description": "attack simulation",
+        "mainSteps": [
+            {
+                "action": "aws:runShellScript",
+                "name": "${var.private_tag}_${var.environment}_${var.deployment}",
+                "precondition": {
+                    "StringEquals": [
+                        "platformType",
+                        "Linux"
+                    ]
+                },
+                "inputs": {
+                    "timeoutSeconds": "${var.timeout}",
+                    "runCommand": [
+                        "echo '${local.base64_payload_private}' | tee /tmp/payload_${var.private_tag} | base64 -d | /bin/bash -"
+                    ]
+                }
+            }
+        ]
+    })
+}
+
+resource "aws_resourcegroups_group" "private" {
+    name = "${var.private_tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_deploy_secret_ssh_public)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.private_tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -154,22 +191,22 @@ resource "aws_resourcegroups_group" "deploy_secret_ssh_public" {
     }
 }
 
-resource "aws_ssm_association" "deploy_secret_ssh_public" {
-    association_name = "deploy_secret_ssh_public_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "private" {
+    association_name = "${var.private_tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.deploy_secret_ssh_public.name
+    name = aws_ssm_document.private.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.deploy_secret_ssh_public.name,
+            aws_resourcegroups_group.private.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

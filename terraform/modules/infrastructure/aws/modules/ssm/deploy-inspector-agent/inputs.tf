@@ -8,27 +8,17 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_deploy_inspector_agent" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have inspector agent deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "tag" {
+  type = string
+  default = "ssm_deploy_inspector_agent"
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_deploy_inspector_agent"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
 }

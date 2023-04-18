@@ -2,7 +2,7 @@ locals {
     iplist_url = var.iplist_url
     iplist_base64 = base64encode(file("${path.module}/resources/threatdb.csv"))
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_attacker_connect_badip.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -16,24 +16,22 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
-# Additional Call Home Examples
-# Outbound Connect to Known Bad IP:
-# while true; do for i in $(grep 'IPV4,' badlist.txt | awk -F',' '{ print $2 }' ); do nc -vv -w 5 $i 80; sleep 1; done; done
-# Outbound Connect to Known Bad DNS:
-# while true; do for d in $(grep 'DNS,\*' badlist.txt | awk -F',' '{ print $2 }' | sed -r 's/\*\.//'); do curl -s "http://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w ${1:-16} | head -n 1).$d"; sleep 1; done; done
+###########################
+# SSM 
+###########################
 
-resource "aws_ssm_document" "connect_bad_ip" {
-  name          = "connect_bad_ip_${var.environment}_${var.deployment}"
+resource "aws_ssm_document" "this" {
+  name          = "${var.tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "connect ping bad ip",
+        "description": "attack simulation",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "connect_bad_ip_${var.environment}_${var.deployment}",
+                "name": "${var.tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -41,9 +39,9 @@ resource "aws_ssm_document" "connect_bad_ip" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "1200",
+                    "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
+                        "echo '${local.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -51,11 +49,24 @@ resource "aws_ssm_document" "connect_bad_ip" {
     })
 }
 
-resource "aws_resourcegroups_group" "connect_bad_ip" {
-    name = "connect_bad_ip_${var.environment}_${var.deployment}"
+resource "aws_resourcegroups_group" "this" {
+    name = "${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_connect_bad_ip)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -64,22 +75,22 @@ resource "aws_resourcegroups_group" "connect_bad_ip" {
     }
 }
 
-resource "aws_ssm_association" "connect_bad_ip" {
-    association_name = "connect_bad_ip_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "this" {
+    association_name = "${var.tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.connect_bad_ip.name
+    name = aws_ssm_document.this.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.connect_bad_ip.name,
+            aws_resourcegroups_group.this.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

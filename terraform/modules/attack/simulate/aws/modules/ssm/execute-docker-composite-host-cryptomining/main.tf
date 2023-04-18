@@ -5,7 +5,7 @@ locals {
     attack_type = "host_cryptomining"
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_attacker_exec_docker_${local.attack_type}_attacker.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -165,8 +165,12 @@ locals {
                             )
 }
 
+###########################
+# SSM 
+###########################
+
 resource "aws_ssm_document" "this" {
-  name          = "exec_${var.tag}_${var.environment}_${var.deployment}"
+  name          = "${var.tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
@@ -176,7 +180,7 @@ resource "aws_ssm_document" "this" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_${var.tag}_${var.environment}_${var.deployment}",
+                "name": "${var.tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -195,7 +199,7 @@ resource "aws_ssm_document" "this" {
 }
 
 resource "aws_resourcegroups_group" "this" {
-    name = "exec_${var.tag}_${var.environment}_${var.deployment}"
+    name = "${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
         query = jsonencode({
@@ -221,7 +225,7 @@ resource "aws_resourcegroups_group" "this" {
 }
 
 resource "aws_ssm_association" "this" {
-    association_name = "exec_${var.tag}_${var.environment}_${var.deployment}"
+    association_name = "${var.tag}_${var.environment}_${var.deployment}"
 
     name = aws_ssm_document.this.name
 
@@ -234,7 +238,7 @@ resource "aws_ssm_association" "this" {
 
     compliance_severity = "HIGH"
 
-    # every 2 hours
+    # cronjob
     schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false

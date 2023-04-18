@@ -8,6 +8,21 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "tag" {
+  type = string
+  default = "ssm_exec_docker_cpuminer"
+}
+
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
+}
+
 # variable "nicehash_image" {
 #     type = string
 #     description = "nicehash docker image"
@@ -45,29 +60,4 @@ variable "minergate_server" {
 variable "minergate_user" {
     type = string
     description = "minergate user"
-}
-
-variable "resource_query_exec_docker_cpuminer" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
-
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_docker_cpuminer"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
 }

@@ -1,7 +1,7 @@
 locals {
     listen_port=var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_exec_vuln_python3_twisted_app_target.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -54,18 +54,22 @@ locals {
                 }))
 }
 
-resource "aws_ssm_document" "exec_vuln_python3_twisted_app_target" {
-  name          = "exec_vuln_python_twisted_${var.environment}_${var.deployment}"
+###########################
+# SSM 
+###########################
+
+resource "aws_ssm_document" "this" {
+  name          = "${var.tag}_${var.environment}_${var.deployment}"
   document_type = "Command"
 
   content = jsonencode(
     {
         "schemaVersion": "2.2",
-        "description": "start vulnerable python3 twisted app",
+        "description": "attack simulation",
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "exec_vuln_python3_twisted_app_target_${var.environment}_${var.deployment}",
+                "name": "${var.tag}_${var.environment}_${var.deployment}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -73,9 +77,9 @@ resource "aws_ssm_document" "exec_vuln_python3_twisted_app_target" {
                     ]
                 },
                 "inputs": {
-                    "timeoutSeconds": "1800",
+                    "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash -"
+                        "echo '${local.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
                     ]
                 }
             }
@@ -83,11 +87,24 @@ resource "aws_ssm_document" "exec_vuln_python3_twisted_app_target" {
     })
 }
 
-resource "aws_resourcegroups_group" "exec_vuln_python3_twisted_app_target" {
-    name = "exec_vuln_python_twisted_${var.environment}_${var.deployment}"
+resource "aws_resourcegroups_group" "this" {
+    name = "${var.tag}_${var.environment}_${var.deployment}"
 
     resource_query {
-        query = jsonencode(var.resource_query_exec_vuln_python3_twisted_app_target)
+        query = jsonencode({
+                    ResourceTypeFilters = [
+                        "AWS::EC2::Instance"
+                    ]
+
+                    TagFilters = [
+                        {
+                            Key = "${var.tag}"
+                            Values = [
+                                "true"
+                            ]
+                        }
+                    ]
+                })
     }
 
     tags = {
@@ -96,22 +113,22 @@ resource "aws_resourcegroups_group" "exec_vuln_python3_twisted_app_target" {
     }
 }
 
-resource "aws_ssm_association" "exec_vuln_python3_twisted_app_target" {
-    association_name = "exec_vuln_python_twisted_${var.environment}_${var.deployment}"
+resource "aws_ssm_association" "this" {
+    association_name = "${var.tag}_${var.environment}_${var.deployment}"
 
-    name = aws_ssm_document.exec_vuln_python3_twisted_app_target.name
+    name = aws_ssm_document.this.name
 
     targets {
         key = "resource-groups:Name"
         values = [
-            aws_resourcegroups_group.exec_vuln_python3_twisted_app_target.name,
+            aws_resourcegroups_group.this.name,
         ]
     }
 
     compliance_severity = "HIGH"
 
-    # every 30 minutes
-    schedule_expression = "cron(0/30 * * * ? *)"
+    # cronjob
+    schedule_expression = "${var.cron}"
     
     # will apply when updated and interval when false
     apply_only_at_cron_interval = false

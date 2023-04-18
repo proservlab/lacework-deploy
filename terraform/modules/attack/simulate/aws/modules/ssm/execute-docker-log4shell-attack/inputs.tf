@@ -8,29 +8,19 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "resource_query_exec_docker_log4shell_attacker" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "tag" {
+  type = string
+  default = "ssm_exec_docker_log4shell_attacker"
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_docker_log4shell_attacker"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
 }
 
 variable "attacker_http_port" {
