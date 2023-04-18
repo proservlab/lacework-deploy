@@ -29,12 +29,16 @@ module "lacework_aws_ssm_agents_install" {
 # SSM 
 ###########################
 
-resource "random_id" "this" {
-    byte_length = 1
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 resource "aws_resourcegroups_group" "this" {
-    name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
+    name = "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}"
 
     resource_query {
         query = jsonencode({
@@ -60,7 +64,7 @@ resource "aws_resourcegroups_group" "this" {
 }
 
 resource "aws_ssm_association" "this" {
-    association_name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
+    association_name = "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}"
 
     name = module.lacework_aws_ssm_agents_install.ssm_document_name
 

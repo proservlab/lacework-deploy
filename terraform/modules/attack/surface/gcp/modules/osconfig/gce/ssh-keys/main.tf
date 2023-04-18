@@ -56,8 +56,12 @@ locals {
   public_tag = [for k,v in var.public_label: k][0]
 }
 
-resource "random_id" "public" {
-    byte_length = 1
+resource "random_string" "public" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 data "google_compute_zones" "available" {
@@ -70,7 +74,7 @@ resource "google_os_config_os_policy_assignment" "public" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.public_tag}-${var.environment}-${var.deployment}_${random_id.public.id}"
+  name        = "${local.public_tag}-${var.environment}-${var.deployment}_${random_string.public.id}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -92,7 +96,7 @@ resource "google_os_config_os_policy_assignment" "public" {
   }
 
   os_policies {
-    id   = "${local.public_tag}-${var.environment}-${var.deployment}-${random_id.public.id}"
+    id   = "${local.public_tag}-${var.environment}-${var.deployment}-${random_string.public.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {
@@ -130,8 +134,12 @@ locals {
   private_tag = [for k,v in var.private_label: k][0]
 }
 
-resource "random_id" "private" {
-    byte_length = 1
+resource "random_string" "private" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 # data "google_compute_zones" "available" {
@@ -144,7 +152,7 @@ resource "google_os_config_os_policy_assignment" "private" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.private_tag}-${var.environment}-${var.deployment}_${random_id.private.id}"
+  name        = "${local.private_tag}-${var.environment}-${var.deployment}_${random_string.private.id}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -166,7 +174,7 @@ resource "google_os_config_os_policy_assignment" "private" {
   }
 
   os_policies {
-    id   = "${local.private_tag}-${var.environment}-${var.deployment}-${random_id.private.id}"
+    id   = "${local.private_tag}-${var.environment}-${var.deployment}-${random_string.private.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {

@@ -31,11 +31,15 @@ locals {
 #####################################################
 
 locals {
-  tag = [for k,v in var.label: replace(replace(k, "_", "-"),"osconfig-","")][0]
+  tag = [for k,v in var.label: replace(replace(k, "_", "-"),"osconfig_","")][0]
 }
 
-resource "random_id" "this" {
-    byte_length = 1
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 data "google_compute_zones" "available" {
@@ -48,7 +52,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
+  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -70,7 +74,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   }
 
   os_policies {
-    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
+    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {

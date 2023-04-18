@@ -56,12 +56,16 @@ locals {
 # SSM -Public
 ###########################
 
-resource "random_id" "public" {
-    byte_length = 1
+resource "random_string" "public" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 resource "aws_ssm_document" "public" {
-  name          = "${var.public_tag}_${var.environment}_${var.deployment}_${random_id.public.id}"
+  name          = "${var.public_tag}_${var.environment}_${var.deployment}_${random_string.public.id}"
   document_type = "Command"
 
   content = jsonencode(
@@ -71,7 +75,7 @@ resource "aws_ssm_document" "public" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "${var.public_tag}_${var.environment}_${var.deployment}_${random_id.public.id}",
+                "name": "${var.public_tag}_${var.environment}_${var.deployment}_${random_string.public.id}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -90,7 +94,7 @@ resource "aws_ssm_document" "public" {
 }
 
 resource "aws_resourcegroups_group" "public" {
-    name = "${var.public_tag}_${var.environment}_${var.deployment}_${random_id.public.id}"
+    name = "${var.public_tag}_${var.environment}_${var.deployment}_${random_string.public.id}"
 
     resource_query {
         query = jsonencode({
@@ -116,7 +120,7 @@ resource "aws_resourcegroups_group" "public" {
 }
 
 resource "aws_ssm_association" "public" {
-    association_name = "${var.public_tag}_${var.environment}_${var.deployment}_${random_id.public.id}"
+    association_name = "${var.public_tag}_${var.environment}_${var.deployment}_${random_string.public.id}"
 
     name = aws_ssm_document.public.name
 
@@ -140,12 +144,16 @@ resource "aws_ssm_association" "public" {
 # SSM - Private
 ###########################
 
-resource "random_id" "private" {
-    byte_length = 1
+resource "random_string" "private" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 resource "aws_ssm_document" "private" {
-  name          = "${var.private_tag}_${var.environment}_${var.deployment}_${random_id.private.id}"
+  name          = "${var.private_tag}_${var.environment}_${var.deployment}_${random_string.private.id}"
   document_type = "Command"
 
   content = jsonencode(
@@ -155,7 +163,7 @@ resource "aws_ssm_document" "private" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "${var.private_tag}_${var.environment}_${var.deployment}_${random_id.private.id}",
+                "name": "${var.private_tag}_${var.environment}_${var.deployment}_${random_string.private.id}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -174,7 +182,7 @@ resource "aws_ssm_document" "private" {
 }
 
 resource "aws_resourcegroups_group" "private" {
-    name = "${var.private_tag}_${var.environment}_${var.deployment}_${random_id.private.id}"
+    name = "${var.private_tag}_${var.environment}_${var.deployment}_${random_string.private.id}"
 
     resource_query {
         query = jsonencode({
@@ -200,7 +208,7 @@ resource "aws_resourcegroups_group" "private" {
 }
 
 resource "aws_ssm_association" "private" {
-    association_name = "${var.private_tag}_${var.environment}_${var.deployment}_${random_id.private.id}"
+    association_name = "${var.private_tag}_${var.environment}_${var.deployment}_${random_string.private.id}"
 
     name = aws_ssm_document.private.name
 
