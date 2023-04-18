@@ -45,22 +45,22 @@ for i in "$@"; do
 done
 
 if ! [ -z ${STANDALONE} ]; then
-    MOUNT="-v $HOME/.aws:/root/.aws -v $HOME/.lacework.toml:/root/.lacework.toml -v "${PWD}/env_vars":/workspace/terraform/env_vars -v "${PWD}/scenarios":/workspace/terraform/scenarios"
+    MOUNT="-v $HOME/.lacework.toml:/root/.lacework.toml -v "${PWD}/env_vars":/workspace/terraform/env_vars -v "${PWD}/scenarios":/workspace/terraform/scenarios"
 else
-    MOUNT="-v $HOME/.aws:/root/.aws -v $HOME/.lacework.toml:/root/.lacework.toml -v ${PWD}:/workspace/terraform"
+    MOUNT="-v $HOME/.lacework.toml:/root/.lacework.toml -v ${PWD}:/workspace/terraform"
 fi
 
 echo "LIVE            = ${LIVE}"
 
-if docker ps | grep deploy-aws-dind; then
+if docker ps | grep deploy-gcp-dind; then
     echo "Found running container, attaching..."
-    docker attach deploy-aws-dind
-elif docker ps -a | grep deploy-aws-dind then
+    docker attach deploy-gcp-dind
+elif docker ps -a | grep deploy-awgcps-dind; then
     echo "Found stopped container, starting and attaching..."
-    docker start deploy-aws-dind
-    docker attach deploy-aws-dind
+    docker start deploy-gcp-dind
+    docker attach deploy-gcp-dind
 else
     echo "Starting and attaching to container..."
-    sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock --name=deploy-aws-dind -w /workspace/terraform -it $MOUNT deploy-aws-dind:latest \
-    && docker exec -it deploy-aws-dind /bin/bash
+    sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock --name=deploy-gcp-dind -w /workspace/terraform -it $MOUNT deploy-gcp-dind:latest \
+    && docker exec -it deploy-gcp-dind /bin/bash
 fi;

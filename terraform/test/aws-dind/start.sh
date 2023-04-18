@@ -55,7 +55,7 @@ echo "LIVE            = ${LIVE}"
 if docker ps | grep deploy-aws-dind; then
     echo "Found running container, attaching..."
     docker attach deploy-aws-dind
-elif docker ps -a | grep deploy-aws-dind then
+elif docker ps -a | grep deploy-aws-dind; then
     echo "Found stopped container, starting and attaching..."
     docker start deploy-aws-dind
     docker attach deploy-aws-dind
