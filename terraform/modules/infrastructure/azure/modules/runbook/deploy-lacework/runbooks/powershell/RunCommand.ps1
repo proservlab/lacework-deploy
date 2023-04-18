@@ -15,14 +15,6 @@ Write-Output "Account ID of current context: " $AzureContext.Account.Id
 #Get all Azure VMs which are in running state and are running Windows
 $myAzureVMs = Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object {$_.PowerState -eq "VM running" -and $_.StorageProfile.OSDisk.OSType -eq "Linux"}
 
-# need to add tag filtering, something like:
-#     foreach ($h in $myAzureVM.Tags.GetEnumerator()) {
-#     if (($h.Name -eq "Resource") -and ($h.value -eq "test"))
-#         {
-#             Write-host "VM with tags Resource:test are" $VM.Name
-#         }
-#     }
-
 # powershell v5 hack for parallelism
 $jobs = @()
 foreach ($myAzureVM in $myAzureVMs) {
@@ -45,9 +37,7 @@ foreach ($myAzureVM in $myAzureVMs) {
                 -VMName $name `
                 -CommandId 'RunShellScript' `
                 -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
-            Write-Output "Name: $($out.Name | Out-string)"
-            Write-Output "Output: $($out.Output | Out-string)"
-            Write-Output "Error: $($out.Error | Out-string)"
+            Write-Output $out.Value[0].Message
         }
         $jobs += Start-Job -ScriptBlock $scriptblock -ArgumentList $myAzureVM.ResourceGroupName,$myAzureVM.Name
     } else {
@@ -56,36 +46,6 @@ foreach ($myAzureVM in $myAzureVMs) {
 }
 Write-Output "Started all jobs. Receiving results."
 $jobs | % { $_ | Wait-Job }
-$jobs | % {
-    Write-Output "Name: $($_.Name)"
-    Write-Output "State: $($_.State)"
-    Write-Output "Output: $($_.ChildJobs[0].Output)"
-    Write-Output "Error: $($_.ChildJobs[0].Error)"
-}
+$jobs | % { $json = $($_ | Select-Object *  | ConvertTo-Json); Write-Output "Result: $json" }
 
 Write-Output "Done."
-
-# powershell v7 required (currently terraform doesn't _easily_ support v7 provisioning)
-# $myAzureVMs | ForEach-Object -Parallel {
-# $myAzureVMs | ForEach-Object {
-#     Write-Output "VM Name: " $_.Name
-#     $hasTag = $false
-#     foreach ($tag in $_.Tags.GetEnumerator()) {
-#         if ($tag.Key -eq "${ tag }" -and $tag.Value -eq "true"){
-#             $hasTag = $true
-#             break
-#         }
-#     }
-#     if ($hasTag){
-#         Write-Output "Tag Found: ${ tag }"
-#         $out = Invoke-AzVMRunCommand `
-#             -ResourceGroupName $_.ResourceGroupName `
-#             -VMName $_.Name `
-#             -CommandId 'RunShellScript' `
-#             -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash -"
-#         $out
-#     } else {
-#         Write-Output "Tag Not Found Skipping: ${ tag }"
-#     }
-    
-# }
