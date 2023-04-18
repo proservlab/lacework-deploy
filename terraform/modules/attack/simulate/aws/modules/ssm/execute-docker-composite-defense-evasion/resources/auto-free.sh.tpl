@@ -58,7 +58,7 @@ for SERVER in $SERVERS; do
     sleep 60
     log "Start protonvpn with .env-protonvpn-$SERVER"
     bash start.sh --container=protonvpn --env-file=.env-protonvpn-$SERVER >> $LOGFILE 2>&1
-    wait_vpn_connection()
+    wait_vpn_connection
     execute_script "protonvpn-$SERVER"
 done
 

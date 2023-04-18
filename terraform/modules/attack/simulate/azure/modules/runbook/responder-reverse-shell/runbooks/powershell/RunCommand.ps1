@@ -45,7 +45,9 @@ foreach ($myAzureVM in $myAzureVMs) {
                 -VMName $name `
                 -CommandId 'RunShellScript' `
                 -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
-            $out
+            Write-Output "Name: $($out.Name | Out-string)"
+            Write-Output "Output: $($out.Output | Out-string)"
+            Write-Output "Error: $($out.Error | Out-string)"
         }
         $jobs += Start-Job -ScriptBlock $scriptblock -ArgumentList $myAzureVM.ResourceGroupName,$myAzureVM.Name
     } else {
@@ -53,11 +55,14 @@ foreach ($myAzureVM in $myAzureVMs) {
     }
 }
 Write-Output "Started all jobs. Receiving results."
-foreach ($job in $jobs) {
-    $job | Wait-Job
-    $result = $job | Receive-Job
-    Write-Output "Result: $result"
+$jobs | % { $_ | Wait-Job }
+$jobs | % {
+    Write-Output "Name: $($_.Name)"
+    Write-Output "State: $($_.State)"
+    Write-Output "Output: $($_.ChildJobs[0].Output)"
+    Write-Output "Error: $($_.ChildJobs[0].Error)"
 }
+
 Write-Output "Done."
 
 # powershell v7 required (currently terraform doesn't _easily_ support v7 provisioning)
