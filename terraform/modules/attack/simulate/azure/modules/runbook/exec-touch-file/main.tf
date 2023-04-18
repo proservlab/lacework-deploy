@@ -30,8 +30,12 @@ data "azurerm_subscription" "current" {
 # RESOURCE GROUP RUNBOOK
 #####################################################
 
-resource "random_id" "this" {
-    byte_length = 8
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 resource "azurerm_automation_runbook" "demo_rb" {
