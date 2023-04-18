@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "compromised_credentials" {
   type = any
   description = "credentials to use in compromised keys attack"

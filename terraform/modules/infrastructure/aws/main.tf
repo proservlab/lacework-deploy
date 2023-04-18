@@ -62,9 +62,12 @@ module "lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
+}
 
+resource "time_sleep" "lacework_wait_90" {
+  create_duration = "90s"
   depends_on = [
-    module.id
+    module.lacework-audit-config,
   ]
 }
 
@@ -76,15 +79,8 @@ module "lacework-agentless" {
   deployment   = local.config.context.global.deployment
 
   depends_on = [
+    time_sleep.lacework_wait_90,
     module.lacework-audit-config
-  ]
-}
-
-resource "time_sleep" "lacework_wait_30" {
-  create_duration = "30s"
-  depends_on = [
-    module.lacework-audit-config,
-    module.lacework-agentless
   ]
 }
 
@@ -140,7 +136,7 @@ module "ec2" {
   dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
 
   depends_on = [
-    time_sleep.lacework_wait_30
+    time_sleep.lacework_wait_90
   ]
 }
 
@@ -195,7 +191,7 @@ resource "null_resource" "eks_wait" {
   }
 
   depends_on = [
-    time_sleep.lacework_wait_30,
+    time_sleep.lacework_wait_90,
     module.eks,
     module.eks-windows
   ]
@@ -225,6 +221,7 @@ module "eks-autoscaler" {
     kubernetes = kubernetes.main
     helm = helm.main
   }
+
 
   depends_on = [
     module.eks-windows,

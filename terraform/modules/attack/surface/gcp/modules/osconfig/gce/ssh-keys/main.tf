@@ -48,75 +48,30 @@ locals {
     base64_payload_private = base64encode(local.payload_private)
 }
 
+#####################################################
+# GCP OSCONFIG
+#####################################################
+
+locals {
+  public_tag = [for k,v in var.public_label: k][0]
+}
+
+resource "random_id" "public" {
+    byte_length = 1
+}
+
 data "google_compute_zones" "available" {
   project     = var.gcp_project_id
   region    = var.gcp_location
 }
 
-resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-private" {
+resource "google_os_config_os_policy_assignment" "public" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-deploy-secret-ssh-private-${var.environment}-${var.deployment}"
-  description = "Deploy secret ssh private key"
-  skip_await_rollout = true
-  
-  instance_filter {
-    all = false
-
-    inclusion_labels {
-      labels = var.private_label
-    }
-
-    inventories {
-      os_short_name = "ubuntu"
-    }
-
-    inventories {
-      os_short_name = "debian"
-    }
-
-  }
-
-  os_policies {
-    id   = "osconfig-deploy-secret-ssh-private-${var.environment}-${var.deployment}"
-    mode = "ENFORCEMENT"
-
-    resource_groups {
-      resources {
-        id = "run"
-        exec {
-          validate {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
-          }
-          enforce {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "exit 100"
-          }
-        }
-      }
-    }
-  }
-
-  rollout {
-    disruption_budget {
-      percent = 100
-    }
-    min_wait_duration = "600s"
-  }
-}
-
-resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-public" {
-
-  project     = var.gcp_project_id
-  location    = data.google_compute_zones.available.names[0]
-  
-  name        = "osconfig-deploy-secret-ssh-public-${var.environment}-${var.deployment}"
-  description = "Deploy secret ssh public key"
+  name        = "${local.public_tag}-${var.environment}-${var.deployment}_${random_id.public.id}"
+  description = "Attack automation"
   skip_await_rollout = true
   
   instance_filter {
@@ -137,7 +92,7 @@ resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-public" {
   }
 
   os_policies {
-    id   = "deploy-secret-ssh-public-${var.environment}-${var.deployment}"
+    id   = "${local.public_tag}-${var.environment}-${var.deployment}-${random_id.public.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {
@@ -163,6 +118,80 @@ resource "google_os_config_os_policy_assignment" "deploy-secret-ssh-public" {
     disruption_budget {
       percent = 100
     }
-    min_wait_duration = "600s"
+    min_wait_duration = var.timeout
+  }
+}
+
+#####################################################
+# GCP OSCONFIG PRIVATE
+#####################################################
+
+locals {
+  private_tag = [for k,v in var.private_label: k][0]
+}
+
+resource "random_id" "private" {
+    byte_length = 1
+}
+
+# data "google_compute_zones" "available" {
+#   project     = var.gcp_project_id
+#   region    = var.gcp_location
+# }
+
+resource "google_os_config_os_policy_assignment" "private" {
+
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "${local.private_tag}-${var.environment}-${var.deployment}_${random_id.private.id}"
+  description = "Attack automation"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
+
+    inclusion_labels {
+      labels = var.private_label
+    }
+
+    inventories {
+      os_short_name = "ubuntu"
+    }
+
+    inventories {
+      os_short_name = "debian"
+    }
+
+  }
+
+  os_policies {
+    id   = "${local.private_tag}-${var.environment}-${var.deployment}-${random_id.private.id}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 100
+    }
+    min_wait_duration = var.timeout
   }
 }

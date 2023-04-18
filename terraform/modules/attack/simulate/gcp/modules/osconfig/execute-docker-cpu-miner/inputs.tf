@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "minergate_image" {
     type = string
     description = "minergate docker image"

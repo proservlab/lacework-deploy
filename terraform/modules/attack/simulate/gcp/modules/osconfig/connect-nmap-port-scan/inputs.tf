@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "nmap_scan_host" {
   type = string
   description = "the host to port scan"

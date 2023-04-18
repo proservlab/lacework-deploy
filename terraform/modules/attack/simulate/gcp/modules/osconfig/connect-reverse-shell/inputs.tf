@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "host_ip" {
   type = string
   description = "IP address of attacker"

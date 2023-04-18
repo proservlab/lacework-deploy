@@ -136,6 +136,26 @@ module "runbook-deploy-lacework" {
   ]
 }
 
+module "runbook-deploy-lacework-syscall-config" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_syscall_config == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-lacework-syscall-config"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_lacework"
+
+  syscall_config = "${path.module}/modules/runbook/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
 
 
 ##################################################

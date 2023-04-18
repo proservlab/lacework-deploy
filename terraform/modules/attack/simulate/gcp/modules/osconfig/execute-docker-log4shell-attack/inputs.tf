@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "attacker_http_port" {
   type = number
   description = "listening port for webserver in container"

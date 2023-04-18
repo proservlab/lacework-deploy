@@ -22,3 +22,8 @@ variable "label" {
                     osconfig_connect_oast_host = "true"
                 }
 }
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}

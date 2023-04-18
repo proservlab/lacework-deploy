@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "iplist_url" {
   type = string
   description = "url to obtain a list of bad ips"

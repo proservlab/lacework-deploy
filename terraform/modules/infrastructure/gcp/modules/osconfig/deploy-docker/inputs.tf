@@ -22,3 +22,8 @@ variable "label" {
                     osconfig_deploy_docker = "true"
                 }
 }
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}

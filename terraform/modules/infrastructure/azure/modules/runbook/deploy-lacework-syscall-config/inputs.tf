@@ -34,23 +34,8 @@ variable "tag" {
     default = "runbook_deploy_lacework"
 }
 
-variable "lacework_agent_tags" {
-  type        = map(string)
-  description = "A map/dictionary of Tags to be assigned to the Lacework datacollector"
-  default     = {}
-}
-
-variable "lacework_agent_temp_path" {
-  type        = string
-  description = "The temporary path for the Lacework installation script"
-  default     = "/tmp"
-}
-
-variable "lacework_agent_access_token" {
-    type    = string
-}
-
-variable "lacework_server_url" {
-    type    = string
-    default = "https://api.lacework.net"
+variable "syscall_config" {
+  type = string
+  description = "Configuration file path syscall_config.yaml"
+  default = "./resources/syscall_config.yaml"
 }

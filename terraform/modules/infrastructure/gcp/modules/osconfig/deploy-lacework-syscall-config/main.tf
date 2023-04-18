@@ -30,18 +30,30 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
+#####################################################
+# GCP OSCONFIG
+#####################################################
+
+locals {
+  tag = [for k,v in var.label: replace(k, "_", "-")][0]
+}
+
+resource "random_id" "this" {
+    byte_length = 1
+}
+
 data "google_compute_zones" "available" {
   project     = var.gcp_project_id
   region    = var.gcp_location
 }
 
-resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+resource "google_os_config_os_policy_assignment" "this" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-deploy-lacework-syscall-config-${var.environment}-${var.deployment}"
-  description = "Deploy lacework syscall config"
+  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
+  description = "Attack automation"
   skip_await_rollout = true
   
   instance_filter {
@@ -62,7 +74,7 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   }
 
   os_policies {
-    id   = "osconfig-deploy-lacework-syscall-config-${var.environment}-${var.deployment}"
+    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {
@@ -88,6 +100,6 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
     disruption_budget {
       percent = 100
     }
-    min_wait_duration = "600s"
+    min_wait_duration = var.timeout
   }
 }

@@ -23,6 +23,11 @@ variable "label" {
                 }
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "syscall_config" {
   type = string
   description = "Configuration file path syscall_config.yaml"

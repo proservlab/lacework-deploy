@@ -22,3 +22,8 @@ variable "label" {
                     osconfig_deploy_git = "true"
                 }
 }
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}

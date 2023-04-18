@@ -154,18 +154,30 @@ locals {
                             )
 }
 
+#####################################################
+# GCP OSCONFIG
+#####################################################
+
+locals {
+  tag = [for k,v in var.label: replace(k, "_", "-")][0]
+}
+
+resource "random_id" "this" {
+    byte_length = 1
+}
+
 data "google_compute_zones" "available" {
   project     = var.gcp_project_id
   region    = var.gcp_location
 }
 
-resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-compromised-credentials" {
+resource "google_os_config_os_policy_assignment" "this" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-execute-docker-compromised-credentials-${var.environment}-${var.deployment}"
-  description = "Execute docker compromised credentials"
+  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
+  description = "Attack automation"
   skip_await_rollout = true
   
   instance_filter {
@@ -186,7 +198,7 @@ resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-compro
   }
 
   os_policies {
-    id   = "osconfig-execute-docker-compromised-credentials-${var.environment}-${var.deployment}"
+    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {
@@ -212,6 +224,6 @@ resource "google_os_config_os_policy_assignment" "osconfig-execute-docker-compro
     disruption_budget {
       percent = 100
     }
-    min_wait_duration = "600s"
+    min_wait_duration = var.timeout
   }
 }

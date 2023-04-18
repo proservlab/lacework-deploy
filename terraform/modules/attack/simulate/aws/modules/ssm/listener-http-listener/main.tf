@@ -73,8 +73,12 @@ locals {
 # SSM 
 ###########################
 
+resource "random_id" "this" {
+    byte_length = 1
+}
+
 resource "aws_ssm_document" "this" {
-  name          = "${var.tag}_${var.environment}_${var.deployment}"
+  name          = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
   document_type = "Command"
 
   content = jsonencode(
@@ -84,7 +88,7 @@ resource "aws_ssm_document" "this" {
         "mainSteps": [
             {
                 "action": "aws:runShellScript",
-                "name": "${var.tag}_${var.environment}_${var.deployment}",
+                "name": "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}",
                 "precondition": {
                     "StringEquals": [
                         "platformType",
@@ -103,7 +107,7 @@ resource "aws_ssm_document" "this" {
 }
 
 resource "aws_resourcegroups_group" "this" {
-    name = "${var.tag}_${var.environment}_${var.deployment}"
+    name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
 
     resource_query {
         query = jsonencode({
@@ -129,7 +133,7 @@ resource "aws_resourcegroups_group" "this" {
 }
 
 resource "aws_ssm_association" "this" {
-    association_name = "${var.tag}_${var.environment}_${var.deployment}"
+    association_name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
 
     name = aws_ssm_document.this.name
 

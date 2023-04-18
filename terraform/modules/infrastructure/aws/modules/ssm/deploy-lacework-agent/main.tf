@@ -29,8 +29,12 @@ module "lacework_aws_ssm_agents_install" {
 # SSM 
 ###########################
 
+resource "random_id" "this" {
+    byte_length = 1
+}
+
 resource "aws_resourcegroups_group" "this" {
-    name = "${var.tag}_${var.environment}_${var.deployment}"
+    name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
 
     resource_query {
         query = jsonencode({
@@ -56,7 +60,7 @@ resource "aws_resourcegroups_group" "this" {
 }
 
 resource "aws_ssm_association" "this" {
-    association_name = "${var.tag}_${var.environment}_${var.deployment}"
+    association_name = "${var.tag}_${var.environment}_${var.deployment}_${random_id.this.id}"
 
     name = module.lacework_aws_ssm_agents_install.ssm_document_name
 
@@ -65,11 +69,6 @@ resource "aws_ssm_association" "this" {
         values = [
             aws_resourcegroups_group.this.name,
         ]
-    }
-
-    parameters = {
-        Token = can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
-        Serverurl = var.lacework_server_url
     }
 
     compliance_severity = "HIGH"

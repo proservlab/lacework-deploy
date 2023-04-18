@@ -31,15 +31,6 @@ locals {
 }
 
 #####################################################
-# LACEWORK AGENT
-#####################################################
-
-resource "lacework_agent_access_token" "agent" {
-    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
-}
-
-#####################################################
 # RUNBOOK
 #####################################################
 
@@ -55,8 +46,12 @@ data "azurerm_subscription" "current" {
 # RESOURCE GROUP RUNBOOK
 #####################################################
 
+resource "random_id" "this" {
+    byte_length = 1
+}
+
 resource "azurerm_automation_runbook" "demo_rb" {
-    name                    = "${var.tag}-runbook-${var.environment}-${var.deployment}"
+    name                    = "${var.tag}-${var.environment}-${var.deployment}-${random_id.this.id}"
     location                = var.resource_group.location
     resource_group_name     = var.resource_group.name
     automation_account_name = var.automation_account
@@ -75,7 +70,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
 }
 
 resource "azurerm_automation_schedule" "hourly" {
-  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}"
+  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}_${random_id.this.id}"
   resource_group_name     = var.resource_group.name
   automation_account_name = var.automation_account
   frequency               = "Hour"

@@ -28,3 +28,8 @@ variable "listen_port" {
   description = "listening port for container"
   default=8000
 }
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}

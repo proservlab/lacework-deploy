@@ -29,3 +29,8 @@ variable "public_label" {
                     osconfig_deploy_secret_ssh_public = "true"
                 }
 }
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}
