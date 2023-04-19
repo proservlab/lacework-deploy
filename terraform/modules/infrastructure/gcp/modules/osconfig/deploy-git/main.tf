@@ -1,6 +1,6 @@
 locals {
     payload = <<-EOT
-    LOGFILE=/tmp/${var.tag}.log
+    LOGFILE=/tmp/osconfig_deploy_git.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -50,11 +50,14 @@ resource "google_os_config_os_policy_assignment" "this" {
     all = false
 
     inclusion_labels {
-      labels = jsondecode({ 
-        "${var.tag}" = "true",
-        "deployment" = "{var.deployment}",
-        "environment" = "{var.environment}"
-      })
+      labels = jsondecode(<<-EOT
+                            { 
+                              "${var.tag}" = "true",
+                              "deployment" = "{var.deployment}",
+                              "environment" = "{var.environment}"
+                            }
+                            EOT
+                          )
     }
 
     inventories {
