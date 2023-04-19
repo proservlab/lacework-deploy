@@ -31,6 +31,7 @@
               "osconfig_deploy_git"    : "true",
               "osconfig_deploy_docker"  : "true",
               "osconfig_deploy_lacework": "true",
+              "osconfig_deploy_lacework_syscall": "true",
               "osconfig_deploy_secret_ssh_private"    : "true",
               "osconfig_exec_docker_log4shell_target" : "true"
             },
@@ -47,6 +48,7 @@
               "osconfig_deploy_git"    : "true",
               "osconfig_deploy_docker"  : "true",
               "osconfig_deploy_lacework": "true",
+              "osconfig_deploy_lacework_syscall": "true",
               "osconfig_deploy_secret_ssh_public"    : "true"
             },
             "user_data"        : null,

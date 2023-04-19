@@ -28,7 +28,8 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_lacework"          : "true",
+              "osconfig_deploy_lacework": "true",
+              "osconfig_deploy_lacework_syscall": "true",
               "osconfig_connect_oast_host"        : "true"
             },
             "user_data"        : null,

@@ -31,6 +31,7 @@
               "runbook_deploy_git"    : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
+              "runbook_deploy_lacework_syscall": "true",
               "runbook_exec_touch_file": "true",
               "runbook_exec_reverse_shell_target": "true"
             },

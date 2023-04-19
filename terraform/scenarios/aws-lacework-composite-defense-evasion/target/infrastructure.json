@@ -28,7 +28,8 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework"              : "true",
+              "ssm_deploy_lacework": "true",
+              "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_docker"                : "true",
               "ssm_exec_docker_log4shell_target" : "true",
               "ssm_deploy_inspector_agent"       : "true"

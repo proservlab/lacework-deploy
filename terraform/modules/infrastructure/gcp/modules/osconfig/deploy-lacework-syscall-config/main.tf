@@ -8,7 +8,7 @@ locals {
     set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
-    LOGFILE=/tmp/osconfig_deploy_lacework_syscall.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -56,7 +56,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+  name        = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -64,7 +64,11 @@ resource "google_os_config_os_policy_assignment" "this" {
     all = false
 
     inclusion_labels {
-      labels = var.label
+      labels = jsondecode({ 
+        "${var.tag}" = "true",
+        "deployment" = "{var.deployment}",
+        "environment" = "{var.environment}"
+      })
     }
 
     inventories {
@@ -78,7 +82,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   }
 
   os_policies {
-    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    id   = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {

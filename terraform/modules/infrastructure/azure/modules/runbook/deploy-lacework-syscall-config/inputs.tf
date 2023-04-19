@@ -31,7 +31,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_deploy_lacework"
+    default = "runbook_deploy_lacework_syscall"
 }
 
 variable "syscall_config" {

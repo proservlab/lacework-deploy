@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_deploy_lacework"
+  default = "ssm_deploy_lacework_sycall"
 }
 
 variable "timeout" {

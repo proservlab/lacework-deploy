@@ -9,7 +9,7 @@ locals {
     })
 
     payload = <<-EOT
-    LOGFILE=/tmp/runbook_deploy_lacework_agent.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

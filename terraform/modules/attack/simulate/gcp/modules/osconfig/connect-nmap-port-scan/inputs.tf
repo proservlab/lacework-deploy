@@ -16,11 +16,9 @@ variable "gcp_project_id" {
     type    = string
 }
 
-variable "label" {
-    type = map(string)
-    default =   {
-                    osconfig_connect_enumerate_host = "true"
-                }
+variable "tag" {
+    type = string
+    default = "osconfig_connect_enumerate_host"
 }
 
 variable "timeout" {

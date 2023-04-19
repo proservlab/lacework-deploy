@@ -16,11 +16,9 @@ variable "gcp_project_id" {
     type    = string
 }
 
-variable "label" {
-    type = map(string)
-    default =   {
-                    osconfig_exec_port_forward_attacker = "true"
-                }
+variable "tag" {
+    type = string
+    default = "osconfig_exec_port_forward_attacker"
 }
 
 variable "timeout" {

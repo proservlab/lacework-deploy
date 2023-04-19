@@ -24,7 +24,11 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
     all = false
 
     inclusion_labels {
-      labels = var.label
+      labels = jsondecode({ 
+        "${var.tag}" = "true",
+        "deployment" = "{var.deployment}",
+        "environment" = "{var.environment}"
+      })
     }
 
     inventories {

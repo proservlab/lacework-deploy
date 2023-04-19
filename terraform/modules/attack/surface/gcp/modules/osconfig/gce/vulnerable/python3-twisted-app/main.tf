@@ -2,7 +2,7 @@
 locals {
     listen_port=var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/ssm_exec_vuln_python3_twisted_app_target.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -59,9 +59,7 @@ locals {
 # GCP OSCONFIG
 #####################################################
 
-locals {
-  tag = [for k,v in var.label: replace(replace(k, "_", "-"),"osconfig_","")][0]
-}
+
 
 resource "random_string" "this" {
     length            = 4
@@ -81,7 +79,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+  name        = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -89,7 +87,11 @@ resource "google_os_config_os_policy_assignment" "this" {
     all = false
 
     inclusion_labels {
-      labels = var.label
+      labels = jsondecode({ 
+        "${var.tag}" = "true",
+        "deployment" = "{var.deployment}",
+        "environment" = "{var.environment}"
+      })
     }
 
     inventories {
@@ -103,7 +105,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   }
 
   os_policies {
-    id   = "${local.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    id   = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
     mode = "ENFORCEMENT"
 
     resource_groups {

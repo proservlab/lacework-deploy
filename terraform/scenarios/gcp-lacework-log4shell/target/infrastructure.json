@@ -31,6 +31,7 @@
               "osconfig_deploy_git"    : "true",
               "osconfig_deploy_docker"  : "true",
               "osconfig_deploy_lacework": "true",
+              "osconfig_deploy_lacework_syscall": "true",
               "osconfig_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,

@@ -12,7 +12,7 @@ locals {
     ssh_authorized_keys_path = var.ssh_authorized_keys_path
 
     payload_public = <<-EOT
-    LOGFILE=/tmp/ssm_attacksurface_agentless_public_key.log
+    LOGFILE=/tmp/${var.public_tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -30,7 +30,7 @@ locals {
     base64_payload_public = base64encode(local.payload_public)
 
     payload_private = <<-EOT
-    LOGFILE=/tmp/ssm_attacksurface_agentless_private_key.log
+    LOGFILE=/tmp/${var.private_tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

@@ -31,7 +31,8 @@
             "tags": {
               "runbook_deploy_git"     : "true",
               "runbook_deploy_docker"  : "true",
-              "runbook_deploy_lacework": "true"
+              "runbook_deploy_lacework": "true",
+              "runbook_deploy_lacework_syscall": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

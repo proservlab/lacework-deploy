@@ -16,11 +16,9 @@ variable "gcp_project_id" {
     type    = string
 }
 
-variable "label" {
-    type = map(string)
-    default =   {
-                    osconfig_exec_docker_log4shell_attacker = "true"
-                }
+variable "tag" {
+    type = string
+    default = "osconfig_exec_docker_log4shell_attacker"
 }
 
 variable "timeout" {

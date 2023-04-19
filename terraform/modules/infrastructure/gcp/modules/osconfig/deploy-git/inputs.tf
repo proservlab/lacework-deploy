@@ -16,11 +16,9 @@ variable "gcp_project_id" {
     type    = string
 }
 
-variable "label" {
-    type = map(string)
-    default =   {
-                    osconfig_deploy_git = "true"
-                }
+variable "tag" {
+    type = string
+    default = "osconfig_deploy_git"
 }
 
 variable "timeout" {
