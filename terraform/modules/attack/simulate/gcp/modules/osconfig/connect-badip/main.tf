@@ -50,9 +50,9 @@ resource "google_os_config_os_policy_assignment" "this" {
     inclusion_labels {
       labels = jsondecode(<<-EOT
                             { 
-                              "${var.tag}" = "true",
-                              "deployment" = "{var.deployment}",
-                              "environment" = "{var.environment}"
+                              "${var.tag}": "true",
+                              "deployment": "{var.deployment}",
+                              "environment": "{var.environment}"
                             }
                             EOT
                           )
