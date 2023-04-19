@@ -167,9 +167,7 @@ module "lacework-daemonset-windows" {
   lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
-
-
-
+  
   depends_on = [
     time_sleep.wait_30,
     module.lacework-namespace

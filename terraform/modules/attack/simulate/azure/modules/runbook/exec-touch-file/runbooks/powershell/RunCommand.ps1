@@ -1,6 +1,8 @@
 #Resource Group my VMs are in
 $resourceGroup = "${ resource_group }"
 
+$PSVersionTable
+
 #Select the right Azure subscription
 # Ensures you do not inherit an AzContext in your runbook
 Disable-AzContextAutosave -Scope Process

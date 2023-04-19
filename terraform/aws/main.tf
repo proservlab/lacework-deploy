@@ -231,13 +231,22 @@ module "target-aws-infrastructure" {
   ]
 }
 
+resource "time_sleep" "infra_wait_120_seconds" {
+  depends_on = [
+    module.attacker-infrastructure-context,
+    module.target-infrastructure-context
+  ]
+
+  create_duration = "120s"
+}
+
 ##################################################
 # INFRASTRUCTURE LACEWORK PLATFORM
 ##################################################
 
 module "target-lacework-platform-infrastructure" {
   source = "../modules/infrastructure/lacework/platform"
-  config = module.target-infrastructure-context.config
+  config = module.attacker-infrastructure-context.config
 
   # infrasturcture config and deployed state
   infrastructure = {
@@ -270,10 +279,18 @@ module "target-lacework-platform-infrastructure" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
+
 
 ##################################################
 # ATTACK SURFACE CONFIG
@@ -332,8 +349,19 @@ module "attacker-attacksurface-context" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -350,8 +378,19 @@ module "target-attacksurface-context" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -408,12 +447,23 @@ module "attacker-aws-attacksurface" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -464,12 +514,23 @@ module "target-aws-attacksurface" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -564,6 +625,14 @@ module "attacker-attacksimulation-context" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
@@ -573,7 +642,10 @@ module "attacker-attacksimulation-context" {
     module.target-aws-attacksurface.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -591,6 +663,14 @@ module "target-attacksimulation-context" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
@@ -600,7 +680,10 @@ module "target-attacksimulation-context" {
     module.target-aws-attacksurface.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -657,6 +740,14 @@ module "attacker-aws-attacksimulation" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
@@ -670,7 +761,10 @@ module "attacker-aws-attacksimulation" {
     module.target-attacksimulation-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }
 
@@ -724,6 +818,14 @@ module "target-aws-attacksimulation" {
     module.attacker-aws-infrastructure.id,
     module.target-aws-infrastructure.id,
 
+    # lacework aws
+    module.attacker-lacework-aws-infrastructure.id,
+    module.target-lacework-aws-infrastructure.id,
+
+    # lacework platform
+    module.attacker-lacework-platform-infrastructure.id,
+    module.target-lacework-platform-infrastructure.id,
+
     # surface context
     module.attacker-attacksurface-context.id,
     module.target-attacksurface-context.id,
@@ -737,6 +839,9 @@ module "target-aws-attacksimulation" {
     module.target-attacksimulation-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    time_sleep.wait_120_seconds.id,
+
+    # config create delay
+    time_sleep.infra_wait_120_seconds.id
   ]
 }

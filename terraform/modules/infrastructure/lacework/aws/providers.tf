@@ -1,7 +1,9 @@
 locals {
   # ugly hack to force ignoring unconfigure aws provider
-  access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
-  secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  access_key = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
+  secret_key = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
+  profile = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") == "false" ? null : local.default_infrastructure_config.context.aws.profile_name
+  region = coalesce(local.default_infrastructure_config.context.aws.profile_name, "false") == "false" ? "us-east-1" : local.default_infrastructure_config.context.aws.region
   
   kubeconfig_path = pathexpand("~/.kube/config")
 }
