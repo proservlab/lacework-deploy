@@ -38,8 +38,6 @@ locals {
     resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
-
-
 resource "random_string" "this" {
     length            = 4
     special           = false
@@ -58,7 +56,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${var.tag}_${random_string.this.id}"
+  name        = "${local.resource_name}"
   description = "Attack automation"
   skip_await_rollout = true
   
