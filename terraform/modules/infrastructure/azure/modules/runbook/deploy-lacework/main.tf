@@ -46,6 +46,10 @@ data "azurerm_subscription" "current" {
 # RESOURCE GROUP RUNBOOK
 #####################################################
 
+locals {
+    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
+
 resource "random_string" "this" {
     length            = 4
     special           = false

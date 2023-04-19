@@ -20,6 +20,10 @@ locals {
 # GCP OSCONFIG
 #####################################################
 
+locals {
+    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
+
 
 
 resource "random_string" "this" {
@@ -40,7 +44,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+  name        = "${local.resource_name}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -69,7 +73,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   }
 
   os_policies {
-    id   = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    id        = "${local.resource_name}"
     mode = "ENFORCEMENT"
 
     resource_groups {

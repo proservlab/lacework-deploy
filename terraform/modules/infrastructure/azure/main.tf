@@ -146,7 +146,7 @@ module "runbook-deploy-lacework-syscall-config" {
   automation_account = module.automation-account[0].automation_account_name
   automation_princial_id = module.automation-account[0].automation_princial_id
   
-  tag             = "runbook_deploy_lacework"
+  tag             = "runbook_deploy_lacework_syscall"
 
   syscall_config = "${path.module}/modules/runbook/deploy-lacework-syscall-config/resources/syscall_config.yaml"
   

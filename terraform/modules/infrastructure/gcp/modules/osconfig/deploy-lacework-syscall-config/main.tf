@@ -34,6 +34,10 @@ locals {
 # GCP OSCONFIG
 #####################################################
 
+locals {
+    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
+
 
 
 resource "random_string" "this" {
@@ -83,7 +87,7 @@ resource "google_os_config_os_policy_assignment" "this" {
   }
 
   os_policies {
-    id   = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    id        = "${local.resource_name}"
     mode = "ENFORCEMENT"
 
     resource_groups {

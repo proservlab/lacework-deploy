@@ -8,7 +8,7 @@ locals {
     set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
-    LOGFILE=/tmp/${var.tag}.log
+    LOGFILE=/tmp/osconfig_deploy_lacework_syscall.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -45,6 +45,10 @@ data "azurerm_subscription" "current" {
 #####################################################
 # RESOURCE GROUP RUNBOOK
 #####################################################
+
+locals {
+    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
 
 resource "random_string" "this" {
     length            = 4

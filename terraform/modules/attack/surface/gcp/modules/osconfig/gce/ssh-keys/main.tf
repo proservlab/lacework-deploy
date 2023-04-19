@@ -10,7 +10,7 @@ locals {
     ssh_authorized_keys_path = "/home/ubuntu/.ssh/authorized_keys"
 
     payload_public = <<-EOT
-    LOGFILE=/tmp/osconfig_attacksurface_agentless_public_key.log
+    LOGFILE=/tmp/${var.public_tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -27,7 +27,7 @@ locals {
     base64_payload_public = base64encode(local.payload_public)
 
     payload_private = <<-EOT
-    LOGFILE=/tmp/osconfig_attacksurface_agentless_private_key.log
+    LOGFILE=/tmp/${var.private_tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -53,7 +53,7 @@ locals {
 #####################################################
 
 locals {
-  public_tag = [for k,v in var.public_label: k][0]
+    public_resource_name = "${replace(var.public_tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.public.id}"
 }
 
 resource "random_string" "public" {
@@ -74,7 +74,7 @@ resource "google_os_config_os_policy_assignment" "public" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.public_tag}-${var.environment}-${var.deployment}_${random_string.public.id}"
+  name        = "${local.public_resource_name}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -82,7 +82,14 @@ resource "google_os_config_os_policy_assignment" "public" {
     all = false
 
     inclusion_labels {
-      labels = var.public_label
+      labels = jsondecode(<<-EOT
+                            { 
+                              "${var.public_tag}": "true",
+                              "deployment": "{var.deployment}",
+                              "environment": "{var.environment}"
+                            }
+                            EOT
+                          )
     }
 
     inventories {
@@ -96,7 +103,7 @@ resource "google_os_config_os_policy_assignment" "public" {
   }
 
   os_policies {
-    id   = "${local.public_tag}-${var.environment}-${var.deployment}-${random_string.public.id}"
+    id   = "${local.public_resource_name}"
     mode = "ENFORCEMENT"
 
     resource_groups {
@@ -131,8 +138,9 @@ resource "google_os_config_os_policy_assignment" "public" {
 #####################################################
 
 locals {
-  private_tag = [for k,v in var.private_label: k][0]
+    private_resource_name = "${replace(var.private_tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.private.id}"
 }
+
 
 resource "random_string" "private" {
     length            = 4
@@ -152,7 +160,7 @@ resource "google_os_config_os_policy_assignment" "private" {
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "${local.private_tag}-${var.environment}-${var.deployment}_${random_string.private.id}"
+  name        = "${local.private_resource_name}"
   description = "Attack automation"
   skip_await_rollout = true
   
@@ -160,7 +168,14 @@ resource "google_os_config_os_policy_assignment" "private" {
     all = false
 
     inclusion_labels {
-      labels = var.private_label
+      labels = jsondecode(<<-EOT
+                            { 
+                              "${var.private_tag}": "true",
+                              "deployment": "{var.deployment}",
+                              "environment": "{var.environment}"
+                            }
+                            EOT
+                          )
     }
 
     inventories {
@@ -174,7 +189,7 @@ resource "google_os_config_os_policy_assignment" "private" {
   }
 
   os_policies {
-    id   = "${local.private_tag}-${var.environment}-${var.deployment}-${random_string.private.id}"
+    id   = "${local.private_resource_name}"
     mode = "ENFORCEMENT"
 
     resource_groups {

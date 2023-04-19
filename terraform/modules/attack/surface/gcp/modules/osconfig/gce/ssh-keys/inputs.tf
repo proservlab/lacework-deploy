@@ -16,18 +16,14 @@ variable "gcp_project_id" {
     type    = string
 }
 
-variable "private_label" {
-    type = map(string)
-    default =   {
-                    osconfig_deploy_secret_ssh_private = "true"
-                }
+variable "public_tag" {
+    type = string
+    default =  "osconfig_deploy_secret_ssh_public"
 }
 
-variable "public_label" {
-    type = map(string)
-    default =   {
-                    osconfig_deploy_secret_ssh_public = "true"
-                }
+variable "private_tag" {
+    type = string
+    default =  "osconfig_deploy_secret_ssh_private"
 }
 
 variable "timeout" {
