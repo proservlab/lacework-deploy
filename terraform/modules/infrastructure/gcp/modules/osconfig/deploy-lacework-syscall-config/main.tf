@@ -34,10 +34,6 @@ locals {
 # GCP OSCONFIG
 #####################################################
 
-locals {
-  tag = [for k,v in var.label: replace(replace(k, "_", "-"),"osconfig-","")][0]
-}
-
 resource "random_string" "this" {
     length            = 4
     special           = false
