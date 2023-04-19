@@ -29,7 +29,12 @@ foreach ($myAzureVM in $myAzureVMs) {
     if ($hasTag){
         Write-Output "Tag Found: ${ tag }"
         $scriptblock = {
-            param ($resourceGroup, $name)
+            param ($subscriptionName, $resourceGroup, $name)
+            $rnd = Get-Random -Minimum 60 -Maximum 90
+            Write-Output "Sleeping for $rnd seconds..."
+            Start-Sleep -Seconds $rnd
+            Write-Output "Starting Execution: $resourceGroup"
+            Import-Module Az.Accounts
             $AzureContext = (Connect-AzAccount -Identity -AccountId "${ automation_account }" ).context
             $AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
             $out = Invoke-AzVMRunCommand `
@@ -38,8 +43,9 @@ foreach ($myAzureVM in $myAzureVMs) {
                 -CommandId 'RunShellScript' `
                 -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
             Write-Output $out.Value[0].Message
+            Write-Output "Done."
         }
-        $jobs += Start-Job -ScriptBlock $scriptblock -ArgumentList $myAzureVM.ResourceGroupName,$myAzureVM.Name
+        $jobs += Start-Job -ScriptBlock $scriptblock -ArgumentList $AzureContext.Subscription.Name,$myAzureVM.ResourceGroupName,$myAzureVM.Name
     } else {
         Write-Output "Tag Not Found Skipping: ${ tag }"
     }
