@@ -84,6 +84,12 @@ variable "nicehash_user" {
   default = ""
 }
 
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default = 43200
+}
+
 variable "compromised_keys_user" {
   type = string
   default = "claude.kripto@interlacelabs"

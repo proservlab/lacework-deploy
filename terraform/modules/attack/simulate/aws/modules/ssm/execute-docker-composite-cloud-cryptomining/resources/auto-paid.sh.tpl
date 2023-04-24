@@ -49,8 +49,8 @@ else
     log "VPN connect timeout - skipping"
 fi;
 
-log "Wait 1 hour before starting attacker ${script}..."
-sleep 3600
+log "Wait ${attack_delay} seconds before starting attacker ${script}..."
+sleep ${attack_delay}
 
 SERVERS="AU JP NL SG LV CR IS"
 for SERVER in $SERVERS; do
