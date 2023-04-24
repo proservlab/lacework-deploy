@@ -75,3 +75,7 @@ variable "default_lacework_proxy_token" {
   type = string
   description = "lacework proxy token"
 }
+variable "default_lacework_sysconfig_path" {
+  type = string
+  description = "lacework syscall config path"
+}
