@@ -45,14 +45,14 @@ provider "google" {
 
 provider "google" {
   alias = "attacker"
-  project = var.default_gcp_project
-  region = var.default_gcp_region
+  project = var.attacker_gcp_project
+  region = var.attacker_gcp_region
 }
 
 provider "google" {
   alias = "target"
-  project = var.default_gcp_project
-  region = var.default_gcp_region
+  project = var.target_gcp_project
+  region = var.target_gcp_region
 }
 
 provider "lacework" {
