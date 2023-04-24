@@ -328,6 +328,7 @@ module "simulation-attacker-exec-docker-composite-compromised-credentials" {
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_composite_compromised_credentials_attack.attack_delay
 }
 module "simulation-attacker-exec-docker-composite-cloud-ransomware" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.enabled == true) ? 1 : 0
@@ -346,6 +347,7 @@ module "simulation-attacker-exec-docker-composite-cloud-ransomware" {
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.compromised_keys_user
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_ransomware_attack.attack_delay
 }
 
 module "simulation-attacker-exec-docker-composite-defense-evasion" {
@@ -365,6 +367,7 @@ module "simulation-attacker-exec-docker-composite-defense-evasion" {
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.compromised_keys_user
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_composite_defense_evasion_attack.attack_delay
 }
 
 module "simulation-attacker-exec-docker-composite-cloud-cryptomining" {
@@ -384,6 +387,7 @@ module "simulation-attacker-exec-docker-composite-cloud-cryptomining" {
   ethermine_wallet = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.wallet
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.minergate_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.compromised_keys_user
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_composite_cloud_cryptomining_attack.attack_delay
 }
 
 module "simulation-attacker-exec-docker-composite-host-cryptomining" {
@@ -404,6 +408,7 @@ module "simulation-attacker-exec-docker-composite-host-cryptomining" {
   minergate_user = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.minergate_user
   nicehash_user = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.nicehash_user
   compromised_keys_user = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.compromised_keys_user
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_composite_host_cryptomining_attack.attack_delay
 }
 
 module "ssm-execute-docker-cpuminer" {
