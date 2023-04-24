@@ -139,6 +139,8 @@ module "osconfig-deploy-git" {
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
+
+  tag =  "osconfig_deploy_git"
 }
 
 # osconfig deploy docker
@@ -149,6 +151,8 @@ module "osconfig-deploy-docker" {
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
+
+  tag = "osconfig_deploy_docker"
 }
 
 # osconfig deploy lacework agent
@@ -162,6 +166,8 @@ module "osconfig-deploy-lacework-agent" {
 
   lacework_agent_access_token = local.config.context.lacework.agent.token
   lacework_server_url         = local.config.context.lacework.server_url
+
+  tag = "osconfig_deploy_lacework"
 }
 
 # osconfig deploy lacework syscall_config.yaml
@@ -174,4 +180,6 @@ module "lacework-osconfig-deployment-syscall-config" {
   deployment                  = local.config.context.global.deployment
 
   syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+
+  tag = "osconfig_deploy_lacework_syscall"
 }
