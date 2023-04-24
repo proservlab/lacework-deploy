@@ -30,7 +30,7 @@ foreach ($myAzureVM in $myAzureVMs) {
         Write-Output "Tag Found: ${ tag }"
         $scriptblock = {
             param ($subscriptionName, $resourceGroup, $name)
-            $rnd = Get-Random -Minimum 60 -Maximum 90
+            $rnd = Get-Random -Minimum 300 -Maximum 600
             Write-Output "Sleeping for $rnd seconds..."
             Start-Sleep -Seconds $rnd
             Write-Output "Starting Execution: $resourceGroup"
