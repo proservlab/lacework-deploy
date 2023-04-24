@@ -711,6 +711,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
