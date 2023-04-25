@@ -30,6 +30,16 @@ locals {
     base64_payload = base64encode(local.payload)
 }
 
+resource "null_resource" "log" {
+  triggers = {
+    log_message = jsonencode(local.syscall_config)
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.syscall_config)}'"
+  }
+}
+
 ###########################
 # SSM 
 ###########################

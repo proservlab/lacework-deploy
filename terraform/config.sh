@@ -96,10 +96,23 @@ function select_scenario {
 function check_file_exists {
   if [ -e "$1" ]; then
     
-    read -p "> File '$1' already exists. Do you want to overwrite it? (y/n) " -n 1 -r
+    read -p "> File '$1' already exists. Do you want to overwrite the file edit it or quit? (o/e/q) " -n 1 -r
     echo    # move to a new line after user input
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ $REPLY =~ ^[Oo]$ ]]; then
       return 0  # User confirmed, return success code
+    elif [[ $REPLY =~ ^[Ee]$ ]]; then
+      if which vim; then
+        vim $1
+      elif which nano; then
+        nano $1
+      fi;
+      read -p "> File updated. Do you want to continue? (y/n) " -n 1 -r
+      echo    # move to a new line after user input
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+      else
+        return 1
+      fi
     else
       return 1  # User did not confirm, return error code
     fi
