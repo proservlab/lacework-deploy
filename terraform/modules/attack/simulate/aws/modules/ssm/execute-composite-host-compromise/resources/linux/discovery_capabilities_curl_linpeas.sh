@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTNAME="linpeas"
+SCRIPTNAME="curllinpeas"
 LOGFILE=/tmp/$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -8,7 +8,5 @@ function log {
 truncate -s 0 $LOGFILE
 log "Starting..."
 log "Downloading latest linpeas and executing..."
-curl -OJL https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
-chmod 755 linpeas.sh
-./linpeas.sh >> $LOGFILE 2>&1
+curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh >> $LOGFILE 2>&1
 log "done."
