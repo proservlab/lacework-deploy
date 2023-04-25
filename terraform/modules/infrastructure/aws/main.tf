@@ -439,7 +439,7 @@ module "lacework-ssm-deployment-syscall-config" {
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
 
-  syscall_config = fileexists(var.default_lacework_sysconfig_path) ? var.default_lacework_sysconfig_path : "${path.module}/modules/ssm/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+  syscall_config = var.default_lacework_sysconfig_path
 }
 
 ##################################################

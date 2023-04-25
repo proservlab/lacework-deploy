@@ -1,0 +1,1 @@
+for i in $(aws ssm list-documents --profile=attacker --filters Key=Owner,Values=Self | jq -r '.DocumentIdentifiers[] | select( (.Name | contains ("target")) or (.Name | contains ("attacker"))) | select( .Name | contains("awshc1") | not) | .Name'); do aws ssm delete-document --name $i --profile=attacker; done
