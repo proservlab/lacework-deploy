@@ -25,7 +25,7 @@
       },
       "eks": {
         "add_iam_user_readonly_user": {
-          "enabled": false,
+          "enabled": true,
           "iam_user_names": [
             "clue.burnetes@interlacelabs"
           ]
