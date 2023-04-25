@@ -1,4 +1,5 @@
 locals {
+    tool="docker"
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -6,14 +7,14 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "Checking for git..."
-    if ! which git; then
-        log "git not found installation required"
+    log "Checking for ${local.tool}..."
+    if ! which ${local.tool}; then
+        log "${local.tool} not found installation required"
         sudo apt-get update
         sudo apt-get install -y \
             git
     fi
-    log "git path: $(which docker)"
+    log "${local.tool} path: $(which ${local.tool})"
     EOT
     base64_payload = base64encode(local.payload)
 }

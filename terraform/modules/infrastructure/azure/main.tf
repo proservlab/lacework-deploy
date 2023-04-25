@@ -156,6 +156,96 @@ module "runbook-deploy-lacework-syscall-config" {
   ]
 }
 
+module "runbook-deploy-docker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_docker == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-docker"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_docker"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
+module "runbook-deploy-git" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_git == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-git"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_git"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
+module "runbook-aws-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_aws_cli == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-aws-cli"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_aws_cli"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
+module "runbook-lacework-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_cli == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-lacework-cli"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_lacework_cli"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
+module "runbook-kubectl-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_kubectl_cli == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-kubectl-cli"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_kubectl_cli"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
 
 
 ##################################################

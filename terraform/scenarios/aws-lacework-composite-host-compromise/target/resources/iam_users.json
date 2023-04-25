@@ -1,6 +1,6 @@
 [
     {
-      "name"   :  "kees.kompromize@interlacelabs",
-      "policy" :  "simulation_readonly_user"
+      "name"   :  "clue.burnetes@interlacelabs",
+      "policy" :  "simulation_power_user"
     }
 ]
