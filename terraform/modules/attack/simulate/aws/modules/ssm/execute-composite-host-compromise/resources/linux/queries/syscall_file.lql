@@ -1,0 +1,10 @@
+queryId: YourQueryID
+queryText: |-
+  {
+      source {
+        LW_HA_SYSCALLS_FILE s
+      }
+      return {
+        s.*
+      }
+  }

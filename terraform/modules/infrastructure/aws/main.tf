@@ -442,6 +442,30 @@ module "lacework-ssm-deployment-syscall-config" {
   syscall_config = var.default_lacework_sysconfig_path
 }
 
+# ssm deploy aws cli
+module "ssm-deploy-aws-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_aws_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-aws-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# ssm deploy lacework cli
+module "ssm-deploy-lacework-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-lacework-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# ssm deploy kubectl cli
+module "ssm-deploy-kubectl-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_kubectl_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-kubectl-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
 ##################################################
 # AWS RDS
 ##################################################

@@ -1,5 +1,5 @@
 locals {
-    tool="docker"
+    tool="kubectl"
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -10,24 +10,8 @@ locals {
     log "Checking for ${local.tool}..."
     if ! which ${local.tool}; then
         log "${local.tool} not found installation required"
-        sudo apt-get remove -y docker docker-engine docker.io containerd runc
-        sudo apt-get update
-        sudo apt-get install -y \
-            ca-certificates \
-            curl \
-            gnupg \
-            lsb-release
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        sudo apt-get update
-        sudo apt-get install -y \
-        docker-ce \
-        docker-ce-cli \
-        containerd.io \
-        docker-compose-plugin
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     fi
     log "${local.tool} path: $(which ${local.tool})"
     EOT

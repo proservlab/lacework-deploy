@@ -30,6 +30,8 @@
             "tags": {
               "ssm_deploy_git": "true",
               "ssm_deploy_docker": "true",
+              "ssm_deploy_kubectl_cli": "true",
+              "ssm_deploy_aws_cli": "true",
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_secret_aws_creds": "true"
@@ -49,7 +51,9 @@
         "deploy_docker"                  : true,
         "deploy_inspector_agent"         : true,
         "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_syscall_config" : true,
+        "deploy_kubectl_cli"             : true,
+        "deploy_aws_cli"                 : true
       }
     },
     "lacework": {
