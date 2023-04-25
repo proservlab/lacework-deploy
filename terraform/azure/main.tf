@@ -195,6 +195,7 @@ module "attacker-azure-infrastructure" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -227,6 +228,7 @@ module "target-azure-infrastructure" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -266,6 +268,7 @@ module "target-lacework-platform-infrastructure" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -403,6 +406,7 @@ module "attacker-azure-attacksurface" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -459,6 +463,7 @@ module "target-azure-attacksurface" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -662,6 +667,7 @@ module "attacker-azure-attacksimulation" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context
@@ -733,6 +739,7 @@ module "target-azure-attacksimulation" {
   default_lacework_server_url         = var.lacework_server_url
   default_lacework_agent_access_token = var.lacework_agent_access_token
   default_lacework_proxy_token        = var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
 
   parent = [
     # infrastructure context

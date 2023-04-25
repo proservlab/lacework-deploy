@@ -132,6 +132,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_ransomware_attack = object({
                 enabled                     = bool
@@ -146,6 +147,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_defense_evasion_attack = object({
                 enabled                     = bool
@@ -160,6 +162,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_cryptomining_attack = object({
                 enabled                     = bool
@@ -174,6 +177,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_host_cryptomining_attack = object({
                 enabled                     = bool
@@ -188,6 +192,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
             })
           })
@@ -308,6 +313,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_ransomware_attack = object({
                 enabled                     = bool
@@ -322,6 +328,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_defense_evasion_attack = object({
                 enabled                     = bool
@@ -336,6 +343,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_cryptomining_attack = object({
                 enabled                     = bool
@@ -350,6 +358,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_host_cryptomining_attack = object({
                 enabled                     = bool
@@ -364,6 +373,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
             })
           })
@@ -484,6 +494,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_ransomware_attack = object({
                 enabled                     = bool
@@ -498,6 +509,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_defense_evasion_attack = object({
                 enabled                     = bool
@@ -512,6 +524,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_cloud_cryptomining_attack = object({
                 enabled                     = bool
@@ -526,6 +539,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
               docker_composite_host_cryptomining_attack = object({
                 enabled                     = bool
@@ -540,6 +554,7 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
               })
             })
           })
@@ -681,6 +696,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -695,6 +711,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -709,6 +726,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -723,6 +741,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -737,6 +756,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               }
             }
           }
@@ -866,6 +886,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -880,6 +901,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -894,6 +916,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -908,6 +931,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -922,6 +946,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               }
             }
           }
@@ -1051,6 +1076,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -1065,6 +1091,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -1079,6 +1106,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -1093,6 +1121,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -1107,6 +1136,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
+                attack_delay                = 43200
               }
             }
           }

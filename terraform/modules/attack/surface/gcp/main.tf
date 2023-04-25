@@ -26,6 +26,26 @@ locals {
   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
+  default_instances = try(local.default_infrastructure_deployed.gcp.gce[0].instances, [])
+  attacker_instances = try(local.attacker_infrastructure_deployed.gcp.gce[0].instances, [])
+  target_instances = try(local.target_infrastructure_deployed.gcp.gce[0].instances, [])
+
+  public_attacker_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_attacker_app_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_target_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_target_app_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  ])
+
   # target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
@@ -44,194 +64,26 @@ resource "null_resource" "log" {
 # DEPLOYMENT CONTEXT
 ##################################################
 
-# attacker
-data "google_compute_zones" "attacker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  region = local.attacker_infrastructure_config.context.gcp.region
-}
-
-data "google_compute_instance_group" "attacker_public_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-public-default-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_public_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-public-app-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_private_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0  
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-private-default-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_private_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-private-app-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-# target
-data "google_compute_zones" "target" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.target
-  region = local.target_infrastructure_config.context.gcp.region
-}
-
-data "google_compute_instance_group" "target_public_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-public-default-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_public_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-public-app-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_private_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0  
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-private-default-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_private_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_trusted_ingress.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-private-app-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-
-
-locals {
-  # attacker
-  attacker_public_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_public_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_public_default[0].instances : toset([]) : compute ]
-  attacker_public_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_public_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_public_app[0].instances : toset([]) : compute ]
-  attacker_private_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_private_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_private_default[0].instances : toset([]) : compute ]
-  attacker_private_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_private_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_private_app[0].instances : toset([]) : compute ]
-
-  # target
-  target_public_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_public_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_public_default[0].instances : toset([]) : compute ]
-  target_public_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_public_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_public_app[0].instances : toset([]) : compute ]
-  target_private_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_private_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_private_default[0].instances : toset([]) : compute ]
-  target_private_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_private_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_private_app[0].instances : toset([]) : compute ]
-}
-
-# attacker
-data "google_compute_instance" "attacker_public" {
-  for_each = toset(local.attacker_public_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance" "attacker_public_app" {
-  for_each = toset(local.attacker_public_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance" "attacker_private" {
-  for_each = toset(local.attacker_private_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance" "attacker_private_app" {
-  for_each = toset(local.attacker_private_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-# target
-data "google_compute_instance" "target_public" {
-  for_each = toset(local.target_public_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_public_app" {
-  for_each = toset(local.target_public_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_private" {
-  for_each = toset(local.target_private_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_private_app" {
-  for_each = toset(local.target_private_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
 locals {
   # attacker scenario public ips
   attacker_public_ips = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in local.public_attacker_instances:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
   ]
 
   attacker_app_public_ips = [ 
-    for instance in data.google_compute_instance.attacker_public_app:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in local.public_attacker_app_instances:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
   ]
 
   # target scenario public ips
   target_public_ips = [ 
-    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in local.public_target_instances:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
   ]
 
   target_app_public_ips = [ 
-    for instance in data.google_compute_instance.target_public_app:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in local.public_target_app_instances:  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
   ]
 
@@ -313,6 +165,9 @@ module "ssh-keys" {
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  public_tag = "osconfig_deploy_secret_ssh_public"
+  private_tag = "osconfig_deploy_secret_ssh_private"
 }
 
 module "vulnerable-docker-log4shellapp" {
@@ -324,6 +179,8 @@ module "vulnerable-docker-log4shellapp" {
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
   listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.listen_port
+
+  tag = "osconfig_exec_docker_log4shell_target"
 }
 
 module "vulnerable-npm-app" {
@@ -335,6 +192,8 @@ module "vulnerable-npm-app" {
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
   listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
+
+  tag = "osconfig_exec_vuln_npm_app_target"
 }
 
 module "vulnerable-python3-twisted-app" {
@@ -346,6 +205,8 @@ module "vulnerable-python3-twisted-app" {
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
   listen_port = local.config.context.gcp.osconfig.vulnerable.python3_twisted_app.listen_port
+
+  tag = "osconfig_exec_vuln_python3_twisted_app_target"
 }
 
 ##################################################

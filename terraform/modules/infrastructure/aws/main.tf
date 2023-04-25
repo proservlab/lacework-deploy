@@ -289,7 +289,7 @@ module "lacework-daemonset" {
   lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
   lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
-  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+  syscall_config =  fileexists(var.default_lacework_sysconfig_path) ? file(var.default_lacework_sysconfig_path) : file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   providers = {
     kubernetes = kubernetes.main
@@ -439,7 +439,31 @@ module "lacework-ssm-deployment-syscall-config" {
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
 
-  syscall_config = "${path.module}/modules/ssm/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+  syscall_config = var.default_lacework_sysconfig_path
+}
+
+# ssm deploy aws cli
+module "ssm-deploy-aws-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_aws_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-aws-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# ssm deploy lacework cli
+module "ssm-deploy-lacework-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-lacework-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
+# ssm deploy kubectl cli
+module "ssm-deploy-kubectl-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_kubectl_cli== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-kubectl-cli"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 }
 
 ##################################################

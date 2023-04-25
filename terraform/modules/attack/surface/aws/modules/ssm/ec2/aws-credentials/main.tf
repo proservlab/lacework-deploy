@@ -8,7 +8,7 @@ locals {
     }
     truncate -s 0 $LOGFILE
     log "Installing aws-cli"
-    apt-get update && apt-get install python3-pip
+    apt-get update && apt-get install -y python3-pip
     python3 -m pip install awscli >> $LOGFILE 2>&1 
     log "Setting up aws cred environment variables..."
     ${local.aws_creds}
@@ -86,6 +86,18 @@ resource "aws_resourcegroups_group" "this" {
                             Key = "${var.tag}"
                             Values = [
                                 "true"
+                            ]
+                        },
+                        {
+                            Key = "deployment"
+                            Values = [
+                                var.deployment
+                            ]
+                        },
+                        {
+                            Key = "environment"
+                            Values = [
+                                var.environment
                             ]
                         }
                     ]

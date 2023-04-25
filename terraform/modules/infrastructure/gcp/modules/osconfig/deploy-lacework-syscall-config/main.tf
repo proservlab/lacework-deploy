@@ -8,7 +8,7 @@ locals {
     set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
-    LOGFILE=/tmp/${var.tag}.log
+    LOGFILE=/tmp/osconfig_deploy_lacework_syscall.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -95,7 +95,7 @@ resource "google_os_config_os_policy_assignment" "this" {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+            script           = "/bin/bash 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
@@ -109,7 +109,7 @@ resource "google_os_config_os_policy_assignment" "this" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
     min_wait_duration = var.timeout
   }

@@ -1,0 +1,1 @@
+for i in $(aws ssm list-associations --profile=proservlab | jq -r '.Associations[] | select( (.Name | contains ("target")) or (.Name | contains ("attacker"))) | select( .Name | contains("lwassl1") | not) | .AssociationId'); do aws ssm delete-association --association-id $i --profile=proservlab; done

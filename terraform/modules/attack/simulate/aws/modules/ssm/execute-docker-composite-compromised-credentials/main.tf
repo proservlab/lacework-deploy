@@ -98,6 +98,7 @@ locals {
                                     script = local.script
                                     script_type = local.script_type
                                     attack_type = local.attack_type
+                                    attack_delay = var.attack_delay
                                 }
                             )
     auto-paid   = templatefile(
@@ -107,6 +108,7 @@ locals {
                                     script = local.script
                                     script_type = local.script_type
                                     attack_type = local.attack_type
+                                    attack_delay = var.attack_delay
                                 }
                             )
     baseline    = templatefile(
@@ -222,6 +224,18 @@ resource "aws_resourcegroups_group" "this" {
                             Key = "${var.tag}"
                             Values = [
                                 "true"
+                            ]
+                        },
+                        {
+                            Key = "deployment"
+                            Values = [
+                                var.deployment
+                            ]
+                        },
+                        {
+                            Key = "environment"
+                            Values = [
+                                var.environment
                             ]
                         }
                     ]

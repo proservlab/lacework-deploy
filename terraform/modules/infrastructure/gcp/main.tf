@@ -139,6 +139,8 @@ module "osconfig-deploy-git" {
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
+
+  tag =  "osconfig_deploy_git"
 }
 
 # osconfig deploy docker
@@ -149,6 +151,8 @@ module "osconfig-deploy-docker" {
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
+
+  tag = "osconfig_deploy_docker"
 }
 
 # osconfig deploy lacework agent
@@ -162,6 +166,8 @@ module "osconfig-deploy-lacework-agent" {
 
   lacework_agent_access_token = local.config.context.lacework.agent.token
   lacework_server_url         = local.config.context.lacework.server_url
+
+  tag = "osconfig_deploy_lacework"
 }
 
 # osconfig deploy lacework syscall_config.yaml
@@ -174,4 +180,42 @@ module "lacework-osconfig-deployment-syscall-config" {
   deployment                  = local.config.context.global.deployment
 
   syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+
+  tag = "osconfig_deploy_lacework_syscall"
+}
+
+# osconfig deploy aws cli
+module "osconfig-deploy-aws-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_aws_cli== true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-aws-cli"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  tag =  "osconfig_deploy_aws_cli"
+}
+
+# osconfig deploy lacework cli
+module "osconfig-deploy-lacework-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_cli== true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-lacework-cli"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  tag =  "osconfig_deploy_lacework_cli"
+}
+
+# osconfig deploy kubectl cli
+module "osconfig-deploy-kubectl-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_kubectl_cli== true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-kubectl-cli"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  tag =  "osconfig_deploy_kubectl_cli"
 }

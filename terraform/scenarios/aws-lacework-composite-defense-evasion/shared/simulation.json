@@ -97,7 +97,8 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
-              "compromised_keys_user":  "kees.kompromize@interlacelabs"
+              "compromised_keys_user":  "kees.kompromize@interlacelabs",
+              "attack_delay": 43200
             },
             "docker_composite_cloud_ransomware_attack": {
               "enabled": false,
@@ -108,7 +109,8 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
-              "compromised_keys_user":  "rand.sumwer@interlacelabs"
+              "compromised_keys_user":  "rand.sumwer@interlacelabs",
+              "attack_delay": 43200
             },
             "docker_composite_defense_evasion_attack": {
               "enabled": true,
@@ -119,7 +121,8 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
-              "compromised_keys_user":  "dee.fensivason@interlacelabs"
+              "compromised_keys_user":  "dee.fensivason@interlacelabs",
+              "attack_delay": 43200
             },
             "docker_composite_cloud_cryptomining_attack": {
               "enabled": false,
@@ -130,7 +133,8 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
-              "compromised_keys_user":  "claude.kripto@interlacelabs"
+              "compromised_keys_user":  "claude.kripto@interlacelabs",
+              "attack_delay": 43200
             },
             "docker_composite_host_cryptomining_attack": {
               "enabled": false,
@@ -141,7 +145,8 @@
               "protonvpn_protocol": "udp",
               "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
-              "compromised_keys_user":  "haust.kripto@interlacelabs"
+              "compromised_keys_user":  "haust.kripto@interlacelabs",
+              "attack_delay": 43200
             }
           }
         }

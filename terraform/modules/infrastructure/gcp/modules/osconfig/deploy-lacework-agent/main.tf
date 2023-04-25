@@ -1,4 +1,50 @@
-resource "random_uuid" "agent" {
+locals {
+    setup_lacework_agent = templatefile("${path.module}/resources/setup_lacework_agent.sh", {
+        LaceworkInstallPath="/var/lib/lacework"
+        LaceworkTempPath=var.lacework_agent_temp_path
+        Tags=jsonencode(var.lacework_agent_tags)
+        Hash=""
+        Serverurl=var.lacework_server_url
+        Token=can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+    })
+
+    payload = <<-EOT
+    LOGFILE=/tmp/${var.tag}.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    log "starting..."
+    echo '${base64encode(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
+    log "done."
+    EOT
+    base64_payload = base64encode(local.payload)
+}
+
+#####################################################
+# LACEWORK AGENT
+#####################################################
+
+resource "lacework_agent_access_token" "agent" {
+    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
+}
+
+#####################################################
+# GCP OSCONFIG
+#####################################################
+
+locals {
+    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
+
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
 }
 
 data "google_compute_zones" "available" {
@@ -6,18 +52,13 @@ data "google_compute_zones" "available" {
   region    = var.gcp_location
 }
 
-resource "lacework_agent_access_token" "agent" {
-    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "endpoint-gcp-agent-access-token-${var.environment}-${var.deployment}"
-}
-
-resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
+resource "google_os_config_os_policy_assignment" "this" {
 
   project     = var.gcp_project_id
   location    = data.google_compute_zones.available.names[0]
   
-  name        = "osconfig-deploy-lacework-agent-${var.environment}-${var.deployment}"
-  description = "OS policy to install Lacework agent"
+  name        = "${local.resource_name}"
+  description = "Attack automation"
   skip_await_rollout = true
   
   instance_filter {
@@ -45,45 +86,22 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
   }
 
   os_policies {
-    id   = "osconfig-deploy-lacework-agent-${var.environment}-${var.deployment}"
+    id        = "${local.resource_name}"
     mode = "ENFORCEMENT"
 
     resource_groups {
       resources {
-        id = "apt-repo"
-        repository {
-          apt {
-            uri          = "https://packages.lacework.net/latest/DEB/debian"
-            archive_type = "DEB"
-            distribution = "buster"
-            components   = ["main"]
-            gpg_key      = "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x360d55d76727556814078e25ff3e1d4dee0cc692"
-          }
-        }
-      }
-      resources {
-        id = "apt-install"
-
-        pkg {
-          desired_state = "INSTALLED"
-
-          apt {
-            name = "lacework"
-          }
-        }
-      }
-      resources {
-        id = "create-lacework-config"
+        id = "run"
         exec {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "if test -f /var/lib/lacework/config/config.json; then exit 100; else exit 101; fi"
+            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '{\"Tokens\": {\"Accesstoken\": \"${can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token}\"}, \"serverurl\": \"${var.lacework_server_url}\" }' > /var/lib/lacework/config/config.json && exit 100"
+            script           = "exit 100"
           }
         }
       }
@@ -92,8 +110,8 @@ resource "google_os_config_os_policy_assignment" "install-lacework-agent" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
-    min_wait_duration = "600s"
+    min_wait_duration = var.timeout
   }
 }

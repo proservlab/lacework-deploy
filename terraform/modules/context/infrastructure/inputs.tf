@@ -53,6 +53,9 @@ variable "config" {
           deploy_docker         = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_aws_cli        = bool
+          deploy_lacework_cli   = bool
+          deploy_kubectl_cli    = bool
         })
       })
       gcp = object({
@@ -90,6 +93,9 @@ variable "config" {
           deploy_docker         = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_aws_cli        = bool
+          deploy_lacework_cli   = bool
+          deploy_kubectl_cli    = bool
         })
       })
       aws = object({
@@ -143,6 +149,9 @@ variable "config" {
           deploy_inspector_agent = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_aws_cli        = bool
+          deploy_lacework_cli   = bool
+          deploy_kubectl_cli    = bool
         })
       })
       
@@ -342,6 +351,9 @@ variable "config" {
           deploy_docker         = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_aws_cli        = false
+          deploy_lacework_cli   = false
+          deploy_kubectl_cli    = false
         }
       }
       gcp = {
@@ -443,6 +455,9 @@ variable "config" {
           deploy_docker         = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_aws_cli        = false
+          deploy_lacework_cli   = false
+          deploy_kubectl_cli    = false
         }
       }
       aws = {
@@ -561,6 +576,9 @@ variable "config" {
           deploy_inspector_agent = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_aws_cli        = false
+          deploy_lacework_cli   = false
+          deploy_kubectl_cli    = false
         }
       }
       lacework = {

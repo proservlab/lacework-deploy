@@ -72,6 +72,18 @@ resource "aws_resourcegroups_group" "this" {
                             Values = [
                                 "true"
                             ]
+                        },
+                        {
+                            Key = "deployment"
+                            Values = [
+                                var.deployment
+                            ]
+                        },
+                        {
+                            Key = "environment"
+                            Values = [
+                                var.environment
+                            ]
                         }
                     ]
                 })

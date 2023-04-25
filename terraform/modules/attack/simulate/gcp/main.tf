@@ -25,6 +25,26 @@ locals {
   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
+  default_instances = try(local.default_infrastructure_deployed.gcp.gce[0].instances, [])
+  attacker_instances = try(local.attacker_infrastructure_deployed.gcp.gce[0].instances, [])
+  target_instances = try(local.target_infrastructure_deployed.gcp.gce[0].instances, [])
+
+  public_attacker_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_attacker_app_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_target_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
+  ])
+
+  public_target_app_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
+  ])
+
   # target_eks_public_ip = try(["${var.infrastructure.deployed_state.target.context.gcp.eks[0].cluster_nat_public_ip}/32"],[])
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.gcp.eks[0].cluster_nat_public_ip}/32"],[])
 
@@ -46,211 +66,85 @@ resource "null_resource" "log" {
 # DEPLOYMENT CONTEXT
 ##################################################
 
-# attacker
-data "google_compute_zones" "attacker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  region = local.attacker_infrastructure_config.context.gcp.region
-}
-
-data "google_compute_instance_group" "attacker_public_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-public-default-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_public_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-public-app-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_private_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0  
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-private-default-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance_group" "attacker_private_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.attacker
-  name = "attacker-${local.config.context.global.deployment}-private-app-group"
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-# target
-data "google_compute_zones" "target" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.target
-  region = local.target_infrastructure_config.context.gcp.region
-}
-
-data "google_compute_instance_group" "target_public_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-public-default-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_public_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-public-app-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_private_default" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0  
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-private-default-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance_group" "target_private_app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true ) ? 1 : 0
-  provider = google.target
-  name = "target-${local.config.context.global.deployment}-private-app-group"
-  zone = data.google_compute_zones.target[0].names[0]
-}
 locals {
-  # attacker
-  attacker_public_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_public_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_public_default[0].instances : toset([]) : compute ]
-  attacker_public_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_public_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_public_app[0].instances : toset([]) : compute ]
-  attacker_private_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_private_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_private_default[0].instances : toset([]) : compute ]
-  attacker_private_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.attacker_private_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.attacker_private_app[0].instances : toset([]) : compute ]
+  # attacker scenario public ips
+  attacker_public_ips = [ 
+    for instance in local.public_attacker_instances:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
 
-  # target
-  target_public_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_public_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_public_default[0].instances : toset([]) : compute ]
-  target_public_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_public_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_public_app[0].instances : toset([]) : compute ]
-  target_private_default_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_private_default[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_private_default[0].instances : toset([]) : compute ]
-  target_private_app_instances = [ for compute in can(
-    length(
-      data.google_compute_instance_group.target_private_app[0].instances
-    )
-  ) ? data.google_compute_instance_group.target_private_app[0].instances : toset([]) : compute ]
-}
+  attacker_app_public_ips = [ 
+    for instance in local.public_attacker_app_instances:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
 
-# attacker
-data "google_compute_instance" "attacker_public" {
-  for_each = toset(local.attacker_public_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
+  # target scenario public ips
+  target_public_ips = [ 
+    for instance in local.public_target_instances:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
 
-data "google_compute_instance" "attacker_public_app" {
-  for_each = toset(local.attacker_public_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
+  target_app_public_ips = [ 
+    for instance in local.public_target_app_instances:  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+  ]
 
-data "google_compute_instance" "attacker_private" {
-  for_each = toset(local.attacker_private_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-data "google_compute_instance" "attacker_private_app" {
-  for_each = toset(local.attacker_private_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.attacker[0].names[0]
-}
-
-# target
-data "google_compute_instance" "target_public" {
-  for_each = toset(local.target_public_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_public_app" {
-  for_each = toset(local.target_public_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_private" {
-  for_each = toset(local.target_private_default_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
-}
-
-data "google_compute_instance" "target_private_app" {
-  for_each = toset(local.target_private_app_instances)
-  self_link = each.key
-  zone = data.google_compute_zones.target[0].names[0]
+  public_networks = ((
+      local.config.context.global.environment == "attacker" 
+      && ( 
+        length(local.attacker_public_ips) > 0 
+        || length(local.attacker_app_public_ips) > 0
+      ) 
+    ) || (
+      local.config.context.global.environment == "target" 
+      && ( 
+        length(local.target_public_ips) > 0 
+        || length(local.target_app_public_ips) > 0
+      ) 
+    )) ? true : false
 }
 
 locals {
   # attacker scenario public ips
   attacker_http_listener = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_http_listener_attacker","false") == "true"
   ]
 
   attacker_reverse_shell = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_reverse_shell_attacker","false") == "true"
   ]
 
   attacker_vuln_npm_app = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
   ]
 
   attacker_log4shell = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_docker_log4shell_attacker","false") == "true"
   ]
 
   attacker_port_forward = [ 
-    for instance in data.google_compute_instance.attacker_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_port_forward_attacker","false") == "true"
   ]
 
   # target scenario public ips
   target_vuln_npm_app = [ 
-    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
   ]
 
   target_log4shell = [ 
-    for instance in data.google_compute_instance.target_public:  instance.network_interface[0].access_config[0].nat_ip
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_docker_log4shell_target","false") == "true"
   ]
@@ -282,10 +176,12 @@ module "osconfig-connect-badip" {
   
   # list of bad ip to select from - only a single random will be used
   iplist_url    = local.config.context.gcp.osconfig.target.connect.badip.iplist_url
+
+  tag = "osconfig_connect_bad_ip"
 }
 
 module "osconfig-connect-codecov" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.target.connect.codecov.enabled == true && length(try(local.attacker_http_listener, [])) > 0) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.target.connect.codecov.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/connect-codecov"
   environment    = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -295,6 +191,8 @@ module "osconfig-connect-codecov" {
   
   host_ip       = coalesce(local.config.context.gcp.osconfig.target.connect.codecov.host_ip, local.attacker_http_listener[0])
   host_port     = coalesce(local.config.context.gcp.osconfig.target.connect.codecov.host_port, local.config.context.gcp.osconfig.attacker.listener.http.listen_port)
+
+  tag = "osconfig_connect_codecov"
 }
 
 module "osconfig-connect-nmap-port-scan" {
@@ -309,6 +207,8 @@ module "osconfig-connect-nmap-port-scan" {
   # scan local reverse shell target if available else portquiz
   nmap_scan_host = local.config.context.gcp.osconfig.target.connect.nmap_port_scan.nmap_scan_host
   nmap_scan_ports = local.config.context.gcp.osconfig.target.connect.nmap_port_scan.nmap_scan_ports
+
+  tag = "osconfig_connect_enumerate_host"
 }
 
 module "osconfig-connect-oast-host" {
@@ -318,10 +218,12 @@ module "osconfig-connect-oast-host" {
   deployment    = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_connect_oast_host"
 }
 
 module "osconfig-connect-reverse-shell" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.target.connect.reverse_shell.enabled == true && length(try(local.attacker_reverse_shell, [])) > 0 ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.target.connect.reverse_shell.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/connect-reverse-shell"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -330,6 +232,8 @@ module "osconfig-connect-reverse-shell" {
 
   host_ip       = coalesce(local.config.context.gcp.osconfig.target.connect.reverse_shell.host_ip, local.attacker_reverse_shell[0])
   host_port     = coalesce(local.config.context.gcp.osconfig.target.connect.reverse_shell.host_port, local.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port)
+
+  tag = "osconfig_exec_reverse_shell_target"
 }
 
 ##################################################
@@ -345,6 +249,8 @@ module "osconfig-drop-malware-eicar" {
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
   eicar_path    = local.config.context.gcp.osconfig.target.drop.malware.eicar.eicar_path
+
+  tag = "osconfig_deploy_malware_eicar"
 }
 
 ##################################################
@@ -367,6 +273,8 @@ module "osconfig-drop-malware-eicar" {
 #   ethermine_wallet = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.wallet
 #   minergate_user = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
 #   compromised_keys_user = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
+#   
+#   tag = "osconfig_exec_docker_compromised_keys_attacker"
 # }
 
 module "osconfig-execute-docker-cpuminer" {
@@ -381,10 +289,12 @@ module "osconfig-execute-docker-cpuminer" {
   minergate_image = local.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_image
   minergate_server = local.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_server
   minergate_name = local.config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_name
+
+  tag = "osconfig_exec_docker_cpuminer"
 }
 
 module "osconfig-execute-docker-log4shell-attack" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.enabled == true && length(local.attacker_log4shell) > 0 && length(local.target_log4shell) > 0) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/execute-docker-log4shell-attack"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -397,10 +307,12 @@ module "osconfig-execute-docker-log4shell-attack" {
   target_ip = local.target_log4shell[0]
   target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.payload
+
+  tag = "osconfig_exec_docker_log4shell_attacker"
 }
 
 module "osconfig-execute-vuln-npm-app-attack" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.enabled == true && length(local.attacker_vuln_npm_app) > 0 && length(local.target_vuln_npm_app) > 0) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/execute-vuln-npm-app-attack"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -410,6 +322,8 @@ module "osconfig-execute-vuln-npm-app-attack" {
   target_ip = local.target_vuln_npm_app[0]
   target_port = local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.target_port
   payload = local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.payload
+
+  tag = "osconfig_exec_vuln_npm_app_attacker"
 }
 
 ##################################################
@@ -426,10 +340,12 @@ module "osconfig-listener-http-listener" {
 
   listen_ip     = "0.0.0.0"
   listen_port   = local.config.context.gcp.osconfig.attacker.listener.http.listen_port
+
+  tag = "osconfig_exec_http_listener_attacker"
 }
 
 module "osconfig-listener-port-forward" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.target.listener.port_forward.enabled == true && length(try(local.attacker_port_forward, [])) > 0) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.target.listener.port_forward.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/listener-port-forward"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -439,6 +355,8 @@ module "osconfig-listener-port-forward" {
   port_forwards = local.config.context.gcp.osconfig.target.listener.port_forward.port_forwards
   host_ip       = local.attacker_port_forward[0]
   host_port     = local.config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
+
+  tag = "osconfig_exec_port_forward_target"
 }
 
 ##################################################

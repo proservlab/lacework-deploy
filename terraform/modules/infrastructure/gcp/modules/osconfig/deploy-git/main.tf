@@ -1,19 +1,20 @@
 locals {
+    tool="git"
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_deploy_git.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
-    log "Checking for git..."
-    if ! which git; then
-        log "git not found installation required"
+    log "Checking for ${local.tool}..."
+    if ! which ${local.tool}; then
+        log "${local.tool} not found installation required"
         sudo apt-get update
         sudo apt-get install -y \
             git
     fi
-    log "git path: $(which docker)"
+    log "${local.tool} path: $(which ${local.tool})"
     EOT
     base64_payload = base64encode(local.payload)
 }
@@ -85,7 +86,7 @@ resource "google_os_config_os_policy_assignment" "this" {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
@@ -99,7 +100,7 @@ resource "google_os_config_os_policy_assignment" "this" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
     min_wait_duration = var.timeout
   }

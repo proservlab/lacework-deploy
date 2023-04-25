@@ -83,7 +83,7 @@ resource "google_os_config_os_policy_assignment" "this" {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
@@ -97,7 +97,7 @@ resource "google_os_config_os_policy_assignment" "this" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
     min_wait_duration = var.timeout
   }

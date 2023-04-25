@@ -21,11 +21,6 @@ variable "tag" {
     default = "osconfig_exec_docker_compromised_keys_attacker"
 }
 
-variable "tag" {
-    type = string
-    default = "osconfig_exec_docker_compromised_keys_attacker"
-}
-
 variable "timeout" {
     type = string
     default = "600s"

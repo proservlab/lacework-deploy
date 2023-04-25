@@ -113,7 +113,7 @@ resource "google_os_config_os_policy_assignment" "public" {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload_public}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+            script           = "/bin/bash -c 'echo ${local.base64_payload_public} | tee /tmp/payload_${var.public_tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
@@ -127,7 +127,7 @@ resource "google_os_config_os_policy_assignment" "public" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
     min_wait_duration = var.timeout
   }
@@ -199,7 +199,7 @@ resource "google_os_config_os_policy_assignment" "private" {
           validate {
             interpreter      = "SHELL"
             output_file_path = "$HOME/os-policy-tf.out"
-            script           = "echo '${local.base64_payload_private}' | tee /tmp/payload_${basename(abspath(path.module))} | base64 -d | /bin/bash - && exit 100"
+            script           = "/bin/bash -c 'echo ${local.base64_payload_private} | tee /tmp/payload_${var.private_tag} | base64 -d | /bin/bash - &' && exit 100"
           }
           enforce {
             interpreter      = "SHELL"
@@ -213,7 +213,7 @@ resource "google_os_config_os_policy_assignment" "private" {
 
   rollout {
     disruption_budget {
-      percent = 100
+      percent = 50
     }
     min_wait_duration = var.timeout
   }
