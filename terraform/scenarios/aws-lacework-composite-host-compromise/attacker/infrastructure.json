@@ -21,8 +21,12 @@
                 "private_app_nat_subnet"            : "172.27.10.0/24",
                 "public_ingress_rules"              : [],
                 "instances": [
-                    
                 ]
+            },
+            "ssm": {
+                "enabled"                        : false,
+                "deploy_git"                     : false,
+                "deploy_docker"                  : false
             }
         },
         "dynu_dns" : {

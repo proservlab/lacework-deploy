@@ -31,12 +31,17 @@
               "ssm_deploy_git": "true",
               "ssm_deploy_docker": "true",
               "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true"
+              "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_secret_aws_creds": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
           }
         ]
+      },
+      "eks": {
+        "enabled"      : true,
+        "cluster_name" : "target-cluster"
       },
       "ssm": {
         "enabled"                        : true,
@@ -64,27 +69,26 @@
         "enabled" : true,
 
         "kubernetes": {
-          "enabled" : false,
+          "enabled" : true,
           "proxy_scanner": {
-            "enabled" : false
+            "enabled" : true
           },
           "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
+            "enabled" : true
           },
           "compliance": {
-            "enabled" : false
+            "enabled" : true
           },
           "eks_audit_logs": {
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : false
+            "enabled" : true
           }
         }
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_agentless": {
         "enabled" : false
