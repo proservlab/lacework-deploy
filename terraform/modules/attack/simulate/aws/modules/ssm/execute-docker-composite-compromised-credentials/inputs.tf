@@ -24,7 +24,8 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(0/30 * * * ? *)"
+  default = "cron(0 */2 * * ? *)"
+  
 }
 
 variable "compromised_credentials" {
