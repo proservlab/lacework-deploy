@@ -415,15 +415,11 @@ variable "config" {
         eks = {
           add_iam_user_readonly_user = {
             enabled = false
-            iam_user_names =  [ 
-                                "clue.burnetes@interlacelabs"
-                              ]
+            iam_user_names =  []
           }
           add_iam_user_admin_user = {
             enabled = false
-            iam_user_names =  [ 
-                                "clue.burnetes@interlacelabs"
-                              ]
+            iam_user_names =  []
           }
         }
         ssm = {
