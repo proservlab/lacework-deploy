@@ -39,13 +39,14 @@ locals {
         log "docker not found or not ready - waiting"
         sleep 120
     done
+    log "Starting as background job..."
     if [ "${var.protonvpn_tier}" == "0" ]; then
         for i in $(echo "US NL-FREE#1 JP-FREE#3 NL-FREE#4 NL-FREE#8 US-FREE#5 NL-FREE#9 NL-FREE#12 NL-FREE#13 NL-FREE#14 NL-FREE#15 NL-FREE#16 US-FREE#13 US-FREE#32 US-FREE#33 US-FREE#34 NL-FREE#39 NL-FREE#52 NL-FREE#57 NL-FREE#87 NL-FREE#133 NL-FREE#136 NL-FREE#148 US-FREE#52 US-FREE#53 US-FREE#54 US-FREE#51 NL-FREE#163 NL-FREE#164 US-FREE#58 US-FREE#57 US-FREE#56 US-FREE#55"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
+        bash auto-free.sh&  >> $LOGFILE 2>&1
     else
         for i in $(echo "AU CR IS JP LV NL NZ SG SK US"); do cp .env-protonvpn-paid .env-protonvpn-paid-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-paid-$i; done
+        bash auto-paid.sh&  >> $LOGFILE 2>&1
     fi;
-    log "Starting auto-tor.sh as background job..."
-    bash auto-tor.sh&  >> $LOGFILE 2>&1
     log "Done.
     EOT
     base64_payload = base64encode(local.payload)
