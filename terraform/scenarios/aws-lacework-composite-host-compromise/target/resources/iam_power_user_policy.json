@@ -67,6 +67,8 @@
                     "es:ESHttpHead",
                     "es:Get*",
                     "es:List*",
+                    "eks:DescribeCluster",
+                    "eks:ListClusters",
                     "kms:Describe*",
                     "kms:Get*",
                     "kms:List*",

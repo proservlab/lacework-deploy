@@ -264,7 +264,8 @@ module "eks-auth" {
   cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
 
   # user here needs to be created by iam module
-  iam_eks_pod_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+  iam_eks_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+  iam_eks_admins = local.config.context.aws.eks.add_iam_user_admin_user.iam_user_names
 
 
 

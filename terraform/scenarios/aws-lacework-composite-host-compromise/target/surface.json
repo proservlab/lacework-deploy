@@ -29,6 +29,12 @@
           "iam_user_names": [
             "clue.burnetes@interlacelabs"
           ]
+        },
+        "add_iam_user_admin_user": {
+          "enabled": true,
+          "iam_user_names": [
+            "clue.burnetes@interlacelabs"
+          ]
         }
       },
       "ssm" :  {

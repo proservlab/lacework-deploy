@@ -12,7 +12,12 @@ variable "cluster_name" {
   type    = string
 }
 
-variable "iam_eks_pod_readers" {
+variable "iam_eks_readers" {
+    type = list(string)
+    default = []
+}
+
+variable "iam_eks_admins" {
     type = list(string)
     default = []
 }
