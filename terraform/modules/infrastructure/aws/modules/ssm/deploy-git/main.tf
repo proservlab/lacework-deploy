@@ -1,5 +1,5 @@
 locals {
-    tool="docker"
+    tool="git"
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {

@@ -1,5 +1,5 @@
 locals {
-    tool="aws"
+    tool="docker"
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
