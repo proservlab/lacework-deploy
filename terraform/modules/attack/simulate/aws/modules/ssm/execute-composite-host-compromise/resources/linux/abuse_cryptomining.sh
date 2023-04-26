@@ -1,4 +1,5 @@
 #!/bin/bash
+
 curl -LOJ https://github.com/xmrig/xmrig/releases/download/v6.19.2/xmrig-6.19.2-linux-static-x64.tar.gz
 tar -zxvf xmrig-6.19.2-linux-static-x64.tar.gz
 cd xmrig-6.19.2
