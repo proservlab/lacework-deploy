@@ -5,6 +5,12 @@ locals {
     attack_type = "cloud_ransomware"
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     payload = <<-EOT
+    LOCKFILE="/tmp/composite.lock"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    fi
+    
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
