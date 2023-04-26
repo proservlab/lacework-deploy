@@ -85,7 +85,7 @@ elif [ "$${CONTAINER}" = "torproxy" ]; then
 elif [ "$${CONTAINER}" = "scoutsuite" ]; then
     CONTAINER_IMAGE="rossja/ncc-scoutsuite:aws-latest"
     DOCKER_OPTS="-i --net=container:protonvpn"
-    SCRIPT="aws"
+    SCRIPT="scout aws --profile=default -f"
 elif [ "$${CONTAINER}" = "aws-cli" ]; then
     CONTAINER_IMAGE="amazon/aws-cli:latest"
     DOCKER_OPTS="-i --entrypoint=/bin/bash --net=container:protonvpn -w /scripts"
