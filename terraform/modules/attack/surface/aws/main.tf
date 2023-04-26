@@ -257,17 +257,16 @@ resource "time_sleep" "wait_30" {
 
 # assign iam user cluster readonly role
 module "eks-auth" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true )) ? 1 : 0
   source      = "./modules/eks/eks-auth"
   environment       = local.config.context.global.environment
   deployment        = local.config.context.global.deployment
   cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
 
   # user here needs to be created by iam module
-  iam_eks_pod_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
-
-
-
+  iam_eks_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+  iam_eks_admins = local.config.context.aws.eks.add_iam_user_admin_user.iam_user_names
+  
   depends_on = [
     module.iam,
     time_sleep.wait_30

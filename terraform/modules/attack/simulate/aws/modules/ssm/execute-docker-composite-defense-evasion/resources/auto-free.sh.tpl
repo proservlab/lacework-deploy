@@ -1,5 +1,18 @@
 #!/bin/bash
 
+set -e
+LOCKFILE="/tmp/composite.lock"
+if [ -e "$LOCKFILE" ]; then
+  echo "Another instance of the script is already running. Exiting..."
+  exit 1
+else
+  mkdir -p "$(dirname "$LOCKFILE")" && touch "$LOCKFILE"
+fi
+function cleanup {
+    rm -f "$LOCKFILE"
+}
+trap cleanup EXIT INT TERM
+
 # set max vpn wait to 5 minutes
 MAX_WAIT=300
 CHECK_INTERVAL=5
