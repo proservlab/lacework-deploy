@@ -12,7 +12,7 @@ module "aws_config" {
 
 module "aws_cloudtrail" {
   source  = "lacework/cloudtrail/aws"
-  version = "~> 2.5.1"
+  version = "~> 2.6.0"
 
   # cloudtrail_name = "lacework-cloudtrail-${var.environment}-${var.deployment}"
   use_existing_iam_role       = true
