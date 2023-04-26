@@ -23,7 +23,6 @@ locals {
     echo '${base64encode(local.start)}' | base64 -d > /${local.attack_dir}/start.sh
     echo '${base64encode(local.auto-free)}' | base64 -d > /${local.attack_dir}/auto-free.sh
     echo '${base64encode(local.auto-paid)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
-    echo '${base64encode(local.auto-tor)}' | base64 -d > /${local.attack_dir}/auto-tor.sh
     echo '${base64encode(local.protonvpn)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
     echo '${base64encode(local.protonvpn-paid)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-paid
     echo '${base64encode(local.protonvpn-baseline)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
