@@ -46,7 +46,7 @@ locals {
         for i in $(echo "AU CR IS JP LV NL NZ SG SK US"); do cp .env-protonvpn-paid .env-protonvpn-paid-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-paid-$i; done
         bash auto-paid.sh&  >> $LOGFILE 2>&1
     fi;
-    log "Done.
+    log "Done."
     EOT
     base64_payload = base64encode(local.payload)
 
