@@ -35,16 +35,9 @@ foreach ($myAzureVM in $myAzureVMs) {
             Start-Sleep -Seconds $rnd
             Write-Output "Starting Execution: $resourceGroup"
             $success = $false
-            While (-not $success) {
-                Try {
-                    Import-Module Az.Accounts -ErrorAction Stop
-                    $success = $true
-                    Write-Output "Successfully imported Az.Accounts"
-                }
-                Catch {
-                    Write-Output "Fail to import Az.Accounts - Sleeping for $rnd seconds before retry"
-                    Start-Sleep -Seconds $rnd
-                }
+            Import-Module Az.Accounts -ErrorAction Stop
+            $success = $true
+            Write-Output "Successfully imported Az.Accounts"   }
             }
             $AzureContext = (Connect-AzAccount -Identity -AccountId "${ automation_account }" ).context
             $AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
