@@ -14,9 +14,13 @@ Write-Output "Account ID of current context: " $AzureContext.Account.Id
 
 #Get all Azure VMs which are in running state and are running Windows
 $Jobs = @{}
-Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { $_.PowerState -eq "VM running" -and $_.StorageProfile.OSDisk.OSType -eq "Linux" -and $_.Tags.Keys -contains "${ tag }" -and $_.Tags["${ tag }"] -eq "true" } | ForEach-Object {
+Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
+    $_.PowerState -eq "VM running" `
+    -and $_.StorageProfile.OSDisk.OSType -eq "Linux" `
+    -and $_.Tags.Keys -contains "${ tag }" `
+    -and $_.Tags["${ tag }"] -eq "true" `
+} | ForEach-Object {
     Invoke-AzVMRunCommand `
-                -AsJob
                 -ResourceGroupName $resourceGroup `
                 -VMName $_.name `
                 -CommandId 'RunShellScript' `
