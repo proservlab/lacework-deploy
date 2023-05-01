@@ -36,8 +36,9 @@ Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
         catch {
             $ErrorMessage = "Error connecting to Azure: " + $_.Exception.message
             Write-Error $ErrorMessage
-            Write-Output "Will retry again in 5 minutes..."
-            Start-Sleep -Seconds 300
+            $rnd = Get-Random -Minimum 2 -Maximum 10
+            Write-Output "Will retry again in $rnd minutes..."
+            Start-Sleep -Minimum $rnd
         }
     }
 }
