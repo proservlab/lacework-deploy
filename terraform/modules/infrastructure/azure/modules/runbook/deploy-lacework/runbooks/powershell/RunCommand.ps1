@@ -25,22 +25,26 @@ Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
     $machine = $_.name
     Write-Output "Running task on: $machine"
     for ($i=1; $i -le $retryLimit; $i++){
-        try {
-            Invoke-AzVMRunCommand `
-                    -ResourceGroupName $resourceGroup `
-                    -VMName $machine `
-                    -CommandId 'RunShellScript' `
-                    -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
+        $rnd = Get-Random -Minimum  -Maximum 120
+        Write-Output "Waiting $rnd seconds before first run..."
+        Start-Sleep -Seconds $rnd
+        $job = Invoke-AzVMRunCommand `
+                -AsJob `
+                -ResourceGroupName $resourceGroup `
+                -VMName $machine `
+                -CommandId 'RunShellScript' `
+                -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
+        $job | Wait-Job
+        $failedJob | Where-Object {$_.State -eq 'Failed'}
+        if($failedJob){
+            Write-Output "Job Result on Machine: $machine [$job.State]"
+            Write-Output "Job failed to start. Retry $i starting...."
+            $success = $false
+        }else{
+            Write-Output "Job Result on Machine: $machine [$job.State]"
             Write-Output "Job started successfully."
             $success = $true
             break
-        }
-        catch {
-            $ErrorMessage = "Error running task: " + $_.Exception.message
-            Write-Error $ErrorMessage
-            $rnd = Get-Random -Minimum 30 -Maximum 120
-            Write-Output "Will retry again in $rnd seconds..."
-            Start-Sleep -Seconds $rnd
         }
     }
     if ($success -eq $false) {
