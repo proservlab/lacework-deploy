@@ -13,7 +13,7 @@ $AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -Defa
 Write-Output "Account ID of current context: " $AzureContext.Account.Id
 
 #Get all Azure VMs which are in running state and are running Windows
-$Jobs = @{}
+$jobs = @{}
 $retryLimit = 3
 
 Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
@@ -22,23 +22,28 @@ Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
     -and $_.Tags.Keys -contains "${ tag }" `
     -and $_.Tags["${ tag }"] -eq "true" `
 } | ForEach-Object {
-    
+    $success = $false
     for ($i=1; $i -le $retryLimit; $i++){
         try {
-            Invoke-AzVMRunCommand `
+            $jobs += Invoke-AzVMRunCommand `
                     -ResourceGroupName $resourceGroup `
                     -VMName $_.name `
                     -CommandId 'RunShellScript' `
                     -ScriptString "echo '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | /bin/bash - &"
             Write-Output "Job started successfully."
+            $success = $true
             break
         }
         catch {
             $ErrorMessage = "Error connecting to Azure: " + $_.Exception.message
             Write-Error $ErrorMessage
-            $rnd = Get-Random -Minimum 2 -Maximum 10
+            $rnd = Get-Random -Minimum 1 -Maximum 5
             Write-Output "Will retry again in $rnd minutes..."
             Start-Sleep -Minimum $rnd
         }
     }
+    if ($success -eq $false) {
+        Write-Error "Unable to execute task on machine $_.name after $retryLimit retries."
+    }
 }
+
