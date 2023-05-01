@@ -25,7 +25,7 @@ Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
     $success = $false
     for ($i=1; $i -le $retryLimit; $i++){
         try {
-            $jobs += Invoke-AzVMRunCommand `
+            Invoke-AzVMRunCommand `
                     -ResourceGroupName $resourceGroup `
                     -VMName $_.name `
                     -CommandId 'RunShellScript' `
