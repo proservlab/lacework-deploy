@@ -6,7 +6,7 @@ locals {
         for port in var.port_forwards: "${port.src_port}:${port.dst_ip}:${port.dst_port}"
     ])
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_exec_port_forward.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

@@ -5,7 +5,7 @@ locals {
     env_secrets=join(" ", var.env_secrets)
     callback_url = var.use_ssl == true ? "https://${local.host_ip}:${local.host_port}" : "http://${local.host_ip}:${local.host_port}"
     command_payload=<<-EOT
-    LOGFILE=/tmp/osconfig_attacker_exec_git_codecov.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -22,7 +22,7 @@ locals {
     EOT
     base64_command_payload=base64encode(local.command_payload)
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_exec_git_codecov.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

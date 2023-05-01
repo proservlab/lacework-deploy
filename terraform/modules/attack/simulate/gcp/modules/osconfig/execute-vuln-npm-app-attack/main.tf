@@ -2,7 +2,7 @@ locals {
     target_ip=var.target_ip
     target_port=var.target_port
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_exec_vuln_npm_app_attacker.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
