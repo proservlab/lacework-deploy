@@ -78,7 +78,7 @@ resource "azurerm_automation_module" "Azure-MI-Automation-module" {
     automation_account_name = local.automation_account_name
 
     module_link {
-        uri = "https://www.powershellgallery.com/api/v2/package/Az.ManagedServiceIdentity/0.7.3"
+        uri = "https://www.powershellgallery.com/api/v2/package/Az.ManagedServiceIdentity/1.1.1"
     }
     depends_on = [
         azurerm_resource_group_template_deployment.ARMdeploy-automation-acct

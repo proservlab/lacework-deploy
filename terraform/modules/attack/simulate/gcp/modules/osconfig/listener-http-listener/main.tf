@@ -48,7 +48,7 @@ locals {
             run()
     EOT
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_exec_http_listener.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

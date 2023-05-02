@@ -3,7 +3,7 @@ locals {
     repo = "https://github.com/ForbiddenProgrammer/CVE-2021-21315-PoC"
     listen_port=var.listen_port
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_exec_vuln_npm_app_target.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

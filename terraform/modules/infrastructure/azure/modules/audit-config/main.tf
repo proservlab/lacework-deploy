@@ -1,11 +1,11 @@
 module "az_ad_application" {
   source  = "lacework/ad-application/azure"
-  version = "~> 1.2"
+  version = "~> 1.3.0"
 }
 
 module "az_config" {
   source  = "lacework/config/azure"
-  version = "~> 2.0"
+  version = "~> 2.0.0"
 
   use_existing_ad_application = true
   all_subscriptions           = true
@@ -16,7 +16,7 @@ module "az_config" {
 
 module "activity-log" {
   source  = "lacework/activity-log/azure"
-  version = "~> 2.0"
+  version = "~> 2.0.4"
 
   use_existing_ad_application = true
   all_subscriptions           = true

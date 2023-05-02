@@ -8,7 +8,7 @@ locals {
     set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
-    LOGFILE=/tmp/osconfig_deploy_lacework_syscall.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE

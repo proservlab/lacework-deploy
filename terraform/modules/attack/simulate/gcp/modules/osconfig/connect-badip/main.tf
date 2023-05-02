@@ -1,7 +1,7 @@
 locals {
     iplist_url = var.iplist_url
     payload = <<-EOT
-    LOGFILE=/tmp/osconfig_attacker_connect_badip.log
+    LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
