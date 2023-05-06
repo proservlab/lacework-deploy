@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS ${ db_name };
+CREATE TABLE IF NOT EXISTS ${ db_name }.product (id MEDIUMINT NOT NULL AUTO_INCREMENT, prodId VARCHAR(120), prodName VARCHAR(120), PRIMARY KEY (id));
+TRUNCATE TABLE ${ db_name }.product;
+INSERT INTO ${ db_name }.product (prodId,prodName) VALUES ('998','Sweet Pea');
+INSERT INTO ${ db_name }.product (prodId,prodName) VALUES ('999','Honeysuckle');
+CREATE USER IF NOT EXISTS ${ db_user }@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+GRANT USAGE ON *.* TO '${ db_user }'@'%' REQUIRE SSL;
+GRANT ALL PRIVILEGES ON ${ db_name }.* TO '${ db_user }'@'%' REQUIRE SSL;
+ALTER USER 'dbuser'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+FLUSH PRIVILEGES;

@@ -556,6 +556,9 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
+              docker_composite_guardduty_attack = object({
+                enabled                     = bool
+              })
             })
           })
         })
@@ -1137,6 +1140,9 @@ variable "config" {
                 nicehash_user               = null
                 compromised_keys_user       = null
                 attack_delay                = 43200
+              },
+              docker_composite_guardduty_attack = {
+                enabled                     = false
               }
             }
           }

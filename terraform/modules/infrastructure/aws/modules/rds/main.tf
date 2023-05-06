@@ -13,6 +13,7 @@ locals {
   init_db_username = var.root_db_username
   init_db_password = random_string.root_db_password.result
   
+  database_name = var.database_name
   database_port = var.database_port
 
   subnets_cidrs = [
@@ -24,6 +25,8 @@ locals {
       data.aws_availability_zones.available.names[0],
       data.aws_availability_zones.available.names[1]
   ]
+  
+
 }
 
 resource "aws_route_table" "database" {
@@ -123,6 +126,12 @@ resource "aws_ssm_parameter" "db_host" {
     type = "String"
 }
 
+resource "aws_ssm_parameter" "db_port" {
+    name = "db_port"
+    value = local.database_port
+    type = "String"
+}
+
 resource "aws_ssm_parameter" "db_name" {
     name = "db_name"
     value = var.database_name
@@ -142,6 +151,13 @@ resource "aws_ssm_parameter" "db_password" {
     type = "SecureString"
     key_id = aws_kms_key.this.id
 }
+
+resource "aws_ssm_parameter" "db_region" {
+    name = "db_region"
+    value = var.region
+    type = "String"
+}
+
 
 resource "aws_kms_key" "this" {
     description = "For encrypting and decrypting db-related parameters"
@@ -197,7 +213,7 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_iam_policy" "db_get_parameters" {
-    name = "db_get_parameters_${var.environment}_${var.deployment}"
+    name = "db_access_${var.environment}_${var.deployment}"
     policy =    <<-EOF
                 {
                     "Version": "2012-10-17",
@@ -209,9 +225,20 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ],
                             "Resource": [
                                 "${aws_ssm_parameter.db_host.arn}",
+                                "${aws_ssm_parameter.db_port.arn}",
                                 "${aws_ssm_parameter.db_name.arn}",
                                 "${aws_ssm_parameter.db_username.arn}",
-                                "${aws_ssm_parameter.db_password.arn}"
+                                "${aws_ssm_parameter.db_password.arn}",
+                                "${aws_ssm_parameter.db_region.arn}"
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "rds-db:connect"
+                            ],
+                            "Resource": [
+                                "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/*"
                             ]
                         },
                         {
@@ -228,7 +255,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ec2-instance-policy" {
+resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
   role       = var.ec2_instance_role_name
   policy_arn = aws_iam_policy.db_get_parameters.arn
 }

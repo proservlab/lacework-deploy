@@ -11,6 +11,7 @@ output "config" {
             aws = {
                 ec2                       = module.ec2
                 eks                       = module.eks
+                rds                       = module.rds
             }
         }
     }

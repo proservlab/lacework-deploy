@@ -8,6 +8,10 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable region {
+  type  = string
+}
+
 variable "igw_id" {
     type = string
     description = "IGW id for subnet"

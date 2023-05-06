@@ -10,8 +10,10 @@ locals {
     log "Checking for ${local.tool}..."
     if ! which ${local.tool}; then
         log "${local.tool} not found installation required"
-        sudo apt-get update
-        sudo apt-get install -y awscli
+        apt-get update && apt-get install unzip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
     fi
     log "${local.tool} path: $(which ${local.tool})"
     EOT

@@ -10,11 +10,10 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
-    
+    truncate -s 0 $LOGFILE
     if docker ps | grep aws-cli || docker ps | grep terraform || ps -aux | grep "bash auto-free.sh" | grep -v grep; then 
         log "Attempt to start new session skipped - aws-cli or terraform docker is running..."; 
     else
-        truncate -s 0 $LOGFILE
         log "Starting new session no existing session detected..."
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn

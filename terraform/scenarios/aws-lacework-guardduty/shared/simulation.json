@@ -1,0 +1,20 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "enabled" : true,
+      "ssm" :  {
+        "attacker": {
+          "execute": {
+            "docker_composite_guardduty_attack": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
