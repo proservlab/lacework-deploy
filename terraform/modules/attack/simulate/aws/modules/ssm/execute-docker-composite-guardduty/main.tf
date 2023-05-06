@@ -1,11 +1,18 @@
 locals {
     attack_dir = "/guardduty"
     payload = <<-EOT
+    set -e
     LOCKFILE="/tmp/composite.lock"
     if [ -e "$LOCKFILE" ]; then
         echo "Another instance of the script is already running. Exiting..."
         exit 1
+    else
+        mkdir -p "$(dirname "$LOCKFILE")" && touch "$LOCKFILE"
     fi
+    function cleanup {
+        rm -f "$LOCKFILE"
+    }
+    trap cleanup EXIT INT TERM
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -27,7 +34,7 @@ locals {
     sleep ${var.attack_delay}
 
     log "starting attack..."
-    /bin/bash discovery_aws_instance_creds_tor.sh
+    /bin/bash discovery_aws_instance_creds_tor.sh 
     log "done."
     EOT
     base64_payload = base64encode(local.payload)
