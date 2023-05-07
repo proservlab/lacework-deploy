@@ -10,7 +10,8 @@
         "attacker": {
           "execute": {
             "docker_composite_guardduty_attack": {
-              "enabled": true
+              "enabled": true,
+              "attack_delay" : 43200
             }
           }
         }

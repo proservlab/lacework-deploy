@@ -453,6 +453,7 @@ module "ssm-execute-docker-composite-guardduty" {
   region        = local.default_infrastructure_config.context.aws.region
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
+  attack_delay  = local.config.context.aws.ssm.attacker.execute.docker_composite_guardduty_attack.attack_delay
 }
 
 ##################################################

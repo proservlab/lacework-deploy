@@ -558,6 +558,7 @@ variable "config" {
               })
               docker_composite_guardduty_attack = object({
                 enabled                     = bool
+                attack_delay                = number
               })
             })
           })
@@ -1143,6 +1144,7 @@ variable "config" {
               },
               docker_composite_guardduty_attack = {
                 enabled                     = false
+                attack_delay                = 43200
               }
             }
           }

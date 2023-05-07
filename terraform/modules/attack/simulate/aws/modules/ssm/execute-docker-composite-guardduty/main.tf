@@ -1,18 +1,14 @@
 locals {
     attack_dir = "/guardduty"
+    attack_script = "discovery_aws_instance_creds_tor.sh"
+    start_script = "discovery_delayed_start.sh"
     payload = <<-EOT
     set -e
     LOCKFILE="/tmp/composite.lock"
     if [ -e "$LOCKFILE" ]; then
         echo "Another instance of the script is already running. Exiting..."
         exit 1
-    else
-        mkdir -p "$(dirname "$LOCKFILE")" && touch "$LOCKFILE"
     fi
-    function cleanup {
-        rm -f "$LOCKFILE"
-    }
-    trap cleanup EXIT INT TERM
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -28,19 +24,27 @@ locals {
     log "creating app directory"
     mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
-    echo ${local.discovery} | base64 -d > discovery_aws_instance_creds_tor.sh
+    echo ${local.discovery} | base64 -d > ${local.attack_script}
+    echo ${local.start} | base64 -d > ${local.start_script}
 
-    log "starting attack delay: ${var.attack_delay} seconds"
-    sleep ${var.attack_delay}
-
-    log "starting attack..."
-    /bin/bash discovery_aws_instance_creds_tor.sh 
+    log "starting background delayed script start..."
+    /bin/bash ${local.start_script} &
+    log "background job started"
+    
     log "done."
     EOT
     base64_payload = base64encode(local.payload)
 
     discovery       = base64encode(file(
-                                "${path.module}/resources/discovery_aws_instance_creds_tor.sh", 
+                                "${path.module}/resources/${local.attack_script}", 
+                            ))
+    start           = base64encode(templatefile(
+                                "${path.module}/resources/${local.start_script}",
+                                {
+                                    attack_delay = local.attack_delay
+                                    attack_dir = local.attack_dir
+                                    attack_script = local.attack_script
+                                } 
                             ))
 }
 
