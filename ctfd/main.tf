@@ -59,16 +59,3 @@ resource "docker_container" "ctfd" {
   }
 }
 
-resource "null_resource" "wait_for_ctfd" {
-  provisioner "local-exec" {
-    command = 	<<-EOT
-      		until curl -s -o /dev/null -w "%%{http_code}" http://localhost:8000 | grep -q 200; do
-        		echo "Waiting for CTFd web server to be available..."
-        		sleep 5
-      		done
-      		echo "CTFd web server is available."
-		EOT
-  }
-
-  depends_on = [docker_container.ctfd]
-}
