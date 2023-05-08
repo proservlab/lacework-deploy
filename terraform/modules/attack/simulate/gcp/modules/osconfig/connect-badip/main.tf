@@ -7,6 +7,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "finding bad ip: ${local.iplist_url}"
     BADIP=$(curl -s ${local.iplist_url} | grep -v \"#\" | awk -v num_line=$((1 + $RANDOM % 1000)) 'NR == num_line' | tr -d \"\n\")
     log "found bad ip: $BADIP"

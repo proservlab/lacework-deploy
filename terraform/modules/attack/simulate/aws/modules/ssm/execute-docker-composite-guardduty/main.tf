@@ -15,6 +15,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     while ! which docker > /dev/null || ! docker ps > /dev/null; do
         log "docker not found or not ready - waiting"
         sleep 120

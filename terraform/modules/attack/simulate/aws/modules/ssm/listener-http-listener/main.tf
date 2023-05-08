@@ -54,6 +54,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "listener: ${local.listen_ip}:${local.listen_port}"
     screen -ls | grep http | cut -d. -f1 | awk '{print $1}' | xargs kill
     truncate -s 0 /tmp/http.log

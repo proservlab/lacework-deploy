@@ -7,6 +7,13 @@ function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
 }
 truncate -s 0 $LOGFILE
+check_apt() {
+  pgrep -f "apt" || pgrep -f "dpkg"
+}
+while check_apt; do
+  log "Waiting for apt to be available..."
+  sleep 10
+done
 
 INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
 AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
