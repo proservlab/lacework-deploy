@@ -28,7 +28,7 @@ ATTACK_SCRIPT=${attack_dir}/${attack_script}
 log "MAX_WAIT: $MAX_WAIT"
 log "ATTACK_SCRIPT: $ATTACK_SCRIPT"
 
-log "starting attack delay: ${var.attack_delay} seconds"
+log "starting attack delay: ${attack_delay} seconds"
 SECONDS_WAITED=0
 while true; do 
     log "waited $SECONDS_WAITED seconds...";
