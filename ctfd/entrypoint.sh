@@ -4,7 +4,7 @@
 /opt/CTFd/docker-entrypoint.sh "$@" &
 
 # Wait for the CTFd web server to be available
-until python -c "import requests; requests.get('http://localhost:8000')" 2>/dev/null; do
+until python -c "import requests; requests.get('http://localhost:8000/setup')" 2>/dev/null; do
   echo "Waiting for CTFd web server to be available..."
   sleep 5
 done
