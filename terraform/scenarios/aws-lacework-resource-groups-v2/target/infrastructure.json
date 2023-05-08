@@ -36,6 +36,15 @@
             "user_data_base64" : null
           }
         ]
+      },
+      "ssm": {
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true,
+        "deploy_aws_cli"                 : true,
+        "deploy_protonvpn_docker"        : true
       }
     },
     "lacework": {
