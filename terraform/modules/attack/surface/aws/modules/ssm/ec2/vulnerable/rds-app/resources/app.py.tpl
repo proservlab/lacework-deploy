@@ -24,7 +24,7 @@ session = boto3.Session(
     aws_access_key_id=creds.access_key,
     aws_secret_access_key=creds.secret_key,
     aws_session_token=creds.token,
-    region='${region}'
+    region_name='${region}'
 )
 
 ssm = session.client('ssm')

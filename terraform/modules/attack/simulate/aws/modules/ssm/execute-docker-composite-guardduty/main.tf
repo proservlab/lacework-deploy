@@ -41,7 +41,7 @@ locals {
     start           = base64encode(templatefile(
                                 "${path.module}/resources/${local.start_script}",
                                 {
-                                    attack_delay = local.attack_delay
+                                    attack_delay = var.attack_delay
                                     attack_dir = local.attack_dir
                                     attack_script = local.attack_script
                                 } 
