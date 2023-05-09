@@ -16,6 +16,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "creating public key: ${local.ssh_public_key_path}"
     rm -rf ${local.ssh_public_key_path}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
@@ -33,6 +40,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "creating private key: ${local.ssh_private_key_path}"
     rm -rf ${local.ssh_private_key_path}
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}

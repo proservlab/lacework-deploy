@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # install docker
+check_apt() {
+  pgrep -f "apt" || pgrep -f "dpkg"
+}
+while check_apt; do
+  echo "Waiting for apt to be available..."
+  sleep 10
+done
 sudo apt-get remove -y docker docker-engine docker.io containerd runc
 sudo apt-get update
 sudo apt-get install -y \

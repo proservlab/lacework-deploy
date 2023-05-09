@@ -16,18 +16,6 @@ resource "null_resource" "eks_context_switcher" {
   }
 }
 
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [
-    null_resource.eks_context_switcher
-  ]
-
-  create_duration = "60s"
-}
-
 data "local_file" "kubeconfig" {
   filename = var.kubeconfig_path
-
-  depends_on = [
-    time_sleep.wait_60_seconds
-  ]
 }

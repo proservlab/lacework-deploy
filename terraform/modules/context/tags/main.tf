@@ -25,6 +25,8 @@ locals {
     ssm_exec_http_listener_attacker = "false"
     ssm_exec_docker_cpuminer        = "false"
     ssm_exec_vuln_python3_twisted_app_target = "false"
+    ssm_exec_vuln_rdsapp_target = "false"
+    ssm_exec_docker_guardduty_attacker = "false"
     ssm_exec_docker_log4shell_target = "false"
     ssm_exec_docker_log4shell_attacker = "false"
     ssm_exec_vuln_npm_app_target    = "false"

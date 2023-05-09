@@ -43,6 +43,13 @@ locals {
   custom_data = <<CUSTOM_DATA
 #!/bin/bash
 sudo -i 
+check_apt() {
+  pgrep -f "apt" || pgrep -f "dpkg"
+}
+while check_apt; do
+  echo "Waiting for apt to be available..."
+  sleep 10
+done
 apt-get install -y nfs-kernel-server
 mkdir -p /export/a/1
 mkdir -p /export/a/2

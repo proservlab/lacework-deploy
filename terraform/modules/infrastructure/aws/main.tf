@@ -171,39 +171,8 @@ module "eks-windows" {
 }
 
 #################################################
-# EKS WAIT
+# EKS AUTOSCALER
 #################################################
-
-resource "null_resource" "eks_wait" {
-  triggers = {
-    always = timestamp()
-  }
-
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = <<-EOT
-                set -e
-                if [ "cluster" != "${ local.cluster_name }" ]; then
-                  echo 'Wait for kubernetes...'
-                  aws eks wait cluster-active --profile '${local.aws_profile_name}' --name '${local.cluster_name}'
-                fi;
-              EOT
-  }
-
-  depends_on = [
-    time_sleep.lacework_wait_90,
-    module.eks,
-    module.eks-windows
-  ]
-}
-
-resource "time_sleep" "wait_30" {
-  create_duration = "30s"
-
-  depends_on = [
-    null_resource.eks_wait
-  ]
-}
 
 
 # eks-autoscale
@@ -225,8 +194,7 @@ module "eks-autoscaler" {
 
   depends_on = [
     module.eks-windows,
-    module.eks,
-    time_sleep.wait_30
+    module.eks
   ]
 }
 
@@ -250,8 +218,7 @@ module "eks-windows-configmap" {
 
   depends_on = [
     module.eks-windows,
-    module.eks,
-    time_sleep.wait_30
+    module.eks
   ]
 }
 
@@ -270,8 +237,7 @@ module "lacework-namespace" {
 
   depends_on = [
     module.eks-windows,
-    module.eks,
-    time_sleep.wait_30
+    module.eks
   ]
 }
 
@@ -299,7 +265,6 @@ module "lacework-daemonset" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    time_sleep.wait_30,
     module.lacework-namespace
   ]
 }
@@ -328,7 +293,6 @@ module "lacework-daemonset-windows" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    time_sleep.wait_30,
     module.lacework-namespace
   ]
 }
@@ -351,7 +315,6 @@ module "lacework-admission-controller" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    time_sleep.wait_30,
     module.lacework-namespace
   ]
 }
@@ -376,7 +339,6 @@ module "lacework-eks-audit" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    time_sleep.wait_30,
     module.lacework-namespace
   ]
 }
@@ -466,6 +428,19 @@ module "ssm-deploy-kubectl-cli" {
   deployment   = local.config.context.global.deployment
 }
 
+# ssm deploy protonvpn docker
+module "ssm-deploy-protonvpn-docker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_protonvpn_docker== true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-protonvpn-docker"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  protonvpn_user = var.default_protonvpn_user
+  protonvpn_password = var.default_protonvpn_password
+  protonvpn_tier = var.default_protonvpn_tier
+  protonvpn_server = var.default_protonvpn_server
+  protonvpn_protocol = var.default_protonvpn_protocol
+}
+
 ##################################################
 # AWS RDS
 ##################################################
@@ -475,6 +450,7 @@ module "rds" {
   source = "./modules/rds"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
+  region                        = local.config.context.aws.region
   
   igw_id                        = module.ec2[0].public_app_igw.id
   vpc_id                        = module.ec2[0].public_app_vpc.id

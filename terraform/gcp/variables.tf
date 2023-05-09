@@ -151,11 +151,13 @@ variable "target_azure_region" {
 variable "lacework_profile" {
   type        = string
   description = "lacework account profile name"
+  default     = null
 }
 
 variable "lacework_account_name" {
   type        = string
   description = "lacework account name"
+  default     = null
 }
 
 variable "lacework_server_url" {
@@ -171,6 +173,66 @@ variable "lacework_agent_access_token" {
 }
 
 variable "lacework_proxy_token" {
+  type        = string
+  description = "lacework proxy token used by the admissions controller"
+  default     = null
+}
+
+variable "target_lacework_profile" {
+  type        = string
+  description = "lacework account profile name"
+  default     = null
+}
+
+variable "target_lacework_account_name" {
+  type        = string
+  description = "lacework account name"
+  default     = null
+}
+
+variable "target_lacework_server_url" {
+  type        = string
+  description = "lacework server url"
+  default     = "https://api.lacework.net"
+}
+
+variable "target_lacework_agent_access_token" {
+  description = "lacework agent token"
+  type        = string
+  default     = null
+}
+
+variable "target_lacework_proxy_token" {
+  type        = string
+  description = "lacework proxy token used by the admissions controller"
+  default     = null
+}
+
+variable "attacker_lacework_profile" {
+  type        = string
+  description = "lacework account profile name"
+  default     = null
+}
+
+variable "attacker_lacework_account_name" {
+  type        = string
+  description = "lacework account name"
+  default     = null
+}
+
+variable "attacker_lacework_server_url" {
+  type        = string
+  description = "lacework server url"
+  default     = "https://api.lacework.net"
+}
+
+variable "attacker_lacework_agent_access_token" {
+  description = "lacework agent token"
+  type        = string
+  default     = null
+}
+
+variable "attacker_lacework_proxy_token" {
   type        = string
   description = "lacework proxy token used by the admissions controller"
   default     = null

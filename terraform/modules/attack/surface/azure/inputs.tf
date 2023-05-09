@@ -91,3 +91,28 @@ variable "default_lacework_sysconfig_path" {
   type = string
   description = "lacework syscall config path"
 }
+variable "default_protonvpn_user" {
+  type        = string
+  description = "protonvpn user"
+  default     = ""
+}
+variable "default_protonvpn_password" {
+  type        = string
+  description = "protonvpn password"
+  default     = ""
+}
+variable "default_protonvpn_tier" {
+  type        = number
+  description = "protonvpn tier (0=free, 1=basic, 2=pro, 3=visionary)"
+  default     = 0
+}
+variable "default_protonvpn_server" {
+  type        = string
+  description = "protonvpn server (RANDOM, AU, CR, IS, JP, JP-FREE, LV, NL, NL-FREE, NZ, SG, SK, US, US-NJ, US-FREE,...); see https://api.protonmail.ch/vpn/logicals"
+  default     = "RANDOM"
+}
+variable "default_protonvpn_protocol" {
+  type        = string
+  description = "protonvpn protocol"
+  default     = "udp"
+}

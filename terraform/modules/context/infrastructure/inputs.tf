@@ -56,6 +56,7 @@ variable "config" {
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
+          deploy_protonvpn_docker = bool
         })
       })
       gcp = object({
@@ -96,6 +97,7 @@ variable "config" {
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
+          deploy_protonvpn_docker = bool
         })
       })
       aws = object({
@@ -152,6 +154,7 @@ variable "config" {
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
+          deploy_protonvpn_docker = bool
         })
       })
       
@@ -354,6 +357,7 @@ variable "config" {
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
+          deploy_protonvpn_docker = false
         }
       }
       gcp = {
@@ -458,6 +462,7 @@ variable "config" {
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
+          deploy_protonvpn_docker = false
         }
       }
       aws = {
@@ -579,6 +584,7 @@ variable "config" {
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
+          deploy_protonvpn_docker = false
         }
       }
       lacework = {

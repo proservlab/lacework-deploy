@@ -1,5 +1,11 @@
 #!/bin/bash
-
+check_apt() {
+  pgrep -f "apt" || pgrep -f "dpkg"
+}
+while check_apt; do
+  echo "Waiting for apt to be available..."
+  sleep 10
+done
 sudo apt-get update && \
 	sudo apt-get install -y git cmake build-essential libboost-all-dev && \
 	git clone -b Linux https://github.com/nicehash/nheqminer.git && \

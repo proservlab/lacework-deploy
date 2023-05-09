@@ -81,3 +81,5 @@ Temporary Items
 
 # Built Visual Studio Code Extensions
 *.vsix
+ctfd/ctfd_data*
+ctfd/api_tokens/*

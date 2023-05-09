@@ -5,7 +5,7 @@ locals {
         Tags=jsonencode(var.lacework_agent_tags)
         Hash=""
         Serverurl=var.lacework_server_url
-        Token=can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+        Token=try(length(var.lacework_agent_access_token), "false") != "false" ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
     })
 
     payload = <<-EOT
@@ -15,6 +15,13 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
     truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
     log "starting..."
     echo '${base64encode(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
     log "done."
@@ -27,7 +34,7 @@ locals {
 #####################################################
 
 resource "lacework_agent_access_token" "agent" {
-    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    count = try(length(var.lacework_agent_access_token), "false") != "false" ? 0 : 1
     name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
 }
 
