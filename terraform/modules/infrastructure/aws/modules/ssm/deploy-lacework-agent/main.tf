@@ -5,7 +5,7 @@ locals {
         Tags=jsonencode(var.lacework_agent_tags)
         Hash=""
         Serverurl=var.lacework_server_url
-        Token=can(length(var.lacework_agent_access_token)) ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
+        Token=try(length(var.lacework_agent_access_token), "false") != "false" ? var.lacework_agent_access_token : lacework_agent_access_token.agent[0].token
     })
 
     payload = <<-EOT
@@ -34,7 +34,7 @@ locals {
 #####################################################
 
 resource "lacework_agent_access_token" "agent" {
-    count = can(length(var.lacework_agent_access_token)) ? 0 : 1
+    count = try(length(var.lacework_agent_access_token), "false") != "false" ? 0 : 1
     name = "endpoint-aws-agent-access-token-${var.environment}-${var.deployment}"
 }
 
