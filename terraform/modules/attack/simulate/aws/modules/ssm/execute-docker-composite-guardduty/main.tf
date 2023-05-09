@@ -35,7 +35,7 @@ locals {
     echo ${local.start} | base64 -d > ${local.start_script}
 
     log "starting background delayed script start..."
-    /bin/bash ${local.start_script} &
+    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
     log "background job started"
     
     log "done."
