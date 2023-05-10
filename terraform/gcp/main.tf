@@ -194,9 +194,9 @@ module "attacker-gcp-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -229,9 +229,9 @@ module "target-gcp-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -277,9 +277,9 @@ module "attacker-lacework-platform-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -332,9 +332,9 @@ module "attacker-lacework-gcp-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -378,9 +378,9 @@ module "target-lacework-platform-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -433,9 +433,9 @@ module "target-lacework-gcp-infrastructure" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -573,9 +573,9 @@ module "attacker-gcp-attacksurface" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -632,9 +632,9 @@ module "target-gcp-attacksurface" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -867,9 +867,9 @@ module "attacker-gcp-attacksimulation" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context
@@ -937,9 +937,9 @@ module "target-gcp-attacksimulation" {
   default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_context_config_protonvpn_tier = var.attacker_context_config_protonvpn_tier
-  default_context_config_protonvpn_server = var.attacker_context_config_protonvpn_server
-  default_context_config_protonvpn_protocol = var.attacker_context_config_protonvpn_protocol
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   parent = [
     # infrastructure context

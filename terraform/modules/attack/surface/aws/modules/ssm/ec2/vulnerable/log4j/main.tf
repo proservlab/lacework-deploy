@@ -17,7 +17,7 @@ locals {
         sleep 10
     done
     log "Checking for docker..."
-    apt-get update && apt install -y liblog4j2-java=2.11.2-1 openjdk-11-jdk
+    apt-get update && apt install -y --allow-downgrades liblog4j2-java=2.11.2-1 openjdk-8-jdk 
     mkdir -p /log4j-demo/resources && cd /log4j-demo
     cat > Log4jDemo.java <<-EOF
     import org.apache.logging.log4j.LogManager;
