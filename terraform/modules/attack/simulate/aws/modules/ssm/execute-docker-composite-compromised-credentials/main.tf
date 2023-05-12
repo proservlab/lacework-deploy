@@ -8,8 +8,8 @@ locals {
     set -e
     LOCKFILE="/tmp/composite.lock"
     if [ -e "$LOCKFILE" ]; then
-        echo "Another instance of the script is already running. Exiting..."
-        exit 1
+        echo "Another instance of the script is already running. Exiting..." > ${var.tag}.last_check
+        exit 0
     fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
