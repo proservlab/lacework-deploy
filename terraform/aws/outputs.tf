@@ -1,10 +1,3 @@
-output "target_dynu_records" {
-  value = (module.target-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.target-dynu-dns-records.records, []) : []
-}
-
-output "attacker_dynu_records" {
-  value = (module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true) ? try(module.attacker-dynu-dns-records.records, []) : []
-}
 
 output "target-aws-instances" {
   value = [
