@@ -30,6 +30,7 @@
             "tags": {
               "osconfig_deploy_lacework": "true",
               "osconfig_deploy_lacework_syscall": "true",
+              "osconfig_lacework_code_aware_agent" : "true",
               "osconfig_exec_reverse_shell_target"        : "true"
             },
             "user_data"        : null,
@@ -46,7 +47,8 @@
         "deploy_git"                     : true,
         "deploy_docker"                  : true,
         "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {

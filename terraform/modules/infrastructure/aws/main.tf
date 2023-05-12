@@ -404,6 +404,13 @@ module "lacework-ssm-deployment-syscall-config" {
   syscall_config = var.default_lacework_sysconfig_path
 }
 
+module "ssm-deploy-lacework-code-aware-agent" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_code_aware_agent == true ) ? 1 : 0
+  source       = "./modules/ssm/deploy-lacework-code-aware-agent"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+}
+
 # ssm deploy aws cli
 module "ssm-deploy-aws-cli" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_aws_cli== true ) ? 1 : 0

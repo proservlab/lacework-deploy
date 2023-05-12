@@ -52,6 +52,7 @@
         "deploy_inspector_agent"         : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true,
         "deploy_kubectl_cli"             : true,
         "deploy_aws_cli"                 : true
       }

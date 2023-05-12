@@ -32,6 +32,7 @@
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
               "runbook_deploy_lacework_syscall": "true",
+              "runbook_deploy_lacework_code_aware_agent": "true",
               "runbook_exec_touch_file": "true"
             },
             "user_data"        : null,
@@ -48,6 +49,7 @@
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
               "runbook_deploy_lacework_syscall": "true",
+              "runbook_deploy_lacework_code_aware_agent": "true",
               "runbook_exec_touch_file": "true"
             },
             "user_data"        : null,

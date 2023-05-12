@@ -156,6 +156,24 @@ module "runbook-deploy-lacework-syscall-config" {
   ]
 }
 
+module "runbook-deploy-lacework-code-aware-agent" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_code_aware_agent == true ) ? 1 : 0
+  source          = "./modules/runbook/deploy-lacework-code-aware-agent"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.config.context.azure.region
+  resource_group  = module.compute[0].resource_group
+  automation_account = module.automation-account[0].automation_account_name
+  automation_princial_id = module.automation-account[0].automation_princial_id
+  
+  tag             = "runbook_deploy_lacework_code_aware_agent"
+  
+  depends_on = [
+    module.compute,
+    module.automation-account
+  ]
+}
+
 module "runbook-deploy-docker" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_docker == true ) ? 1 : 0
   source          = "./modules/runbook/deploy-docker"

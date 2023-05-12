@@ -171,7 +171,7 @@ module "osconfig-deploy-lacework-agent" {
 }
 
 # osconfig deploy lacework syscall_config.yaml
-module "lacework-osconfig-deployment-syscall-config" {
+module "osconfig-deploy-lacework-syscall-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_syscall_config == true ) ? 1 : 0
   source       = "./modules/osconfig/deploy-lacework-syscall-config"
   gcp_project_id              = local.config.context.gcp.project_id
@@ -182,6 +182,17 @@ module "lacework-osconfig-deployment-syscall-config" {
   syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
 
   tag = "osconfig_deploy_lacework_syscall"
+}
+
+module "osconfig-deploy-lacework-code-aware-agent" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_code_aware_agent == true ) ? 1 : 0
+  source       = "./modules/osconfig/deploy-lacework-code-aware-agent"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  tag = "osconfig_deploy_lacework_code_aware_agent"
 }
 
 # osconfig deploy aws cli

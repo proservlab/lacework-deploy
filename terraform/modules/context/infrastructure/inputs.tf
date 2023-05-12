@@ -53,6 +53,7 @@ variable "config" {
           deploy_docker         = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_lacework_code_aware_agent = bool
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
@@ -94,6 +95,7 @@ variable "config" {
           deploy_docker         = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_lacework_code_aware_agent = bool
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
@@ -151,6 +153,7 @@ variable "config" {
           deploy_inspector_agent = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_lacework_code_aware_agent = bool
           deploy_aws_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
@@ -354,6 +357,7 @@ variable "config" {
           deploy_docker         = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_lacework_code_aware_agent = false
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
@@ -459,6 +463,7 @@ variable "config" {
           deploy_docker         = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_lacework_code_aware_agent = false
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
@@ -581,6 +586,7 @@ variable "config" {
           deploy_inspector_agent = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_lacework_code_aware_agent = false
           deploy_aws_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
