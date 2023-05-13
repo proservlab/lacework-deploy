@@ -700,7 +700,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -715,7 +715,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -730,7 +730,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -745,7 +745,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -760,7 +760,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               }
             }
           }
@@ -890,7 +890,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -905,7 +905,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -920,7 +920,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -935,7 +935,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -950,7 +950,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               }
             }
           }
@@ -1080,7 +1080,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_ransomware_attack = {
                 enabled                     = false
@@ -1095,7 +1095,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_defense_evasion_attack = {
                 enabled                     = false
@@ -1110,7 +1110,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_cloud_cryptomining_attack = {
                 enabled                     = false
@@ -1125,7 +1125,7 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_host_cryptomining_attack = {
                 enabled                     = false
@@ -1140,11 +1140,11 @@ variable "config" {
                 minergate_user              = null
                 nicehash_user               = null
                 compromised_keys_user       = null
-                attack_delay                = 43200
+                attack_delay                =  50400
               },
               docker_composite_guardduty_attack = {
                 enabled                     = false
-                attack_delay                = 43200
+                attack_delay                =  50400
               }
             }
           }

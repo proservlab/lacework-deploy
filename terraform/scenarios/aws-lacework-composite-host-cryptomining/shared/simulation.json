@@ -99,7 +99,7 @@
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
               "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "kees.kompromize@interlacelabs",
-              "attack_delay": 43200
+              "attack_delay":  50400
             },
             "docker_composite_cloud_ransomware_attack": {
               "enabled": false,
@@ -112,7 +112,7 @@
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
               "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "rand.sumwer@interlacelabs",
-              "attack_delay": 43200
+              "attack_delay":  50400
             },
             "docker_composite_defense_evasion_attack": {
               "enabled": false,
@@ -125,7 +125,7 @@
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
               "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "dee.fensivason@interlacelabs",
-              "attack_delay": 43200
+              "attack_delay":  50400
             },
             "docker_composite_cloud_cryptomining_attack": {
               "enabled": false,
@@ -138,7 +138,7 @@
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
               "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "claude.kripto@interlacelabs",
-              "attack_delay": 43200
+              "attack_delay":  50400
             },
             "docker_composite_host_cryptomining_attack": {
               "enabled": true,
@@ -151,7 +151,7 @@
               "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
               "nicehash_user": "${ attacker_context_host_cryptomining_nicehash_user }",
               "compromised_keys_user":  "haust.kripto@interlacelabs",
-              "attack_delay": 43200
+              "attack_delay":  50400
             }
           }
         }
