@@ -1,10 +1,11 @@
 FROM ctfd/ctfd:latest
 
-COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /opt/CTFd/custom-entrypoint.sh
 USER root
-RUN chmod +x /entrypoint.sh
+RUN chown ctfd:ctfd /opt/CTFd/custom-entrypoint.sh
+RUN chmod +x /opt/CTFd/custom-entrypoint.sh
 RUN mkdir /home/ctfd
 RUN chown ctfd:ctfd /home/ctfd
 USER 1001
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/opt/CTFd/custom-entrypoint.sh"]
