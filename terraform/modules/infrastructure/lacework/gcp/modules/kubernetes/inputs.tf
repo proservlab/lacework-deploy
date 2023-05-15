@@ -48,6 +48,7 @@ variable "config" {
           deploy_inspector_agent = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_lacework_code_aware_agent = bool
         })
       })
       aws = object({
@@ -97,6 +98,7 @@ variable "config" {
           deploy_inspector_agent = bool
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
+          deploy_lacework_code_aware_agent = bool
         })
       })
       
@@ -283,6 +285,7 @@ variable "config" {
           deploy_inspector_agent = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_lacework_code_aware_agent = false
         }
       }
       aws = {
@@ -396,6 +399,7 @@ variable "config" {
           deploy_inspector_agent = false
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
+          deploy_lacework_code_aware_agent = false
         }
       }
       lacework = {

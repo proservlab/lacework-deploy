@@ -32,7 +32,8 @@
               "runbook_deploy_git"     : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
-              "runbook_deploy_lacework_syscall": "true"
+              "runbook_deploy_lacework_syscall": "true",
+              "runbook_deploy_lacework_code_aware_agent": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -48,7 +49,8 @@
         "deploy_git"                     : false,
         "deploy_docker"                  : false,
         "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {

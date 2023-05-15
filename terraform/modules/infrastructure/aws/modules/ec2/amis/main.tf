@@ -1,10 +1,41 @@
+data "aws_ami" "ubuntu_jammy" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
 data "aws_ami" "ubuntu_focal" {
   most_recent = true
 
   filter {
     name   = "name"
-    # vulnerable version
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20211118*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+data "aws_ami" "ubuntu_bionic" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
 
   filter {
@@ -28,6 +59,7 @@ data "aws_ami" "amazon_linux" {
 locals {
     ami_map = {
         ubuntu_focal = data.aws_ami.ubuntu_focal.id
+        ubuntu_bionic = data.aws_ami.ubuntu_bionic.id
         amazon_linux = data.aws_ami.amazon_linux.id
     }
 }

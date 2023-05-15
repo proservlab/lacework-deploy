@@ -87,7 +87,7 @@ variable "nicehash_user" {
 variable "attack_delay" {
   type = number
   description = "wait time between baseline and attack (default: 12 hours)"
-  default = 43200
+  default =  50400
 }
 
 variable "compromised_keys_user" {

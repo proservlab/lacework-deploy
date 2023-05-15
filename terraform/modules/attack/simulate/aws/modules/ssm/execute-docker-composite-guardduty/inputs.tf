@@ -30,5 +30,5 @@ variable "cron" {
 variable "attack_delay" {
   type = number
   description = "wait time between baseline and attack (default: 12 hours)"
-  default = 43200
+  default =  50400
 }

