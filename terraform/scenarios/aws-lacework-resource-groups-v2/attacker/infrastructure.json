@@ -22,7 +22,7 @@
                 "public_ingress_rules"              : [],
                 "instances": [
                     {
-                        "name"                      : "cloud1-rgv2-1",
+                        "name"                      : "cloud1-rgv2-2",
                         "public"                    : true,
                         "role"                      : "default",
                         "instance_type"             : "t2.micro",
