@@ -28,9 +28,13 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true",
-              "ssm_exec_docker_log4shell_target" : "true"
+              "ssm_deploy_lacework"                   : "true",
+              "ssm_deploy_lacework_syscall"           : "true",
+              "ssm_deploy_lacework_code_aware_agent"  : "true",
+              "ssm_deploy_docker"                     : "true",
+              "ssm_deploy_git"                        : "true",
+              "ssm_exec_docker_log4shell_target"      : "true",
+              "ssm_exec_vuln_log4j_app_target"        : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -43,9 +47,7 @@
         "deploy_docker"                  : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true,
-        "deploy_aws_cli"                 : true,
-        "deploy_protonvpn_docker"        : true
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {
