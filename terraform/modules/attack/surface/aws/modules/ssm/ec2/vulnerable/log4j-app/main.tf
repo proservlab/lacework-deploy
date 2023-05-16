@@ -82,7 +82,12 @@ locals {
     git clone https://github.com/christophetd/log4shell-vulnerable-app
     cd log4shell-vulnerable-app
     log "running gradle build..."
-    gradle bootJar --no-daemon
+    nohup gradle bootJar --no-daemon &
+    GRADLE_PID=$!
+    while kill -0 $GRADLE_PID 2> /dev/null; do
+    log "Process is still running..."
+    sleep 30
+    done
     log "gradle build complete."
 
     
