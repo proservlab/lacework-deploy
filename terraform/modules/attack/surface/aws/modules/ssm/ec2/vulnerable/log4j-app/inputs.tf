@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_log4j_target"
+  default = "ssm_exec_vuln_log4j_app_target"
 }
 
 variable "timeout" {
@@ -21,4 +21,10 @@ variable "timeout" {
 variable "cron" {
   type = string
   default = "cron(0/30 * * * ? *)"
+}
+
+variable "listen_port" {
+  type = number
+  description = "listening port for container"
+  default=8000
 }

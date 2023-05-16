@@ -112,3 +112,79 @@ module "compute-add-trusted-ingress" {
 
   depends_on = [time_sleep.wait]
 }
+
+##################################################
+# AZURE RUNBOOK SIMULATION
+##################################################
+
+module "ssh-keys" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.ssh_keys.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/compute/ssh-keys"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
+  ssh_public_key_path = local.config.context.azure.runbook.ssh_keys.ssh_public_key_path
+  ssh_private_key_path = local.config.context.azure.runbook.ssh_keys.ssh_private_key_path
+  ssh_authorized_keys_path = local.config.context.azure.runbook.ssh_keys.ssh_authorized_keys_path
+}
+
+module "vulnerable-docker-log4shellapp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/compute/vulnerable/docker-log4shellapp"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
+  listen_port = local.config.context.azure.runbook.vulnerable.docker.log4shellapp.listen_port
+}
+
+module "vulnerable-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/compute/vulnerable/log4j-app"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+  
+  listen_port = local.config.context.azure.runbook.vulnerable.npm_app.listen_port
+}
+
+module "vulnerable-npm-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.npm_app.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/compute/vulnerable/npm-app"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+  
+  listen_port = local.config.context.azure.runbook.vulnerable.npm_app.listen_port
+}
+
+module "vulnerable-python3-twisted-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/compute/vulnerable/python3-twisted-app"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+  
+  listen_port = local.config.context.azure.runbook.vulnerable.python3_twisted_app.listen_port
+}

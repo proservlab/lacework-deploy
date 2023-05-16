@@ -1,0 +1,2 @@
+/usr/lib/jvm/java-8-openjdk-amd64/bin/javac -cp /usr/share/java/log4j-core-2.11.2.jar:/usr/share/java/log4j-api-2.11.2.jar Log4jDemo.java
+/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java -cp .:resources:/usr/share/java/log4j-core-2.11.2.jar:/usr/share/java/log4j-api-2.11.2.jar Log4jDemo

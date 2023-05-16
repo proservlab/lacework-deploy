@@ -209,6 +209,19 @@ module "vulnerable-python3-twisted-app" {
   tag = "osconfig_exec_vuln_python3_twisted_app_target"
 }
 
+module "vulnerable-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/gce/vulnerable/log4j-app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
+
+  tag = "osconfig_exec_vuln_log4j_app_target"
+}
+
 ##################################################
 # Kubernetes General
 ##################################################
