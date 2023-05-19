@@ -64,6 +64,11 @@ resource "tls_cert_request" "admission" {
     join(".", [var.admission_controller_name, var.namespace, "svc", "cluster", "local"]),
     "admission.lacework-dev.svc",
     "admission.lacework-dev.svc.cluster.local",
+    join(".", [var.proxy_scanner_name, var.namespace]),
+    join(".", [var.proxy_scanner_name, var.namespace, "svc"]),
+    join(".", [var.proxy_scanner_name, var.namespace, "svc", "cluster", "local"]),
+    "proxy-scanner.lacework-dev.svc",
+    "proxy-scanner.lacework-dev.svc.cluster.local",
   ]
   subject {
     common_name = "lacework-admission-controller.lacework.svc"

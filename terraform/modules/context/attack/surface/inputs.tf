@@ -49,6 +49,10 @@ variable "config" {
                 listen_port               = number
               })
             })
+            log4j_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
             npm_app = object({
               enabled                   = bool
               listen_port               = number
@@ -101,6 +105,10 @@ variable "config" {
                 enabled                   = bool
                 listen_port               = number
               })
+            })
+            log4j_app = object({
+              enabled                   = bool
+              listen_port               = number
             })
             npm_app = object({
               enabled                   = bool
@@ -170,6 +178,10 @@ variable "config" {
                 listen_port               = number
               })
             })
+            log4j_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
             npm_app = object({
               enabled                   = bool
               listen_port               = number
@@ -213,6 +225,7 @@ variable "config" {
               trust_attacker_source       = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
+              image                       = string
             })
             voteapp = object({
               enabled                     = bool
@@ -251,6 +264,7 @@ variable "config" {
               trust_attacker_source       = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
+              image                       = string
             })
             voteapp = object({
               enabled                     = bool
@@ -313,6 +327,10 @@ variable "config" {
                 listen_port               = 8000
               }
             },
+            log4j_app = {
+              enabled                   = false
+              listen_port               = 8080
+            }
             npm_app = {
               enabled                   = false
               listen_port               = 8089
@@ -366,6 +384,10 @@ variable "config" {
                 listen_port               = 8000
               }
             },
+            log4j_app = {
+              enabled                   = false
+              listen_port               = 8080
+            }
             npm_app = {
               enabled                   = false
               listen_port               = 8089
@@ -434,6 +456,10 @@ variable "config" {
                 listen_port               = 8000
               }
             },
+            log4j_app = {
+              enabled                   = false
+              listen_port               = 8080
+            }
             npm_app = {
               enabled                   = false
               listen_port               = 8089
@@ -474,6 +500,7 @@ variable "config" {
               trust_attacker_source       = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
             }
             voteapp = {
               enabled                     = false
@@ -508,6 +535,7 @@ variable "config" {
               trust_attacker_source       = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
             }
             voteapp = {
               enabled                     = false

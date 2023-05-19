@@ -37,10 +37,16 @@ resource "tls_cert_request" "admission" {
   count           = var.use_self_signed_certs ? 1 : 0
   private_key_pem = tls_private_key.admission[0].private_key_pem
   dns_names = [
+    join(".", [var.admission_controller_name, var.namespace]),
     join(".", [var.admission_controller_name, var.namespace, "svc"]),
     join(".", [var.admission_controller_name, var.namespace, "svc", "cluster", "local"]),
     "admission.lacework-dev.svc",
     "admission.lacework-dev.svc.cluster.local",
+    join(".", [var.proxy_scanner_name, var.namespace]),
+    join(".", [var.proxy_scanner_name, var.namespace, "svc"]),
+    join(".", [var.proxy_scanner_name, var.namespace, "svc", "cluster", "local"]),
+    "proxy-scanner.lacework-dev.svc",
+    "proxy-scanner.lacework-dev.svc.cluster.local",
   ]
   subject {
     common_name = "lacework-admission-controller.lacework.svc"

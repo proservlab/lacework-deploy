@@ -206,6 +206,15 @@ module "vulnerable-docker-log4shellapp" {
   listen_port = local.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
 }
 
+module "vulnerable-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/ssm/ec2/vulnerable/log4j-app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  
+  listen_port = local.config.context.aws.ssm.vulnerable.npm_app.listen_port
+}
+
 module "vulnerable-npm-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.npm_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/ec2/vulnerable/npm-app"
@@ -381,6 +390,8 @@ module "vulnerable-kubernetes-log4shellapp" {
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.log4shellapp.image
 
   providers = {
     kubernetes = kubernetes.main
