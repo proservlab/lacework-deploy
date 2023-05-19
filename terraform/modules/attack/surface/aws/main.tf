@@ -391,6 +391,8 @@ module "vulnerable-kubernetes-log4shellapp" {
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
 
+  image                         = local.config.context.kubernetes.aws.vulnerable.log4shellapp.image
+
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main

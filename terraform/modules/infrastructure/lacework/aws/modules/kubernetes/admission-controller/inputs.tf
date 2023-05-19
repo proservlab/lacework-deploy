@@ -35,3 +35,8 @@ variable "admission_controller_name" {
   description = "The name for the Lacework admission controller deployment."
   default     = "lacework-admission-controller"
 }
+variable "proxy_scanner_name" {
+  type        = string
+  description = "The name for the Lacework proxy scanner deployment."
+  default     = "lacework-proxy-scanner"
+}
