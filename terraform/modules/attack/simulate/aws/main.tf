@@ -137,7 +137,7 @@ data "aws_instances" "target_log4shell" {
   instance_tags = {
     environment = "target"
     deployment  = local.config.context.global.deployment
-    ssm_exec_log4j_app_target = "true"
+    ssm_exec_vuln_log4j_app_target = "true"
   }
 
   instance_state_names = ["running"]
