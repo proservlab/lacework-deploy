@@ -23,40 +23,31 @@
           {
             "name"                      : "target-ciem-public-1",
             "public"                    : true,
-            "role"                      : "default",
+            "role"                      : "app",
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags"                      : {
                 "owner"                                     : "lacework",
-                "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true",
-                "ssm_deploy_secret_aws_creds"               : "true"
-            },
-            "user_data"                 : null,
-            "user_data_base64"          : null
-          },
-          {
-            "name"                      : "target-ciem-public-2",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags"                      : {
-                "owner"                                     : "lacework",
-                "ssm_deploy_secret_aws_creds"               : "true"
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_exec_vuln_log4j_app_target"            : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null
           }
         ]
       },
+      "rds": {
+        "enabled"                        : true
+      },
       "ssm": {
         "enabled"                        : true,
-        "deploy_git"                     : false,
+        "deploy_git"                     : true,
         "deploy_docker"                  : true,
-        "deploy_inspector_agent"         : false,
         "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {
@@ -66,40 +57,11 @@
       "aws_audit_config": {
         "enabled" : true
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : false,
-          "proxy_scanner": {
-            "enabled" : false
-          },
-          "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
-          },
-          "compliance": {
-            "enabled" : false
-          },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : false
-          }
-        }
+        "enabled" : true
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,
@@ -116,9 +78,6 @@
           "cloud_issue_type"  : "${ jira_cloud_issue_type }"
         }
       }
-    },
-    "dynu_dns" : {
-        "enabled"                        : false
-    } 
+    }
   }
 }

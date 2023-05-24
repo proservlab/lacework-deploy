@@ -29,7 +29,8 @@
             "ami_name"                  : "ubuntu_focal",
             "tags": {
               "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true"
+              "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_lacework_code_aware_agent" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

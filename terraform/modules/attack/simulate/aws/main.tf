@@ -117,13 +117,27 @@ data "aws_instances" "target_vuln_npm_app" {
   depends_on = [time_sleep.wait]
 }
 
-data "aws_instances" "target_log4shell" {
+data "aws_instances" "target_docker_log4shell" {
   provider = aws.target
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
   instance_tags = {
     environment = "target"
     deployment  = local.config.context.global.deployment
     ssm_exec_docker_log4shell_target = "true"
+  }
+
+  instance_state_names = ["running"]
+
+  depends_on = [time_sleep.wait]
+}
+
+data "aws_instances" "target_log4shell" {
+  provider = aws.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
+  instance_tags = {
+    environment = "target"
+    deployment  = local.config.context.global.deployment
+    ssm_exec_log4j_app_target = "true"
   }
 
   instance_state_names = ["running"]
@@ -431,7 +445,15 @@ module "ssm-execute-docker-log4shell-attack" {
   attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
   attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, try(data.aws_instances.attacker_log4shell[0].public_ips[0], "127.0.0.1"))
-  target_ip = try(data.aws_instances.target_log4shell[0].public_ips[0], "127.0.0.1")
+  target_ip = try(
+    # try docker target first
+    data.aws_instances.target_docker_log4shell[0].public_ips[0], 
+    try(
+      # try local app second
+      data.aws_instances.target_log4shell[0].public_ips[0], 
+      "127.0.0.1"
+    )
+  )
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
 }

@@ -84,7 +84,7 @@ resource "helm_release" "admission-controller" {
     repository = "https://lacework.github.io/helm-charts"
     chart      = "admission-controller"
 
-    create_namespace =  false
+    create_namespace =  true
     namespace = "lacework"
     force_update = true
     
