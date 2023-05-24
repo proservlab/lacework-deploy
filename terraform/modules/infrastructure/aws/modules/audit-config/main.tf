@@ -28,8 +28,6 @@ module "aws_cloudtrail" {
   bucket_logs_enabled         = true
   bucket_versioning_enabled   = true
 
-  # external_id_length         = 1000
-
   tags                       = {
     environment = var.environment
     deployment = var.deployment
