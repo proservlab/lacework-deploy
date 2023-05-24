@@ -212,7 +212,7 @@ module "vulnerable-log4j-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
-  listen_port = local.config.context.aws.ssm.vulnerable.npm_app.listen_port
+  listen_port = local.config.context.aws.ssm.vulnerable.log4j_app.listen_port
 }
 
 module "vulnerable-npm-app" {
