@@ -21,10 +21,6 @@ locals {
 }
 
 provider "kubernetes" {
-  config_path = local.default_kubeconfig_path
-}
-
-provider "kubernetes" {
   alias = "main"
   config_path = local.default_kubeconfig_path
 }

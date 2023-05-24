@@ -1,8 +1,6 @@
 module "aws_config" {
   source  = "lacework/config/aws"
   version = "~> 0.9.0"
-
-  wait_time = "30s"
   
   tags                       = {
     environment = var.environment
@@ -36,6 +34,8 @@ module "aws_cloudtrail" {
     environment = var.environment
     deployment = var.deployment
   } 
-  
-  wait_time = "10s"
+
+  depends_on = [ 
+    module.aws_config 
+  ]
 }

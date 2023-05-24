@@ -27,8 +27,9 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_lacework"              : "true",
+              "ssm_deploy_lacework_syscall"      : "true",
+              "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_docker"                : "true",
               "ssm_deploy_secret_ssh_private"    : "true",
               "ssm_exec_docker_log4shell_target" : "true"
@@ -73,12 +74,13 @@
         "enabled"                 : false
       },
       "ssm": {
-        "enabled"                        : false,
+        "enabled"                        : true,
         "deploy_git"                     : false,
-        "deploy_docker"                  : false,
+        "deploy_docker"                  : true,
         "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {

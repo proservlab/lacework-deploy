@@ -33,7 +33,7 @@
               "ssm_deploy_aws_cli": "true",
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
-              "ssm_deploy_lacework_code_aware_agent" : true,
+              "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_exec_docker_guardduty_attacker": "true"
             },
             "user_data"        : null,

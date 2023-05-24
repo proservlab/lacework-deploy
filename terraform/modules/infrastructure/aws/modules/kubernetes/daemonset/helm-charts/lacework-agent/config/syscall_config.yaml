@@ -1,0 +1,10 @@
+etype.exec:
+    group-by:
+        - ts
+etype.exit:
+etype.file:
+    send-if-matches:
+        anydir:
+        watchpath: /*
+        depth: 3
+etype.proc:
