@@ -34,7 +34,8 @@
               "ssm_deploy_aws_cli": "true",
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
-              "ssm_deploy_secret_aws_creds": "true"
+              "ssm_deploy_secret_aws_creds": "true",
+              "ssm_exec_vuln_npm_app_target": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
@@ -64,12 +65,6 @@
       "aws_audit_config": {
         "enabled" : true
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
         "enabled" : true,
 
@@ -84,9 +79,6 @@
           "compliance": {
             "enabled" : true
           },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
           "admission_controller": {
             "enabled" : true
           }
@@ -94,9 +86,6 @@
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

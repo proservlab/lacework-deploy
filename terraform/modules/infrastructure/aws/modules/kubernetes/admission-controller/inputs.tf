@@ -8,6 +8,11 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "cluster_name" {
+  type = string
+  description = "name of the kubernetes cluster"
+}
+
 variable "lacework_proxy_token" {
   type = string
   description = "lacework proxy scanner token"
@@ -23,7 +28,6 @@ variable "use_self_signed_certs" {
   type = bool
   default = true
 }
-
 
 variable "namespace" {
   type        = string

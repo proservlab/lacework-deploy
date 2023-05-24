@@ -9,7 +9,8 @@ variable "deployment" {
 }
 
 variable "cluster_name" {
-  type    = string
+  type = string
+  description = "name of the kubernetes cluster"
 }
 
 variable "lacework_agent_access_token" {

@@ -11,17 +11,17 @@ module "id" {
 ##################################################
 
 locals {
-    log4shell_app_name = var.app
-    log4shell_app_namespace = var.app_namespace
+    app_name = var.app
+    app_namespace = var.app_namespace
 }
 
-resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
+resource "kubernetes_deployment" "this" {
   metadata {
-    name = local.log4shell_app_name
+    name = local.app_name
     labels = {
-      app = local.log4shell_app_name
+      app = local.app_name
     }
-    namespace = local.log4shell_app_namespace
+    namespace = local.app_namespace
   }
 
   spec {
@@ -29,26 +29,26 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
 
     selector {
         match_labels = {
-            app = local.log4shell_app_name
+            app = local.app_name
         }
     }
 
     template {
       metadata {
         labels = {
-            app = local.log4shell_app_name
+            app = local.app_name
         }
       }
 
       spec {
         container {
             image = var.image
-            name  = local.log4shell_app_name
-            command = ["java"]
-            args = ["-jar", "/app/spring-boot-application.jar"]
+            name  = local.app_name
+            command = var.command
+            args = var.args
 
             port {
-                container_port = 8080
+                container_port = var.container_port
             }
         }
       }
@@ -56,37 +56,37 @@ resource "kubernetes_deployment" "vulnerable_log4shell_pod" {
   }
 
   depends_on = [
-    kubernetes_namespace.app
+    kubernetes_namespace.this
   ]
 }
 
-resource "kubernetes_service_v1" "log4shell" {
+resource "kubernetes_service_v1" "this" {
   metadata {
-      name = local.log4shell_app_name
+      name = local.app_name
       labels = {
-          app = local.log4shell_app_name
+          app = local.app_name
       }
-      namespace = local.log4shell_app_namespace
+      namespace = local.app_namespace
       annotations = {
-        "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
+        "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.this.id
         "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
       }
   }
   spec {
       selector = {
-          app = local.log4shell_app_name
+          app = local.app_name
       }
 
       # session_affinity = "ClientIP"
       port {
-          name = "${local.log4shell_app_name}-service"
+          name = "${local.app_name}-service"
           port        = var.service_port
-          target_port = 8080
+          target_port = var.container_port
       }
 
       type = "LoadBalancer"
   }
   depends_on = [
-    kubernetes_namespace.app
+    kubernetes_namespace.this
   ]
 }

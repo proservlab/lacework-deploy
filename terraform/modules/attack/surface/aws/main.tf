@@ -392,6 +392,8 @@ module "vulnerable-kubernetes-log4shellapp" {
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
 
   image                         = local.config.context.kubernetes.aws.vulnerable.log4shellapp.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.log4shellapp.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.log4shellapp.args
 
   providers = {
     kubernetes = kubernetes.main
@@ -402,8 +404,21 @@ module "vulnerable-kubernetes-log4shellapp" {
 module "vulnerable-kubernetes-privileged-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
   source      = "../kubernetes/aws/vulnerable/privileged-pod"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source ? flatten([
+    [ for ip in try(data.aws_instances.public_attacker[0].public_ips, []): "${ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.privileged_pod.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.privileged_pod.args
 
   providers = {
     kubernetes = kubernetes.main
