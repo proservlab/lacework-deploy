@@ -21,3 +21,14 @@ output "default_provider" {
         skip_requesting_account_id  = true
     }
 }
+
+output "kubernetes" {
+    value = {
+        vulnerable = {
+            log4shellapp = module.vulnerable-kubernetes-log4shellapp
+            privileged_pod = module.vulnerable-kubernetes-privileged-pod
+            rds_app         = module.vulnerable-kubernetes-rdsapp
+            vote_app        = module.vulnerable-kubernetes-voteapp
+        }
+    }
+}
