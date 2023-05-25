@@ -28,8 +28,126 @@ locals {
   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 
+  default_public_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  default_public_app_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+  target_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  target_public_app_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+  attacker_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
+  attacker_app_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
+
+  cluster_name                        = try(local.default_infrastructure_deployed.aws.eks[0].cluster.id, "cluster")
+  cluster_endpoint                    = try(local.default_infrastructure_deployed.aws.eks[0].cluster.endpoint, null)
+  cluster_ca_cert                     = try(local.default_infrastructure_deployed.aws.eks[0].cluster.certificate_authority[0].data, null)
+  cluster_oidc_issuer                 = try(local.default_infrastructure_deployed.aws.eks[0].cluster.identity[0].oidc[0].issuer, null)
+  cluster_security_group              = try(local.default_infrastructure_deployed.aws.eks[0].cluster_sg_id, null)
+  cluster_subnet                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_subnet, null)
+  cluster_vpc_id                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_id, null)
+  cluster_node_role_arn               = try(local.default_infrastructure_deployed.aws.eks[0].cluster_node_role_arn, null)
+  cluster_vpc_subnet                  = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_subnet, null)
+  cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn, null)
+  cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url, null)
+
+  db_host = try(local.default_infrastructure_deployed.aws.rds[0].db_host, null)
+  db_name = try(local.default_infrastructure_deployed.aws.rds[0].db_name, null)
+  db_user = try(local.default_infrastructure_deployed.aws.rds[0].db_user, null)
+  db_password = try(local.default_infrastructure_deployed.aws.rds[0].db_password, null)
+  db_port = try(local.default_infrastructure_deployed.aws.rds[0].db_port, null)
+  db_region = try(local.default_infrastructure_deployed.aws.rds[0].db_region, null)
+
   attacker = local.config.context.global.environment == "attacker" ? true : false
   target = local.config.context.global.environment == "target" ? true : false
+  
+  # instances
+  default_instances = try(local.default_infrastructure_deployed.aws.ec2[0].instances, [])
+  attacker_instances = try(local.attacker_infrastructure_deployed.aws.ec2[0].instances, [])
+  target_instances = try(local.target_infrastructure_deployed.aws.ec2[0].instances, [])
+
+  # public targets
+  public_attacker_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_attacker_app_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_target_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_target_app_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+
+  # attacker scenario public ips
+  attacker_http_listener = [ 
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_http_listener_attacker","false") == "true"
+  ]
+
+  attacker_reverse_shell = [ 
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_reverse_shell_attacker","false") == "true"
+  ]
+
+  attacker_vuln_npm_app = [ 
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_vuln_npm_app_attacker","false") == "true"
+  ]
+
+  attacker_log4shell = [ 
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_docker_log4shell_attacker","false") == "true"
+  ]
+
+  attacker_port_forward = [ 
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_port_forward_attacker","false") == "true"
+  ]
+
+  # target scenario public ips
+  target_vuln_npm_app = [ 
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_vuln_npm_app_target","false") == "true"
+  ]
+
+  target_docker_log4shell = [ 
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_docker_log4shell_target","false") == "true"
+  ]
+
+  target_log4shell = [ 
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_vuln_log4j_app_target","false") == "true"
+  ]
+
+  target_reverse_shell = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_reverse_shell_target","false") == "true"
+    
+  ]
+
+  target_codecov = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_connect_codecov","false") == "true"
+    
+  ]
+
+  target_port_forward = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"ssm_exec_port_forward_target","false") == "true"
+  ]
 }
 
 resource "null_resource" "log" {
@@ -48,200 +166,6 @@ resource "null_resource" "log" {
 
 resource "time_sleep" "wait" {
   create_duration = "120s"
-}
-
-data "aws_security_groups" "public" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  tags = {
-    environment = local.config.context.global.environment
-    deployment  = local.config.context.global.deployment
-    public = "true"
-  }
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "public_attacker" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    public = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "public_target" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    public = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_reverse_shell" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_reverse_shell_target = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_vuln_npm_app" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_vuln_npm_app_target = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_docker_log4shell" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_docker_log4shell_target = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_log4shell" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_vuln_log4j_app_target = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_codecov" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_connect_codecov = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "target_port_forward" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_port_forward_target = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-
-data "aws_instances" "attacker_http_listener" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_http_listener_attacker = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "attacker_reverse_shell" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_reverse_shell_attacker = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait] 
-}
-
-data "aws_instances" "attacker_vuln_npm_app" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_vuln_npm_app_attacker = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "attacker_log4shell" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_docker_log4shell_attacker = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "attacker_port_forward" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    ssm_exec_port_forward_attacker = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
 }
 
 ##################################################
@@ -276,7 +200,7 @@ module "ssm-connect-codecov" {
   deployment    = local.config.context.global.deployment
   
   
-  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_ip, try(data.aws_instances.attacker_http_listener[0].public_ips[0], "127.0.0.1"))
+  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_ip, local.attacker_http_listener[0])
   host_port     = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_port, local.config.context.aws.ssm.attacker.listener.http.listen_port)
 }
 
@@ -305,7 +229,7 @@ module "ssm-connect-reverse-shell" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, try(data.aws_instances.attacker_reverse_shell[0].public_ips[0], "127.0.0.1"))
+  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, local.attacker_reverse_shell[0])
   host_port     = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_port, local.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
 }
 
@@ -444,16 +368,8 @@ module "ssm-execute-docker-log4shell-attack" {
 
   attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, try(data.aws_instances.attacker_log4shell[0].public_ips[0], "127.0.0.1"))
-  target_ip = try(
-    # try docker target first
-    data.aws_instances.target_docker_log4shell[0].public_ips[0], 
-    try(
-      # try local app second
-      data.aws_instances.target_log4shell[0].public_ips[0], 
-      "127.0.0.1"
-    )
-  )
+  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, local.attacker_log4shell[0])
+  target_ip = try(local.target_docker_log4shell[0], local.target_log4shell[0])
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
 }
@@ -464,7 +380,7 @@ module "ssm-execute-vuln-npm-app-attack" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  target_ip = data.aws_instances.target_vuln_npm_app[0].public_ips[0]
+  target_ip = local.target_vuln_npm_app[0]
   target_port = local.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.payload
 }
@@ -499,7 +415,7 @@ module "ssm-listener-port-forward" {
   deployment    = local.config.context.global.deployment
   port_forwards = local.config.context.aws.ssm.target.listener.port_forward.port_forwards
   
-  host_ip       = try(data.aws_instances.attacker_port_forward[0].public_ips[0], "127.0.0.1")
+  host_ip       = local.attacker_port_forward[0]
   host_port     = local.config.context.aws.ssm.attacker.responder.port_forward.listen_port
 }
 

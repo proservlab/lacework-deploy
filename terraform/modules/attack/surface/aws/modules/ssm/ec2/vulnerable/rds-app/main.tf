@@ -42,6 +42,7 @@ locals {
     echo ${local.database} | base64 -d > bootstrap.sql
     echo ${local.entrypoint} | base64 -d > entrypoint.sh
     echo ${local.index} | base64 -d > templates/index.html
+    echo ${local.cast} | base64 -d > templates/cast.html
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
@@ -88,10 +89,6 @@ locals {
                                 db_name = var.db_name
                             }
                         ))
-    # rds_cert = base64encode(templatefile(
-    #                         "${path.module}/resources/rds-combined-ca-bundle.pem",
-    #                         {}
-    #                     ))
     entrypoint = base64encode(templatefile(
                             "${path.module}/resources/entrypoint.sh.tpl",
                             {
@@ -99,9 +96,11 @@ locals {
                                  app_path = local.app_path
                             }
                         ))
-    index = base64encode(templatefile(
-                            "${path.module}/resources/index.html",
-                            {}
+    index = base64encode(file(
+                            "${path.module}/resources/index.html"
+                        ))
+    cast = base64encode(file(
+                            "${path.module}/resources/cast.html"
                         ))
 }
 

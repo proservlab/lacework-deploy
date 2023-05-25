@@ -140,13 +140,19 @@ locals {
   target_vuln_npm_app = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_target","false") == "true"
+  ]
+
+  target_docker_log4shell = [ 
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_docker_log4shell_target","false") == "true"
   ]
 
   target_log4shell = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_docker_log4shell_target","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_vuln_log4j_app_target","false") == "true"
   ]
 }
 
@@ -304,7 +310,7 @@ module "osconfig-execute-docker-log4shell-attack" {
   attacker_http_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ldap_port
   attacker_ip = coalesce(local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ip, local.attacker_log4shell[0])
-  target_ip = local.target_log4shell[0]
+  target_ip = try(local.target_docker_log4shell[0],local.target_log4shell[0])
   target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.payload
 

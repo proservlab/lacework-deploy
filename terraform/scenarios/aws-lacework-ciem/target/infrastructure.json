@@ -21,7 +21,7 @@
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
           {
-            "name"                      : "target-ciem-public-1",
+            "name"                      : "developer",
             "public"                    : true,
             "role"                      : "app",
             "instance_type"             : "t2.micro",
@@ -31,7 +31,27 @@
                 "ssm_deploy_lacework"                       : "true",
                 "ssm_deploy_lacework_syscall"               : "true",
                 "ssm_deploy_lacework_code_aware_agent"      : "true",
-                "ssm_exec_vuln_log4j_app_target"            : "true"
+                "ssm_deploy_aws_cli"                        : "true",
+                "ssm_exec_vuln_log4j_app_target"            : "true",
+                "ssm_deploy_secret_ssh_private"             : "true",
+                "ssm_deploy_secret_aws_creds"               : "true"
+            },
+            "user_data"                 : null,
+            "user_data_base64"          : null
+          },
+          {
+            "name"                      : "webserver",
+            "public"                    : true,
+            "role"                      : "app",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags"                      : {
+                "owner"                                     : "lacework",
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_exec_vuln_rdsapp_target"               : "true",
+                "ssm_deploy_secret_ssh_public"              : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null
@@ -45,9 +65,12 @@
         "enabled"                        : true,
         "deploy_git"                     : true,
         "deploy_docker"                  : true,
+        "deploy_inspector_agent"         : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true
+        "deploy_lacework_code_aware_agent" : true,
+        "deploy_kubectl_cli"             : true,
+        "deploy_aws_cli"                 : true
       }
     },
     "lacework": {

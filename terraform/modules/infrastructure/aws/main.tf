@@ -225,25 +225,6 @@ module "eks-windows-configmap" {
 # AWS EKS Lacework
 ##################################################
 
-# module "lacework-namespace" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && ( local.config.context.aws.eks.enabled == true || local.config.context.aws.eks-windows.enabled == true) && (local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset.enabled == true || local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true || local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true )  ) ? 1 : 0
-#   source                                = "./modules/kubernetes/namespace"
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = module.eks[0].cluster_name
-
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
-
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
-#     module.eks-autoscaler
-#   ]
-# }
-
 # lacework daemonset and kubernetes compliance
 module "lacework-daemonset" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0

@@ -1,10 +1,18 @@
 CREATE DATABASE IF NOT EXISTS ${ db_name };
-CREATE TABLE IF NOT EXISTS ${ db_name }.product (id MEDIUMINT NOT NULL AUTO_INCREMENT, prodId VARCHAR(120), prodName VARCHAR(120), PRIMARY KEY (id));
-TRUNCATE TABLE ${ db_name }.product;
-INSERT INTO ${ db_name }.product (prodId,prodName) VALUES ('998','Sweet Pea');
-INSERT INTO ${ db_name }.product (prodId,prodName) VALUES ('999','Honeysuckle');
+USE ${ db_name };
+CREATE TABLE IF NOT EXISTS cast (id MEDIUMINT NOT NULL AUTO_INCREMENT,firstName VARCHAR(120),lastName VARCHAR(120),characterName VARCHAR(120),PRIMARY KEY (id));
+TRUNCATE TABLE cast;
+INSERT INTO cast (firstName, lastName, characterName) VALUES
+    ('William', 'Shatner', 'James T. Kirk'),
+    ('Leonard', 'Nimoy', 'Spock'),
+    ('DeForest', 'Kelley', 'Leonard McCoy'),
+    ('James', 'Doohan', 'Montgomery Scott'),
+    ('Walter', 'Koenig', 'Pavel Chekov'),
+    ('Nichelle', 'Nichols', 'Nyota Uhura'),
+    ('George', 'Takei', 'Hikaru Sulu'),
+    ('Ricardo', 'Montalban', 'Khan Noonien Singh');
 CREATE USER IF NOT EXISTS ${ db_user }@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
 GRANT USAGE ON *.* TO '${ db_user }'@'%' REQUIRE SSL;
 GRANT ALL PRIVILEGES ON ${ db_name }.* TO '${ db_user }'@'%' REQUIRE SSL;
-ALTER USER 'dbuser'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+ALTER USER '${ db_user }'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
 FLUSH PRIVILEGES;
