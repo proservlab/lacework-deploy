@@ -448,6 +448,7 @@ module "ssm-responder-reverse-shell-multistage" {
   source        = "./modules/ssm/responder-reverse-shell-multistage"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
 
   listen_ip     = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_port

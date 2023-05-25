@@ -244,6 +244,14 @@ resource "aws_iam_policy" "db_get_parameters" {
                         {
                             "Effect": "Allow",
                             "Action": [
+                                "rds:ExportSnapshot",
+                                "s3:*"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
                                 "kms:Decrypt"
                             ],
                             "Resource": [
