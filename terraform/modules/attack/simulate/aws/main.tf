@@ -442,3 +442,14 @@ module "ssm-responder-reverse-shell" {
   listen_port   = local.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port
   payload       = local.config.context.aws.ssm.attacker.responder.reverse_shell.payload
 }
+
+module "ssm-responder-reverse-shell-multistage" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/responder-reverse-shell-multistage"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  listen_ip     = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_ip
+  listen_port   = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_port
+  payload       = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.payload
+}

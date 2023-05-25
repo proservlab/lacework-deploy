@@ -98,6 +98,12 @@ variable "config" {
                 listen_port                 = number
                 payload                     = string
               })
+              reverse_shell_multistage = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+              })
               port_forward = object({
                 enabled                     = bool
                 listen_port                 = number
@@ -279,6 +285,12 @@ variable "config" {
                 listen_port                 = number
                 payload                     = string
               })
+              reverse_shell_multistage = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+              })
               port_forward = object({
                 enabled                     = bool
                 listen_port                 = number
@@ -455,6 +467,12 @@ variable "config" {
             })
             responder = object({
               reverse_shell = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+              })
+              reverse_shell_multistage = object({
                 enabled                     = bool
                 listen_ip                   = string
                 listen_port                 = number
@@ -666,6 +684,12 @@ variable "config" {
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
               }
+              reverse_shell_multistage = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "touch /tmp/pwned"
+              }
               port_forward = {
                 enabled                     = false
                 listen_port                 = 8888
@@ -856,6 +880,12 @@ variable "config" {
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
               }
+              reverse_shell_multistage = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "touch /tmp/pwned"
+              }
               port_forward = {
                 enabled                     = false
                 listen_port                 = 8888
@@ -1041,6 +1071,12 @@ variable "config" {
             }
             responder = {
               reverse_shell = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "touch /tmp/pwned"
+              }
+              reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"

@@ -1,6 +1,9 @@
 # coding:utf8
 # much fun: https://github.com/u17zl/SSTI-flask-session-forge
 
+# some fun: /content?content={{%20config%20}}
+
+
 import uuid
 from flask import Flask, request, make_response, session,render_template, url_for, redirect, render_template_string
 from flask_api import status
@@ -111,11 +114,11 @@ def cast():
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT `actor_name`, `character_name` FROM `cast`")
+        cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
         cast_list = []
         for row in cursor.fetchall():
-            cast_list.append({'actor_name': row["actor_name"], 'character_name': row["character_name"]})
+            cast_list.append({'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
         
         cursor.close()
         connection.close()  
