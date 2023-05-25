@@ -58,17 +58,15 @@ connection = pymysql.connect(
                             cursorclass=pymysql.cursors.DictCursor
 )
 
-
 cursor = connection.cursor()
-cursor.execute("SELECT `prodId`, `prodName` FROM `product`")
+cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
-payload = []
-content = {}
-#mydict = create_dict()
-list_of_names = {}
+cast_list = []
 for row in cursor.fetchall():
-    prodId = str(row["prodId"])
-    prodName = str(row["prodName"])
-    list_of_names[prodId] = prodName
-print(list_of_names)
-connection.close()
+    cast_list.append({'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
+
+print(cast_list)
+
+cursor.close()
+connection.close() 
+

