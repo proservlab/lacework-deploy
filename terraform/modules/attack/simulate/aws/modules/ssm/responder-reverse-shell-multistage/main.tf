@@ -47,8 +47,13 @@ locals {
                                     default_payload = var.payload
                                 }
                             ))
-    instance2rds    = base64encode(file(
+    instance2rds    = base64encode(templatefile(
                                 "${path.module}/resources/instance2rds.sh", 
+                                {
+                                    region = var.region,
+                                    environment = var.environment,
+                                    deployment = var.deployment
+                                }
                             ))
     
 }
