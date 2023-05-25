@@ -28,7 +28,7 @@ class Module(BaseModule):
             result = session.platform.run(f"echo {payload} | base64 -d | /bin/bash -")
             session.log(result)
         else:
-            result = session.platform.run(${default_payload})
+            result = session.platform.run("${default_payload}")
             session.log(result)
 
         session.log( f"ran {self.name}")
