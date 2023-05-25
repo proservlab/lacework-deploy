@@ -1,4 +1,6 @@
 etype.exec:
+    group-by:
+        - ts
 etype.initmod:
 etype.finitmod:
 etype.exit:

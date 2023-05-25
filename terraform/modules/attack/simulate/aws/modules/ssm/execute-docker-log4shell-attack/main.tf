@@ -33,6 +33,30 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
+    server="${local.attacker_ip}"
+    timeout=600
+    start_time=$(date +%s)
+    # Check if $server is an IP address
+    if [[ $server =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log "server is set to IP address $server, no need to resolve DNS"
+    else
+        log "checking dns resolution: $server"
+        while true; do
+            ip=$(dig +short $server)
+            if [ -z "$ip" ]; then  # If $ip is empty, the domain hasn't resolved yet
+                current_time=$(date +%s)
+                elapsed_time=$((current_time - start_time))
+                if [ $elapsed_time -gt $timeout ]; then
+                    echo "DNS resolution for $server timed out after $timeout seconds"
+                    exit 1
+                fi
+                sleep 1
+            else
+                echo "$server resolved to $ip"
+                break
+            fi
+        done
+    fi
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
     log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload}')"
     docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload} >> $LOGFILE 2>&1

