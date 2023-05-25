@@ -25,6 +25,7 @@ class Module(BaseModule):
         task_name = session.platform.getenv("TASK")
         if task_name == "instance2rds":
             payload = base64.b64encode(Path('resources/instance2rds.sh').read_text())
+            session.log("running: echo {payload} | base64 -d | /bin/bash -")
             result = session.platform.run(f"echo {payload} | base64 -d | /bin/bash -")
             session.log(result)
         else:
