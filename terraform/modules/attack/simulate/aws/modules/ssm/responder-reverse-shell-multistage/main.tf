@@ -19,7 +19,7 @@ locals {
     done
 
     log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
-    screen -ls | grep pwncat | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S pwncat -X quit
     truncate -s 0 /tmp/pwncat.log
     log "cleaning app directory"
     rm -rf ${local.app_dir}
@@ -29,6 +29,8 @@ locals {
     echo ${local.responder} | base64 -d > ${local.app_dir}/plugins/responder.py
     echo ${local.instance2rds} | base64 -d > ${local.app_dir}/resources/instance2rds.sh
     log "installing required python3.9..."
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python3.9 get-pip.py
     apt-get install -y python3.9 python3.9-venv && python3.9 -m pip install -U pip setuptools wheel setuptools_rust && python3.9 -m pip install -U pwncat-cs
     log "starting background process vi screen..."
     screen -d -L -Logfile /tmp/pwncat.log -S pwncat -m python3.9 listener.py --port ${local.listen_port}

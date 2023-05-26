@@ -16,7 +16,8 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep vuln_rdsapp_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+
+    screen -S vuln_rdsapp_target -X quit
     truncate -s 0 /tmp/vuln_rdsapp_target.log
 
     if ! which pip3; then
@@ -60,7 +61,7 @@ locals {
     screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
     log 'waiting 30 minutes...';
     sleep 1800
-    screen -ls | grep ${local.app_dirname} | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S ${local.app_dirname} -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

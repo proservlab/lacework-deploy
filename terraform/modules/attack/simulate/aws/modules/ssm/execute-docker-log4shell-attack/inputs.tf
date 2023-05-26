@@ -23,6 +23,12 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
+variable "reverse_shell" {
+  type = bool
+  description = "when enabled the payload string will be used to connect to reverse shell, in the format <host>/<port>"
+  default = false
+}
+
 variable "attacker_http_port" {
   type = number
   description = "listening port for webserver in container"
@@ -56,4 +62,10 @@ variable "payload" {
   default = <<-EOT
   touch /tmp/log4shell_pwned
   EOT
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
 }

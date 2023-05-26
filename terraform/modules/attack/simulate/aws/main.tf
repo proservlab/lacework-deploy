@@ -372,6 +372,8 @@ module "ssm-execute-docker-log4shell-attack" {
   target_ip = try(local.target_docker_log4shell[0], local.target_log4shell[0])
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
+  reverse_shell = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.reverse_shell
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attack_delay
 }
 
 module "ssm-execute-vuln-npm-app-attack" {
