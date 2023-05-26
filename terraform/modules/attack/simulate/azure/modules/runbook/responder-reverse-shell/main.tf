@@ -23,7 +23,7 @@ locals {
     done
     log "listener: ${local.listen_ip}:${local.listen_port}"
     
-    screen -ls | grep netcat | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S netcat -X quit
     truncate -s 0 /tmp/netcat.log
     screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
     screen -S netcat -X colon "logfile flush 0^M"

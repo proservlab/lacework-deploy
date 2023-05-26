@@ -35,7 +35,7 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep codecov | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S codecov -X quit
     truncate -s 0 /tmp/codecov.log
     log "checking for git..."
     while ! which git; do
@@ -48,7 +48,7 @@ locals {
     log 'sending screen command: ${local.command_payload}';
     screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
     sleep 30
-    screen -ls | grep codecov | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S codecov -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

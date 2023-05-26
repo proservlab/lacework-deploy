@@ -13,7 +13,7 @@ while check_apt; do
   log "Waiting for apt to be available..."
   sleep 10
 done
-screen -ls | grep $SCRIPTNAME | cut -d. -f1 | awk '{print $1}' | xargs kill
+screen -S $SCRIPTNAME -X quit
 screen -d -L -Logfile /tmp/pwned_$SCRIPTNAME.log -S $SCRIPTNAME -m sudo apt-get update -o APT::Update::Pre-Invoke::=/bin/sh
 screen -S $SCRIPTNAME -X colon "logfile flush 0^M"
 log "shell started.."

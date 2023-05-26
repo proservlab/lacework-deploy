@@ -15,7 +15,7 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep vuln_python3_twisted_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_python3_twisted_app_target -X quit
     truncate -s 0 /tmp/vuln_python3_twisted_app_target.log
 
     if ! which pip3; then
@@ -43,7 +43,7 @@ locals {
         screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
         sleep 1800
-        screen -ls | grep vuln_python3_twisted_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+        screen -S vuln_python3_twisted_app_target -X quit
     else
         log "python twisted vulnerability required the following package installed:"
         log "python3-twisted/focal-updates,focal-security,now 18.9.0-11ubuntu0.20.04.1"

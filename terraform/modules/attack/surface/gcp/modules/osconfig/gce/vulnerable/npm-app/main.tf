@@ -16,7 +16,7 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep vuln_npm_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_npm_app_target -X quit
     truncate -s 0 /tmp/vuln_npm_app_target.log
     log "checking for git..."
     while ! which git; do
@@ -39,7 +39,7 @@ locals {
     screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
     log 'waiting 10 minutes...';
     sleep 600
-    screen -ls | grep vuln_npm_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_npm_app_target -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

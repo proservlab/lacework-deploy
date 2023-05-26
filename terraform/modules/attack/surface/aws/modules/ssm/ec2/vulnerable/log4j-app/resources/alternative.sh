@@ -14,7 +14,7 @@ while check_apt; do
     sleep 10
 done
 
-screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+screen -S vuln_log4j_app_target -X quit
 truncate -s 0 /tmp/vuln_og4j_app_target.log
 log "checking for git..."
 while ! which git; do
@@ -81,7 +81,7 @@ screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m j
 screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
 log 'waiting 30 minutes...';
 sleep 1795
-screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+screen -S vuln_log4j_app_target -X quit
 log "done"
 
 # # shell catcher (this is hard coded in Exploit.java class)
