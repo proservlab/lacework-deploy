@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE="/tmp/composite.lock"
+LOCKFILE="${ lock_file }"
 if [ -e "$LOCKFILE" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
@@ -30,7 +30,6 @@ done
 MAX_WAIT=${attack_delay}
 CHECK_INTERVAL=5
 ATTACK_SCRIPT=${attack_dir}/${attack_script}
-
 
 log "MAX_WAIT: $MAX_WAIT"
 log "ATTACK_SCRIPT: $ATTACK_SCRIPT"

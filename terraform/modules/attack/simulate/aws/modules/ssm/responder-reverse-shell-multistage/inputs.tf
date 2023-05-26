@@ -20,7 +20,7 @@ variable "tag" {
 
 variable "timeout" {
   type = number
-  default = 600
+  default = 1200
 }
 
 variable "cron" {

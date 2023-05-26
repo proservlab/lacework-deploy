@@ -29,11 +29,15 @@ locals {
     echo ${local.responder} | base64 -d > ${local.app_dir}/plugins/responder.py
     echo ${local.instance2rds} | base64 -d > ${local.app_dir}/resources/instance2rds.sh
     log "installing required python3.9..."
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    python3.9 get-pip.py
-    apt-get install -y python3.9 python3.9-venv && python3.9 -m pip install -U pip setuptools wheel setuptools_rust && python3.9 -m pip install -U pwncat-cs
-    log "starting background process vi screen..."
-    screen -d -L -Logfile /tmp/pwncat.log -S pwncat -m python3.9 listener.py --port ${local.listen_port}
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
+    python3.9 get-pip.py >> $LOGFILE 2>&1
+    apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
+    python3.9 -m pip install -U pip setuptools wheel setuptools_rust >> $LOGFILE 2>&1
+    python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
+    log "wait before using module..."
+    sleep 5
+    log "starting background process via screen..."
+    nohup /bin/bash -c "screen -d -L -Logfile /tmp/pwncat.log -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
     screen -S pwncat -X colon "logfile flush 0^M"
     log "listener started."
     log "done"
