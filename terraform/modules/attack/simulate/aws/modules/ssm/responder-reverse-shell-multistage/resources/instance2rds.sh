@@ -113,19 +113,34 @@ DB_INSTANCE_ID=$(aws rds describe-db-instances \
 log "DbInstanceIdentifier: $DB_INSTANCE_ID"
 
 log "Creating rds snapshot..."
-aws rds create-db-snapshot \
+EPOCH_TIME=$(date +%s)
+CURRENT_DATE=$(date +%Y-%m-%d)
+DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
     --profile=instance  \
     --region=$REGION  \
     --db-instance-identifier $DB_INSTANCE_ID \
-    --db-snapshot-identifier snapshot-${environment}-${deployment} \
-    --tags "environment=${environment},deployment=${deployment}" >> $LOGFILE 2>&1
+    --db-snapshot-identifier snapshot-${environment}-${deployment}-$EPOCH_TIME \
+    --tags "environment=${environment},deployment=${deployment}" \
+    --query 'DBSnapshot.DBSnapshotArn' \
+    --output text)
+log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
     
 log "Exporting rds snapshot to s3..."
-aws rds export-db-snapshot-to-s3 \
-  --profile=instance  \
-  --region=$REGION  \
-  --db-snapshot-identifier snapshot-${environment}-${deployment} \
-  --s3-bucket-name db-backup-${environment}-${deployment} \
-  --iam-role-arn rds-s3-export-role-${environment}-${deployment} >> $LOGFILE 2>&1
+aws rds start-export-task \
+    --profile=instance  \
+    --region=$REGION  \
+    --export-task-identifier snapshot-${environment}-${deployment}-$EPOCH_TIME \
+    --source-arn $DB_SNAPSHOT_ARN \
+    --s3-bucket-name db-backup-${environment}-${deployment} \
+    --s3-prefix "$CURRENT_DATE"
+    --iam-role-arn rds-s3-export-role-${environment}-${deployment} >> $LOGFILE 2>&1
+log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
+log "Waiting for first export to complete..."
+sleep 600
+log "Getting snapshot export task status..."
+aws rds describe-export-tasks \
+    --profile=instance  \
+    --region=$REGION  \
+    | jq -r ".ExportTasks[] |  select(.SourceArn == \"$DB_SNAPSHOT_ARN\")" >> $LOGFILE 2>&1
 
 log "Done"

@@ -125,6 +125,7 @@ variable "config" {
                 target_port                 = number
                 payload                     = string
                 reverse_shell               = bool
+                reverse_shell_port          = number
                 attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
@@ -314,6 +315,7 @@ variable "config" {
                 target_port                 = number
                 payload                     = string
                 reverse_shell               = bool
+                reverse_shell_port          = number
                 attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
@@ -503,6 +505,7 @@ variable "config" {
                 target_port                 = number
                 payload                     = string
                 reverse_shell               = bool
+                reverse_shell_port          = number
                 attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
@@ -717,8 +720,9 @@ variable "config" {
                 target_port                 = null
                 payload                     = "touch /tmp/log4shell_pwned"
                 reverse_shell               = false
+                reverse_shell_port          = 4444
                 attack_delay                =  50400
-              }
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
@@ -915,8 +919,9 @@ variable "config" {
                 target_port                 = null
                 payload                     = "touch /tmp/log4shell_pwned"
                 reverse_shell               = false
+                reverse_shell_port          = 4444
                 attack_delay                =  50400
-              }
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
@@ -1113,8 +1118,9 @@ variable "config" {
                 target_port                 = null
                 payload                     = "touch /tmp/log4shell_pwned"
                 reverse_shell               = false
+                reverse_shell_port          = 4444
                 attack_delay                =  50400
-              }
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}

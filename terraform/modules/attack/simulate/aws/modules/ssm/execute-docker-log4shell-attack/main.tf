@@ -65,6 +65,7 @@ locals {
                                     target_port         = var.target_port
                                     exec_type           = local.exec_type
                                     base64_payload      = local.base64_log4shell_payload
+                                    reverse_shell_port  = var.reverse_shell_port
                                 }
                         ))
     delayed_start              = base64encode(templatefile(
