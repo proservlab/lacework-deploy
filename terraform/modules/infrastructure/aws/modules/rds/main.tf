@@ -158,7 +158,6 @@ resource "aws_ssm_parameter" "db_region" {
     type = "String"
 }
 
-
 resource "aws_kms_key" "this" {
     description = "For encrypting and decrypting db-related parameters"
     deletion_window_in_days = 7
@@ -219,6 +218,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                     "Version": "2012-10-17",
                     "Statement": [
                         {
+                            "Sid": "GetDBParams",
                             "Effect": "Allow",
                             "Action": [
                                 "ssm:GetParameters"
@@ -233,29 +233,42 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
-                            "Effect": "Allow",
-                            "Action": [
-                                "rds-db:connect"
-                            ],
-                            "Resource": [
-                                "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/*"
-                            ]
-                        },
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "rds:ExportSnapshot",
-                                "s3:*"
-                            ],
-                            "Resource": "*"
-                        },
-                        {
+                            "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
                                 "kms:Decrypt"
                             ],
                             "Resource": [
                                 "${aws_kms_key.this.arn}"
+                            ]
+                        },
+                        {
+                            "Sid": "RDSSnapshot",
+                            "Effect": "Allow",
+                            "Action": [
+                                "rds:CreateDBSnapshot",
+                                "rds:ExportSnapshot"
+                            ],
+                            "Resource": [
+                                "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:snapshot:${aws_db_instance.database.name}*"
+                            ]
+                        },
+                        {
+                            "Sid": "RDSListInstances",
+                            "Effect": "Allow",
+                            "Action": [
+                                "rds:DescribeDBInstances"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "RDSConnect",
+                            "Effect": "Allow",
+                            "Action": [
+                                "rds-db:connect"
+                            ],
+                            "Resource": [
+                                "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/*"
                             ]
                         }
                     ]
@@ -266,4 +279,59 @@ resource "aws_iam_policy" "db_get_parameters" {
 resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
   role       = var.ec2_instance_role_name
   policy_arn = aws_iam_policy.db_get_parameters.arn
+}
+
+# Create the S3 bucket
+resource "aws_s3_bucket" "bucket" {
+  bucket = "db-backup-${var.environment}-${var.deployment}"
+  acl    = "private"
+}
+
+# Create the IAM policy for the S3 bucket
+resource "aws_iam_policy" "policy" {
+  name        = "db-export-policy-${var.environment}-${var.deployment}"
+  description = "Policy for DB export to S3"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "ExportPolicy",
+        Effect = "Allow",
+        Action = [
+          "s3:PutObject*",
+          "s3:ListBucket",
+          "s3:GetObject*",
+          "s3:DeleteObject*",
+          "s3:GetBucketLocation",
+        ],
+        Resource = [
+          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}",
+          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}/*",
+        ],
+      },
+    ],
+  })
+}
+
+# Create the IAM role for RDS S3 export
+resource "aws_iam_role" "role" {
+  name               = "rds-s3-export-role-${var.environment}-${var.deployment}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "export.rds.amazonaws.com",
+        },
+        Action = "sts:AssumeRole",
+      },
+    ],
+  })
+}
+
+# Attach the IAM policy to the IAM role
+resource "aws_iam_role_policy_attachment" "attach" {
+  role       = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.policy.arn
 }
