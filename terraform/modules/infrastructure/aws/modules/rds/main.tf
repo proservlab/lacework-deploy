@@ -120,6 +120,68 @@ resource "aws_db_instance" "database" {
   }
 }
 
+# Create the S3 bucket
+resource "aws_s3_bucket" "bucket" {
+  bucket = "db-backup-${var.environment}-${var.deployment}"
+  acl    = "private"
+}
+
+# Create the IAM policy for the S3 bucket
+resource "aws_iam_policy" "rds_export_policy" {
+  name        = "db-export-policy-${var.environment}-${var.deployment}"
+  description = "Policy for DB export to S3"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "ExportPolicy",
+        Effect = "Allow",
+        Action = [
+          "s3:PutObject*",
+          "s3:ListBucket",
+          "s3:GetObject*",
+          "s3:DeleteObject*",
+          "s3:GetBucketLocation",
+        ],
+        Resource = [
+          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}",
+          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}/*",
+        ],
+      },
+    ],
+  })
+}
+
+# Create the IAM role for RDS S3 export
+resource "aws_iam_role" "rds_export_role" {
+  name               = "rds-s3-export-role-${var.environment}-${var.deployment}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "export.rds.amazonaws.com",
+        },
+        Action = "sts:AssumeRole",
+      },
+    ],
+  })
+}
+
+# Attach the IAM policy to the IAM role
+resource "aws_iam_role_policy_attachment" "attach" {
+  role       = aws_iam_role.rds_export_role.name
+  policy_arn = aws_iam_policy.rds_export_policy.arn
+}
+
+# Attach the IAM role to the RDS instance
+resource "aws_db_instance_role_association" "database" {
+  db_instance_identifier = aws_db_instance.database.identifier
+  feature_name           = "S3_INTEGRATION"
+  role_arn               = aws_iam_role.rds_export_role.arn
+}
+
 resource "aws_ssm_parameter" "db_host" {
     name = "db_host"
     value = aws_db_instance.database.endpoint
@@ -279,59 +341,4 @@ resource "aws_iam_policy" "db_get_parameters" {
 resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
   role       = var.ec2_instance_role_name
   policy_arn = aws_iam_policy.db_get_parameters.arn
-}
-
-# Create the S3 bucket
-resource "aws_s3_bucket" "bucket" {
-  bucket = "db-backup-${var.environment}-${var.deployment}"
-  acl    = "private"
-}
-
-# Create the IAM policy for the S3 bucket
-resource "aws_iam_policy" "policy" {
-  name        = "db-export-policy-${var.environment}-${var.deployment}"
-  description = "Policy for DB export to S3"
-  policy      = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid    = "ExportPolicy",
-        Effect = "Allow",
-        Action = [
-          "s3:PutObject*",
-          "s3:ListBucket",
-          "s3:GetObject*",
-          "s3:DeleteObject*",
-          "s3:GetBucketLocation",
-        ],
-        Resource = [
-          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}",
-          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}/*",
-        ],
-      },
-    ],
-  })
-}
-
-# Create the IAM role for RDS S3 export
-resource "aws_iam_role" "role" {
-  name               = "rds-s3-export-role-${var.environment}-${var.deployment}"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "export.rds.amazonaws.com",
-        },
-        Action = "sts:AssumeRole",
-      },
-    ],
-  })
-}
-
-# Attach the IAM policy to the IAM role
-resource "aws_iam_role_policy_attachment" "attach" {
-  role       = aws_iam_role.role.name
-  policy_arn = aws_iam_policy.policy.arn
 }

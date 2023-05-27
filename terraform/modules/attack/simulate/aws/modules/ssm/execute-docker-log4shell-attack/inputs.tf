@@ -69,3 +69,9 @@ variable "attack_delay" {
   description = "wait time between baseline and attack (default: 12 hours)"
   default =  50400
 }
+
+variable "reverse_shell_port" {
+  type = number
+  description = "port number to check for ready state - optional"
+  default = 0
+}
