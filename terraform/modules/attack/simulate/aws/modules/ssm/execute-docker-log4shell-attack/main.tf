@@ -17,8 +17,7 @@ locals {
     if [ -e "$LOCKFILE" ]; then
         echo "Another instance of the script is already running. Exiting..."
         exit 1
-    else
-
+    fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
