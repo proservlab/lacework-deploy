@@ -82,6 +82,8 @@ module "instances" {
 
   enable_secondary_volume = each.value.enable_secondary_volume
 
+  enable_public_ip = each.value.public
+
   # merge additional tags including ssm deployment tag
   tags = merge(
     module.default-ssm-tags.ssm_default_tags,

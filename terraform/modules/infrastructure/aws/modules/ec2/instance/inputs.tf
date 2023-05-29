@@ -50,3 +50,8 @@ variable "enable_secondary_volume" {
     type = bool
     default = false
 }
+
+variable "enable_public_ip" {
+    type = bool
+    default = false
+}

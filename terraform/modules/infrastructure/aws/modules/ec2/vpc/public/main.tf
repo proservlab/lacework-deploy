@@ -29,7 +29,8 @@ resource "aws_subnet" "public" {
     cidr_block        = var.public_subnet
     availability_zone = data.aws_availability_zones.available.names[0]
     
-    map_public_ip_on_launch = true
+    # perfer elastic ip - so we don't change ip on reboot
+    # map_public_ip_on_launch = true
     
     tags = {
         Name = "public-subnet-${var.environment}-${var.deployment}"

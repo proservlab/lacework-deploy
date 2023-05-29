@@ -2,6 +2,10 @@ locals {
   ubuntu_secondary_disk = "/dev/xvdb"
 }
 
+data "aws_subnet" "instance" {
+  id = aws_instance.instance.subnet_id
+}
+
 resource "aws_instance" "instance" {
   ami           = var.ami
   instance_type = var.instance_type
@@ -74,4 +78,10 @@ resource "aws_volume_attachment" "instance" {
   volume_id    = aws_ebs_volume.secondary[0].id
   instance_id  = aws_instance.instance.id
   force_detach = true
+}
+
+resource "aws_eip" "instance" {
+  count = var.enable_public_ip == true ? 1 : 0
+  vpc      = true
+  instance = aws_instance.instance.id
 }
