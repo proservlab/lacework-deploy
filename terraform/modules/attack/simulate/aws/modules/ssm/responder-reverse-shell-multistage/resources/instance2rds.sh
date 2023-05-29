@@ -57,7 +57,7 @@ aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
 
 log "Running discovery..."
 # docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
-opts="--output json --color off --no-cli-pager"
+opts="--output json"
 for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
     log "Discovery using AWS_REGION: $REGION"
     log "Running: aws iam list-users $opts --region \"$REGION\""
