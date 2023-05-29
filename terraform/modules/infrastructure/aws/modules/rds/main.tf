@@ -122,9 +122,22 @@ resource "aws_db_instance" "database" {
   }
 }
 
-# Create the S3 bucket
+# Create the S3 bucket - with private acl
 resource "aws_s3_bucket" "bucket" {
   bucket = "db-backup-${var.environment}-${var.deployment}"
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example" {
+  depends_on = [aws_s3_bucket_ownership_controls.bucket]
+
+  bucket = aws_s3_bucket.bucket.id
   acl    = "private"
 }
 
@@ -351,6 +364,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                         {
                             "Effect": "Allow",
                             "Action": [
+                                "iam:ListRole",
                                 "iam:GetRole",
                                 "iam:PassRole"
                             ],
