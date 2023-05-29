@@ -59,6 +59,8 @@ locals {
     log "starting app"
     screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
     screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
+    log "check rds url..."
+    curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
     log 'waiting 30 minutes...';
     sleep 1800
     screen -S ${local.app_dirname} -X quit
