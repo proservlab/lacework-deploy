@@ -8,9 +8,7 @@ output "target-aws-instances" {
         name       = compute.instance.tags["Name"]
         private_ip = compute.instance.private_ip
         public_ip  = compute.instance.public_ip
-        tags = [
-          for k, v in compute.instance.tags : { "${k}" = v } if v != "false"
-        ]
+        tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
       }
     ]
   ]

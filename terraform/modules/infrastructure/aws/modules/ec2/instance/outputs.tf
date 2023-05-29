@@ -13,9 +13,7 @@ output "instance" {
     vpc_id = data.aws_subnet.instance.vpc_id
     subnet_id = aws_instance.instance.subnet_id
     security_group_ids = aws_instance.instance.vpc_security_group_ids
-    tags = [
-      for k, v in aws_instance.instance.tags : { "${k}" = v }
-    ]
+    tags = aws_instance.instance.tags
   } : {
     id         = aws_instance.instance.id
     name       = aws_instance.instance.tags["Name"]
@@ -30,8 +28,6 @@ output "instance" {
     vpc_id = data.aws_subnet.instance.vpc_id
     subnet_id = aws_instance.instance.subnet_id
     security_group_ids = aws_instance.instance.vpc_security_group_ids
-    tags = [
-      for k, v in aws_instance.instance.tags : { "${k}" = v }
-    ]
+    tags = aws_instance.instance.tags
   }
 }
