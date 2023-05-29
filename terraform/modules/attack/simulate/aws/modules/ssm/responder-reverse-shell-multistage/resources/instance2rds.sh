@@ -25,6 +25,10 @@ log "aws path: $(which aws)"
 log "installing jq..."
 apt-get install -y jq
 
+REGION=${region}
+ENVIRONMENT=target
+DEPLOYMENT=${deployment}
+
 INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
 AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
 AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
@@ -45,44 +49,33 @@ PROFILE="instance"
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
 aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
+aws configure set region $REGION --profile=$PROFILE
+aws configure set output json --profile=$PROFILE
 
-log "Running: aws sts get-caller-identity --profile=instance"
-aws sts get-caller-identity --profile=instance >> $LOGFILE 2>&1
+log "Running: aws sts get-caller-identity --profile=$PROFILE"
+aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
 
-log "Runnind discovery..."
-docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
-# opts="--output json --color off --no-cli-pager"
-# for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
-#     log "Discovery using AWS_REGION: $REGION"
-#     log "Running: aws iam list-users $opts --region \"$REGION\""
-#     aws iam list-users $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws s3api list-buckets $opts --region \"$REGION\""
-#     aws s3api list-buckets $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-elastic-gpus $opts --region \"$REGION\""
-#     aws ec2 describe-elastic-gpus $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-hosts $opts --region \"$REGION\""
-#     aws ec2 describe-hosts $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts --region \"$REGION\""
-#     aws ec2 describe-images --filters "Name=name,Values=ubuntu-pro-server/images/*20.04*" $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-network-acls $opts --region \"$REGION\""
-#     aws ec2 describe-network-acls $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-reserved-instances $opts --region \"$REGION\""
-#     aws ec2 describe-reserved-instances $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-security-groups $opts --region \"$REGION\""
-#     aws ec2 describe-security-groups $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-snapshots $opts --region \"$REGION\""
-#     aws ec2 describe-snapshots $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-volumes $opts --region \"$REGION\""
-#     aws ec2 describe-volumes $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ec2 describe-vpcs $opts --region \"$REGION\""
-#     aws ec2 describe-vpcs $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws rds describe-db-instances $opts --region \"$REGION\""
-#     aws rds describe-db-instances $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-#     log "Running: aws ssm describe-parameters $opts --region \"$REGION\""
-#     aws ssm describe-parameters $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
-# done
+log "Running discovery..."
+# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
+opts="--output json --color off --no-cli-pager"
+for REGION in $(aws ec2 describe-regions --output text | cut -f4); do
+    log "Discovery using AWS_REGION: $REGION"
+    log "Running: aws iam list-users $opts --region \"$REGION\""
+    aws iam list-users $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws iam list-roles $opts --region \"$REGION\""
+    aws iam list-roles $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws iam list-policies $opts --region \"$REGION\""
+    aws iam list-policies $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws iam list-instance-profiles $opts --region \"$REGION\""
+    aws list-instance-profiles $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws s3api list-buckets $opts --region \"$REGION\""
+    aws s3api list-buckets $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws rds describe-db-instances $opts --region \"$REGION\""
+    aws rds describe-db-instances $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+    log "Running: aws ssm describe-parameters $opts --region \"$REGION\""
+    aws ssm describe-parameters $opts --region "$REGION" --profile=$PROFILE >> $LOGFILE 2>&1
+done
 
-REGION=${region}
 aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 aws ssm get-parameter --name="db_name" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 aws ssm get-parameter --name="db_port" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
@@ -91,10 +84,10 @@ aws ssm get-parameter --name="db_username" --with-decryption --profile=$PROFILE 
 aws ssm get-parameter --name="db_password" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 
 log "Getting db connect token..."
-DBHOST="$(aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
-DBUSER="$(aws ssm get-parameter --name="db_username" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
-DBPORT="$(aws ssm get-parameter --name="db_port" --with-decryption --profile=$PROFILE --region=$REGION | jq -r '.Parameter.Value')"
-TOKEN="$(aws rds generate-db-auth-token --hostname $RDSHOST --port $DBPORT --region $REGION --username $DBUSER)"
+DBHOST="$(aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION $opts| jq -r '.Parameter.Value' | cut -d ":" -f 1)"
+DBUSER="$(aws ssm get-parameter --name="db_username" --with-decryption --profile=$PROFILE --region=$REGION $opts | jq -r '.Parameter.Value')"
+DBPORT="$(aws ssm get-parameter --name="db_port" --with-decryption --profile=$PROFILE --region=$REGION $opts | jq -r '.Parameter.Value')"
+TOKEN="$(aws rds generate-db-auth-token --profile=$PROFILE --hostname $DBHOST --port $DBPORT --region $REGION --username $DBUSER $opts)"
 log "Token: $TOKEN"
 
 # connect to mysql database - optional
@@ -102,45 +95,62 @@ log "Token: $TOKEN"
 # mysql --host=$DBHOST --port=$DBPORT --ssl-ca=rds-combined-ca-bundle.pem --enable-cleartext-plugin --user=$DBUSER --password=$TOKEN
 
 log "Getting current account number..."
-AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=instance | jq -r '.Account')
+AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
 log "Account Number: $AWS_ACCOUNT_NUMBER"
 
 log "Getting DbInstanceIdentifier..."
 DB_INSTANCE_ID=$(aws rds describe-db-instances \
-  --profile=instance \
+  --profile=$PROFILE \
   --region=$REGION  \
-  | jq -r '.DBInstances[] | select(.TagList[] | (.Key == "environment" and .Value == "${environment}")) | select(.TagList[] | (.Key == "deployment" and .Value == "${deployment}")) | .DBInstanceIdentifier')
+  $opts \
+  | jq -r ".DBInstances[] | select(.TagList[] | (.Key == \"environment\" and .Value == \"$ENVIRONMENT\")) | select(.TagList[] | (.Key == \"deployment\" and .Value == \"$DEPLOYMENT\")) | .DBInstanceIdentifier")
 log "DbInstanceIdentifier: $DB_INSTANCE_ID"
 
 log "Creating rds snapshot..."
 EPOCH_TIME=$(date +%s)
 CURRENT_DATE=$(date +%Y-%m-%d)
 DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
-    --profile=instance  \
+    --profile=$PROFILE  \
     --region=$REGION  \
     --db-instance-identifier $DB_INSTANCE_ID \
-    --db-snapshot-identifier snapshot-${environment}-${deployment}-$EPOCH_TIME \
-    --tags "environment=${environment},deployment=${deployment}" \
+    --db-snapshot-identifier snapshot-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
+    --tags Key=environment,Value=$ENVIRONMENT Key=deployment,Value=$DEPLOYMENT \
     --query 'DBSnapshot.DBSnapshotArn' \
     --output text)
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
     
+log "Obtaining the KMS key id..."
+aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output text | while read -r keyId; do
+  if aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"environment\" && Value==\"$ENVIRONMENT\"]" --output text | grep -q . && 
+     aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"deployment\" && Value==\"$DEPLOYMENT\"]" --output text | grep -q . &&
+     aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"Name\" && Value==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\"]" --output text | grep -q .; then
+    KMS_KEY_ID="$keyId"
+    break
+  fi
+done
+log "KMS Key Id: $KMS_KEY_ID"
+
 log "Exporting rds snapshot to s3..."
 aws rds start-export-task \
-    --profile=instance  \
+    --profile=$PROFILE  \
     --region=$REGION  \
-    --export-task-identifier snapshot-${environment}-${deployment}-$EPOCH_TIME \
+    --export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
     --source-arn $DB_SNAPSHOT_ARN \
-    --s3-bucket-name db-backup-${environment}-${deployment} \
-    --s3-prefix "$CURRENT_DATE"
-    --iam-role-arn rds-s3-export-role-${environment}-${deployment} >> $LOGFILE 2>&1
-log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
+    --s3-bucket-name db-backup-$ENVIRONMENT-$DEPLOYMENT \
+    --s3-prefix "$CURRENT_DATE" \
+    --iam-role-arn rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT \
+    --kms-key-id=$KMS_KEY_ID \
+    $opts >> $LOGFILE 2>&1
+
 log "Waiting for first export to complete..."
 sleep 600
 log "Getting snapshot export task status..."
 aws rds describe-export-tasks \
-    --profile=instance  \
+    --profile=$PROFILE  \
     --region=$REGION  \
+    -export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
+    --source-arn $DB_SNAPSHOT_ARN \
+    $opts \
     | jq -r ".ExportTasks[] |  select(.SourceArn == \"$DB_SNAPSHOT_ARN\")" >> $LOGFILE 2>&1
 
 log "Done"

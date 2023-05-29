@@ -38,6 +38,8 @@ resource "aws_route_table" "database" {
 
     tags = {
         Name = "ec2db-internet-gw-route-${var.environment}-${var.deployment}"
+        deployment = var.deployment
+        environment = var.environment
     }
 }
 
@@ -175,13 +177,6 @@ resource "aws_iam_role_policy_attachment" "attach" {
   policy_arn = aws_iam_policy.rds_export_policy.arn
 }
 
-# Attach the IAM role to the RDS instance
-resource "aws_db_instance_role_association" "database" {
-  db_instance_identifier = aws_db_instance.database.identifier
-  feature_name           = "S3_INTEGRATION"
-  role_arn               = aws_iam_role.rds_export_role.arn
-}
-
 resource "aws_ssm_parameter" "db_host" {
     name = "db_host"
     value = aws_db_instance.database.endpoint
@@ -271,6 +266,11 @@ resource "aws_kms_key" "this" {
                 ]
                 }
                 EOF
+    tags = {
+        Name        = "db-kms-key-${var.environment}-${var.deployment}"
+        environment = var.environment
+        deployment = var.deployment
+    }
 }
 
 resource "aws_iam_policy" "db_get_parameters" {
@@ -298,22 +298,37 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
-                                "kms:Decrypt"
+                                "kms:Encrypt",
+                                "kms:Decrypt",
+                                "kms:ReEncrypt*",
+                                "kms:GenerateDataKey*",
+                                "kms:CreateGrant",
+                                "kms:DescribeKey",
+                                "kms:RetireGrant"
                             ],
                             "Resource": [
                                 "${aws_kms_key.this.arn}"
                             ]
                         },
                         {
-                            "Sid": "RDSSnapshot",
+                            "Sid": "AllowAnySnapshotName",
                             "Effect": "Allow",
                             "Action": [
                                 "rds:CreateDBSnapshot",
-                                "rds:ExportSnapshot"
+                                "rds:ExportSnapshot",
+                                "rds:AddTagsToResource"
                             ],
                             "Resource": [
-                                "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:snapshot:${aws_db_instance.database.name}*"
+                                "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:snapshot:*"
                             ]
+                        },
+                        {
+                            "Sid":"AllowCreateSnapshot",
+                            "Effect":"Allow",
+                            "Action":[
+                                "rds:CreateDBSnapshot"
+                            ],
+                            "Resource":"${aws_db_instance.database.arn}"
                         },
                         {
                             "Sid": "RDSListInstances",
@@ -332,6 +347,14 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Resource": [
                                 "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/*"
                             ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "iam:GetRole",
+                                "iam:PassRole"
+                            ],
+                            "Resource": "${aws_iam_role.rds_export_role.arn}"
                         }
                     ]
                 }
