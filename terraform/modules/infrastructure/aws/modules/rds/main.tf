@@ -266,7 +266,8 @@ resource "aws_kms_key" "this" {
                     {
                         "Sid": "AllowEC2RoleDecrypt",
                         "Action": [
-                            "kms:Decrypt"
+                            "kms:Decrypt",
+                            "kms:List*"
                         ],
                         "Effect": "Allow",
                         "Principal": {
@@ -308,26 +309,17 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
-                            "Sid": "KMSListKeys",
-                            "Effect": "Allow",
-                            "Action": [
-                                "kms:ListKeys",
-                                "kms:ListResourceTags"
-                            ],
-                            "Resource": "*"
-                        },
-                        {
                             "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
-                                
                                 "kms:Encrypt",
                                 "kms:Decrypt",
                                 "kms:ReEncrypt*",
                                 "kms:GenerateDataKey*",
                                 "kms:CreateGrant",
                                 "kms:DescribeKey",
-                                "kms:RetireGrant"
+                                "kms:RetireGrant",
+                                "kms:List*"
                             ],
                             "Resource": [
                                 "${aws_kms_key.this.arn}"
