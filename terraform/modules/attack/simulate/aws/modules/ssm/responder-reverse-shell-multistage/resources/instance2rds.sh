@@ -125,7 +125,11 @@ done
 log "KMS Key Id: $KMS_KEY_ID"
 
 log "Obtaining rds export role..."
-RDS_EXPORT_ROLE_ARN=$(aws iam list-roles | jq -r ".Roles[] | select(.RoleName==\"rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT\") | .Arn")
+RDS_EXPORT_ROLE_ARN=$(aws iam list-roles \
+    --profile=$PROFILE  \
+    --region=$REGION  \ 
+    | jq -r ".Roles[] | select(.RoleName==\"rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT\") | .Arn"
+)
 log "RDS export role: $RDS_EXPORT_ROLE_ARN"
 
 log "Exporting rds snapshot to s3..."
