@@ -177,21 +177,38 @@ resource "aws_iam_policy" "rds_export_policy" {
   policy      = jsonencode({
     Version = "2012-10-17",
     Statement = [
-      {
-        Sid    = "ExportPolicy",
-        Effect = "Allow",
-        Action = [
-          "s3:PutObject*",
-          "s3:ListBucket",
-          "s3:GetObject*",
-          "s3:DeleteObject*",
-          "s3:GetBucketLocation",
-        ],
-        Resource = [
-          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}",
-          "arn:aws:s3:::db-backup-${var.environment}-${var.deployment}/*",
-        ],
-      },
+        {
+            Sid    = "ExportPolicy",
+            Effect = "Allow",
+            Action = [
+                "s3:PutObject*",
+                "s3:ListBucket",
+                "s3:GetObject*",
+                "s3:DeleteObject*",
+                "s3:GetBucketLocation",
+            ],
+            Resource = [
+                "${aws_s3_bucket.bucket.arn}",
+                "${aws_s3_bucket.bucket.arn}/*"
+            ],
+        },
+        {
+            Sid =  "KMSDecryptKey",
+            Effect = "Allow",
+            Action =  [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:CreateGrant",
+                "kms:DescribeKey",
+                "kms:RetireGrant",
+                "kms:List*"
+            ],
+            Resource = [
+                "${aws_kms_key.this.arn}"
+            ]
+        },
     ],
   })
 }
@@ -296,12 +313,14 @@ resource "aws_kms_key" "this" {
                         "Sid": "AllowEC2RoleDecrypt",
                         "Action": [
                             "kms:Decrypt",
-                            "kms:List*"
+                            "kms:List*",
+                            "kms:Describe*"
                         ],
                         "Effect": "Allow",
                         "Principal": {
                             "AWS": [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}",
+                                "${aws_iam_role.rds_export_role.arn}"
                             ]
                         },
                         "Resource": "*"
