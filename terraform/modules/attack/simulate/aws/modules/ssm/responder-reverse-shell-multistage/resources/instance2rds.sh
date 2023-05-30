@@ -133,26 +133,40 @@ RDS_EXPORT_ROLE_ARN=$(aws iam list-roles \
 log "RDS export role: $RDS_EXPORT_ROLE_ARN"
 
 log "Exporting rds snapshot to s3..."
-aws rds start-export-task \
+EXPORT_TASK_IDENTIFIER="snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE"
+EXPORT_TASK_ARN=$(aws rds start-export-task \
     --profile=$PROFILE  \
     --region=$REGION  \
-    --export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE \
+    --export-task-identifier $EXPORT_TASK_IDENTIFIER \
     --source-arn $DB_SNAPSHOT_ARN \
     --s3-bucket-name db-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
     --iam-role-arn $RDS_EXPORT_ROLE_ARN \
     --kms-key-id=$KMS_KEY_ID \
+    $opts | jq -r '.ExportTasks[0].SourceArn') 
+log "Export task arn: $EXPORT_TASK_ARN"
+log "Export task identifier: $EXPORT_TASK_IDENTIFIER"
+
+log "Waiting for export task to complete..."
+aws rds wait export-task-completed \
+    --profile=$PROFILE  \
+    --region=$REGION \
+    --export-task-identifier $EXPORT_TASK_IDENTIFIER \
     $opts >> $LOGFILE 2>&1
 
-log "Waiting for first export to complete..."
-sleep 600
 log "Getting snapshot export task status..."
 aws rds describe-export-tasks \
     --profile=$PROFILE  \
     --region=$REGION  \
-    -export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE \
+    --export-task-identifier $EXPORT_TASK_IDENTIFIER \
     --source-arn $DB_SNAPSHOT_ARN \
-    $opts \
-    | jq -r ".ExportTasks[] |  select(.SourceArn == \"$DB_SNAPSHOT_ARN\")" >> $LOGFILE 2>&1
+    $opts >> $LOGFILE 2>&1
+
+log "Deleting snapshot..."
+aws rds delete-db-snapshot \
+    --profile=$PROFILE  \
+    --region=$REGION \
+    --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER \
+    $opts >> $LOGFILE 2>&1
 
 log "Done"
