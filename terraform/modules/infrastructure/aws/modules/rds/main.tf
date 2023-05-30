@@ -308,9 +308,19 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
+                            "Sid": "KMSListKeys",
+                            "Effect": "Allow",
+                            "Action": [
+                                "kms:ListKeys",
+                                "kms:ListResourceTags"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
                             "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
+                                
                                 "kms:Encrypt",
                                 "kms:Decrypt",
                                 "kms:ReEncrypt*",
