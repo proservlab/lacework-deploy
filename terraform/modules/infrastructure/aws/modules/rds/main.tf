@@ -329,6 +329,16 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
+                            "Sid": "RDSListExportTasks",
+                            "Effect": "Allow",
+                            "Action": [
+                                "rds:DescribeExportTasks*"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
                             "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
