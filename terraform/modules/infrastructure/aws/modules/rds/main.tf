@@ -351,7 +351,8 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Sid": "KMSListKeys",
                             "Effect": "Allow",
                             "Action": [
-                                "kms:List*"
+                                "kms:List*",
+                                "kms:Describe*"
                             ],
                             "Resource": [
                                 "*"
