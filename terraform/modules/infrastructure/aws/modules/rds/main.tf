@@ -141,6 +141,35 @@ resource "aws_s3_bucket_acl" "example" {
   acl    = "private"
 }
 
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:ListBucketMultipartUploads",
+      "s3:AbortMultipartUpload",
+      "s3:ListMultipartUploadParts",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.bucket.arn}",
+      "${aws_s3_bucket.bucket.arn}/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["rds.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+}
+
 # Create the IAM policy for the S3 bucket
 resource "aws_iam_policy" "rds_export_policy" {
   name        = "db-export-policy-${var.environment}-${var.deployment}"
@@ -362,6 +391,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                                 "rds:CreateDBSnapshot",
                                 "rds:DeleteDBSnapshot",
                                 "rds:ExportSnapshot",
+                                "rds:StartExportTask",
                                 "rds:AddTagsToResource"
                             ],
                             "Resource": [
