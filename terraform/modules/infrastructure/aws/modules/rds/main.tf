@@ -377,7 +377,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                         {
                             "Effect": "Allow",
                             "Action": [
-                                "iam:ListRole",
+                                "iam:ListRoles",
                                 "iam:GetRole",
                                 "iam:PassRole"
                             ],
