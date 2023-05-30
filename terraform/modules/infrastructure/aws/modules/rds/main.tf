@@ -309,6 +309,16 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
+                            "Sid": "IAMListRoles",
+                            "Effect": "Allow",
+                            "Action": [
+                                "iam:List*"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
                             "Sid": "KMSListKeys",
                             "Effect": "Allow",
                             "Action": [
@@ -377,7 +387,6 @@ resource "aws_iam_policy" "db_get_parameters" {
                         {
                             "Effect": "Allow",
                             "Action": [
-                                "iam:ListRoles",
                                 "iam:GetRole",
                                 "iam:PassRole"
                             ],
