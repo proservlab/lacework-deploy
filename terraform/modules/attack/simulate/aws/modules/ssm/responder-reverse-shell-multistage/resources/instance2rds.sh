@@ -55,14 +55,14 @@ aws configure set output json --profile=$PROFILE
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
 
-log "Running cloud discovery..."
-docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
-log "done."
+# log "Running cloud discovery..."
+# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
+# log "done."
 
-log "Running local discovery..."
-curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
-log "done."
-opts="--output json"
+# log "Running local discovery..."
+# curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
+# log "done."
+# opts="--output json"
 
 aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 aws ssm get-parameter --name="db_name" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
@@ -95,20 +95,24 @@ DB_INSTANCE_ID=$(aws rds describe-db-instances \
 log "DbInstanceIdentifier: $DB_INSTANCE_ID"
 
 log "Creating rds snapshot..."
-EPOCH_TIME=$(date +%s)
+NOW_DATE=$(date '+%Y-%m-%d-%H-%M')
 CURRENT_DATE=$(date +%Y-%m-%d)
 DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
     --profile=$PROFILE  \
     --region=$REGION  \
     --db-instance-identifier $DB_INSTANCE_ID \
-    --db-snapshot-identifier snapshot-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
+    --db-snapshot-identifier snapshot-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE \
     --tags Key=environment,Value=$ENVIRONMENT Key=deployment,Value=$DEPLOYMENT \
     --query 'DBSnapshot.DBSnapshotArn' \
     --output text)
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
-    
+
+log "Waiting for rds snapshot to complete..."
+aws rds wait db-snapshot-completed --db-snapshot-identifier $DB_SNAPSHOT_ARN
+log "RDS snapshot complete."
+
 log "Obtaining the KMS key id..."
-aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output text | while read -r keyId; do
+aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output json | jq -r '.[]' | while read -r keyId; do
   if aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"environment\" && Value==\"$ENVIRONMENT\"]" --output text | grep -q . && 
      aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"deployment\" && Value==\"$DEPLOYMENT\"]" --output text | grep -q . &&
      aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"Name\" && Value==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\"]" --output text | grep -q .; then
@@ -126,7 +130,7 @@ log "Exporting rds snapshot to s3..."
 aws rds start-export-task \
     --profile=$PROFILE  \
     --region=$REGION  \
-    --export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
+    --export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE \
     --source-arn $DB_SNAPSHOT_ARN \
     --s3-bucket-name db-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
@@ -140,7 +144,7 @@ log "Getting snapshot export task status..."
 aws rds describe-export-tasks \
     --profile=$PROFILE  \
     --region=$REGION  \
-    -export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$EPOCH_TIME \
+    -export-task-identifier snapshot-export-$ENVIRONMENT-$DEPLOYMENT-$NOW_DATE \
     --source-arn $DB_SNAPSHOT_ARN \
     $opts \
     | jq -r ".ExportTasks[] |  select(.SourceArn == \"$DB_SNAPSHOT_ARN\")" >> $LOGFILE 2>&1
