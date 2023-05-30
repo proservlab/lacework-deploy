@@ -309,6 +309,16 @@ resource "aws_iam_policy" "db_get_parameters" {
                             ]
                         },
                         {
+                            "Sid": "KMSListKeys",
+                            "Effect": "Allow",
+                            "Action": [
+                                "kms:List*"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        },
+                        {
                             "Sid": "KMSDecryptKey",
                             "Effect": "Allow",
                             "Action": [
@@ -330,6 +340,7 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Effect": "Allow",
                             "Action": [
                                 "rds:CreateDBSnapshot",
+                                "rds:DeleteDBSnapshot",
                                 "rds:ExportSnapshot",
                                 "rds:AddTagsToResource"
                             ],

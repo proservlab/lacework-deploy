@@ -95,7 +95,7 @@ DB_INSTANCE_ID=$(aws rds describe-db-instances \
 log "DbInstanceIdentifier: $DB_INSTANCE_ID"
 
 log "Creating rds snapshot..."
-NOW_DATE=$(date '+%Y-%m-%d-%H-%M')
+NOW_DATE=$(date '+%Y-%m-%d-%H-%M-%S')
 CURRENT_DATE=$(date +%Y-%m-%d)
 DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
     --profile=$PROFILE  \
@@ -112,11 +112,13 @@ aws rds wait db-snapshot-completed --db-snapshot-identifier $DB_SNAPSHOT_ARN
 log "RDS snapshot complete."
 
 log "Obtaining the KMS key id..."
-aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output json | jq -r '.[]' | while read -r keyId; do
-  if aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"environment\" && Value==\"$ENVIRONMENT\"]" --output text | grep -q . && 
-     aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"deployment\" && Value==\"$DEPLOYMENT\"]" --output text | grep -q . &&
-     aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION --query "Tags[?Key==\"Name\" && Value==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\"]" --output text | grep -q .; then
-    KMS_KEY_ID="$keyId"
+for keyId in $(aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output json | jq -r '.[]'); do
+  echo $keyId
+  TAG_VALUE=$(aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION 2> /dev/null | jq -r ".Tags[] | select(.TagKey==\"Name\" and .TagValue==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\") | .TagValue")
+  echo "Tag: $TAG_VALUE"
+  if [ "$TAG_VALUE" == "db-kms-key-$ENVIRONMENT-$DEPLOYMENT" ]; then
+    echo "Found: $keyId"
+    KMS_KEY_ID=$keyId
     break
   fi
 done
