@@ -397,7 +397,7 @@ function aws_check_vpcs {
     fi
 
     # Get the number of VPCs deployed in the default region
-    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])' --profile $profile)
+    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])' --profile $profile --output json)
 
     infomsg "number of VPCs deployed in the $region region: $vpcs"
 
