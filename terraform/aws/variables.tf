@@ -193,7 +193,7 @@ variable "target_lacework_account_name" {
 variable "target_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = null
 }
 
 variable "target_lacework_agent_access_token" {
@@ -223,7 +223,7 @@ variable "attacker_lacework_account_name" {
 variable "attacker_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = null
 }
 
 variable "attacker_lacework_agent_access_token" {
