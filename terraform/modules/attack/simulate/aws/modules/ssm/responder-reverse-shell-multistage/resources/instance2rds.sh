@@ -108,7 +108,7 @@ DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
 
 log "Waiting for rds snapshot to complete..."
-aws rds wait db-snapshot-completed --db-snapshot-identifier $DB_SNAPSHOT_ARN
+aws rds wait db-snapshot-completed --db-snapshot-identifier $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
 log "RDS snapshot complete."
 
 log "Obtaining the KMS key id..."
@@ -125,11 +125,7 @@ done
 log "KMS Key Id: $KMS_KEY_ID"
 
 log "Obtaining rds export role..."
-RDS_EXPORT_ROLE_ARN=$(aws iam list-roles \
-    --profile=$PROFILE  \
-    --region=$REGION  \ 
-    | jq -r ".Roles[] | select(.RoleName==\"rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT\") | .Arn"
-)
+RDS_EXPORT_ROLE_ARN=$(aws iam list-roles --profile=$PROFILE --region=$REGION  | jq -r ".Roles[] | select(.RoleName==\"rds-s3-export-role-$ENVIRONMENT-$DEPLOYMENT\") | .Arn")
 log "RDS export role: $RDS_EXPORT_ROLE_ARN"
 
 log "Exporting rds snapshot to s3..."
