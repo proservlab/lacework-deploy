@@ -114,12 +114,16 @@ log "RDS snapshot complete."
 log "Obtaining the KMS key id..."
 for keyId in $(aws kms list-keys --query 'Keys[].KeyId' --profile=$PROFILE --region=$REGION --output json | jq -r '.[]'); do
   echo $keyId
-  TAG_VALUE=$(aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION 2> /dev/null | jq -r ".Tags[] | select(.TagKey==\"Name\" and .TagValue==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\") | .TagValue")
-  echo "Tag: $TAG_VALUE"
-  if [ "$TAG_VALUE" == "db-kms-key-$ENVIRONMENT-$DEPLOYMENT" ]; then
-    echo "Found: $keyId"
-    KMS_KEY_ID=$keyId
-    break
+  keyinfo=$(aws kms describe-key --key-id "$keyId" --query 'KeyMetadata' --output json --profile=$PROFILE --region=$REGION)
+  enabled=$(echo "$keyinfo" | jq -r '.Enabled')
+  if [ "$enabled" = "true" ]; then
+    TAG_VALUE=$(aws kms list-resource-tags --key-id "$keyId" --profile=$PROFILE --region=$REGION 2> /dev/null | jq -r ".Tags[] | select(.TagKey==\"Name\" and .TagValue==\"db-kms-key-$ENVIRONMENT-$DEPLOYMENT\") | .TagValue")
+    echo "Tag: $TAG_VALUE"
+    if [ "$TAG_VALUE" == "db-kms-key-$ENVIRONMENT-$DEPLOYMENT" ]; then
+      echo "Found: $keyId"
+      KMS_KEY_ID=$keyId
+      break
+    fi
   fi
 done
 log "KMS Key Id: $KMS_KEY_ID"
