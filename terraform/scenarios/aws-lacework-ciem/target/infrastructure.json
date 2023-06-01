@@ -79,7 +79,7 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : false
+        "enabled" : true
       },
       "agent": {
         "enabled" : true
