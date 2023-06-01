@@ -185,7 +185,7 @@ resource "aws_iam_policy" "rds_export_policy" {
                 "s3:ListBucket",
                 "s3:GetObject*",
                 "s3:DeleteObject*",
-                "s3:GetBucketLocation",
+                "s3:GetBucketLocation"
             ],
             Resource = [
                 "${aws_s3_bucket.bucket.arn}",
@@ -319,11 +319,45 @@ resource "aws_kms_key" "this" {
                         "Effect": "Allow",
                         "Principal": {
                             "AWS": [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}",
+                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                            ]
+                        },
+                        "Resource": "*"
+                    },
+                    {
+                        "Sid": "AllowRDSRoleDecrypt",
+                        "Action": [
+                            "kms:Encrypt",
+                            "kms:Decrypt",
+                            "kms:ReEncrypt*",
+                            "kms:GenerateDataKey*",
+                            "kms:CreateGrant",
+                            "kms:DescribeKey",
+                            "kms:RetireGrant"
+                        ],
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": [
                                 "${aws_iam_role.rds_export_role.arn}"
                             ]
                         },
                         "Resource": "*"
+                    },
+                    {
+                      "Sid": "Allow grants on the key",
+                      "Effect": "Allow",
+                      "Principal": {
+                          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                      },
+                      "Action": [
+                          "kms:CreateGrant",
+                          "kms:ListGrants",
+                          "kms:RevokeGrant"
+                      ],
+                      "Resource": "*",
+                      "Condition": {
+                          "Bool": { "kms:GrantIsForAWSResource": "true" }
+                      }
                     }
                 ]
                 }
@@ -410,8 +444,9 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Action": [
                                 "rds:CreateDBSnapshot",
                                 "rds:DeleteDBSnapshot",
-                                "rds:ExportSnapshot",
                                 "rds:StartExportTask",
+                                "rds:DescribeDBSnapshots",
+                                "rds:DescribeDBClusterSnapshots",
                                 "rds:AddTagsToResource"
                             ],
                             "Resource": [
@@ -451,6 +486,18 @@ resource "aws_iam_policy" "db_get_parameters" {
                                 "iam:PassRole"
                             ],
                             "Resource": "${aws_iam_role.rds_export_role.arn}"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "kms:CreateGrant",
+                                "kms:ListGrants",
+                                "kms:RevokeGrant"
+                            ],
+                            "Resource": "${aws_kms_key.this.arn}",
+                            "Condition": {
+                                "Bool": { "kms:GrantIsForAWSResource": "true" }
+                            }
                         }
                     ]
                 }
