@@ -79,22 +79,22 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : false
+        "enabled" : true
       },
       "agent": {
         "enabled" : true
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "alerts": {
-        "enabled" : true,
+        "enabled" : false,
         "slack": {
-          "enabled"   : true,
+          "enabled"   : false,
           "api_token" : "${ slack_token }"
         },
         "jira": {
-          "enabled"           : true,
+          "enabled"           : false,
           "cloud_url"         : "${ jira_cloud_url }",
           "cloud_username"    : "${ jira_cloud_username }",
           "cloud_api_token"   : "${ jira_cloud_api_token }",
