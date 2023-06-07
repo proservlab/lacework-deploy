@@ -1,0 +1,53 @@
+{
+    "context": {
+        "global": {
+            "environment"                           : "attacker",
+            "deployment"                            : "${ deployment }"
+        },
+        "aws": {
+            "region"        : "${ aws_region }",
+            "profile_name"  : "${ aws_profile }",
+            "ec2": {
+                "enabled"                           : true,
+                "public_network"                    : "172.28.0.0/16",
+                "public_subnet"                     : "172.28.0.0/24",
+                "public_app_network"                : "172.29.0.0/16",
+                "public_app_subnet"                 : "172.29.0.0/24",
+                "private_network"                   : "172.26.0.0/16",
+                "private_subnet"                    : "172.26.100.0/24",
+                "private_nat_subnet"                : "172.26.10.0/24",
+                "private_app_network"               : "172.26.0.0/16",
+                "private_app_subnet"                : "172.27.100.0/24",
+                "private_app_nat_subnet"            : "172.27.10.0/24",
+                "public_ingress_rules"              : [],
+                "instances": [
+                    {
+                        "name"                      : "log4jc",
+                        "public"                    : true,
+                        "role"                      : "default",
+                        "instance_type"             : "t2.micro",
+                        "ami_name"                  : "ubuntu_focal",
+                        "tags"                      : {
+                            "owner"                                 : "lacework",
+                            "ssm_deploy_docker"                     : "true",
+                            "ssm_exec_docker_log4shell_attacker"    : "true",
+                            "ssm_exec_reverse_shell_multistage_attacker" : "true"
+                        },
+                        "user_data"                 : null,
+                        "user_data_base64"          : null
+                    }
+                ]
+            },
+            "ssm": {
+                "enabled"                        : true,
+                "deploy_git"                     : true,
+                "deploy_docker"                  : true
+            }
+        },
+        "dynu_dns" : {
+            "enabled"                        : true,
+            "api_token"                      : "${ dynu_api_token }",
+            "dns_domain"                     : "${ dynu_dns_domain }"
+        }
+    }
+}

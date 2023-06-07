@@ -40,7 +40,11 @@ variable "ec2_instance_role_name" {
 variable "user_role_name" {
     type = string
     description = "The user instance role name to grant db policies access"
-    default = null
+}
+
+variable "instance_type" {
+    type = string
+    description = "The instance type for the database"
 }
 
 variable "root_db_username" {

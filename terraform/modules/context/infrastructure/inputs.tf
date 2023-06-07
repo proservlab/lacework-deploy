@@ -142,6 +142,8 @@ variable "config" {
         })
         rds = object({
           enabled                       = bool
+          user_role_name                = string
+          instance_type                 = string
         })
         inspector = object({
           enabled               = bool
@@ -575,6 +577,8 @@ variable "config" {
         }
         rds = {
           enabled                       = false
+          user_role_name                = "rds_user_access_role"
+          instance_type                 = "db.t3.micro"
         }
         inspector = {
           enabled               = false

