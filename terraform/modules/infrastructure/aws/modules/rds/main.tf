@@ -320,6 +320,7 @@ resource "aws_kms_key" "this" {
                         "Principal": {
                             "AWS": [
                                 "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                                ${ try(length(var.user_role_name), "false") != "false" ? ",arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}" : "" }
                             ]
                         },
                         "Resource": "*"
@@ -346,8 +347,12 @@ resource "aws_kms_key" "this" {
                     {
                       "Sid": "Allow grants on the key",
                       "Effect": "Allow",
-                      "Principal": {
-                          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                      "Principal": 
+                          "AWS": [ 
+                            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+                            ${ try(length(var.user_role_name), "false") != "false" ? ",arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}" : "" }
+                          ]
+                          
                       },
                       "Action": [
                           "kms:CreateGrant",
@@ -505,6 +510,12 @@ resource "aws_iam_policy" "db_get_parameters" {
 }
 
 resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
-  role       = var.ec2_instance_role_name
-  policy_arn = aws_iam_policy.db_get_parameters.arn
+    role       = var.ec2_instance_role_name
+    policy_arn = aws_iam_policy.db_get_parameters.arn
+}
+
+resource "aws_iam_role_policy_attachment" "user-db-policy" {
+    length     = try(length(var.user_role_name), "false") != "false" ? 1 : 0
+    role       = var.user_role_name
+    policy_arn = aws_iam_policy.db_get_parameters.arn
 }
