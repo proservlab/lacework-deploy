@@ -308,6 +308,13 @@ variable "attacker_context_config_protonvpn_user" {
   default     = ""
 }
 
+variable "attacker_context_config_protonvpn_privatekey" {
+  type        = string
+  description = "protonvpn privatekey"
+  default     = ""
+}
+
+
 variable "attacker_context_config_protonvpn_password" {
   type        = string
   description = "protonvpn password"

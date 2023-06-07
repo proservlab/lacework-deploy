@@ -4,9 +4,9 @@
       "environment"          : "${ environment }",
       "deployment"           : "${ deployment }"
     },
-    "aws" :  {
-      "enabled" : false,
-      "ssm" :  {
+    "gcp" : {
+      "enabled": true,
+      "osconfig" : {
         "attacker": {
           "execute": {
             "docker_composite_host_compromise_attack": {

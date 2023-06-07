@@ -1,0 +1,10 @@
+queryId: YourQueryID
+queryText: |-
+  {
+      source {
+        LW_HE_SYSCALLS_PROCESSES s
+      }
+      return {
+        s.*
+      }
+  }

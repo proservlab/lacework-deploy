@@ -49,6 +49,7 @@ locals {
     ssm_exec_docker_cloud_ransomware_attacker = "false"
     ssm_exec_docker_cloud_cryptomining_attacker = "false"
     ssm_exec_docker_host_cryptomining_attacker = "false"
+    ssm_exec_docker_host_compromise_attacker = "false"
   }
   osconfig_default_tags = {
     osconfig_connect_bad_ip              = "false"
@@ -87,6 +88,7 @@ locals {
     osconfig_exec_docker_cloud_ransomware_attacker = "false"
     osconfig_exec_docker_cloud_cryptomining_attacker = "false"
     osconfig_exec_docker_host_cryptomining_attacker = "false"
+    osconfig_exec_docker_host_compromise_attacker = "false"
   }
   runbook_default_tags = {
     runbook_exec_touch_file                  = "false"

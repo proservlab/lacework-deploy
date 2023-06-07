@@ -396,6 +396,15 @@ module "ssm-execute-docker-composite-guardduty" {
   attack_delay  = local.config.context.aws.ssm.attacker.execute.docker_composite_guardduty_attack.attack_delay
 }
 
+module "ssm-execute-docker-composite-host-compromise" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.docker_composite_host_compromise_attack.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-composite-host-compromise"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  attack_delay  = local.config.context.aws.ssm.attacker.execute.docker_composite_host_compromise_attack.attack_delay
+}
+
 ##################################################
 # LISTENER
 ##################################################
