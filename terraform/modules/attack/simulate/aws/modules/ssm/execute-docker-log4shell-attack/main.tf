@@ -64,7 +64,7 @@ locals {
                                     target_ip           = var.target_ip
                                     target_port         = var.target_port
                                     exec_type           = local.exec_type
-                                    base64_payload      = local.base64_log4shell_payload
+                                    base64_payload      = urlencode(local.base64_log4shell_payload)
                                     reverse_shell_port  = var.reverse_shell_port
                                 }
                         ))
