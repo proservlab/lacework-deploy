@@ -12,8 +12,9 @@ import tarfile
 import base64
 
 class Module(BaseModule):
-    """ Responder module - use TASK environment variable to execute specific workflow """
-
+    """ 
+    Responder module - use TASK environment variable to execute specific workflow 
+    """
     """
     Usage: run responder 
     """
