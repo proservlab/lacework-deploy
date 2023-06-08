@@ -163,7 +163,7 @@ variable "lacework_account_name" {
 variable "lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = "https://agent.lacework.net"
 }
 
 variable "lacework_agent_access_token" {

@@ -86,7 +86,7 @@
 | <a name="input_lacework_agent_access_token"></a> [lacework\_agent\_access\_token](#input\_lacework\_agent\_access\_token) | lacework agent token | `string` | `null` | no |
 | <a name="input_lacework_profile"></a> [lacework\_profile](#input\_lacework\_profile) | lacework account profile name | `string` | n/a | yes |
 | <a name="input_lacework_proxy_token"></a> [lacework\_proxy\_token](#input\_lacework\_proxy\_token) | lacework proxy token used by the admissions controller | `string` | `null` | no |
-| <a name="input_lacework_server_url"></a> [lacework\_server\_url](#input\_lacework\_server\_url) | lacework server url | `string` | `"https://api.lacework.net"` | no |
+| <a name="input_lacework_server_url"></a> [lacework\_server\_url](#input\_lacework\_server\_url) | lacework server url | `string` | `"https://agent.lacework.net"` | no |
 | <a name="input_region"></a> [region](#input\_region) | default aws region | `string` | `"us-east-1"` | no |
 | <a name="input_scenario"></a> [scenario](#input\_scenario) | Scenario directory name | `string` | `"simple"` | no |
 | <a name="input_slack_token"></a> [slack\_token](#input\_slack\_token) | slack webhook for critical alerts | `string` | `"false"` | no |
