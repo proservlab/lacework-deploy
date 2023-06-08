@@ -149,13 +149,6 @@ EXPORT_TASK_ARN=$(aws rds start-export-task \
 log "Export task arn: $EXPORT_TASK_ARN"
 log "Export task identifier: $EXPORT_TASK_IDENTIFIER"
 
-# log "Waiting for export task to complete..."
-# aws rds wait export-task-completed \
-#     --profile=$PROFILE  \
-#     --region=$REGION \
-#     --export-task-identifier $EXPORT_TASK_IDENTIFIER \
-#     $opts >> $LOGFILE 2>&1
-
 log "Getting snapshot export task status..."
 aws rds describe-export-tasks \
     --profile=$PROFILE  \
@@ -164,11 +157,25 @@ aws rds describe-export-tasks \
     --source-arn $DB_SNAPSHOT_ARN \
     $opts >> $LOGFILE 2>&1
 
-# log "Deleting snapshot..."
-# aws rds delete-db-snapshot \
-#     --profile=$PROFILE  \
-#     --region=$REGION \
-#     --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER \
-#     $opts >> $LOGFILE 2>&1
+while true; do
+    STATUS=$(aws rds describe-export-tasks --profile=$PROFILE --region=$REGION --export-task-identifier $EXPORT_TASK_IDENTIFIER --source-arn $DB_SNAPSHOT_ARN --query 'ExportTasks[0].Status' --output text)
+    if [ "$STATUS" == "COMPLETE" ]; then
+        log "Export task completed successfully."
+        break
+    elif [ "$STATUS" == "FAILED" ]; then
+        log "Export task failed."
+        exit 1
+    else
+        log "Export task is still in progress. Current status: $STATUS"
+        sleep 60
+    fi
+done
+
+log "Deleting snapshot..."
+aws rds delete-db-snapshot \
+    --profile=$PROFILE  \
+    --region=$REGION \
+    --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER \
+    $opts >> $LOGFILE 2>&1
 
 log "Done"

@@ -63,6 +63,15 @@ locals {
                                     deployment = var.deployment
                                 }
                             ))
+
+    iam2rds         = base64encode(templatefile(
+                                "${path.module}/resources/iam2rds.sh", 
+                                {
+                                    region = var.region,
+                                    environment = var.environment,
+                                    deployment = var.deployment
+                                }
+                            ))
     
 }
 

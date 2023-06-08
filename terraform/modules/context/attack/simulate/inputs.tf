@@ -203,6 +203,10 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
+              docker_composite_host_compromise_attack = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
             })
           })
         })
@@ -391,6 +395,10 @@ variable "config" {
                 minergate_user              = string
                 nicehash_user               = string
                 compromised_keys_user       = string
+                attack_delay                = number
+              })
+              docker_composite_host_compromise_attack = object({
+                enabled                     = bool
                 attack_delay                = number
               })
             })
@@ -584,6 +592,10 @@ variable "config" {
                 attack_delay                = number
               })
               docker_composite_guardduty_attack = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              docker_composite_host_compromise_attack = object({
                 enabled                     = bool
                 attack_delay                = number
               })
@@ -798,6 +810,10 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               }
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
+              }
             }
           }
         }
@@ -996,6 +1012,10 @@ variable "config" {
                 nicehash_user               = null
                 compromised_keys_user       = null
                 attack_delay                =  50400
+              },
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
               }
             }
           }
@@ -1199,6 +1219,10 @@ variable "config" {
               docker_composite_guardduty_attack = {
                 enabled                     = false
                 attack_delay                =  50400
+              },
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
               }
             }
           }

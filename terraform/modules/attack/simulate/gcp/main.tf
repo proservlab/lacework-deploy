@@ -332,6 +332,19 @@ module "osconfig-execute-vuln-npm-app-attack" {
   tag = "osconfig_exec_vuln_npm_app_attacker"
 }
 
+module "osconfig-execute-docker-composite-host-compromise" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise_attack.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-composite-host-compromise"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  attack_delay = local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise_attack.attack_delay
+
+  tag = "osconfig_exec_docker_host_compromise_attacker"
+}
+
 ##################################################
 # LISTENER
 ##################################################

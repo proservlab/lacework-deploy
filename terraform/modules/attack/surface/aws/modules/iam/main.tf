@@ -1,3 +1,6 @@
+data "aws_caller_identity" "current" {}
+data "aws_availability_zones" "available" {}
+
 # create users
 resource "aws_iam_user" "users" {
   for_each = { for i in var.users : i.name => i }
@@ -27,19 +30,25 @@ data "aws_iam_policy" "policy" {
   ]
 }
 
-# resource "aws_iam_policy_attachment" "attach" {
-#   for_each = { for i in var.users : i.name => i }
-#   name       = "${each.key}-${each.value.policy}"
-#   users      = [each.key]
-  
-#   policy_arn = data.aws_iam_policy.policy[each.key].arn
+# allow the user to assume the role provided in the config - only if the role value is provided
+resource "aws_iam_policy" "assume_role_policy" {
+  for_each = { for i in var.users : i.name => i if lookup(i, "role", false) != false }
+  name = "user-assume-role-policy-${var.environment}-${var.deployment}"
+  description = "Allows assuming the provided role"
 
-#   depends_on = [
-#     aws_iam_user.users
-#   ]
-# }
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = "sts:AssumeRole",
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${each.value.role}"
+      },
+    ]
+  })
+}
 
-resource "aws_iam_user_policy_attachment" "test-attach" {
+resource "aws_iam_user_policy_attachment" "attach-iam-policy" {
   for_each = { for i in var.users : i.name => i }
   user       = each.key
   policy_arn = data.aws_iam_policy.policy[each.key].arn
@@ -49,17 +58,16 @@ resource "aws_iam_user_policy_attachment" "test-attach" {
   ]
 }
 
-# # add inline policy to user - this could be improved with roles
-# resource "aws_iam_user_policy" "user_policies" {
-#   for_each = { for i in var.users : i.name => i }
-#   name     = "iam-policy-${var.environment}-${var.deployment}-${each.value.name}"
-#   user     = each.key
-#   policy   = jsonencode(var.user_policies[each.value.policy])
+resource "aws_iam_user_policy_attachment" "attach-assume-role-policy" {
+  for_each = { for i in var.users : i.name => i if lookup(i, "role", false) != false }
+  user       = each.key
+  policy_arn = aws_iam_policy.assume_role_policy[each.key].arn
 
-#   depends_on = [
-#     aws_iam_user.users
-#   ]
-# }
+  depends_on = [
+    aws_iam_user_policy_attachment.attach-iam-policy,
+    aws_iam_user.users
+  ]
+}
 
 # create access keys
 resource "aws_iam_access_key" "user_access_keys" {

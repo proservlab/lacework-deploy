@@ -50,7 +50,7 @@ windowsAgent:
     # [Optional] Specify the service account for agent pods
     serviceAccountName:
     # [Required] Region specific Lacework service URL. Defaults to the US region.
-    serverUrl: https://api.lacework.net
+    serverUrl: https://agent.lacework.net
     # [Optional] Set to false to prevent agent from sending diagnostic logs to stdout
     stdoutLogging: true
 

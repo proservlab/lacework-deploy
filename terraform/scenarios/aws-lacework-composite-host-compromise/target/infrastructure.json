@@ -30,22 +30,15 @@
             "tags": {
               "ssm_deploy_git": "true",
               "ssm_deploy_docker": "true",
-              "ssm_deploy_kubectl_cli": "true",
-              "ssm_deploy_aws_cli": "true",
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_lacework_code_aware_agent" : "true",
-              "ssm_deploy_secret_aws_creds": "true",
-              "ssm_exec_vuln_npm_app_target": "true"
+              "ssm_exec_docker_host_compromise_attacker": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null
           }
         ]
-      },
-      "eks": {
-        "enabled"      : true,
-        "cluster_name" : "target-cluster"
       },
       "ssm": {
         "enabled"                        : true,
@@ -54,9 +47,7 @@
         "deploy_inspector_agent"         : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true,
-        "deploy_kubectl_cli"             : true,
-        "deploy_aws_cli"                 : true
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {
@@ -67,23 +58,7 @@
         "enabled" : true
       },
       "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : true,
-          "proxy_scanner": {
-            "enabled" : true
-          },
-          "daemonset": {
-            "enabled" : true
-          },
-          "compliance": {
-            "enabled" : true
-          },
-          "admission_controller": {
-            "enabled" : true
-          }
-        }
+        "enabled" : true
       },
       "aws_agentless": {
         "enabled" : true
