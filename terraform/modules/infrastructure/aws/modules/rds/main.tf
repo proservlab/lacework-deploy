@@ -96,8 +96,8 @@ resource "aws_security_group" "database" {
 }
 
 resource "aws_db_instance" "database" {
-  allocated_storage                     = 5
-  max_allocated_storage                 = 10
+  allocated_storage                     = 2
+  max_allocated_storage                 = 5
   db_name                               = "mydb"
   port                                  = local.database_port
   engine                                = "mysql"
