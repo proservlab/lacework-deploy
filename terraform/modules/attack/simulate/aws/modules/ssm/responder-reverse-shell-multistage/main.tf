@@ -28,13 +28,14 @@ locals {
     echo ${local.listener} | base64 -d > ${local.app_dir}/listener.py
     echo ${local.responder} | base64 -d > ${local.app_dir}/plugins/responder.py
     echo ${local.instance2rds} | base64 -d > ${local.app_dir}/resources/instance2rds.sh
+    echo ${local.iam2rds_assumerole} | base64 -d > ${local.app_dir}/resources/iam2rds_assumerole.sh
     log "installing required python3.9..."
     apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
     python3.9 get-pip.py >> $LOGFILE 2>&1
     log "wait before using module..."
     sleep 5
-    python3.9 -m pip install -U pip setuptools wheel setuptools_rust >> $LOGFILE 2>&1
+    python3.9 -m pip install -U pip setuptools wheel setuptools_rust jinja2 >> $LOGFILE 2>&1
     python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
     log "wait before using module..."
     sleep 5
@@ -52,7 +53,9 @@ locals {
     responder       = base64encode(templatefile(
                                 "${path.module}/resources/responder.py", 
                                 {
-                                    default_payload = var.payload
+                                    default_payload = var.payload,
+                                    iam2rds_role_name = "rds_user_access_role_ciemdemo",
+                                    iam2rds_session_name = "attacker-session-${var.environment}-${var.deployment}"
                                 }
                             ))
     instance2rds    = base64encode(templatefile(
@@ -66,6 +69,15 @@ locals {
 
     iam2rds         = base64encode(templatefile(
                                 "${path.module}/resources/iam2rds.sh", 
+                                {
+                                    region = var.region,
+                                    environment = var.environment,
+                                    deployment = var.deployment
+                                }
+                            ))
+    
+    iam2rds_assumerole = base64encode(templatefile(
+                                "${path.module}/resources/iam2rds_assumerole.sh",
                                 {
                                     region = var.region,
                                     environment = var.environment,
