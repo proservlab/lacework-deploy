@@ -46,6 +46,7 @@ log "Getting current account number..."
 AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
 log "Account Number: $AWS_ACCOUNT_NUMBER"
 
+log "Assuming role: arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME"
 CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME" --profile=$PROFILE --role-session-name "$SESSION_NAME" --duration-seconds="43200")
 AWS_ACCESS_KEY_ID=$(echo "$CREDS" | jq -r '.Credentials.AccessKeyId')
 AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | jq -r '.Credentials.SecretAccessKey')

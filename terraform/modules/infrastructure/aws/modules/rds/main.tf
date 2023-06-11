@@ -256,6 +256,9 @@ resource "aws_iam_role" "user_role" {
     ]
     })
 
+  # max session duration 12 hours
+  max_session_duration = 43200
+
   tags = {
     environment = var.environment
     deployment = var.deployment

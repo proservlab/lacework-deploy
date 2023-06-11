@@ -122,7 +122,7 @@ class Module(BaseModule):
                 # execute script
                 bash_script = Path.joinpath(iam2rds_path,"iam2rds.sh")
                 try:
-                    result = subprocess.run(['/bin/bash', str(bash_script)], capture_output=True, text=True)
+                    result = subprocess.run(['/bin/bash', str(bash_script)], cwd=iam2rds_path, capture_output=True, text=True)
                     session.log(f'Return Code: {result.returncode}')
                     session.log(f'Output: {result.stdout}')
                     session.log(f'Error Output: {result.stderr}')
