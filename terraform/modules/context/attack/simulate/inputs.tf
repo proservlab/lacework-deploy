@@ -103,6 +103,8 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -297,6 +299,8 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -491,6 +495,8 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -710,6 +716,8 @@ variable "config" {
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
               }
               port_forward = {
                 enabled                     = false
@@ -913,6 +921,8 @@ variable "config" {
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
               }
               port_forward = {
                 enabled                     = false
@@ -1116,6 +1126,8 @@ variable "config" {
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
                 payload                     = "touch /tmp/pwned"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
               }
               port_forward = {
                 enabled                     = false

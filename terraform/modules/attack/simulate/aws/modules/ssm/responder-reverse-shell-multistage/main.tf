@@ -28,6 +28,7 @@ locals {
     echo ${local.listener} | base64 -d > ${local.app_dir}/listener.py
     echo ${local.responder} | base64 -d > ${local.app_dir}/plugins/responder.py
     echo ${local.instance2rds} | base64 -d > ${local.app_dir}/resources/instance2rds.sh
+    echo ${local.iam2rds} | base64 -d > ${local.app_dir}/resources/iam2rds.sh
     echo ${local.iam2rds_assumerole} | base64 -d > ${local.app_dir}/resources/iam2rds_assumerole.sh
     log "installing required python3.9..."
     apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
@@ -54,8 +55,8 @@ locals {
                                 "${path.module}/resources/responder.py", 
                                 {
                                     default_payload = var.payload,
-                                    iam2rds_role_name = "rds_user_access_role_ciemdemo",
-                                    iam2rds_session_name = "attacker-session-${var.environment}-${var.deployment}"
+                                    iam2rds_role_name = var.iam2rds_role_name
+                                    iam2rds_session_name = var.iam2rds_session_name
                                 }
                             ))
     instance2rds    = base64encode(templatefile(

@@ -47,3 +47,15 @@ variable "payload" {
             touch /tmp/pwned
             EOT
 }
+
+variable "iam2rds_role_name" {
+  type = string
+  description = "The default role name to use for the iam2rds attack"
+  default = "rds_user_access_role_ciemdemo"
+}
+
+variable "iam2rds_session_name" {
+  type = string
+  description = "The default role name to use for the iam2rds attack"
+  default = "attacker-session"
+}

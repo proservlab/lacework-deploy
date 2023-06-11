@@ -464,4 +464,7 @@ module "ssm-responder-reverse-shell-multistage" {
   listen_ip     = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_port
   payload       = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.payload
+
+  iam2rds_role_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_role_name
+  iam2rds_session_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_session_name
 }
