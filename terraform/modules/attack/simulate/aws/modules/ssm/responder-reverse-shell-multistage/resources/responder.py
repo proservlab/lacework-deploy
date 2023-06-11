@@ -106,8 +106,10 @@ class Module(BaseModule):
 
                 # extract the aws creds
                 file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
-                file.extract('root/.aws/credentials', aws_dir)
-                file.extract('root/.aws/config', aws_dir)
+                file.extract('root/.aws/credentials', iam2rds_path)
+                file.extract('root/.aws/config', iam2rds_path)
+                shutil.copy2(Path.joinpath(iam2rds_path, 'root/.aws/credentials'),Path.joinpath(aws_dir, 'credentials'))
+                shutil.copy2(Path.joinpath(iam2rds_path, 'root/.aws/config'),Path.joinpath(aws_dir, 'config'))
                 
                 # copy our payload to the local working directory
                 iam2rds = Path(f"{script_dir}/../resources/iam2rds.sh")
