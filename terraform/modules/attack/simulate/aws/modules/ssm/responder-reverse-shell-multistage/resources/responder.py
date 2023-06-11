@@ -41,8 +41,8 @@ class Module(BaseModule):
                 session.log(f"error: {e}")
         elif task_name == "iam2rds":
             try:
-                session.log("setting up templates directory: {script_dir}/../resources")
-                file_loader = FileSystemLoader('{script_dir}/../resources')
+                session.log(f"setting up templates directory: {script_dir}/../resources")
+                file_loader = FileSystemLoader(f'{script_dir}/../resources')
                 env = Environment(loader=file_loader)
 
                 # run host enumeration
