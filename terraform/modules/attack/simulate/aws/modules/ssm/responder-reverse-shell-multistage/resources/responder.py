@@ -85,7 +85,7 @@ class Module(BaseModule):
                 
                 session.log("copying /tmp/linpeas.txt...")
                 with session.platform.open('/tmp/linpeas.txt', 'rb') as f1:
-                    with open(f'/tmp/{hostname}linpeas.txt','wb') as f2:
+                    with open(f'/tmp/{hostname}_linpeas.txt','wb') as f2:
                         f2.write(f1.read())
 
                 # remove temporary archive from target
