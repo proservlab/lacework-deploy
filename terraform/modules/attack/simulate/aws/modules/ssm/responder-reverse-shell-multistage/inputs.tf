@@ -25,7 +25,7 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(0/30 * * * ? *)"
+  default = "cron(0 */2 * * ? *)"
 }
 
 variable "listen_ip" {
@@ -46,6 +46,12 @@ variable "payload" {
   default = <<-EOT
             touch /tmp/pwned
             EOT
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
 }
 
 variable "iam2rds_role_name" {

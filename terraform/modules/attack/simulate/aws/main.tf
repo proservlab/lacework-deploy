@@ -467,4 +467,5 @@ module "ssm-responder-reverse-shell-multistage" {
 
   iam2rds_role_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_role_name
   iam2rds_session_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_session_name
+  attack_delay  = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.attack_delay
 }

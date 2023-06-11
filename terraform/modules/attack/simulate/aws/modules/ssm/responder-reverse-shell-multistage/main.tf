@@ -1,9 +1,17 @@
 locals {
     listen_port = var.listen_port
     listen_ip = var.listen_ip
-    app_dir = "/pwncat"
+    attack_dir = "/pwncat"
+    attack_script = "pwncat.sh"
+    start_script = "delayed_start.sh"
+    lock_file = "/tmp/delay_pwncat.lock"
     base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
+    LOCKFILE="${ local.lock_file }"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -17,19 +25,21 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-
+    
     log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
     screen -S pwncat -X quit
     truncate -s 0 /tmp/pwncat.log
     log "cleaning app directory"
-    rm -rf ${local.app_dir}
-    mkdir -p ${local.app_dir}/plugins ${local.app_dir}/resources
-    cd ${local.app_dir}
-    echo ${local.listener} | base64 -d > ${local.app_dir}/listener.py
-    echo ${local.responder} | base64 -d > ${local.app_dir}/plugins/responder.py
-    echo ${local.instance2rds} | base64 -d > ${local.app_dir}/resources/instance2rds.sh
-    echo ${local.iam2rds} | base64 -d > ${local.app_dir}/resources/iam2rds.sh
-    echo ${local.iam2rds_assumerole} | base64 -d > ${local.app_dir}/resources/iam2rds_assumerole.sh
+    rm -rf ${local.attack_dir}
+    mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
+    cd ${local.attack_dir}
+    echo ${local.pwncat} | base64 -d > ${local.attack_script}
+    echo ${local.delayed_start} | base64 -d > ${local.start_script}
+    echo ${local.listener} | base64 -d > listener.py
+    echo ${local.responder} | base64 -d > plugins/responder.py
+    echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
+    echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
+    echo ${local.iam2rds_assumerole} | base64 -d > resources/iam2rds_assumerole.sh
     log "installing required python3.9..."
     apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -40,13 +50,31 @@ locals {
     python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
     log "wait before using module..."
     sleep 5
-    log "starting background process via screen..."
-    nohup /bin/bash -c "screen -d -L -Logfile /tmp/pwncat.log -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
-    screen -S pwncat -X colon "logfile flush 0^M"
-    log "listener started."
-    log "done"
+
+    log "starting background delayed script start..."
+    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
+    log "background job started"
+    log "done."
     EOT
     base64_payload = base64encode(local.payload)
+
+    
+    pwncat          = base64encode(templatefile(
+                                "${path.module}/resources/pwncat.sh",
+                                {
+                                    listen_port = local.listen_port
+                                }
+                            ))
+
+    delayed_start   = base64encode(templatefile(
+                                "${path.module}/resources/${local.start_script}",
+                                {
+                                    lock_file = local.lock_file
+                                    attack_delay = var.attack_delay
+                                    attack_dir = local.attack_dir
+                                    attack_script = local.attack_script
+                                }
+                        ))
 
     listener        = base64encode(file(
                                 "${path.module}/resources/listener.py", 

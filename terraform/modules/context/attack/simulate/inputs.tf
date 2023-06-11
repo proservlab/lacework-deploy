@@ -105,6 +105,7 @@ variable "config" {
                 payload                     = string
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -301,6 +302,7 @@ variable "config" {
                 payload                     = string
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -497,6 +499,7 @@ variable "config" {
                 payload                     = string
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -718,6 +721,7 @@ variable "config" {
                 payload                     = "touch /tmp/pwned"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false
@@ -923,6 +927,7 @@ variable "config" {
                 payload                     = "touch /tmp/pwned"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false
@@ -1128,6 +1133,7 @@ variable "config" {
                 payload                     = "touch /tmp/pwned"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false

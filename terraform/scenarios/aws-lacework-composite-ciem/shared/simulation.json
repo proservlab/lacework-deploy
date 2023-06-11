@@ -25,7 +25,8 @@
               "enabled": true,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
-              "payload": "touch /tmp/multistage_pwned"
+              "payload": "touch /tmp/multistage_pwned",
+              "attack_delay": 50400
             }
           }
         }
