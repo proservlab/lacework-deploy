@@ -116,10 +116,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 EOF
 docker build -t scoutsuite-tor .
 log "Running scoutesuite-tor with aws discovery..."
-docker run --name=scoutsuite-tor --link torproxy:torproxy --env-file=.aws-iam-user scoutsuite-tor aws
-docker logs scoutsuite-tor > /tmp/scoutsuite-tor.log 2>&1
-docker stop scoutsuite-tor
-docker rm scoutsuite-tor
+docker run --rm --name=scoutsuite-tor --link torproxy:torproxy -v "$PWD/scout-report":"/root/scout-report" --env-file=.aws-iam-user scoutsuite-tor aws --report-dir /root/scout-report --no-browser
 
 #######################
 # rds exfil snapshot and export
