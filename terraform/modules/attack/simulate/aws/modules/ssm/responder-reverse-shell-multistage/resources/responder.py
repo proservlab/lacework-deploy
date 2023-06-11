@@ -106,11 +106,11 @@ class Module(BaseModule):
 
                 # extract the aws creds
                 file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
-                file.extract('/root/.aws/credentials', aws_dir)
-                file.extract('/root/.aws/config', aws_dir)
+                file.extract('root/.aws/credentials', aws_dir)
+                file.extract('root/.aws/config', aws_dir)
                 
                 # copy our payload to the local working directory
-                iam2rds = Path("{script_dir}/../resources/iam2rds.sh")
+                iam2rds = Path(f"{script_dir}/../resources/iam2rds.sh")
                 shutil.copy2(iam2rds, iam2rds_path)
 
                 # copy linpeas.txt into our working directory
