@@ -36,8 +36,8 @@ DEPLOYMENT=${deployment}
 log "Using default profile"
 PROFILE="default"
 
-ROLE_NAME="rds_user_access_role_ciemdemo"
-SESSION_NAME="db-export"
+ROLE_NAME="${iam2rds_role_name}"
+SESSION_NAME="${iam2rds_session_name}"
 
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1

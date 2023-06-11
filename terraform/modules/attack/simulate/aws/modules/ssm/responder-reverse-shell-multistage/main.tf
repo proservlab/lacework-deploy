@@ -73,7 +73,9 @@ locals {
                                 {
                                     region = var.region,
                                     environment = var.environment,
-                                    deployment = var.deployment
+                                    deployment = var.deployment,
+                                    iam2rds_role_name = var.iam2rds_role_name
+                                    iam2rds_session_name = var.iam2rds_session_name
                                 }
                             ))
     
@@ -82,7 +84,9 @@ locals {
                                 {
                                     region = var.region,
                                     environment = var.environment,
-                                    deployment = var.deployment
+                                    deployment = var.deployment,
+                                    iam2rds_role_name = var.iam2rds_role_name
+                                    iam2rds_session_name = var.iam2rds_session_name
                                 }
                             ))
     
