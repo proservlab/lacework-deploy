@@ -12,7 +12,7 @@ function cleanup {
 }
 trap cleanup EXIT INT TERM
 
-SCRIPTNAME=$(basename $0)
+SCRIPTNAME="delayed_start_pwncat"
 LOGFILE=/tmp/$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
