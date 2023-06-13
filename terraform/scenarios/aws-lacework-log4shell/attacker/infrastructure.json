@@ -36,6 +36,10 @@
                         "user_data_base64"          : null
                     }
                 ]
+            },
+            "ssm": {
+                "enabled"                        : true,
+                "deploy_docker"                  : true
             }
         },
         "dynu_dns" : {
