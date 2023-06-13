@@ -68,7 +68,7 @@ aws configure set region $REGION --profile=$PROFILE
 aws configure set output json --profile=$PROFILE
 
 #######################
-# cloud discovery
+# cloud enumeration
 #######################
 
 # reset docker containers
