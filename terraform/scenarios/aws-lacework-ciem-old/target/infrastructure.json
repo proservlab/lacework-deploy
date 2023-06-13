@@ -47,14 +47,12 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags"                      : {
-                "owner"                                         : "lacework",
-                "ssm_deploy_aws_cli"                            : "true",
-                "ssm_deploy_docker"                             : "true",
-                "ssm_deploy_lacework"                           : "true",
-                "ssm_deploy_lacework_syscall"                   : "true",
-                "ssm_deploy_lacework_code_aware_agent"          : "true",
-                "ssm_exec_vuln_rdsapp_target"                   : "true",
-                "ssm_deploy_secret_ssh_public"                  : "true"
+                "owner"                                     : "lacework",
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_exec_vuln_rdsapp_target"               : "true",
+                "ssm_deploy_secret_ssh_public"              : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null
@@ -64,16 +62,18 @@
       "rds": {
         "enabled"                        : true,
         "user_role_name"                 : "rds_user_access_role_ciemdemo",
-        "instance_type"                  : "db.t3.medium"
+        "instance_type"                  : "db.t3.small"
       },
       "ssm": {
-        "enabled"                           : true,
-        "deploy_git"                        : true,
-        "deploy_docker"                     : true,
-        "deploy_lacework_agent"             : true,
-        "deploy_lacework_syscall_config"    : true,
-        "deploy_lacework_code_aware_agent"  : true,
-        "deploy_aws_cli"                    : true
+        "enabled"                        : true,
+        "deploy_git"                     : true,
+        "deploy_docker"                  : true,
+        "deploy_inspector_agent"         : true,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true,
+        "deploy_kubectl_cli"             : true,
+        "deploy_aws_cli"                 : true
       }
     },
     "lacework": {
@@ -81,13 +81,13 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : false
       },
       "agent": {
         "enabled" : true
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "alerts": {
         "enabled" : false,
