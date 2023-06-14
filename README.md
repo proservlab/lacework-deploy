@@ -29,11 +29,15 @@ All GCP instances are enabled for osconfig access. They can be access via the gc
 
 ## List instances
 
-`gcloud compute instances list`
+`gcloud compute instances list --project=<project id>`
 
 ## Connect to Shell on OSConfig Managed Instance
 
-`gcloud compute ssh <instance name>`
+`gcloud compute ssh <instance name> --project=<project id>`
+
+## Connect to Shell on OSConfig Managed Using IAP
+
+`gcloud compute ssh <instance name> --project=<project id> --tunnel-through-iap`
 
 # Metatdata
 
