@@ -84,7 +84,7 @@ proxy_dns
 tcp_read_time_out 15000
 tcp_connect_time_out 8000
 [ProxyList]
-socks5  ${TORPROXY_IP}  9050
+socks5  $TORPROXY_IP  9050
 EOF
 log "Building scoutesuite-tor entrypoint.sh..."
 cat > entrypoint.sh <<- EOF
@@ -96,7 +96,7 @@ while ! proxychains curl -s --connect-timeout 5 http://icanhazip.com 2> /dev/nul
     sleep 5
 done
 # Run scoutsuite with TOR proxy
-proxychains scout "\${@}"
+proxychains scout "\$${@}"
 EOF
 chmod +x entrypoint.sh
 log "Building scoutesuite-tor Dockerfile..."
