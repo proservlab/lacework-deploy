@@ -173,6 +173,7 @@ variable "config" {
         gcp_audit_config        = object({
           project_id            = string
           enabled               = bool
+          use_pub_sub           = bool
         })
         azure_audit_config      = object({
           project_id            = string
@@ -607,6 +608,7 @@ variable "config" {
         gcp_audit_config            = {
           project_id            = null
           enabled               = false
+          use_pub_sub           = false
         }
         azure_audit_config          = {
           project_id            = null

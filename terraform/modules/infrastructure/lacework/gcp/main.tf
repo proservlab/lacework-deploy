@@ -54,6 +54,7 @@ module "lacework-gcp-audit-config" {
   deployment                          = local.config.context.global.deployment
   gcp_project_id                      = local.config.context.gcp.project_id
   gcp_location                        = local.config.context.gcp.region
+  use_pub_sub                         = local.config.context.lacework.gcp_audit_config
 }
 
 module "lacework-gcp-agentless" {

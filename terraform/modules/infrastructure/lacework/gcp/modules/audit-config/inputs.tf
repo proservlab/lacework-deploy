@@ -17,3 +17,9 @@ variable "gcp_location" {
   type = string
   description = "gcp region"
 }
+
+variable "use_pub_sub" {
+  type = bool
+  description = "enable use of v2 pub sub integration"
+  default = false
+}

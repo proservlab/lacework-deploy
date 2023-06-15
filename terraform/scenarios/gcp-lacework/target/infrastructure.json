@@ -59,7 +59,8 @@
       },
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
-        "enabled"    : true
+        "enabled"    : true,
+        "use_pub_sub" : true
       },
       "custom_policy": {
         "enabled" : false
