@@ -45,6 +45,7 @@ resource "google_compute_instance" "instance" {
     metadata = {
         enable-osconfig = "true"
         enable-oslogin = "true"
+        osconfig-log-level= "debug"
     }
 
     # converted label keys to lower
