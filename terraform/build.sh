@@ -150,17 +150,18 @@ terraform fmt
 # set workspace
 terraform workspace select ${WORK} || terraform workspace new ${WORK}
 
-# update modules as required
-terraform get -update=true
-
 # ensure backend is initialized
-if [ -z ${LOCAL_BACKEND} ]; then
-terraform init -backend-config=env_vars/init.tfvars
-BACKEND="-var-file=env_vars/backend.tfvars"
-else
-terraform init -upgrade
-BACKEND=""
-fi;
+if [ "$ACTION" != "show" ]; then
+    # update modules as required
+    terraform get -update=true
+    if [ -z ${LOCAL_BACKEND} ]; then
+        terraform init -backend-config=env_vars/init.tfvars
+        BACKEND="-var-file=env_vars/backend.tfvars"
+    else
+        terraform init -upgrade
+        BACKEND=""
+    fi;
+fi
 
 check_tf_apply(){
     if [ ${1} -eq 0 ]; then
