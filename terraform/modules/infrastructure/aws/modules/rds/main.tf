@@ -125,6 +125,7 @@ resource "aws_db_instance" "database" {
 # Create the S3 bucket - with private acl
 resource "aws_s3_bucket" "bucket" {
   bucket = "db-backup-${var.environment}-${var.deployment}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_ownership_controls" "bucket" {
