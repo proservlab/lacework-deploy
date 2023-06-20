@@ -48,6 +48,9 @@
       "aws_audit_config": {
         "enabled" : true
       },
+      "custom_policy": {
+        "enabled" : false
+      },
       "agent": {
         "enabled" : true,
 
@@ -64,7 +67,7 @@
             "enabled" : true
           },
           "eks_audit_logs": {
-            "enabled" : false
+            "enabled" : true
           },
           "admission_controller": {
             "enabled" : true

@@ -222,6 +222,31 @@ module "eks-windows-configmap" {
 }
 
 ##################################################
+# AWS EKS Calico
+##################################################
+
+module "eks-calico" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source                                = "./modules/eks-calico"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = module.eks[0].cluster.id
+  region                                = local.config.context.aws.region
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.eks-windows,
+    module.eks,
+   
+    module.eks-autoscaler
+  ]
+}
+
+##################################################
 # AWS EKS Lacework
 ##################################################
 

@@ -109,6 +109,7 @@ resource "aws_db_instance" "database" {
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true
+  storage_type                          = "gp2"
   
   db_subnet_group_name                  = aws_db_subnet_group.database.id
   vpc_security_group_ids = [

@@ -79,6 +79,48 @@ resource "kubernetes_service_account" "database" {
     }
 }
 
+resource "kubernetes_cluster_role" "database" {
+    metadata {
+        name = "database"
+    }
+
+    rule {
+        api_groups     =    [
+                                "",
+                            ]
+        resources      =    [
+                                "services",
+                                "pods"
+                            ]
+        verbs          =    [
+                                "get", 
+                                "list", 
+                                "watch",
+                            ]
+    }
+    
+}
+
+resource "kubernetes_cluster_role_binding" "database" {
+  metadata {
+    name      = "database-role-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "database"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "database"
+    namespace = var.namespace 
+  }
+
+  depends_on = [
+    kubernetes_namespace.rds_connect
+  ]   
+}
+
 resource "aws_subnet" "database" {
   vpc_id                  = var.cluster_vpc_id
   count                   = length(local.subnets_cidrs)
