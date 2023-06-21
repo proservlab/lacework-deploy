@@ -337,13 +337,10 @@ module "lacework-admission-controller" {
 module "lacework-eks-audit" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true  ) ? 1 : 0
   source      = "./modules/eks-audit"
-  region      = local.config.context.aws.region
+  region                                = local.config.context.aws.region
   environment                           = local.config.context.global.environment
   deployment                            = local.config.context.global.deployment
-
-  cluster_names = [
-    module.eks[0].cluster.id
-  ]
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
 
   providers = {
     kubernetes = kubernetes.main

@@ -14,7 +14,7 @@ import boto3
 DB_APP_URL = os.environ.get("DB_APP_URL")
 DB_USER_NAME = os.environ.get("DB_USER_NAME")
 DB_NAME = os.environ.get("DB_NAME")
-DB_PORT = os.environ.get("DB_PORT")
+DB_PORT = int(os.environ.get("DB_PORT"))
 DB_REGION = os.environ.get("DB_REGION")
 
 app = Flask(__name__)

@@ -210,6 +210,11 @@ variable "config" {
                 enabled                     = bool
                 attack_delay                = number
               })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
         })
@@ -406,6 +411,11 @@ variable "config" {
               docker_composite_host_compromise_attack = object({
                 enabled                     = bool
                 attack_delay                = number
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
               })
             })
           })
@@ -607,6 +617,17 @@ variable "config" {
               docker_composite_host_compromise_attack = object({
                 enabled                     = bool
                 attack_delay                = number
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
+              generate_aws_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                commands                    = list(string)
               })
             })
           })
@@ -821,10 +842,15 @@ variable "config" {
                 nicehash_user               = null
                 compromised_keys_user       = null
                 attack_delay                =  50400
-              }
+              },
               docker_composite_host_compromise_attack = {
                 enabled                     = false
                 attack_delay                = 50400
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -1031,6 +1057,11 @@ variable "config" {
               docker_composite_host_compromise_attack = {
                 enabled                     = false
                 attack_delay                = 50400
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -1241,6 +1272,17 @@ variable "config" {
               docker_composite_host_compromise_attack = {
                 enabled                     = false
                 attack_delay                = 50400
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
+              },
+              generate_aws_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                commands                    = []
               }
             }
           }
