@@ -22,9 +22,11 @@
               "commands": [
                 "apt-get install -y jq",
                 "PROFILE=khon.traktour@interlacelabs",
+                "log \"User: $(aws sts get-caller-identity --profile=$PROFILE)\"",
                 "REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)",
                 "ROLE_NAME=\"rds_user_access_role_ciemdemo\"",
                 "SESSION_NAME=\"local-user\"",
+                "log \"Getting assumed role credentials...\"",
                 "AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE | jq -r '.Account')",
                 "CREDS=$(aws sts assume-role --profile=$PROFILE --role-arn \"arn:aws:iam::$AWS_ACCOUNT_NUMBER:role/$ROLE_NAME\" --role-session-name \"$SESSION_NAME\")",
                 "AWS_ACCESS_KEY_ID=$(echo \"$CREDS\" | jq -r '.Credentials.AccessKeyId')",
@@ -32,16 +34,23 @@
                 "AWS_SESSION_TOKEN=$(echo \"$CREDS\" | jq -r '.Credentials.SessionToken')",
                 "AWS_DEFAULT_REGION=$REGION",
                 "AWS_DEFAULT_OUTPUT=json",
+                "log \"Setting assumed role credentials...\"",
                 "PROFILE=\"rds_user_access_role_ciemdemo\"",
                 "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE",
                 "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE",
                 "aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE",
                 "aws configure set region $REGION --profile=$PROFILE",
                 "aws configure set output json --profile=$PROFILE",
+                "log \"AssumedRole: $(aws sts get-caller-identity --profile=$PROFILE)\"",
+                "log \"Getting db credentials as assumed role...\"",
                 "DBHOST=\"$(aws ssm get-parameter --profile=$PROFILE --name=\"db_host\" --with-decryption $opts| jq -r '.Parameter.Value' | cut -d \":\" -f 1)\"",
                 "DBUSER=\"$(aws ssm get-parameter --profile=$PROFILE --name=\"db_username\" --with-decryption $opts | jq -r '.Parameter.Value')\"",
                 "DBPORT=\"$(aws ssm get-parameter --profile=$PROFILE --name=\"db_port\" --with-decryption $opts | jq -r '.Parameter.Value')\"",
-                "TOKEN=\"$(aws rds generate-db-auth-token --profile=$PROFILE --hostname $DBHOST --port $DBPORT --username $DBUSER)\""
+                "TOKEN=\"$(aws rds generate-db-auth-token --profile=$PROFILE --hostname $DBHOST --port $DBPORT --username $DBUSER)\"",
+                "log \"DBHOST: $DBHOST\" >> $LOGFILE",
+                "log \"DBUSER: $DBUSER\" >> $LOGFILE",
+                "log \"DBPORT: $DBPORT\" >> $LOGFILE",
+                "log \"TOKEN: $TOKEN\" >> $LOGFILE"
               ]
             }
           }
