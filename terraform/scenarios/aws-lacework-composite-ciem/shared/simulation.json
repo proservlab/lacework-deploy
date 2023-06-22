@@ -47,10 +47,10 @@
                 "DBUSER=\"$(aws ssm get-parameter --profile=$PROFILE --name=\"db_username\" --with-decryption $opts | jq -r '.Parameter.Value')\"",
                 "DBPORT=\"$(aws ssm get-parameter --profile=$PROFILE --name=\"db_port\" --with-decryption $opts | jq -r '.Parameter.Value')\"",
                 "TOKEN=\"$(aws rds generate-db-auth-token --profile=$PROFILE --hostname $DBHOST --port $DBPORT --username $DBUSER)\"",
-                "log \"DBHOST: $DBHOST\" >> $LOGFILE",
-                "log \"DBUSER: $DBUSER\" >> $LOGFILE",
-                "log \"DBPORT: $DBPORT\" >> $LOGFILE",
-                "log \"TOKEN: $TOKEN\" >> $LOGFILE"
+                "log \"DBHOST: $DBHOST\"",
+                "log \"DBUSER: $DBUSER\"",
+                "log \"DBPORT: $DBPORT\"",
+                "log \"TOKEN: $TOKEN\""
               ]
             }
           }
