@@ -18,9 +18,8 @@ resource "aws_s3_bucket_acl" "example" {
   acl    = "private"
 }
 
-data "aws_iam_policy_document" "s3_bucket_policy" {
+data "aws_iam_policy_document" "s3_bucket_policy_rds" {
   # allow user rds servce to access rds backup s3
-
   statement {
     actions = [
       "s3:PutObject",
@@ -42,7 +41,9 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       identifiers = ["rds.amazonaws.com"]
     }
   }
+}
 
+data "aws_iam_policy_document" "s3_bucket_policy_user_role" {
   # allow user role to access rds backup s3
   statement {
     actions = [
@@ -65,7 +66,9 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       identifiers = [aws_iam_role.user_role.arn]
     }
   }
+}
 
+data "aws_iam_policy_document" "s3_bucket_policy_ec2" {
   # allow ec2 role to access rds backup s3
   statement {
     actions = [
@@ -91,5 +94,15 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.bucket.id
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+  policy = data.aws_iam_policy_document.s3_bucket_policy_rds.json
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.s3_bucket_policy_user_policy.json
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.s3_bucket_policy_ec2.json
 }
