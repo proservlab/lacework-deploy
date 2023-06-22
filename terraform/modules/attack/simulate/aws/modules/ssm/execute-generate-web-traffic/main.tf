@@ -1,6 +1,6 @@
 locals {
     attack_dir = "/generate-web-traffic"
-    curl_urls = join("\n", [ for url in var.urls: "curl -s --connect-timeout 5 '${url}' >> $LOGFILE 2>&1" ])
+    curl_urls = join("\n", [ for url in var.urls: "curl -s --retry 20 --retry-connrefused --retry-delay 60 --connect-timeout 5 '${url}' >> $LOGFILE 2>&1" ])
     payload = <<-EOT
     set -e
     LOGFILE=/tmp/${var.tag}.log
