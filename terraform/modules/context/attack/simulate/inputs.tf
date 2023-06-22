@@ -81,6 +81,11 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
           attacker = object({
@@ -283,6 +288,11 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
           attacker = object({
@@ -484,6 +494,17 @@ variable "config" {
                 minergate_image             = string
                 minergate_server            = string
                 minergate_user              = string
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
+              generate_aws_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                commands                    = list(string)
               })
             })
           })
@@ -708,6 +729,11 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -919,6 +945,11 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -1130,6 +1161,17 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
+              },
+              generate_aws_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                commands                    = []
               }
             }
           }

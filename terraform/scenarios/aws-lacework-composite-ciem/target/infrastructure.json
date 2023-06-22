@@ -36,7 +36,7 @@
                 "ssm_exec_vuln_log4j_app_target"            : "true",
                 "ssm_deploy_secret_ssh_private"             : "true",
                 "ssm_deploy_secret_aws_creds"               : "true",
-                "ssm_exec_generate_aws_cli_traffic"         : "true"
+                "ssm_exec_generate_aws_cli_traffic_target"  : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null
@@ -56,7 +56,7 @@
                 "ssm_deploy_lacework_code_aware_agent"          : "true",
                 "ssm_exec_vuln_rdsapp_target"                   : "true",
                 "ssm_deploy_secret_ssh_public"                  : "true",
-                "ssm_exec_generate_web_traffic"                 : "true"
+                "ssm_exec_generate_web_traffic_target"          : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null

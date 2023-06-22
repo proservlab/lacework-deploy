@@ -405,6 +405,56 @@ module "ssm-execute-docker-composite-host-compromise" {
   attack_delay  = local.config.context.aws.ssm.attacker.execute.docker_composite_host_compromise_attack.attack_delay
 }
 
+module "ssm-execute-generate-aws-cli-traffic-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-generate-aws-cli-traffic"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  compromised_credentials = var.compromised_credentials
+  compromised_keys_user   = local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.compromised_keys_user
+  commands                = local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.commands
+  tag                     = "ssm_exec_generate_aws_cli_traffic_attacker"
+}
+
+module "ssm-execute-generate-web-traffic-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-generate-web-traffic"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  
+  delay                   = local.config.context.aws.ssm.attacker.execute.generate_web_traffic.delay
+  urls                    = local.config.context.aws.ssm.attacker.execute.generate_web_traffic.urls
+  tag                     = "ssm_exec_generate_web_traffic_attacker"
+}
+
+module "ssm-execute-generate-aws-cli-traffic-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-generate-aws-cli-traffic"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  compromised_credentials = var.compromised_credentials
+  compromised_keys_user   = local.config.context.aws.ssm.target.execute.generate_aws_cli_traffic.compromised_keys_user
+  commands                = local.config.context.aws.ssm.target.execute.generate_aws_cli_traffic.commands
+  tag                     = "ssm_exec_generate_aws_cli_traffic_target"
+}
+
+module "ssm-execute-generate-web-traffic-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-generate-web-traffic"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  
+  delay                   = local.config.context.aws.ssm.target.execute.generate_web_traffic.delay
+  urls                    = local.config.context.aws.ssm.target.execute.generate_web_traffic.urls
+  tag                     = "ssm_exec_generate_web_traffic_target"
+}
+
 ##################################################
 # LISTENER
 ##################################################

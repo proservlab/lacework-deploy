@@ -14,7 +14,7 @@ variable "region" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_generate_web_traffic"
+  default = "ssm_exec_generate_aws_cli_traffic"
 }
 
 variable "timeout" {

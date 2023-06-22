@@ -1,7 +1,7 @@
 locals {
     attack_dir = "/generate-aws-cli-traffic"
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
-    aws_commands = join("\n", [ for command in var.commands: "${command} >> $LOGFILE 2>&1" ])
+    aws_commands = join("\n", [ for command in var.commands: "${command}" ])
     payload = <<-EOT
     set -e
     LOGFILE=/tmp/${var.tag}.log
@@ -26,6 +26,13 @@ locals {
     cd ${local.attack_dir}
     ${local.aws_creds}
     source .env-aws-${var.compromised_keys_user}
+    PROFILE="khon.traktour@interlacelabs"
+    REGION="${var.region}"
+    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
+    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
+    aws configure set region $REGION --profile=$PROFILE
+    aws configure set output json --profile=$PROFILE
+
     log "Running aws commands..."
     ${local.aws_commands}
     log "Done."
