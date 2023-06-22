@@ -54,6 +54,7 @@ resource "aws_iam_role" "user_role" {
     "Version": "2012-10-17",
     "Statement": [
         {
+        "Sid": "AllowAssumeRole"
         "Effect": "Allow",
         "Principal": {
             "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
@@ -101,8 +102,7 @@ resource "aws_iam_role_policy_attachment" "attach" {
 
 resource "aws_iam_policy" "db_access" {
     name = "db_access_${var.environment}_${var.deployment}"
-    policy =    <<-EOF
-                {
+    policy =   jsonencode({
                     "Version": "2012-10-17",
                     "Statement": [
                         {
@@ -144,14 +144,12 @@ resource "aws_iam_policy" "db_access" {
                             ]
                         }
                     ]
-                }
-                EOF
+                })
 }
 
 resource "aws_iam_policy" "db_export" {
     name = "db_export_${var.environment}_${var.deployment}"
-    policy =    <<-EOF
-                {
+    policy =    jsonencode({
                     "Version": "2012-10-17",
                     "Statement": [
                         {
@@ -165,7 +163,8 @@ resource "aws_iam_policy" "db_export" {
                             ]
                         },
                         {
-                            "Effect": "IAMPassRole",
+                            "Sid": "IAMPassRole",
+                            "Effect": "Allow",
                             "Action": [
                                 "iam:GetRole",
                                 "iam:PassRole"
@@ -200,7 +199,8 @@ resource "aws_iam_policy" "db_export" {
                             ]
                         },
                         {
-                            "Effect": "KMSCreateGrant",
+                            "Sid": "KMSCreateGrant",
+                            "Effect": "Allow",
                             "Action": [
                                 "kms:CreateGrant",
                                 "kms:ListGrants",
@@ -253,8 +253,7 @@ resource "aws_iam_policy" "db_export" {
                             "Resource":"${aws_db_instance.database.arn}"
                         }
                     ]
-                }
-                EOF
+                })
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_db_access" {
