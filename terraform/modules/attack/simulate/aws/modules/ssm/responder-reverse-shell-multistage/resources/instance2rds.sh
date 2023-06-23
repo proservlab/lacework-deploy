@@ -190,7 +190,7 @@ EXPORT_TASK_ARN=$(aws rds start-export-task \
     --region=$REGION  \
     --export-task-identifier $EXPORT_TASK_IDENTIFIER \
     --source-arn $DB_SNAPSHOT_ARN \
-    --s3-bucket-name db-backup-$ENVIRONMENT-$DEPLOYMENT \
+    --s3-bucket-name db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
     --iam-role-arn $RDS_EXPORT_ROLE_ARN \
     --kms-key-id=$KMS_KEY_ID \
