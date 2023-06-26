@@ -3,3 +3,12 @@ resource "google_service_account" "default" {
     display_name                        = "${var.environment}-${var.deployment}-sa"
     project                             = var.gcp_project_id
 }
+
+
+resource "google_project_iam_binding" "default" {
+  project = var.gcp_project_id
+  role    = "roles/logging.logWriter"
+  members = [
+    "serviceAccount:${google_service_account.default.email}"
+  ]
+}
