@@ -68,12 +68,18 @@ variable "config" {
             ssh_public_key_path         = string
             ssh_authorized_keys_path    = string
           })
-          aws_credentials = object({ 
+          azure_credentials = object({ 
             enabled                     = bool
+            compromised_keys_user       = string
           })
         })
       })
       gcp = object({
+        iam = object({
+          enabled                       = bool
+          user_policies_path = string
+          users_path = string
+        })
         gce = object({
           add_trusted_ingress = object({
             enabled                     = bool
@@ -125,8 +131,9 @@ variable "config" {
             ssh_public_key_path         = string
             ssh_authorized_keys_path    = string
           })
-          aws_credentials = object({ 
+          gcp_credentials = object({ 
             enabled                     = bool
+            compromised_keys_user       = string
           })
         })
       })
@@ -364,12 +371,18 @@ variable "config" {
             ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
             ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
-          aws_credentials = {
+          azure_credentials = {
             enabled                     = false
+            compromised_keys_user       = null
           }
         }
       }
       gcp = {
+        iam = {
+          enabled                       = false
+          user_policies_path            = null
+          users_path                    = null
+        }
         gce = {
           add_trusted_ingress = {
             enabled                     = false
@@ -421,8 +434,9 @@ variable "config" {
             ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
             ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
-          aws_credentials = {
+          gcp_credentials = {
             enabled                     = false
+            compromised_keys_user       = null
           }
         }
       }

@@ -63,7 +63,7 @@ locals {
     osconfig_deploy_malware_eicar        = "false"
     osconfig_deploy_secret_ssh_public    = "false"
     osconfig_deploy_secret_ssh_private   = "false"
-    osconfig_deploy_secret_aws_creds     = "false"
+    osconfig_deploy_secret_gcp_creds     = "false"
     osconfig_exec_reverse_shell_attacker = "false"
     osconfig_exec_reverse_shell_multistage_attacker = "false"
     osconfig_exec_reverse_shell_target   = "false"
