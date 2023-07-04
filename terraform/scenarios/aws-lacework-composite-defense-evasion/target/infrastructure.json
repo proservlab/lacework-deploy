@@ -35,7 +35,8 @@
               "ssm_deploy_inspector_agent"       : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },

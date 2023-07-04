@@ -37,7 +37,8 @@
               "ssm_exec_vuln_log4j_app_target"        : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },

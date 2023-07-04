@@ -38,7 +38,8 @@
                 "ssm_deploy_secret_aws_creds"               : "true"
             },
             "user_data"                 : null,
-            "user_data_base64"          : null
+            "user_data_base64"          : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "webserver",
@@ -55,7 +56,8 @@
                 "ssm_deploy_secret_ssh_public"              : "true"
             },
             "user_data"                 : null,
-            "user_data_base64"          : null
+            "user_data_base64"          : null,
+            "enable_swap"      : true
           }
         ]
       },

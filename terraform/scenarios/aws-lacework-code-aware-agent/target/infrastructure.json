@@ -35,7 +35,8 @@
               "ssm_exec_vuln_python3_twisted_app_target"     : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-public-2",
@@ -49,7 +50,8 @@
               "ssm_exec_vuln_python3_twisted_app_target"     : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },

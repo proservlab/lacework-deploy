@@ -35,7 +35,8 @@
               "ssm_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-public-2",
@@ -49,7 +50,8 @@
               "ssm_deploy_secret_ssh_public" : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-app-public-1",
@@ -62,12 +64,13 @@
               "ssm_deploy_lacework_syscall": "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },
       "eks": {
-        "enabled"      : false,
+        "enabled"      : true,
         "cluster_name" : "target-cluster"
       },
       "rds" :  {
@@ -88,7 +91,7 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_audit_config": {
         "enabled"    : false
@@ -97,30 +100,30 @@
         "enabled" : false
       },
       "agent": {
-        "enabled" : false,
+        "enabled" : true,
 
         "kubernetes": {
-          "enabled" : false,
+          "enabled" : true,
           "proxy_scanner": {
-            "enabled" : false
+            "enabled" : true
           },
           "daemonset": {
-            "enabled"        : false,
+            "enabled"        : true,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : false
+            "enabled" : true
           },
           "eks_audit_logs": {
             "enabled" : false
           },
           "admission_controller": {
-            "enabled" : false
+            "enabled" : true
           }
         }
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "gcp_agentless": {
         "enabled" : false
