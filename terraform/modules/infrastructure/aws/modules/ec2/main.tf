@@ -80,6 +80,8 @@ module "instances" {
   user_data = each.value.user_data
   user_data_base64 = each.value.user_data_base64
 
+  enable_swap = each.value.enable_swap
+  
   enable_secondary_volume = each.value.enable_secondary_volume
 
   enable_public_ip = each.value.public

@@ -46,6 +46,11 @@ variable "user_data_base64" {
     default = null
 }
 
+variable "enable_swap" {
+    type = bool
+    default = false
+}
+
 variable "enable_secondary_volume" {
     type = bool
     default = false

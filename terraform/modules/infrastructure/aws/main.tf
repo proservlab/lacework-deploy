@@ -103,6 +103,7 @@ module "ec2" {
       role                            = lookup(ec2, "role", "default")
       instance_type                   = lookup(ec2, "instance_type", "t2.micro")
       enable_secondary_volume         = lookup(ec2, "enable_secondary_volume", false)
+      enable_swap                     = lookup(ec2, "enable_swap", true)
       ami_name                        = lookup(ec2, "ami_name", "ubuntu_focal")
       tags                            = lookup(ec2, "tags", {})
       user_data                       = lookup(ec2, "user_data", null)

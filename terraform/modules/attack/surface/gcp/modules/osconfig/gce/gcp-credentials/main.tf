@@ -1,11 +1,12 @@
 locals {
-    gcp_creds = [ for u,k in var.compromised_credentials: 
-                <<-EOT
-                cat <<-EOF > ~/.config/gcloud/${u}-credentials 
-                ${k.rendered}
-                EOF
-                EOT
-        ]
+    # gcp_creds = [ for u,k in var.compromised_credentials: 
+    #             <<-EOT
+    #             cat <<-EOF > ~/.config/gcloud/${u}-credentials 
+    #             ${k.rendered}
+    #             EOF
+    #             EOT
+    #     ]
+    gcp_creds = ""
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -23,15 +24,21 @@ locals {
     # wait for gcloud cli
     log "Deploying gcp credentials..."
     mkdir -p ~/.config/gcloud
-    ${gcp_creds}
+    ${local.gcp_creds}
     log "Done."
     EOT
     base64_payload = base64encode(local.payload)
 }
 
-###########################
-# SSM 
-###########################
+#####################################################
+# GCP OSCONFIG
+#####################################################
+
+locals {
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+}
+
+
 
 resource "random_string" "this" {
     length            = 4
@@ -41,90 +48,71 @@ resource "random_string" "this" {
     numeric           = true
 }
 
-resource "aws_ssm_document" "this" {
-  name          = "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}"
-  document_type = "Command"
-
-  content = jsonencode(
-    {
-        "schemaVersion": "2.2",
-        "description": "attack simulation",
-        "mainSteps": [
-            {
-                "action": "aws:runShellScript",
-                "name": "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}",
-                "precondition": {
-                    "StringEquals": [
-                        "platformType",
-                        "Linux"
-                    ]
-                },
-                "inputs": {
-                    "timeoutSeconds": "${var.timeout}",
-                    "runCommand": [
-                        "echo '${local.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
-                    ]
-                }
-            }
-        ]
-    })
+data "google_compute_zones" "available" {
+  project     = var.gcp_project_id
+  region    = var.gcp_location
 }
 
-resource "aws_resourcegroups_group" "this" {
-    name = "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}"
+resource "google_os_config_os_policy_assignment" "this" {
 
-    resource_query {
-        query = jsonencode({
-                    ResourceTypeFilters = [
-                        "AWS::EC2::Instance"
-                    ]
+  project     = var.gcp_project_id
+  location    = data.google_compute_zones.available.names[0]
+  
+  name        = "${local.resource_name}"
+  description = "Attack automation"
+  skip_await_rollout = true
+  
+  instance_filter {
+    all = false
 
-                    TagFilters = [
-                        {
-                            Key = "${var.tag}"
-                            Values = [
-                                "true"
-                            ]
-                        },
-                        {
-                            Key = "deployment"
-                            Values = [
-                                var.deployment
-                            ]
-                        },
-                        {
-                            Key = "environment"
-                            Values = [
-                                var.environment
-                            ]
-                        }
-                    ]
-                })
+    inclusion_labels {
+      labels = jsondecode(<<-EOT
+                            { 
+                              "${var.tag}": "true",
+                              "deployment": "${var.deployment}",
+                              "environment": "${var.environment}"
+                            }
+                            EOT
+                          )
     }
 
-    tags = {
-        billing = var.environment
-        owner   = "lacework"
-    }
-}
-
-resource "aws_ssm_association" "this" {
-    association_name = "${var.tag}_${var.environment}_${var.deployment}_${random_string.this.id}"
-
-    name = aws_ssm_document.this.name
-
-    targets {
-        key = "resource-groups:Name"
-        values = [
-            aws_resourcegroups_group.this.name,
-        ]
+    inventories {
+      os_short_name = "ubuntu"
     }
 
-    compliance_severity = "HIGH"
+    inventories {
+      os_short_name = "debian"
+    }
 
-    # cronjob
-    schedule_expression = "${var.cron}"
-    
-    # will apply when updated and interval when false
-    apply_only_at_cron_interval = false
+  }
+
+  os_policies {
+    id        = "${local.resource_name}"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "run"
+        exec {
+          validate {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
+          }
+          enforce {
+            interpreter      = "SHELL"
+            output_file_path = "$HOME/os-policy-tf.out"
+            script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
+          }
+        }
+      }
+    }
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 50
+    }
+    min_wait_duration = var.timeout
+  }
 }
