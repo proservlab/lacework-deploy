@@ -3,6 +3,7 @@ output "id" {
 }
 
 output "config" {
+    sensitive = false
     value = {
         context = {
             workstation = {

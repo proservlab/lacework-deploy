@@ -1,4 +1,5 @@
 output "target-gcp-instances" {
+  sensitive = false
   value = [
     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
@@ -14,6 +15,7 @@ output "target-gcp-instances" {
 }
 
 output "attacker-gcp-instances" {
+  sensitive = false
   value = [
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
