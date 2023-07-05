@@ -37,7 +37,7 @@ variable "kubeconfig_path" {
   description = "kubeconfig path"
 }
 
-variable "enable_calico" {
+variable "deploy_calico" {
   type = bool
   description = "enable eks calico deployment"
 }

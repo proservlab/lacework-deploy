@@ -90,6 +90,9 @@ data "aws_iam_policy_document" "s3_bucket_policy_ec2" {
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"]
     }
   }
+  depends_on = [
+    aws_s3_bucket.bucket
+  ]
 }
 
 resource "aws_s3_bucket_policy" "bucket_policy_rds" {

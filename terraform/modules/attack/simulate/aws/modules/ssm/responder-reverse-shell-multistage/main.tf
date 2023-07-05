@@ -25,7 +25,24 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    
+    if ! which proxychains > /dev/null; then
+        log "installing proxychains..."
+        apt-get update && apt-get install -y proxychains
+    else
+        log "proxychains already installed - skipping..."
+    fi
+    if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
+        log "adding socksuser..."
+        adduser socksuser >> $LOGFILE 2>&1
+        log "adding ssh keys for socks user..."
+        sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+        log "socksuser setup complete..."
+    else
+        log "socksuser already exists - skipping..."
+    fi
     log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
     screen -S pwncat -X quit
     truncate -s 0 /tmp/pwncat.log
@@ -50,7 +67,6 @@ locals {
     python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
     log "wait before using module..."
     sleep 5
-
     log "starting background delayed script start..."
     nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
     log "background job started"

@@ -135,6 +135,7 @@ variable "config" {
         eks = object({
           enabled               = bool
           cluster_name          = string
+          deploy_calico         = bool
         })
         eks-windows = object({
           enabled               = bool
@@ -570,6 +571,7 @@ variable "config" {
         eks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+          deploy_calico         = false
         }
 
         eks-windows = {
