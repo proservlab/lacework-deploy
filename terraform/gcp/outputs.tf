@@ -13,7 +13,7 @@ output "target-gcp-instances" {
   ]
 }
 
-output "target-gcp-instances" {
+output "attacker-gcp-instances" {
   value = [
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
