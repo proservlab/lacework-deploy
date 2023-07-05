@@ -15,7 +15,7 @@ output "target-gcp-instances" {
 
 output "attacker-gcp-instances" {
   value = [
-    for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
+    for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
       for compute in gce.instances : {
         id         = compute.instance.id
