@@ -10,10 +10,10 @@ output "target-gcp-instances" {
     [
       for compute in gce.instances : {
         id         = compute.instance.id
-        name       = compute.instance.instance_id
+        name       = compute.instance.labels.name
         private_ip = compute.instance.network_interface.0.network_ip
         public_ip  = compute.instance.network_interface.0.access_config.0.nat_ip
-        labels     = compute.instance.labels
+        labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
       }
     ]
   ]
