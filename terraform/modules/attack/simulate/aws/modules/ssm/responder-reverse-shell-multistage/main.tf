@@ -27,7 +27,7 @@ locals {
     done
     if ! which proxychains > /dev/null; then
         log "installing proxychains..."
-        apt-get update && apt-get install -y proxychains
+        apt-get update && apt-get install -y proxychains4
     else
         log "proxychains already installed - skipping..."
     fi

