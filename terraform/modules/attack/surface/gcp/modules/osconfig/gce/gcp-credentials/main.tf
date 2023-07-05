@@ -1,12 +1,5 @@
 locals {
-    # gcp_creds = [ for u,k in var.compromised_credentials: 
-    #             <<-EOT
-    #             cat <<-EOF > ~/.config/gcloud/${u}-credentials 
-    #             ${k.rendered}
-    #             EOF
-    #             EOT
-    #     ]
-    gcp_creds = ""
+    gcp_creds = base64encode(try(var.compromised_credentials[var.compromised_keys_user].rendered, ""))
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -24,7 +17,10 @@ locals {
     # wait for gcloud cli
     log "Deploying gcp credentials..."
     mkdir -p ~/.config/gcloud
-    ${local.gcp_creds}
+    if [  "${ local.gcp_creds == "" ? "false" : "true" }" == "true" ]; then
+      echo ${local.gcp_creds} | base64 -d > ~/.config/gcloud/credentials.json
+      gcloud auth activate-service-account --key-file=/root/.config/gcloud/credentials.json
+    fi
     log "Done."
     EOT
     base64_payload = base64encode(local.payload)
@@ -96,12 +92,10 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
             script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
-            interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
+            interpreter      = "SHELL"          
             script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
           }
         }

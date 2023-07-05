@@ -60,7 +60,7 @@ resource "aws_eks_node_group" "cluster" {
   instance_types = [ "t3.small" ]
 
   scaling_config {
-    desired_size = 4
+    desired_size = var.enable_calico == true ? 4 : 3
     max_size     = 5
     min_size     = 2
   }

@@ -7,6 +7,17 @@
     "aws" :  {
       "enabled" : true,
       "ssm" :  {
+        "target": {
+          "execute": {
+            "generate_web_traffic": {
+              "enabled": true,
+              "delay": 60,
+              "urls": [
+                "http://localhost:8091/cast"
+              ]
+            }
+          }
+        },
         "attacker": {
           "execute": {
             "docker_log4shell_attack": {

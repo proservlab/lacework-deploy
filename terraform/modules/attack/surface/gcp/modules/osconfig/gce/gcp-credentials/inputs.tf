@@ -33,5 +33,5 @@ variable "compromised_credentials" {
 
 variable "compromised_keys_user" {
   type = string
-  default = "ghoul-gal-sa"
+  default = "gee-zeepay"
 }

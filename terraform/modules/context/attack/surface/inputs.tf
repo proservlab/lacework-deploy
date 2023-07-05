@@ -168,6 +168,9 @@ variable "config" {
           })
         })
         eks = object({
+          enable_calico = object({
+            enabled = bool
+          })
           add_iam_user_readonly_user = object({
             enabled = bool
             iam_user_names =  list(string)
@@ -471,6 +474,9 @@ variable "config" {
           }
         }
         eks = {
+          enable_calico = {
+            enabled = false
+          }
           add_iam_user_readonly_user = {
             enabled = false
             iam_user_names =  []

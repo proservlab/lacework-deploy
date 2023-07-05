@@ -1,8 +1,8 @@
 
 
-output "target-compromised-credentials" {
-  value = [for u, k in module.target-gcp-attacksurface.compromised_credentials : "${u}:${k.rendered}"]
-}
+# output "target-compromised-credentials" {
+#   value = [for u, k in module.target-gcp-attacksurface.compromised_credentials : "${u}:${k.rendered}"]
+# }
 
 # output "target-gcp-instances" {
 #   value = [

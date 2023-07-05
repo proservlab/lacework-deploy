@@ -29,3 +29,13 @@ locals {
                   } 
                 }
 }
+
+resource "null_resource" "log" {
+  triggers = {
+    log_message = jsonencode(local.access_keys)
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${jsonencode(local.access_keys)}'"
+  }
+}

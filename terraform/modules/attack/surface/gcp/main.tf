@@ -50,16 +50,6 @@ locals {
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-resource "null_resource" "log" {
-  triggers = {
-    log_message = jsonencode(local.config)
-  }
-
-  provisioner "local-exec" {
-    command = "echo '${jsonencode(local.config)}'"
-  }
-}
-
 ##################################################
 # DEPLOYMENT CONTEXT
 ##################################################
@@ -181,7 +171,7 @@ module "gcp-credentials" {
 
   tag = "osconfig_deploy_secret_gcp_creds"
 
-  compromised_credentials = var.compromised_credentials
+  compromised_credentials = try(module.iam[0].access_keys, {})
   compromised_keys_user = local.config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 }
 
