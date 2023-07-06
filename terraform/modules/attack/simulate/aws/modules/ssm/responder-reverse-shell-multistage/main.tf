@@ -25,11 +25,12 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    if ! which proxychains > /dev/null; then
-        log "installing proxychains..."
-        apt-get update && apt-get install -y proxychains4
+    if ! which proxychains > /dev/null || ! which nmap > /dev/null || ! which hydra > /dev/null; then
+        log "installing proxychains4 nmap hydra..."
+        apt-get update && apt-get install -y proxychains4 nmap hydra python3-pip
+        python3 -m pip install jc
     else
-        log "proxychains already installed - skipping..."
+        log "proxychains4 nmap and hydra already installed - skipping..."
     fi
     if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
         log "adding socksuser..."

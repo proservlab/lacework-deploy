@@ -481,4 +481,8 @@ module "rds" {
   user_role_name                = local.config.context.aws.rds.user_role_name
   instance_type                 = local.config.context.aws.rds.instance_type
   trusted_sg_id                 = module.ec2[0].public_app_sg.id
+
+  depends_on = [
+    module.ec2
+  ]
 }
