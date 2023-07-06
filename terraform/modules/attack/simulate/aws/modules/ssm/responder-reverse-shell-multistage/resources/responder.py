@@ -79,10 +79,15 @@ class Module(BaseModule):
             session.log('running proxychains nmap...')
             result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T1', '-oX', 'scan.xml', '-p22,80,443,5000,8000,8080,8091', target_lan], cwd='/tmp', capture_output=True, text=True)
             session.log(f'Result: {result.stdout}')
-
+            
             # convert to json 
             # cat /tmp/scan.xml | jc --xml -p > /tmp/scan.json
 
+            # kill ssh socksproxy and portforward
+            session.log('killing ssh socksproxy and portforward...')
+            result = session.platform.run('kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
+            session.log(f'Result: {result.stdout}')
+            
             # remove temporary archive from target
             if session.platform.Path('/tmp/sockskey').exists():
                 session.platform.unlink('/tmp/sockskey')
