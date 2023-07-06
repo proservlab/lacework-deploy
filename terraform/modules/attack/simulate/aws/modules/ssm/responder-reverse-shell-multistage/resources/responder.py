@@ -77,7 +77,7 @@ class Module(BaseModule):
 
             # run nmap scan via proxychains
             session.log('running proxychains nmap...')
-            result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T1', '-oX', 'scan.xml', '-p22,80,443,5000,8000,8080,8091', target_lan], cwd='/tmp', capture_output=True, text=True)
+            result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T2', '-oX', 'scan.xml', '-p22,80,443,5000,8000,8080,8091', target_lan], cwd='/tmp', capture_output=True, text=True)
             session.log(f'Result: {result.returncode}')
             
             # convert to json 
