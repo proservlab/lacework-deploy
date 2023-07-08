@@ -54,6 +54,8 @@ locals {
     ssm_exec_generate_aws_cli_traffic_attacker = "false"
     ssm_exec_generate_web_traffic_target  = "false"
     ssm_exec_generate_web_traffic_attacker  = "false"
+    ssm_exec_docker_hydra = "false"
+    ssm_exec_docker_nmap = "false"
   }
   osconfig_default_tags = {
     osconfig_connect_bad_ip              = "false"
@@ -97,6 +99,8 @@ locals {
     osconfig_exec_generate_aws_cli_traffic_attacker = "false"
     osconfig_exec_generate_web_traffic_target  = "false"
     osconfig_exec_generate_web_traffic_attacker  = "false"
+    osconfig_exec_docker_hydra = "false"
+    osconfig_exec_docker_nmap = "false"
   }
   runbook_default_tags = {
     runbook_exec_touch_file                  = "false"
@@ -140,5 +144,7 @@ locals {
     runbook_exec_generate_aws_cli_traffic_attacker = "false"
     runbook_exec_generate_web_traffic_target  = "false"
     runbook_exec_generate_web_traffic_attacker  = "false"
+    runbook_exec_docker_hydra = "false"
+    runbook_exec_docker_nmap = "false"
   }
 }

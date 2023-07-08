@@ -455,6 +455,78 @@ module "ssm-execute-generate-web-traffic-target" {
   tag                     = "ssm_exec_generate_web_traffic_target"
 }
 
+module "ssm-execute-docker-nmap-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-nmap"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  tag                     = "ssm_exec_docker_nmap_attacker"
+  use_tor = local.config.context.aws.ssm.attacker.execute.docker_nmap.use_tor
+  ports = local.config.context.aws.ssm.attacker.execute.docker_nmap.ports
+  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
+module "ssm-execute-docker-hydra-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.docker_hydra.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-hydra"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  
+  tag                     = "ssm_exec_docker_hydra_attacker"
+  
+  use_tor = local.config.context.aws.ssm.attacker.execute.docker_hydra.use_tor
+  custom_user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_user_list
+  custom_password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_password_list
+  user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.user_list
+  password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.password_list
+  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
+module "ssm-execute-docker-nmap-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-nmap"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  tag                     = "ssm_exec_docker_nmap_target"
+  use_tor = local.config.context.aws.ssm.target.execute.docker_nmap.use_tor
+  ports = local.config.context.aws.ssm.target.execute.docker_nmap.ports
+  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
+module "ssm-execute-docker-hydra-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.docker_hydra.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-docker-hydra"
+  region        = local.default_infrastructure_config.context.aws.region
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  
+  tag                     = "ssm_exec_docker_hydra_target"
+  
+  use_tor = local.config.context.aws.ssm.target.execute.docker_hydra.use_tor
+  custom_user_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_user_list
+  custom_password_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_password_list
+  user_list = local.config.context.aws.ssm.target.execute.docker_hydra.user_list
+  password_list = local.config.context.aws.ssm.target.execute.docker_hydra.password_list
+  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
 ##################################################
 # LISTENER
 ##################################################
