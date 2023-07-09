@@ -16,7 +16,7 @@ locals {
         sleep 10
     done
 
-    screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_log4j_app_target -X quit
     truncate -s 0 /tmp/vuln_log4j_app_target.log
     log "checking for git..."
     while ! which git; do
@@ -85,11 +85,10 @@ locals {
     nohup gradle bootJar --no-daemon &
     GRADLE_PID=$!
     while kill -0 $GRADLE_PID 2> /dev/null; do
-    log "Process is still running..."
-    sleep 30
+        log "Process is still running..."
+        sleep 30
     done
     log "gradle build complete."
-
     
     ls -ltr build/libs/*.jar >> $LOGFILE 2>&1
 
@@ -101,12 +100,15 @@ locals {
     cd ${local.app_dir}
 
     log "starting screen..."
-    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar
+    if pgrep -f "spring-boot-application.jar"; then
+        kill -9 $(pgrep -f "spring-boot-application.jar")
+    fi
+    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.listen_port}
     screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
     log 'waiting 30 minutes...';
     sleep 1795
     log "killing screen session..."
-    screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_log4j_app_target -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)

@@ -380,6 +380,11 @@ function aws_check_vpcs {
             shift # past argument
             shift # past value
             ;;
+            -p|--profile)
+            profile="$2"
+            shift # past argument
+            shift # past value
+            ;;
             *)
             errmsg "Unknown option: $1"
             exit 1
@@ -392,12 +397,12 @@ function aws_check_vpcs {
     fi
 
     # Get the number of VPCs deployed in the default region
-    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])')
+    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])' --profile $profile --output json)
 
     infomsg "number of VPCs deployed in the $region region: $vpcs"
 
     # Get the remaining VPC service quota for instances
-    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
+    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --profile $profile --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
 
     infomsg "vpc service quota: $vpc_quota"
     
@@ -445,11 +450,11 @@ function select_aws_profile {
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AWS_PROFILE=$profile_name
             ATTACKER_AWS_REGION=$region
-            aws_check_vpcs -r $ATTACKER_AWS_REGION
+            aws_check_vpcs -r $ATTACKER_AWS_REGION -p $ATTACKER_AWS_PROFILE
         elif [ "$environment" == "target" ]; then
             TARGET_AWS_PROFILE=$profile_name
             TARGET_AWS_REGION=$region
-            aws_check_vpcs -r $TARGET_AWS_REGION
+            aws_check_vpcs -r $TARGET_AWS_REGION -p $TARGET_AWS_PROFILE
         fi;
     done;
 }
@@ -551,8 +556,9 @@ function select_azure_subscription {
 
 function select_lacework_profile {
     infomsg "select a lacework profile:"
+    PS3="Profile number: "
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | awk -v m=2 -v n=3 'NR<=m{next};NR>n+m{print line[NR%n]};{line[NR%n]=$0}' | cut -d " " -f5)
+    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}' )
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then

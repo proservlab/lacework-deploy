@@ -9,7 +9,8 @@ variable "deployment" {
 }
 
 variable "cluster_name" {
-  type    = string
+  type = string
+  description = "name of the kubernetes cluster"
 }
 
 variable "lacework_agent_access_token" {
@@ -18,7 +19,7 @@ variable "lacework_agent_access_token" {
 
 variable "lacework_server_url" {
     type    = string
-    default = "https://api.lacework.net"
+    default = "https://agent.lacework.net"
 }
 
 variable "lacework_image_repository" {

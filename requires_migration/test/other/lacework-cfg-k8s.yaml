@@ -4,4 +4,4 @@ metadata:
   name: lacework-config
 data:
   config.json: |
-    {"tokens":{"AccessToken":"892d3da03301b428b78a320ea7bb529cdcfb635cd3aa8d9ce025b058"}, "tags":{"Env":"k8s"}, "serverurl":"https://api.lacework.net"}
+    {"tokens":{"AccessToken":"892d3da03301b428b78a320ea7bb529cdcfb635cd3aa8d9ce025b058"}, "tags":{"Env":"k8s"}, "serverurl":"https://agent.lacework.net"}

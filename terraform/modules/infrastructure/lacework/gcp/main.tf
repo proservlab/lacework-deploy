@@ -52,8 +52,9 @@ module "lacework-gcp-audit-config" {
   source                              = "./modules/audit-config"
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
-  gcp_project_id                      = local.config.context.gcp.project_id
+  gcp_project_id                      = local.config.context.lacework.gcp_audit_config.project_id
   gcp_location                        = local.config.context.gcp.region
+  use_pub_sub                         = local.config.context.lacework.gcp_audit_config.use_pub_sub
 }
 
 module "lacework-gcp-agentless" {
@@ -61,7 +62,7 @@ module "lacework-gcp-agentless" {
   source                              = "./modules/agentless"
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
-  gcp_project_id                      = local.config.context.gcp.project_id
+  gcp_project_id                      = local.config.context.lacework.gcp_audit_config.project_id
   gcp_location                        = local.config.context.gcp.region
 
   project_filter_list = [

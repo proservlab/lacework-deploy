@@ -50,16 +50,6 @@ locals {
   # attacker_eks_public_ip = try(["${var.infrastructure.deployed_state.attacker.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
 }
 
-resource "null_resource" "log" {
-  triggers = {
-    log_message = jsonencode(local.config)
-  }
-
-  provisioner "local-exec" {
-    command = "echo '${jsonencode(local.config)}'"
-  }
-}
-
 ##################################################
 # DEPLOYMENT CONTEXT
 ##################################################
@@ -110,21 +100,22 @@ module "workstation-external-ip" {
   source       = "../general/workstation-external-ip"
 }
 
-# ##################################################
-# # GCP IAM
-# ##################################################
+##################################################
+# GCP IAM
+##################################################
 
-# # create iam users
-# module "iam" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.iam.enabled == true ) ? 1 : 0
-#   source      = "./modules/iam"
-#   environment       = local.config.context.global.environment
-#   deployment        = local.config.context.global.deployment
-#   region            = local.config.context.aws.region
+# create iam users
+module "iam" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.iam.enabled == true ) ? 1 : 0
+  source      = "./modules/iam"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
 
-#   user_policies     = jsondecode(file(local.config.context.aws.iam.user_policies_path))
-#   users             = jsondecode(file(local.config.context.aws.iam.users_path))
-# }
+  user_policies     = jsondecode(file(local.config.context.gcp.iam.user_policies_path))
+  users             = jsondecode(file(local.config.context.gcp.iam.users_path))
+}
 
 ##################################################
 # GCP GCE SECURITY GROUP
@@ -168,6 +159,20 @@ module "ssh-keys" {
 
   public_tag = "osconfig_deploy_secret_ssh_public"
   private_tag = "osconfig_deploy_secret_ssh_private"
+}
+
+module "gcp-credentials" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.gcp_credentials.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/gce/gcp-credentials"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_deploy_secret_gcp_creds"
+
+  compromised_credentials = try(module.iam[0].access_keys, {})
+  compromised_keys_user = local.config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 }
 
 module "vulnerable-docker-log4shellapp" {

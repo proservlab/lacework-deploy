@@ -9,7 +9,9 @@
       "ssm" :  {
         "attacker": {
           "execute": {
-            
+            "docker_composite_host_compromise_attack": {
+              "enabled": true
+            }
           }
         }
       }

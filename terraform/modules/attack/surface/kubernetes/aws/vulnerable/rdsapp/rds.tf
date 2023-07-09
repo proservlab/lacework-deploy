@@ -79,6 +79,48 @@ resource "kubernetes_service_account" "database" {
     }
 }
 
+resource "kubernetes_cluster_role" "database" {
+    metadata {
+        name = "database"
+    }
+
+    rule {
+        api_groups     =    [
+                                "",
+                            ]
+        resources      =    [
+                                "services",
+                                "pods"
+                            ]
+        verbs          =    [
+                                "get", 
+                                "list", 
+                                "watch",
+                            ]
+    }
+    
+}
+
+resource "kubernetes_cluster_role_binding" "database" {
+  metadata {
+    name      = "database-role-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "database"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "database"
+    namespace = var.namespace 
+  }
+
+  depends_on = [
+    kubernetes_namespace.rds_connect
+  ]   
+}
+
 resource "aws_subnet" "database" {
   vpc_id                  = var.cluster_vpc_id
   count                   = length(local.subnets_cidrs)
@@ -127,18 +169,19 @@ resource "aws_security_group" "database" {
 
 resource "aws_db_instance" "database" {
   allocated_storage                     = 5
-  max_allocated_storage                 = 10
+  max_allocated_storage                 = 6
   db_name                               = "mydb"
   port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
-  instance_class                        = "db.t3.micro"
+  instance_class                        = "db.t3.small"
   username                              = local.init_db_username
   password                              = local.init_db_password
   identifier                            = "rdsapp-${var.environment}-${var.deployment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true
+  storage_type                          = "gp2"
   
   db_subnet_group_name                  = aws_db_subnet_group.database.id
   vpc_security_group_ids = [

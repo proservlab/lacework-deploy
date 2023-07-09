@@ -19,6 +19,11 @@ variable "infrastructure" {
   })
 }
 
+variable "compromised_credentials" {
+  type = any
+  default = ""
+}
+
 variable "default_gcp_project" {
   type = string
   description = "gcp project"

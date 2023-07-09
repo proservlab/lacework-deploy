@@ -1,0 +1,20 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "gcp" : {
+      "enabled": true,
+      "osconfig" : {
+        "attacker": {
+          "execute": {
+            "docker_composite_host_compromise_attack": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

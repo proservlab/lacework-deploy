@@ -163,7 +163,7 @@ variable "lacework_account_name" {
 variable "lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = "https://agent.lacework.net"
 }
 
 variable "lacework_agent_access_token" {
@@ -193,7 +193,7 @@ variable "target_lacework_account_name" {
 variable "target_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = "https://agent.lacework.net"
 }
 
 variable "target_lacework_agent_access_token" {
@@ -223,7 +223,7 @@ variable "attacker_lacework_account_name" {
 variable "attacker_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://api.lacework.net"
+  default     = "https://agent.lacework.net"
 }
 
 variable "attacker_lacework_agent_access_token" {
@@ -305,6 +305,12 @@ variable "target_cluster_name" {
 variable "attacker_context_config_protonvpn_user" {
   type        = string
   description = "protonvpn user"
+  default     = ""
+}
+
+variable "attacker_context_config_protonvpn_privatekey" {
+  type        = string
+  description = "protonvpn privatekey"
   default     = ""
 }
 

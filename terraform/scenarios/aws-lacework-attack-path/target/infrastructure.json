@@ -30,12 +30,14 @@
             "tags": {
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_docker"                : "true",
               "ssm_deploy_secret_ssh_private"    : "true",
               "ssm_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-public-2",
@@ -49,7 +51,8 @@
               "ssm_deploy_secret_ssh_public" : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-app-public-1",
@@ -62,7 +65,8 @@
               "ssm_deploy_lacework_syscall": "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },
@@ -75,7 +79,8 @@
         "deploy_docker"                  : true,
         "deploy_inspector_agent"         : false,
         "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {

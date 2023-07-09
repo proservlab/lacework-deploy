@@ -29,12 +29,14 @@
             "tags": {
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_git"                   : "true",
               "ssm_exec_vuln_npm_app_target"     : "true",
               "ssm_exec_vuln_python3_twisted_app_target"     : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-public-2",
@@ -48,7 +50,8 @@
               "ssm_exec_vuln_python3_twisted_app_target"     : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
       },

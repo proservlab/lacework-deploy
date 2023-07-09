@@ -15,7 +15,7 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep vuln_python3_twisted_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_python3_twisted_app_target -X quit
     truncate -s 0 /tmp/vuln_python3_twisted_app_target.log
 
     if ! which pip3; then
@@ -43,7 +43,7 @@ locals {
         screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
         sleep 1800
-        screen -ls | grep vuln_python3_twisted_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+        screen -S vuln_python3_twisted_app_target -X quit
     else
         log "python twisted vulnerability required the following package installed:"
         log "python3-twisted/focal-updates,focal-security,now 18.9.0-11ubuntu0.20.04.1"
@@ -67,7 +67,7 @@ locals {
 #####################################################
 
 locals {
-    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
 
@@ -128,13 +128,13 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
+            
+            script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "exit 100"
+            
+            script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
           }
         }
       }

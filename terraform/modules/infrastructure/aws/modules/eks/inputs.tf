@@ -36,3 +36,8 @@ variable "kubeconfig_path" {
   type = string
   description = "kubeconfig path"
 }
+
+variable "deploy_calico" {
+  type = bool
+  description = "enable eks calico deployment"
+}

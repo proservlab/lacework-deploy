@@ -62,7 +62,7 @@ locals {
         sleep 10
     done
     log "listener: ${local.listen_ip}:${local.listen_port}"
-    screen -ls | grep http | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S http -X quit
     truncate -s 0 /tmp/http.log
     mkdir -p /tmp/www/
     echo "index" > /tmp/www/index.html

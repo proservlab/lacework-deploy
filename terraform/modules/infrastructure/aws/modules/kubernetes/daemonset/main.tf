@@ -17,7 +17,7 @@ resource "helm_release" "lacework" {
     chart      = "lacework-agent"
     version    = "6.2.2"
 
-    create_namespace =  false
+    create_namespace =  true
     namespace =  "lacework"
     force_update = true
 

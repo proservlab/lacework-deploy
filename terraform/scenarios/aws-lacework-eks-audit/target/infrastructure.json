@@ -47,12 +47,6 @@
       "aws_audit_config": {
         "enabled" : true
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
         "enabled" : true,
 
@@ -66,7 +60,7 @@
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : false
+            "enabled" : true
           },
           "eks_audit_logs": {
             "enabled" : true
@@ -78,9 +72,6 @@
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

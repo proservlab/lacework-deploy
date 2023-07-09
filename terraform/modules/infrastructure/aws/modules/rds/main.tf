@@ -38,6 +38,8 @@ resource "aws_route_table" "database" {
 
     tags = {
         Name = "ec2db-internet-gw-route-${var.environment}-${var.deployment}"
+        deployment = var.deployment
+        environment = var.environment
     }
 }
 
@@ -95,18 +97,19 @@ resource "aws_security_group" "database" {
 
 resource "aws_db_instance" "database" {
   allocated_storage                     = 5
-  max_allocated_storage                 = 10
+  max_allocated_storage                 = 6
   db_name                               = "mydb"
   port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
-  instance_class                        = "db.t3.micro"
+  instance_class                        = var.instance_type
   username                              = local.init_db_username
   password                              = local.init_db_password
   identifier                            = "ec2rds-${var.environment}-${var.deployment}"
   iam_database_authentication_enabled   = true
   parameter_group_name                  = "default.mysql5.7"
   skip_final_snapshot                   = true
+  storage_type                          = "gp2"
   
   db_subnet_group_name                  = aws_db_subnet_group.database.id
   vpc_security_group_ids = [
@@ -118,144 +121,4 @@ resource "aws_db_instance" "database" {
     environment = var.environment
     deployment = var.deployment
   }
-}
-
-resource "aws_ssm_parameter" "db_host" {
-    name = "db_host"
-    value = aws_db_instance.database.endpoint
-    type = "String"
-}
-
-resource "aws_ssm_parameter" "db_port" {
-    name = "db_port"
-    value = local.database_port
-    type = "String"
-}
-
-resource "aws_ssm_parameter" "db_name" {
-    name = "db_name"
-    value = var.database_name
-    type = "String"
-}
-
-resource "aws_ssm_parameter" "db_username" {
-    name = "db_username"
-    value = local.init_db_username
-    type = "SecureString"
-    key_id = aws_kms_key.this.id
-}
-
-resource "aws_ssm_parameter" "db_password" {
-    name = "db_password"
-    value = local.init_db_password
-    type = "SecureString"
-    key_id = aws_kms_key.this.id
-}
-
-resource "aws_ssm_parameter" "db_region" {
-    name = "db_region"
-    value = var.region
-    type = "String"
-}
-
-
-resource "aws_kms_key" "this" {
-    description = "For encrypting and decrypting db-related parameters"
-    deletion_window_in_days = 7
-    policy =    <<-EOF
-                {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "Allow access for Account Holder",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": "${data.aws_caller_identity.current.arn}"
-                        },
-                        "Action": [
-                            "kms:Create*",
-                            "kms:Describe*",
-                            "kms:Enable*",
-                            "kms:List*",
-                            "kms:Put*",
-                            "kms:Update*",
-                            "kms:Revoke*",
-                            "kms:Disable*",
-                            "kms:Get*",
-                            "kms:Delete*",
-                            "kms:TagResource",
-                            "kms:UntagResource",
-                            "kms:ScheduleKeyDeletion",
-                            "kms:CancelKeyDeletion",
-                            "kms:Encrypt",
-                            "kms:Decrypt",
-                            "kms:ReEncrypt*",
-                            "kms:GenerateDataKey*"
-                        ],
-                        "Resource": "*"
-                    },
-                    {
-                        "Sid": "AllowEC2RoleDecrypt",
-                        "Action": [
-                            "kms:Decrypt"
-                        ],
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
-                            ]
-                        },
-                        "Resource": "*"
-                    }
-                ]
-                }
-                EOF
-}
-
-resource "aws_iam_policy" "db_get_parameters" {
-    name = "db_access_${var.environment}_${var.deployment}"
-    policy =    <<-EOF
-                {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "ssm:GetParameters"
-                            ],
-                            "Resource": [
-                                "${aws_ssm_parameter.db_host.arn}",
-                                "${aws_ssm_parameter.db_port.arn}",
-                                "${aws_ssm_parameter.db_name.arn}",
-                                "${aws_ssm_parameter.db_username.arn}",
-                                "${aws_ssm_parameter.db_password.arn}",
-                                "${aws_ssm_parameter.db_region.arn}"
-                            ]
-                        },
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "rds-db:connect"
-                            ],
-                            "Resource": [
-                                "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.database.resource_id}/*"
-                            ]
-                        },
-                        {
-                            "Effect": "Allow",
-                            "Action": [
-                                "kms:Decrypt"
-                            ],
-                            "Resource": [
-                                "${aws_kms_key.this.arn}"
-                            ]
-                        }
-                    ]
-                }
-                EOF
-}
-
-resource "aws_iam_role_policy_attachment" "ec2-db-policy" {
-  role       = var.ec2_instance_role_name
-  policy_arn = aws_iam_policy.db_get_parameters.arn
 }

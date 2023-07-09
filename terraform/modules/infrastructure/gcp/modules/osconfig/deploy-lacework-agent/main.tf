@@ -23,7 +23,12 @@ locals {
         sleep 10
     done
     log "starting..."
-    echo '${base64encode(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
+    if [ -f /var/lib/lacework/config/config.json ] && pgrep datacollector > /dev/null; then
+        log "lacework already installed - nothing to do"
+    else
+        log "lacework not installed - installing..."
+        echo '${base64encode(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
+    fi
     log "done."
     EOT
     base64_payload = base64encode(local.payload)
@@ -43,7 +48,7 @@ resource "lacework_agent_access_token" "agent" {
 #####################################################
 
 locals {
-    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
 resource "random_string" "this" {
@@ -102,13 +107,13 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "/bin/bash -c 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
+            
+            script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "exit 100"
+            
+            script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
           }
         }
       }

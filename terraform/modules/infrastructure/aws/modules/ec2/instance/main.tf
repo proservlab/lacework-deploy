@@ -1,5 +1,23 @@
 locals {
   ubuntu_secondary_disk = "/dev/xvdb"
+  enable_swap = <<-EOT
+  log "enabling swap file..."
+  sudo dd if=/dev/zero of=/swapfile bs=128M count=32
+  log "dd swap file created..."
+  log "setting swap file permissions..."
+  sudo chmod 600 /swapfile
+  log "running mkswap..."
+  sudo mkswap /swapfile
+  log "running swapon..."
+  sudo swapon /swapfile
+  sudo swapon -s
+  log "appending swap file to fstab"
+  sudo echo "/swapfile swap swap defaults 0 0" >> /etc/fstab 
+  EOT
+}
+
+data "aws_subnet" "instance" {
+  id = aws_instance.instance.subnet_id
 }
 
 resource "aws_instance" "instance" {
@@ -48,14 +66,36 @@ resource "aws_instance" "instance" {
     log "Creating docker directory on data drive..."
     mkdir -p /data/var/lib/docker
     ln -sf /data/var/lib/docker /var/lib/docker >> $LOGFILE 2>&1
+    ${ var.enable_swap == true ? local.enable_swap : "" }
+    ${try(length(var.user_data_base64), "false") != "false" ? base64decode(var.user_data_base64) : "" }
     log "Bootstrapping Complete!"
     EOF
-  ) : var.user_data_base64
+  ) : base64encode( <<-EOF
+    #!/bin/bash
+    LOGFILE=/tmp/user-data.log
+    function log {
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+    }
+    truncate -s 0 $LOGFILE
+    check_apt() {
+        pgrep -f "apt" || pgrep -f "dpkg"
+    }
+    while check_apt; do
+        log "Waiting for apt to be available..."
+        sleep 10
+    done
+    log "Starting..."
+    ${ var.enable_swap == true ? local.enable_swap : "" }
+    ${try(length(var.user_data_base64), "false") != "false" ? base64decode(var.user_data_base64) : "" }
+    log "Bootstrapping Complete!"
+    EOF
+  )
 
   user_data_replace_on_change = true
 
   root_block_device {
-    volume_size    = 8
+    volume_size    = 12
     volume_type    = "gp2"
   }
 }
@@ -74,4 +114,10 @@ resource "aws_volume_attachment" "instance" {
   volume_id    = aws_ebs_volume.secondary[0].id
   instance_id  = aws_instance.instance.id
   force_detach = true
+}
+
+resource "aws_eip" "instance" {
+  count = var.enable_public_ip == true ? 1 : 0
+  vpc      = true
+  instance = aws_instance.instance.id
 }

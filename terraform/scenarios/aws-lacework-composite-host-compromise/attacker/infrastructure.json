@@ -27,18 +27,16 @@
                         "role"                      : "default",
                         "instance_type"             : "t2.micro",
                         "ami_name"                  : "ubuntu_focal",
-                        "tags"                      : {
-                        },
+                        "tags"                      : {},
                         "user_data"                 : null,
-                        "user_data_base64"          : null
+                        "user_data_base64"          : null,
+                        "enable_swap"      : true
                     }
                 ]
             }
         },
         "dynu_dns" : {
-            "enabled"                        : true,
-            "api_token"                      : "${ dynu_api_token }",
-            "dns_domain"                     : "${ dynu_dns_domain }"
+            "enabled"                        : false
         } 
     }
 }

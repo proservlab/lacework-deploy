@@ -30,4 +30,10 @@ resource "aws_eks_addon" "addons" {
   addon_name        = each.value.name
   addon_version     = each.value.version
   resolve_conflicts = "OVERWRITE"
+
+  configuration_values = each.value.name == "vpc-cni" ? jsonencode({ 
+     env = { 
+       ANNOTATE_POD_IP = true 
+     } 
+   }) : null
 }

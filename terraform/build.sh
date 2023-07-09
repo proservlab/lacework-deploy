@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 SCRIPTNAME=$(basename $0)
@@ -6,11 +5,6 @@ VERSION="1.0.0"
 
 # output errors should be listed as warnings
 export TF_WARN_OUTPUT_ERRORS=1
-
-# used to prevent errors on empty provider destroy
-# export AWS_REGION="us-east-1"
-# export AWS_ACCESS_KEY_ID="mock_access_key"
-# export AWS_SECRET_ACCESS_KEY="mock_secret_key"
 
 info(){
 cat <<EOI
@@ -21,9 +15,55 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] --workspace=WORK --action=ACTION
+usage: $SCRIPTNAME [-h] [--workspace-summary] --workspace=WORK --action=ACTION
+
+-h                      print this message and exit
+--workspace-summary     print a count of resources per workspace
+--workspace             the scenario to use
+--action                terraform actions (i.e. show, plan, apply, refresh, destroy)
 EOH
     exit 1
+}
+
+workspace_summary(){
+    echo "finding all active workspaces - this may take some time..."
+    providers=("aws" "gcp" "azure")
+
+    for provider in "${providers[@]}"
+    do
+        # echo "Checking resources for $provider"
+        
+        # Change directory to the provider's directory
+        cd $provider
+
+        # Get the list of workspaces
+        workspaces=($(terraform workspace list | tr -d '*'))
+
+        for workspace in "${workspaces[@]}"
+        do
+            # Removing leading whitespace
+            workspace=$(echo $workspace | sed -e 's/^[[:space:]]*//')
+
+            #echo "Switching to workspace $workspace"
+            terraform workspace select $workspace > /dev/null 2>&1
+
+            # Use terraform state list to count resources
+            resource_count=$(terraform state list 2>/dev/null | wc -l)
+            if [ "$resource_count" -gt "0" ]; then
+                echo "$workspace $resource_count"
+            else
+                if [ "$workspace" != "default" ]; then
+                    terraform workspace select default > /dev/null 2>&1
+                    terraform workspace delete $workspace > /dev/null 2>&1
+                fi
+            fi
+        done
+
+        # Change directory back to the parent directory
+        cd ..
+    done
+
+    exit 0
 }
 
 infomsg(){
@@ -42,6 +82,11 @@ for i in "$@"; do
         HELP="${i#*=}"
         shift # past argument=value
         help
+        ;;
+    -z|--workspace-summary)
+        WORKSPACE="${i#*=}"
+        shift # past argument=value
+        workspace_summary
         ;;
     -a=*|--action=*)
         ACTION="${i#*=}"
@@ -66,8 +111,8 @@ fi
 if [ -z ${ACTION} ]; then
     errmsg "Required option not set: --action"
     help
-elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ]; then
-    errmsg "Invalid action: --action should be one of plan, apply, refresh or destroy"
+elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ] && [ "${ACTION}" != "show" ]; then
+    errmsg "Invalid action: --action should be one of show, plan, apply, refresh or destroy"
     help
 fi
 
@@ -107,14 +152,12 @@ terraform workspace select ${WORK} || terraform workspace new ${WORK}
 
 # update modules as required
 terraform get -update=true
-
-# ensure backend is initialized
 if [ -z ${LOCAL_BACKEND} ]; then
-terraform init -backend-config=env_vars/init.tfvars
-BACKEND="-var-file=env_vars/backend.tfvars"
+    terraform init -backend-config=env_vars/init.tfvars
+    BACKEND="-var-file=env_vars/backend.tfvars"
 else
-terraform init -upgrade
-BACKEND=""
+    terraform init -upgrade
+    BACKEND=""
 fi;
 
 check_tf_apply(){
@@ -137,7 +180,10 @@ check_tf_apply(){
 # set plan file
 PLANFILE="build.tfplan"
 
-if [ "plan" = "${ACTION}" ]; then
+if [ "show" = "${ACTION}" ]; then
+    echo "Running: terraform show"
+    terraform show
+elif [ "plan" = "${ACTION}" ]; then
     echo "Staging kubeconfig..."
     terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
@@ -170,9 +216,5 @@ elif [ "destroy" = "${ACTION}" ]; then
     fi
 fi
 rm -f ${PLANFILE}
-
-unset AWS_REGION
-unset AWS_ACCESS_KEY_ID
-unset AWS_SECRET_ACCESS_KEY
 
 echo "Done."

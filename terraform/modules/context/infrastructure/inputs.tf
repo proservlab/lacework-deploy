@@ -135,6 +135,7 @@ variable "config" {
         eks = object({
           enabled               = bool
           cluster_name          = string
+          deploy_calico         = bool
         })
         eks-windows = object({
           enabled               = bool
@@ -142,6 +143,8 @@ variable "config" {
         })
         rds = object({
           enabled                       = bool
+          user_role_name                = string
+          instance_type                 = string
         })
         inspector = object({
           enabled               = bool
@@ -171,6 +174,7 @@ variable "config" {
         gcp_audit_config        = object({
           project_id            = string
           enabled               = bool
+          use_pub_sub           = bool
         })
         azure_audit_config      = object({
           project_id            = string
@@ -567,6 +571,7 @@ variable "config" {
         eks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+          deploy_calico         = false
         }
 
         eks-windows = {
@@ -575,6 +580,8 @@ variable "config" {
         }
         rds = {
           enabled                       = false
+          user_role_name                = "rds_user_access_role"
+          instance_type                 = "db.t3.micro"
         }
         inspector = {
           enabled               = false
@@ -603,6 +610,7 @@ variable "config" {
         gcp_audit_config            = {
           project_id            = null
           enabled               = false
+          use_pub_sub           = false
         }
         azure_audit_config          = {
           project_id            = null

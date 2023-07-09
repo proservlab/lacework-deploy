@@ -1,0 +1,76 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "iam" :  {
+        "enabled" :  true,
+        "user_policies_path" :  "${ iam_power_user_policy_path }",
+        "users_path" :  "${ iam_users_path }"
+      },
+      "ec2" :  {
+        "add_trusted_ingress" :  {
+          "enabled"                     :  false,
+          "trust_workstation"           :  false,
+          "trust_attacker_source"       :  false,
+          "trust_target_source"         :  false,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
+          }
+        }
+      },
+      "ssm" :  {
+        "aws_credentials" :  {
+          "enabled" :  true,
+          "compromised_keys_user" : "clue.burnetes@interlacelabs"
+        },
+        "ssh_keys" :  {
+          "enabled" :  true
+        }
+      },
+      "eks" :  {
+        "add_iam_user_readonly_user": {
+          "enabled": false,
+          "iam_user_names": []
+        },
+        "add_iam_user_admin_user": {
+          "enabled": true,
+          "iam_user_names": [
+            "clue.burnetes@interlacelabs"
+          ]
+        }
+      }
+    },
+    "kubernetes" :  {
+      "aws": {
+        "app" :  {
+          "enabled" :  false
+        },
+        "psp" :  {
+          "enabled" :  false
+        },
+        "vulnerable" :  {
+          "log4shellapp" :  {
+            "enabled" :  true
+          },
+          "voteapp" :  {
+            "enabled" :  false
+          },
+          "rdsapp" :  {
+            "enabled" :  true
+          },
+          "privileged_pod" :  {
+            "enabled" :  false
+          },
+          "root_mount_fs_pod" :  {
+            "enabled" :  false
+          }
+        }
+      }
+    }
+  }
+}

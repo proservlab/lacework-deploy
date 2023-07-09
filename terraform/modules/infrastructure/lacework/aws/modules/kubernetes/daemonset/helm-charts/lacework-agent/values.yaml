@@ -87,7 +87,7 @@ laceworkConfig:
   # [Optional] Specify the service account for agent pods
   serviceAccountName:
   # [Required] Region specific Lacework service URL. Defaults to the US region.
-  serverUrl: https://api.lacework.net
+  serverUrl: https://agent.lacework.net
   # [Optional] Set to false to prevent agent from sending diagnostic logs to stdout
   stdoutLogging: true
   # [Optional] Set to one of the other modes like ebpflite, scan, or lite for load balancers.

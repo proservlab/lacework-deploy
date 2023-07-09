@@ -30,20 +30,16 @@
             "tags": {
               "ssm_deploy_git": "true",
               "ssm_deploy_docker": "true",
-              "ssm_deploy_kubectl_cli": "true",
-              "ssm_deploy_aws_cli": "true",
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
-              "ssm_deploy_secret_aws_creds": "true"
+              "ssm_deploy_lacework_code_aware_agent" : "true",
+              "ssm_exec_docker_host_compromise_attacker": "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           }
         ]
-      },
-      "eks": {
-        "enabled"      : true,
-        "cluster_name" : "target-cluster"
       },
       "ssm": {
         "enabled"                        : true,
@@ -52,9 +48,7 @@
         "deploy_inspector_agent"         : true,
         "deploy_lacework_agent"          : true,
         "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true,
-        "deploy_kubectl_cli"             : true,
-        "deploy_aws_cli"                 : true
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {
@@ -64,39 +58,11 @@
       "aws_audit_config": {
         "enabled" : true
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : true,
-          "proxy_scanner": {
-            "enabled" : true
-          },
-          "daemonset": {
-            "enabled" : true
-          },
-          "compliance": {
-            "enabled" : true
-          },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : true
-          }
-        }
+        "enabled" : true
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

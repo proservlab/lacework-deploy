@@ -56,6 +56,28 @@ locals {
 
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
+
+  # instances
+  default_instances = try(local.default_infrastructure_deployed.aws.ec2[0].instances, [])
+  attacker_instances = try(local.attacker_infrastructure_deployed.aws.ec2[0].instances, [])
+  target_instances = try(local.target_infrastructure_deployed.aws.ec2[0].instances, [])
+
+  # public targets
+  public_attacker_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_attacker_app_instances = flatten([
+    [ for compute in local.attacker_instances: compute.instance if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_target_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ]
+  ])
+
+  public_target_app_instances = flatten([
+    [ for compute in local.target_instances: compute.instance if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
 }
 
 resource "null_resource" "log" {
@@ -74,34 +96,6 @@ resource "null_resource" "log" {
 
 resource "time_sleep" "wait" {
   create_duration = "120s"
-}
-
-data "aws_instances" "public_attacker" {
-  provider = aws.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-  instance_tags = {
-    environment = "attacker"
-    deployment  = local.config.context.global.deployment
-    public = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
-}
-
-data "aws_instances" "public_target" {
-  provider = aws.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-  instance_tags = {
-    environment = "target"
-    deployment  = local.config.context.global.deployment
-    public = "true"
-  }
-
-  instance_state_names = ["running"]
-
-  depends_on = [time_sleep.wait]
 }
 
 ##################################################
@@ -141,11 +135,13 @@ module "ec2-add-trusted-ingress" {
   
   security_group_id             = local.default_public_sg
   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
-    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
-    [ for ip in data.aws_instances.public_target[0].public_ips: "${ip}/32" ],
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
@@ -161,11 +157,13 @@ module "ec2-add-trusted-ingress-app" {
   
   security_group_id             = local.default_public_app_sg
   trusted_attacker_source       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
-    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
-    [ for ip in data.aws_instances.public_target[0].public_ips: "${ip}/32" ],
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
@@ -212,7 +210,7 @@ module "vulnerable-log4j-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
-  listen_port = local.config.context.aws.ssm.vulnerable.npm_app.listen_port
+  listen_port = local.config.context.aws.ssm.vulnerable.log4j_app.listen_port
 }
 
 module "vulnerable-npm-app" {
@@ -334,7 +332,8 @@ module "vulnerable-kubernetes-voteapp" {
   vote_service_port             = local.config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
   result_service_port           = local.config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source ? flatten([
-    [ for ip in try(data.aws_instances.public_attacker[0].public_ips, []): "${ip}/32" ],
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
@@ -364,7 +363,8 @@ module "vulnerable-kubernetes-rdsapp" {
   
   service_port                        = local.config.context.kubernetes.aws.vulnerable.rdsapp.service_port
   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source ? flatten([
-    [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source          = [module.workstation-external-ip.cidr]
@@ -385,13 +385,16 @@ module "vulnerable-kubernetes-log4shellapp" {
 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.log4shellapp.service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4shellapp.trust_attacker_source ? flatten([
-    [ for ip in try(data.aws_instances.public_attacker[0].public_ips, []): "${ip}/32" ],
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4shellapp.additional_trusted_sources
 
   image                         = local.config.context.kubernetes.aws.vulnerable.log4shellapp.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.log4shellapp.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.log4shellapp.args
 
   providers = {
     kubernetes = kubernetes.main
@@ -402,8 +405,22 @@ module "vulnerable-kubernetes-log4shellapp" {
 module "vulnerable-kubernetes-privileged-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
   source      = "../kubernetes/aws/vulnerable/privileged-pod"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.privileged_pod.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.privileged_pod.args
 
   providers = {
     kubernetes = kubernetes.main

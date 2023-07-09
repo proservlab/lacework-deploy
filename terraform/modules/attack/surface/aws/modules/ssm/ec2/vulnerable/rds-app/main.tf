@@ -16,7 +16,8 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    screen -ls | grep vuln_rdsapp_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+
+    screen -S vuln_rdsapp_target -X quit
     truncate -s 0 /tmp/vuln_rdsapp_target.log
 
     if ! which pip3; then
@@ -42,6 +43,7 @@ locals {
     echo ${local.database} | base64 -d > bootstrap.sql
     echo ${local.entrypoint} | base64 -d > entrypoint.sh
     echo ${local.index} | base64 -d > templates/index.html
+    echo ${local.cast} | base64 -d > templates/cast.html
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
@@ -57,9 +59,11 @@ locals {
     log "starting app"
     screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
     screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
+    log "check rds url..."
+    curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
     log 'waiting 30 minutes...';
     sleep 1800
-    screen -ls | grep ${local.app_dirname} | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S ${local.app_dirname} -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
@@ -88,10 +92,6 @@ locals {
                                 db_name = var.db_name
                             }
                         ))
-    # rds_cert = base64encode(templatefile(
-    #                         "${path.module}/resources/rds-combined-ca-bundle.pem",
-    #                         {}
-    #                     ))
     entrypoint = base64encode(templatefile(
                             "${path.module}/resources/entrypoint.sh.tpl",
                             {
@@ -99,9 +99,11 @@ locals {
                                  app_path = local.app_path
                             }
                         ))
-    index = base64encode(templatefile(
-                            "${path.module}/resources/index.html",
-                            {}
+    index = base64encode(file(
+                            "${path.module}/resources/index.html"
+                        ))
+    cast = base64encode(file(
+                            "${path.module}/resources/cast.html"
                         ))
 }
 

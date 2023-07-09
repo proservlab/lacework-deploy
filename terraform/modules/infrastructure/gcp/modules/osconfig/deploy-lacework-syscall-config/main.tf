@@ -26,11 +26,16 @@ locals {
     # Check if Lacework is pre-installed. If installed, add syscall_config.yaml.
     if [ -f "$LACEWORK_INSTALL_PATH/datacollector" ]; then
         log "Lacework agent is installed, adding syscall_config.yaml..."
-        if echo "${local.hash_syscall_config}  $LACEWORK_SYSCALL_CONFIG_PATH" | sha256sum --check --status; then 
-            log "Lacework syscall_config.yaml unchanged"; 
-        else 
-            log "Lacework syscall_config.yaml requires update"
-            echo -n "${local.base64_syscall_config}" | base64 -d > $LACEWORK_SYSCALL_CONFIG_PATH
+        if [ -f $LACEWORK_SYSCALL_CONFIG_PATH ]; then
+          if echo "${local.hash_syscall_config}  $LACEWORK_SYSCALL_CONFIG_PATH" | sha256sum --check --status; then 
+              log "Lacework syscall_config.yaml unchanged"; 
+          else 
+              log "Lacework syscall_config.yaml requires update"
+              echo -n "${local.base64_syscall_config}" | base64 -d > $LACEWORK_SYSCALL_CONFIG_PATH
+          fi
+        else
+          log "Lacework syscall_config.yaml does not exist - adding"
+          echo -n "${local.base64_syscall_config}" | base64 -d > $LACEWORK_SYSCALL_CONFIG_PATH
         fi
     fi
     EOT
@@ -42,7 +47,7 @@ locals {
 #####################################################
 
 locals {
-    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
 resource "random_string" "this" {
@@ -101,13 +106,13 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "/bin/bash 'echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash - &' && exit 100"
+            
+            script           = "if echo '${sha256(local.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
             interpreter      = "SHELL"
-            output_file_path = "$HOME/os-policy-tf.out"
-            script           = "exit 100"
+            
+            script           = "echo ${local.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
           }
         }
       }

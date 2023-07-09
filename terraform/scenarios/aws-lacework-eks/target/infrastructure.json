@@ -37,7 +37,8 @@
         "deploy_docker"                  : false,
         "deploy_inspector_agent"         : false,
         "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_lacework_syscall_config" : false,
+        "deploy_lacework_code_aware_agent" : false
       }
     },
     "lacework": {
@@ -46,12 +47,6 @@
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
         "enabled" : true
-      },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
       },
       "agent": {
         "enabled" : true,
@@ -66,7 +61,7 @@
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : false
+            "enabled" : true
           },
           "eks_audit_logs": {
             "enabled" : false
@@ -78,9 +73,6 @@
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

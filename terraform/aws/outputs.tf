@@ -8,9 +8,7 @@ output "target-aws-instances" {
         name       = compute.instance.tags["Name"]
         private_ip = compute.instance.private_ip
         public_ip  = compute.instance.public_ip
-        tags = [
-          for k, v in compute.instance.tags : { "${k}" = v } if v != "false"
-        ]
+        tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
       }
     ]
   ]
@@ -32,20 +30,11 @@ output "attacker-aws-instances" {
   ]
 }
 
-# output "target_aws_kubernetes_services" {
-#   value = {
-#     voteapp = {
-#       voteapp_vote   = module.target-aws-attacksurface.voteapp_vote_service
-#       voteapp_result = module.target-aws-attacksurface.voteapp_result_service
-#     },
-#     log4shellapp = {
-#       log4shellapp = module.target-aws-attacksurface.log4shellapp_service
-#     },
-#     rdsapp = {
-#       rdsapp = module.target-aws-attacksurface.rdsapp_service
-#     }
-#   }
-# }
+output "target_aws_kubernetes_services" {
+  value = {
+    vulnerable = module.target-aws-attacksurface.kubernetes.vulnerable
+  }
+}
 
 # output "attacker_aws_kubernetes_services" {
 #   value = {

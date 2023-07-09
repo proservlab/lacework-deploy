@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cast List</title>
+</head>
+<body>
+    <h1>Cast List</h1>
+    <table>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Character Name</th>
+        </tr>
+        {% for cast in cast %}
+        <tr>
+            <td>{{ cast.firstName }}</td>
+            <td>{{ cast.lastName }}</td>
+            <td>{{ cast.characterName }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

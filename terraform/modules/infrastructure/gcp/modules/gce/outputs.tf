@@ -3,5 +3,6 @@ output "vpc" {
 }
 
 output "instances" {
+    sensitive = false
     value = module.instances
 }

@@ -15,8 +15,8 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-
-    screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    
+    screen -S vuln_log4j_app_target -X quit
     truncate -s 0 /tmp/vuln_log4j_app_target.log
     log "checking for git..."
     while ! which git; do
@@ -106,7 +106,7 @@ locals {
     log 'waiting 30 minutes...';
     sleep 1795
     log "killing screen session..."
-    screen -ls | grep vuln_log4j_app_target | cut -d. -f1 | awk '{print $1}' | xargs kill
+    screen -S vuln_log4j_app_target -X quit
     log "done"
     EOT
     base64_payload = base64encode(local.payload)
@@ -140,7 +140,7 @@ data "azurerm_subscription" "current" {
 #####################################################
 
 locals {
-    resource_name = "${replace(var.tag, "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    resource_name = "${replace(substr(var.tag,0,35), "_", "-")}-${var.environment}-${var.deployment}-${random_string.this.id}"
 }
 
 resource "random_string" "this" {

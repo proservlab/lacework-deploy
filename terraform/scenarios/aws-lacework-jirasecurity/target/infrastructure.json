@@ -37,7 +37,8 @@
         "deploy_docker"                  : false,
         "deploy_inspector_agent"         : false,
         "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_lacework_syscall_config" : false,
+        "deploy_lacework_code_aware_agent" : false
       }
     },
     "lacework": {

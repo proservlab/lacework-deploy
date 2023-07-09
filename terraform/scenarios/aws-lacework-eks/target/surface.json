@@ -25,19 +25,12 @@
       },
       "eks" :  {
         "add_iam_user_readonly_user": {
-          "enabled": false
-        }
-      },
-      "ssm" :  {
-        "vulnerable" :  {
-          "docker" :  {
-            "log4shellapp" :  {
-              "enabled" :  false
-            }
-          }
+          "enabled": false,
+          "iam_user_names": []
         },
-        "ssh_keys" :  {
-          "enabled" :  false
+        "add_iam_user_admin_user": {
+          "enabled": false,
+          "iam_user_names": []
         }
       }
     },
@@ -51,34 +44,12 @@
         },
         "vulnerable" :  {
           "log4shellapp" :  {
-            "enabled" :  false
+            "enabled" :  true
           },
           "voteapp" :  {
             "enabled" :  false
           },
           "rdsapp" :  {
-            "enabled" :  false
-          },
-          "privileged_pod" :  {
-            "enabled" :  false
-          },
-          "root_mount_fs_pod" :  {
-            "enabled" :  false
-          }
-        }
-      },
-      "gcp": {
-        "app" :  {
-          "enabled" :  false
-        },
-        "psp" :  {
-          "enabled" :  false
-        },
-        "vulnerable" :  {
-          "log4shellapp" :  {
-            "enabled" :  false
-          },
-          "voteapp" :  {
             "enabled" :  false
           },
           "privileged_pod" :  {
