@@ -29,14 +29,20 @@ locals {
     if [[ `sudo docker ps | grep ${var.container_name}` ]]; then docker stop ${var.container_name}; fi
     ${ var.use_tor == true ? <<-EOF
         log "Using tor network..."
-        sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
+        if ! docker ps | grep torproxy > /dev/null; then
+            sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
+        fi
         TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
         log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
+        sudo docker stop ${var.container_name}
+        sudo docker rm ${var.container_name}
+        sudo docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
         EOF
         : <<-EOF
         log "Running via docker: nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
+        sudo docker stop ${var.container_name}
+        sudo docker rm ${var.container_name}
+        sudo docker run -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
         EOF
     }    
     log "Done."
