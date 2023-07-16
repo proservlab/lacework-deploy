@@ -19,7 +19,15 @@
         "private_app_network"           : "172.17.0.0/16",
         "private_app_subnet"            : "172.17.100.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
-        "public_ingress_rules"          : [],
+        "public_ingress_rules"          : [
+          {
+            "from_port" :   22,
+            "to_port" :     22,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow ssh inbound"
+          }
+        ],
         "instances": [
           {
             "name"                      : "target-public-1",
