@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_deploy_secret_aws_creds"
+  default = "ssm_deploy_ssh_user"
 }
 
 variable "timeout" {

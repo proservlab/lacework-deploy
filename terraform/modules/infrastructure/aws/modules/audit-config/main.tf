@@ -8,7 +8,7 @@ resource "random_string" "this" {
 
 module "aws_config" {
   source  = "lacework/config/aws"
-  version = "~> 0.9.0"
+  version = "~> 0.11.0"
   
   tags                       = {
     environment = var.environment
@@ -18,7 +18,7 @@ module "aws_config" {
 
 module "aws_cloudtrail" {
   source  = "lacework/cloudtrail/aws"
-  version = "~> 2.6.0"
+  version = "~> 2.7.4"
 
   # cloudtrail_name = "lacework-cloudtrail-${var.environment}-${var.deployment}"
   use_existing_iam_role       = true

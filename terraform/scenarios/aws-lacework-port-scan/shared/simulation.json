@@ -1,0 +1,21 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "enabled" : true,
+      "ssm" :  {
+        "attacker": {
+          "execute": {
+            "docker_nmap" : {
+              "enabled" : true,
+              "use_tor" : true
+            }
+          }
+        }
+      }
+    }
+  }
+}

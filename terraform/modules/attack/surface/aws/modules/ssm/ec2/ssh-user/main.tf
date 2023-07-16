@@ -1,5 +1,5 @@
 locals {
-    aws_creds = join("\n", [ for u,k in var.compromised_credentials: "${k.rendered}" ])
+    password = try(length(var.password), "false") != "false" ? var.password :  random_password.password.result
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -14,12 +14,26 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    log "Setting up user..."
-    adduser ${var.user}
-    echo -e "${var.password}\n${var.password}" | passwd ${var.user}
+    log "Setting up user: ${var.user}"
+    adduser --gecos "" --disabled-password ${var.user}
+    log "Setting passwd: ${local.password}
+    chpasswd <<<'${var.user}:${local.password}'
+    log "Adding user to allowed passwd auth in sshd_config.d"
+    cat > /etc/ssh/sshd_config.d/user-passwd-auth <<-EOF 
+    Match User ${var.user}
+        PasswordAuthentication yes
+    EOF
+    log "Restarting ssh service"
+    service ssh reload
     log "Done."
     EOT
     base64_payload = base64encode(local.payload)
+}
+
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 ###########################

@@ -24,8 +24,7 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(00 * * * ? *)"
-  
+  default = "cron(0 */1 * * ? *)"
 }
 
 variable "image" {
@@ -57,13 +56,13 @@ variable "custom_password_list" {
 }
 
 variable "user_list" {
-  type = string
-  default = "/opt/usernames/top-usernames-shortlist.txt"
+  type = list(string)
+  default = []
 }
 
 variable "password_list" {
-  type = string
-  default = "/opt/passwords/darkweb2017-top10.txt"
+  type = list(string)
+  default = []
 }
 
 variable "targets" {

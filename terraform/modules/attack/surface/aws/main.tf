@@ -186,6 +186,15 @@ module "ssh-keys" {
   ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
 }
 
+module "ssh-user" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
+  source = "./modules/ssm/ec2/ssh-user"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  user = local.config.context.aws.ssm.ssh_user.user
+  password = local.config.context.aws.ssm.ssh_user.password
+}
+
 module "aws-credentials" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
   source = "./modules/ssm/ec2/aws-credentials"
