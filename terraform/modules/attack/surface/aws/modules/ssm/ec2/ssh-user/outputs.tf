@@ -1,5 +1,5 @@
 output "username" {
-    value = var.user
+    value = var.username
 }
 
 output "password" {
