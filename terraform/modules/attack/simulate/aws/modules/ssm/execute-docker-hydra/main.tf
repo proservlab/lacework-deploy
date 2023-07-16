@@ -26,7 +26,7 @@ locals {
     log "LOCAL_NET: $LOCAL_NET"
     log "Targets: ${join(",", var.targets)}"
     echo "${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
-    cat > /tmp/hyrda-users.txt <<-EOF
+    cat > /tmp/hydra-users.txt <<-EOF
        ${try(length(var.ssh_user.username),"false") != "false" ? var.ssh_user.username : "" }
     EOF
     cat > /tmp/hydra-passwords.txt <<-EOF
