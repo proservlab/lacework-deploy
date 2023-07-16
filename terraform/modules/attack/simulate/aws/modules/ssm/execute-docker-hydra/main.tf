@@ -40,11 +40,11 @@ locals {
         sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
         TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
         log "Running: proxychains hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
-        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.container_name} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
         : <<-EOF
         log "Running: hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
-        sudo docker run --rm -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.container_name} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker run --rm -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
     }
     log "Done."

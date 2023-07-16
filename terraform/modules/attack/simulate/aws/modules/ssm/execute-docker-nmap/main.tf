@@ -32,11 +32,11 @@ locals {
         sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
         TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
         log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.container_name} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
+        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
         EOF
         : <<-EOF
         log "Running via docker: nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.container_name} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
+        sudo docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
         EOF
     }    
     log "Done."
