@@ -465,7 +465,7 @@ module "ssm-execute-docker-nmap-attacker" {
   tag                     = "ssm_exec_docker_nmap_attacker"
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.attacker.execute.docker_nmap.ports
-  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
+  targets = local.config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true ? [] : flatten([
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
@@ -483,14 +483,9 @@ module "ssm-execute-docker-hydra-attacker" {
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_hydra.use_tor
   custom_user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_user_list
   custom_password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_password_list
-  user_list = flatten([
-    local.config.context.aws.ssm.attacker.execute.docker_hydra.user_list,
-    try(default(var.ssh_user), "false") != "false" ? var.ssh_user.user : []
-  ])
-  password_list = flatten([
-    local.config.context.aws.ssm.attacker.execute.docker_hydra.password_list,
-    try(default(var.ssh_user), "false") != "false" ? var.ssh_user.password : []
-  ])
+  user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.user_list
+  password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.password_list
+  ssh_user = var.ssh_user
   targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]

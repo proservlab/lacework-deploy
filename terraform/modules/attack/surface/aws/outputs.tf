@@ -12,7 +12,7 @@ output "compromised_credentials" {
 
 output "ssh_user" {
     value = try(length(module.ssh-user[0]), "false") != "false" ? {
-        user = module.ssh-user[0].user
+        username = module.ssh-user[0].username
         password = module.ssh-user[0].password
     } : null
 }

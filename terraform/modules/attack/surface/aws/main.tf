@@ -191,7 +191,7 @@ module "ssh-user" {
   source = "./modules/ssm/ec2/ssh-user"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
-  user = local.config.context.aws.ssm.ssh_user.user
+  username = local.config.context.aws.ssm.ssh_user.username
   password = local.config.context.aws.ssm.ssh_user.password
 }
 

@@ -23,7 +23,7 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
-variable "user" {
+variable "username" {
   type = any
   description = "user name to add to local system"
   default = "lou.caloozer"

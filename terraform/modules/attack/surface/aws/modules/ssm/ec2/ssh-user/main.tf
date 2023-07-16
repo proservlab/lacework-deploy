@@ -14,13 +14,13 @@ locals {
         log "Waiting for apt to be available..."
         sleep 10
     done
-    log "Setting up user: ${var.user}"
-    adduser --gecos "" --disabled-password ${var.user}
+    log "Setting up user: ${var.username}"
+    adduser --gecos "" --disabled-password ${var.username}
     log "Setting passwd: ${local.password}"
-    echo '${var.user}:${local.password}' | chpasswd
+    echo '${var.username}:${local.password}' | chpasswd
     log "Adding user to allowed passwd auth in sshd_config.d"
     cat > /etc/ssh/sshd_config.d/user-passwd-auth.conf <<-EOF 
-    Match User ${var.user}
+    Match User ${var.username}
         PasswordAuthentication yes
     EOF
     log "Restarting ssh service"

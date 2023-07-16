@@ -56,17 +56,23 @@ variable "custom_password_list" {
 }
 
 variable "user_list" {
-  type = list(string)
-  default = []
+  type = string
+  default = null
 }
 
 variable "password_list" {
-  type = list(string)
-  default = []
+  type = string
+  default = null
 }
 
 variable "targets" {
   type = list(string)
   description = "target to use for brute force - default is local network"
   default = []
+}
+
+variable "ssh_user" {
+  type = any
+  description = "valid user credentials"
+  default = null
 }

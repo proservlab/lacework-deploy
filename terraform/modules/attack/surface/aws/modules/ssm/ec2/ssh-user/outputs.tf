@@ -1,4 +1,4 @@
-output "user" {
+output "username" {
     value = var.user
 }
 

