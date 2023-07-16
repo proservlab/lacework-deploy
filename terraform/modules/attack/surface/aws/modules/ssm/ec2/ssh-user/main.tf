@@ -1,5 +1,5 @@
 locals {
-    password = try(length(var.password), "false") != "false" ? var.password :  random_password.password.result
+    password = try(length(var.password),"false") != "false" ? var.password :  random_password.password.result
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {
@@ -20,8 +20,9 @@ locals {
     echo '${var.username}:${local.password}' | chpasswd
     log "Adding user to allowed passwd auth in sshd_config.d"
     cat > /etc/ssh/sshd_config.d/user-passwd-auth.conf <<-EOF 
-    Match User ${var.username}
+    Match User ${var.username},root,admin,test,guest,info,adm,mysql,user,administrator,oracle,ftp,pi,puppet,ansible,ec2-user,vagrant,azureuser
         PasswordAuthentication yes
+        ForceCommand /bin/echo 'We talked about this guys. No SSH for you!'
     EOF
     log "Restarting ssh service"
     service ssh reload
