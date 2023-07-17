@@ -28,16 +28,101 @@
             "description" : "allow ssh inbound"
           },
           {
-            "from_port" :   1024,
-            "to_port" :     65532,
+            "from_port" :   80,
+            "to_port" :     80,
             "protocol" :    "tcp",
             "cidr_block" :  "0.0.0.0/0",
-            "description" : "allow ephemeral ports"
+            "description" : "allow http inbound"
+          },
+          {
+            "from_port" :   443,
+            "to_port" :     443,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow https inbound"
+          },
+          {
+            "from_port" :   1433,
+            "to_port" :     1433,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow mssql ports"
+          },
+          {
+            "from_port" :   3306,
+            "to_port" :     3306,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow mysql ports"
+          },
+          {
+            "from_port" :   5000,
+            "to_port" :     5000,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow nodejs ports"
+          },
+          {
+            "from_port" :   5432,
+            "to_port" :     5432,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow psql ports"
+          },
+          {
+            "from_port" :   5900,
+            "to_port" :     5900,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow vnc ports"
+          },
+          {
+            "from_port" :   6379,
+            "to_port" :     6379,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow redis ports"
+          },
+          {
+            "from_port" :   8000,
+            "to_port" :     9000,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow web service ports"
+          },
+          {
+            "from_port" :   9200,
+            "to_port" :     9200,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow elasticsearch ports"
+          },
+          {
+            "from_port" :   27017,
+            "to_port" :     27017,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow mongodb ports"
           }
         ],
         "instances": [
           {
-            "name"                      : "target-public-1",
+            "name"                      : "scan-target-1",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "ssm_deploy_lacework"                   : "true",
+              "ssm_deploy_lacework_syscall"           : "true",
+              "ssm_deploy_lacework_code_aware_agent"  : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null,
+            "enable_swap"      : true
+          },
+          {
+            "name"                      : "internal-scanner-1",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -46,7 +131,8 @@
               "ssm_deploy_lacework"                   : "true",
               "ssm_deploy_lacework_syscall"           : "true",
               "ssm_deploy_lacework_code_aware_agent"  : "true",
-              "ssm_deploy_ssh_user"                   : "true"
+              "ssm_deploy_docker"                     : "true",
+              "ssm_exec_docker_nmap_internal"         : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,

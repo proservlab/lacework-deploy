@@ -1201,7 +1201,7 @@ variable "config" {
                 use_tor                     = false
                 scan_local_network          = true
                 targets                     = []
-                ports                       = [22,80,443,1433,3306,5000,5432,5672,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
               }
               docker_hydra = {
                 enabled                     = false
@@ -1371,7 +1371,7 @@ variable "config" {
                 use_tor                     = true
                 scan_local_network          = false
                 targets                     = []
-                ports                       = [22,80,443,1433,3306,5000,5432,5672,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
               }
               docker_hydra = {
                 enabled                     = false

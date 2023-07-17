@@ -455,14 +455,14 @@ module "ssm-execute-generate-web-traffic-target" {
   tag                     = "ssm_exec_generate_web_traffic_target"
 }
 
-module "ssm-execute-docker-nmap-attacker" {
+module "ssm-execute-docker-nmap-external" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
   region        = local.default_infrastructure_config.context.aws.region
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  tag                     = "ssm_exec_docker_nmap_attacker"
+  tag                     = "ssm_exec_docker_nmap_external"
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.attacker.execute.docker_nmap.ports
   targets = local.config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true ? [] : flatten([
@@ -478,7 +478,7 @@ module "ssm-execute-docker-hydra-attacker" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   
-  tag                     = "ssm_exec_docker_hydra_attacker"
+  tag                     = "ssm_exec_docker_hydra_external"
   
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_hydra.use_tor
   custom_user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_user_list
@@ -492,14 +492,14 @@ module "ssm-execute-docker-hydra-attacker" {
   ])
 }
 
-module "ssm-execute-docker-nmap-target" {
+module "ssm-execute-docker-nmap-internal" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
   region        = local.default_infrastructure_config.context.aws.region
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  tag                     = "ssm_exec_docker_nmap_target"
+  tag                     = "ssm_exec_docker_nmap_internal"
   use_tor = local.config.context.aws.ssm.target.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.target.execute.docker_nmap.ports
   targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
@@ -515,7 +515,7 @@ module "ssm-execute-docker-hydra-target" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   
-  tag                     = "ssm_exec_docker_hydra_target"
+  tag                     = "ssm_exec_docker_hydra_internal"
   
   use_tor = local.config.context.aws.ssm.target.execute.docker_hydra.use_tor
   custom_user_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_user_list

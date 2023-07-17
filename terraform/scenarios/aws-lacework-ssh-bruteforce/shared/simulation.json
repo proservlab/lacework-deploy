@@ -11,7 +11,17 @@
           "execute": {
             "docker_hydra" : {
               "enabled" :               true,
-              "use_tor" :               false
+              "use_tor" :               false,
+              "scan_local_network" :    false
+            }
+          }
+        },
+        "target": {
+          "execute": {
+            "docker_hydra" : {
+              "enabled" :               true,
+              "use_tor" :               false,
+              "scan_local_network" :    true
             }
           }
         }
