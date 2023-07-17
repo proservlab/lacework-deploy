@@ -465,9 +465,11 @@ module "ssm-execute-docker-nmap-external" {
   tag                     = "ssm_exec_docker_nmap_external"
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.attacker.execute.docker_nmap.ports
-  targets = local.config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.aws.ssm.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.attacker.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.aws.ssm.attacker.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -486,9 +488,11 @@ module "ssm-execute-docker-hydra-attacker" {
   user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.user_list
   password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.password_list
   ssh_user = var.ssh_user
-  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true &&  length(local.config.context.aws.ssm.attacker.execute.docker_hydra.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.attacker.execute.docker_hydra.targets) > 0 ? 
+      local.config.context.aws.ssm.attacker.execute.docker_hydra.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -502,9 +506,11 @@ module "ssm-execute-docker-nmap-internal" {
   tag                     = "ssm_exec_docker_nmap_internal"
   use_tor = local.config.context.aws.ssm.target.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.target.execute.docker_nmap.ports
-  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.target.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.aws.ssm.target.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.target.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.aws.ssm.target.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -523,9 +529,11 @@ module "ssm-execute-docker-hydra-target" {
   user_list = local.config.context.aws.ssm.target.execute.docker_hydra.user_list
   password_list = local.config.context.aws.ssm.target.execute.docker_hydra.password_list
   ssh_user = var.ssh_user
-  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true &&  length(local.config.context.aws.ssm.target.execute.docker_hydra.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.target.execute.docker_hydra.targets) > 0 ? 
+      local.config.context.aws.ssm.target.execute.docker_hydra.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
