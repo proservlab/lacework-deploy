@@ -522,6 +522,7 @@ module "ssm-execute-docker-hydra-target" {
   custom_password_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_password_list
   user_list = local.config.context.aws.ssm.target.execute.docker_hydra.user_list
   password_list = local.config.context.aws.ssm.target.execute.docker_hydra.password_list
+  ssh_user = var.ssh_user
   targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
     [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]

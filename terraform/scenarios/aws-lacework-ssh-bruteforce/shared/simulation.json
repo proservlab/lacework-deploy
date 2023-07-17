@@ -21,7 +21,11 @@
             "docker_hydra" : {
               "enabled" :               true,
               "use_tor" :               false,
-              "scan_local_network" :    true
+              "scan_local_network" :    false,
+              "targets" : [
+                "172.26.100.0/24",
+                "172.18.0.0/24"
+              ]
             }
           }
         }

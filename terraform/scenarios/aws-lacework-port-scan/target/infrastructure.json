@@ -107,7 +107,7 @@
         ],
         "instances": [
           {
-            "name"                      : "scan-target-1",
+            "name"                      : "external-scan-target",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -122,8 +122,8 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "internal-scanner-1",
-            "public"                    : true,
+            "name"                      : "internal-scanner",
+            "public"                    : false,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
@@ -133,6 +133,21 @@
               "ssm_deploy_lacework_code_aware_agent"  : "true",
               "ssm_deploy_docker"                     : "true",
               "ssm_exec_docker_nmap_internal"         : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null,
+            "enable_swap"      : true
+          },
+          {
+            "name"                      : "internal-scan-target",
+            "public"                    : false,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "ssm_deploy_lacework"                   : "true",
+              "ssm_deploy_lacework_syscall"           : "true",
+              "ssm_deploy_lacework_code_aware_agent"  : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
