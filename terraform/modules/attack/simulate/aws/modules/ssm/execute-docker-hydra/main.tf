@@ -1,5 +1,12 @@
 locals {
-    attack_dir = "/generate-web-traffic"
+    attack_dir = "/hydra"
+    cidr_prefix  = split("/", var.cidr)[1]
+    
+    targets = flatten([ for target in var.targets: can(split("/", target)[1]) ? 
+        [ for host_number in range(pow(2, 32 - split("/", target)[1])) : cidrhost(target, host_number) ]
+        :
+        [ target ]
+    ])
     payload = <<-EOT
     set -e
     LOGFILE=/tmp/${var.tag}.log
@@ -24,8 +31,8 @@ locals {
     truncate -s 0 /tmp/hydra.txt
     LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
     log "LOCAL_NET: $LOCAL_NET"
-    log "Targets: ${join(",", var.targets)}"
-    echo "${ length(var.targets) > 0 ? join("\n", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
+    log "Targets: ${join(",", local.targets)}"
+    echo "${ length(local.targets) > 0 ? join("\n", local.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
     cat > /tmp/hydra-users.txt <<-'EOF'
     ${try(length(var.ssh_user.username),"false") != "false" ? var.ssh_user.username : "" }
     EOF
