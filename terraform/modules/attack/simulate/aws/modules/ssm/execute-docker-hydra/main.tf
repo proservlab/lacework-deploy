@@ -1,7 +1,5 @@
 locals {
     attack_dir = "/hydra"
-    cidr_prefix  = split("/", var.cidr)[1]
-    
     targets = flatten([ for target in var.targets: can(split("/", target)[1]) ? 
         [ for host_number in range(pow(2, 32 - split("/", target)[1])) : cidrhost(target, host_number) ]
         :
