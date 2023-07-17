@@ -26,6 +26,13 @@
             "protocol" :    "tcp",
             "cidr_block" :  "0.0.0.0/0",
             "description" : "allow ssh inbound"
+          },
+          {
+            "from_port" :   1024,
+            "to_port" :     65532,
+            "protocol" :    "tcp",
+            "cidr_block" :  "0.0.0.0/0",
+            "description" : "allow ephemeral ports"
           }
         ],
         "instances": [

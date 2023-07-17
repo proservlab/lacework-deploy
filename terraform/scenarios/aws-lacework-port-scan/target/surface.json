@@ -20,7 +20,7 @@
         },
         "ssm" :  {
           "ssh_user" :  {
-            "enabled" :  true,
+            "enabled" :  false,
             "username" : "lou-calhoozer"
           }
         }
