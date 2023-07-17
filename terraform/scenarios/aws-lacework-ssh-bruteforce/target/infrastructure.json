@@ -61,7 +61,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "internal-bruteforce",
+            "name"                      : "internal-bruteforce-host-1",
             "public"                    : false,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -78,7 +78,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "internal-bruteforce-target",
+            "name"                      : "internal-bruteforce-target-1",
             "public"                    : false,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -88,6 +88,21 @@
               "ssm_deploy_lacework_syscall"           : "true",
               "ssm_deploy_lacework_code_aware_agent"  : "true",
               "ssm_deploy_ssh_user"                   : "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null,
+            "enable_swap"      : true
+          },
+          {
+            "name"                      : "internal-bruteforce-target-2",
+            "public"                    : false,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "ssm_deploy_lacework"                   : "true",
+              "ssm_deploy_lacework_syscall"           : "true",
+              "ssm_deploy_lacework_code_aware_agent"  : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,

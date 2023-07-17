@@ -107,7 +107,7 @@
         ],
         "instances": [
           {
-            "name"                      : "external-scan-target",
+            "name"                      : "external-portscan-target-1",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -122,7 +122,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "internal-scanner",
+            "name"                      : "internal-portscan-host-1",
             "public"                    : false,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -139,7 +139,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "internal-scan-target",
+            "name"                      : "internal-portscan-target-1",
             "public"                    : false,
             "role"                      : "default",
             "instance_type"             : "t2.micro",

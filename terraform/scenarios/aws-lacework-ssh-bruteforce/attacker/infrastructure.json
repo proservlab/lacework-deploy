@@ -22,7 +22,7 @@
                 "public_ingress_rules"              : [],
                 "instances": [
                     {
-                        "name"                      : "external-bruteforce",
+                        "name"                      : "external-bruteforce-host-1",
                         "public"                    : true,
                         "role"                      : "default",
                         "instance_type"             : "t2.micro",
