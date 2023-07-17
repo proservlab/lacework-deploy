@@ -66,74 +66,84 @@ module "private-app" {
 
 # add public/private peering
 resource "aws_vpc_peering_connection" "peer-public-private" {
-  peer_vpc_id = module.public.vpc.id
-  vpc_id      = module.private.vpc.id
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  peer_vpc_id = module.public[0].vpc.id
+  vpc_id      = module.private[0].vpc.id
   auto_accept = true
 }
 
 resource "aws_route" "private_to_public" {
-  route_table_id         = module.private.vpc.main_route_table_id
-  destination_cidr_block = module.public.vpc.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private.id
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  route_table_id         = module.private[0].vpc.main_route_table_id
+  destination_cidr_block = module.public[0].vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
 }
 
 resource "aws_route" "public_to_private" {
-  route_table_id         = module.public.vpc.main_route_table_id
-  destination_cidr_block = module.private.vpc.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private.id
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  route_table_id         = module.public[0].vpc.main_route_table_id
+  destination_cidr_block = module.private[0].vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
 }
 
 resource "aws_security_group_rule" "private_to_public" {
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
   type                     = "ingress"
   from_port                = 0
   to_port                  = 0
   protocol                 = "-1"
-  security_group_id        = module.private.sg.id
-  source_security_group_id = module.public.sg.id
+  security_group_id        = module.private[0].sg.id
+  source_security_group_id = module.public[0].sg.id
 }
 
 resource "aws_security_group_rule" "public_to_private" {
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
   type                     = "ingress"
   from_port                = 0
   to_port                  = 0
   protocol                 = "-1"
-  security_group_id        = module.public.sg.id
-  source_security_group_id = module.private.sg.id
+  security_group_id        = module.public[0].sg.id
+  source_security_group_id = module.private[0].sg.id
 }
 
 # add public/private peering for app
 resource "aws_vpc_peering_connection" "peer-public-private-app" {
-  peer_vpc_id = module.public-app.vpc.id
-  vpc_id      = module.private-app.vpc.id
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  peer_vpc_id = module.public-app[0].vpc.id
+  vpc_id      = module.private-app[0].vpc.id
   auto_accept = true
 }
 
 resource "aws_route" "private_to_public_app" {
-  route_table_id         = module.private-app.vpc.main_route_table_id
-  destination_cidr_block = module.public-app.vpc.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app.id
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  route_table_id         = module.private-app[0].vpc.main_route_table_id
+  destination_cidr_block = module.public-app[0].vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
 }
 
 resource "aws_route" "public_to_private_app" {
-  route_table_id         = module.public-app.vpc.main_route_table_id
-  destination_cidr_block = module.private-app.vpc.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app.id
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  route_table_id         = module.public-app[0].vpc.main_route_table_id
+  destination_cidr_block = module.private-app[0].vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
 }
 
 resource "aws_security_group_rule" "private_to_public_app" {
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
   type                     = "ingress"
   from_port                = 0
   to_port                  = 0
   protocol                 = "-1"
-  security_group_id        = module.private-app.sg.id
-  source_security_group_id = module.public-app.sg.id
+  security_group_id        = module.private-app[0].sg.id
+  source_security_group_id = module.public-app[0].sg.id
 }
 
 resource "aws_security_group_rule" "public_to_private_app" {
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
   type                     = "ingress"
   from_port                = 0
   to_port                  = 0
   protocol                 = "-1"
-  security_group_id        = module.public-app.sg.id
-  source_security_group_id = module.private-app.sg.id
+  security_group_id        = module.public-app[0].sg.id
+  source_security_group_id = module.private-app[0].sg.id
 }
