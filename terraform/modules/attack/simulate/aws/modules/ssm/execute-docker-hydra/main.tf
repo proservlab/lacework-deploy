@@ -25,7 +25,7 @@ locals {
     LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
     log "LOCAL_NET: $LOCAL_NET"
     log "Targets: ${join(",", var.targets)}"
-    echo "${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
+    echo "${ length(var.targets) > 0 ? join("\n", var.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
     cat > /tmp/hydra-users.txt <<-'EOF'
     ${try(length(var.ssh_user.username),"false") != "false" ? var.ssh_user.username : "" }
     EOF
