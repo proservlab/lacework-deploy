@@ -159,8 +159,6 @@ if [[ "$PROVIDER" == "aws" ]]; then
                 exit 1
                 ;;
         esac
-    else
-        echo "AWS CLI SSO session is active."
     fi
 fi
 
