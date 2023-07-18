@@ -461,6 +461,7 @@ function select_aws_profile {
     # check for cloud shell
     if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
         warnmsg "This script is not running in AWS CloudShell. AWS profiles are required."
+        sleep 3
     fi
 
     # Retrieve list of AWS profiles
