@@ -458,17 +458,35 @@ function aws_check_vpcs {
 }
 
 function select_aws_profile {
-    # check for cloud shell
-    if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
-        warnmsg "This script is running in AWS CloudShell. AWS profiles are required."
-        sleep 3
-    fi
+    
 
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
     
     if [[ "$(echo $aws_profiles | wc -l)" == "0" ]]; then
         errmsg "no aws profiles configured - please add at least one aws profile"
+        
+        if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
+            warnmsg "this script is running in aws cloudShell. aws profiles are required."
+            sleep 3
+            read -p "> create a default aws profile using existing cloudshell credentials (y/n): " create_profile
+            case $create_profile in
+                y|Y ) 
+                    aws configure set profile default
+                    ;;
+                n|N )
+                    errmsg "at least one aws profile is required to continue."
+                    exit 1
+                    ;;
+                * )
+                    errmsg "at least one aws profile is required to continue."
+                    exit 1
+                    ;;
+            esac
+        else
+            errmsg "at least one aws profile is required to continue."
+            exit 1
+        fi
         exit 1
     fi
 
