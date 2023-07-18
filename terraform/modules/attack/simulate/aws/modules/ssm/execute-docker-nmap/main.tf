@@ -1,7 +1,14 @@
 locals {
-    attack_dir = "/generate-web-traffic"
+    attack_dir = "/nmap"
+    attack_script = "nmap.sh"
+    start_script = "delayed_start.sh"
+    lock_file = "/tmp/delay_nmap.lock"
     payload = <<-EOT
-    set -e
+    LOCKFILE="${ local.lock_file }"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -21,6 +28,14 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
+
+    log "cleaning app directory"
+    rm -rf ${local.attack_dir}
+    cd ${local.attack_dir}
+    echo ${local.delayed_start} | base64 -d > ${local.start_script}
+
+    log "creating ${local.attack_script}..."
+    cat > ${local.attack_script} <<-'COF'
     truncate -s 0 /tmp/nmap.txt
     LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
     log "LOCAL_NET: $LOCAL_NET"
@@ -48,10 +63,26 @@ locals {
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/nmap.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
     EOF
-    }    
-    log "Done."
+    }
+    COF 
+
+    log "starting background delayed script start..."
+    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
+    log "background job started"
+    log "done."
     EOT
     base64_payload = base64encode(local.payload)
+
+    
+    delayed_start   = base64encode(templatefile(
+                                "${path.module}/resources/${local.start_script}",
+                                {
+                                    lock_file = local.lock_file
+                                    attack_delay = var.attack_delay
+                                    attack_dir = local.attack_dir
+                                    attack_script = local.attack_script
+                                }
+                        ))
 }
 
 ###########################

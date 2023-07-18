@@ -27,6 +27,12 @@ variable "cron" {
   default = "cron(0 */1 * * ? *)"
 }
 
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
+}
+
 variable "image" {
   type = string
   description = "docker image to use"

