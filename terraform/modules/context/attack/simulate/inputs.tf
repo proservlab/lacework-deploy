@@ -501,6 +501,7 @@ variable "config" {
                 scan_local_network          = bool
                 targets                     = list(string)
                 ports                       = list(number)
+                attack_delay                = number
               })
               docker_hydra = object({
                 enabled                     = bool
@@ -511,6 +512,7 @@ variable "config" {
                 custom_password_list        = list(string)
                 user_list                   = string
                 password_list               = string
+                attack_delay                = number
               })
               generate_web_traffic = object({
                 enabled                     = bool
@@ -662,6 +664,7 @@ variable "config" {
                 scan_local_network          = bool
                 targets                     = list(string)
                 ports                       = list(number)
+                attack_delay                = number
               })
               docker_hydra = object({
                 enabled                     = bool
@@ -672,6 +675,7 @@ variable "config" {
                 custom_password_list        = list(string)
                 user_list                   = string
                 password_list               = string
+                attack_delay                = number
               })
               generate_web_traffic = object({
                 enabled                     = bool
@@ -1202,6 +1206,7 @@ variable "config" {
                 scan_local_network          = true
                 targets                     = []
                 ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
               }
               docker_hydra = {
                 enabled                     = false
@@ -1212,6 +1217,7 @@ variable "config" {
                 custom_password_list        = []
                 user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
                 password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
               }
               generate_web_traffic = {
                 enabled                     = false
@@ -1372,6 +1378,7 @@ variable "config" {
                 scan_local_network          = false
                 targets                     = []
                 ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
               }
               docker_hydra = {
                 enabled                     = false
@@ -1382,6 +1389,7 @@ variable "config" {
                 custom_password_list        = []
                 user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
                 password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
               }
               generate_web_traffic = {
                 enabled                     = false
