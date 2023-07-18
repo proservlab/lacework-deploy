@@ -130,26 +130,30 @@ check_free_memory() {
         warnmsg "Total memory is less than 4GB." 
         
         # Check if the swap file already exists
-        if swapon --show | grep -q "/swapfile"; then
+        if swapon --show | grep -q "^/swapfile"; then
             infomsg "Swap file /swapfile already exists."
         else
-            infomsg "Do you want to create a swap file? (yes/no)"
-        
-            # Prompt for user input
-            read response
+            read -p "> Do you want to create a swap file? (y/n): " response
             
             # If user says 'yes', create a 4GB swap file
-            if [ "$response" = "yes" ]; then
-                infomsg "Creating a 4GB swap file..."
-                sudo fallocate -l 4G /swapfile
-                sudo chmod 600 /swapfile
-                sudo mkswap /swapfile
-                sudo swapon /swapfile
-                echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
-                infomsg "Swap file created and activated."
-            else
-                warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
-            fi
+            case "$response" in
+                y|Y )
+                    infomsg "Creating a 4GB swap file..."
+                    sudo fallocate -l 4G /swapfile
+                    sudo chmod 600 /swapfile
+                    sudo mkswap /swapfile
+                    sudo swapon /swapfile
+                    echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+                    infomsg "Swap file created and activated."
+                    ;;
+                n|N )
+                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                    ;;
+                * )
+                    errmsg "invalid input. aws cli will not be installed"
+                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                    ;;
+            esac
         fi
     else
         echo "Total memory is greater than or equal to 4GB. No need to create a swap file."
@@ -738,7 +742,7 @@ function select_option {
 clear
 # check memory requirements
 check_free_memory
-exit 1
+
 clear
 
 # scenario selection
