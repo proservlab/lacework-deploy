@@ -626,8 +626,6 @@ function select_azure_subscription {
 }
 
 function select_lacework_profile {
-    infomsg "select a lacework profile:"
-    PS3="Profile number: "
     # Get the current tenant
     local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
     if (( $(echo -n $options | wc -c) > 0 )); then
@@ -636,6 +634,8 @@ function select_lacework_profile {
         errmsg "no lacework profiles configured - please add a lacework api key"
         exit 1
     fi
+    infomsg "select a lacework profile:"
+    PS3="Profile number: "
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
