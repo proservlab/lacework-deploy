@@ -47,6 +47,7 @@ locals {
     delayed_start   = base64encode(templatefile(
                                 "${path.module}/resources/${local.start_script}",
                                 {
+                                    scriptname = "delayed_start_hydra"
                                     lock_file = local.lock_file
                                     attack_delay = var.attack_delay
                                     attack_dir = local.attack_dir
@@ -58,7 +59,6 @@ locals {
                                 "${path.module}/resources/${local.attack_script}",
                                 {
                                     content =   <<-EOT
-                                                truncate -s 0 /tmp/nmap.txt
                                                 LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
                                                 log "LOCAL_NET: $LOCAL_NET"
                                                 log "Targets: ${join(",", var.targets)}"
@@ -76,13 +76,13 @@ locals {
                                                 TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
                                                 log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true" 
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/nmap.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
                                                 : <<-EOF
                                                 log "Running via docker: nmap -Pn -sS -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
                                                 sudo /bin/bash -c "docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/nmap.txt 2>&1"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
                                                 }
