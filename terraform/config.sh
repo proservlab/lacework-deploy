@@ -158,6 +158,7 @@ check_free_memory() {
     else
         echo "Total memory is greater than or equal to 4GB. No need to create a swap file."
     fi
+    sleep 2
 }
 
 # Check if aws-cli is installed and install if not
