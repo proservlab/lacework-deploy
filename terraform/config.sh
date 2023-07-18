@@ -472,7 +472,9 @@ function select_aws_profile {
             read -p "> create a default aws profile using existing cloudshell credentials (y/n): " create_profile
             case $create_profile in
                 y|Y ) 
+                    infomsg "creating default profile"
                     aws configure set profile default
+                    
                     ;;
                 n|N )
                     errmsg "at least one aws profile is required to continue."
@@ -487,8 +489,9 @@ function select_aws_profile {
             errmsg "at least one aws profile is required to continue."
             exit 1
         fi
-        exit 1
     fi
+    
+    aws_profiles=$(aws configure list-profiles)
 
     # Retrieve a list of regions
     region_list=$(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text)
