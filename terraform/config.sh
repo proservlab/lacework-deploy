@@ -121,6 +121,41 @@ function check_file_exists {
   fi
 }
 
+check_free_memory() {
+    # Get total memory in megabytes
+    total_memory=$(free -m | awk '/^Mem:/{print $2}')
+
+    # Check if total memory is less than 4GB (4096MB)
+    if [ "$total_memory" -lt "4096" ]; then
+        warnmsg "Total memory is less than 4GB." 
+        
+        # Check if the swap file already exists
+        if swapon --show | grep -q "/swapfile"; then
+            infomsg "Swap file /swapfile already exists."
+        else
+            infomsg "Do you want to create a swap file? (yes/no)"
+        
+            # Prompt for user input
+            read response
+            
+            # If user says 'yes', create a 4GB swap file
+            if [ "$response" = "yes" ]; then
+                infomsg "Creating a 4GB swap file..."
+                sudo fallocate -l 4G /swapfile
+                sudo chmod 600 /swapfile
+                sudo mkswap /swapfile
+                sudo swapon /swapfile
+                echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+                infomsg "Swap file created and activated."
+            else
+                warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+            fi
+        fi
+    else
+        echo "Total memory is greater than or equal to 4GB. No need to create a swap file."
+    fi
+}
+
 # Check if aws-cli is installed and install if not
 check_aws_cli() {
     if command_exists aws &> /dev/null; then
@@ -701,6 +736,11 @@ function select_option {
 }
 
 clear
+# check memory requirements
+check_free_memory
+
+clear
+
 # scenario selection
 select_scenario
 
