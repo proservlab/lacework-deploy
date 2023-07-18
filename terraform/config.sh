@@ -458,6 +458,11 @@ function aws_check_vpcs {
 }
 
 function select_aws_profile {
+    # check for cloud shell
+    if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
+        warnmsg "This script is not running in AWS CloudShell. AWS profiles are required."
+    fi
+
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
     
