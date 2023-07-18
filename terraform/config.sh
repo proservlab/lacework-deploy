@@ -738,7 +738,7 @@ function select_option {
 clear
 # check memory requirements
 check_free_memory
-
+exit 1
 clear
 
 # scenario selection
