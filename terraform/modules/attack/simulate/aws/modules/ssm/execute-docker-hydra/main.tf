@@ -37,6 +37,7 @@ locals {
 
     log "cleaning app directory"
     rm -rf ${local.attack_dir}
+    mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
     echo ${local.delayed_start} | base64 -d > ${local.start_script}
 
