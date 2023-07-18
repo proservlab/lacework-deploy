@@ -141,6 +141,29 @@ echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
 echo "PROVIDER          = ${PROVIDER}"
 
+# check for sso logged out session
+if [[ "$PROVIDER" == "aws" ]]; then
+    session_check=$(aws sts get-caller-identity 2>&1)
+    if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+        read -p "> aws sso session has expired - login now? (y/n): " login
+        case "$login" in
+            y|Y )
+                aws sso login
+                ;;
+            n|N )
+                errmsg "aws session expired - manual login required."
+                exit 1
+                ;;
+            * )
+                errmsg "aws session expired - manual login required."
+                exit 1
+                ;;
+        esac
+    else
+        echo "AWS CLI SSO session is active."
+    fi
+fi
+
 # change directory to provider directory
 cd $PROVIDER
 

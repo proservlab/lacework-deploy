@@ -252,7 +252,7 @@ check_lacework_cli() {
                 # check if on Linux or macOS
                 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
                     # install for Linux
-                    curl https://raw.githubusercontent.com/lacework/go-sdk/main/cli/install.sh | bash
+                    sudo /bin/bash -c "curl https://raw.githubusercontent.com/lacework/go-sdk/main/cli/install.sh | bash"
                 elif [[ "$OSTYPE" == "darwin"* ]]; then
                     # check if brew is installed
                     if ! command_exists brew &> /dev/null
@@ -420,6 +420,13 @@ function aws_check_vpcs {
 function select_aws_profile {
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
+    
+    if [[ "$(echo $aws_profiles | wc -l)" == "0" ]]; then
+        errmsg "no aws profiles configured - please add at least one aws profile"
+        exit 1
+    fi
+
+    # Retrieve a list of regions
     region_list=$(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text)
 
     # iterate through the attack and target environments
@@ -462,7 +469,7 @@ function select_aws_profile {
 function select_gcp_project {
     # Set project variable
     projects=$(gcloud projects list --format="value(projectId)")
-    
+
     # iterate through the attack and target environments
     environments="attacker target lacework"
     for environment in $environments; do 
@@ -558,7 +565,11 @@ function select_lacework_profile {
     infomsg "select a lacework profile:"
     PS3="Profile number: "
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}' )
+    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+    if [[ "$(echo $options | wc -l)" == "0" ]]; then
+        errmsg "no lacework profiles configured - please add a lacework api key"
+        exit 1
+    fi
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
