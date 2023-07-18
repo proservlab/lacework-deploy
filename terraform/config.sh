@@ -458,12 +458,10 @@ function aws_check_vpcs {
 }
 
 function select_aws_profile {
-    
-
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
     
-    if [[ "$(echo $aws_profiles | wc -l)" == "0" ]]; then
+    if [[ "$(echo -n $aws_profiles | wc -l)" == "0" ]]; then
         errmsg "no aws profiles configured - please add at least one aws profile"
         
         if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
@@ -630,7 +628,7 @@ function select_lacework_profile {
     PS3="Profile number: "
     # Get the current tenant
     local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
-    if [[ "$(echo $options | wc -l)" == "0" ]]; then
+    if [[ "$(echo -n $options | wc -l)" == "0" ]]; then
         errmsg "no lacework profiles configured - please add a lacework api key"
         exit 1
     fi
