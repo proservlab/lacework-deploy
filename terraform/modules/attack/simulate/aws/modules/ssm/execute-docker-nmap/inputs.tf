@@ -24,7 +24,7 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(*/30 * * * ? *)"
+  default = "cron(0 */1 * * ? *)"
 }
 
 variable "image" {

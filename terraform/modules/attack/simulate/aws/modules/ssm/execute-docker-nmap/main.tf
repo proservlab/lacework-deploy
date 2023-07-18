@@ -43,7 +43,7 @@ locals {
     sudo /bin/bash -c "docker rm ${var.container_name}"
     EOF
     : <<-EOF
-    log "Running via docker: nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
+    log "Running via docker: nmap -Pn -sS -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
     sudo /bin/bash -c "docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true"
     sudo /bin/bash -c "docker logs ${var.container_name} >> /tmp/nmap.txt 2>&1"
     sudo /bin/bash -c "docker rm ${var.container_name}"
