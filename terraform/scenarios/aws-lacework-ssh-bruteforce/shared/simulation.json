@@ -25,7 +25,7 @@
               "use_tor" :               false,
               "scan_local_network" :    false,
               "targets" : [
-                "172.26.100.0/24",
+                "172.16.100.0/24",
                 "172.18.0.0/24"
               ],
               "attack_delay" :          50400,
