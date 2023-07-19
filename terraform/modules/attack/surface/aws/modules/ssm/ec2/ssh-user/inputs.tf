@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_deploy_secret_aws_creds"
+  default = "ssm_deploy_ssh_user"
 }
 
 variable "timeout" {
@@ -23,7 +23,7 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
-variable "user" {
+variable "username" {
   type = any
   description = "user name to add to local system"
   default = "lou.caloozer"

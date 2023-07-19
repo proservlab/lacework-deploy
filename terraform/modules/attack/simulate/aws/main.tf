@@ -200,7 +200,7 @@ module "ssm-connect-codecov" {
   deployment    = local.config.context.global.deployment
   
   
-  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_ip, local.attacker_http_listener[0])
+  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_ip, try(length(local.attacker_http_listener)>0, false) ? local.attacker_http_listener[0] : null)
   host_port     = coalesce(local.config.context.aws.ssm.target.connect.codecov.host_port, local.config.context.aws.ssm.attacker.listener.http.listen_port)
 }
 
@@ -229,7 +229,7 @@ module "ssm-connect-reverse-shell" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, local.attacker_reverse_shell[0])
+  host_ip       = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_ip, try(length(local.attacker_reverse_shell)>0, false) ? local.attacker_reverse_shell[0] : null )
   host_port     = coalesce(local.config.context.aws.ssm.target.connect.reverse_shell.host_port, local.config.context.aws.ssm.attacker.responder.reverse_shell.listen_port)
 }
 
@@ -368,7 +368,7 @@ module "ssm-execute-docker-log4shell-attack" {
 
   attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, local.attacker_log4shell[0])
+  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, try(length(local.attacker_log4shell)>0, false) ? local.attacker_log4shell[0] : null)
   target_ip = try(local.target_docker_log4shell[0], local.target_log4shell[0])
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
@@ -455,19 +455,21 @@ module "ssm-execute-generate-web-traffic-target" {
   tag                     = "ssm_exec_generate_web_traffic_target"
 }
 
-module "ssm-execute-docker-nmap-attacker" {
+module "ssm-execute-docker-nmap-external" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
   region        = local.default_infrastructure_config.context.aws.region
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  tag                     = "ssm_exec_docker_nmap_attacker"
+  tag                     = "ssm_exec_docker_nmap_external"
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.attacker.execute.docker_nmap.ports
-  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.aws.ssm.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.attacker.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.aws.ssm.attacker.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -478,32 +480,37 @@ module "ssm-execute-docker-hydra-attacker" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   
-  tag                     = "ssm_exec_docker_hydra_attacker"
+  tag                     = "ssm_exec_docker_hydra_external"
   
   use_tor = local.config.context.aws.ssm.attacker.execute.docker_hydra.use_tor
   custom_user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_user_list
   custom_password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.custom_password_list
   user_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.user_list
   password_list = local.config.context.aws.ssm.attacker.execute.docker_hydra.password_list
-  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ssh_user = var.ssh_user
+  targets = local.config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true &&  length(local.config.context.aws.ssm.attacker.execute.docker_hydra.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.attacker.execute.docker_hydra.targets) > 0 ? 
+      local.config.context.aws.ssm.attacker.execute.docker_hydra.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
-module "ssm-execute-docker-nmap-target" {
+module "ssm-execute-docker-nmap-internal" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
   region        = local.default_infrastructure_config.context.aws.region
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  tag                     = "ssm_exec_docker_nmap_target"
+  tag                     = "ssm_exec_docker_nmap_internal"
   use_tor = local.config.context.aws.ssm.target.execute.docker_nmap.use_tor
   ports = local.config.context.aws.ssm.target.execute.docker_nmap.ports
-  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  targets = local.config.context.aws.ssm.target.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.aws.ssm.target.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.target.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.aws.ssm.target.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -514,16 +521,19 @@ module "ssm-execute-docker-hydra-target" {
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   
-  tag                     = "ssm_exec_docker_hydra_target"
+  tag                     = "ssm_exec_docker_hydra_internal"
   
   use_tor = local.config.context.aws.ssm.target.execute.docker_hydra.use_tor
   custom_user_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_user_list
   custom_password_list = local.config.context.aws.ssm.target.execute.docker_hydra.custom_password_list
   user_list = local.config.context.aws.ssm.target.execute.docker_hydra.user_list
   password_list = local.config.context.aws.ssm.target.execute.docker_hydra.password_list
-  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true ? [] : flatten([
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-    [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ssh_user = var.ssh_user
+  targets = local.config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true &&  length(local.config.context.aws.ssm.target.execute.docker_hydra.targets) == 0 ? [] : flatten([
+    length(local.config.context.aws.ssm.target.execute.docker_hydra.targets) > 0 ? 
+      local.config.context.aws.ssm.target.execute.docker_hydra.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
 }
 
@@ -548,7 +558,7 @@ module "ssm-listener-port-forward" {
   deployment    = local.config.context.global.deployment
   port_forwards = local.config.context.aws.ssm.target.listener.port_forward.port_forwards
   
-  host_ip       = local.attacker_port_forward[0]
+  host_ip       = try(length(local.attacker_port_forward)>0, false) ? local.attacker_port_forward[0] : null
   host_port     = local.config.context.aws.ssm.attacker.responder.port_forward.listen_port
 }
 

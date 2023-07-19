@@ -54,8 +54,10 @@ locals {
     ssm_exec_generate_aws_cli_traffic_attacker = "false"
     ssm_exec_generate_web_traffic_target  = "false"
     ssm_exec_generate_web_traffic_attacker  = "false"
-    ssm_exec_docker_hydra = "false"
-    ssm_exec_docker_nmap = "false"
+    ssm_exec_docker_hydra_external = "false"
+    ssm_exec_docker_hydra_internal = "false"
+    ssm_exec_docker_nmap_external = "false"
+    ssm_exec_docker_nmap_internal = "false"
   }
   osconfig_default_tags = {
     osconfig_connect_bad_ip              = "false"

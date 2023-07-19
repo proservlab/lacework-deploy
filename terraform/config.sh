@@ -121,6 +121,46 @@ function check_file_exists {
   fi
 }
 
+check_free_memory() {
+    # Get total memory in megabytes
+    total_memory=$(free -m | awk '/^Mem:/{print $2}')
+
+    # Check if total memory is less than 4GB (4096MB)
+    if [ "$total_memory" -lt "4096" ]; then
+        warnmsg "Total memory is less than 4GB." 
+        
+        # Check if the swap file already exists
+        if swapon --show | grep -q "^/swapfile"; then
+            infomsg "Swap file /swapfile already exists."
+        else
+            read -p "> Do you want to create a swap file? (y/n): " response
+            
+            # If user says 'yes', create a 4GB swap file
+            case "$response" in
+                y|Y )
+                    infomsg "Creating a 4GB swap file..."
+                    sudo fallocate -l 4G /swapfile
+                    sudo chmod 600 /swapfile
+                    sudo mkswap /swapfile
+                    sudo swapon /swapfile
+                    echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+                    infomsg "Swap file created and activated."
+                    ;;
+                n|N )
+                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                    ;;
+                * )
+                    errmsg "invalid input. aws cli will not be installed"
+                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                    ;;
+            esac
+        fi
+    else
+        echo "Total memory is greater than or equal to 4GB. No need to create a swap file."
+    fi
+    sleep 2
+}
+
 # Check if aws-cli is installed and install if not
 check_aws_cli() {
     if command_exists aws &> /dev/null; then
@@ -252,7 +292,7 @@ check_lacework_cli() {
                 # check if on Linux or macOS
                 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
                     # install for Linux
-                    curl https://raw.githubusercontent.com/lacework/go-sdk/main/cli/install.sh | bash
+                    sudo /bin/bash -c "curl https://raw.githubusercontent.com/lacework/go-sdk/main/cli/install.sh | bash"
                 elif [[ "$OSTYPE" == "darwin"* ]]; then
                     # check if brew is installed
                     if ! command_exists brew &> /dev/null
@@ -420,6 +460,40 @@ function aws_check_vpcs {
 function select_aws_profile {
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
+    
+    if (( $(echo -n $aws_profiles | wc -c) > 0 )); then
+        infomsg "aws profiles found"
+    else
+        errmsg "no aws profiles configured - please add at least one aws profile"
+        
+        if [ "$AWS_EXECUTION_ENV" = "CloudShell" ]; then
+            warnmsg "this script is running in aws cloudShell. aws profiles are required."
+            sleep 3
+            read -p "> create a default aws profile using existing cloudshell credentials (y/n): " create_profile
+            case $create_profile in
+                y|Y ) 
+                    infomsg "creating default profile"
+                    aws configure set profile default
+                    
+                    ;;
+                n|N )
+                    errmsg "at least one aws profile is required to continue."
+                    exit 1
+                    ;;
+                * )
+                    errmsg "at least one aws profile is required to continue."
+                    exit 1
+                    ;;
+            esac
+        else
+            errmsg "at least one aws profile is required to continue."
+            exit 1
+        fi
+    fi
+    
+    aws_profiles=$(aws configure list-profiles)
+
+    # Retrieve a list of regions
     region_list=$(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text)
 
     # iterate through the attack and target environments
@@ -462,7 +536,7 @@ function select_aws_profile {
 function select_gcp_project {
     # Set project variable
     projects=$(gcloud projects list --format="value(projectId)")
-    
+
     # iterate through the attack and target environments
     environments="attacker target lacework"
     for environment in $environments; do 
@@ -555,10 +629,16 @@ function select_azure_subscription {
 }
 
 function select_lacework_profile {
+    # Get the current tenant
+    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+    if (( $(echo -n $options | wc -c) > 0 )); then
+        infomsg "lacework profiles found"
+    else
+        errmsg "no lacework profiles configured - please add a lacework api key"
+        exit 1
+    fi
     infomsg "select a lacework profile:"
     PS3="Profile number: "
-    # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}' )
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
@@ -690,6 +770,11 @@ function select_option {
 }
 
 clear
+# check memory requirements
+check_free_memory
+
+clear
+
 # scenario selection
 select_scenario
 

@@ -68,6 +68,11 @@ variable "config" {
             ssh_public_key_path         = string
             ssh_authorized_keys_path    = string
           })
+          ssh_user = object({ 
+            enabled                     = bool
+            username                        = string
+            password                    = string
+          })
           azure_credentials = object({ 
             enabled                     = bool
             compromised_keys_user       = string
@@ -130,6 +135,11 @@ variable "config" {
             ssh_private_key_path        = string
             ssh_public_key_path         = string
             ssh_authorized_keys_path    = string
+          })
+          ssh_user = object({ 
+            enabled                     = bool
+            username                        = string
+            password                    = string
           })
           gcp_credentials = object({ 
             enabled                     = bool
@@ -207,6 +217,11 @@ variable "config" {
             ssh_private_key_path        = string
             ssh_public_key_path         = string
             ssh_authorized_keys_path    = string
+          })
+          ssh_user = object({ 
+            enabled                     = bool
+            username                        = string
+            password                    = string
           })
           aws_credentials = object({ 
             enabled                     = bool
@@ -371,6 +386,11 @@ variable "config" {
             ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
             ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
           }
+          ssh_user = {
+            enabled                     = false
+            username                        = "lou.caloozer"
+            password                    = null
+          }
           azure_credentials = {
             enabled                     = false
             compromised_keys_user       = null
@@ -433,7 +453,12 @@ variable "config" {
             ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
             ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
             ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
-          }
+          },
+          ssh_user = {
+            enabled                     = false
+            username                        = "lou.caloozer"
+            password                    = null
+          },
           gcp_credentials = {
             enabled                     = false
             compromised_keys_user       = null
@@ -510,7 +535,12 @@ variable "config" {
             ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
             ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
             ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
-          }
+          },
+          ssh_user = {
+            enabled                     = false
+            username                        = "lou.caloozer"
+            password                    = null
+          },
           aws_credentials = { 
             enabled                     = false
             compromised_keys_user       = null

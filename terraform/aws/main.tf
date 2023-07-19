@@ -450,6 +450,7 @@ module "attacker-aws-attacksurface" {
   cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
+
   default_aws_profile                 = var.attacker_aws_profile
   default_aws_region                  = var.attacker_aws_region
   attacker_aws_profile                = var.attacker_aws_profile
@@ -708,8 +709,8 @@ module "attacker-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-
-  cluster_name = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.attacker_aws_profile
   default_aws_region                  = var.attacker_aws_region
@@ -781,8 +782,8 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-
-  cluster_name = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.target_aws_profile
   default_aws_region                  = var.target_aws_region

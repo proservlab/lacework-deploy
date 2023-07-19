@@ -18,6 +18,10 @@ variable "compromised_credentials" {
   type = any
 }
 
+variable "ssh_user" {
+  type = any
+}
+
 variable "parent" {
   type = list(string)
   default = []

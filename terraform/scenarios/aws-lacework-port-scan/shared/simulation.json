@@ -1,0 +1,39 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "enabled" : true,
+      "ssm" :  {
+        "attacker": {
+          "execute": {
+            "docker_nmap" : {
+              "enabled" :               true,
+              "use_tor" :               false,
+              "scan_local_network":     false,
+              "ports" :                 [ 22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017 ],
+              "attack_delay" :          50400
+            }
+          }
+        },
+        "target": {
+          "execute": {
+            "docker_nmap" : {
+              "enabled" :               true,
+              "use_tor" :               false,
+              "scan_local_network":     true,
+              "targets" : [
+                "172.26.100.0/24",
+                "172.18.0.0/24"
+              ],
+              "ports" :                 [ 22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017 ],
+              "attack_delay" :          50400
+            }
+          }
+        }
+      }
+    }
+  }
+}

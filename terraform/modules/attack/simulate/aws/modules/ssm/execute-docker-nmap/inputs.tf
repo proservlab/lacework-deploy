@@ -24,8 +24,13 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(00 * * * ? *)"
-  
+  default = "cron(0 */1 * * ? *)"
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
 }
 
 variable "image" {
@@ -50,7 +55,7 @@ variable "ports" {
   type = list(number)
   description = "list of ports to scan on target"
   default = [
-    22,80,443,5000,8000,8080,8091
+    22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017
   ]
 }
 

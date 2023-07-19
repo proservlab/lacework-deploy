@@ -1,7 +1,14 @@
 locals {
-    attack_dir = "/generate-web-traffic"
+    attack_dir = "/nmap"
+    attack_script = "nmap.sh"
+    start_script = "delayed_start.sh"
+    lock_file = "/tmp/delay_nmap.lock"
     payload = <<-EOT
-    set -e
+    LOCKFILE="${ local.lock_file }"
+    if [ -e "$LOCKFILE" ]; then
+        echo "Another instance of the script is already running. Exiting..."
+        exit 1
+    fi
     LOGFILE=/tmp/${var.tag}.log
     function log {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
@@ -21,27 +28,67 @@ locals {
         sleep 120
     done
     log "docker path: $(which docker)"
-    truncate -s 0 /tmp/nmap.txt
-    LOCAL_NET=$(ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1)
-    log "LOCAL_NET: $LOCAL_NET"
-    log "Targets: ${join(",", var.targets)}"
-    log "Ports: ${join(",", var.ports)}"
-    if [[ `sudo docker ps | grep ${var.container_name}` ]]; then docker stop ${var.container_name}; fi
-    ${ var.use_tor == true ? <<-EOF
-        log "Using tor network..."
-        sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
-        TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
-        log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.container_name} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
-        EOF
-        : <<-EOF
-        log "Running via docker: nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }"
-        sudo docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.container_name} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} ${ length(var.targets) > 0 ? join(",", var.targets) : "$LOCAL_NET" }  >> /tmp/nmap.txt 2>&1
-        EOF
-    }    
-    log "Done."
+
+    log "cleaning app directory"
+    rm -rf ${local.attack_dir}
+    mkdir -p ${local.attack_dir}
+    cd ${local.attack_dir}
+    echo ${local.delayed_start} | base64 -d > ${local.start_script}
+    echo ${local.nmap} | base64 -d > ${local.attack_script}
+
+    log "starting background delayed script start..."
+    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
+    log "background job started"
+    log "done."
     EOT
     base64_payload = base64encode(local.payload)
+
+    
+    delayed_start   = base64encode(templatefile(
+                                "${path.module}/resources/${local.start_script}",
+                                {
+                                    scriptname = "delayed_start_hydra"
+                                    lock_file = local.lock_file
+                                    attack_delay = var.attack_delay
+                                    attack_dir = local.attack_dir
+                                    attack_script = local.attack_script
+                                }
+                        ))
+    
+    nmap            = base64encode(templatefile(
+                                "${path.module}/resources/${local.attack_script}",
+                                {
+                                    content =   <<-EOT
+                                                LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
+                                                log "LOCAL_NET: $LOCAL_NET"
+                                                log "Targets: ${join(",", var.targets)}"
+                                                echo "${ length(var.targets) > 0 ? join("\n", var.targets) : "$LOCAL_NET" }" > /tmp/nmap-targets.txt
+                                                log "Ports: ${join(",", var.ports)}"
+                                                if sudo docker ps -a | grep ${var.container_name}; then 
+                                                sudo docker stop ${var.container_name}
+                                                sudo docker rm ${var.container_name}
+                                                fi
+                                                ${ var.use_tor == true ? <<-EOF
+                                                log "Using tor network..."
+                                                if ! docker ps | grep torproxy > /dev/null; then
+                                                sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
+                                                fi
+                                                TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
+                                                log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
+                                                sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true" 
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
+                                                sudo /bin/bash -c "docker rm ${var.container_name}"
+                                                EOF
+                                                : <<-EOF
+                                                log "Running via docker: nmap -Pn -sS -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
+                                                sudo /bin/bash -c "docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true"
+                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
+                                                sudo /bin/bash -c "docker rm ${var.container_name}"
+                                                EOF
+                                                }
+                                                EOT
+                                }
+                        ))
 }
 
 ###########################
