@@ -80,6 +80,7 @@ locals {
                                                 sudo docker stop ${var.container_name}
                                                 sudo docker rm ${var.container_name}
                                                 fi
+                                                truncate -s 0 /tmp/hydra-found.txt
                                                 ${ var.use_tor == true ? <<-EOF
                                                 log "Using tor network..."
                                                 if ! docker ps | grep torproxy > /dev/null; then
