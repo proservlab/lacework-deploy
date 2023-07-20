@@ -70,6 +70,26 @@ resource "aws_vpc_peering_connection" "peer-public-private" {
   peer_vpc_id = module.public[0].vpc.id
   vpc_id      = module.private[0].vpc.id
   auto_accept = true
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "peer-${var.environment}-${var.deployment}"
+    Side = "Requester"
+  }
+}
+
+resource "aws_vpc_peering_connection_accepter" "peer-public-private" {
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+  auto_accept               = true
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "accepter-${var.environment}-${var.deployment}"
+    Side = "Accepter"
+  }
 }
 
 resource "aws_route" "private_to_public" {
@@ -77,6 +97,12 @@ resource "aws_route" "private_to_public" {
   route_table_id         = module.private[0].vpc.main_route_table_id
   destination_cidr_block = module.public[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+  
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "route-peer-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_route" "public_to_private" {
@@ -84,6 +110,12 @@ resource "aws_route" "public_to_private" {
   route_table_id         = module.public[0].vpc.main_route_table_id
   destination_cidr_block = module.private[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "route-peer-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_security_group_rule" "private_to_public" {
@@ -94,6 +126,12 @@ resource "aws_security_group_rule" "private_to_public" {
   protocol                 = "-1"
   security_group_id        = module.private[0].sg.id
   source_security_group_id = module.public[0].sg.id
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "sg-peer-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_security_group_rule" "public_to_private" {
@@ -112,6 +150,26 @@ resource "aws_vpc_peering_connection" "peer-public-private-app" {
   peer_vpc_id = module.public-app[0].vpc.id
   vpc_id      = module.private-app[0].vpc.id
   auto_accept = true
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "peer-app-${var.environment}-${var.deployment}"
+    Side = "Requester"
+  }
+}
+
+resource "aws_vpc_peering_connection_accepter" "peer-public-private-app" {
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+  auto_accept               = true
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "accepter-app-${var.environment}-${var.deployment}"
+    Side = "Accepter"
+  }
 }
 
 resource "aws_route" "private_to_public_app" {
@@ -119,6 +177,12 @@ resource "aws_route" "private_to_public_app" {
   route_table_id         = module.private-app[0].vpc.main_route_table_id
   destination_cidr_block = module.public-app[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "route-peer-app-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_route" "public_to_private_app" {
@@ -126,6 +190,12 @@ resource "aws_route" "public_to_private_app" {
   route_table_id         = module.public-app[0].vpc.main_route_table_id
   destination_cidr_block = module.private-app[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "route-peer-app-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_security_group_rule" "private_to_public_app" {
@@ -136,6 +206,12 @@ resource "aws_security_group_rule" "private_to_public_app" {
   protocol                 = "-1"
   security_group_id        = module.private-app[0].sg.id
   source_security_group_id = module.public-app[0].sg.id
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "sg-app-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_security_group_rule" "public_to_private_app" {
