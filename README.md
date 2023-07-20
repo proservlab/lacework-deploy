@@ -10,6 +10,13 @@ Before getting started ensure all of the required configuration outlined in the 
 
 Once the pre-requisites are complete follow the [getting started guide](GETTINGSTARTED.md) to start deploying the pre-configured scenarios.
 
+# Workspace Management
+
+To view a list of _active_ workspaces (i.e. those will deployed resources) the following command can be run:
+`./build.sh --workspace-summary`
+
+At this time any workspaces with no deployed resources will be removed.
+
 # SSM Access
 
 All AWS instances are setup with SSM management. They can be access via aws-cli ssm commands. This applies to public and private instances as well as cluster nodes.
@@ -56,4 +63,4 @@ Reteive meta data for compute instance from the local machine:
 
 # Future
 
-Currently security related tests are focused in AWS and are developed to leverage SSM. Future work is required to help ensure these test are idempotent as well as extending this concept to gcp via `osconfig` and azure.
+Currently security related tests are focused in AWS and are developed to leverage SSM. Future work is required to help ensure these test are idempotent.
