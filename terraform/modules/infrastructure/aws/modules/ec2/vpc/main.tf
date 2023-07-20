@@ -77,6 +77,11 @@ resource "aws_vpc_peering_connection" "peer-public-private" {
     Name = "peer-${var.environment}-${var.deployment}"
     Side = "Requester"
   }
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_vpc_peering_connection_accepter" "peer-public-private" {
@@ -90,6 +95,11 @@ resource "aws_vpc_peering_connection_accepter" "peer-public-private" {
     Name = "accepter-${var.environment}-${var.deployment}"
     Side = "Accepter"
   }
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_vpc_peering_connection_options" "peer-public-private" {
@@ -99,20 +109,35 @@ resource "aws_vpc_peering_connection_options" "peer-public-private" {
   requester {
     allow_remote_vpc_dns_resolution = true
   }
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_route" "private_to_public" {
   count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
-  route_table_id         = module.private[0].vpc.default_route_table_id 
+  route_table_id         = module.private[0].route_table.id
   destination_cidr_block = module.public[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_route" "public_to_private" {
   count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
-  route_table_id         = module.public[0].vpc.default_route_table_id 
+  route_table_id         = module.public[0].route_table.id 
   destination_cidr_block = module.private[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_security_group_rule" "private_to_public" {
@@ -123,6 +148,11 @@ resource "aws_security_group_rule" "private_to_public" {
   protocol                 = "-1"
   security_group_id        = module.private[0].sg.id
   source_security_group_id = module.public[0].sg.id
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 resource "aws_security_group_rule" "public_to_private" {
@@ -133,6 +163,11 @@ resource "aws_security_group_rule" "public_to_private" {
   protocol                 = "-1"
   security_group_id        = module.public[0].sg.id
   source_security_group_id = module.private[0].sg.id
+
+  depends_on = [ 
+    module.public,
+    module.private
+  ]
 }
 
 # add public/private peering for app
@@ -148,6 +183,11 @@ resource "aws_vpc_peering_connection" "peer-public-private-app" {
     Name = "peer-app-${var.environment}-${var.deployment}"
     Side = "Requester"
   }
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_vpc_peering_connection_accepter" "peer-public-private-app" {
@@ -161,6 +201,11 @@ resource "aws_vpc_peering_connection_accepter" "peer-public-private-app" {
     Name = "accepter-app-${var.environment}-${var.deployment}"
     Side = "Accepter"
   }
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_vpc_peering_connection_options" "peer-public-private-app" {
@@ -170,20 +215,35 @@ resource "aws_vpc_peering_connection_options" "peer-public-private-app" {
   requester {
     allow_remote_vpc_dns_resolution = true
   }
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_route" "private_to_public_app" {
   count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
-  route_table_id         = module.private-app[0].vpc.default_route_table_id 
+  route_table_id         = module.private-app[0].route_table.id
   destination_cidr_block = module.public-app[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+  
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_route" "public_to_private_app" {
   count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
-  route_table_id         = module.public-app[0].vpc.default_route_table_id 
+  route_table_id         = module.public-app[0].route_table.id
   destination_cidr_block = module.private-app[0].vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_security_group_rule" "private_to_public_app" {
@@ -194,6 +254,11 @@ resource "aws_security_group_rule" "private_to_public_app" {
   protocol                 = "-1"
   security_group_id        = module.private-app[0].sg.id
   source_security_group_id = module.public-app[0].sg.id
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
 
 resource "aws_security_group_rule" "public_to_private_app" {
@@ -204,4 +269,9 @@ resource "aws_security_group_rule" "public_to_private_app" {
   protocol                 = "-1"
   security_group_id        = module.public-app[0].sg.id
   source_security_group_id = module.private-app[0].sg.id
+
+  depends_on = [ 
+    module.public-app,
+    module.private-app
+  ]
 }
