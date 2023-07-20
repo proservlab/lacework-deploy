@@ -79,18 +79,27 @@ resource "aws_vpc_peering_connection" "peer-public-private" {
   }
 }
 
-# resource "aws_vpc_peering_connection_accepter" "peer-public-private" {
-#   count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
-#   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
-#   auto_accept               = true
+resource "aws_vpc_peering_connection_accepter" "peer-public-private" {
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private[0].id
+  auto_accept               = true
 
-#   tags = {
-#     environment = var.environment
-#     deployment = var.deployment
-#     Name = "accepter-${var.environment}-${var.deployment}"
-#     Side = "Accepter"
-#   }
-# }
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "accepter-${var.environment}-${var.deployment}"
+    Side = "Accepter"
+  }
+}
+
+resource "aws_vpc_peering_connection_options" "peer-public-private" {
+  count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer-public-private[0].id
+
+  requester {
+    allow_remote_vpc_dns_resolution = true
+  }
+}
 
 resource "aws_route" "private_to_public" {
   count = var.enable_public_vpc == true && var.enable_private_vpc == true ? 1 : 0
@@ -141,18 +150,27 @@ resource "aws_vpc_peering_connection" "peer-public-private-app" {
   }
 }
 
-# resource "aws_vpc_peering_connection_accepter" "peer-public-private-app" {
-#   count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
-#   vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
-#   auto_accept               = true
+resource "aws_vpc_peering_connection_accepter" "peer-public-private-app" {
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer-public-private-app[0].id
+  auto_accept               = true
 
-#   tags = {
-#     environment = var.environment
-#     deployment = var.deployment
-#     Name = "accepter-app-${var.environment}-${var.deployment}"
-#     Side = "Accepter"
-#   }
-# }
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+    Name = "accepter-app-${var.environment}-${var.deployment}"
+    Side = "Accepter"
+  }
+}
+
+resource "aws_vpc_peering_connection_options" "peer-public-private-app" {
+  count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer-public-private-app[0].id
+
+  requester {
+    allow_remote_vpc_dns_resolution = true
+  }
+}
 
 resource "aws_route" "private_to_public_app" {
   count = var.enable_public_app_vpc == true && var.enable_private_app_vpc == true ? 1 : 0
