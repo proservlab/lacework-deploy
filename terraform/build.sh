@@ -53,6 +53,7 @@ workspace_summary(){
                 echo "$workspace $resource_count"
             else
                 if [ "$workspace" != "default" ]; then
+                    echo "removing empty workspace: $workspace $resource_count"
                     terraform workspace select default > /dev/null 2>&1
                     terraform workspace delete $workspace > /dev/null 2>&1
                 fi
