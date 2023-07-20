@@ -74,6 +74,16 @@ locals {
                                                 ${try(length(var.ssh_user.username),"false") != "false" ? var.ssh_user.username : "" }
                                                 EOF
                                                 cat > /tmp/hydra-passwords.txt <<-'EOF'
+                                                123456
+                                                123456789
+                                                111111
+                                                password
+                                                qwerty
+                                                abc123
+                                                12345678
+                                                password1
+                                                1234567
+                                                123123
                                                 ${try(length(var.ssh_user.password),"false") != "false" ? var.ssh_user.password : "" }
                                                 EOF
                                                 if sudo docker ps -a | grep ${var.container_name}; then 
