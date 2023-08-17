@@ -63,6 +63,9 @@ variable "config" {
       gcp = object({
         region                    = string
         project_id                = string
+        data_access_audit         = object({
+          enabled                = bool
+        })
         gce = object({
           enabled               = bool
           instances             = list(any)
@@ -371,6 +374,9 @@ variable "config" {
       gcp = {
         region                    = "us-central1"
         project_id                = null
+        data_access_audit = {
+          enabled                = false
+        }
         gce = {
           enabled               = false
           instances             = []

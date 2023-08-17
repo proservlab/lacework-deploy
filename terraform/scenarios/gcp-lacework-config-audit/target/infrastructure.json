@@ -24,54 +24,46 @@
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "public_ingress_rules"          : [],
         "instances": [
+          {
+            "name"                      : "target-public-1",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "e2-micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags": {
+              "osconfig_deploy_lacework": "true",
+              "osconfig_deploy_lacework_syscall": "true",
+              "osconfig_deploy_lacework_code_aware_agent": "true"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null
+          }
         ]
       },
       "gke": {
-        "enabled"                         : true,
+        "enabled"                         : false,
         "cluster_name"                    : "target-cluster"
+      },
+      "osconfig": {
+        "enabled"                        : true,
+        "deploy_git"                     : false,
+        "deploy_docker"                  : false,
+        "deploy_lacework_agent"          : true,
+        "deploy_lacework_syscall_config" : true,
+        "deploy_lacework_code_aware_agent" : true
       }
     },
     "lacework": {
       "server_url"   : "${ lacework_server_url }",
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
-      "aws_audit_config": {
-        "enabled" : false
-      },
       "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
-      "agent": {
-        "enabled" : false,
-
-        "kubernetes": {
-          "enabled" : false,
-          "proxy_scanner": {
-            "enabled" : false
-          },
-          "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
-          },
-          "compliance": {
-            "enabled" : false
-          },
-          "gke_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : false
-          }
-        }
-      },
-      "aws_agentless": {
-        "enabled" : false
+        "project_id" : "${ gcp_lacework_project }",
+        "enabled"    : true,
+        "use_pub_sub" : true
       },
       "gcp_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "alerts": {
         "enabled" : false,

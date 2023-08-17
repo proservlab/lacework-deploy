@@ -23,3 +23,9 @@ variable "use_pub_sub" {
   description = "enable use of v2 pub sub integration"
   default = false
 }
+
+variable "enable_gcp_data_access_logging" {
+  type = bool
+  description = "enable gcp data access logging"
+  default = false
+}

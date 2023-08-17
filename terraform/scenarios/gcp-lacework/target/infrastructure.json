@@ -7,6 +7,9 @@
     "gcp": {
       "region"               : "${ gcp_region }",
       "project_id"           : "${ gcp_project }",
+      "data_access_audit"    : {
+        "enable"                        : true
+      },
       "gce" : {
         "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
@@ -54,45 +57,13 @@
       "server_url"   : "${ lacework_server_url }",
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
-      "aws_audit_config": {
-        "enabled" : false
-      },
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
         "enabled"    : true,
         "use_pub_sub" : true
       },
-      "custom_policy": {
-        "enabled" : false
-      },
-      "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : false,
-          "proxy_scanner": {
-            "enabled" : false
-          },
-          "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
-          },
-          "compliance": {
-            "enabled" : false
-          },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : false
-          }
-        }
-      },
-      "aws_agentless": {
-        "enabled" : false
-      },
       "gcp_agentless": {
-        "enabled" : false
+        "enabled" : true
       },
       "alerts": {
         "enabled" : false,

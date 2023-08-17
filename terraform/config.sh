@@ -123,40 +123,44 @@ function check_file_exists {
 
 check_free_memory() {
     # Get total memory in megabytes
-    total_memory=$(free -m | awk '/^Mem:/{print $2}')
+    if [[ $(uname -s) == "Linux" ]]; then
+        total_memory=$(free -m | awk '/^Mem:/{print $2}')  
 
-    # Check if total memory is less than 4GB (4096MB)
-    if [ "$total_memory" -lt "4096" ]; then
-        warnmsg "Total memory is less than 4GB." 
-        
-        # Check if the swap file already exists
-        if swapon --show | grep -q "^/swapfile"; then
-            infomsg "Swap file /swapfile already exists."
-        else
-            read -p "> Do you want to create a swap file? (y/n): " response
+        # Check if total memory is less than 4GB (4096MB)
+        if [ "$total_memory" -lt "4096" ]; then
+            warnmsg "Total memory is less than 4GB." 
             
-            # If user says 'yes', create a 4GB swap file
-            case "$response" in
-                y|Y )
-                    infomsg "Creating a 4GB swap file..."
-                    sudo fallocate -l 4G /swapfile
-                    sudo chmod 600 /swapfile
-                    sudo mkswap /swapfile
-                    sudo swapon /swapfile
-                    echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
-                    infomsg "Swap file created and activated."
-                    ;;
-                n|N )
-                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
-                    ;;
-                * )
-                    errmsg "invalid input. aws cli will not be installed"
-                    warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
-                    ;;
-            esac
+            # Check if the swap file already exists
+            if swapon --show | grep -q "^/swapfile"; then
+                infomsg "Swap file /swapfile already exists."
+            else
+                read -p "> Do you want to create a swap file? (y/n): " response
+                
+                # If user says 'yes', create a 4GB swap file
+                case "$response" in
+                    y|Y )
+                        infomsg "Creating a 4GB swap file..."
+                        sudo fallocate -l 4G /swapfile
+                        sudo chmod 600 /swapfile
+                        sudo mkswap /swapfile
+                        sudo swapon /swapfile
+                        echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+                        infomsg "Swap file created and activated."
+                        ;;
+                    n|N )
+                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        ;;
+                    * )
+                        errmsg "invalid input. aws cli will not be installed"
+                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        ;;
+                esac
+            fi
+        else
+            infomsg "Total memory is greater than or equal to 4GB. No need to create a swap file."
         fi
     else
-        echo "Total memory is greater than or equal to 4GB. No need to create a swap file."
+        infomsg "Skipping free memory check."
     fi
     sleep 2
 }
