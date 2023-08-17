@@ -7,6 +7,9 @@
     "gcp": {
       "region"               : "${ gcp_region }",
       "project_id"           : "${ gcp_project }",
+      "data_access_audit"    : {
+        "enable"                        : true
+      },
       "gce" : {
         "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
