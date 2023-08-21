@@ -88,6 +88,11 @@ variable "config" {
           private_app_ingress_rules = list(any)
           private_app_egress_rules  = list(any)
         })
+        cloudsql = object({
+          enabled                       = bool
+          user_role_name                = string
+          instance_type                 = string
+        })
         gke = object({
           enabled               = bool
           cluster_name          = string
@@ -462,6 +467,11 @@ variable "config" {
                                     description = "allow all outbound"
                                   }
                                 ]
+        }
+        cloudsql = {
+          enabled                       = false
+          user_role_name                = "cloudsql_user_access_role"
+          instance_type                 = "db-f1-micro"
         }
         gke = {
           enabled               = false

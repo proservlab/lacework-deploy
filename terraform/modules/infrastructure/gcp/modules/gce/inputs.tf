@@ -135,6 +135,8 @@ variable "instances" {
       role                            = string
       instance_type                   = string
       ami_name                        = string
+      enable_swap                     = bool
+      enable_secondary_volume         = bool
       tags                            = map(any)
       user_data                       = string
       user_data_base64                = string
@@ -148,11 +150,9 @@ variable "instances" {
       instance_type                   = "e2-micro"
       ami_name                        = "debian-cloud/debian-11"
       tags                            = { }
-      user_data                       = <<-EOT
-                                        #! /bin/bash
-                                        sudo apt update
-                                        sudo apt -y install google-osconfig-agent
-                                        EOT
+      enable_swap                     = true
+      enable_secondary_volume         = false
+      user_data                       = null
       user_data_base64                = null
     },
   ]

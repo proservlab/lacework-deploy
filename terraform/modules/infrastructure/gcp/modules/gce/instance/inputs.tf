@@ -69,6 +69,23 @@ variable user_data_base64 {
     default = null
 }
 
-variable "service_account_email" {
+variable "enable_secondary_volume" {
+    type = bool
+    default = null
+}
+
+variable "public_service_account_email" {
+    type = string
+}
+
+variable "public_app_service_account_email" {
+    type = string
+}
+
+variable "private_service_account_email" {
+    type = string
+}
+
+variable "private_app_service_account_email" {
     type = string
 }

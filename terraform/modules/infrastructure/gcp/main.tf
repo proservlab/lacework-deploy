@@ -93,6 +93,30 @@ module "gce" {
 }
 
 ##################################################
+# GCP CLOUDSQL
+##################################################
+
+module "cloudsql" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.cloudsql.enabled== true ) ? 1 : 0
+  source       = "./modules/cloudsql"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  network                     = module.gce[0].public_app_network
+  subnetwork                  = module.gce[0].public_app_subnetwork
+  
+  public_service_account_email =  module.public_service_account.service_account_email
+  public_app_service_account_email =  module.public_app_service_account.service_account_email
+  private_service_account_email =  module.private_service_account.service_account_email
+  private_app_service_account_email =  module.private_app_service_account.service_account_email
+
+  user_role_name             = local.config.context.gcp.cloudsql.user_role_name
+  instance_type               = local.config.context.gcp.cloudsql.instance_type
+}
+
+##################################################
 # GCP GKE
 ##################################################
 

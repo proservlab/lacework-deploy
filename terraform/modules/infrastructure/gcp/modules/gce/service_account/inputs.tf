@@ -15,3 +15,7 @@ variable "gcp_project_id" {
 variable "gcp_location" {
   type = string
 }
+
+variable "name" {
+  type = string
+}

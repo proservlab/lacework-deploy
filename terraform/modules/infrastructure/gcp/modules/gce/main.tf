@@ -24,12 +24,40 @@ module "amis" {
   source = "./amis"
 }
 
-module "service_account" {
+module "public_service_account" {
   source = "./service_account"
   environment = var.environment
   deployment = var.deployment
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
+  name = "public-sa"
+}
+
+module "public_app_service_account" {
+  source = "./service_account"
+  environment = var.environment
+  deployment = var.deployment
+  gcp_location  = var.gcp_location
+  gcp_project_id  = var.gcp_project_id
+  name = "public-app-sa"
+}
+
+module "private_service_account" {
+  source = "./service_account"
+  environment = var.environment
+  deployment = var.deployment
+  gcp_location  = var.gcp_location
+  gcp_project_id  = var.gcp_project_id
+  name = "private-sa"
+}
+
+module "private_app_service_account" {
+  source = "./service_account"
+  environment = var.environment
+  deployment = var.deployment
+  gcp_location  = var.gcp_location
+  gcp_project_id  = var.gcp_project_id
+  name = "private-app-sa"
 }
 
 # build private and public vpcs
@@ -63,7 +91,10 @@ module "vpc" {
   private_app_subnet = var.private_subnet
   private_app_nat_subnet = var.private_nat_subnet
 
-  service_account_email = module.service_account.service_account_email
+  public_service_account_email =  module.public_service_account.service_account_email
+  public_app_service_account_email =  module.public_app_service_account.service_account_email
+  private_service_account_email =  module.private_service_account.service_account_email
+  private_app_service_account_email =  module.private_app_service_account.service_account_email
 }
 
 # instances
@@ -79,6 +110,7 @@ module "instances" {
   ami           = module.amis.ami_map[each.value.ami_name]
   instance_type = each.value.instance_type
   public        = each.value.public
+  enable_secondary_volume = each.value.enable_secondary_volume
   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnetwork.name : module.vpc.public_subnetwork.name ) : (each.value.role == "app" ? module.vpc.private_app_subnetwork.name : module.vpc.private_subnetwork.name )
@@ -101,7 +133,11 @@ module "instances" {
       each.value.tags,
     )
   )
-  service_account_email = module.service_account.service_account_email
+
+  public_service_account_email =  module.public_service_account.service_account_email
+  public_app_service_account_email =  module.public_app_service_account.service_account_email
+  private_service_account_email =  module.private_service_account.service_account_email
+  private_app_service_account_email =  module.private_app_service_account.service_account_email
 }
 
 locals {
