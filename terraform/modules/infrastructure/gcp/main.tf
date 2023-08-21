@@ -116,7 +116,7 @@ module "cloudsql" {
   deployment                  = local.config.context.global.deployment
 
   network                     = module.gce[0].public_app_network.self_link
-  subnetwork                  = module.gce[0].public_app_subnetwork.self_link
+  subnetwork                  = module.gce[0].public_app_subnetwork.ip_cidr_range
   
   public_service_account_email =  module.gce[0].public_service_account_email
   public_app_service_account_email =  module.gce[0].public_app_service_account_email

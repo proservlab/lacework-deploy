@@ -81,7 +81,7 @@
         ]
       },
       "cloudsql": {
-        "enabled"                         : false
+        "enabled"                         : true
       },
       "gke": {
         "enabled"                         : false,
