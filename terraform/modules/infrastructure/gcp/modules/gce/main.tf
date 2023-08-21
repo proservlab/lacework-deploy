@@ -112,7 +112,7 @@ module "instances" {
   instance_type                   = lookup(each.value, "instance_type", "e2-micro")
   enable_secondary_volume         = lookup(each.value, "enable_secondary_volume", false)
   enable_swap                     = lookup(each.value, "enable_swap", true)
-  ami                        = module.amis.ami_map[lookup(each.value, "ami_name", "ubuntu_focal")]
+  ami                             = module.amis.ami_map[lookup(each.value, "ami_name", "ubuntu_focal")]
   user_data                       = lookup(each.value, "user_data", null)
   user_data_base64                = lookup(each.value, "user_data_base64", null)
   
