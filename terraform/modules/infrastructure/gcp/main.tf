@@ -104,8 +104,8 @@ module "cloudsql" {
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
 
-  network                     = module.gce[0].public_app_network
-  subnetwork                  = module.gce[0].public_app_subnetwork
+  network                     = module.gce[0].public_app_network.self_link
+  subnetwork                  = module.gce[0].public_app_subnetwork.self_link
   
   public_service_account_email =  module.public_service_account.service_account_email
   public_app_service_account_email =  module.public_app_service_account.service_account_email

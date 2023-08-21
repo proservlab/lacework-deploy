@@ -110,6 +110,8 @@ module "instances" {
   ami           = module.amis.ami_map[each.value.ami_name]
   instance_type = each.value.instance_type
   public        = each.value.public
+  
+  enable_swap = each.value.enable_swap
   enable_secondary_volume = each.value.enable_secondary_volume
   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   

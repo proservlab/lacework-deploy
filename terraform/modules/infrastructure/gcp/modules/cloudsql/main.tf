@@ -10,7 +10,7 @@ resource "google_compute_subnetwork" "this" {
   name          = "cloudsql-subnet-${var.environment}-${var.deployment}"
   ip_cidr_range = cidrsubnet(var.subnetwork,8,200)
   region        = var.gcp_location
-  network       = var.network.self_link
+  network       = var.network
 }
 
 resource "google_sql_database_instance" "this" {
@@ -23,7 +23,7 @@ resource "google_sql_database_instance" "this" {
 
     ip_configuration {
       ipv4_enabled    = true
-      private_network = var.network.self_link
+      private_network = var.network
     }
   }
 }

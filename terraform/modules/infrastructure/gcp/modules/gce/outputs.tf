@@ -7,35 +7,35 @@ output "instances" {
     value = module.instances
 }
 output "public_network" {
-    value = var.public_network
+    value = module.vpc.public_network
 }
 
 output "public_subnetwork" {
-    value = var.public_subnetwork
+    value = module.vpc.public_subnetwork
 }
 
 output "public_app_network" {
-    value = var.public_app_network
+    value = module.vpc.public_app_network
 }
 
 output "public_app_subnetwork" {
-    value = var.public_app_subnetwork
+    value = module.vpc.public_app_subnetwork
 }
 
 output "private_network" {
-    value = var.private_network
+    value = module.vpc.private_network
 }
 
 output "private_subnetwork" {
-    value = var.private_subnetwork
+    value = module.vpc.private_subnetwork
 }
 
 output "private_app_network" {
-    value = var.private_app_network
+    value = module.vpc.private_app_network
 }
 
 output "private_app_subnetwork" {
-    value = var.private_app_subnetwork
+    value = module.vpc.private_app_subnetwork
 }
 
 output "public_service_account_email" {
