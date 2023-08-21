@@ -107,10 +107,10 @@ module "cloudsql" {
   network                     = module.gce[0].public_app_network.self_link
   subnetwork                  = module.gce[0].public_app_subnetwork.self_link
   
-  public_service_account_email =  module.public_service_account.service_account_email
-  public_app_service_account_email =  module.public_app_service_account.service_account_email
-  private_service_account_email =  module.private_service_account.service_account_email
-  private_app_service_account_email =  module.private_app_service_account.service_account_email
+  public_service_account_email =  module.gce[0].public_service_account_email
+  public_app_service_account_email =  module.gce[0].public_app_service_account_email
+  private_service_account_email =  module.gce[0].private_service_account_email
+  private_app_service_account_email =  module.gce[0].private_app_service_account_email
 
   user_role_name             = local.config.context.gcp.cloudsql.user_role_name
   instance_type               = local.config.context.gcp.cloudsql.instance_type
