@@ -35,6 +35,7 @@ resource "google_sql_user" "this" {
 }
 
 resource "google_project_iam_custom_role" "custom_sql_role" {
+  project = var.google_project_id
   role_id     = "${var.user_role_name}-${var.environment}-${var.deployment}"
   title       = "Cloud SQL Instance User"
   description = "Custom role to provide access to specific Cloud SQL instance"
@@ -42,6 +43,7 @@ resource "google_project_iam_custom_role" "custom_sql_role" {
 }
 
 resource "google_project_iam_member" "cloudsql_custom_access" {
+  project = var.google_project_id
   role   = "projects/${var.gcp_project_id}/roles/${google_project_iam_custom_role.custom_sql_role.role_id}"
   member = "serviceAccount:${var.public_app_service_account_email}"
 }
