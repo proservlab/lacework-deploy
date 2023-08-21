@@ -106,20 +106,20 @@ module "instances" {
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
   
-  name          = "${each.value.name}-${var.environment}-${var.deployment}"
-  ami           = module.amis.ami_map[each.value.ami_name]
-  instance_type = each.value.instance_type
-  public        = each.value.public
+  name          = "${lookup(each.value, "name", "default-name")}-${var.environment}-${var.deployment}"
+  public        = lookup(each.value, "public", true)
+  role          = lookup(each.value, "role", "default")
+  instance_type                   = lookup(each.value, "instance_type", "e2-micro")
+  enable_secondary_volume         = lookup(each.value, "enable_secondary_volume", false)
+  enable_swap                     = lookup(each.value, "enable_swap", true)
+  ami                        = module.amis.ami_map[lookup(each.value, "ami_name", "ubuntu_focal")]
+  user_data                       = lookup(each.value, "user_data", null)
+  user_data_base64                = lookup(each.value, "user_data_base64", null)
   
-  enable_swap = each.value.enable_swap
-  enable_secondary_volume = each.value.enable_secondary_volume
   # iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnetwork.name : module.vpc.public_subnetwork.name ) : (each.value.role == "app" ? module.vpc.private_app_subnetwork.name : module.vpc.private_subnetwork.name )
   # vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
-  
-  user_data = each.value.user_data
-  user_data_base64 = each.value.user_data_base64
 
   # merge additional tags including ssm deployment tag
   tags = merge(

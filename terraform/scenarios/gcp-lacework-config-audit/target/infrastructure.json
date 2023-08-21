@@ -36,7 +36,9 @@
               "osconfig_deploy_lacework_code_aware_agent": "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true,
+            "enable_secondary_volume"      : false
           }
         ]
       },

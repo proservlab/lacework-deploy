@@ -6,10 +6,10 @@ locals {
     tags = {
         for key, value in var.tags : lower(key) => lower(value)
     }
-    service_account_email = (local.tags.role == "default" && var.public == true ? 
-        var.public_service_account_email : local.tags.role == "default" && var.public == false ? 
-            var.private_service_account_email : local.tags.role == "app" && var.public == true ?
-                var.public_app_service_account_email : local.tags.role == "app" && var.public == false ?
+    service_account_email = (var.role == "default" && var.public == true ? 
+        var.public_service_account_email : var.role == "default" && var.public == false ? 
+            var.private_service_account_email : var.role == "app" && var.public == true ?
+                var.public_app_service_account_email : var.role == "app" && var.public == false ?
                     var.public_app_service_account_email : null)
     
     ubuntu_secondary_disk = "/dev/sdb"

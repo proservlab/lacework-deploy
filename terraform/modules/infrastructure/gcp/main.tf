@@ -62,7 +62,18 @@ module "gce" {
   gcp_location                        = local.config.context.gcp.region
 
   # list of instances to configure
-  instances                           = local.config.context.gcp.gce.instances
+  instances                           = [ for gce in local.config.context.gcp.gce.instances: { 
+      name                            = lookup(gce, "name", "default-name")
+      public                          = lookup(gce, "public", true)
+      role                            = lookup(gce, "role", "default")
+      instance_type                   = lookup(gce, "instance_type", "e2-micro")
+      enable_secondary_volume         = lookup(gce, "enable_secondary_volume", false)
+      enable_swap                     = lookup(gce, "enable_swap", true)
+      ami_name                        = lookup(gce, "ami_name", "ubuntu_focal")
+      tags                            = lookup(gce, "tags", {})
+      user_data                       = lookup(gce, "user_data", null)
+      user_data_base64                = lookup(gce, "user_data_base64", null)
+    } ]
 
   # allow endpoints inside their own security group to communicate
   trust_security_group                = local.config.context.global.trust_security_group

@@ -40,7 +40,8 @@
               "osconfig_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-public-2",
@@ -57,7 +58,8 @@
               "osconfig_deploy_secret_ssh_public"    : "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null
+            "user_data_base64" : null,
+            "enable_swap"      : true
           },
           {
             "name"                      : "target-app-public-1",

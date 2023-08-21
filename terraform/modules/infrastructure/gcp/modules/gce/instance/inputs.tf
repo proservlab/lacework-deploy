@@ -13,6 +13,11 @@ variable "name" {
     description = "instance name"
 }
 
+variable "role" {
+    type = string
+    default = "default"
+}
+
 variable "public" {
     type = bool
     default = false
