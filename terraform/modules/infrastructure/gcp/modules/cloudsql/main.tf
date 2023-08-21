@@ -29,11 +29,9 @@ resource "google_sql_database_instance" "this" {
 }
 
 resource "google_sql_user" "this" {
-  count = var.sql_enabled ? 1 : 0
-
   name     = var.root_db_username
   password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
-  instance = google_sql_database_instance.this[0].name
+  instance = google_sql_database_instance.this.name
 }
 
 resource "google_project_iam_custom_role" "custom_sql_role" {
