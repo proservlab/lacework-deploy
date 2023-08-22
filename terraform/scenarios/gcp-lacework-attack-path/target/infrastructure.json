@@ -72,7 +72,8 @@
               "osconfig_deploy_docker"  : "true",
               "osconfig_deploy_lacework": "true",
               "osconfig_deploy_lacework_syscall": "true",
-              "osconfig_lacework_code_aware_agent" : "true"
+              "osconfig_lacework_code_aware_agent" : "true",
+              "osconfig_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -81,7 +82,9 @@
         ]
       },
       "cloudsql": {
-        "enabled"                         : true
+        "enabled"                         : true,
+        "enable_public_ip"                : true,
+        "authorized_networks"             : [ "0.0.0.0/0" ]
       },
       "gke": {
         "enabled"                         : false,

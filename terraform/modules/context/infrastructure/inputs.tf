@@ -92,6 +92,9 @@ variable "config" {
           enabled                       = bool
           user_role_name                = string
           instance_type                 = string
+          enable_public_ip              = bool
+          require_ssl                   = bool
+          authorized_networks           = list(string)
         })
         gke = object({
           enabled               = bool
@@ -472,6 +475,9 @@ variable "config" {
           enabled                       = false
           user_role_name                = "cloudsql_user_access_role"
           instance_type                 = "db-f1-micro"
+          enable_public_ip              = false
+          require_ssl                   = false
+          authorized_networks           = []
         }
         gke = {
           enabled               = false

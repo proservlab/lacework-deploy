@@ -61,3 +61,16 @@ variable "private_service_account_email" {
 variable "private_app_service_account_email" {
     type = string
 }
+
+variable "enable_public_ip" {
+    type = bool
+}
+
+variable "require_ssl" {
+    type = bool
+}
+
+variable "authorized_networks" {
+    type = list(string)
+    default = []
+}
