@@ -30,7 +30,7 @@ resource "google_sql_database_instance" "this" {
     ip_configuration {
       ipv4_enabled    = var.enable_public_ip
       private_network = var.network
-      
+      enable_private_path_for_google_cloud_services = true
       require_ssl = "${var.require_ssl}"
 
       dynamic "authorized_networks" {
