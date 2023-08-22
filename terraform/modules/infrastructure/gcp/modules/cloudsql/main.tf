@@ -12,6 +12,7 @@ resource "google_compute_global_address" "cloudsql_private_ip_address" {
     address_type = "INTERNAL"
     prefix_length = 16
     network       = var.network
+    address       = "172.20.0.0"
 }
 
 resource "google_service_networking_connection" "cloudsql_private_vpc_connection" {
