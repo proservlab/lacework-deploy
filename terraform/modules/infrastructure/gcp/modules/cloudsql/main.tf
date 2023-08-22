@@ -30,7 +30,7 @@ resource "google_sql_database_instance" "this" {
     ip_configuration {
       ipv4_enabled    = var.enable_public_ip
       private_network = var.network
-      enable_private_path_for_google_cloud_services = true
+      # enable_private_path_for_google_cloud_services = true
       require_ssl = "${var.require_ssl}"
 
       dynamic "authorized_networks" {
@@ -86,9 +86,9 @@ resource "google_project_iam_member" "cloudsql_custom_access" {
   depends_on = [ google_project_iam_custom_role.custom_sql_role ]
 }
 
-resource "google_compute_network_peering_routes_config" "peering_routes" {
-  peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
-  network              = var.network
-  import_custom_routes = true
-  export_custom_routes = true
-}
+# resource "google_compute_network_peering_routes_config" "peering_routes" {
+#   peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
+#   network              = var.network
+#   import_custom_routes = true
+#   export_custom_routes = true
+# }
