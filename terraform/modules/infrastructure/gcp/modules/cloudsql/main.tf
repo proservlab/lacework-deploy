@@ -81,7 +81,7 @@ resource "google_project_iam_custom_role" "custom_sql_role" {
 
 resource "google_project_iam_member" "cloudsql_custom_access" {
   project = var.gcp_project_id
-  role   = "projects/${var.gcp_project_id}/roles/${google_project_iam_custom_role.custom_sql_role.role_id}"
+  role   = google_project_iam_custom_role.custom_sql_role.id
   member = "serviceAccount:${var.public_app_service_account_email}"
 
   depends_on = [ google_project_iam_custom_role.custom_sql_role ]
