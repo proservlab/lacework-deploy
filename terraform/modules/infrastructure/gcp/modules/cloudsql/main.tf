@@ -86,45 +86,9 @@ resource "google_project_iam_member" "cloudsql_custom_access" {
   depends_on = [ google_project_iam_custom_role.custom_sql_role ]
 }
 
-# resource "google_compute_firewall" "ingress_rules" {
-#   name                    = "${var.environment}-${var.deployment}-cloudsql-app-ingress-rule"
-#   description             = "${var.environment}-${var.deployment}-cloudsql-app-ingress-rule"
-#   direction               = "INGRESS"
-#   network                 = var.network
-#   project                 = var.gcp_project_id
-#   source_ranges           = [var.subnetwork]
-
-#   allow {
-#     protocol = "tcp"
-#     ports    = ["5432"] 
-#   }
-# }
-
-# resource "google_compute_network_peering_routes_config" "peering_routes" {
-#   peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
-#   network              = var.network
-#   import_custom_routes = true
-#   export_custom_routes = true
-# }
-
-# resource "google_compute_network_peering" "cloudsql_to_app" {
-#   name         = "peering-cloudsql-to-app"
-#   network      = google_compute_network.cloudsql_vpc.self_link
-#   peer_network = var.network
-
-#   import_custom_routes = true
-#   export_custom_routes = true
-#   import_subnet_routes_with_public_ip = true
-#   export_subnet_routes_with_public_ip = true
-# }
-
-# resource "google_compute_network_peering" "app_to_cloudsql" {
-#   name         = "peering-app-to-cloudsql"
-#   network      = var.network
-#   peer_network = google_compute_network.cloudsql_vpc.self_link
-
-#   import_custom_routes = true
-#   export_custom_routes = true
-#   import_subnet_routes_with_public_ip = true
-#   export_subnet_routes_with_public_ip = true
-# }
+resource "google_compute_network_peering_routes_config" "peering_routes" {
+  peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
+  network              = var.network
+  import_custom_routes = true
+  export_custom_routes = true
+}
