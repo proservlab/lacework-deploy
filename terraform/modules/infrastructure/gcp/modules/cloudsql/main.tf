@@ -6,11 +6,6 @@ resource "random_string" "root_db_password" {
     numeric           = true
 }
 
-# resource "google_compute_network" "cloudsql_vpc" {
-#   name                    = "cloudsql-vpc"
-#   auto_create_subnetworks = false  # Set to false to create custom subnets.
-# }
-
 resource "google_compute_global_address" "cloudsql_private_ip_address" {
     name          = "private-ip-address"
     purpose       = "VPC_PEERING"
@@ -35,6 +30,7 @@ resource "google_sql_database_instance" "this" {
     ip_configuration {
       ipv4_enabled    = var.enable_public_ip
       private_network = var.network
+      
       require_ssl = "${var.require_ssl}"
 
       dynamic "authorized_networks" {
