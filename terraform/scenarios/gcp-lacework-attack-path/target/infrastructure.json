@@ -11,7 +11,7 @@
         "enabled"                            : true
       },
       "gce" : {
-        "enabled"                : true,
+        "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -89,10 +89,6 @@
         "enabled"                         : true,
         "enable_public_ip"                : true,
         "authorized_networks"             : [ "0.0.0.0/0" ]
-      },
-      "gke": {
-        "enabled"                         : false,
-        "cluster_name"                    : "target-cluster"
       },
       "osconfig": {
         "enabled"                        : true,

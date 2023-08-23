@@ -22,7 +22,7 @@
         "public_ingress_rules"          : [],
         "instances": [
           {
-            "name"                      : "target-public-1",
+            "name"                      : "webserver",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -33,14 +33,14 @@
               "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_docker"                : "true",
               "ssm_deploy_secret_ssh_private"    : "true",
-              "ssm_exec_docker_log4shell_target" : "true"
+              "osconfig_exec_vuln_log4j_app_target" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
             "enable_swap"      : true
           },
           {
-            "name"                      : "target-public-2",
+            "name"                      : "jumphost",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -48,21 +48,25 @@
             "tags": {
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
-              "ssm_deploy_secret_ssh_public" : "true"
+              "ssm_deploy_lacework_code_aware_agent" : "true",
+              "ssm_deploy_secret_ssh_public" : "true",
+              "ssm_exec_docker_log4shell_target" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
             "enable_swap"      : true
           },
           {
-            "name"                      : "target-app-public-1",
+            "name"                      : "appserver",
             "public"                    : true,
             "role"                      : "app",
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
               "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true"
+              "ssm_deploy_lacework_syscall": "true",
+              "ssm_deploy_lacework_code_aware_agent" : "true",
+              "ssm_exec_vuln_log4j_app_target" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -70,8 +74,10 @@
           }
         ]
       },
-      "rds" :  {
-        "enabled"                 : true
+      "rds": {
+        "enabled"                        : true,
+        "user_role_name"                 : "rds_user_access_role_apademo",
+        "instance_type"                  : "db.t3.micro"
       },
       "ssm": {
         "enabled"                        : true,
@@ -90,40 +96,11 @@
       "aws_audit_config": {
         "enabled" : true
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : false,
-          "proxy_scanner": {
-            "enabled" : false
-          },
-          "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
-          },
-          "compliance": {
-            "enabled" : false
-          },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : false
-          }
-        }
+        "enabled" : true
       },
       "aws_agentless": {
         "enabled" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,
