@@ -31,14 +31,14 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_git"    : "true",
-              "osconfig_deploy_docker"  : "true",
-              "osconfig_deploy_lacework": "true",
-              "osconfig_deploy_lacework_syscall": "true",
-              "osconfig_lacework_code_aware_agent" : "true",
-              "osconfig_deploy_secret_ssh_private"    : "true",
+              "osconfig_deploy_git"                 : "true",
+              "osconfig_deploy_docker"              : "true",
+              "osconfig_deploy_lacework"            : "true",
+              "osconfig_deploy_lacework_syscall"    : "true",
+              "osconfig_lacework_code_aware_agent"  : "true",
+              "osconfig_deploy_secret_ssh_private"  : "true",
               "osconfig_exec_vuln_log4j_app_target" : "true",
-              "osconfig_exec_reverse_shell_target"        : "true"
+              "osconfig_exec_reverse_shell_target"  : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -51,14 +51,14 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_git"    : "true",
-              "osconfig_deploy_docker"  : "true",
-              "osconfig_deploy_lacework": "true",
-              "osconfig_deploy_lacework_syscall": "true",
-              "osconfig_lacework_code_aware_agent" : "true",
-              "osconfig_deploy_secret_ssh_public"    : "true",
+              "osconfig_deploy_git"                   : "true",
+              "osconfig_deploy_docker"                : "true",
+              "osconfig_deploy_lacework"              : "true",
+              "osconfig_deploy_lacework_syscall"      : "true",
+              "osconfig_lacework_code_aware_agent"    : "true",
+              "osconfig_deploy_secret_ssh_public"     : "true",
               "osconfig_exec_docker_log4shell_target" : "true",
-              "osconfig_exec_reverse_shell_target"        : "true"
+              "osconfig_exec_reverse_shell_target"    : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -71,13 +71,13 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "osconfig_deploy_git"    : "true",
-              "osconfig_deploy_docker"  : "true",
-              "osconfig_deploy_lacework": "true",
-              "osconfig_deploy_lacework_syscall": "true",
-              "osconfig_lacework_code_aware_agent" : "true",
+              "osconfig_deploy_git"                 : "true",
+              "osconfig_deploy_docker"              : "true",
+              "osconfig_deploy_lacework"            : "true",
+              "osconfig_deploy_lacework_syscall"    : "true",
+              "osconfig_lacework_code_aware_agent"  : "true",
               "osconfig_exec_vuln_log4j_app_target" : "true",
-              "osconfig_exec_reverse_shell_target"        : "true"
+              "osconfig_exec_reverse_shell_target"  : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
