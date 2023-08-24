@@ -99,8 +99,8 @@ resource "google_os_config_os_policy_assignment" "public" {
       labels = jsondecode(<<-EOT
                             { 
                               "${var.public_tag}": "true",
-                              "deployment": "{var.deployment}",
-                              "environment": "{var.environment}"
+                              "deployment": "${var.deployment}",
+                              "environment": "${var.environment}"
                             }
                             EOT
                           )
@@ -185,8 +185,8 @@ resource "google_os_config_os_policy_assignment" "private" {
       labels = jsondecode(<<-EOT
                             { 
                               "${var.private_tag}": "true",
-                              "deployment": "{var.deployment}",
-                              "environment": "{var.environment}"
+                              "deployment": "${var.deployment}",
+                              "environment": "${var.environment}"
                             }
                             EOT
                           )
