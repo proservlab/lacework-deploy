@@ -123,7 +123,7 @@ module "instances" {
 
   # merge additional tags including ssm deployment tag
   tags = merge(
-    module.default-osconfig-tags.osconfig_default_tags,
+    # module.default-osconfig-tags.osconfig_default_tags,
     merge(
       {
         Name = "${each.value.name}-${var.environment}-${var.deployment}"
