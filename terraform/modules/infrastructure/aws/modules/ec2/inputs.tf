@@ -127,7 +127,7 @@ variable "instances" {
       role                            = string
       instance_type                   = string
       ami_name                        = string
-      enable_swap                     = string
+      enable_swap                     = bool
       enable_secondary_volume         = bool
       tags                            = map(any)
       user_data                       = string

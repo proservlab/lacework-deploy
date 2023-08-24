@@ -12,6 +12,7 @@ output "config" {
             gcp = {
                 gce                       = module.gce
                 gke                       = module.gke
+                cloudsql                  = module.cloudsql
             }
         }
     }

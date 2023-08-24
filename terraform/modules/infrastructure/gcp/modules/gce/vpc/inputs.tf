@@ -246,7 +246,18 @@ variable "enable_private_app_vpc" {
   description = "enable/disable creation of private app vpc"
   default = true
 }
+variable "public_service_account_email" {
+    type = string
+}
 
-variable "service_account_email" {
+variable "public_app_service_account_email" {
+    type = string
+}
+
+variable "private_service_account_email" {
+    type = string
+}
+
+variable "private_app_service_account_email" {
     type = string
 }

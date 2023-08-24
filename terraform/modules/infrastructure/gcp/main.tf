@@ -62,7 +62,18 @@ module "gce" {
   gcp_location                        = local.config.context.gcp.region
 
   # list of instances to configure
-  instances                           = local.config.context.gcp.gce.instances
+  instances                           = [ for gce in local.config.context.gcp.gce.instances: { 
+      name                            = lookup(gce, "name", "default-name")
+      public                          = lookup(gce, "public", true)
+      role                            = lookup(gce, "role", "default")
+      instance_type                   = lookup(gce, "instance_type", "e2-micro")
+      enable_secondary_volume         = lookup(gce, "enable_secondary_volume", false)
+      enable_swap                     = lookup(gce, "enable_swap", true)
+      ami_name                        = lookup(gce, "ami_name", "ubuntu_focal")
+      tags                            = lookup(gce, "tags", {})
+      user_data                       = lookup(gce, "user_data", null)
+      user_data_base64                = lookup(gce, "user_data_base64", null)
+    } ]
 
   # allow endpoints inside their own security group to communicate
   trust_security_group                = local.config.context.global.trust_security_group
@@ -90,6 +101,33 @@ module "gce" {
   enable_dynu_dns                     = local.config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
 
+}
+
+##################################################
+# GCP CLOUDSQL
+##################################################
+
+module "cloudsql" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.cloudsql.enabled== true ) ? 1 : 0
+  source       = "./modules/cloudsql"
+  gcp_project_id              = local.config.context.gcp.project_id
+  gcp_location                = local.config.context.gcp.region
+  environment                 = local.config.context.global.environment
+  deployment                  = local.config.context.global.deployment
+
+  network                     = module.gce[0].public_app_network.self_link
+  subnetwork                  = module.gce[0].public_app_subnetwork.ip_cidr_range
+  enable_public_ip            = local.config.context.gcp.cloudsql.enable_public_ip
+  require_ssl                 = local.config.context.gcp.cloudsql.require_ssl
+  authorized_networks         = local.config.context.gcp.cloudsql.authorized_networks
+  
+  public_service_account_email =  module.gce[0].public_service_account_email
+  public_app_service_account_email =  module.gce[0].public_app_service_account_email
+  private_service_account_email =  module.gce[0].private_service_account_email
+  private_app_service_account_email =  module.gce[0].private_app_service_account_email
+
+  user_role_name             = local.config.context.gcp.cloudsql.user_role_name
+  instance_type               = local.config.context.gcp.cloudsql.instance_type
 }
 
 ##################################################

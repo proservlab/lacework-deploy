@@ -13,6 +13,11 @@ variable "name" {
     description = "instance name"
 }
 
+variable "role" {
+    type = string
+    default = "default"
+}
+
 variable "public" {
     type = bool
     default = false
@@ -69,6 +74,28 @@ variable user_data_base64 {
     default = null
 }
 
-variable "service_account_email" {
+variable "enable_swap" {
+    type = bool
+    default = null
+}
+
+variable "enable_secondary_volume" {
+    type = bool
+    default = null
+}
+
+variable "public_service_account_email" {
+    type = string
+}
+
+variable "public_app_service_account_email" {
+    type = string
+}
+
+variable "private_service_account_email" {
+    type = string
+}
+
+variable "private_app_service_account_email" {
     type = string
 }

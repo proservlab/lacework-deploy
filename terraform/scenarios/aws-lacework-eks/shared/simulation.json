@@ -3,9 +3,6 @@
     "global": {
       "environment"          : "${ environment }",
       "deployment"           : "${ deployment }"
-    },
-    "aws" :  {
-      "enabled" : false
     }
   }
 }
