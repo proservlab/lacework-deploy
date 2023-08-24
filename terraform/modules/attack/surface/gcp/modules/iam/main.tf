@@ -13,14 +13,13 @@ resource "google_service_account_key" "keys" {
   service_account_id = each.key
 }
 
-resource "google_project_iam_binding" "roles" {
+resource "google_project_iam_member" "roles" {
   for_each = google_service_account.users
   project = var.gcp_project_id
   role    = [ for i in var.users: i.policy if i.name == each.key ][0]
-  members = [
-    "serviceAccount:${each.value.email}"
-  ]
+  member = "serviceAccount:${each.value.email}"
 }
+
 locals {
   access_keys = { for i in var.users : i.name => {
                     rendered =  <<-EOT

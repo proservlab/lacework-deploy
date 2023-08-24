@@ -5,10 +5,14 @@ resource "google_service_account" "default" {
 }
 
 
-resource "google_project_iam_binding" "default" {
+resource "google_project_iam_member" "log" {
   project = var.gcp_project_id
   role    = "roles/logging.logWriter"
-  members = [
-    "serviceAccount:${google_service_account.default.email}"
-  ]
+  member = "serviceAccount:${google_service_account.default.email}"
+}
+
+resource "google_project_iam_member" "agent" {
+  project = var.gcp_project_id
+  role    = "roles/osconfig.serviceAgent"
+  member  = "serviceAccount:${google_service_account.default.email}"
 }
