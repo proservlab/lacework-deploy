@@ -160,4 +160,6 @@ resource "google_compute_instance" "instance" {
                   "https://www.googleapis.com/auth/devstorage.read_only",
                   "https://www.googleapis.com/auth/cloud.useraccounts.readonly"]
     }
+
+    allow_stopping_for_update = true
 }
