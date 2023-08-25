@@ -494,11 +494,6 @@ function select_aws_profile {
             exit 1
         fi
     fi
-    
-    aws_profiles=$(aws configure list-profiles)
-
-    # Retrieve a list of regions
-    region_list=$(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text)
 
     # iterate through the attack and target environments
     environments="attacker target"
@@ -506,6 +501,7 @@ function select_aws_profile {
         # Ask user to select AWS profile
         infomsg "select the $environment AWS profile:"
         PS3="Profile number: "
+        aws_profiles=$(aws configure list-profiles)
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
                 infomsg "Selected $environment aws profile: $profile_name"
@@ -516,6 +512,7 @@ function select_aws_profile {
         done
 
         infomsg "Please choose the $environment aws region from the list below:"
+        region_list=$(aws ec2 describe-regions --profile=$profile_name --query 'Regions[*].RegionName' --output text)
         select region in $region_list; do
             if [ -n "$region" ]; then
                 infomsg "Selected $environment aws region: $region"
