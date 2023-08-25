@@ -15,12 +15,13 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--workspace-summary] --workspace=WORK --action=ACTION
+usage: $SCRIPTNAME [-h] [--workspace-summary] --workspace=WORK --action=ACTION [--sso-profile]
 
 -h                      print this message and exit
 --workspace-summary     print a count of resources per workspace
 --workspace             the scenario to use
 --action                terraform actions (i.e. show, plan, apply, refresh, destroy)
+--sso-profile           specify an sso login profile
 EOH
     exit 1
 }
@@ -97,6 +98,10 @@ for i in "$@"; do
         WORK="${i#*=}"
         shift # past argument=value
         ;;
+    -p=*|--sso-profile=*)
+        SSO_PROFILE="--profile=${i#*=}"
+        shift # past argument=value
+        ;;
     *)
       # unknown option
       ;;
@@ -107,6 +112,10 @@ done
 if [ -z ${WORK} ]; then
     errmsg "Required option not set: --workspace"
     help
+fi
+
+if [ -z ${SSO_PROFILE} ]; then
+    SSO_PROFILE=""
 fi
 
 if [ -z ${ACTION} ]; then
@@ -144,12 +153,12 @@ echo "PROVIDER          = ${PROVIDER}"
 
 # check for sso logged out session
 if [[ "$PROVIDER" == "aws" ]]; then
-    session_check=$(aws sts get-caller-identity 2>&1)
+    session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
     if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
         read -p "> aws sso session has expired - login now? (y/n): " login
         case "$login" in
             y|Y )
-                aws sso login
+                aws sso login ${SSO_PROFILE}
                 ;;
             n|N )
                 errmsg "aws session expired - manual login required."
