@@ -181,6 +181,8 @@ variable "config" {
         profile_name            = string
         aws_audit_config        = object({
           enabled               = bool
+          use_existing_cloudtrail = bool
+          cloudtrail_name       = string
         })
         gcp_audit_config        = object({
           project_id            = string
@@ -627,7 +629,9 @@ variable "config" {
         account_name            = null
         profile_name            = null
         aws_audit_config            = {
-          enabled               = false
+          enabled                 = false,
+          use_existing_cloudtrail = false,
+          cloudtrail_name         = null
         }
         gcp_audit_config            = {
           project_id            = null

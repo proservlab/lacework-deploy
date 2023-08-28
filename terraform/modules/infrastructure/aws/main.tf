@@ -62,6 +62,8 @@ module "lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
+  use_existing_cloudtrail = local.config.context.lacework.aws_audit_config.use_existing_cloudtrail
+  cloudtrail_name = try(length(local.config.context.lacework.aws_audit_config.cloudtrail_name),"false") != "false" ? local.config.context.lacework.aws_audit_config.cloudtrail_name : "lacework-cloudtrail-${replace(local.config.context.global.environment,"_","-")}-${replace(local.config.context.global.deployment,"_","-")}"
 }
 
 resource "time_sleep" "lacework_wait_90" {
