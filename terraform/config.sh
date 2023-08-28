@@ -44,7 +44,10 @@ DYNU_DNS_API_TOKEN=""
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME
+usage: $SCRIPTNAME [-h] [--sso-profile]
+
+-h                      print this message and exit
+--sso-profile           specify an sso login profile
 EOH
     exit 1
 }
@@ -58,6 +61,23 @@ echo "WARN: ${1}"
 errmsg(){
 echo "ERROR: ${1}"
 }
+
+for i in "$@"; do
+  case $i in
+    -h|--help)
+        HELP="${i#*=}"
+        shift # past argument=value
+        help
+        ;;
+    -p=*|--sso-profile=*)
+        SSO_PROFILE="--profile=${i#*=}"
+        shift # past argument=value
+        ;;
+    *)
+      # unknown option
+      ;;
+  esac
+done
 
 # setup logging function
 #LOGFILE=/tmp/example.log
@@ -792,6 +812,27 @@ if check_file_exists $CONFIG_FILE; then
     # set provider to first segement of workspace name
     PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
     
+    # check for sso logged out session
+    if [[ "$PROVIDER" == "aws" ]]; then
+        session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
+        if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+            read -p "> aws sso session has expired - login now? (y/n): " login
+            case "$login" in
+                y|Y )
+                    aws sso login ${SSO_PROFILE}
+                    ;;
+                n|N )
+                    errmsg "aws session expired - manual login required."
+                    exit 1
+                    ;;
+                * )
+                    errmsg "aws session expired - manual login required."
+                    exit 1
+                    ;;
+            esac
+        fi
+    fi
+
     # preflight
     check_terraform_cli
     check_lacework_cli
