@@ -71,7 +71,7 @@ resource "null_resource" "kubeconfig" {
 
 locals {
   attacker-infrastructure-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/attacker/infrastructure.json"),
+    "${var.scenarios_path}/${var.scenario}/attacker/infrastructure.json",
     {
       # deployment id
       deployment = var.deployment
@@ -90,7 +90,7 @@ locals {
     }
   )
   target-infrastructure-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/target/infrastructure.json"),
+    "${var.scenarios_path}/${var.scenario}/target/infrastructure.json",
     {
       # deployment id
       deployment = var.deployment
@@ -348,14 +348,14 @@ module "target-lacework-platform-infrastructure" {
 
 locals {
   attacker-attacksurface-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/attacker/surface.json"),
+    "${var.scenarios_path}/${var.scenario}/attacker/surface.json",
     {
       # deployment id
       deployment = var.deployment
     }
   )
   target-attacksurface-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/target/surface.json"),
+    "${var.scenarios_path}/${var.scenario}/target/surface.json",
     {
       # deployment id
       deployment = var.deployment
@@ -558,7 +558,7 @@ module "target-azure-attacksurface" {
 locals {
 
   attacker-attacksimulation-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/shared/simulation.json"),
+    "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
     {
       # environment
       environment = "attacker"
@@ -586,7 +586,7 @@ locals {
     }
   )
   target-attacksimulation-config-file = templatefile(
-    abspath("${var.scenarios_path}/${var.scenario}/shared/simulation.json"),
+    "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
     {
       # environment
       environment = "target"
