@@ -23,10 +23,6 @@ variable "default_lacework_profile" {
   type = string
   description = "lacework profile"
 }
-variable "default_lacework_region" {
-  type = string
-  description = "lacework aws region"
-}
 variable "default_lacework_account_name" {
   type = string
   description = "lacework account name"

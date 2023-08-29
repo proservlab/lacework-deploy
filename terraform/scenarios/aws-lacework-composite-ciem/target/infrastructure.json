@@ -8,7 +8,7 @@
       "region"       : "${ aws_region }",
       "profile_name" : "${ aws_profile }",
       "ec2": {
-        "enabled"                       : true,
+        "enabled"                       : false,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
@@ -66,18 +66,18 @@
         ]
       },
       "rds": {
-        "enabled"                        : true,
+        "enabled"                        : false,
         "user_role_name"                 : "rds_user_access_role_ciemdemo",
         "instance_type"                  : "db.t3.medium"
       },
       "ssm": {
-        "enabled"                           : true,
-        "deploy_git"                        : true,
-        "deploy_docker"                     : true,
-        "deploy_lacework_agent"             : true,
-        "deploy_lacework_syscall_config"    : true,
-        "deploy_lacework_code_aware_agent"  : true,
-        "deploy_aws_cli"                    : true
+        "enabled"                           : false,
+        "deploy_git"                        : false,
+        "deploy_docker"                     : false,
+        "deploy_lacework_agent"             : false,
+        "deploy_lacework_syscall_config"    : false,
+        "deploy_lacework_code_aware_agent"  : false,
+        "deploy_aws_cli"                    : false
       }
     },
     "lacework": {
@@ -88,10 +88,10 @@
         "enabled" : true
       },
       "agent": {
-        "enabled" : true
+        "enabled" : false
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

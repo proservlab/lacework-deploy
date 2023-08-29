@@ -187,7 +187,6 @@ module "attacker-gcp-infrastructure" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.attacker_aws_region)) ? var.attacker_aws_region : var.attacker_aws_region
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
@@ -223,7 +222,6 @@ module "target-gcp-infrastructure" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.target_aws_region)) ? var.target_aws_region : var.target_aws_region
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
@@ -272,7 +270,6 @@ module "attacker-lacework-platform-infrastructure" {
   }
 
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.attacker_aws_region)) ? var.attacker_aws_region : var.attacker_aws_region
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
@@ -328,7 +325,6 @@ module "attacker-lacework-gcp-infrastructure" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.attacker_aws_region)) ? var.attacker_aws_region : var.attacker_aws_region
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
@@ -375,7 +371,6 @@ module "target-lacework-platform-infrastructure" {
   }
 
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.target_aws_region)) ? var.target_aws_region : var.target_aws_region
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
@@ -431,7 +426,6 @@ module "target-lacework-gcp-infrastructure" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.target_aws_region)) ? var.target_aws_region : var.target_aws_region
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
@@ -572,7 +566,6 @@ module "attacker-gcp-attacksurface" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.attacker_aws_region)) ? var.attacker_aws_region : var.attacker_aws_region
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
@@ -632,7 +625,6 @@ module "target-gcp-attacksurface" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.target_aws_region)) ? var.target_aws_region : var.target_aws_region
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
@@ -868,7 +860,6 @@ module "attacker-gcp-attacksimulation" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.attacker_aws_region)) ? var.attacker_aws_region : var.attacker_aws_region
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
@@ -939,7 +930,6 @@ module "target-gcp-attacksimulation" {
   attacker_kubeconfig                 = local.attacker_kubeconfig_path
   target_kubeconfig                   = local.target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_region             = can(length(var.target_aws_region)) ? var.target_aws_region : var.target_aws_region
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token

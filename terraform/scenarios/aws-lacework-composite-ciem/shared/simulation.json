@@ -5,19 +5,19 @@
       "deployment"           : "${ deployment }"
     },
     "aws" :  {
-      "enabled" : true,
+      "enabled" : false,
       "ssm" :  {
         "target": {
           "execute": {
             "generate_web_traffic": {
-              "enabled": true,
+              "enabled": false,
               "delay": 60,
               "urls": [
                 "http://localhost:8091/cast"
               ]
             },
             "generate_aws_cli_traffic": {
-              "enabled": true,
+              "enabled": false,
               "compromised_keys_user" : "khon.traktour@interlacelabs",
               "commands": [
                 "apt-get install -y jq",
@@ -58,7 +58,7 @@
         "attacker": {
           "execute": {
             "docker_log4shell_attack": {
-              "enabled": true,
+              "enabled": false,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
               "attacker_ip": "log4jc-attacker-${ deployment }.${ dynu_dns_domain }",
@@ -70,7 +70,7 @@
           },
           "responder": {
             "reverse_shell_multistage": {
-              "enabled": true,
+              "enabled": false,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
               "payload": "touch /tmp/multistage_pwned",

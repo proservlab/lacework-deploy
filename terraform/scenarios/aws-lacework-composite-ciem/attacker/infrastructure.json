@@ -8,7 +8,7 @@
             "region"        : "${ aws_region }",
             "profile_name"  : "${ aws_profile }",
             "ec2": {
-                "enabled"                           : true,
+                "enabled"                           : false,
                 "public_network"                    : "172.28.0.0/16",
                 "public_subnet"                     : "172.28.0.0/24",
                 "public_app_network"                : "172.29.0.0/16",
@@ -41,14 +41,14 @@
                 ]
             },
             "ssm": {
-                "enabled"                        : true,
-                "deploy_git"                     : true,
-                "deploy_docker"                  : true,
-                "deploy_aws_cli"                 : true
+                "enabled"                        : false,
+                "deploy_git"                     : false,
+                "deploy_docker"                  : false,
+                "deploy_aws_cli"                 : false
             }
         },
         "dynu_dns" : {
-            "enabled"                        : true,
+            "enabled"                        : false,
             "api_token"                      : "${ dynu_api_token }",
             "dns_domain"                     : "${ dynu_dns_domain }"
         }
