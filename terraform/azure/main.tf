@@ -71,7 +71,7 @@ resource "null_resource" "kubeconfig" {
 
 locals {
   attacker-infrastructure-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/attacker/infrastructure.json",
+    abspath("${var.scenarios_path}/${var.scenario}/attacker/infrastructure.json"),
     {
       # deployment id
       deployment = var.deployment
@@ -90,7 +90,7 @@ locals {
     }
   )
   target-infrastructure-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/target/infrastructure.json",
+    abspath("${var.scenarios_path}/${var.scenario}/target/infrastructure.json"),
     {
       # deployment id
       deployment = var.deployment
@@ -108,7 +108,7 @@ locals {
       lacework_server_url   = var.lacework_server_url
       lacework_account_name = var.lacework_account_name
       lacework_profile      = var.lacework_profile
-      syscall_config_path   = abspath("${path.module}/scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+      syscall_config_path   = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
 
       # slack
       slack_token = var.slack_token
@@ -195,7 +195,7 @@ module "attacker-azure-infrastructure" {
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -233,7 +233,7 @@ module "target-azure-infrastructure" {
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -278,7 +278,7 @@ module "attacker-lacework-platform-infrastructure" {
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -321,7 +321,7 @@ module "target-lacework-platform-infrastructure" {
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -348,21 +348,21 @@ module "target-lacework-platform-infrastructure" {
 
 locals {
   attacker-attacksurface-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/attacker/surface.json",
+    abspath("${var.scenarios_path}/${var.scenario}/attacker/surface.json"),
     {
       # deployment id
       deployment = var.deployment
     }
   )
   target-attacksurface-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/target/surface.json",
+    abspath("${var.scenarios_path}/${var.scenario}/target/surface.json"),
     {
       # deployment id
       deployment = var.deployment
 
       # iam
-      iam_power_user_policy_path = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_power_user_policy.json")
-      iam_users_path             = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_power_user_policy.json")
+      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
   )
 }
@@ -464,7 +464,7 @@ module "attacker-azure-attacksurface" {
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -526,7 +526,7 @@ module "target-azure-attacksurface" {
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -558,7 +558,7 @@ module "target-azure-attacksurface" {
 locals {
 
   attacker-attacksimulation-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/shared/simulation.json",
+    abspath("${var.scenarios_path}/${var.scenario}/shared/simulation.json"),
     {
       # environment
       environment = "attacker"
@@ -576,7 +576,7 @@ locals {
       target_azure_region         = var.target_azure_region
 
       # variables
-      compromised_credentials                              = abspath("${path.module}/scenarios/${var.scenario}/target/resources/iam_users.json")
+      compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
       attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
@@ -586,7 +586,7 @@ locals {
     }
   )
   target-attacksimulation-config-file = templatefile(
-    "${path.module}/scenarios/${var.scenario}/shared/simulation.json",
+    abspath("${var.scenarios_path}/${var.scenario}/shared/simulation.json"),
     {
       # environment
       environment = "target"
@@ -735,7 +735,7 @@ module "attacker-azure-attacksimulation" {
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
@@ -812,7 +812,7 @@ module "target-azure-attacksimulation" {
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("../scenarios/${var.scenario}/target/resources/syscall_config.yaml")
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier

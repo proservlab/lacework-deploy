@@ -15,11 +15,12 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--workspace-summary] --workspace=WORK --action=ACTION [--sso-profile]
+usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] --workspace=WORK --action=ACTION [--sso-profile]
 
 -h                      print this message and exit
 --workspace-summary     print a count of resources per workspace
 --workspace             the scenario to use
+--scenarios-path        the custom scenarios directory path (default is ../scenarios)
 --action                terraform actions (i.e. show, plan, apply, refresh, destroy)
 --sso-profile           specify an sso login profile
 EOH
@@ -102,6 +103,10 @@ for i in "$@"; do
         SSO_PROFILE="--profile=${i#*=}"
         shift # past argument=value
         ;;
+    -s=*|--scenarios-path=*)
+        SCENARIOS_PATH="${i#*=}"
+        shift # past argument=value
+        ;;
     *)
       # unknown option
       ;;
@@ -117,6 +122,14 @@ fi
 if [ -z ${SSO_PROFILE} ]; then
     SSO_PROFILE=""
 fi
+
+# set the scenarios_path
+if [ ! -z ${SCENARIOS_PATH} ]; then
+    export TF_VAR_scenarios_path="${SCENARIOS_PATH}"
+else
+    SCENARIOS_PATH="../scenarios"
+fi
+
 
 if [ -z ${ACTION} ]; then
     errmsg "Required option not set: --action"
@@ -150,6 +163,7 @@ echo "ACTION            = ${ACTION}"
 echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
 echo "PROVIDER          = ${PROVIDER}"
+echo "SCENARIOS_PATH   = ${SCENARIOS_PATH}"
 
 # check for sso logged out session
 if [[ "$PROVIDER" == "aws" ]]; then

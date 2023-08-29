@@ -5,6 +5,7 @@ VERSION="1.0.0"
 
 # SCENARIO
 SCENARIO=""
+SCENARIOS_PATH=""
 CONFIG_FILE=""
 
 # LACEWORK
@@ -44,9 +45,10 @@ DYNU_DNS_API_TOKEN=""
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--sso-profile]
+usage: $SCRIPTNAME [-h] [--sso-profile] [--scenarios_path=SCENARIOS_PATH]
 
 -h                      print this message and exit
+--scenarios-path        the custom scenarios directory path (default is ../scenarios)
 --sso-profile           specify an sso login profile
 EOH
     exit 1
@@ -73,6 +75,10 @@ for i in "$@"; do
         SSO_PROFILE="--profile=${i#*=}"
         shift # past argument=value
         ;;
+    -s=*|--scenarios-path=*)
+        SCENARIOS_PATH="${i#*=}"
+        shift # past argument=value
+        ;;
     *)
       # unknown option
       ;;
@@ -94,8 +100,8 @@ command_exists() {
 
 # choose the scenario
 function select_scenario {
-    # Retrieve list of AWS profiles
-    scenarios=$(ls -1 scenarios)
+    # Retrieve list scenarios
+    scenarios=$(ls -1 aws/${SCENARIOS_PATH})
 
     
     # Ask user to select AWS profile
