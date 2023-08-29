@@ -64,7 +64,7 @@ module "lacework-audit-config" {
   deployment   = local.config.context.global.deployment
   
   use_existing_cloudtrail = local.config.context.lacework.aws_audit_config.use_existing_cloudtrail
-  cloudtrail_name = try(length(local.config.context.lacework.aws_audit_config.cloudtrail_name),"false") != "false" ? local.config.context.lacework.aws_audit_config.cloudtrail_name : "lacework-cloudtrail-${replace(local.config.context.global.environment,"_","-")}-${replace(local.config.context.global.deployment,"_","-")}"
+  cloudtrail_name = local.config.context.lacework.aws_audit_config.cloudtrail_name
   use_existing_iam_role       = local.config.context.lacework.aws_audit_config.use_existing_iam_role
   create_lacework_integration = local.config.context.lacework.aws_audit_config.create_lacework_integration
   consolidated_trail = local.config.context.lacework.aws_audit_config.consolidated_trail
