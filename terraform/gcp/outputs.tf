@@ -9,9 +9,11 @@ output "target-gcp-instances" {
         private_ip = compute.instance.network_interface.0.network_ip
         public_ip  = compute.instance.network_interface.0.access_config.0.nat_ip
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
+        project_id = var.target_gcp_project
+        region     = var.target_gcp_region
       }
     ]
-  ])
+  ][0])
 }
 
 output "attacker-gcp-instances" {
@@ -25,7 +27,9 @@ output "attacker-gcp-instances" {
         private_ip = compute.instance.network_interface.0.network_ip
         public_ip  = compute.instance.network_interface.0.access_config.0.nat_ip
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
+        project_id = var.attacker_gcp_project
+        region     = var.attacker_gcp_region
       }
     ]
-  ])
+  ][0])
 }

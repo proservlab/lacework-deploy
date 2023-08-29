@@ -15,7 +15,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] --workspace=WORK --action=ACTION [--sso-profile]
+usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] [--sso-profile=SSO_PROFILE] --workspace=WORK --action=ACTION
 
 -h                      print this message and exit
 --workspace-summary     print a count of resources per workspace

@@ -206,7 +206,7 @@ check_aws_cli() {
         infomsg "aws-cli is not installed."
         
         read -p "> Would you like to install it? (y/n): " install_aws_cli
-        case "$install_gcloud_cli" in
+        case "$install_aws_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
                     infomsg "installing aws-cli for linux..."

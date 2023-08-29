@@ -10,12 +10,24 @@ Before getting started ensure all of the required configuration outlined in the 
 
 Once the pre-requisites are complete follow the [getting started guide](GETTINGSTARTED.md) to start deploying the pre-configured scenarios.
 
+Use the `./config.sh` command to select a scenario and configure the associated cloud account profile(s) as required. Once configuration is complete for your scenario, use the `./build.sh --workspace=<SCENARIO> --action=plan` to review the terraform plan, followed by `./build.sh --workspace=<SCENARIO> --action=apply`.
+
+> **Note**
+> When using multiple sso profiles you may specify `--sso-profile` as an option for `./config.sh` or `./build.sh`.
+
 # Workspace Management
 
 To view a list of _active_ workspaces (i.e. those will deployed resources) the following command can be run:
 `./build.sh --workspace-summary`
 
 At this time any workspaces with no deployed resources will be removed.
+
+# Connecting to Deployed Instances
+
+Once configured deployed instances can be connected to using each cloud provider's secure access pattern. To simplify the connection process use the `./connect.sh` cli. For example run `./connect.sh --workspace=<YOUR WORKSPACE> --env=<attacker|target>` to select a valid workspace and environment (i.e. attacker, target. 
+
+> **Note**
+> For AWS `aws ssm start-session` is used to tunnel connections from the source workstaion to the deployed instance. In GCP `gcloud compute ssh --tunnel-through-iap` is used to securely tunnel. For Azure an ssh connection is established from the local workspace using the ssh key created by terraform.
 
 # SSM Access
 
@@ -63,4 +75,4 @@ Reteive meta data for compute instance from the local machine:
 
 # Future
 
-Currently security related tests are focused in AWS and are developed to leverage SSM. Future work is required to help ensure these test are idempotent.
+Currently security related tests are focused in AWS, GCP and Azure with each developed to leverage SSM, OSConfig and Runbooks respectively. Measured outcomes for each scenario is a targeted future state. 
