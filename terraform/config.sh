@@ -108,7 +108,7 @@ fi
 # choose the scenario
 function select_scenario {
     # Retrieve list scenarios
-    scenarios=$(ls -1 aws/${SCENARIOS_PATH})
+    scenarios=$(ls -1 aws/${SCENARIOS_PATH} | grep -v README.md)
 
     
     # Ask user to select AWS profile
