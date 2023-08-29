@@ -98,6 +98,13 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# set the scenarios_path
+if [ ! -z ${SCENARIOS_PATH} ]; then
+    export TF_VAR_scenarios_path="${SCENARIOS_PATH}"
+else
+    SCENARIOS_PATH="../scenarios"
+fi
+
 # choose the scenario
 function select_scenario {
     # Retrieve list scenarios
