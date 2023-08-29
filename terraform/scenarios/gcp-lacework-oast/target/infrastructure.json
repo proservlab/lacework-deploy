@@ -33,7 +33,7 @@
             "tags": {
               "osconfig_deploy_lacework": "true",
               "osconfig_deploy_lacework_syscall": "true",
-              "osconfig_lacework_code_aware_agent" : "true",
+              "osconfig_deploy_lacework_code_aware_agent" : "true",
               "osconfig_connect_oast_host"        : "true"
             },
             "user_data"        : null,

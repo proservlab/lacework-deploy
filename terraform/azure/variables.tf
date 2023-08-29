@@ -8,6 +8,12 @@ variable "scenario" {
   default     = "simple"
 }
 
+variable "scenarios_path" {
+  type        = string
+  description = "Path to the scenarios directory"
+  default     = "../scenarios"
+}
+
 variable "deployment" {
   type        = string
   description = "Unique deployment id"

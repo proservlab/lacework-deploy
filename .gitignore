@@ -68,6 +68,9 @@ Temporary Items
 */values.yaml
 */cloud/ransomware/*.b64
 */cloud/ransomware/*.bin
+*/custom_scenarios/*
+!*/custom_scenarios/*.md
+
 
 .vscode/*
 !.vscode/settings.json

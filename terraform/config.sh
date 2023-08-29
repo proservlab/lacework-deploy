@@ -5,6 +5,7 @@ VERSION="1.0.0"
 
 # SCENARIO
 SCENARIO=""
+SCENARIOS_PATH=""
 CONFIG_FILE=""
 
 # LACEWORK
@@ -44,7 +45,11 @@ DYNU_DNS_API_TOKEN=""
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME
+usage: $SCRIPTNAME [-h] [--sso-profile] [--scenarios_path=SCENARIOS_PATH]
+
+-h                      print this message and exit
+--scenarios-path        the custom scenarios directory path (default is ../scenarios)
+--sso-profile           specify an sso login profile
 EOH
     exit 1
 }
@@ -59,6 +64,27 @@ errmsg(){
 echo "ERROR: ${1}"
 }
 
+for i in "$@"; do
+  case $i in
+    -h|--help)
+        HELP="${i#*=}"
+        shift # past argument=value
+        help
+        ;;
+    -p=*|--sso-profile=*)
+        SSO_PROFILE="--profile=${i#*=}"
+        shift # past argument=value
+        ;;
+    -s=*|--scenarios-path=*)
+        SCENARIOS_PATH="${i#*=}"
+        shift # past argument=value
+        ;;
+    *)
+      # unknown option
+      ;;
+  esac
+done
+
 # setup logging function
 #LOGFILE=/tmp/example.log
 function log {
@@ -72,10 +98,17 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# set the scenarios_path
+if [ ! -z ${SCENARIOS_PATH} ]; then
+    export TF_VAR_scenarios_path="${SCENARIOS_PATH}"
+else
+    SCENARIOS_PATH="../scenarios"
+fi
+
 # choose the scenario
 function select_scenario {
-    # Retrieve list of AWS profiles
-    scenarios=$(ls -1 scenarios)
+    # Retrieve list scenarios
+    scenarios=$(ls -1 aws/${SCENARIOS_PATH} | grep -v README.md)
 
     
     # Ask user to select AWS profile
@@ -173,7 +206,7 @@ check_aws_cli() {
         infomsg "aws-cli is not installed."
         
         read -p "> Would you like to install it? (y/n): " install_aws_cli
-        case "$install_gcloud_cli" in
+        case "$install_aws_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
                     infomsg "installing aws-cli for linux..."
@@ -494,11 +527,6 @@ function select_aws_profile {
             exit 1
         fi
     fi
-    
-    aws_profiles=$(aws configure list-profiles)
-
-    # Retrieve a list of regions
-    region_list=$(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text)
 
     # iterate through the attack and target environments
     environments="attacker target"
@@ -506,6 +534,7 @@ function select_aws_profile {
         # Ask user to select AWS profile
         infomsg "select the $environment AWS profile:"
         PS3="Profile number: "
+        aws_profiles=$(aws configure list-profiles)
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
                 infomsg "Selected $environment aws profile: $profile_name"
@@ -516,6 +545,7 @@ function select_aws_profile {
         done
 
         infomsg "Please choose the $environment aws region from the list below:"
+        region_list=$(aws ec2 describe-regions --profile=$profile_name --query 'Regions[*].RegionName' --output text)
         select region in $region_list; do
             if [ -n "$region" ]; then
                 infomsg "Selected $environment aws region: $region"
@@ -795,6 +825,27 @@ if check_file_exists $CONFIG_FILE; then
     # set provider to first segement of workspace name
     PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
     
+    # check for sso logged out session
+    if [[ "$PROVIDER" == "aws" ]]; then
+        session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
+        if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+            read -p "> aws sso session has expired - login now? (y/n): " login
+            case "$login" in
+                y|Y )
+                    aws sso login ${SSO_PROFILE}
+                    ;;
+                n|N )
+                    errmsg "aws session expired - manual login required."
+                    exit 1
+                    ;;
+                * )
+                    errmsg "aws session expired - manual login required."
+                    exit 1
+                    ;;
+            esac
+        fi
+    fi
+
     # preflight
     check_terraform_cli
     check_lacework_cli
@@ -859,7 +910,11 @@ if check_file_exists $CONFIG_FILE; then
                 output_azure_config > $CONFIG_FILE
             fi
             infomsg "configuration file updated."
-            infomsg "to apply run: ./build.sh --workspace=$SCENARIO --action=apply"
+            if [ "${SCENARIOS_PATH}" == "../scenarios" ]; then
+                infomsg "to apply run: ./build.sh --workspace=$SCENARIO --action=apply"
+            else
+                infomsg "to apply run: ./build.sh --workspace=$SCENARIO --action=apply --scenarios-path=$SCENARIOS_PATH"
+            fi
             ;;
         n|N )
             warnmsg "configuration file will not be updated."

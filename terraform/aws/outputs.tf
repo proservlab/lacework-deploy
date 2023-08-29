@@ -9,9 +9,11 @@ output "target-aws-instances" {
         private_ip = compute.instance.private_ip
         public_ip  = compute.instance.public_ip
         tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
+        profile    = var.target_aws_profile
+        region     = var.target_aws_region
       }
     ]
-  ]
+  ][0]
 }
 
 output "attacker-aws-instances" {
@@ -23,9 +25,11 @@ output "attacker-aws-instances" {
         name      = compute.instance.tags["Name"]
         public_ip = compute.instance.public_ip
         tags      = { for k, v in compute.instance.tags : k => v if v != "false" }
+        profile   = var.attacker_aws_profile
+        region    = var.attacker_aws_region
       }
     ]
-  ]
+  ][0]
 }
 
 output "target_aws_kubernetes_services" {

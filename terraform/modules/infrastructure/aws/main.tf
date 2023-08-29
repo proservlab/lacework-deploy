@@ -62,6 +62,63 @@ module "lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
+  
+  use_existing_cloudtrail = local.config.context.lacework.aws_audit_config.use_existing_cloudtrail
+  cloudtrail_name = local.config.context.lacework.aws_audit_config.cloudtrail_name
+  use_existing_iam_role       = local.config.context.lacework.aws_audit_config.use_existing_iam_role
+  create_lacework_integration = local.config.context.lacework.aws_audit_config.create_lacework_integration
+  consolidated_trail = local.config.context.lacework.aws_audit_config.consolidated_trail
+  is_organization_trail = local.config.context.lacework.aws_audit_config.is_organization_trail
+  org_account_mappings = local.config.context.lacework.aws_audit_config.org_account_mappings
+  use_existing_kms_key = local.config.context.lacework.aws_audit_config.use_existing_kms_key
+  use_existing_iam_role_policy = local.config.context.lacework.aws_audit_config.use_existing_iam_role_policy
+  iam_role_name = local.config.context.lacework.aws_audit_config.iam_role_name
+  iam_role_arn = local.config.context.lacework.aws_audit_config.iam_role_arn
+  iam_role_external_id = local.config.context.lacework.aws_audit_config.iam_role_external_id
+  permission_boundary_arn = local.config.context.lacework.aws_audit_config.permission_boundary_arn
+  external_id_length = local.config.context.lacework.aws_audit_config.external_id_length
+  prefix = local.config.context.lacework.aws_audit_config.prefix
+  enable_log_file_validation = local.config.context.lacework.aws_audit_config.enable_log_file_validation
+  bucket_name = local.config.context.lacework.aws_audit_config.bucket_name
+  bucket_arn = local.config.context.lacework.aws_audit_config.bucket_arn
+  bucket_encryption_enabled = local.config.context.lacework.aws_audit_config.bucket_encryption_enabled
+  bucket_logs_enabled = local.config.context.lacework.aws_audit_config.bucket_logs_enabled
+  bucket_enable_mfa_delete = local.config.context.lacework.aws_audit_config.bucket_enable_mfa_delete
+  bucket_versioning_enabled = local.config.context.lacework.aws_audit_config.bucket_versioning_enabled
+  bucket_force_destroy = local.config.context.lacework.aws_audit_config.bucket_force_destroy
+  bucket_sse_algorithm = local.config.context.lacework.aws_audit_config.bucket_sse_algorithm
+  bucket_sse_key_arn = local.config.context.lacework.aws_audit_config.bucket_sse_key_arn
+  log_bucket_name = local.config.context.lacework.aws_audit_config.log_bucket_name
+  access_log_prefix = local.config.context.lacework.aws_audit_config.access_log_prefix
+  s3_notification_log_prefix = local.config.context.lacework.aws_audit_config.s3_notification_log_prefix
+  s3_notification_type = local.config.context.lacework.aws_audit_config.s3_notification_type
+  sns_topic_arn = local.config.context.lacework.aws_audit_config.sns_topic_arn
+  sns_topic_name = local.config.context.lacework.aws_audit_config.sns_topic_name
+  sns_topic_encryption_key_arn = local.config.context.lacework.aws_audit_config.sns_topic_encryption_key_arn
+  sns_topic_encryption_enabled = local.config.context.lacework.aws_audit_config.sns_topic_encryption_enabled
+  sqs_queue_name = local.config.context.lacework.aws_audit_config.sqs_queue_name
+  sqs_encryption_enabled = local.config.context.lacework.aws_audit_config.sqs_encryption_enabled
+  sqs_encryption_key_arn = local.config.context.lacework.aws_audit_config.sqs_encryption_key_arn
+  use_s3_bucket_notification = local.config.context.lacework.aws_audit_config.use_s3_bucket_notification
+  use_existing_access_log_bucket = local.config.context.lacework.aws_audit_config.use_existing_access_log_bucket
+  use_existing_sns_topic = local.config.context.lacework.aws_audit_config.use_existing_sns_topic
+  cross_account_policy_name = local.config.context.lacework.aws_audit_config.cross_account_policy_name
+  sqs_queues = local.config.context.lacework.aws_audit_config.sqs_queues
+  lacework_integration_name = local.config.context.lacework.aws_audit_config.lacework_integration_name
+  lacework_aws_account_id = local.config.context.lacework.aws_audit_config.lacework_aws_account_id
+  wait_time = local.config.context.lacework.aws_audit_config.wait_time
+  kms_key_rotation = local.config.context.lacework.aws_audit_config.kms_key_rotation
+  kms_key_deletion_days = local.config.context.lacework.aws_audit_config.kms_key_deletion_days
+  kms_key_multi_region = local.config.context.lacework.aws_audit_config.kms_key_multi_region
+  enable_cloudtrail_s3_management_events = local.config.context.lacework.aws_audit_config.enable_cloudtrail_s3_management_events
+
+  tags                       = merge(
+    {
+      environment = local.config.context.global.environment
+      deployment = local.config.context.global.deployment
+    }, 
+    local.config.context.lacework.aws_audit_config.tags
+  )
 }
 
 resource "time_sleep" "lacework_wait_90" {
