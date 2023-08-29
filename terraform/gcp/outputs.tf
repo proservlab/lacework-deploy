@@ -1,6 +1,6 @@
 output "target-gcp-instances" {
   sensitive = false
-  value = [
+  value = nonsensitive([
     for gce in can(length(module.target-gcp-infrastructure.config.context.gcp.gce)) ? module.target-gcp-infrastructure.config.context.gcp.gce : [] :
     [
       for compute in gce.instances : {
@@ -11,12 +11,12 @@ output "target-gcp-instances" {
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
       }
     ]
-  ]
+  ])
 }
 
 output "attacker-gcp-instances" {
   sensitive = false
-  value = [
+  value = nonsensitive([
     for gce in can(length(module.attacker-gcp-infrastructure.config.context.gcp.gce)) ? module.attacker-gcp-infrastructure.config.context.gcp.gce : [] :
     [
       for compute in gce.instances : {
@@ -27,5 +27,5 @@ output "attacker-gcp-instances" {
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
       }
     ]
-  ]
+  ])
 }
