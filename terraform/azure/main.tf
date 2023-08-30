@@ -82,7 +82,7 @@ locals {
       azure_region       = var.attacker_azure_region
 
       # dynu config
-      dynu_api_token  = var.dynu_api_token
+      dynu_api_key  = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
@@ -101,7 +101,7 @@ locals {
       azure_region       = var.target_azure_region
 
       # dynu config
-      dynu_api_token  = var.dynu_api_token
+      dynu_api_key  = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
