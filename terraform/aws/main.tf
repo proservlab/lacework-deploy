@@ -81,7 +81,7 @@ locals {
       aws_region  = var.attacker_aws_region
 
       # dynu config
-      dynu_api_key  = var.dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
@@ -102,7 +102,7 @@ locals {
       aws_region  = var.target_aws_region
 
       # dynu config
-      dynu_api_key  = var.dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
