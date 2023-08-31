@@ -1,5 +1,6 @@
 locals {
     cloudtrail_bucket_name = "cloudtrail-log-${random_string.this.id}"
+    athena_results_bucket_name = "athena-results-${random_string.this.id}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -44,6 +45,52 @@ POLICY
 
 resource "aws_s3_bucket_lifecycle_configuration" "trails" {
   bucket = aws_s3_bucket.cloudtrail_bucket.id
+
+  rule {
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+    status = "Enabled"
+    id     = "delete after 30 days"
+
+    expiration {
+      days                         = 30
+      expired_object_delete_marker = false
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 31
+    }
+
+  }
+}
+
+resource "aws_s3_bucket" "athena_results_bucket" {
+  bucket = local.athena_results_bucket_name
+  force_destroy = true
+}
+
+# Bucket policy to restrict access to the Athena results bucket
+resource "aws_s3_bucket_policy" "athena_results_bucket_policy" {
+  bucket = aws_s3_bucket.athena_results_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "s3:GetObject"
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.athena_results_bucket.arn}/*"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "athena" {
+  bucket = aws_s3_bucket.athena_results_bucket.id
 
   rule {
     abort_incomplete_multipart_upload {
@@ -139,4 +186,12 @@ resource "aws_athena_named_query" "create_cloudtrail_table" {
     OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
     LOCATION 's3://${aws_s3_bucket.cloudtrail_bucket.bucket}/AWSLogs/'
   EOT
+}
+
+output cloudtrail_bucket_name {
+    value = local.cloudtrail_bucket_name
+}
+
+output athena_results_bucket_name {
+    value = local.athena_results_bucket_name
 }
