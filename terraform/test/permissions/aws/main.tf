@@ -42,6 +42,28 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
 POLICY
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "trails" {
+  bucket = aws_s3_bucket.cloudtrail_bucket.id
+
+  rule {
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+    status = "Enabled"
+    id     = "delete after 30 days"
+
+    expiration {
+      days                         = 30
+      expired_object_delete_marker = false
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 31
+    }
+
+  }
+}
+
 resource "aws_cloudtrail" "example" {
   name                          = "example"
   s3_bucket_name                = aws_s3_bucket.cloudtrail_bucket.bucket
