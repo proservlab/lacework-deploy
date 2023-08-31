@@ -100,7 +100,7 @@ if __name__ == '__main__':
     #     athena_results_bucket=athena_results_bucket)
     # print(result)
 
-    query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'exec-env/{test_id}%\' ORDER BY eventsource, eventname;'
+    query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'% exec-env/{test_id}%\' ORDER BY eventsource, eventname;'
     results = execute_athena_query(
         query_string=query_string, 
         athena_database=athena_database,
