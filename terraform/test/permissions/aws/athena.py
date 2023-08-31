@@ -18,6 +18,8 @@ named_query_id = 'ccb7e6c3-796c-4e16-baed-bcb07294853b' # create_table_cloudtrai
 response = client.get_named_query(NamedQueryId=named_query_id)
 create_table_query_string = response['NamedQuery']['QueryString']
 
+test_id='perms-test-lacework-agentless'
+
 def execute_athena_query(query_string, athena_results_bucket, athena_database):
     # Execute the query
     query_execution = client.start_query_execution(
@@ -98,16 +100,23 @@ if __name__ == '__main__':
     #     athena_results_bucket=athena_results_bucket)
     # print(result)
 
-    query_string='SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'%terra-exec%\' ORDER BY eventsource, eventname;'
+    query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'exec-env/{test_id}%\' ORDER BY eventsource, eventname;'
     results = execute_athena_query(
         query_string=query_string, 
         athena_database=athena_database,
         athena_results_bucket=athena_results_bucket)
     
+    print_header = True
     for result in results:
+        # get result data
         eventsource = result['Data'][0]['VarCharValue']
         eventname = result['Data'][1]['VarCharValue']
-        print({
-            "eventsource" : eventsource,
-            "eventname" : eventname
-        })
+
+        # print header row
+        if print_header:
+            print(f'| {eventsource} | {eventname} |')
+            print('| -------- | ------- |')
+            print_header = False
+        else:
+            # print table row
+            print(f'| {eventsource} | {eventname} |')
