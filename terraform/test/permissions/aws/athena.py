@@ -67,7 +67,26 @@ def execute_athena_query(query_string, athena_results_bucket, athena_database):
         return final_results
     else:
         return f"Query failed with status: {query_state}"
-  
+
+def generate_iam_policy(events):
+    unique_actions = set()
+    for event in events:
+        action = f"{event['Data'][0]['VarCharValue'].split('.')[0]}:{event['Data'][1]['VarCharValue']}"
+        unique_actions.add(action)
+
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": list(unique_actions),
+                "Resource": "*"
+            }
+        ]
+    }
+
+    return policy
+
 # Example usage
 if __name__ == '__main__':
     # result = execute_athena_query(
@@ -101,22 +120,11 @@ if __name__ == '__main__':
     # print(result)
 
     query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'% exec-env/{test_id}%\' ORDER BY eventsource, eventname;'
-    results = execute_athena_query(
+    events = execute_athena_query(
         query_string=query_string, 
         athena_database=athena_database,
         athena_results_bucket=athena_results_bucket)
     
-    print_header = True
-    for result in results:
-        # get result data
-        eventsource = result['Data'][0]['VarCharValue']
-        eventname = result['Data'][1]['VarCharValue']
+    policy = generate_iam_policy(events=events)
 
-        # print header row
-        if print_header:
-            print(f'| {eventsource} | {eventname} |')
-            print('| -------- | ------- |')
-            print_header = False
-        else:
-            # print table row
-            print(f'| {eventsource} | {eventname} |')
+    print(json.dumps(policy, indent=4))
