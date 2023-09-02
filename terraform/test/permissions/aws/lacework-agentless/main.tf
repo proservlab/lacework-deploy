@@ -29,7 +29,10 @@ resource "aws_iam_role" "generated_role" {
                 Action = "sts:AssumeRole",
                 Effect = "Allow",
                 Principal = {
-                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                AWS = [ 
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+                    data.aws_caller_identity.current.arn
+                ]
                 }
             }
         ]
@@ -41,31 +44,6 @@ resource "aws_iam_role_policy_attachment" "attach_generated_policy" {
     count = var.create_and_assume_role == true ? 1 : 0
     role       = aws_iam_role.generated_role[0].name
     policy_arn = aws_iam_policy.generated_policy[0].arn
-}
-
-# Define the policy to allow sts:AssumeRole
-resource "aws_iam_policy" "assume_role_policy" {
-    count = var.create_and_assume_role == true ? 1 : 0
-    name        = "${var.role_name}-assumerole-policy"
-    description = "Policy to allow user to assume role"
-
-    policy = jsonencode({
-        Version = "2012-10-17",
-        Statement = [
-        {
-            Action = "sts:AssumeRole",
-            Effect = "Allow",
-            Resource = aws_iam_role.generated_role[0].arn
-        }
-        ]
-    })
-}
-
-# Attach the policy to the current user
-resource "aws_iam_user_policy_attachment" "assume_role_policy_attachment" {
-    count = var.create_and_assume_role == true ? 1 : 0
-    user       = data.aws_caller_identity.current.user_id
-    policy_arn = aws_iam_policy.assume_role_policy[0].arn
 }
 
 # Trigger to refresh the policy when the JSON file changes
@@ -89,7 +67,6 @@ module "lacework-agentless-generated-role" {
     }
 
     depends_on = [
-        aws_iam_user_policy_attachment.assume_role_policy_attachment,
         aws_iam_role_policy_attachment.attach_generated_policy  
     ]
 }
