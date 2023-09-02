@@ -6,6 +6,7 @@ provider "aws" {
 # Assume the new role using aliased provider
 provider "aws" {
     alias  = "generated_role"
+    profile = var.default_aws_profile
     region = var.default_aws_region
 
     dynamic "assume_role" {
