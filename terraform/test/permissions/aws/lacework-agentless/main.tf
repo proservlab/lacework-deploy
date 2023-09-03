@@ -2,6 +2,10 @@
 # Fetch the current AWS account ID
 data "aws_caller_identity" "current" {}
 
+# output user {
+#     value = data.aws_caller_identity.current
+# }
+
 # Read the generated IAM policy from the JSON file
 data "local_file" "generated_policy" {
     count = var.create_and_assume_role == true ? 1 : 0

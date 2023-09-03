@@ -1,6 +1,10 @@
 locals {
+    cloudtrail_name = "cloudtrail-log-${random_string.this.id}"
     cloudtrail_bucket_name = "cloudtrail-log-${random_string.this.id}"
     athena_results_bucket_name = "athena-results-${random_string.this.id}"
+    athena_workgroup_name = "athena-workgroup-${random_string.this.id}"
+    athena_database_name = "cloudtrail_db_${random_string.this.id}"
+    athena_create_table_named_query = "create_table_cloudtrail"
 }
 
 data "aws_caller_identity" "current" {}
@@ -111,24 +115,63 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena" {
   }
 }
 
-resource "aws_cloudtrail" "example" {
-  name                          = "example"
-  s3_bucket_name                = aws_s3_bucket.cloudtrail_bucket.bucket
-  depends_on                    = [ aws_s3_bucket_policy.cloudtrail_bucket_policy ]
-  enable_logging                = true
-  enable_log_file_validation    = true
-  is_multi_region_trail         = true
-  include_global_service_events = true
+resource "aws_cloudtrail" "trail" {
+    name                          = local.cloudtrail_name
+    s3_bucket_name                = aws_s3_bucket.cloudtrail_bucket.bucket
+    depends_on                    = [ aws_s3_bucket_policy.cloudtrail_bucket_policy ]
+    enable_logging                = true
+    enable_log_file_validation    = true
+    is_multi_region_trail         = true
+    include_global_service_events = true
+
+    event_selector {
+        include_management_events = true
+        read_write_type           = "All"
+
+        data_resource {
+            type   = "AWS::S3::Object"
+            values = ["arn:aws:s3:::"]
+        }
+        data_resource {
+            type   = "AWS::Lambda::Function"
+            values = ["arn:aws:lambda"]
+        }
+    }
+}
+
+resource "aws_kms_key" "aws_kms_key" {
+  deletion_window_in_days = 7
+  description             = "Athena KMS Key"
+}
+
+resource "aws_athena_workgroup" "workgroup" {
+  name = local.athena_workgroup_name
+
+  configuration {
+    enforce_workgroup_configuration    = true
+    publish_cloudwatch_metrics_enabled = true
+
+    result_configuration {
+      output_location = "s3://${aws_s3_bucket.athena_results_bucket.bucket}/output/"
+
+      encryption_configuration {
+        encryption_option = "SSE_KMS"
+        kms_key_arn       = aws_kms_key.aws_kms_key.arn
+      }
+    }
+  }
 }
 
 resource "aws_athena_database" "cloudtrail_db" {
-  name   = "cloudtrail_db"
+  name   = local.athena_database_name
   bucket = aws_s3_bucket.cloudtrail_bucket.bucket
+  force_destroy = true
 }
 
 resource "aws_athena_named_query" "create_cloudtrail_table" {
-  name     = "create_table_cloudtrail"
+  name     = local.athena_create_table_named_query
   database = aws_athena_database.cloudtrail_db.name
+  workgroup = aws_athena_workgroup.workgroup.id
 
   query = <<-EOT
     CREATE EXTERNAL TABLE IF NOT EXISTS cloudtrail_logs (
@@ -188,10 +231,22 @@ resource "aws_athena_named_query" "create_cloudtrail_table" {
   EOT
 }
 
+output "athena_database_name" {
+    value = local.athena_database_name
+}
+
 output cloudtrail_bucket_name {
     value = local.cloudtrail_bucket_name
 }
 
 output athena_results_bucket_name {
     value = local.athena_results_bucket_name
+}
+
+output athena_workgroup_name {
+    value = local.athena_workgroup_name
+}
+
+output athena_create_table_named_query {
+    value = local.athena_create_table_named_query
 }
