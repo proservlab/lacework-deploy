@@ -5,6 +5,7 @@ locals {
     athena_workgroup_name = "athena-workgroup-${random_string.this.id}"
     athena_database_name = "cloudtrail_db_${random_string.this.id}"
     athena_create_table_named_query = "create_table_cloudtrail"
+    athena_drop_table_named_query = "drop_table_cloudtrail"
 }
 
 data "aws_caller_identity" "current" {}
@@ -137,6 +138,14 @@ resource "aws_cloudtrail" "trail" {
             values = ["arn:aws:lambda"]
         }
     }
+
+    insight_selector {
+      insight_type = "ApiCallRateInsight"
+    }
+    
+    insight_selector {
+      insight_type = "ApiErrorRateInsight"
+    }
 }
 
 resource "aws_kms_key" "aws_kms_key" {
@@ -146,7 +155,7 @@ resource "aws_kms_key" "aws_kms_key" {
 
 resource "aws_athena_workgroup" "workgroup" {
   name = local.athena_workgroup_name
-
+  force_destroy = true
   configuration {
     enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = true
@@ -231,22 +240,44 @@ resource "aws_athena_named_query" "create_cloudtrail_table" {
   EOT
 }
 
+resource "aws_athena_named_query" "drop_cloudtrail_table" {
+  name     = local.athena_drop_table_named_query
+  database = aws_athena_database.cloudtrail_db.name
+  workgroup = aws_athena_workgroup.workgroup.id
+
+  query = <<-EOT
+  DROP TABLE IF EXISTS cloudtrail_logs
+  EOT
+}
+
 output "athena_database_name" {
-    value = local.athena_database_name
+  value = local.athena_database_name
 }
 
 output cloudtrail_bucket_name {
-    value = local.cloudtrail_bucket_name
+  value = local.cloudtrail_bucket_name
 }
 
 output athena_results_bucket_name {
-    value = local.athena_results_bucket_name
+  value = local.athena_results_bucket_name
 }
 
 output athena_workgroup_name {
-    value = local.athena_workgroup_name
+  value = local.athena_workgroup_name
 }
 
 output athena_create_table_named_query {
-    value = local.athena_create_table_named_query
+  value = local.athena_create_table_named_query
+}
+
+output athena_create_table_named_query_id {
+  value = aws_athena_named_query.create_cloudtrail_table.id
+}
+
+output athena_drop_table_named_query {
+  value = local.athena_drop_table_named_query
+}
+
+output athena_drop_table_named_query_id {
+  value = aws_athena_named_query.drop_cloudtrail_table.id
 }
