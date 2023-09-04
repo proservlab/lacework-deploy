@@ -2,13 +2,12 @@ variable "default_aws_profile" {
     type = string
     default = null
 }
-
-variable "default_aws_region" {
-    type = string
-    default = "us-east-1"
+variable "create_role" {
+    type = bool
+    default = false
 }
 
-variable "create_and_assume_role" {
+variable "assume_role_apply" {
     type = bool
     default = false
 }

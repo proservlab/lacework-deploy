@@ -1,1 +1,0 @@
-SELECT * FROM cloudtrail_logs WHERE userAgent LIKE '%terra-exec%' LIMIT 10;

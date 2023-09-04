@@ -2,20 +2,16 @@
 # Fetch the current AWS account ID
 data "aws_caller_identity" "current" {}
 
-# output user {
-#     value = data.aws_caller_identity.current
-# }
-
 # Read the generated IAM policy from the JSON file
 data "local_file" "generated_policy" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.create_role == true || var.assume_role_apply == true ? 1 : 0
     depends_on = [null_resource.trigger[0]]
     filename = var.role_policy_path
 }
 
 # Create the IAM policy using the generated JSON
 resource "aws_iam_policy" "generated_policy" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.create_role == true || var.assume_role_apply == true ? 1 : 0
     name        = "${var.role_name}-policy"
     description = "A policy generated based on observed actions"
     policy      = data.local_file.generated_policy[0].content
@@ -23,7 +19,7 @@ resource "aws_iam_policy" "generated_policy" {
 
 # Create an IAM role that is assumable by the current user
 resource "aws_iam_role" "generated_role" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.create_role == true || var.assume_role_apply == true ? 1 : 0
     name = "${var.role_name}-role"
 
     assume_role_policy = jsonencode({
@@ -45,26 +41,28 @@ resource "aws_iam_role" "generated_role" {
 
 # Attach the generated policy to the role
 resource "aws_iam_role_policy_attachment" "attach_generated_policy" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.create_role == true || var.assume_role_apply == true ? 1 : 0
     role       = aws_iam_role.generated_role[0].name
     policy_arn = aws_iam_policy.generated_policy[0].arn
 }
 
 # Trigger to refresh the policy when the JSON file changes
 resource "null_resource" "trigger" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.create_role == true || var.assume_role_apply == true ? 1 : 0
     triggers = {
         policy_hash = filemd5(var.role_policy_path)
     }
 }
 
+# default execution with full admin rights
 module "lacework-agentless" {
-    count = var.create_and_assume_role == true ? 0 : 1
+    count = var.create_role == true || var.assume_role_apply == true ? 0 : 1
     source = "./modules/lacework-agentless"
 }
 
+# execution with assume role context created via athena cloudtrail logs
 module "lacework-agentless-generated-role" {
-    count = var.create_and_assume_role == true ? 1 : 0
+    count = var.assume_role_apply == true ? 1 : 0
     source = "./modules/lacework-agentless"
     providers = {
         aws = aws.generated_role

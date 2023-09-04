@@ -8,11 +8,14 @@ VERSION="0.0.1"
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--profile] [--action=<apply|destroy>]
+usage: $SCRIPTNAME [-h] [--profile] [--action=<generate|validate>] [--policy=<path to policy> ] --test-name=<TEST_NAME>
 
 -h                      print this message and exit
 --profile               the aws profile to use
---action                setup action (i.e. apply, destroy). default: apply
+--test-name             the name of the test folder. this will also be the traceable AWS_EXECUTION_ENV value.
+--action                the action to take should be either generate or valiadate.
+--policy                if action is validate a policy path is required here. this is the iam role policy 
+                        that will be used to validate the policy has valid permission to apply.
 EOH
     exit 1
 }
@@ -37,10 +40,19 @@ for i in "$@"; do
     -p=*|--profile=*)
         SSO_PROFILE="--profile=${i#*=}"
         PROFILE="--profile=${i#*=}"
+        VARS="-var=default_aws_profile=${i#*=}"
+        shift # past argument=value
+        ;;
+    -t=*|--test-name=*)
+        TEST_NAME="${i#*=}"
         shift # past argument=value
         ;;
     -a=*|--action=*)
         ACTION="${i#*=}"
+        shift # past argument=value
+        ;;
+    -f=*|--policy=*)
+        POLICY="${i#*=}"
         shift # past argument=value
         ;;
     *)
@@ -49,12 +61,26 @@ for i in "$@"; do
   esac
 done
 
-if [ -z ${ACTION} ]; then
-    infomsg "No action set, default apply will be used."
-    ACTION="apply"
-elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ]; then
-    errmsg "Invalid action: --action should be one of apply or destroy"
+if [ -z ${TEST_NAME} ]; then
+    errmsg "Required value --test-name missing."
     help
+fi
+
+if [ -z ${ACTION} ]; then
+    infomsg "No action set, default generate will be used."
+    ACTION="generate"
+elif [ "${ACTION}" != "validate" ] && [ "${ACTION}" != "generate" ]; then
+    errmsg "Invalid action: --action should be one of generate or validate"
+    help
+elif [ "${ACTION}" == "validate" ] && [ -z $POLICY ]; then
+    warnmsg "A policy file must be specified when using validate. Will attempt to use ${TEST_NAME}.json"
+    POLICY="${SCRIPT_PATH}/${TEST_NAME}.json"
+fi
+
+# check to see if the policy file exists
+if ! [ -z ${POLICY} ] && ! [ -f "${POLICY}" ]; then
+    errmsg "Policy file not found: ${POLICY}"
+    exit 1
 fi
 
 #LOGFILE=/tmp/example.log
@@ -234,21 +260,21 @@ check_aws_cli() {
     fi
 }
 
-cat <<-'EOF'
+cat <<-'EOM'
 ##########################################################################################################################
- $$$$$$\    $$\     $$\                                            $$$$$$\             $$\                         
-$$  __$$\   $$ |    $$ |                                          $$  __$$\            $$ |                        
-$$ /  $$ |$$$$$$\   $$$$$$$\   $$$$$$\  $$$$$$$\   $$$$$$\        $$ /  \__| $$$$$$\ $$$$$$\   $$\   $$\  $$$$$$\  
-$$$$$$$$ |\_$$  _|  $$  __$$\ $$  __$$\ $$  __$$\  \____$$\       \$$$$$$\  $$  __$$\\_$$  _|  $$ |  $$ |$$  __$$\ 
-$$  __$$ |  $$ |    $$ |  $$ |$$$$$$$$ |$$ |  $$ | $$$$$$$ |       \____$$\ $$$$$$$$ | $$ |    $$ |  $$ |$$ /  $$ |
-$$ |  $$ |  $$ |$$\ $$ |  $$ |$$   ____|$$ |  $$ |$$  __$$ |      $$\   $$ |$$   ____| $$ |$$\ $$ |  $$ |$$ |  $$ |
-$$ |  $$ |  \$$$$  |$$ |  $$ |\$$$$$$$\ $$ |  $$ |\$$$$$$$ |      \$$$$$$  |\$$$$$$$\  \$$$$  |\$$$$$$  |$$$$$$$  |
-\__|  \__|   \____/ \__|  \__| \_______|\__|  \__| \_______|       \______/  \_______|  \____/  \______/ $$  ____/ 
-                                                                                                         $$ |      
-                                                                                                         $$ |      
-                                                                                                         \__| 
-##########################################################################################################################
-EOF
+$$$$$$$$\                                                                                                     
+\__$$  __|                                                                                                    
+   $$ | $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$\$$$$\   $$$$$$\   $$$$$$$\ 
+   $$ |$$  __$$\ $$  __$$\ $$  __$$\ \____$$\ $$  __$$\ $$  __$$\ $$  __$$\ $$  _$$  _$$\ $$  __$$\ $$  _____|
+   $$ |$$$$$$$$ |$$ |  \__|$$ |  \__|$$$$$$$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|$$ / $$ / $$ |$$$$$$$$ |\$$$$$$\  
+   $$ |$$   ____|$$ |      $$ |     $$  __$$ |$$ |  $$ |$$   ____|$$ |      $$ | $$ | $$ |$$   ____| \____$$\ 
+   $$ |\$$$$$$$\ $$ |      $$ |     \$$$$$$$ |$$$$$$$  |\$$$$$$$\ $$ |      $$ | $$ | $$ |\$$$$$$$\ $$$$$$$  |
+   \__| \_______|\__|      \__|      \_______|$$  ____/  \_______|\__|      \__| \__| \__| \_______|\_______/ 
+                                              $$ |                                                            
+                                              $$ |                                                            
+                                              \__|                                          
+##########################################################################################################################    
+EOM
 
 log "Checking for pre-requisites..."
 log "Checking for jq..."
@@ -260,37 +286,41 @@ check_terraform_cli
 log "Checking for aws cli..."
 check_aws_cli
 
-log "Checking for valid aws sso..."
-session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
-if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
-    read -p "> aws sso session has expired - login now? (y/n): " login
-    case "$login" in
-        y|Y )
-            aws sso login ${SSO_PROFILE}
-            ;;
-        n|N )
-            errmsg "aws session expired - manual login required."
-            exit 1
-            ;;
-        * )
-            errmsg "aws session expired - manual login required."
-            exit 1
-            ;;
-    esac
-fi
-
 ATHENA_SETTINGS="${SCRIPT_PATH}/athena-settings.json"
 PLANFILE="build.tfplan"
+APPLY_WAIT_SECS=30
+
 cat <<-EOF
-ACTION=${ACTION}
+TEST_NAME=${TEST_NAME}
 PROFILE=${PROFILE}
+APPLY_WAIT_SECS=${APPLY_WAIT_SECS}
 EOF
 
+log "Retriving athena settings..."
+ATHENA_WORKGROUP_ID=$(jq -r '.athena_workgroup_name.value' ${ATHENA_SETTINGS})
+ATHENA_CREATE_TABLE_QUERY=$(jq -r '.athena_create_table_named_query_id.value' ${ATHENA_SETTINGS})
+NAMED_QUERY=$(aws athena get-named-query --named-query-id ${ATHENA_CREATE_TABLE_QUERY} ${PROFILE})
+QUERY_STRING=$(echo $NAMED_QUERY | jq -r '.NamedQuery.QueryString')
+DATABASE=$(echo $NAMED_QUERY | jq -r '.NamedQuery.Database')
+WORKGROUP=$(echo $NAMED_QUERY | jq -r '.NamedQuery.WorkGroup')
+
+# init
+if ! [ -d "${SCRIPT_PATH}/${TEST_NAME}" ]; then 
+    errmsg "Test directory not found: ${SCRIPT_PATH}/${TEST_NAME}"
+    exit 1
+fi
+log "Change directory to: ${SCRIPT_PATH}/${TEST_NAME}"
+cd ${SCRIPT_PATH}/${TEST_NAME}
+log "Initializing Terraform..."
 terraform init -upgrade
 
-if [ "${ACTION}" == "apply" ]; then
-    log "Creating cloudtrail, athena database, and named query for cloudtrail table..."
-    terraform plan -out ${PLANFILE} -detailed-exitcode -compact-warnings
+# generate
+if [ "${ACTION}" == "generate" ]; then
+    export AWS_EXECUTION_ENV="${TEST_NAME}"
+    
+    # apply
+    log "Starting terrafrom apply..."
+    terraform plan -out ${PLANFILE} ${VARS} -detailed-exitcode -compact-warnings
     ERR=$?
     if [ $ERR -eq 0 ]; then
         warnmsg "No changes, not applying"
@@ -302,98 +332,81 @@ if [ "${ACTION}" == "apply" ]; then
         terraform apply ${PLANFILE}
     fi
 
-    terraform output -json > ${ATHENA_SETTINGS}
+    # wait after successful apply
+    log "Apply complete. Waiting ${APPLY_WAIT_SECS} seconds before destroy..."
+    sleep ${APPLY_WAIT_SECS}
 
-    log "Creating the cloudtrail table"
-    ATHENA_WORKGROUP_ID=$(jq -r '.athena_workgroup_name.value' ${ATHENA_SETTINGS})
-    ATHENA_CREATE_TABLE_QUERY=$(jq -r '.athena_create_table_named_query_id.value' ${ATHENA_SETTINGS})
-    NAMED_QUERY=$(aws athena get-named-query --named-query-id ${ATHENA_CREATE_TABLE_QUERY} ${PROFILE})
-    QUERY_STRING=$(echo $NAMED_QUERY | jq -r '.NamedQuery.QueryString')
-    DATABASE=$(echo $NAMED_QUERY | jq -r '.NamedQuery.Database')
-    WORKGROUP=$(echo $NAMED_QUERY | jq -r '.NamedQuery.WorkGroup')
-
-    log "Found named query: ${NAMED_QUERY}"
-    log "Executing query..."
-    QUERY_EXEC_ID=$(aws athena start-query-execution --query-string="${QUERY_STRING}" --work-group="${WORKGROUP}" --query-execution-context=Database="${DATABASE}" ${PROFILE} | jq -r '.QueryExecutionId')
-
-    while true; do
-        QUERY_STATUS=$(aws athena get-query-execution --query-execution-id="${QUERY_EXEC_ID}" ${PROFILE} | jq -r '.QueryExecution.Status.State')
-        log "Query status: ${QUERY_STATUS}"
-        if [ "${QUERY_STATUS}" == "SUCCEEDED" ] || [ "${QUERY_STATUS}" == "FAILED" ] || [ "${QUERY_STATUS}" == "CANCELLED"]; then
-            log "Query complete."
-            break;
-        else
-            log "Query not yet complete. Sleeping..."
-            sleep 5
-        fi
-    done
-else
-    log "Checking athena settings: ${ATHENA_SETTINGS}..."
-    if ! [ -f  ${ATHENA_SETTINGS} ]; then
-        errmsg "Athena settings file is not found, unable to continue. Try running apply before destroy."
-        exit 1
-    else
-        log "Athena settings found..."
-    fi
-
-    log "Dropping the cloudtrail table"
-    ATHENA_WORKGROUP_ID=$(jq -r '.athena_workgroup_name.value' ${ATHENA_SETTINGS})
-    ATHENA_DROP_TABLE_QUERY=$(jq -r '.athena_drop_table_named_query_id.value' ${ATHENA_SETTINGS})
-    NAMED_QUERY=$(aws athena get-named-query --named-query-id ${ATHENA_DROP_TABLE_QUERY} ${PROFILE})
-    QUERY_STRING=$(echo $NAMED_QUERY | jq -r '.NamedQuery.QueryString')
-    DATABASE=$(echo $NAMED_QUERY | jq -r '.NamedQuery.Database')
-    WORKGROUP=$(echo $NAMED_QUERY | jq -r '.NamedQuery.WorkGroup')
-
-    log "Found named query: ${NAMED_QUERY}"
-    log "Executing query..."
-    QUERY_EXEC_ID=$(aws athena start-query-execution --query-string="${QUERY_STRING}" --work-group="${WORKGROUP}" --query-execution-context=Database="${DATABASE}" ${PROFILE} | jq -r '.QueryExecutionId')
-
-    while true; do
-        QUERY_STATUS=$(aws athena get-query-execution --query-execution-id="${QUERY_EXEC_ID}" ${PROFILE} | jq -r '.QueryExecution.Status.State')
-        log "Query status: ${QUERY_STATUS}"
-        if [ "${QUERY_STATUS}" == "SUCCEEDED" ] || [ "${QUERY_STATUS}" == "FAILED" ] || [ "${QUERY_STATUS}" == "CANCELLED"]; then
-            log "Query complete."
-            break;
-        else
-            log "Query not yet complete. Sleeping..."
-            sleep 5
-        fi
-    done
-
-    # check query status
-    if [ "${QUERY_STATUS}" == "SUCCEEDED" ]; then
-        log "Drop table complete. Destroying cloudtrail and athena database..."
-    else
-        errmsg "Query failed to execute: ${QUERY_STATUS}"
-        read -p "> Would you to continue with terraform destroy (y/n): " continue_destroy
-        case "$continue_destroy" in
-            y|Y )
-                log "Proceeding with destroy..."
-                ;;
-            n|N )
-                errmsg "aws cli will not be installed."
-                errmsg "aws cli is required to proceed. please install it manually."
-                exit 1
-                ;;
-            * )
-                errmsg "invalid input. aws cli will not be installed"
-                errmsg "aws cli is required to proceed. please install it manually."
-                exit 1
-                ;;
-        esac
-    fi
-    terraform plan -destroy -out ${PLANFILE} -detailed-exitcode -compact-warnings
+    # destroy
+    log "Starting terraform destroy..."
+    terraform plan -destroy -out ${PLANFILE} ${VARS} -detailed-exitcode -compact-warnings
     ERR=$?
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
         if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
-            terraform destroy -compact-warnings -auto-approve
+            terraform destroy ${VARS} -compact-warnings -auto-approve
         fi
     fi
-fi 
 
-log "Athena ${ACTION} setup complete."
+    # here we should use the query.py to 
 
+# validate
+elif [ "${ACTION}" == "validate" ]; then
+    # create role first
+    VARS="${VARS} -var=create_role=true"
 
+    # apply
+    log "Starting terrafrom apply to create role based on policy..."
+    terraform plan -out ${PLANFILE} ${VARS} -detailed-exitcode -compact-warnings
+    ERR=$?
+    if [ $ERR -eq 0 ]; then
+        warnmsg "No changes, not applying"
+    elif [ $ERR -eq 1 ]; then
+        errmsg "Terraform plan failed"
+        exit 1
+    elif [ $ERR -eq 2 ]; then
+        infomsg "Changes required, applying"
+        terraform apply ${PLANFILE}
+    fi
+
+    # wait after successful apply
+    log "Apply create role complete. Waiting ${APPLY_WAIT_SECS} seconds before second stage..."
+    sleep ${APPLY_WAIT_SECS}
+
+    VARS="${VARS} -var=assume_role_apply=true -var=role_policy_path=${POLICY}"
+
+    # apply
+    log "Starting terrafrom apply with assumed role..."
+    terraform plan -out ${PLANFILE} ${VARS} -detailed-exitcode -compact-warnings
+    ERR=$?
+    if [ $ERR -eq 0 ]; then
+        warnmsg "No changes, not applying"
+    elif [ $ERR -eq 1 ]; then
+        errmsg "Terraform plan failed"
+        exit 1
+    elif [ $ERR -eq 2 ]; then
+        infomsg "Changes required, applying"
+        terraform apply ${PLANFILE}
+    fi
+
+    # wait after successful apply
+    log "Apply complete. Waiting ${APPLY_WAIT_SECS} seconds before destroy..."
+    sleep ${APPLY_WAIT_SECS}
+
+    # destroy
+    log "Starting terraform destroy..."
+    terraform plan -destroy -out ${PLANFILE} ${VARS} -detailed-exitcode -compact-warnings
+    ERR=$?
+    # additional check because plan doesn't return 0 for -destory
+    if [ $ERR -eq 2 ]; then
+        if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
+            ERR=0;
+        else
+            terraform destroy ${VARS} -compact-warnings -auto-approve
+        fi
+    fi
+fi
+
+rm -f ${PLANFILE}
+log "Action ${ACTION}: execution complete."

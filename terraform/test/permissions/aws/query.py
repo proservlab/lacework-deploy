@@ -1,36 +1,23 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: set fileencoding=utf8 :
 import boto3
 import time
 import json
 import os
 import sys
+import argparse
 
 script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-# Initialize Athena client
-session = boto3.Session(profile_name='lwst5')
-client = session.client('athena')
-
-athena_database = "cloudtrail_db_zizr"
-athena_results_bucket = "athena-results-zizr"
-athena_workgroup = "athena-workgroup-zizr"
-test_id='perms-test-lacework-agentless'
-
-# Get the saved named query
-named_queries = client.list_named_queries(WorkGroup=athena_workgroup)
-response = client.get_named_query(NamedQueryId=named_queries['NamedQueryIds'][0])
-
-
-def execute_athena_query(query_string, athena_results_bucket, athena_database):
+def execute_athena_query(query_string, athena_results_bucket_name, athena_database_name):
     # Execute the query
     query_execution = client.start_query_execution(
         QueryString=query_string,
         QueryExecutionContext={
-            'Database': athena_database
+            'Database': athena_database_name
         },
         ResultConfiguration={
-            'OutputLocation': f's3://{athena_results_bucket}/'
+            'OutputLocation': f's3://{athena_results_bucket_name}/'
         }
     )
 
@@ -123,60 +110,33 @@ def generate_iam_policy(events):
 
     return policy
 
-# Example usage
 if __name__ == '__main__':
-    # result = execute_athena_query(
-    #     query_string='SHOW DATABASES', 
-    #     athena_database=athena_database,
-    #     athena_results_bucket=athena_results_bucket)
+    parser = argparse.ArgumentParser(description='Execute Athena query and generate IAM policy.')
+    parser.add_argument('--profile', required=True, help='AWS profile to use.')
+    parser.add_argument('--output', required=True, help='Path to output IAM policy.')
+    parser.add_argument('--test-name', required=True, help='The AWS_EXECUTION_ENV value to search user-agent for.')
+    args = parser.parse_args()
 
-    # print(result)
+    # intiate the session with the profile name
+    session = boto3.Session(profile_name=args.profile)
+    client = session.client('athena')
 
-    # result = execute_athena_query(
-    #     query_string=f'SHOW TABLES in {database}', 
-    #     athena_database=athena_database,
-    #     athena_results_bucket=athena_results_bucket)
+    with open(f'{script_directory}/athena-settings.json', 'r') as f:
+        settings = json.load(f)
 
-    # print(result)
-
-
-    # create the database table
-    # result = execute_athena_query(
-    #     query_string=create_table_query_string, 
-    #     athena_database=athena_database,
-    #     athena_results_bucket=athena_results_bucket)
-
-    # print(result)
-
-    # query_string='SELECT * FROM cloudtrail_logs WHERE userAgent LIKE \'%terra-exec%\' LIMIT 10;'
-    # result = execute_athena_query(
-    #     query_string=query_string, 
-    #     athena_database=athena_database,
-    #     athena_results_bucket=athena_results_bucket)
-    # print(result)
-
-    if response['NamedQuery']['Name'] != "create_table_cloudtrail":
-        print(f"Unexpected query in named queries result. Received '{response['NamedQuery']['Name']}' but expected 'create_table_cloudtrail'")
-        exit(1)
-    else:
-        print("Successfull retrieved create table query.")
-
-    create_table_query_string = response['NamedQuery']['QueryString']
-    events = execute_athena_query(
-        query_string=create_table_query_string, 
-        athena_database=athena_database,
-        athena_results_bucket=athena_results_bucket
-    )
-
-    query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'% exec-env/{test_id}%\' ORDER BY eventsource, eventname;'
+    athena_database_name = settings['athena_database_name']['value']
+    athena_results_bucket_name = settings['athena_results_bucket_name']['value']
+    athena_workgroup_name = settings['athena_workgroup_name']['value']
+    
+    query_string=f'SELECT DISTINCT eventsource, eventname FROM cloudtrail_logs WHERE userAgent LIKE \'% exec-env/{args.test_name}%\' ORDER BY eventsource, eventname;'
     events = execute_athena_query(
         query_string=query_string, 
-        athena_database=athena_database,
-        athena_results_bucket=athena_results_bucket
+        athena_database_name=athena_database_name,
+        athena_results_bucket_name=athena_results_bucket_name
     )
     policy = generate_iam_policy(events=events)
 
-    print(json.dumps(policy, indent=4))
+    with open(args.output, 'w') as f:
+        json.dump(policy, f, indent=4)
 
-
-# errorcode = 'AccessDenied'
+    print(f"Policy has been written to {args.output}")
