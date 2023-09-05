@@ -17,6 +17,6 @@ output "default_aws_identity" {
 output "module_identity" {
     value = coalesce(
                 try(module.lacework-agentless[0].aws_identity, null),
-                try(module.lacework-agentless-generated-role[0].aws_identity, null)
+                try(module.lacework-agentless-generated-role[0].aws_identity, {})
             )
 }
