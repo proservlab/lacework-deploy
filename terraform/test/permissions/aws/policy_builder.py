@@ -60,24 +60,35 @@ def execute_athena_query(query_string, athena_results_bucket_name, athena_databa
 def generate_iam_policy(events):
     with open(f'{script_directory}/mappings.json', 'r') as f:
         mappings = json.load(f)
-    
+
     unique_actions = set()    
     for event in events:
         eventsource = event['Data'][0]['VarCharValue'].split('.')[0]
         eventname = event['Data'][1]['VarCharValue']
         
+        
         if eventsource != "eventsource" or eventname != "eventname":
             action = f"{eventsource}:{eventname}"
             action_lower = f"{eventsource.lower()}.{eventname.lower()}"
-            found_mapping = False
             # search for API to IAM policy mapping (this is probably better done in pandas)
             for key, value in mappings['sdk_method_iam_mappings'].items():
                 if key.lower() == action_lower:
-                    found_mapping = True
-                    print(f"Found mapping: {action} => {value[0]['action']}")
-                    action = value[0]['action']
+                    for iam_perm in value:
+                        print(f"Found method mapping: {action} => {iam_perm['action']}")
+                        action = iam_perm['action']
+                        unique_actions.add(action)
+                    action = None
                     break
             
+            for key, value in mappings['sdk_service_mappings'].items():
+                if key.lower() == eventsource.lower():
+                    print(f"Found service mapping: {eventsource} => {value}")
+                    action = f"{value}:{eventname}"
+                    unique_actions.add(action)
+                    action = None
+                    break
+            
+
             # iam:TagRole not captured in cloudtrail (append it)
             if action == "iam:CreateRole":
                 unique_actions.add("iam:TagRole")
@@ -95,8 +106,9 @@ def generate_iam_policy(events):
             unique_actions.add("sts:DecodeAuthorizationMessage")
 
             # add unique actions only
-            unique_actions.add(action)
-
+            if action is not None:
+                unique_actions.add(action)
+    
     policy = {
         "Version": "2012-10-17",
         "Statement": [

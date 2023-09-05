@@ -354,7 +354,7 @@ if [ "${ACTION}" == "generate" ]; then
 # validate
 elif [ "${ACTION}" == "validate" ]; then
     # create role first
-    VARS="${VARS} -var=create_role=true"
+    VARS="${VARS} -var=create_role=true -var=role_name=${TEST_NAME} -var=role_policy_path=${POLICY}"
 
     # apply
     log "Starting terrafrom apply to create role based on policy..."
@@ -374,7 +374,7 @@ elif [ "${ACTION}" == "validate" ]; then
     log "Apply create role complete. Waiting ${APPLY_WAIT_SECS} seconds before second stage..."
     sleep ${APPLY_WAIT_SECS}
 
-    VARS="${VARS} -var=assume_role_apply=true -var=role_policy_path=${POLICY}"
+    VARS="${VARS} -var=role_name=${TEST_NAME} -var=assume_role_apply=true -var=role_policy_path=${POLICY}"
 
     # apply
     log "Starting terrafrom apply with assumed role..."

@@ -1693,14 +1693,14 @@
         ],
         "S3.DeleteObjects": [
             {
-                "action": "DeleteObject",
+                "action": "s3:DeleteObject",
                 "conditions": {
                     "lhs": "Delete.Objects[].VersionId",
                     "op": "NotExists"
                 }
             },
             {
-                "action": "DeleteObjectVersion",
+                "action": "s3:DeleteObjectVersion",
                 "conditions": {
                     "lhs": "Delete.Objects[].VersionId",
                     "op": "Exists"
