@@ -198,6 +198,46 @@ check_free_memory() {
     sleep 2
 }
 
+# Check if jq is installed and install if not
+check_jq() {
+    if command_exists jq &> /dev/null; then
+        infomsg "jq installed."
+    else
+        infomsg "jq is not installed."
+        
+        read -p "> Would you like to install it? (y/n): " install_jq
+        case "$install_jq" in
+            y|Y )
+                if [[ $(uname -s) == "Linux" ]]; then
+                    infomsg "installing jq for linux..."
+                    sudo apt-get update
+                    sudo apt-get install -y jq
+                elif [[ $(uname -s) == "Darwin" ]]; then
+                    infomsg "installing jq for mac..."
+                    if ! command_exists brew &> /dev/null; then
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
+                        exit 1
+                    fi
+                    brew install jq
+                else
+                    errmsg "Unsupported operating system. Please install aws-cli manually."
+                    exit 1
+                fi
+                ;;
+            n|N )
+                errmsg "jq will not be installed."
+                errmsg "jq is required to proceed. please install it manually."
+                exit 1
+                ;;
+            * )
+                errmsg "invalid input. jq will not be installed"
+                errmsg "jq is required to proceed. please install it manually."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
 # Check if aws-cli is installed and install if not
 check_aws_cli() {
     if command_exists aws &> /dev/null; then
@@ -746,48 +786,23 @@ EOF
 }
 
 function config_protonvpn {
-    read -p "> do you want to configure protonvpn credentials? (y/n) " protonvpn_config
-    case "$protonvpn_config" in
-        y|Y ) 
-            clear
-            read -p "> protonvpn user: " protonvpn_user
-            ATTACKER_PROTONVPN_USER=$protonvpn_user
-            clear
-            read -p "> protonvpn password: " protonvpn_password
-            ATTACKER_PROTONVPN_PASSWORD=$protonvpn_password
-            read -p "> protonvpn wireguard private key (optional): " protonvpn_privatekey
-            ATTACKER_PROTONVPN_PRIVATEKEY=$protonvpn_privatekey
-            ;;
-        n|N )
-            infomsg "skipping config of protonvpn."
-            ;;
-        * )
-            errmsg "unknown option: $protonvpn_config"
-            warnmsg "protonvpn configuration will not be updated."
-            ;;
-    esac
-    
+    infomsg "protonvpn configuration if required for this scenario."
+    read -p "> protonvpn user: " protonvpn_user
+    ATTACKER_PROTONVPN_USER=$protonvpn_user
+    clear
+    read -p "> protonvpn password: " protonvpn_password
+    ATTACKER_PROTONVPN_PASSWORD=$protonvpn_password
+    read -p "> protonvpn wireguard private key (optional): " protonvpn_privatekey
+    ATTACKER_PROTONVPN_PRIVATEKEY=$protonvpn_privatekey
 }
 
 function config_dynu {
-    read -p "> do you want to configure dynu dns credentials? (y/n) " dynu_config
-    case "$dynu_config" in
-        y|Y ) 
-            clear
-            read -p "> dynu dns domain: " dynu_dns_domain
-            DYNU_DNS_DOMAIN=$dynu_dns_domain
-            clear
-            read -p "> dynu dns api token: " dynu_api_key
-            DYNU_DNS_API_TOKEN=$dynu_api_key
-            ;;
-        n|N )
-            infomsg "skipping config of dynu dns."
-            ;;
-        * )
-            errmsg "unknown option: $dynu_config"
-            warnmsg "dynu dns configuration will not be updated."
-            ;;
-    esac
+    infomsg "dynu configuration if required for this scenario."
+    read -p "> dynu dns domain: " dynu_dns_domain
+    DYNU_DNS_DOMAIN=$dynu_dns_domain
+    clear
+    read -p "> dynu dns api token: " dynu_api_key
+    DYNU_DNS_API_TOKEN=$dynu_api_key
 }
 
 function select_option {
@@ -809,10 +824,25 @@ check_free_memory
 
 clear
 
+# check for jq
+check_jq
+
+clear
+
 # scenario selection
 select_scenario
 
 clear
+
+ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' scenarios/${SCENARIO}/attacker/infrastructure.json)
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' scenarios/${SCENARIO}/target/infrastructure.json)
+
+for s in "docker_composite_compromised_credentials_attack" "docker_composite_cloud_cryptomining_attack" "docker_composite_cloud_ransomware_attack" "docker_composite_defense_evasion_attack" "docker_composite_host_cryptomining_attack"; do 
+    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" scenarios/${SCENARIO}/shared/simulation.json)
+    if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
+        break
+    fi
+done
 
 if [ -e "$CONFIG_FILE" ]; then
     infomsg "Existing config file:"
@@ -852,10 +882,9 @@ if check_file_exists $CONFIG_FILE; then
 
     # deployment id
     clear
-    read -p "> provide a unique deployment id or hit enter to use default [00000001]:" deployment_id
-    if [ "$deployment_id" == "" ]; then
-        DEPLOYMENT="000000001"
-    else
+    DEPLOYMENT="$(openssl rand -hex 4)"
+    read -p "> provide a unique deployment id or hit enter to use the random id default [${DEPLOYMENT}]:" deployment_id
+    if ! [ "$deployment_id" == "" ]; then
         DEPLOYMENT=$deployment_id
     fi
     infomsg "deployment id set: $DEPLOYMENT"
@@ -872,30 +901,42 @@ if check_file_exists $CONFIG_FILE; then
         clear
         select_aws_profile
         clear
-        config_protonvpn
-        clear
-        config_dynu
-        clear
+        if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
+            config_protonvpn
+            clear
+        fi
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+            config_dynu
+            clear
+        fi
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
         clear
         select_gcp_project
         clear
-        config_protonvpn
-        clear
-        config_dynu
-        clear
+        if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
+            config_protonvpn
+            clear
+        fi
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+            config_dynu
+            clear
+        fi
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
         clear
         select_azure_subscription
         clear
-        config_protonvpn
-        clear
-        config_dynu
-        clear
+        if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
+            config_protonvpn
+            clear
+        fi
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+            config_dynu
+            clear
+        fi
         output_azure_config
     fi
     
