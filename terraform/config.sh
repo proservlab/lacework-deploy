@@ -801,7 +801,7 @@ function config_dynu {
     read -p "> dynu dns domain: " dynu_dns_domain
     DYNU_DNS_DOMAIN=$dynu_dns_domain
     clear
-    read -p "> dynu dns api token: " dynu_api_key
+    read -p "> dynu dns api key: " dynu_api_key
     DYNU_DNS_API_TOKEN=$dynu_api_key
 }
 
