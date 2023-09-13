@@ -35,4 +35,4 @@ For any scenarios containing the `dns` term, the following configuration is requ
 3. Create an API Key
 4. In either `terraform/env_vars/variables-scenario.tfvars` or `terraform/env_vars/variables.tfavrs` define the both of the following:
 * `dynu_dns_domain`
-* `dynu_api_token`
+* `dynu_api_key`

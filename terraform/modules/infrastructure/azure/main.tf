@@ -287,7 +287,7 @@ module "runbook-kubectl-cli" {
 # module "dns-records" {
 #   count           = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.dynu_dns.enabled == true  ) ? 1 : 0
 #   source          = "../dynu/dns_records"
-#   dynu_api_token  = local.config.context.dynu_dns.api_token
+#   dynu_api_key  = local.config.context.dynu_dns.api_token
 #   dynu_dns_domain = local.config.context.dynu_dns.dns_domain
 #   records         = local.records
 # }

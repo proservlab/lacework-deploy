@@ -73,7 +73,7 @@
 | <a name="input_attacker_gcp_project"></a> [attacker\_gcp\_project](#input\_attacker\_gcp\_project) | attacker gcp project | `string` | `null` | no |
 | <a name="input_attacker_gcp_region"></a> [attacker\_gcp\_region](#input\_attacker\_gcp\_region) | attacker gcp region | `string` | `"us-central1"` | no |
 | <a name="input_deployment"></a> [deployment](#input\_deployment) | Unique deployment id | `string` | `"00000001"` | no |
-| <a name="input_dynu_api_token"></a> [dynu\_api\_token](#input\_dynu\_api\_token) | dns hostname provisioning api key | `string` | `""` | no |
+| <a name="input_dynu_api_key"></a> [dynu\_api\_token](#input\_dynu\_api\_token) | dns hostname provisioning api key | `string` | `""` | no |
 | <a name="input_dynu_dns_domain"></a> [dynu\_dns\_domain](#input\_dynu\_dns\_domain) | n/a | `string` | `""` | no |
 | <a name="input_jira_cloud_api_token"></a> [jira\_cloud\_api\_token](#input\_jira\_cloud\_api\_token) | jira api token | `string` | `""` | no |
 | <a name="input_jira_cloud_issue_type"></a> [jira\_cloud\_issue\_type](#input\_jira\_cloud\_issue\_type) | jira issue type | `string` | `""` | no |

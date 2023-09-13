@@ -385,6 +385,7 @@ module "ssm-execute-vuln-npm-app-attack" {
   target_ip = local.target_vuln_npm_app[0]
   target_port = local.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.payload
+  attack_delay = local.config.context.aws.ssm.attacker.execute.vuln_npm_app_attack.attack_delay
 }
 
 module "ssm-execute-docker-composite-guardduty" {
