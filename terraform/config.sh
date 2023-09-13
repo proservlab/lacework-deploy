@@ -893,7 +893,6 @@ if check_file_exists $CONFIG_FILE; then
     clear
     select_lacework_profile
     
-
     # provider preflight
     clear
     if [ "$PROVIDER" == "aws" ]; then
@@ -909,6 +908,8 @@ if check_file_exists $CONFIG_FILE; then
             config_dynu
             clear
         fi
+        echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
+        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
@@ -918,11 +919,17 @@ if check_file_exists $CONFIG_FILE; then
         if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
             config_protonvpn
             clear
+        else
+            infomsg "Skipping protonvpn configuration as it is not required..."
         fi
         if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
+        else
+            infomsg "Skipping dynu configuration as it is not required..."
         fi
+        echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
+        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
@@ -937,7 +944,15 @@ if check_file_exists $CONFIG_FILE; then
             config_dynu
             clear
         fi
+        echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
+        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
         output_azure_config
+    fi
+
+    # use variables.tfvars if it exists
+    if [ -f "env_vars/variables.tfvars" ]; then
+        echo -e "\n######################################## GLOBAL PRECEDENCE VARIABLES ########################################\n\n"
+        cat env_vars/variables.tfvars
     fi
     
     read -p "> do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
