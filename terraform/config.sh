@@ -834,11 +834,11 @@ select_scenario
 
 clear
 
-ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' scenarios/${SCENARIO}/attacker/infrastructure.json)
-TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' scenarios/${SCENARIO}/target/infrastructure.json)
+ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
 
 for s in "docker_composite_compromised_credentials_attack" "docker_composite_cloud_cryptomining_attack" "docker_composite_cloud_ransomware_attack" "docker_composite_defense_evasion_attack" "docker_composite_host_cryptomining_attack"; do 
-    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" scenarios/${SCENARIO}/shared/simulation.json)
+    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/${SCENARIOS_PATH}/${SCENARIO}/shared/simulation.json)
     if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
         break
     fi
@@ -909,7 +909,7 @@ if check_file_exists $CONFIG_FILE; then
             clear
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
@@ -929,7 +929,7 @@ if check_file_exists $CONFIG_FILE; then
             infomsg "Skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
@@ -945,7 +945,7 @@ if check_file_exists $CONFIG_FILE; then
             clear
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: scenarios/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
         output_azure_config
     fi
 
