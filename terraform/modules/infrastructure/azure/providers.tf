@@ -68,7 +68,7 @@ provider "restapi" {
   debug                = true
 
   headers = {
-    "API-Key" = try(var.config.context.dynu_dns.api_token, ""),
+    "API-Key" = try(var.config.context.dynu_dns.api_key, ""),
     "Content-Type" = "application/json"
   }
 
