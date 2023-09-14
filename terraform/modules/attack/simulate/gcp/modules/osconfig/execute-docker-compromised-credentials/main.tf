@@ -15,8 +15,8 @@ locals {
         log "Attempt to start new session skipped - aws-cli or terraform docker is running..."; 
     else
         MAXLOG=2
-    for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null; done
-    mv $LOGFILE "$LOGFILE.1" 2>/dev/null
+    for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
+    mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
         log "Starting new session no existing session detected..."
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
