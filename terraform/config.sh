@@ -954,7 +954,7 @@ if check_file_exists $CONFIG_FILE; then
         echo -e "\n######################################## GLOBAL PRECEDENCE VARIABLES ########################################\n\n"
         cat env_vars/variables.tfvars
     fi
-    
+    echo -e "\n"
     read -p "> do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
     case "$overwrite_config" in
         y|Y )
