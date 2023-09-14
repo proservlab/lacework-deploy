@@ -5,7 +5,9 @@ function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
 }
-truncate -s 0 $LOGFILE
+MAXLOG=2
+for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null; done
+mv $LOGFILE "$LOGFILE.1" 2>/dev/null
 check_apt() {
     pgrep -f "apt" || pgrep -f "dpkg"
 }
