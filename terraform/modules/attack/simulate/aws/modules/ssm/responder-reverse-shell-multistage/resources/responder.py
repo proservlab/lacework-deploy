@@ -169,6 +169,10 @@ class Module(BaseModule):
                 iam2rds = Path(f"{script_dir}/../resources/iam2rds.sh")
                 shutil.copy2(iam2rds, iam2rds_path)
 
+                # copy rdsexfil.sh local working directory
+                rdsexfil = Path(f"{script_dir}/../resources/rdsexfil.sh")
+                shutil.copy2(iam2rds, iam2rds_path)
+
                 # copy linpeas.txt into our working directory
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, iam2rds_path)
