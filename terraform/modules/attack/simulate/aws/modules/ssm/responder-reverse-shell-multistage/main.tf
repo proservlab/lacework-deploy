@@ -59,9 +59,6 @@ locals {
     echo ${local.responder} | base64 -d > plugins/responder.py
     echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
     echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
-    echo ${local.iam2rds_assumerole} | base64 -d > resources/iam2rds_assumerole.sh
-    echo ${local.rdsexfil} | base64 -d > resources/rdsexfil.sh
-    echo ${local.rdsrolesession} | base64 -d > resources/rdsrolesession.sh
     log "installing required python3.9..."
     apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -116,17 +113,6 @@ locals {
                                     deployment = var.deployment
                                 }
                             ))
-    
-    iam2rds_assumerole = base64encode(templatefile(
-                                "${path.module}/resources/iam2rds_assumerole.sh",
-                                {
-                                    region = var.region,
-                                    environment = var.environment,
-                                    deployment = var.deployment,
-                                    iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
-                                }
-                            ))
 
     iam2rds         = base64encode(templatefile(
                                 "${path.module}/resources/iam2rds.sh", 
@@ -134,27 +120,10 @@ locals {
                                     region = var.region,
                                     environment = var.environment,
                                     deployment = var.deployment,
-                                }
-                            ))
-
-    rdsrolesession      = base64encode(templatefile("${path.module}/resources/rdsrolesession.sh",
-                                {
-                                    region = var.region,
-                                    environment = var.environment,
-                                    deployment = var.deployment
                                     iam2rds_role_name = var.iam2rds_role_name
                                     iam2rds_session_name = var.iam2rds_session_name
                                 }
                             ))
-    
-    rdsexfil            = base64encode(templatefile("${path.module}/resources/rdsexfil.sh",
-                                {
-                                    region = var.region,
-                                    environment = var.environment,
-                                    deployment = var.deployment
-                                }
-                            ))
-    
 }
 
 ###########################

