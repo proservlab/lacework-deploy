@@ -105,7 +105,7 @@ DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
 
 log "Waiting for rds snapshot to complete..."
-aws rds wait db-snapshot-completed --db-snapshot-identifier $opts $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
+aws rds wait db-snapshot-completed $opts --db-snapshot-identifier $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
 log "RDS snapshot complete."
 
 log "Obtaining the KMS key id..."
@@ -176,15 +176,16 @@ mkdir /tmp/$EXPORT_TASK_IDENTIFIER
 aws s3 cp --profile=$PROFILE  \
     --region=$REGION \
     $opts   \
-    cp s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER \
+    s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER/ \
     /tmp/$EXPORT_TASK_IDENTIFIER \
     --recursive >> $LOGFILE 2>&1
 
 log "Cleaning up snapshot..."
+DB_SNAPSHOT_ID=$(echo "$DB_SNAPSHOT_ARN" | cut -d: -f7)
 aws rds delete-db-snapshot \
     --profile=$PROFILE  \
     --region=$REGION \
     $opts  \
-    --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER >> $LOGFILE 2>&1
+    --db-snapshot-identifier $DB_SNAPSHOT_ID >> $LOGFILE 2>&1
 
 log "Done"
