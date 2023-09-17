@@ -113,7 +113,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     else:
                         log(logger,session,f"successfully started torproxy docker.")
                         log(logger,session,f"running {script} via torproxy tunnelled container...")
-                        payload = base64.b64encode(f'docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$(docker inspect -f \'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' torproxy) -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                        payload = base64.b64encode(f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
                         result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(logger,session,f'Return Code: {result.returncode}')
                         log(logger,session,f'Output: {result.stdout}')

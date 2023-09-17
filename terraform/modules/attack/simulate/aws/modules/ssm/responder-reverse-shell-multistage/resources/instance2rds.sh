@@ -21,7 +21,6 @@ REGION=${region}
 ENVIRONMENT=target
 DEPLOYMENT=${deployment}
 PROFILE="instance"
-
 opts="--no-cli-pager"
 
 log "Downloading jq..."
