@@ -176,7 +176,7 @@ mkdir /tmp/$EXPORT_TASK_IDENTIFIER
 aws s3 cp --profile=$PROFILE  \
     --region=$REGION \
     $opts   \
-    cp s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER \
+    s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER/ \
     /tmp/$EXPORT_TASK_IDENTIFIER \
     --recursive >> $LOGFILE 2>&1
 
@@ -185,6 +185,6 @@ aws rds delete-db-snapshot \
     --profile=$PROFILE  \
     --region=$REGION \
     $opts  \
-    --db-snapshot-identifier $DB_SNAPSHOT_IDENTIFIER >> $LOGFILE 2>&1
+    --db-snapshot-identifier $EXPORT_TASK_IDENTIFIER >> $LOGFILE 2>&1
 
 log "Done"

@@ -81,7 +81,7 @@ locals {
       gcp_region  = var.attacker_gcp_region
 
       # dynu config
-      dynu_api_key  = var.dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
@@ -100,7 +100,7 @@ locals {
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # dynu config
-      dynu_api_key  = var.dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # lacework
