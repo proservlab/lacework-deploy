@@ -91,7 +91,9 @@ function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     # echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
 }
-# truncate -s 0 $LOGFILE
+# MAXLOG=2
+# for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
+# mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 # Function to check if a command is installed
 command_exists() {
@@ -954,7 +956,7 @@ if check_file_exists $CONFIG_FILE; then
         echo -e "\n######################################## GLOBAL PRECEDENCE VARIABLES ########################################\n\n"
         cat env_vars/variables.tfvars
     fi
-    
+    echo -e "\n"
     read -p "> do you want to overwrite $CONFIG_FILE with the configuration above? (y/n) " overwrite_config
     case "$overwrite_config" in
         y|Y )

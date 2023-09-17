@@ -17,7 +17,9 @@ locals {
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
         echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
     }
-    truncate -s 0 $LOGFILE
+    MAXLOG=2
+    for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
+    mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
     check_apt() {
         pgrep -f "apt" || pgrep -f "dpkg"
     }
@@ -57,7 +59,6 @@ locals {
     echo ${local.responder} | base64 -d > plugins/responder.py
     echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
     echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
-    echo ${local.iam2rds_assumerole} | base64 -d > resources/iam2rds_assumerole.sh
     log "installing required python3.9..."
     apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -123,18 +124,6 @@ locals {
                                     iam2rds_session_name = var.iam2rds_session_name
                                 }
                             ))
-    
-    iam2rds_assumerole = base64encode(templatefile(
-                                "${path.module}/resources/iam2rds_assumerole.sh",
-                                {
-                                    region = var.region,
-                                    environment = var.environment,
-                                    deployment = var.deployment,
-                                    iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
-                                }
-                            ))
-    
 }
 
 ###########################
