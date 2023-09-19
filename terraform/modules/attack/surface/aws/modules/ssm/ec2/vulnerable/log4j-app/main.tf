@@ -105,7 +105,7 @@ locals {
     if pgrep -f "spring-boot-application.jar"; then
         kill -9 $(pgrep -f "spring-boot-application.jar")
     fi
-    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.listen_port}
+    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.listen_port}
     screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
     log 'waiting 30 minutes...';
     sleep 1795

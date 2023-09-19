@@ -79,7 +79,7 @@ cp build/libs/*.jar /vuln-log4j-app/spring-boot-application.jar
 # python3 web.py 8001 &
 
 # java log4j vulnerable app (default is 8080)
-screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m java -jar /vuln-log4j-app/spring-boot-application.jar
+screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar /vuln-log4j-app/spring-boot-application.jar
 screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
 log 'waiting 30 minutes...';
 sleep 1795

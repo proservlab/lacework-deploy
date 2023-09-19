@@ -103,7 +103,7 @@ locals {
     cd ${local.app_dir}
 
     log "starting screen..."
-    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_npm_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar
+    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar
     screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
     log 'waiting 30 minutes...';
     sleep 1795
