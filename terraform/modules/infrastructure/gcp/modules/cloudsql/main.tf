@@ -59,10 +59,10 @@ locals {
   latest_ca_cert           = [for v in data.google_sql_ca_certs.ca_certs.certs : v.cert if v.expiration_time == local.furthest_expiration_time]
 }
 
-resource "time_sleep" "wait_5_seconds" {
+resource "time_sleep" "wait_60_seconds" {
   depends_on = [google_sql_database_instance.this]
 
-  create_duration = "5s"
+  create_duration = "60s"
 }
 
 resource "google_sql_user" "this" {
@@ -77,7 +77,7 @@ resource "google_sql_user" "iam_service_account" {
   type = "CLOUD_IAM_SERVICE_ACCOUNT"
 
   depends_on = [
-    time_sleep.wait_5_seconds
+    time_sleep.wait_60_seconds
   ]
 }
 
