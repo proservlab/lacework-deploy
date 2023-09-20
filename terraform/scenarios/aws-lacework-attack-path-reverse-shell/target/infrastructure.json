@@ -57,7 +57,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "appserver-target",
+            "name"                      : "appserver",
             "public"                    : true,
             "role"                      : "app",
             "instance_type"             : "t2.micro",
