@@ -57,7 +57,7 @@
             "enable_swap"      : true
           },
           {
-            "name"                      : "appserver",
+            "name"                      : "appserver-target",
             "public"                    : true,
             "role"                      : "app",
             "instance_type"             : "t2.micro",
@@ -119,7 +119,9 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
-    } 
+        "enabled"                        : true,
+        "api_key"                      : "${ dynu_api_key }",
+        "dns_domain"                     : "${ dynu_dns_domain }"
+    }
   }
 }
