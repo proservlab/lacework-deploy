@@ -369,7 +369,7 @@ module "ssm-execute-docker-log4shell-attack" {
   attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_http_port
   attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ldap_port
   attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attacker_ip, try(length(local.attacker_log4shell)>0, false) ? local.attacker_log4shell[0] : null)
-  target_ip = try(local.target_docker_log4shell[0], local.target_log4shell[0])
+  target_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_ip, try(local.target_docker_log4shell[0], local.target_log4shell[0]))
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
   reverse_shell = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.reverse_shell

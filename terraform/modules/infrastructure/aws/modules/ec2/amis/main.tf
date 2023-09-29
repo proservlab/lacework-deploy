@@ -56,10 +56,21 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+data "aws_ami" "amazon_linux_20221210" {
+  owners = ["amazon"]
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-2.0.20230628.0-x86_64-gp2"]
+  }
+}
+
 locals {
     ami_map = {
         ubuntu_focal = data.aws_ami.ubuntu_focal.id
         ubuntu_bionic = data.aws_ami.ubuntu_bionic.id
         amazon_linux = data.aws_ami.amazon_linux.id
+        amazon_linux_20221210 = data.aws_ami.amazon_linux_20221210.id
     }
 }

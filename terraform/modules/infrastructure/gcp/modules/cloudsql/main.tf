@@ -59,6 +59,12 @@ locals {
   latest_ca_cert           = [for v in data.google_sql_ca_certs.ca_certs.certs : v.cert if v.expiration_time == local.furthest_expiration_time]
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_sql_database_instance.this]
+
+  create_duration = "60s"
+}
+
 resource "google_sql_user" "this" {
   name     = var.root_db_username
   password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
@@ -69,6 +75,10 @@ resource "google_sql_user" "iam_service_account" {
   name     = trimsuffix(var.public_app_service_account_email, ".gserviceaccount.com")
   instance = google_sql_database_instance.this.name
   type = "CLOUD_IAM_SERVICE_ACCOUNT"
+
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
 }
 
 resource "google_project_iam_custom_role" "custom_sql_role" {

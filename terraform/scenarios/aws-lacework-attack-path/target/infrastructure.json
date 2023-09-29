@@ -33,7 +33,7 @@
               "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_docker"                : "true",
               "ssm_deploy_secret_ssh_private"    : "true",
-              "osconfig_exec_vuln_log4j_app_target" : "true"
+              "ssm_exec_vuln_log4j_app_target" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
