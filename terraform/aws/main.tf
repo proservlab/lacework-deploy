@@ -364,19 +364,53 @@ locals {
       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
   )
+
+  attacker_surface_temp_config = jsondecode(local.attacker-infrastructure-config-file)
+  attacker_surface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.attacker_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? true : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.attacker_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? true : false
+          }
+        }
+      }
+    }
+  }
+
+  target_surface_temp_config = jsondecode(local.target-infrastructure-config-file)
+  target_surface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.target_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? true : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.target_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? true : false
+          }
+        }
+      }
+    }
+  }
 }
 
 data "utils_deep_merge_json" "attacker-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.attacker-attacksurface-config-file
+    local.attacker-attacksurface-config-file,
+    jsonencode(local.attacker_surface_override)
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.target-attacksurface-config-file
+    local.target-attacksurface-config-file,
+    jsonencode(local.target_surface_override)
   ]
 }
 

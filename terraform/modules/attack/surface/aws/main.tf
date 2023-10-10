@@ -27,7 +27,7 @@ locals {
 
   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
-
+  
   default_public_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
   default_public_app_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
   target_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
