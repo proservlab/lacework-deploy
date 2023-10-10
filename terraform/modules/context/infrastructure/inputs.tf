@@ -290,6 +290,9 @@ variable "config" {
         })
         aws_agentless = object({
           enabled               = bool
+          use_existing_vpc      = bool
+          vpc_id                = string
+          vpc_cidr_block        = string
         })
         gcp_agentless = object({
           enabled               = bool
@@ -786,6 +789,9 @@ variable "config" {
         }
         aws_agentless = {
           enabled               = false
+          use_existing_vpc      = false
+          vpc_id                = null
+          vpc_cidr_block        = null
         }
         gcp_agentless = {
           enabled               = false
