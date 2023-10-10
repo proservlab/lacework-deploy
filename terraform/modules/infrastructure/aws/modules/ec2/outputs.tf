@@ -65,3 +65,21 @@ output "ec2_instance_role" {
 output "ec2_instance_app_role" {
     value = module.ssm_app_profile.ec2-instance-role
 }
+
+output "public_instance_cout" {
+    value = local.public_instance_count
+}
+
+output "public_app_instance_count" {
+    value = local.public_app_instance_count
+}
+
+output "private_instance_count" {
+    value = local.private_instance_count
+}
+
+output "private_app_instance_count" {
+    value = local.private_app_instance_count
+}
+
+

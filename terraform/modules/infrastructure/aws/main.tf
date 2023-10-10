@@ -135,11 +135,11 @@ module "lacework-agentless" {
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
 
-  # attempt to use the existing vpc if possible
+  # attempt to use the existing vpc if possible (try default first then app if no vpc_id is provided)
   use_existing_vpc = local.config.context.lacework.aws_agentless.use_existing_vpc
-  vpc_id = try(length(local.config.context.lacework.aws_agentless.vpc_id), "false") != "false" ? local.config.context.lacework.aws_agentless.vpc_id : try(module.ec2[0].public_vpc.id, null)
+  vpc_id = try(length(local.config.context.lacework.aws_agentless.vpc_id), "false") != "false" ? local.config.context.lacework.aws_agentless.vpc_id : try(module.ec2[0].public_vpc.id, module.ec2[0].public_app_vpc.id)
   # assume /16 for the public subnet and use x.x.100.0/24 as the network space for agentless
-  vpc_cidr_block = try(length(local.config.context.lacework.aws_agentless.vpc_cidr_block), "false") != "false" ? local.config.context.lacework.vpc_cidr_block.vpc_id : cidrsubnet(local.config.context.aws.ec2.public_network,8,100)
+  vpc_cidr_block = try(length(local.config.context.lacework.aws_agentless.vpc_cidr_block), "false") != "false" ? local.config.context.lacework.vpc_cidr_block.vpc_id : cidrsubnet(try(module.ec2[0].public_vpc.cidr_block, module.ec2[0].public_app_vpc.cidr_block),8,100)
 
   depends_on = [
     time_sleep.lacework_wait_90,
