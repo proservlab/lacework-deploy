@@ -122,6 +122,64 @@ locals {
       jira_cloud_issue_type  = var.jira_cloud_issue_type
     }
   )
+  attacker_infrastructure_temp_config = jsondecode(local.attacker-infrastructure-config-file)
+  target_infrastructure_temp_config   = jsondecode(local.target-infrastructure-config-file)
+
+  # prevent misconfiguration on agentless vpc discovery
+  attacker_infrastructure_override = {
+    context = {
+      lacework = {
+        aws_agentless = {
+          use_existing_vpc = length(flatten([
+            [
+              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
+            ],
+            [
+              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
+            ],
+            ])) > 0 ? (
+            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
+            try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            ) : (
+            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
+            try(length(local.attacker_infrastructure_temp_config["context"]["aws"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+              try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+              ) : (
+              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
+              false
+            )
+          )
+        }
+      }
+    }
+  }
+  target_infrastructure_override = {
+    context = {
+      lacework = {
+        aws_agentless = {
+          use_existing_vpc = length(flatten([
+            [
+              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
+            ],
+            [
+              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
+            ],
+            ])) > 0 ? (
+            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
+            try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            ) : (
+            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
+            try(length(local.target_infrastructure_temp_config["context"]["aws"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+              try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+              ) : (
+              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
+              false
+            )
+          )
+        }
+      }
+    }
+  }
 }
 
 data "utils_deep_merge_json" "attacker-infrastructure-config" {
@@ -365,32 +423,31 @@ locals {
     }
   )
 
-  attacker_surface_temp_config = jsondecode(local.attacker-infrastructure-config-file)
-  attacker_surface_override = {
+  attacker_attacksurface_temp_config = jsondecode(local.attacker-attacksurface-config-file)
+  target_attacksurface_temp_config   = jsondecode(local.target-attacksurface-config-file)
+  attacker_attacksurface_override = {
     context = {
       aws = {
         ec2 = {
           add_trusted_ingress = {
-            enabled = length([for x in local.attacker_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? true : false
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"] : false
           }
           add_app_trusted_ingress = {
-            enabled = length([for x in local.attacker_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? true : false
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"] : false
           }
         }
       }
     }
   }
-
-  target_surface_temp_config = jsondecode(local.target-infrastructure-config-file)
-  target_surface_override = {
+  target_attacksurface_override = {
     context = {
       aws = {
         ec2 = {
           add_trusted_ingress = {
-            enabled = length([for x in local.target_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? true : false
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"] : false
           }
           add_app_trusted_ingress = {
-            enabled = length([for x in local.target_surface_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? true : false
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"] : false
           }
         }
       }
@@ -402,7 +459,7 @@ data "utils_deep_merge_json" "attacker-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
     local.attacker-attacksurface-config-file,
-    jsonencode(local.attacker_surface_override)
+    jsonencode(local.attacker_attacksurface_override)
   ]
 }
 
@@ -410,7 +467,7 @@ data "utils_deep_merge_json" "target-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
     local.target-attacksurface-config-file,
-    jsonencode(local.target_surface_override)
+    jsonencode(local.target_attacksurface_override)
   ]
 }
 
@@ -591,7 +648,6 @@ module "target-aws-attacksurface" {
 ##################################################
 
 locals {
-
   attacker-attacksimulation-config-file = templatefile(
     "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
     {
@@ -643,19 +699,25 @@ locals {
       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
     }
   )
+  attacker_attacksimulation_temp_config = jsondecode(local.attacker-attacksimulation-config-file)
+  target_attacksimulation_temp_config   = jsondecode(local.target-attacksimulation-config-file)
+  attacker_attacksimulation_override    = {}
+  target_attacksimulation_override      = {}
 }
 
 data "utils_deep_merge_json" "attacker-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.attacker-attacksimulation-config-file
+    local.attacker-attacksimulation-config-file,
+    jsonencode(local.attacker_attacksimulation_override)
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.target-attacksimulation-config-file
+    local.target-attacksimulation-config-file,
+    jsonencode(local.target_attacksimulation_override)
   ]
 }
 
