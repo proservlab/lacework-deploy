@@ -139,11 +139,11 @@ locals {
             ],
             ])) > 0 ? (
             # if vpcs will be created we can accept either true or false for use_existing_vpc from config
-            try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
             ) : (
             # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
-            try(length(local.attacker_infrastructure_temp_config["context"]["aws"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
-              try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            try(length(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+              try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
               ) : (
               # no vpc will be created and no vpc_id passed use_existing_vpc should be false
               false
@@ -166,11 +166,11 @@ locals {
             ],
             ])) > 0 ? (
             # if vpcs will be created we can accept either true or false for use_existing_vpc from config
-            try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
             ) : (
             # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
-            try(length(local.target_infrastructure_temp_config["context"]["aws"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
-              try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], false)
+            try(length(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+                try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
               ) : (
               # no vpc will be created and no vpc_id passed use_existing_vpc should be false
               false
