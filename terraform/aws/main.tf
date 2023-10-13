@@ -185,14 +185,16 @@ locals {
 data "utils_deep_merge_json" "attacker-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.attacker-infrastructure-config-file
+    local.attacker-infrastructure-config-file,
+    local.attacker_infrastructure_override
   ]
 }
 
 data "utils_deep_merge_json" "target-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.target-infrastructure-config-file
+    local.target-infrastructure-config-file,
+    local.target_infrastructure_override
   ]
 }
 
