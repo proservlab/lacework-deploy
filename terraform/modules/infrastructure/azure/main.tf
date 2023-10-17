@@ -112,7 +112,23 @@ module "compute" {
 }
 
 ##################################################
-# RUBOOK
+# AZURE AKS
+##################################################
+
+module "aks" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true ) ? 1 : 0
+  source                              = "./modules/aks"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  cluster_name                        = local.config.context.gcp.gke.cluster_name
+  cluster_resource_group              = module.resource-group.resource_group 
+
+  authorized_ip_ranges                = [module.workstation-external-ip.cidr]
+}
+
+##################################################
+# RUNBOOK
 ##################################################
 
 module "runbook-deploy-lacework" {
@@ -310,4 +326,75 @@ module "lacework-audit-config" {
 #   source      = "./modules/agentless"
 #   environment = local.config.context.global.environment
 #   deployment   = local.config.context.global.deployment
+# }
+
+##################################################
+# AZURE AKS Lacework
+##################################################
+
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset"
+  cluster_name                          = "${local.config.context.azure.aks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = false
+  lacework_cluster_agent_cluster_region = local.config.context.azure.region
+
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+# lacework kubernetes admission controller
+module "lacework-admission-controller" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
+  source                = "./modules/kubernetes/admission-controller"
+  environment           = local.config.context.global.environment
+  deployment            = local.config.context.global.deployment
+  
+  lacework_account_name = local.config.context.lacework.account_name
+  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+# lacework aks audit
+# module "lacework-aks-audit" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.aks_audit_logs.enabled == true  ) ? 1 : 0
+#   source                              = "./modules/aks-audit"
+#   environment                         = local.config.context.global.environment
+#   deployment                          = local.config.context.global.deployment
+
+#   gcp_project_id                      = local.config.context.aks.project_id
+#   gcp_location                        = local.config.context.aks.region
+
+#   providers = {
+#     kubernetes = kubernetes.main
+#     helm = helm.main
+#   }
+
+#   depends_on = [
+#     module.aks
+#   ]
 # }

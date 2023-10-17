@@ -188,3 +188,104 @@ module "vulnerable-python3-twisted-app" {
   
   listen_port = local.config.context.azure.runbook.vulnerable.python3_twisted_app.listen_port
 }
+
+##################################################
+# Kubernetes General
+##################################################
+
+# example of pushing kubernetes deployment via terraform
+module "kubernetes-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.app.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/gcp/app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+# example of applying pod security policy
+module "kubenetes-psp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.psp.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/gcp/psp"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+##################################################
+# Kubernetes AZURE Vulnerable
+##################################################
+
+# module "vulnerable-kubernetes-voteapp" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
+#   source      = "../kubernetes/gcp/vulnerable/voteapp"
+#   environment                   = local.config.context.global.environment
+#   deployment                    = local.config.context.global.deployment
+#   region                        = local.config.context.aws.region
+#   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+#   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+
+#   vote_service_port             = local.config.context.kubernetes.vulnerable.voteapp.vote_service_port
+#   result_service_port           = local.config.context.kubernetes.vulnerable.voteapp.result_service_port
+#   trusted_attacker_source       = local.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+#     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+#     local.attacker_eks_public_ip
+#   ])  : []
+#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
+#   additional_trusted_sources    = local.config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
+
+    # providers = {
+    #   kubernetes = kubernetes.main
+    #   helm = helm.main
+    # }
+# }
+
+module "vulnerable-kubernetes-log4shellapp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
+  source                        = "../kubernetes/azure/vulnerable/log4shellapp"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+
+  service_port                  = local.config.context.kubernetes.azure.vulnerable.log4shellapp.service_port
+  trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips, []): "${ip.ip_address}/32" ]
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.azure.compute.add_trusted_ingress.additional_trusted_sources
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+module "vulnerable-kubernetes-privileged-pod" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/azure/vulnerable/privileged-pod"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+module "vulnerable-kubernetes-root-mount-fs-pod" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/azure/vulnerable/root-mount-fs-pod"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}

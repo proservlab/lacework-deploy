@@ -322,6 +322,47 @@ variable "config" {
             })
           })
         })
+        azure = object({
+          app = object({
+            enabled                       = bool
+          })
+          psp = object({
+            enabled                       = bool
+          })
+          vulnerable = object({
+            log4shellapp = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+            })
+            voteapp = object({
+              enabled                     = bool
+              vote_service_port           = number
+              result_service_port         = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+            })
+            privileged_pod = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+            })
+            root_mount_fs_pod = object({
+              enabled                     = bool
+            })
+          })
+        })
       })
     })
   })
@@ -625,6 +666,47 @@ variable "config" {
               trust_attacker_source       = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
+            }
+            privileged_pod = {
+              enabled                     = false
+              service_port                = 8003
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+            }
+            root_mount_fs_pod = {
+              enabled = false
+            }
+          }
+        }
+        azure = {
+          app = {
+            enabled                       = false
+          }
+          psp = {
+            enabled                       = false
+          }
+          vulnerable = {
+            log4shellapp = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+            }
+            voteapp = {
+              enabled                     = false
+              vote_service_port           = 8001
+              result_service_port         = 8002
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources = []
             }
             privileged_pod = {
               enabled                     = false

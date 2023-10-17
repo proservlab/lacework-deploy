@@ -10,8 +10,7 @@ output "config" {
             }
             azure = {
                 compute                       = module.compute
-                # aks                           = module.aks
-                aks                           = null
+                aks                           = module.aks
                 automation_account            = module.automation-account
             }
         }
