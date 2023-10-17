@@ -11,8 +11,6 @@ import subprocess
 import shutil
 import tarfile
 import base64
-import logging
-# from logging.handlers import RotatingFileHandler
 
 class Module(BaseModule):
     """ 
@@ -154,18 +152,6 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
 
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
-            logging.basicConfig(
-                    handlers=[
-                        RotatingFileHandler(
-                            f'/tmp/responder-{hostname}.log',
-                            mode='a',
-                            backupCount=5
-                        )
-                    ],
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-            logger = logging.getLogger('responder')
             
             script_dir = os.path.dirname(os.path.realpath(__file__))
             log(f"script dir: {script_dir}")
