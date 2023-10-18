@@ -30,7 +30,7 @@ resource "aws_eks_addon" "addons" {
   cluster_name      = aws_eks_cluster.cluster.id
   addon_name        = each.value.name
   addon_version     = each.value.version
-  resolve_conflicts = "OVERWRITE"
+  resolve_conflicts_on_create = "OVERWRITE"
 
   configuration_values = each.value.name == "vpc-cni" ? jsonencode({ 
      env = { 

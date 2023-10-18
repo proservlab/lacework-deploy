@@ -16,7 +16,7 @@ module "az_config" {
 
 module "activity-log" {
   source  = "lacework/activity-log/azure"
-  version = "~> 2.0.4"
+  version = "~> 2.0"
 
   use_existing_ad_application = true
   all_subscriptions           = true

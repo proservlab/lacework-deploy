@@ -8,16 +8,17 @@ terraform {
       source  = "lacework/lacework"
       version = "~> 1.6"
     }
+    google = {
+      source = "hashicorp/google"
+      version = "~> 4.84"
+    }
     helm = {
       source  = "hashicorp/helm"
       version = "~> 2.9.0"
     }
-
     tls = {
       source = "hashicorp/tls"
       version = "4.0.4"
     }
-
-    
   }
 }

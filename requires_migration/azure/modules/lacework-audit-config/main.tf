@@ -1,6 +1,6 @@
 module "az_ad_application" {
   source  = "lacework/ad-application/azure"
-  version = "~> 1.2"
+  version = "~> 1.3"
 }
 
 # module "az_config" {
