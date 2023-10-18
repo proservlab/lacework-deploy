@@ -27,8 +27,7 @@ resource "aws_ecr_repository" "repo" {
 resource "aws_ecr_lifecycle_policy" "repo-policy" {
   repository = aws_ecr_repository.repo.name
 
-  policy = <<EOF
-{
+  policy = jsonencode({
   "rules": [
     {
       "rulePriority": 1,
@@ -56,8 +55,8 @@ resource "aws_ecr_lifecycle_policy" "repo-policy" {
       }
     }
   ]
-}
-EOF
+})
+
 }
 
 data "aws_ecr_authorization_token" "token" {

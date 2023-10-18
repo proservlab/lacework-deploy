@@ -11,7 +11,7 @@ resource "aws_iam_instance_profile" "ec2-iam-profile" {
 resource "aws_iam_role" "ec2-iam-role" {
   name        = "ec2_profile_${var.role}_${var.environment}_${var.deployment}"
   description = "The role for EC2 resources"
-  assume_role_policy = <<EOF
+  assume_role_policy = jsonencode(
   {
     "Version": "2012-10-17",
     "Statement": {
@@ -21,8 +21,8 @@ resource "aws_iam_role" "ec2-iam-role" {
       },
       "Action": "sts:AssumeRole"
     }
-  }
-  EOF
+  })
+  
   tags = {
     environment = var.environment
     deployment = var.deployment
