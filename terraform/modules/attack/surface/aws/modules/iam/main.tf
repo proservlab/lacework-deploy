@@ -22,7 +22,7 @@ resource "aws_iam_policy" "policy" {
 
 # policy   = jsonencode(var.user_policies[each.value.policy])
 data "aws_iam_policy" "policy" {
-  for_each = { for i in var.users : i.name => i }
+  for_each = { for i in var.users : i.name => i if contains(keys(i), "policy") && i.policy != null && i.policy != "" }
   name = each.value.policy
 
   depends_on = [

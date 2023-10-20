@@ -53,7 +53,7 @@ resource "aws_internet_gateway" "private" {
 }
 
 resource "aws_eip" "nat_gateway" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name = "eks-private-nat-eip-${var.cluster_name}-${var.environment}-${var.deployment}"
   }

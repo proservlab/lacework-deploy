@@ -1,5 +1,7 @@
 locals {
-  kubeconfig_path = pathexpand("~/.kube/azure-${var.environment}-${var.deployment}-kubeconfig")
+  kubeconfig_path = fileexists(var.kubeconfig_path) ? var.kubeconfig_path : (
+    fileexists(pathexpand("~/.kube/azure-${var.environment}-${var.deployment}-kubeconfig")) ? pathexpand("~/.kube/azure-${var.environment}-${var.deployment}-kubeconfig") : pathexpand("~/.kube/config") 
+  ) 
 }
 
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
@@ -20,6 +22,15 @@ resource "null_resource" "aks_context_switcher" {
   }
 }
 
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [null_resource.aks_context_switcher]
+
+  create_duration = "60s"
+}
+
 data "local_file" "kubeconfig" {
-  filename = local.kubeconfig_path
+  filename = pathexpand(local.kubeconfig_path)
+
+  depends_on = [ time_sleep.wait_60_seconds ]
 }

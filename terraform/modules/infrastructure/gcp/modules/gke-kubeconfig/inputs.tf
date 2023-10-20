@@ -19,3 +19,8 @@ variable "gcp_project_id" {
 variable "gcp_location" {
   type = string
 }
+
+variable "kubeconfig_path" {
+  type = string
+  description = "kubeconfig path"
+}

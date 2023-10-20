@@ -14,5 +14,5 @@ module "aws-eks-kubeconfig" {
   aws_profile_name = var.aws_profile_name
   region = var.region
   cluster_name = aws_eks_cluster.cluster.id
-  kubeconfig_path = var.kubeconfig_path
+  kubeconfig_path = local.kubeconfig_path
 }

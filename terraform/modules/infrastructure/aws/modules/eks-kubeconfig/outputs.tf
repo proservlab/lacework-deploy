@@ -1,3 +1,3 @@
 output "kubeconfig_path" {
-    value = data.local_file.kubeconfig.filename
+    value = local.kubeconfig_path
 }

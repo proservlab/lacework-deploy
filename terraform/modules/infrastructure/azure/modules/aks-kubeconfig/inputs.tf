@@ -15,3 +15,8 @@ variable "cluster_name" {
 variable "cluster_resource_group" {
   type    = string
 }
+
+variable "kubeconfig_path" {
+  type = string
+  description = "kubeconfig path"
+}

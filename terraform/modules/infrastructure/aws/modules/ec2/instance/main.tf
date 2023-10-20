@@ -122,6 +122,6 @@ resource "aws_volume_attachment" "instance" {
 
 resource "aws_eip" "instance" {
   count = var.enable_public_ip == true ? 1 : 0
-  vpc      = true
+  domain = "vpc"
   instance = aws_instance.instance.id
 }

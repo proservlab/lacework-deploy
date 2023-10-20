@@ -1,4 +1,5 @@
 locals {
+    kubeconfig_path = pathexpand("~/.kube/azure-${var.environment}-${var.deployment}-kubeconfig")
     cluster_name = "${var.cluster_name}-${var.environment}-${var.deployment}"
     cluster_resource_group = "${var.cluster_name}-${var.environment}-${var.deployment}-rg"
 }
@@ -44,8 +45,11 @@ module "azure-aks-kubeconfig" {
   deployment = var.deployment
   cluster_name = azurerm_kubernetes_cluster.this.name
   cluster_resource_group = azurerm_resource_group.this.name
+  kubeconfig_path = local.kubeconfig_path
 
   depends_on = [
     azurerm_kubernetes_cluster.this
   ]
+
+  
 }

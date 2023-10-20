@@ -64,3 +64,8 @@ variable "database_port" {
     description = "port for rds database service"
     default = 3306
 }
+
+variable "instance_name" {
+    type = string
+    default = "ec2rds"
+}

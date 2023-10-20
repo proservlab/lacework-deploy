@@ -35,12 +35,6 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  kubernetes {
-    config_path = local.default_kubeconfig_path
-  }
-}
-
-provider "helm" {
   alias = "main"
   kubernetes {
     config_path = local.default_kubeconfig_path

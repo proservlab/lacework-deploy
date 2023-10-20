@@ -26,7 +26,10 @@ resource "aws_internet_gateway" "private" {
 }
 
 resource "aws_eip" "nat_gateway" {
-  vpc = true
+  domain = "vpc"
+  tags = {
+    Name = "ec2-private-nat-eip-${var.environment}-${var.deployment}"
+  }
 }
 
 resource "aws_nat_gateway" "private" {
