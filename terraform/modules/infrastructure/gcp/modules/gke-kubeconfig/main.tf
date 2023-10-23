@@ -26,11 +26,6 @@ resource "null_resource" "gke_context_switcher" {
     always = timestamp()
   }
 
-  depends_on = [
-      data.google_container_cluster.provider,
-      local_file.kubeconfig
-    ]
-
   # update kubeconfg specific config
   provisioner "local-exec" {
     command = <<-EOT
