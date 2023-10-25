@@ -455,6 +455,11 @@ locals {
       }
     }
   }
+
+  infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
+  # infrastructure_target_kubeconfig_path   = can(fileexists(pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
+  infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
+  #infrastructure_attacker_kubeconfig_path = can(fileexists(pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
 }
 
 data "utils_deep_merge_json" "attacker-attacksurface-config" {
@@ -540,7 +545,7 @@ module "attacker-aws-attacksurface" {
     }
   }
 
-  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
 
@@ -550,9 +555,9 @@ module "attacker-aws-attacksurface" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
@@ -609,9 +614,9 @@ module "target-aws-attacksurface" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
@@ -625,7 +630,7 @@ module "target-aws-attacksurface" {
   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context
@@ -807,7 +812,7 @@ module "attacker-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.attacker_aws_profile
@@ -816,9 +821,9 @@ module "attacker-aws-attacksimulation" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
@@ -880,7 +885,7 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.target_aws_profile
@@ -889,9 +894,9 @@ module "target-aws-attacksimulation" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url

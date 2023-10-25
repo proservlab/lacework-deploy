@@ -47,6 +47,10 @@ locals {
   cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url, null)
 
+  default_kubeconfig = try(local.default_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
+  target_kubeconfig = try(local.target_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
+  attacker_kubeconfig = try(local.attacker_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
+
   db_host = try(local.default_infrastructure_deployed.aws.rds[0].db_host, null)
   db_name = try(local.default_infrastructure_deployed.aws.rds[0].db_name, null)
   db_user = try(local.default_infrastructure_deployed.aws.rds[0].db_user, null)

@@ -15,4 +15,9 @@ module "aws-eks-kubeconfig" {
   region = var.region
   cluster_name = aws_eks_cluster.cluster.id
   kubeconfig_path = local.kubeconfig_path
+
+  depends_on = [ 
+    aws_eks_cluster.cluster,
+    aws_eks_node_group.cluster
+  ]
 }

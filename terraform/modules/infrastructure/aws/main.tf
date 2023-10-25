@@ -30,6 +30,10 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
+  default_kubeconfig = try(module.eks[0].kubeconfg, local.default_infrastructure_config.context.global.environment == "target" ? var.target_kubeconfig : var.attacker_kubeconfig )
+  attacker_kubeconfig = local.default_infrastructure_config.context.global.environment == "attacker" ? try(module.eks[0].kubeconfg, var.attacker_kubeconfig) : var.attacker_kubeconfig
+  target_kubeconfig = local.default_infrastructure_config.context.global.environment == "target" ? try(module.eks[0].kubeconfg, var.target_kubeconfig) : var.target_kubeconfig
+
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
 }

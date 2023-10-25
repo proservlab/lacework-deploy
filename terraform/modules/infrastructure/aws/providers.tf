@@ -4,39 +4,37 @@ locals {
   secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
   profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
   region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
-
-  default_kubeconfig_path = try(module.eks[0].kubeconfig_path, pathexpand("~/.kube/config"))
 }
 
 provider "kubernetes" {
   alias = "main"
-  config_path = local.default_kubeconfig_path
+  config_path = local.default_kubeconfig
 }
 provider "kubernetes" {
   alias = "attacker"
-  config_path = var.attacker_kubeconfig
+  config_path = local.attacker_kubeconfig
 }
 provider "kubernetes" {
   alias = "target"
-  config_path = var.target_kubeconfig
+  config_path = local.target_kubeconfig
 }
 
 provider "helm" {
   alias = "main"
   kubernetes {
-    config_path = local.default_kubeconfig_path
+    config_path = local.default_kubeconfig
   }
 }
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = var.attacker_kubeconfig
+    config_path = local.attacker_kubeconfig
   }
 }
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = var.target_kubeconfig
+    config_path = local.target_kubeconfig
   }
 }
 
