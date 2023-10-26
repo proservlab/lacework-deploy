@@ -373,6 +373,7 @@ module "ssm-execute-docker-log4shell-attack" {
   target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.target_port
   payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.payload
   reverse_shell = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.reverse_shell
+  reverse_shell_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.reverse_shell_port
   attack_delay = local.config.context.aws.ssm.attacker.execute.docker_log4shell_attack.attack_delay
 }
 

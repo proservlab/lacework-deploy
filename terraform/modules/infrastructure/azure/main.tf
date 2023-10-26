@@ -66,6 +66,14 @@ module "resource-group" {
   region       = local.config.context.azure.region
 }
 
+module "resource-group-app" {
+  source = "./modules/resource-group"
+  name = "resource-group-app"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.azure.region
+}
+
 ##################################################
 # AZURE COMPUTE
 ##################################################
@@ -105,10 +113,67 @@ module "compute" {
   private_app_nat_subnet = local.config.context.azure.compute.private_app_nat_subnet
 
   resource_group = module.resource-group.resource_group
+  resource_app_group = module.resource-group-app.resource_group
 
   depends_on = [
-    module.resource-group
+    module.resource-group,
+    module.resource-group-app
   ]
+}
+
+##################################################
+# AZURE SQL
+##################################################
+
+module "azuresql" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.azuresql.enabled == true ) ? 1 : 0
+  source                              = "./modules/azuresql"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  server_name                         = local.config.context.azure.azuresql.server_name
+  db_name                             = local.config.context.azure.azuresql.db_name
+  db_resource_group_name              = module.resource-group-app.resource_group.name
+  db_virtual_network_name             = module.compute[0].public_app_virtual_network.name
+  db_virtual_network_id               = module.compute[0].public_app_virtual_network.id
+  db_subnet_network                   = [cidrsubnet(local.config.context.azure.compute.public_app_network,8,200)]
+
+  instance_type                       = local.config.context.azure.azuresql.instance_type
+  sku_name                            = local.config.context.azure.azuresql.sku_name
+  public_network_access_enabled       = local.config.context.azure.azuresql.public_network_access_enabled
+
+  # authorized_ip_ranges                = [module.workstation-external-ip.cidr]
+
+  depends_on = [ module.compute ]
+}
+
+##################################################
+# AZURE SQL
+##################################################
+
+module "azurestorage" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.azurestorage.enabled == true ) ? 1 : 0
+  source                              = "./modules/azurestorage"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  storage_resource_group_name         = module.resource-group-app.resource_group.name
+  storage_virtual_network_name        = module.compute[0].public_app_virtual_network.name
+  storage_virtual_network_id          = module.compute[0].public_app_virtual_network.id
+  storage_subnet_network              = [cidrsubnet(local.config.context.azure.compute.public_app_network,8,201)]
+
+  account_replication_type            = local.config.context.azure.azurestorage.account_replication_type
+  account_tier                        = local.config.context.azure.azurestorage.account_tier
+  public_network_access_enabled       = local.config.context.azure.azurestorage.public_network_access_enabled
+  
+  # add the local workstation and all public addresses for compute instances
+  trusted_networks                    = flatten([
+    [ replace(module.workstation-external-ip.cidr,"/32","") ],
+    [ for instance in try(module.compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "app" && instance.public == "true"],
+    [ for instance in try(module.compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "default" && instance.public == "true"]
+  ])
+
+  depends_on = [ module.compute ]
 }
 
 ##################################################

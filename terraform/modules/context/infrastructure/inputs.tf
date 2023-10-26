@@ -47,6 +47,20 @@ variable "config" {
           enabled               = bool
           cluster_name          = string
         })
+        azuresql = object({
+          enabled               = bool
+          instance_type         = string
+          sku_name              = string
+          server_name           = string
+          db_name               = string
+          public_network_access_enabled = bool
+        })
+        azurestorage = object({
+          enabled               = bool
+          account_tier          = string
+          account_replication_type = string
+          public_network_access_enabled = bool
+        })
         runbook = object({
           enabled               = bool
           deploy_git            = bool
@@ -424,6 +438,20 @@ variable "config" {
         aks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+        }
+        azurestorage = {
+          enabled               = false
+          account_tier         = "Standard"
+          account_replication_type = "GRS"
+          public_network_access_enabled = false
+        }
+        azuresql = {
+          enabled               = false
+          instance_type         = "postgres"
+          sku_name              = "GP_Gen5_2"
+          server_name           = "azuresql"
+          db_name               = "db"
+          public_network_access_enabled = false
         }
         runbook = {
           enabled               = false

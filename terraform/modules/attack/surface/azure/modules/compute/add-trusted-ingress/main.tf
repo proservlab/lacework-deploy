@@ -1,4 +1,4 @@
-resource "azurerm_network_security_rule" "attacker_ingress_rules" {
+resource "azurerm_network_security_rule" "ingress_rules" {
   name                        = "sg-ingress-${var.environment}-${var.deployment}"
   priority                    = 100
   direction                   = "Inbound"
