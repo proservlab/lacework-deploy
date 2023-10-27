@@ -113,8 +113,8 @@ module "iam" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  user_policies     = jsondecode(file(local.config.context.gcp.iam.user_policies_path))
-  users             = jsondecode(file(local.config.context.gcp.iam.users_path))
+  user_policies     = jsondecode(templatefile(local.config.context.gcp.iam.user_policies_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
+  users             = jsondecode(templatefile(local.config.context.gcp.iam.users_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
 }
 
 ##################################################

@@ -99,7 +99,7 @@ locals {
                                 {
                                     default_payload = var.payload,
                                     iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
+                                    iam2rds_session_name = "${var.iam2rds_session_name}-${var.deployment}"
                                 }
                             ))
     instance2rds    = base64encode(templatefile(
@@ -118,7 +118,7 @@ locals {
                                     environment = var.environment,
                                     deployment = var.deployment,
                                     iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
+                                    iam2rds_session_name = "${var.iam2rds_session_name}-${var.deployment}"
                                 }
                             ))
 }

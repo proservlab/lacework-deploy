@@ -122,8 +122,8 @@ module "iam" {
   deployment        = local.config.context.global.deployment
   region            = local.default_infrastructure_config.context.aws.region
 
-  user_policies     = jsondecode(file(local.config.context.aws.iam.user_policies_path))
-  users             = jsondecode(file(local.config.context.aws.iam.users_path))
+  user_policies     = jsondecode(templatefile(local.config.context.aws.iam.user_policies_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
+  users             = jsondecode(templatefile(local.config.context.aws.iam.users_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
 }
 
 ##################################################
