@@ -56,7 +56,7 @@ PROFILE="instance"
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
 aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-aws configure set region $REGION --profile=$PROFILE
+aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
 aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("creating an instance creds profile...")
                 result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'")
