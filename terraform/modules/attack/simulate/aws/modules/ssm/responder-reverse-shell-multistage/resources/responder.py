@@ -110,6 +110,16 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                         log(f'The bash script encountered an error.')
                     else:
                         log(f"successfully started torproxy docker.")
+                        log(f"stopping and removing and {script} tunnelled container proxychains-{jobname}-aws...")
+                        payload = base64.b64encode(f'docker rm --force proxychains-{jobname}-aws'.encode('utf-8'))
+                        result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                        log(f'Return Code: {result.returncode}')
+                        log(f'Output: {result.stdout}')
+                        log(f'Error Output: {result.stderr}')
+                        
+                        if result.returncode != 0:
+                            log(f'The bash script encountered an error.')
+                        
                         log(f"running {script} via torproxy tunnelled container...")
                         payload = base64.b64encode(f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
                         result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
