@@ -295,161 +295,161 @@ module "attacker-lacework-platform-infrastructure" {
   ]
 }
 
-module "attacker-lacework-gcp-infrastructure" {
-  source = "../modules/infrastructure/lacework/gcp"
-  config = module.attacker-infrastructure-context.config
+# module "attacker-lacework-gcp-infrastructure" {
+#   source = "../modules/infrastructure/lacework/gcp"
+#   config = module.attacker-infrastructure-context.config
 
-  # infrasturcture config and deployed state
-  infrastructure = {
+#   # infrasturcture config and deployed state
+#   infrastructure = {
 
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-gcp-infrastructure.config, {})
-      attacker = try(module.attacker-gcp-infrastructure.config, {})
-    }
-  }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-gcp-infrastructure.config, {})
+#       attacker = try(module.attacker-gcp-infrastructure.config, {})
+#     }
+#   }
 
-  default_gcp_project                 = var.target_gcp_project
-  default_gcp_region                  = var.target_gcp_region
-  attacker_gcp_project                = var.attacker_gcp_project
-  attacker_gcp_region                 = var.attacker_gcp_region
-  target_gcp_project                  = var.target_gcp_project
-  target_gcp_region                   = var.target_gcp_region
-  default_kubeconfig                  = local.target_kubeconfig_path
-  attacker_kubeconfig                 = local.attacker_kubeconfig_path
-  target_kubeconfig                   = local.target_kubeconfig_path
-  default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-  default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
-  default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
-  default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
-  default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
-  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+#   default_gcp_project                 = var.target_gcp_project
+#   default_gcp_region                  = var.target_gcp_region
+#   attacker_gcp_project                = var.attacker_gcp_project
+#   attacker_gcp_region                 = var.attacker_gcp_region
+#   target_gcp_project                  = var.target_gcp_project
+#   target_gcp_region                   = var.target_gcp_region
+#   default_kubeconfig                  = local.target_kubeconfig_path
+#   attacker_kubeconfig                 = local.attacker_kubeconfig_path
+#   target_kubeconfig                   = local.target_kubeconfig_path
+#   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
+#   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
+#   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
+#   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
+#   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
+#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
+#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
+#   parent = [
+#     # infrastructure context
+#     module.attacker-infrastructure-context.id,
+#     module.target-infrastructure-context.id,
 
-    # infrastructure
-    module.attacker-gcp-infrastructure.id,
-    module.target-gcp-infrastructure.id,
+#     # infrastructure
+#     module.attacker-gcp-infrastructure.id,
+#     module.target-gcp-infrastructure.id,
 
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
+#     # config destory delay
+#     time_sleep.wait_120_seconds.id
+#   ]
+# }
 
-module "target-lacework-platform-infrastructure" {
-  source = "../modules/infrastructure/lacework/platform"
-  config = module.target-infrastructure-context.config
+# module "target-lacework-platform-infrastructure" {
+#   source = "../modules/infrastructure/lacework/platform"
+#   config = module.target-infrastructure-context.config
 
-  # infrasturcture config and deployed state
-  infrastructure = {
+#   # infrasturcture config and deployed state
+#   infrastructure = {
 
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-gcp-infrastructure.config, {})
-      attacker = try(module.attacker-gcp-infrastructure.config, {})
-    }
-  }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-gcp-infrastructure.config, {})
+#       attacker = try(module.attacker-gcp-infrastructure.config, {})
+#     }
+#   }
 
-  default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-  default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
-  default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
-  default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
-  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+#   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
+#   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
+#   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+#   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
+#   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_proxy_token
+#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
+#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
+#   parent = [
+#     # infrastructure context
+#     module.attacker-infrastructure-context.id,
+#     module.target-infrastructure-context.id,
 
-    # infrastructure
-    module.attacker-gcp-infrastructure.id,
-    module.target-gcp-infrastructure.id,
+#     # infrastructure
+#     module.attacker-gcp-infrastructure.id,
+#     module.target-gcp-infrastructure.id,
 
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
+#     # config destory delay
+#     time_sleep.wait_120_seconds.id
+#   ]
+# }
 
-module "target-lacework-gcp-infrastructure" {
-  source = "../modules/infrastructure/lacework/gcp"
-  config = module.target-infrastructure-context.config
+# module "target-lacework-gcp-infrastructure" {
+#   source = "../modules/infrastructure/lacework/gcp"
+#   config = module.target-infrastructure-context.config
 
-  # infrasturcture config and deployed state
-  infrastructure = {
+#   # infrasturcture config and deployed state
+#   infrastructure = {
 
-    # initial configuration reference
-    config = {
-      attacker = module.attacker-infrastructure-context.config
-      target   = module.target-infrastructure-context.config
-    }
+#     # initial configuration reference
+#     config = {
+#       attacker = module.attacker-infrastructure-context.config
+#       target   = module.target-infrastructure-context.config
+#     }
 
-    # deployed state configuration reference
-    deployed_state = {
-      target   = try(module.target-gcp-infrastructure.config, {})
-      attacker = try(module.attacker-gcp-infrastructure.config, {})
-    }
-  }
+#     # deployed state configuration reference
+#     deployed_state = {
+#       target   = try(module.target-gcp-infrastructure.config, {})
+#       attacker = try(module.attacker-gcp-infrastructure.config, {})
+#     }
+#   }
 
-  default_gcp_project                 = var.target_gcp_project
-  default_gcp_region                  = var.target_gcp_region
-  attacker_gcp_project                = var.attacker_gcp_project
-  attacker_gcp_region                 = var.attacker_gcp_region
-  target_gcp_project                  = var.target_gcp_project
-  target_gcp_region                   = var.target_gcp_region
-  default_kubeconfig                  = local.target_kubeconfig_path
-  attacker_kubeconfig                 = local.attacker_kubeconfig_path
-  target_kubeconfig                   = local.target_kubeconfig_path
-  default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-  default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-  default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
-  default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
-  default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_proxy_token
-  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
-  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+#   default_gcp_project                 = var.target_gcp_project
+#   default_gcp_region                  = var.target_gcp_region
+#   attacker_gcp_project                = var.attacker_gcp_project
+#   attacker_gcp_region                 = var.attacker_gcp_region
+#   target_gcp_project                  = var.target_gcp_project
+#   target_gcp_region                   = var.target_gcp_region
+#   default_kubeconfig                  = local.target_kubeconfig_path
+#   attacker_kubeconfig                 = local.attacker_kubeconfig_path
+#   target_kubeconfig                   = local.target_kubeconfig_path
+#   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
+#   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
+#   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+#   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
+#   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_proxy_token
+#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
+#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
+#   parent = [
+#     # infrastructure context
+#     module.attacker-infrastructure-context.id,
+#     module.target-infrastructure-context.id,
 
-    # infrastructure
-    module.attacker-gcp-infrastructure.id,
-    module.target-gcp-infrastructure.id,
+#     # infrastructure
+#     module.attacker-gcp-infrastructure.id,
+#     module.target-gcp-infrastructure.id,
 
-    # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
-}
+#     # config destory delay
+#     time_sleep.wait_120_seconds.id
+#   ]
+# }
 
 ##################################################
 # ATTACK SURFACE CONFIG

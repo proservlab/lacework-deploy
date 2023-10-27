@@ -18,4 +18,8 @@ resource "null_resource" "eks_context_switcher" {
 
 data "local_file" "kubeconfig" {
   filename = var.kubeconfig_path
+
+  depends_on = [ 
+    null_resource.eks_context_switcher 
+  ]
 }

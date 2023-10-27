@@ -84,7 +84,8 @@
         }
       },
       "aws_agentless": {
-        "enabled" : false
+        "enabled" : true,
+        "use_existing_vpc" : true
       },
       "gcp_agentless": {
         "enabled" : false

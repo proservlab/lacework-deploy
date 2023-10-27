@@ -8,14 +8,14 @@ resource "random_string" "this" {
 
 module "aws_config" {
   source  = "lacework/config/aws"
-  version = "~> 0.11.0"
+  version = "~> 0.13"
   
   tags = var.tags
 }
 
 module "aws_cloudtrail" {
   source  = "lacework/cloudtrail/aws"
-  version = "~> 2.7.4"
+  version = "~> 2.8.0"
 
   cloudtrail_name = var.cloudtrail_name
   use_existing_iam_role       = var.use_existing_iam_role

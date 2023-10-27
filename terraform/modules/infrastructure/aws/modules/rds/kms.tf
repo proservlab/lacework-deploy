@@ -1,8 +1,7 @@
 resource "aws_kms_key" "this" {
     description = "For encrypting and decrypting db-related parameters"
     deletion_window_in_days = 7
-    policy =    <<-EOF
-                {
+    policy = jsonencode({
                 "Version": "2012-10-17",
                 "Statement": [
                     {
@@ -90,8 +89,7 @@ resource "aws_kms_key" "this" {
                       }
                     }
                 ]
-                }
-                EOF
+            })
     tags = {
         Name        = "db-kms-key-${var.environment}-${var.deployment}"
         environment = var.environment

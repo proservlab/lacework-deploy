@@ -30,6 +30,10 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
+  default_kubeconfig = try(module.eks[0].kubeconfg, local.default_infrastructure_config.context.global.environment == "target" ? var.target_kubeconfig : var.attacker_kubeconfig )
+  attacker_kubeconfig = local.default_infrastructure_config.context.global.environment == "attacker" ? try(module.eks[0].kubeconfg, var.attacker_kubeconfig) : var.attacker_kubeconfig
+  target_kubeconfig = local.default_infrastructure_config.context.global.environment == "target" ? try(module.eks[0].kubeconfg, var.target_kubeconfig) : var.target_kubeconfig
+
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
 }
@@ -135,9 +139,16 @@ module "lacework-agentless" {
   environment = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
 
+  # attempt to use the existing vpc if possible (try default first then app if no vpc_id is provided)
+  use_existing_vpc = local.config.context.lacework.aws_agentless.use_existing_vpc
+  vpc_id = local.config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.config.context.lacework.aws_agentless.vpc_id), "false") != "false" ? local.config.context.lacework.aws_agentless.vpc_id : try(module.ec2[0].public_vpc.id, module.ec2[0].public_app_vpc.id)) : ""
+  # assume /16 for the public subnet and use x.x.100.0/24 as the network space for agentless
+  vpc_cidr_block = local.config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.config.context.lacework.aws_agentless.vpc_cidr_block), "false") != "false" ? local.config.context.lacework.vpc_cidr_block.vpc_id : cidrsubnet(try(module.ec2[0].public_vpc.cidr_block, module.ec2[0].public_app_vpc.cidr_block),8,100)) : "10.10.32.0/24"
+
   depends_on = [
     time_sleep.lacework_wait_90,
-    module.lacework-audit-config
+    module.lacework-audit-config,
+    module.ec2
   ]
 }
 

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.0"
     }
   }
 }
@@ -142,8 +142,7 @@ resource "aws_iam_instance_profile" "ec2-iam-profile" {
 resource "aws_iam_role" "ec2-iam-role" {
   name        = "ec2_profile_hostcrypto"
   description = "The role for EC2 resources"
-  assume_role_policy = <<EOF
-  {
+  assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": {
       "Effect": "Allow",
@@ -152,8 +151,8 @@ resource "aws_iam_role" "ec2-iam-role" {
       },
       "Action": "sts:AssumeRole"
     }
-  }
-  EOF
+  })
+  
   tags = {
     environment = "hostcrypto"
     deployment = "0"

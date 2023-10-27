@@ -66,6 +66,14 @@ module "resource-group" {
   region       = local.config.context.azure.region
 }
 
+module "resource-group-app" {
+  source = "./modules/resource-group"
+  name = "resource-group-app"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.azure.region
+}
+
 ##################################################
 # AZURE COMPUTE
 ##################################################
@@ -105,14 +113,87 @@ module "compute" {
   private_app_nat_subnet = local.config.context.azure.compute.private_app_nat_subnet
 
   resource_group = module.resource-group.resource_group
+  resource_app_group = module.resource-group-app.resource_group
 
   depends_on = [
-    module.resource-group
+    module.resource-group,
+    module.resource-group-app
   ]
 }
 
 ##################################################
-# RUBOOK
+# AZURE SQL
+##################################################
+
+module "azuresql" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.azuresql.enabled == true ) ? 1 : 0
+  source                              = "./modules/azuresql"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  server_name                         = local.config.context.azure.azuresql.server_name
+  db_name                             = local.config.context.azure.azuresql.db_name
+  db_resource_group_name              = module.resource-group-app.resource_group.name
+  db_virtual_network_name             = module.compute[0].public_app_virtual_network.name
+  db_virtual_network_id               = module.compute[0].public_app_virtual_network.id
+  db_subnet_network                   = [cidrsubnet(local.config.context.azure.compute.public_app_network,8,200)]
+
+  instance_type                       = local.config.context.azure.azuresql.instance_type
+  sku_name                            = local.config.context.azure.azuresql.sku_name
+  public_network_access_enabled       = local.config.context.azure.azuresql.public_network_access_enabled
+
+  # authorized_ip_ranges                = [module.workstation-external-ip.cidr]
+
+  depends_on = [ module.compute ]
+}
+
+##################################################
+# AZURE SQL
+##################################################
+
+module "azurestorage" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.azurestorage.enabled == true ) ? 1 : 0
+  source                              = "./modules/azurestorage"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  storage_resource_group_name         = module.resource-group-app.resource_group.name
+  storage_virtual_network_name        = module.compute[0].public_app_virtual_network.name
+  storage_virtual_network_id          = module.compute[0].public_app_virtual_network.id
+  storage_subnet_network              = [cidrsubnet(local.config.context.azure.compute.public_app_network,8,201)]
+
+  account_replication_type            = local.config.context.azure.azurestorage.account_replication_type
+  account_tier                        = local.config.context.azure.azurestorage.account_tier
+  public_network_access_enabled       = local.config.context.azure.azurestorage.public_network_access_enabled
+  
+  # add the local workstation and all public addresses for compute instances
+  trusted_networks                    = flatten([
+    [ replace(module.workstation-external-ip.cidr,"/32","") ],
+    [ for instance in try(module.compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "app" && instance.public == "true"],
+    [ for instance in try(module.compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "default" && instance.public == "true"]
+  ])
+
+  depends_on = [ module.compute ]
+}
+
+##################################################
+# AZURE AKS
+##################################################
+
+module "aks" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true ) ? 1 : 0
+  source                              = "./modules/aks"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.config.context.azure.region
+  cluster_name                        = local.config.context.gcp.gke.cluster_name
+  cluster_resource_group              = module.resource-group.resource_group 
+
+  authorized_ip_ranges                = [module.workstation-external-ip.cidr]
+}
+
+##################################################
+# RUNBOOK
 ##################################################
 
 module "runbook-deploy-lacework" {
@@ -310,4 +391,75 @@ module "lacework-audit-config" {
 #   source      = "./modules/agentless"
 #   environment = local.config.context.global.environment
 #   deployment   = local.config.context.global.deployment
+# }
+
+##################################################
+# AZURE AKS Lacework
+##################################################
+
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset"
+  cluster_name                          = "${local.config.context.azure.aks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
+  
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = false
+  lacework_cluster_agent_cluster_region = local.config.context.azure.region
+
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+# lacework kubernetes admission controller
+module "lacework-admission-controller" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
+  source                = "./modules/kubernetes/admission-controller"
+  environment           = local.config.context.global.environment
+  deployment            = local.config.context.global.deployment
+  
+  lacework_account_name = local.config.context.lacework.account_name
+  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [
+    module.aks
+  ]
+}
+
+# lacework aks audit
+# module "lacework-aks-audit" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.aks.enabled == true && local.config.context.lacework.agent.kubernetes.aks_audit_logs.enabled == true  ) ? 1 : 0
+#   source                              = "./modules/aks-audit"
+#   environment                         = local.config.context.global.environment
+#   deployment                          = local.config.context.global.deployment
+
+#   gcp_project_id                      = local.config.context.aks.project_id
+#   gcp_location                        = local.config.context.aks.region
+
+#   providers = {
+#     kubernetes = kubernetes.main
+#     helm = helm.main
+#   }
+
+#   depends_on = [
+#     module.aks
+#   ]
 # }

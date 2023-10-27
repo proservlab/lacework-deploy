@@ -22,7 +22,7 @@ resource "aws_iam_policy" "policy" {
 
 # policy   = jsonencode(var.user_policies[each.value.policy])
 data "aws_iam_policy" "policy" {
-  for_each = { for i in var.users : i.name => i }
+  for_each = { for i in var.users : i.name => i if contains(keys(i), "policy") && i.policy != null && i.policy != "" }
   name = each.value.policy
 
   depends_on = [
@@ -33,7 +33,7 @@ data "aws_iam_policy" "policy" {
 # allow the user to assume the role provided in the config - only if the role value is provided
 resource "aws_iam_policy" "assume_role_policy" {
   for_each = { for i in var.users : i.name => i if lookup(i, "role", false) != false }
-  name = "user-assume-role-policy-${var.environment}-${var.deployment}"
+  name = "user-assume-role-policy-${each.key}-${each.value.role}-${var.environment}-${var.deployment}"
   description = "Allows assuming the provided role"
 
   policy = jsonencode({

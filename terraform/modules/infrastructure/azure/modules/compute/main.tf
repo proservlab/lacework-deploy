@@ -36,6 +36,9 @@ resource "azurerm_virtual_network" "network" {
 
     tags = {
         environment = var.environment
+        deployment  = var.deployment
+        public      = "true"
+        role        = "default"
     }
 }
 
@@ -54,6 +57,9 @@ resource "azurerm_virtual_network" "network-private" {
 
     tags = {
         environment = var.environment
+        deployment  = var.deployment
+        public      = "false"
+        role        = "default"
     }
 }
 
@@ -65,7 +71,7 @@ resource "azurerm_subnet" "subnet-private" {
 }
 
 resource "azurerm_public_ip" "ip" {
-    for_each                     = { for instance in var.instances: instance.name => instance if instance.public == true  }
+    for_each                     = { for instance in var.instances: instance.name => instance if instance.public == true && instance.role == "default"  }
     name                         = "ip-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
     resource_group_name          = var.resource_group.name
@@ -74,6 +80,8 @@ resource "azurerm_public_ip" "ip" {
     tags = {
         environment = var.environment
         deployment  = var.deployment
+        public      = "true"
+        role        = "default"
     }
 }
 
@@ -86,16 +94,17 @@ resource "azurerm_network_security_group" "sg" {
         environment = var.environment
         deployment  = var.deployment
         public      = "true"
+        role        = "default"
     }
 }
 
 resource "azurerm_network_security_rule" "public_ingress_rules" {
-  count = length(var.public_ingress_rules)
+  count                       = length(var.public_ingress_rules)
   name                        = "public-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
   destination_port_range      = "${var.public_ingress_rules[count.index].from_port}-${var.public_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.public_ingress_rules[count.index].cidr_block}"
@@ -113,16 +122,17 @@ resource "azurerm_network_security_group" "sg-private" {
         environment = var.environment
         deployment  = var.deployment
         public      = "false"
+        role        = "default"
     }
 }
 
 resource "azurerm_network_security_rule" "private_ingress_rules" {
-  count = length(var.private_ingress_rules)
+  count                       = length(var.private_ingress_rules)
   name                        = "private-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.private_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.private_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
   destination_port_range      = "${var.private_ingress_rules[count.index].from_port}-${var.private_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.private_ingress_rules[count.index].cidr_block}"
@@ -132,7 +142,7 @@ resource "azurerm_network_security_rule" "private_ingress_rules" {
 }
 
 resource "azurerm_network_interface" "nic" {
-    for_each                    = { for instance in var.instances: instance.name => instance }
+    for_each                    = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name                        = "nic-${ each.key }-${var.environment}-${var.deployment}"
     location                    = var.region
     resource_group_name         = var.resource_group.name
@@ -148,12 +158,13 @@ resource "azurerm_network_interface" "nic" {
         environment = var.environment
         deployment  = var.deployment
         public = each.value.public
+        role = each.value.role
     }
 }
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg" {
-    for_each                    = { for instance in var.instances: instance.name => instance }
+    for_each                    = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     network_interface_id        = azurerm_network_interface.nic[each.key].id
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
 }
@@ -174,7 +185,7 @@ resource "tls_private_key" "ssh" {
 
 
 resource "azurerm_linux_virtual_machine" "instances" {
-    for_each              = { for instance in var.instances: instance.name => instance }
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name

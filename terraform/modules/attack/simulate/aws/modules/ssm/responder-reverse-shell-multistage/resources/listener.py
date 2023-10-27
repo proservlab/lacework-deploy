@@ -12,8 +12,6 @@ args = parser.parse_args()
 def new_session(session: pwncat.manager.Session):
     # Returning false causes the session to be removed immediately
     session.log( f"new session")
-    # for password in session.run("enumerate.creds.password"):
-    #     session.log(password.title(session))
     session.run("responder")
     return False
 
@@ -21,6 +19,7 @@ def new_session(session: pwncat.manager.Session):
 with pwncat.manager.Manager() as manager:
     # Establish a pwncat session
     manager.load_modules(os.path.join(os.getcwd(), "plugins"))
+    manager.config.set("verbose", True, glob=True)
     
     with console.status("creating listener..."):
         listener = manager.create_listener(

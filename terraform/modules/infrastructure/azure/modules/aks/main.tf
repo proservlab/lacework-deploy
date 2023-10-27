@@ -1,54 +1,55 @@
-# resource "random_pet" "prefix" {}
+locals {
+    kubeconfig_path = pathexpand("~/.kube/azure-${var.environment}-${var.deployment}-kubeconfig")
+    cluster_name = "${var.cluster_name}-${var.environment}-${var.deployment}"
+    cluster_resource_group = "${var.cluster_name}-${var.environment}-${var.deployment}-rg"
+}
 
-# resource "azurerm_resource_group" "default" {
-#   name     = "${var.cluster_name}-rg"
-#   location = var.region
+resource "random_id" "uniq" {
+  byte_length = 4
+}
 
-#   tags = {
-#     environment = var.environment
-#   }
-# }
+resource "azurerm_resource_group" "this" {
+  name     = local.cluster_resource_group
+  location = var.region
 
-# resource "azurerm_kubernetes_cluster" "default" {
-#   name                = var.cluster_name
-#   location            = azurerm_resource_group.default.location
-#   resource_group_name = azurerm_resource_group.default.name
-#   dns_prefix          = "${random_pet.prefix.id}-k8s"
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+}
 
-#   default_node_pool {
-#     name            = "default"
-#     node_count      = 2
-#     vm_size         = "Standard_D2_v2"
-#     os_disk_size_gb = 30
-#   }
+resource "azurerm_kubernetes_cluster" "this" {
+  name                = local.cluster_name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  dns_prefix          = "${random_id.uniq.hex}"
 
-#   service_principal {
-#     client_id     = var.appId
-#     client_secret = var.password
-#   }
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_D2_v2"
+  }
 
-#   role_based_access_control {
-#     enabled = true
-#   }
+  api_server_access_profile {
+    authorized_ip_ranges = var.authorized_ip_ranges
+  }
 
-#   tags = {
-#     environment = var.environment
-#   }
-# }
+  identity {
+    type = "SystemAssigned"
+  }
+}
 
+module "azure-aks-kubeconfig" {
+  source = "../aks-kubeconfig"
+  environment = var.environment
+  deployment = var.deployment
+  cluster_name = azurerm_kubernetes_cluster.this.name
+  cluster_resource_group = azurerm_resource_group.this.name
+  kubeconfig_path = local.kubeconfig_path
 
-# ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
-# resource "null_resource" "eks_context_switcher" {
+  depends_on = [
+    azurerm_kubernetes_cluster.this
+  ]
 
-#   triggers = {
-#     always_run = timestamp()
-#   }
-
-#   provisioner "local-exec" {
-#     command = "az aks get-credentials -n ${var.cluster_name} -g ${var.cluster_name}-rg"
-#   }
-
-#   depends_on = [
-#     aws_eks_cluster.cluster
-#   ]
-# }
+  
+}

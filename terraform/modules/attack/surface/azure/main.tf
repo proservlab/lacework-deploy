@@ -33,8 +33,18 @@ locals {
   public_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_security_group, null)
   private_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_security_group, null)
 
+  resource_app_group = try(local.default_infrastructure_deployed.azure.compute[0].resource_app_group, null)
+  public_app_security_group = try(local.default_infrastructure_deployed.azure.compute[0].public_app_security_group, null)
+  private_app_security_group = try(local.default_infrastructure_deployed.azure.compute[0].private_app_security_group, null)
+
   attacker_resource_group = try(local.attacker_infrastructure_deployed.azure.compute[0].resource_group, null)
+  attacker_resource_app_group = try(local.attacker_infrastructure_deployed.azure.compute[0].resource_app_group, null)
   target_resource_group = try(local.target_infrastructure_deployed.azure.compute[0].resource_group, null)
+  target_resource_app_group = try(local.target_infrastructure_deployed.azure.compute[0].resource_app_group, null)
+
+  default_kubeconfig = try(local.default_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
+  target_kubeconfig = try(local.target_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
+  attacker_kubeconfig = try(local.attacker_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
 
   # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
   # attacker_aks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
@@ -67,9 +77,27 @@ data "azurerm_public_ips" "public_attacker" {
   depends_on = [time_sleep.wait]
 }
 
+data "azurerm_public_ips" "public_app_attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_app_trusted_ingress.enabled == true && local.attacker_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  resource_group_name = local.attacker_resource_app_group.name
+  attachment_status   = "Attached"
+
+  provider = azurerm.attacker
+  depends_on = [time_sleep.wait]
+}
+
 data "azurerm_public_ips" "public_target" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_trusted_ingress.enabled == true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
   resource_group_name = local.target_resource_group.name
+  attachment_status   = "Attached"
+
+  provider = azurerm.target
+  depends_on = [time_sleep.wait]
+}
+
+data "azurerm_public_ips" "public_app_target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_app_trusted_ingress.enabled == true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  resource_group_name = local.target_resource_app_group.name
   attachment_status   = "Attached"
 
   provider = azurerm.target
@@ -100,10 +128,12 @@ module "compute-add-trusted-ingress" {
 
   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips, []): "${ip.ip_address}/32" ],
+    [ for ip in try(data.azurerm_public_ips.public_app_attacker[0].public_ips, []): "${ip.ip_address}/32" ],
     # local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
     [ for ip in try(data.azurerm_public_ips.public_target[0].public_ips, []): "${ip.ip_address}/32" ],
+    [ for ip in try(data.azurerm_public_ips.public_app_target[0].public_ips, []): "${ip.ip_address}/32" ],
     # local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
@@ -112,6 +142,34 @@ module "compute-add-trusted-ingress" {
 
   depends_on = [time_sleep.wait]
 }
+
+module "compute-add-app-trusted-ingress" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.compute.add_app_trusted_ingress.enabled == true ) ? 1 : 0
+  source        = "./modules/compute/add-trusted-ingress"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  
+  resource_group                = local.resource_app_group.name
+  security_group                = local.public_app_security_group.name
+
+  trusted_attacker_source       = local.config.context.azure.compute.add_app_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips, []): "${ip.ip_address}/32" ],
+    [ for ip in try(data.azurerm_public_ips.public_app_attacker[0].public_ips, []): "${ip.ip_address}/32" ],
+    # local.attacker_eks_public_ip
+  ])  : []
+  trusted_target_source         = local.config.context.azure.compute.add_app_trusted_ingress.trust_target_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_target[0].public_ips, []): "${ip.ip_address}/32" ],
+    [ for ip in try(data.azurerm_public_ips.public_app_target[0].public_ips, []): "${ip.ip_address}/32" ],
+    # local.target_eks_public_ip
+  ]) : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources
+  trusted_tcp_ports             = local.config.context.azure.compute.add_app_trusted_ingress.trusted_tcp_ports
+
+  depends_on = [time_sleep.wait]
+}
+
+
 
 ##################################################
 # AZURE RUNBOOK SIMULATION
@@ -187,4 +245,105 @@ module "vulnerable-python3-twisted-app" {
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
   listen_port = local.config.context.azure.runbook.vulnerable.python3_twisted_app.listen_port
+}
+
+##################################################
+# Kubernetes General
+##################################################
+
+# example of pushing kubernetes deployment via terraform
+module "kubernetes-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.app.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/gcp/app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+# example of applying pod security policy
+module "kubenetes-psp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.psp.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/gcp/psp"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+##################################################
+# Kubernetes AZURE Vulnerable
+##################################################
+
+# module "vulnerable-kubernetes-voteapp" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
+#   source      = "../kubernetes/gcp/vulnerable/voteapp"
+#   environment                   = local.config.context.global.environment
+#   deployment                    = local.config.context.global.deployment
+#   region                        = local.config.context.aws.region
+#   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+#   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+
+#   vote_service_port             = local.config.context.kubernetes.vulnerable.voteapp.vote_service_port
+#   result_service_port           = local.config.context.kubernetes.vulnerable.voteapp.result_service_port
+#   trusted_attacker_source       = local.config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
+#     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
+#     local.attacker_eks_public_ip
+#   ])  : []
+#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
+#   additional_trusted_sources    = local.config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
+
+    # providers = {
+    #   kubernetes = kubernetes.main
+    #   helm = helm.main
+    # }
+# }
+
+module "vulnerable-kubernetes-log4shellapp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
+  source                        = "../kubernetes/azure/vulnerable/log4shellapp"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+
+  service_port                  = local.config.context.kubernetes.azure.vulnerable.log4shellapp.service_port
+  trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips, []): "${ip.ip_address}/32" ]
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.azure.compute.add_trusted_ingress.additional_trusted_sources
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+module "vulnerable-kubernetes-privileged-pod" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/azure/vulnerable/privileged-pod"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+}
+
+module "vulnerable-kubernetes-root-mount-fs-pod" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/azure/vulnerable/root-mount-fs-pod"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 }

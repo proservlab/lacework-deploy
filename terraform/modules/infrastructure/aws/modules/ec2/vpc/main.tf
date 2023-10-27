@@ -18,7 +18,7 @@ module "public-app" {
     count = var.enable_public_app_vpc == true ? 1 : 0
     source = "./public"
 
-    name = var.name
+    name = "${var.name}-app"
     environment = var.environment
     deployment = var.deployment
     role = "app"
@@ -51,7 +51,7 @@ module "private-app" {
     count = var.enable_private_app_vpc == true ? 1 : 0
     source = "./private"
 
-    name = var.name
+    name = "${var.name}-app"
     environment = var.environment
     deployment = var.deployment
     role = "app"

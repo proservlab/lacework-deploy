@@ -47,6 +47,20 @@ variable "config" {
           enabled               = bool
           cluster_name          = string
         })
+        azuresql = object({
+          enabled               = bool
+          instance_type         = string
+          sku_name              = string
+          server_name           = string
+          db_name               = string
+          public_network_access_enabled = bool
+        })
+        azurestorage = object({
+          enabled               = bool
+          account_tier          = string
+          account_replication_type = string
+          public_network_access_enabled = bool
+        })
         runbook = object({
           enabled               = bool
           deploy_git            = bool
@@ -156,6 +170,7 @@ variable "config" {
           enabled                       = bool
           user_role_name                = string
           instance_type                 = string
+          instance_name                 = string
         })
         inspector = object({
           enabled               = bool
@@ -290,6 +305,9 @@ variable "config" {
         })
         aws_agentless = object({
           enabled               = bool
+          use_existing_vpc      = bool
+          vpc_id                = string
+          vpc_cidr_block        = string
         })
         gcp_agentless = object({
           enabled               = bool
@@ -420,6 +438,20 @@ variable "config" {
         aks = {
           enabled               = false
           cluster_name          = "infra-cluster"
+        }
+        azurestorage = {
+          enabled               = false
+          account_tier         = "Standard"
+          account_replication_type = "GRS"
+          public_network_access_enabled = false
+        }
+        azuresql = {
+          enabled               = false
+          instance_type         = "postgres"
+          sku_name              = "GP_Gen5_2"
+          server_name           = "azuresql"
+          db_name               = "db"
+          public_network_access_enabled = false
         }
         runbook = {
           enabled               = false
@@ -659,6 +691,7 @@ variable "config" {
           enabled                       = false
           user_role_name                = "rds_user_access_role"
           instance_type                 = "db.t3.micro"
+          instance_name                 = "ec2rds"
         }
         inspector = {
           enabled               = false
@@ -786,6 +819,9 @@ variable "config" {
         }
         aws_agentless = {
           enabled               = false
+          use_existing_vpc      = false
+          vpc_id                = null
+          vpc_cidr_block        = null
         }
         gcp_agentless = {
           enabled               = false

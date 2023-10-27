@@ -27,7 +27,7 @@ locals {
 
   target_eks_public_ip = try(["${local.target_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
   attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.context.aws.eks[0].cluster_nat_public_ip}/32"],[])
-
+  
   default_public_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
   default_public_app_sg = try(local.default_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
   target_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
@@ -46,6 +46,10 @@ locals {
   cluster_vpc_subnet                  = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_subnet, null)
   cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url, null)
+
+  default_kubeconfig = try(local.default_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
+  target_kubeconfig = try(local.target_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
+  attacker_kubeconfig = try(local.attacker_infrastructure_deployed.aws.eks[0].kubeconfig, pathexpand("~/.kube/config"))
 
   db_host = try(local.default_infrastructure_deployed.aws.rds[0].db_host, null)
   db_name = try(local.default_infrastructure_deployed.aws.rds[0].db_name, null)
@@ -118,8 +122,8 @@ module "iam" {
   deployment        = local.config.context.global.deployment
   region            = local.default_infrastructure_config.context.aws.region
 
-  user_policies     = jsondecode(file(local.config.context.aws.iam.user_policies_path))
-  users             = jsondecode(file(local.config.context.aws.iam.users_path))
+  user_policies     = jsondecode(templatefile(local.config.context.aws.iam.user_policies_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
+  users             = jsondecode(templatefile(local.config.context.aws.iam.users_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
 }
 
 ##################################################

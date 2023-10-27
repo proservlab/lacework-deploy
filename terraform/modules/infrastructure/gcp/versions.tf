@@ -2,7 +2,7 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.19.0"
+      version = "~> 2.23"
     }
     lacework = {
       source  = "lacework/lacework"
@@ -10,11 +10,11 @@ terraform {
     }
     google = {
       source = "hashicorp/google"
-      version = "~> 4.52.0"
+      version = "~> 4.84"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.9.0"
+      version = "~> 2.11"
     }
     time = {
       source = "hashicorp/time"

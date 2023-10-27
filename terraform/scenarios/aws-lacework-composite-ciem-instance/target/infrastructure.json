@@ -90,7 +90,8 @@
         "enabled" : true
       },
       "aws_agentless": {
-        "enabled" : true
+        "enabled" : true,
+        "use_existing_vpc" : true
       },
       "alerts": {
         "enabled" : false,

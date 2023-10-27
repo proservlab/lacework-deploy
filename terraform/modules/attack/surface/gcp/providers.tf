@@ -3,12 +3,13 @@ locals {
   attacker_default_kubeconfig_path = pathexpand("~/.kube/gcp-attacker-${var.config.context.global.deployment}-kubeconfig")
   target_default_kubeconfig_path = pathexpand("~/.kube/gcp-target-${var.config.context.global.deployment}-kubeconfig")
   
-  kubeconfig_path = try(local.default_infrastructure_config.deployed_state[local.config.context.global.environment].eks[0].kubeconfig_path, local.default_kubeconfig_path)
-  attacker_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["attacker"].eks[0].kubeconfig_path, local.attacker_default_kubeconfig_path)
-  target_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["target"].eks[0].kubeconfig_path, local.target_default_kubeconfig_path)
+  kubeconfig_path = try(local.default_infrastructure_config.deployed_state[local.config.context.global.environment].gke[0].kubeconfig_path, local.default_kubeconfig_path)
+  attacker_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["attacker"].gke[0].kubeconfig_path, local.attacker_default_kubeconfig_path)
+  target_kubeconfig_path = try(local.default_infrastructure_config.deployed_state["target"].gke[0].kubeconfig_path, local.target_default_kubeconfig_path)
 }
 
 provider "kubernetes" {
+  alias = "main"
   config_path = var.default_kubeconfig
 }
 provider "kubernetes" {
@@ -21,6 +22,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
+  alias = "main"
   kubernetes {
     config_path = var.default_kubeconfig
   }

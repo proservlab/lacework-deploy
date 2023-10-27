@@ -122,19 +122,79 @@ locals {
       jira_cloud_issue_type  = var.jira_cloud_issue_type
     }
   )
+  attacker_infrastructure_temp_config = jsondecode(local.attacker-infrastructure-config-file)
+  target_infrastructure_temp_config   = jsondecode(local.target-infrastructure-config-file)
+
+  # prevent misconfiguration on agentless vpc discovery
+  attacker_infrastructure_override = {
+    context = {
+      lacework = {
+        aws_agentless = {
+          use_existing_vpc = length(flatten([
+            [
+              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
+            ],
+            [
+              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
+            ],
+            ])) > 0 ? (
+            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
+            try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
+            ) : (
+            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
+            try(length(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+              try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
+              ) : (
+              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
+              false
+            )
+          )
+        }
+      }
+    }
+  }
+  target_infrastructure_override = {
+    context = {
+      lacework = {
+        aws_agentless = {
+          use_existing_vpc = length(flatten([
+            [
+              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
+            ],
+            [
+              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
+            ],
+            ])) > 0 ? (
+            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
+            try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
+            ) : (
+            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
+            try(length(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
+              try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
+              ) : (
+              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
+              false
+            )
+          )
+        }
+      }
+    }
+  }
 }
 
 data "utils_deep_merge_json" "attacker-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.attacker-infrastructure-config-file
+    local.attacker-infrastructure-config-file,
+    jsonencode(local.attacker_infrastructure_override)
   ]
 }
 
 data "utils_deep_merge_json" "target-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
-    local.target-infrastructure-config-file
+    local.target-infrastructure-config-file,
+    jsonencode(local.target_infrastructure_override)
   ]
 }
 
@@ -364,19 +424,57 @@ locals {
       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
   )
+
+  attacker_attacksurface_temp_config = jsondecode(local.attacker-attacksurface-config-file)
+  target_attacksurface_temp_config   = jsondecode(local.target-attacksurface-config-file)
+  attacker_attacksurface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+          }
+        }
+      }
+    }
+  }
+  target_attacksurface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+          }
+        }
+      }
+    }
+  }
+
+  infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
+  # infrastructure_target_kubeconfig_path   = can(fileexists(pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
+  infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
+  #infrastructure_attacker_kubeconfig_path = can(fileexists(pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
 }
 
 data "utils_deep_merge_json" "attacker-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.attacker-attacksurface-config-file
+    local.attacker-attacksurface-config-file,
+    jsonencode(local.attacker_attacksurface_override)
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksurface-config" {
   input = [
     jsonencode(module.default-attacksurface-context.config),
-    local.target-attacksurface-config-file
+    local.target-attacksurface-config-file,
+    jsonencode(local.target_attacksurface_override)
   ]
 }
 
@@ -447,7 +545,7 @@ module "attacker-aws-attacksurface" {
     }
   }
 
-  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
 
@@ -457,9 +555,9 @@ module "attacker-aws-attacksurface" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
@@ -516,9 +614,9 @@ module "target-aws-attacksurface" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
@@ -532,7 +630,7 @@ module "target-aws-attacksurface" {
   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
 
   parent = [
     # infrastructure context
@@ -557,7 +655,6 @@ module "target-aws-attacksurface" {
 ##################################################
 
 locals {
-
   attacker-attacksimulation-config-file = templatefile(
     "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
     {
@@ -609,19 +706,25 @@ locals {
       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
     }
   )
+  attacker_attacksimulation_temp_config = jsondecode(local.attacker-attacksimulation-config-file)
+  target_attacksimulation_temp_config   = jsondecode(local.target-attacksimulation-config-file)
+  attacker_attacksimulation_override    = {}
+  target_attacksimulation_override      = {}
 }
 
 data "utils_deep_merge_json" "attacker-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.attacker-attacksimulation-config-file
+    local.attacker-attacksimulation-config-file,
+    jsonencode(local.attacker_attacksimulation_override)
   ]
 }
 
 data "utils_deep_merge_json" "target-attacksimulation-config" {
   input = [
     jsonencode(module.default-attacksimulation-context.config),
-    local.target-attacksimulation-config-file
+    local.target-attacksimulation-config-file,
+    jsonencode(local.target_attacksimulation_override)
   ]
 }
 
@@ -709,7 +812,7 @@ module "attacker-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.attacker-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.attacker_aws_profile
@@ -718,9 +821,9 @@ module "attacker-aws-attacksimulation" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
@@ -782,7 +885,7 @@ module "target-aws-attacksimulation" {
 
   # compromised credentials (excluded from config to avoid dynamic dependancy...)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-  cluster_name            = try(module.target-aws-infrastructure.config.eks[0].cluster_name, null)
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
   default_aws_profile                 = var.target_aws_profile
@@ -791,9 +894,9 @@ module "target-aws-attacksimulation" {
   attacker_aws_region                 = var.attacker_aws_region
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
-  default_kubeconfig                  = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
-  attacker_kubeconfig                 = try(module.attacker-aws-infrastructure.config.eks[0].kubeconfig_path, local.attacker_kubeconfig_path)
-  target_kubeconfig                   = try(module.target-aws-infrastructure.config.eks[0].kubeconfig_path, local.target_kubeconfig_path)
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url

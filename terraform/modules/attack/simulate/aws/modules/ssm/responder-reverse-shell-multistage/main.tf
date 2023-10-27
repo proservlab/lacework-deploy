@@ -34,21 +34,8 @@ locals {
     else
         log "proxychains4 nmap and hydra already installed - skipping..."
     fi
-    if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
-        log "adding socksuser..."
-        adduser socksuser >> $LOGFILE 2>&1
-        log "adding ssh keys for socks user..."
-        sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-        log "socksuser setup complete..."
-    else
-        log "socksuser already exists - skipping..."
-    fi
     log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
     screen -S pwncat -X quit
-    truncate -s 0 /tmp/pwncat.log
     log "cleaning app directory"
     rm -rf ${local.attack_dir}
     mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
@@ -72,6 +59,16 @@ locals {
     log "starting background delayed script start..."
     nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
     log "background job started"
+    if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
+        log "adding tunneled port scanning user - socksuser..."
+        adduser socksuser >> $LOGFILE 2>&1
+        log "adding ssh keys for socks user..."
+        sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+        sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+        log "socksuser setup complete..."
+    fi
     log "done."
     EOT
     base64_payload = base64encode(local.payload)
@@ -102,7 +99,7 @@ locals {
                                 {
                                     default_payload = var.payload,
                                     iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
+                                    iam2rds_session_name = "${var.iam2rds_session_name}-${var.deployment}"
                                 }
                             ))
     instance2rds    = base64encode(templatefile(
@@ -121,7 +118,7 @@ locals {
                                     environment = var.environment,
                                     deployment = var.deployment,
                                     iam2rds_role_name = var.iam2rds_role_name
-                                    iam2rds_session_name = var.iam2rds_session_name
+                                    iam2rds_session_name = "${var.iam2rds_session_name}-${var.deployment}"
                                 }
                             ))
 }

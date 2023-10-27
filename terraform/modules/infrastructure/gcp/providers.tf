@@ -1,11 +1,11 @@
 locals{
-  default_kubeconfig_path = pathexpand("~/.kube/gcp-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  default_kubeconfig_path = try(module.gke[0].kubeconfig_path, pathexpand("~/.kube/config"))
   kubeconfig_path = try(module.gke[0].kubeconfig_path, local.default_kubeconfig_path)
 }
 
-
 provider "kubernetes" {
-  config_path = var.default_kubeconfig
+  alias = "main"
+  config_path = local.default_kubeconfig_path
 }
 provider "kubernetes" {
   alias = "attacker"
@@ -17,8 +17,9 @@ provider "kubernetes" {
 }
 
 provider "helm" {
+  alias = "main"
   kubernetes {
-    config_path = var.default_kubeconfig
+    config_path = local.default_kubeconfig_path
   }
 }
 provider "helm" {

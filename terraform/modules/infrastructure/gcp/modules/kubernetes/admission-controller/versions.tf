@@ -1,0 +1,24 @@
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    lacework = {
+      source  = "lacework/lacework"
+      version = "~> 1.6"
+    }
+    google = {
+      source = "hashicorp/google"
+      version = "~> 4.84"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
+    tls = {
+      source = "hashicorp/tls"
+      version = "4.0.4"
+    }
+  }
+}

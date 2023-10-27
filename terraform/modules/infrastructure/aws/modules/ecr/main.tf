@@ -1,6 +1,6 @@
 module "lacework_ecr" {
   source  = "lacework/ecr/aws"
-  version = "~> 0.7.0"
+  version = "~> 0.9"
 
 #   lacework_integration_name = "custom integration name"
   non_os_package_support    = true
