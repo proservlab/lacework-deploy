@@ -21,6 +21,14 @@ data "azurerm_platform_image" "debian_image" {
     sku       = "11"
 }
 
+data "azurerm_platform_image" "centos8" {
+    location  = var.region
+    publisher = "OpenLogic"
+    offer     = "CentOS"
+    sku       = "8_5-gen2"
+    version   = "latest"
+}
+
 data "azurerm_platform_image" "windowsserver_image" {
     location  = var.region
     publisher = "MicrosoftWindowsServer"
