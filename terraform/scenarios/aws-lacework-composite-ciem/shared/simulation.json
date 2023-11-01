@@ -18,10 +18,10 @@
             },
             "generate_aws_cli_traffic": {
               "enabled": true,
-              "compromised_keys_user" : "khon.traktour@interlacelabs",
+              "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs",
               "commands": [
                 "apt-get install -y jq",
-                "PROFILE=khon.traktour@interlacelabs",
+                "PROFILE=khon.traktour-${deployment}@interlacelabs",
                 "log \"User: $(aws sts get-caller-identity --profile=$PROFILE)\"",
                 "REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)",
                 "ROLE_NAME=\"rds_user_access_role_ciemdemo\"",
