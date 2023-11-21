@@ -50,15 +50,15 @@ locals {
   # attacker_aks_public_ip = try(["${local.attacker_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
 }
 
-resource "null_resource" "log" {
-  triggers = {
-    log_message = jsonencode(local.config)
-  }
+# resource "null_resource" "log" {
+#   triggers = {
+#     log_message = jsonencode(local.config)
+#   }
 
-  provisioner "local-exec" {
-    command = "echo '${jsonencode(local.config)}'"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "echo '${jsonencode(local.config)}'"
+#   }
+# }
 
 ##################################################
 # DEPLOYMENT CONTEXT
