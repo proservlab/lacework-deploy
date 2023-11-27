@@ -135,7 +135,6 @@ if ($csp -eq "azure"){
     }
 }
 
-
 # Read the content of the file into a variable
 $content = Get-Content "aws/env_vars/variables-$workspace.tfvars"
 
@@ -148,6 +147,31 @@ if ($deploymentKey -ne $null) {
     Write-Output "Deployment unique id: $deployment"
 } else {
     Write-Error "Deployment unique id not found in the file"
+}
+
+# target profile
+$targetAwsProfileKey = $content | Where-Object { $_ -match '^target_aws_profile\s*=\s*".*"$' }
+$targetAWSProfile = $targetAwsProfileKey -replace '^target_aws_profile\s*=\s*"(.*)"$', '$1'
+$targetAWSRegionKey = $content | Where-Object { $_ -match '^target_aws_region\s*=\s*".*"$' }
+$targetAWSRegion = $targetAWSRegionKey -replace '^target_aws_region\s*=\s*"(.*)"$', '$1'
+
+# Get the count of active VPCs using AWS CLI
+$activeVpcCountCommand = "aws ec2 describe-vpcs --region $targetAWSRegion --query 'length(Vpcs[])' --profile $targetAWSProfile --output json"
+$activeVpcCount = Invoke-Expression $activeVpcCountCommand | ConvertFrom-Json
+
+# Get the VPC quota using AWS CLI
+$vpcQuotaCommand = "aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region $targetAWSRegion --profile $targetAWSProfile --query 'Quota.Value' --output json --color off --no-cli-pager"
+$vpcQuota = Invoke-Expression $vpcQuotaCommand | ConvertFrom-Json
+
+# Check if there are at least 2 VPCs available
+$availableVpcCount = $vpcQuota - $activeVpcCount
+if ($availableVpcCount -lt 2) {
+    Write-Host "Not enough available VPCs. Active: $activeVpcCount, Quota: $vpcQuota"
+    # Handle the scenario when there are not enough VPCs available
+    # For example, you can exit the script or log a message
+    exit
+} else {
+    Write-Host "Found $availableVpcCount available vpcs. Active: $activeVpcCount, Quota: $vpcQuota"
 }
 
 # stage kubeconfig
