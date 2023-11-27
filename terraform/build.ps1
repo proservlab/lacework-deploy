@@ -215,6 +215,11 @@ if (-not (Test-Path -Path $env_vars)) {
     (Get-Item $env_vars).LastWriteTime = Get-Date
 }
 
+# select/create terraform workspace for this scenario
+$selectWorkspace = "terraform workspace select -or-create=true $workspace"
+write-output "Running: $selectWorkspace"
+Invoke-Expression $selectWorkspace
+
 # terraform init every time
 $init = "terraform init -upgrade"
 write-output "Running: $init"
@@ -240,3 +245,4 @@ if ($action -eq "apply" -or $action -eq "destroy") {
 cd ..
 
 write-output "Done."
+
