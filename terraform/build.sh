@@ -175,7 +175,8 @@ check_tf_apply(){
         if [ "apply" = "${2}" ]; then
             infomsg "Changes required, applying"
             # terraform show ${PLANFILE}
-            terraform apply ${3} -input=false -no-color
+            infomsg "Running: terraform apply -input=false -no-color ${3}"
+            terraform apply -input=false -no-color ${3}
         else
             warnmsg "Plan only, not applying"
         fi
