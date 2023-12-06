@@ -175,7 +175,7 @@ check_tf_apply(){
         if [ "apply" = "${2}" ]; then
             infomsg "Changes required, applying"
             # terraform show ${PLANFILE}
-            terraform apply ${3}
+            terraform apply ${3} -input=false -no-color
         else
             warnmsg "Plan only, not applying"
         fi
@@ -251,18 +251,18 @@ done
 cd $CSP
 
 # ensure formatting
-terraform fmt
+terraform fmt -no-color
 
 # set workspace
-terraform workspace select ${WORK} || terraform workspace new ${WORK}
+terraform workspace select ${WORK} -no-color -or-create=true
 
 # update modules as required
-terraform get -update=true
+terraform get -update=true -no-color
 if [ -z ${LOCAL_BACKEND} ]; then
-    terraform init -backend-config=env_vars/init.tfvars
+    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color
     BACKEND="-var-file=env_vars/backend.tfvars"
 else
-    terraform init -upgrade
+    terraform init -upgrade -input=false -no-color
     BACKEND=""
 fi;
 
@@ -271,30 +271,30 @@ PLANFILE="build.tfplan"
 
 if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
-    terraform show
+    terraform show -input=false -no-color
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color
     ERR=$?
-    terraform show ${PLANFILE}
+    terraform show ${PLANFILE} -input=false -no-color
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
-    terraform refresh ${BACKEND} ${VARS} -compact-warnings
+    terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color
 elif [ "apply" = "${ACTION}" ]; then        
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color
     ERR=$?
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings 
+    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color
     ERR=$?
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
-        if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
+        if terraform show -no-color ${PLANFILE} -input=false -no-color | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
-            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve
+            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color
         fi
     fi
 fi
