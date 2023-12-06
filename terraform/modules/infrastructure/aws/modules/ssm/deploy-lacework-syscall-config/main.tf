@@ -5,7 +5,6 @@ locals {
     base64_syscall_config = base64encode(local.syscall_config)
     hash_syscall_config = sha256(local.syscall_config)
     payload = <<-EOT
-    set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
     LOGFILE=/tmp/${var.tag}.log
