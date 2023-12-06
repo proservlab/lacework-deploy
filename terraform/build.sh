@@ -241,7 +241,7 @@ fi
 # stage kubeconfig
 CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPLOYMENT-kubeconfig")
 if [ ! -d "~/.kube"]; then
-    mkdir "~/.kube"
+    mkdir -p "~/.kube"
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
     touch "~/.kube/$CONFIG_FILE"
@@ -273,20 +273,14 @@ if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
     terraform show
 elif [ "plan" = "${ACTION}" ]; then
-    # echo "Staging kubeconfig..."
-    # terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
     ERR=$?
     terraform show ${PLANFILE}
 elif [ "refresh" = "${ACTION}" ]; then
-    # echo "Staging kubeconfig..."
-    # terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     terraform refresh ${BACKEND} ${VARS} -compact-warnings
 elif [ "apply" = "${ACTION}" ]; then        
-    # echo "Staging kubeconfig..."
-    # terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
     ERR=$?
