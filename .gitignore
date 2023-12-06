@@ -89,3 +89,6 @@ ctfd/api_tokens/*
 
 # Ignore lock files
 *.terraform.lock.hcl
+
+# ignore backend.tf
+backend.tf
