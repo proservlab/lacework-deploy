@@ -170,7 +170,7 @@ module "ec2-add-trusted-ingress-app" {
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
-  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  trusted_workstation_source    = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation == true ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.aws.ec2.add_app_trusted_ingress.trusted_tcp_ports
 }
