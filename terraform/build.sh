@@ -239,12 +239,15 @@ if [[ "$CSP" == "aws" ]]; then
 fi
 
 # stage kubeconfig
+infomsg "Staging kubeconfig files..."
 CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPLOYMENT-kubeconfig")
 if [ ! -d "~/.kube" ]; then
-    mkdir -p "~/.kube"
+    infomsg "~/.kube directory not found - creating..."
+    mkdir -p ~/.kube
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
-    touch "~/.kube/$CONFIG_FILE"
+    infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"
+    touch ~/.kube/$CONFIG_FILE
 done
 
 # change directory to provider directory
@@ -254,7 +257,7 @@ cd $CSP
 terraform fmt -no-color
 
 # set workspace
-terraform workspace select ${WORK} -no-color -or-create=true
+terraform workspace select -no-color -or-create=true ${WORK}
 
 # update modules as required
 terraform get -update=true -no-color
