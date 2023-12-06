@@ -260,6 +260,5 @@ elif [ "destroy" = "${ACTION}" ]; then
         fi
     fi
 fi
-rm -f ${PLANFILE}
 
 echo "Done."
