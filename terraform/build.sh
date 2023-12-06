@@ -240,7 +240,7 @@ fi
 
 # stage kubeconfig
 CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPLOYMENT-kubeconfig")
-if [ ! -d "~/.kube"]; then
+if [ ! -d "~/.kube" ]; then
     mkdir -p "~/.kube"
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
