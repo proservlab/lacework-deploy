@@ -1,3 +1,8 @@
+locals {
+  use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
+  current_user_arn       = local.use_assumed_role ? regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0] : data.aws_caller_identity.current.arn
+}
+
 resource "aws_kms_key" "this" {
     description = "For encrypting and decrypting db-related parameters"
     deletion_window_in_days = 7
@@ -8,7 +13,7 @@ resource "aws_kms_key" "this" {
                         "Sid": "Allow access for Account Holder",
                         "Effect": "Allow",
                         "Principal": {
-                            "AWS": "${data.aws_caller_identity.current.arn}"
+                            "AWS": "${local.current_user_arn}"
                         },
                         "Action": [
                             "kms:Create*",
