@@ -142,8 +142,8 @@ elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}"
     help
 fi
 
-infomsg "Setting working directory to script directory: $SCRIPT_DIR"
-cd $SCRIPT_DIR
+infomsg "Setting working directory to script directory: $SCRIPT_PATH"
+cd $SCRIPT_PATH
 
 # set provider to first segement of workspace name
 CSP=$(echo ${WORK} | awk -F '-' '{ print $1 }')
@@ -202,7 +202,7 @@ get_tfvar_value() {
 }
 
 # get the deployment unique id
-tfvars_file="$SCRIPT_DIR/env_vars/variables-${WORK}.tfvars"
+tfvars_file="$SCRIPT_PATH/env_vars/variables-${WORK}.tfvars"
 infomsg "Retrieving deployment id from: ${tfvars_file}"
 DEPLOYMENT=$(get_tfvar_value "$tfvars_file" "deployment")
 if [ $? -ne 0 ]; then
