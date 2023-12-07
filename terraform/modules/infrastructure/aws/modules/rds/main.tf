@@ -44,12 +44,12 @@ resource "aws_route_table" "database" {
 }
 
 resource "aws_route_table_association" "database" {
-  subnet_id = aws_subnet.database[0].id
+  subnet_id = aws_subnet.database.id
   route_table_id = aws_route_table.database.id
 }
 
 resource "aws_route_table_association" "database2" {
-  subnet_id = aws_subnet.database[1].id
+  subnet_id = aws_subnet.database2.id
   route_table_id = aws_route_table.database.id
 }
 
