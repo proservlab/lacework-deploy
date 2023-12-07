@@ -280,12 +280,12 @@ PLANFILE="build.tfplan"
 
 if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
-    terraform show -input=false -no-color
+    terraform show -no-color
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color
     ERR=$?
-    terraform show ${PLANFILE} -input=false -no-color
+    terraform show -no-color ${PLANFILE}
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color
@@ -300,7 +300,7 @@ elif [ "destroy" = "${ACTION}" ]; then
     ERR=$?
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
-        if terraform show -no-color ${PLANFILE} -input=false -no-color | grep -E "No changes. No objects need to be destroyed."; then
+        if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
             terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color
