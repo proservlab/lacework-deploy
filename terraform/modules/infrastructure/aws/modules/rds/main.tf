@@ -44,19 +44,34 @@ resource "aws_route_table" "database" {
 }
 
 resource "aws_route_table_association" "database" {
-  count = length(local.subnets_cidrs)
-  subnet_id = aws_subnet.database[count.index].id
+  subnet_id = aws_subnet.database[0].id
+  route_table_id = aws_route_table.database.id
+}
+
+resource "aws_route_table_association" "database2" {
+  subnet_id = aws_subnet.database[1].id
   route_table_id = aws_route_table.database.id
 }
 
 resource "aws_subnet" "database" {
   vpc_id                  = var.vpc_id
-  count                   = length(local.subnets_cidrs)
-  cidr_block              = element(local.subnets_cidrs, count.index)
-  availability_zone       = element(local.availability_zones, count.index)
+  cidr_block              = local.subnets_cidrs[0]
+  availability_zone       = local.availability_zones[0]
 
   tags = {
-    Name        = "db-subnet-${var.environment}-${var.deployment}-${element(local.availability_zones, count.index)}"
+    Name        = "db-subnet-${var.environment}-${var.deployment}-${local.availability_zones[0]}"
+    environment = var.environment
+    deployment = var.deployment
+  }
+}
+
+resource "aws_subnet" "database2" {
+  vpc_id                  = var.vpc_id
+  cidr_block              = local.subnets_cidrs[1]
+  availability_zone       = local.availability_zones[1]
+
+  tags = {
+    Name        = "db-subnet-${var.environment}-${var.deployment}-${local.availability_zones[1]}"
     environment = var.environment
     deployment = var.deployment
   }
@@ -65,7 +80,10 @@ resource "aws_subnet" "database" {
 resource "aws_db_subnet_group" "database" {
   description = "db subnet group"
   name        = "db_subnet_group_${var.environment}_${var.deployment}"
-  subnet_ids  = aws_subnet.database.*.id
+  subnet_ids  = [
+    aws_subnet.database.id,
+    aws_subnet.database2.id
+  ]
 
   tags = {
     Name = "db-subnet-group-${var.environment}-${var.deployment}"
@@ -121,4 +139,11 @@ resource "aws_db_instance" "database" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  depends_on = [
+    aws_subnet.database,
+    aws_subnet.database2,
+    aws_subnet.aws_db_subnet_group.database,
+    aws.aws_security_group.database
+  ]
 }

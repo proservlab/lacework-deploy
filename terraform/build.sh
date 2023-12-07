@@ -178,7 +178,7 @@ check_tf_apply(){
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             terraform apply -input=false -no-color ${3}
             ERR=$?
-            if [ ERR -ne 0 ]; then
+            if [ $ERR -ne 0 ]; then
                 errmsg "Terraform apply failed: ${ERR}"
                 exit 1
             fi
@@ -305,7 +305,7 @@ elif [ "destroy" = "${ACTION}" ]; then
         else
             terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color
             ERR=$?
-            if [ ERR -ne 0 ]; then
+            if [ $ERR -ne 0 ]; then
                 errmsg "Terraform destroy failed: ${ERR}"
                 exit 1
             fi
