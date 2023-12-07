@@ -18,7 +18,7 @@ locals {
 
   subnets_cidrs = [
       cidrsubnet(var.vpc_subnet,8,200),
-      cidrsubnet(var.vpc_subnet,8,201)
+      cidrsubnet(var.vpc_subnet,8,210)
   ]
 
   availability_zones = [
