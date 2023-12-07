@@ -1,6 +1,6 @@
 locals {
   use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
-  current_user_arn       = local.use_assumed_role ? regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0] : data.aws_caller_identity.current.arn
+  current_user_arn       = local.use_assumed_role ? "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0]}" : data.aws_caller_identity.current.arn
 }
 
 resource "aws_kms_key" "this" {
