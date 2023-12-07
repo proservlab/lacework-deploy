@@ -176,7 +176,7 @@ check_tf_apply(){
             infomsg "Changes required, applying"
             # terraform show ${PLANFILE}
             infomsg "Running: terraform apply -input=false -no-color ${3}"
-            terraform apply -input=false -no-color ${3}
+            terraform apply -input=false -no-color ${3} | tee /dev/tty | ( ! grep "Error applying plan" )
             ERR=$?
             if [ $ERR -ne 0 ]; then
                 errmsg "Terraform apply failed: ${ERR}"
