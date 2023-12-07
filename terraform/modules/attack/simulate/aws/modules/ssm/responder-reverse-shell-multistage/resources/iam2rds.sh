@@ -105,7 +105,11 @@ DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
 
 log "Waiting for rds snapshot to complete..."
-aws rds wait db-snapshot-completed $opts --db-snapshot-identifier $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
+aws rds wait db-snapshot-completed  \
+    --profile=$PROFILE  \
+    --region=$REGION  \ 
+    $opts \
+    --db-snapshot-identifier $DB_SNAPSHOT_ARN  >> $LOGFILE 2>&1
 log "RDS snapshot complete."
 
 log "Obtaining the KMS key id..."
@@ -153,17 +157,29 @@ aws rds describe-export-tasks \
     --region=$REGION  \
     $opts   \
     --export-task-identifier $EXPORT_TASK_IDENTIFIER \
-    --source-arn $DB_SNAPSHOT_ARN \
-    $opts >> $LOGFILE 2>&1
+    --source-arn $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
 
 while true; do
-    STATUS=$(aws rds describe-export-tasks --profile=$PROFILE --region=$REGION --export-task-identifier $EXPORT_TASK_IDENTIFIER --source-arn $DB_SNAPSHOT_ARN --query 'ExportTasks[0].Status' $opts --output text)
+    STATUS=$(aws rds describe-export-tasks \
+        --profile=$PROFILE \
+        --region=$REGION \
+        $opts \
+        --export-task-identifier $EXPORT_TASK_IDENTIFIER \
+        --source-arn $DB_SNAPSHOT_ARN \
+        --query 'ExportTasks[0].Status' \
+        --output text)
     
     if [ "$STATUS" == "COMPLETE" ]; then
         log "Export task completed successfully."
         break
     elif [ "$STATUS" == "FAILED" ]; then
         log "Export task failed."
+        exit 1
+    elif [ "$STATUS" == "None" ]; then
+        log "Export task does not exist."
+        exit 1
+    elif [ "$STATUS" == "" ]; then
+        log "Export task does not exist."
         exit 1
     else
         log "Export task is still in progress. Current status: $STATUS"

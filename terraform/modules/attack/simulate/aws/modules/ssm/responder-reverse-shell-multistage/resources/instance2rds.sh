@@ -125,17 +125,29 @@ aws rds describe-export-tasks \
     --region=$REGION  \
     $opts   \
     --export-task-identifier $EXPORT_TASK_IDENTIFIER \
-    --source-arn $DB_SNAPSHOT_ARN \
-    $opts >> $LOGFILE 2>&1
+    --source-arn $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
 
 while true; do
-    STATUS=$(aws rds describe-export-tasks --profile=$PROFILE --region=$REGION --export-task-identifier $EXPORT_TASK_IDENTIFIER --source-arn $DB_SNAPSHOT_ARN --query 'ExportTasks[0].Status' $opts --output text)
+    STATUS=$(aws rds describe-export-tasks \
+        --profile=$PROFILE \
+        --region=$REGION \
+        $opts \
+        --export-task-identifier $EXPORT_TASK_IDENTIFIER \
+        --source-arn $DB_SNAPSHOT_ARN \
+        --query 'ExportTasks[0].Status' \
+        --output text)
     
     if [ "$STATUS" == "COMPLETE" ]; then
         log "Export task completed successfully."
         break
     elif [ "$STATUS" == "FAILED" ]; then
         log "Export task failed."
+        exit 1
+    elif [ "$STATUS" == "None" ]; then
+        log "Export task failed or does not exist."
+        exit 1
+    elif [ "$STATUS" == "" ]; then
+        log "Export task failed or does not exist."
         exit 1
     else
         log "Export task is still in progress. Current status: $STATUS"
@@ -145,7 +157,8 @@ done
 
 log "Starting s3 exfil for s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER => /tmp/$EXPORT_TASK_IDENTIFIER"
 mkdir /tmp/$EXPORT_TASK_IDENTIFIER
-aws s3 cp --profile=$PROFILE  \
+aws s3 cp \
+    --profile=$PROFILE  \
     --region=$REGION \
     $opts   \
     s3://db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT/$CURRENT_DATE/$EXPORT_TASK_IDENTIFIER/ \
