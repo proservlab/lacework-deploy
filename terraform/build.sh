@@ -4,7 +4,7 @@ SCRIPTNAME="$(basename "$0")"
 SHORT_NAME="${SCRIPTNAME%.*}"
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 SCRIPT_DIR="$(basename $SCRIPT_PATH)"
-VERSION="1.1.0"
+VERSION="1.1.1"
 
 # output errors should be listed as warnings
 export TF_WARN_OUTPUT_ERRORS=1
@@ -177,6 +177,11 @@ check_tf_apply(){
             # terraform show ${PLANFILE}
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             terraform apply -input=false -no-color ${3}
+            ERR=$?
+            if [ ERR -ne 0 ]; then
+                errmsg "Terraform apply failed: ${ERR}"
+                exit 1
+            fi
         else
             warnmsg "Plan only, not applying"
         fi
@@ -299,8 +304,14 @@ elif [ "destroy" = "${ACTION}" ]; then
             ERR=0;
         else
             terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color
+            ERR=$?
+            if [ ERR -ne 0 ]; then
+                errmsg "Terraform destroy failed: ${ERR}"
+                exit 1
+            fi
         fi
     fi
 fi
 
 echo "Done."
+exit 0
