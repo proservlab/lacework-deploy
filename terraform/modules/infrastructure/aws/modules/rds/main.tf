@@ -143,7 +143,7 @@ resource "aws_db_instance" "database" {
   depends_on = [
     aws_subnet.database,
     aws_subnet.database2,
-    aws_subnet.aws_db_subnet_group.database,
-    aws.aws_security_group.database
+    aws_db_subnet_group.database,
+    aws_security_group.database
   ]
 }
