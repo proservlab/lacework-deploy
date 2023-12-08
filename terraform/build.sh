@@ -177,7 +177,10 @@ check_tf_apply(){
             infomsg "Changes required, applying"
             # terraform show ${PLANFILE}
             infomsg "Running: terraform apply -input=false -no-color ${3}"
-            terraform apply -input=false -no-color ${3} |& tee -a $LOGFILE
+            (
+                set -o pipefail
+                terraform apply -input=false -no-color ${3} |& tee -a $LOGFILE
+            )
             ERR=$?
             if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
                 errmsg "Terraform destroy failed: ${ERR}"
@@ -287,11 +290,15 @@ if [ "show" = "${ACTION}" ]; then
     terraform show -no-color
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    (
+        set -o pipefail
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
     ERR=$?
     if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+        ERR=1
         errmsg "Terraform failed: ${ERR}"
-        exit 1
+        exit $ERR
     fi
     terraform show -no-color ${PLANFILE}
 elif [ "refresh" = "${ACTION}" ]; then
@@ -299,7 +306,10 @@ elif [ "refresh" = "${ACTION}" ]; then
     terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color
 elif [ "apply" = "${ACTION}" ]; then        
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    (
+        set -o pipefail
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
     ERR=$?
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
@@ -309,22 +319,28 @@ elif [ "destroy" = "${ACTION}" ]; then
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
         if grep "Error: " $LOGFILE; then
+            ERR=1
             errmsg "Terraform failed: ${ERR}"
-            exit 1
+            exit $ERR
         elif terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
             echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
-            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a $LOGFILE
+            (
+                set -o pipefail 
+                terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a $LOGFILE
+            )
             ERR=$?
             if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                ERR=1
                 errmsg "Terraform failed: ${ERR}"
-                exit 1
+                exit $ERR
             fi
         fi
     elif [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+        ERR=1
         errmsg "Terraform failed: ${ERR}"
-        exit 1
+        exit $ERR
     fi
 fi
 
