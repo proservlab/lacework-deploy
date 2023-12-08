@@ -322,6 +322,9 @@ elif [ "destroy" = "${ACTION}" ]; then
                 exit 1
             fi
         fi
+    elif [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+        errmsg "Terraform failed: ${ERR}"
+        exit 1
     fi
 fi
 
