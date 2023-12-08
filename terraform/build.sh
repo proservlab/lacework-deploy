@@ -176,7 +176,7 @@ check_tf_apply(){
             infomsg "Changes required, applying"
             # terraform show ${PLANFILE}
             infomsg "Running: terraform apply -input=false -no-color ${3}"
-            terraform apply -input=false -no-color ${3} |& tee -a /dev/tty | ( ! grep "Error: " )
+            terraform apply -input=false -no-color ${3} |& tee -a /dev/stdout | ( ! grep "Error: " )
             ERR=$?
             if [ $ERR -ne 0 ]; then
                 errmsg "Terraform apply failed: ${ERR}"
@@ -283,7 +283,7 @@ if [ "show" = "${ACTION}" ]; then
     terraform show -no-color
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/tty | ( ! grep "Error: " )
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/stdout | ( ! grep "Error: " )
     ERR=$?
     terraform show -no-color ${PLANFILE}
 elif [ "refresh" = "${ACTION}" ]; then
@@ -291,19 +291,19 @@ elif [ "refresh" = "${ACTION}" ]; then
     terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color
 elif [ "apply" = "${ACTION}" ]; then        
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/tty | ( ! grep "Error: " )
+    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/stdout | ( ! grep "Error: " )
     ERR=$?
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/tty | ( ! grep "Error: " )
+    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a /dev/stdout | ( ! grep "Error: " )
     ERR=$?
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
         if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
-            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a /dev/tty | ( ! grep "Error: " )
+            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a /dev/stdout | ( ! grep "Error: " )
             ERR=$?
             if [ $ERR -ne 0 ]; then
                 errmsg "Terraform destroy failed: ${ERR}"
