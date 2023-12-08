@@ -179,7 +179,7 @@ check_tf_apply(){
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             terraform apply -input=false -no-color ${3} |& tee -a $LOGFILE
             ERR=$?
-            if [ $ERR -ne 0 ] || (! grep "Error: " $LOGFILE); then
+            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
                 errmsg "Terraform destroy failed: ${ERR}"
                 exit 1
             fi
@@ -289,7 +289,7 @@ elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
     ERR=$?
-    if [ $ERR -ne 0 ] || (! grep "Error: " $LOGFILE); then
+    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
         errmsg "Terraform failed: ${ERR}"
         exit 1
     fi
@@ -308,12 +308,16 @@ elif [ "destroy" = "${ACTION}" ]; then
     ERR=$?
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -eq 2 ]; then
-        if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
+        if grep "Error: " $LOGFILE; then
+            errmsg "Terraform failed: ${ERR}"
+            exit 1
+        elif terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
+            echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
             terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a $LOGFILE
             ERR=$?
-            if [ $ERR -ne 0 ] || (! grep "Error: " $LOGFILE); then
+            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
                 errmsg "Terraform failed: ${ERR}"
                 exit 1
             fi
