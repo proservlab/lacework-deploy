@@ -1,7 +1,11 @@
 #!/bin/bash
 
-SCRIPTNAME=$(basename $0)
-VERSION="1.0.0"
+SCRIPTNAME="$(basename "$0")"
+SHORT_NAME="${SCRIPTNAME%.*}"
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SCRIPT_DIR="$(basename $SCRIPT_PATH)"
+VERSION="1.1.1"
+LOGFILE="/tmp/lacework-deploy.txt"
 
 # output errors should be listed as warnings
 export TF_WARN_OUTPUT_ERRORS=1
@@ -139,8 +143,11 @@ elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}"
     help
 fi
 
+infomsg "Setting working directory to script directory: $SCRIPT_PATH"
+cd $SCRIPT_PATH
+
 # set provider to first segement of workspace name
-PROVIDER=$(echo ${WORK} | awk -F '-' '{ print $1 }')
+CSP=$(echo ${WORK} | awk -F '-' '{ print $1 }')
 
 # use variables.tfvars if it exists
 if [ -f "env_vars/variables.tfvars" ]; then
@@ -159,14 +166,70 @@ fi
 # force local back-end
 LOCAL_BACKEND="true"
 
+check_tf_apply(){
+    if [ ${1} -eq 0 ]; then
+        warnmsg "No changes, not applying"
+    elif [ ${1} -eq 1 ]; then
+        errmsg "Terraform plan failed"
+        exit 1
+    elif [ ${1} -eq 2 ]; then
+        if [ "apply" = "${2}" ]; then
+            infomsg "Changes required, applying"
+            # terraform show ${PLANFILE}
+            infomsg "Running: terraform apply -input=false -no-color ${3}"
+            (
+                set -o pipefail
+                terraform apply -input=false -no-color ${3} |& tee -a $LOGFILE
+            )
+            ERR=$?
+            infomsg "Terraform result: $ERR"
+            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                errmsg "Terraform destroy failed: ${ERR}"
+                exit 1
+            fi
+        else
+            warnmsg "Plan only, not applying"
+        fi
+    fi
+}
+
+get_tfvar_value() {
+    local tfvars_file="$1"
+    local key="$2"
+    
+    if [ ! -f "$tfvars_file" ]; then
+        echo "Error: $tfvars_file not found"
+        return 1
+    fi
+
+    local value=$(grep -E "^$key\s*=" "$tfvars_file" | sed -E 's/^[^=]*= *["'\'']*//;s/["'\'']* *$//')
+
+    if [ -n "$value" ]; then
+        echo "$value"
+    else
+        echo "Key '$key' not found in $tfvars_file"
+        return 1
+    fi
+}
+
+# get the deployment unique id
+tfvars_file="$SCRIPT_PATH/env_vars/variables-${WORK}.tfvars"
+infomsg "Retrieving deployment id from: ${tfvars_file}"
+DEPLOYMENT=$(get_tfvar_value "$tfvars_file" "deployment")
+if [ $? -ne 0 ]; then
+    errmsg "Failed to retrieve deployment id from:  ${tfvars_file}"
+    exit 1
+fi
+
 echo "ACTION            = ${ACTION}"
 echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
-echo "PROVIDER          = ${PROVIDER}"
-echo "SCENARIOS_PATH   = ${SCENARIOS_PATH}"
+echo "CSP               = ${CSP}"
+echo "SCENARIOS_PATH    = ${SCENARIOS_PATH}"
+echo "DEPLOYMENT        = ${DEPLOYMENT}"
 
 # check for sso logged out session
-if [[ "$PROVIDER" == "aws" ]]; then
+if [[ "$CSP" == "aws" ]]; then
     session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
     if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
         read -p "> aws sso session has expired - login now? (y/n): " login
@@ -186,80 +249,114 @@ if [[ "$PROVIDER" == "aws" ]]; then
     fi
 fi
 
+# stage kubeconfig
+infomsg "Staging kubeconfig files..."
+CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPLOYMENT-kubeconfig")
+if [ ! -d "~/.kube" ]; then
+    infomsg "~/.kube directory not found - creating..."
+    mkdir -p ~/.kube
+fi
+for CONFIG_FILE in ${CONFIG_FILES[@]}; do
+    infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"
+    touch ~/.kube/$CONFIG_FILE
+done
+
 # change directory to provider directory
-cd $PROVIDER
+cd $CSP
+
+# truncate the log file
+truncate -s0 $LOGFILE
 
 # ensure formatting
-terraform fmt
+terraform fmt -no-color
 
 # set workspace
-terraform workspace select ${WORK} || terraform workspace new ${WORK}
+terraform workspace select -no-color -or-create=true ${WORK}
 
 # update modules as required
-terraform get -update=true
+terraform get -update=true -no-color
 if [ -z ${LOCAL_BACKEND} ]; then
-    terraform init -backend-config=env_vars/init.tfvars
+    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color
     BACKEND="-var-file=env_vars/backend.tfvars"
 else
-    terraform init -upgrade
+    terraform init -upgrade -input=false -no-color
     BACKEND=""
 fi;
-
-check_tf_apply(){
-    if [ ${1} -eq 0 ]; then
-        warnmsg "No changes, not applying"
-    elif [ ${1} -eq 1 ]; then
-        errmsg "Terraform plan failed"
-        exit 1
-    elif [ ${1} -eq 2 ]; then
-        if [ "apply" = "${2}" ]; then
-            infomsg "Changes required, applying"
-            # terraform show ${PLANFILE}
-            terraform apply ${3}
-        else
-            warnmsg "Plan only, not applying"
-        fi
-    fi
-}
 
 # set plan file
 PLANFILE="build.tfplan"
 
 if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
-    terraform show
-elif [ "plan" = "${ACTION}" ]; then
-    echo "Staging kubeconfig..."
-    terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
-    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
+    (
+        set -o pipefail
+        terraform show -no-color |& tee -a $LOGFILE
+    )
     ERR=$?
-    terraform show ${PLANFILE}
+    infomsg "Terraform result: $ERR"
 elif [ "plan" = "${ACTION}" ]; then
-    echo "Staging kubeconfig..."
-    terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    (
+        set -o pipefail
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
+    ERR=$?
+    infomsg "Terraform result: $ERR"
+    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+        ERR=1
+        errmsg "Terraform failed: ${ERR}"
+        exit $ERR
+    fi
+    terraform show -no-color ${PLANFILE}
+elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
-    terraform refresh ${BACKEND} ${VARS} -compact-warnings
-elif [ "apply" = "${ACTION}" ]; then        
-    echo "Staging kubeconfig..."
-    terraform apply ${BACKEND} ${VARS} -target=null_resource.kubeconfig -auto-approve -compact-warnings
-    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings
+    (
+        set -o pipefail
+        terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
     ERR=$?
+    infomsg "Terraform result: $ERR"
+elif [ "apply" = "${ACTION}" ]; then        
+    echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    (
+        set -o pipefail
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
+    ERR=$?
+    infomsg "Terraform result: $ERR"
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings 
+    (
+        set -o pipefail
+        terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+    )
     ERR=$?
+    infomsg "Terraform result: $ERR"
     # additional check because plan doesn't return 0 for -destory
-    if [ $ERR -eq 2 ]; then
-        if terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
+    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+        if grep "Error: " $LOGFILE; then
+            ERR=1
+            errmsg "Terraform failed: ${ERR}"
+            exit $ERR
+        elif terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
-            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve
+            echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
+            (
+                set -o pipefail 
+                terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a $LOGFILE
+            )
+            ERR=$?
+            infomsg "Terraform result: $ERR"
+            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                ERR=1
+                errmsg "Terraform failed: ${ERR}"
+                exit $ERR
+            fi
         fi
     fi
 fi
-rm -f ${PLANFILE}
 
 echo "Done."
+exit 0

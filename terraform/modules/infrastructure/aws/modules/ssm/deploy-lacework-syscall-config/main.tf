@@ -5,7 +5,6 @@ locals {
     base64_syscall_config = base64encode(local.syscall_config)
     hash_syscall_config = sha256(local.syscall_config)
     payload = <<-EOT
-    set -e
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
     LACEWORK_SYSCALL_CONFIG_PATH=${local.lacework_syscall_config_path}
     LOGFILE=/tmp/${var.tag}.log
@@ -33,6 +32,24 @@ locals {
         else 
             log "Lacework syscall_config.yaml requires update"
             echo -n "${local.base64_syscall_config}" | base64 -d > $LACEWORK_SYSCALL_CONFIG_PATH
+        fi
+        log "Lacework agent is installed, adding disable aggregation config..."
+        file_path="/var/lib/lacework/config/config.json"
+
+        log "Checking for ebpf aggregate_events disabled..."
+        grep -q '"ebpf"[[:space:]]*:[[:space:]]*{[[:space:]]*"aggregate_events"[[:space:]]*:[[:space:]]*"false"[[:space:]]*}' $file_path
+        if [ $? -ne 0 ]; then
+            log "ebpf aggregate_events not currently disabled..."
+            grep -q '"ebpf"[[:space:]]*:[[:space:]]*{[^}]*}' $file_path
+            if [ $? -eq 0 ]; then
+                log "Found existing ebpf config - updating..."
+                sed -i 's/"ebpf"[[:space:]]*:[[:space:]]*{[^}]*}/"ebpf": {"aggregate_events": "false"}/' $file_path
+            else
+                log "No existing ebpf config - appending..."
+                sed -i '1s/{/{\n  "ebpf": {"aggregate_events": "false"},/' $file_path
+            fi
+        else
+            log "ebpf aggregate_events already enabled."
         fi
     fi
     EOT

@@ -1,3 +1,0 @@
-is_global = true
-build_property.RootNamespace = Vote
-build_property.ProjectDir = /home/jamie/Documents/dev/lacework-deploy/attacker/kubernetes/vulnerable-infrastructure/voteapp/vote/dotnet/Vote/

