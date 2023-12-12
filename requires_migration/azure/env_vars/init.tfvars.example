@@ -1,6 +1,0 @@
-bucket  = "YOURACCOUNT-terraform-states"
-key     = "development/service-name.tfstate"
-encrypt = true
-dynamodb_table = "terraform-lock"
-region  = "us-east-1"
-profile = "root"
