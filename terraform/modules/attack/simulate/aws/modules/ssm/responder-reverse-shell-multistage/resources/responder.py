@@ -181,6 +181,11 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, task_path)
 
+            # start session lock
+            log("Creating session lock...")
+            session_lock = Path("/tmp/pwncat_session.lock")
+            session_lock.touch()
+
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
 
@@ -269,5 +274,5 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
             log(f"Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
-
+            
         session_lock.unlink()

@@ -1,4 +1,5 @@
 LOCKFILE="/tmp/pwncat_session.lock"
+
 if [ -e "$LOCKFILE" ] && screen -ls | grep -q "pwncat" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
