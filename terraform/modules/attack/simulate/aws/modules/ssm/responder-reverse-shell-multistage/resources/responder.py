@@ -27,9 +27,11 @@ class Module(BaseModule):
         session.log("starting module")
 
         session_lock = Path("/tmp/pwncat_session.lock")
-        session_lock.touch()
 
         try:
+            session.log(f"creating session lock: /tmp/pwncat_session.lock")
+            session_lock.touch()
+
             # multi log handler
             def log(message):
                 # logger.info(message)
@@ -268,6 +270,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
 
             log(f"Done.")
         except Exception as e:
-            session.log(f'Error executing bash script: {e}')
 
-        session_lock.unlink()
+            session.log(f'Error executing bash script: {e}')
+        finally:
+            session_lock.unlink()

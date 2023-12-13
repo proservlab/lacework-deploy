@@ -1,15 +1,3 @@
-LOCKFILE="/tmp/pwncat_session.lock"
-if [ -e "$LOCKFILE" ] && screen -ls | grep -q "pwncat" ]; then
-    echo "Another instance of the script is already running. Exiting..."
-    exit 1
-elif ! screen -ls | grep -q "pwncat"; then
-    echo "Screen session doesn't exist but lock file present - cleanup requied"
-    rm -f $LOCKFILE
-fi
-function cleanup {
-    rm -f "$LOCKFILE"
-}
-
 LOGFILE=/tmp/setup_pwncat.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
