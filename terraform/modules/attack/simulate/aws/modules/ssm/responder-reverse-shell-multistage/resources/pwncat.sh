@@ -1,9 +1,9 @@
 LOCKFILE="/tmp/pwncat_session.lock"
-if [ -e "$LOCKFILE" ]; then
+if [ -e "$LOCKFILE" && screen -ls | grep -q "pwncat" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
 else
-    mkdir -p "$(dirname "$LOCKFILE")" && touch "$LOCKFILE"
+    rm -f $LOCKFILE
 fi
 function cleanup {
     rm -f "$LOCKFILE"

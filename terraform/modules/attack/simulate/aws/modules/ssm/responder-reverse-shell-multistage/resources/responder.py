@@ -25,6 +25,10 @@ class Module(BaseModule):
 
     def run(self, session: Session):
         session.log("starting module")
+
+        session_lock = Path("/tmp/pwncat_session.lock")
+        session_lock.touch()
+
         try:
             # multi log handler
             def log(message):
@@ -177,11 +181,6 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, task_path)
 
-            # start session lock
-            log("Creating session lock...")
-            session_lock = Path("/tmp/pwncat_session.lock")
-            session_lock.touch()
-
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
 
@@ -270,4 +269,5 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
             log(f"Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
-            Path(f"/tmp/pwncat_session.lock").unlink()
+
+        session_lock.unlink()
