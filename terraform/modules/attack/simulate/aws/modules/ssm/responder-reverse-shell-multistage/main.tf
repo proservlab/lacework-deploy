@@ -35,7 +35,7 @@ locals {
         log "proxychains4 nmap and hydra already installed - skipping..."
     fi
     if [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; then
-        log "Pwncat session lock /tmp/pwncat_session.lock exists and pwncat screen session running. Skipping setup.
+        log "Pwncat session lock /tmp/pwncat_session.lock exists and pwncat screen session running. Skipping setup."
     else
         rm -f "/tmp/pwncat_session.lock"
         log "Session lock doesn't exist and screen session not runing. Continuing..."
