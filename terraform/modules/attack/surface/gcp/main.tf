@@ -244,19 +244,6 @@ module "kubernetes-app" {
   }
 }
 
-# example of applying pod security policy
-module "kubenetes-psp" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.psp.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/psp"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
-
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
-}
-
 ##################################################
 # Kubernetes GCP Vulnerable
 ##################################################

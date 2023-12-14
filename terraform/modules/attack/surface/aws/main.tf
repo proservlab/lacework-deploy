@@ -316,19 +316,6 @@ module "kubernetes-app-windows" {
   }
 }
 
-# example of applying pod security policy
-module "kubenetes-psp" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.psp.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/aws/psp"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
-
-  providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
-  }
-}
-
 ##################################################
 # Kubernetes AWS Vulnerable
 ##################################################
