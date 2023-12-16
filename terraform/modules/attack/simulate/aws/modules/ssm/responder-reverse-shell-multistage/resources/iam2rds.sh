@@ -43,7 +43,7 @@ cat > /tmp/.aws-iam-user <<-EOF
 AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-AWS_DEFAULT_REGION=us-east-1
+AWS_DEFAULT_REGION=$REGION
 AWS_DEFAULT_OUTPUT=json
 EOF
 
@@ -107,8 +107,7 @@ log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
 log "Waiting for rds snapshot to complete..."
 aws rds wait db-snapshot-completed  \
     --profile=$PROFILE  \
-    --region=$REGION  \ 
-    $opts \
+    --region=$REGION  \
     --db-snapshot-identifier $DB_SNAPSHOT_ARN  >> $LOGFILE 2>&1
 log "RDS snapshot complete."
 
@@ -146,8 +145,7 @@ EXPORT_TASK_ARN=$(aws rds start-export-task \
     --s3-bucket-name db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
     --iam-role-arn $RDS_EXPORT_ROLE_ARN \
-    --kms-key-id=$KMS_KEY_ID \
-    $opts | jq -r '.ExportTasks[0].SourceArn') 
+    --kms-key-id=$KMS_KEY_ID | jq -r '.ExportTasks[0].SourceArn') 
 log "Export task arn: $EXPORT_TASK_ARN"
 log "Export task identifier: $EXPORT_TASK_IDENTIFIER"
 
