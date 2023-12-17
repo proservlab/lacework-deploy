@@ -50,6 +50,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_user_role" {
       "s3:PutObject",
       "s3:GetBucketLocation",
       "s3:ListBucket",
+      "s3:ListObjects",
       "s3:GetObject",
       "s3:ListBucketMultipartUploads",
       "s3:AbortMultipartUpload",
@@ -63,7 +64,9 @@ data "aws_iam_policy_document" "s3_bucket_policy_user_role" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.user_role.arn]
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}"
+      ]
     }
   }
 }
@@ -75,6 +78,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_ec2" {
       "s3:PutObject",
       "s3:GetBucketLocation",
       "s3:ListBucket",
+      "s3:ListObjects",
       "s3:GetObject",
       "s3:ListBucketMultipartUploads",
       "s3:AbortMultipartUpload",
@@ -87,7 +91,9 @@ data "aws_iam_policy_document" "s3_bucket_policy_ec2" {
     ]
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"]
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.ec2_instance_role_name}"
+      ]
     }
   }
   depends_on = [
