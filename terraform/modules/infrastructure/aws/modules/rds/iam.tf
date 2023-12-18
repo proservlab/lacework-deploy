@@ -339,5 +339,5 @@ resource "aws_iam_role_policy_attachment" "user_role_bucket_read" {
 
 resource "aws_iam_role_policy_attachment" "instance_role_bucket_read" {
     role       = var.ec2_instance_role_name
-    policy_arn = aws_iam_policyt.instance_role_bucket_read.arn
+    policy_arn = aws_iam_policy.instance_role_bucket_read.arn
 }
