@@ -320,12 +320,24 @@ data "aws_iam_policy_document" "instance_role_bucket_read" {
   }
 }
 
+resource "aws_iam_policy" "user_role_bucket_read" {
+    name   = "user-role-bucket-read-${var.environment}-${var.deployment}"
+    path   = "/"
+    policy = data.aws_iam_policy_document.user_role_bucket_read.json
+}
+
+resource "aws_iam_policy" "instance_role_bucket_read" {
+    name   = "instance-role-bucket-read-${var.environment}-${var.deployment}"
+    path   = "/"
+    policy = data.aws_iam_policy_document.instance_role_bucket_read.json
+}
+
 resource "aws_iam_role_policy_attachment" "user_role_bucket_read" {
     role       = aws_iam_role.user_role.name
-    policy_arn = data.aws_iam_policy_document.user_role_bucket_read.json
+    policy_arn = aws_iam_policy.user_role_bucket_read.arn
 }
 
 resource "aws_iam_role_policy_attachment" "instance_role_bucket_read" {
     role       = var.ec2_instance_role_name
-    policy_arn = data.aws_iam_policy_document.instance_role_bucket_read.json
+    policy_arn = aws_iam_policyt.instance_role_bucket_read.arn
 }
