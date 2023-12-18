@@ -1,4 +1,7 @@
-# Create the S3 bucket - with private acl
+######################################################
+# Create the S3 bucket for db backup
+######################################################
+
 resource "aws_s3_bucket" "bucket" {
   bucket = "db-ec2-backup-${var.environment}-${var.deployment}"
   force_destroy = true
@@ -17,6 +20,11 @@ resource "aws_s3_bucket_acl" "example" {
   bucket = aws_s3_bucket.bucket.id
   acl    = "private"
 }
+
+######################################################
+# Set S3 Bucket ACL policy to allow the db 
+# roles read access to the s3 bucket
+######################################################
 
 data "aws_iam_policy_document" "s3_bucket_policy_rds" {
   # allow user, instand and rds service role to access rds backup s3
@@ -40,7 +48,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_rds" {
     principals {
       type        = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.user_role_name}"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.user_role.name}"
       ]
     }
   }
