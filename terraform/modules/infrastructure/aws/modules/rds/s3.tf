@@ -7,23 +7,13 @@ resource "aws_s3_bucket" "bucket" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_ownership_controls" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "example" {
-  depends_on = [aws_s3_bucket_ownership_controls.bucket]
-
-  bucket = aws_s3_bucket.bucket.id
-  acl    = "private"
+resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+  bucket = aws_s3_bucket.example.id
+  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
 }
 
 ######################################################
-# Set S3 Bucket ACL policy to allow the db 
-# roles read access to the s3 bucket
+# Set S3 bucket policy to allow the db roles read access
 ######################################################
 
 data "aws_iam_policy_document" "s3_bucket_policy_rds" {
