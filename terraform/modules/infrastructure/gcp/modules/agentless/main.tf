@@ -3,7 +3,7 @@ data "google_project" "project" {}
 # integration
 module "lacework_gcp_agentless_scanning_org_multi_region" {
   source  = "lacework/agentless-scanning/gcp"
-  version = "~> 0.2"
+  version = "~> 0.3"
 
   project_filter_list = var.org_integration == true ? [] : [ data.google_project.project.project_id ]
 
