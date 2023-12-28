@@ -179,7 +179,7 @@ check_tf_apply(){
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             (
                 set -o pipefail
-                terraform apply -input=false -no-color ${3} |& tee -a $LOGFILE
+                terraform apply -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
@@ -290,7 +290,7 @@ if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
     (
         set -o pipefail
-        terraform show -no-color |& tee -a $LOGFILE
+        terraform show -no-color 2>&1 | tee -a $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -298,7 +298,7 @@ elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -312,7 +312,7 @@ elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
         set -o pipefail
-        terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+        terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -320,7 +320,7 @@ elif [ "apply" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+        terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -329,7 +329,7 @@ elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color |& tee -a $LOGFILE
+        terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -345,7 +345,7 @@ elif [ "destroy" = "${ACTION}" ]; then
             echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
             (
                 set -o pipefail 
-                terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color |& tee -a $LOGFILE
+                terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color 2>&1 | tee -a $LOGFILE
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
