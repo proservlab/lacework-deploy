@@ -8,7 +8,7 @@ module "lacework_gcp_agentless_scanning_org_multi_region" {
   project_filter_list = var.org_integration == true ? [] : [ data.google_project.project.project_id ]
 
   integration_type = var.org_integration == true ? "ORGANIZATION" : "PROJECT"
-  organization_id  = var.org_integration == true ? data.google_project.project.org_id : null
+  organization_id  = data.google_project.project.org_id
 
   global                    = true
   regional                  = true
