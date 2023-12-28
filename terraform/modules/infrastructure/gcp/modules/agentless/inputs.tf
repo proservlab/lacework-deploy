@@ -8,19 +8,15 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "gcp_project_id" {
-  type = string
-  description = "gcp project id"
-}
-
 variable "gcp_location" {
   type = string
   description = "gcp region"
 }
 
-variable "project_filter_list" {
-    type = list(string)
-    description = "list of target projects"
+variable "org_integration" {
+  type = bool
+  description = "enable or disable org level logging"
+  default = false
 }
 
 variable "global" {
