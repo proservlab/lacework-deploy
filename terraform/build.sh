@@ -111,6 +111,10 @@ for i in "$@"; do
         SCENARIOS_PATH="${i#*=}"
         shift # past argument=value
         ;;
+    -f=*|--tfplan=*)
+        PLANFILE=="${i#*=}"
+        shift # past argument=value
+        ;;
     *)
       # unknown option
       ;;
@@ -221,12 +225,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# set plan file
+if [ -z ${PLANFILE} ]; then
+    PLANFILE="build.tfplan"
+fi
+
 echo "ACTION            = ${ACTION}"
 echo "LOCAL_BACKEND     = ${LOCAL_BACKEND}"
 echo "VARS              = ${VARS}"
 echo "CSP               = ${CSP}"
 echo "SCENARIOS_PATH    = ${SCENARIOS_PATH}"
 echo "DEPLOYMENT        = ${DEPLOYMENT}"
+echo "PLANFILE          = ${PLANFILE}"
 
 # check for sso logged out session
 if [[ "$CSP" == "aws" ]]; then
@@ -282,9 +292,6 @@ else
     terraform init -upgrade -input=false -no-color
     BACKEND=""
 fi;
-
-# set plan file
-PLANFILE="build.tfplan"
 
 if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
