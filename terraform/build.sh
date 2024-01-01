@@ -31,6 +31,10 @@ EOH
     exit 1
 }
 
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 workspace_summary(){
     echo "finding all active workspaces - this may take some time..."
     providers=("aws" "gcp" "azure")
@@ -120,6 +124,9 @@ for i in "$@"; do
       ;;
   esac
 done
+
+# set current working directory to the script directory
+cd $SCRIPT_DIR
 
 # check for required
 if [ -z ${WORK} ]; then
@@ -314,7 +321,13 @@ elif [ "plan" = "${ACTION}" ]; then
         errmsg "Terraform failed: ${ERR}"
         exit $ERR
     fi
-    terraform show -no-color ${PLANFILE}
+    if command_exists tf-summarize &> /dev/null; then
+        infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
+        terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${DEPLOYMENT}-plan.txt"
+    else
+        infomsg "tf-summarize not found using terraform show: ${DEPLOYMENT}-plan.txt"
+        terraform show -no-color ${PLANFILE} | tee "${DEPLOYMENT}-plan.txt"
+    fi
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
@@ -349,6 +362,13 @@ elif [ "destroy" = "${ACTION}" ]; then
         elif terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
             ERR=0;
         else
+            if command_exists tf-summarize &> /dev/null; then
+                infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
+                terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${DEPLOYMENT}-plan.txt"
+            else
+                infomsg "tf-summarize not found using terraform show: ${DEPLOYMENT}-plan.txt"
+                terraform show -no-color ${PLANFILE} | tee "${DEPLOYMENT}-plan.txt"
+            fi
             echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
             (
                 set -o pipefail 
