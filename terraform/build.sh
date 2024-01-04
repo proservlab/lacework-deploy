@@ -126,7 +126,7 @@ for i in "$@"; do
 done
 
 # set current working directory to the script directory
-cd $SCRIPT_DIR
+cd $SCRIPT_PATH
 
 # check for required
 if [ -z ${WORK} ]; then
