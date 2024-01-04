@@ -195,7 +195,7 @@ check_tf_apply(){
             ERR=$?
             infomsg "Terraform result: $ERR"
             if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-                errmsg "Terraform destroy failed: ${ERR}"
+                errmsg "Terraform failed: ${ERR}"
                 exit 1
             fi
         else
@@ -306,23 +306,24 @@ if [ "show" = "${ACTION}" ]; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
-            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" 
         )
         ERR=$?
     else
         infomsg "tf-summarize not found using terraform show: ${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
-            terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+            terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
         )
         ERR=$?
     fi
-    infomsg "Terraform result: $ERR"
-    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-        ERR=1
-        errmsg "Terraform failed: ${ERR}"
-        exit $ERR
-    fi
+    infomsg "Terraform summary result: $ERR"
+    (
+        set -o pipefail
+        terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
+    )
+    ERR=$?
+    infomsg "Terraform show result: $ERR"
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
@@ -340,23 +341,24 @@ elif [ "plan" = "${ACTION}" ]; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
-            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" 
         )
         ERR=$?
     else
         infomsg "tf-summarize not found using terraform show: ${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
-            terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+            terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
         )
         ERR=$?
     fi
-    infomsg "Terraform result: $ERR"
-    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-        ERR=1
-        errmsg "Terraform failed: ${ERR}"
-        exit $ERR
-    fi
+    infomsg "Terraform summary result: $ERR"
+    (
+        set -o pipefail
+        terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
+    )
+    ERR=$?
+    infomsg "Terraform show result: $ERR"
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
@@ -395,23 +397,24 @@ elif [ "destroy" = "${ACTION}" ]; then
                 infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
                 (
                     set -o pipefail
-                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" 
                 )
                 ERR=$?
             else
                 infomsg "tf-summarize not found using terraform show: ${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
                 (
                     set -o pipefail
-                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt" | tee -a $LOGFILE
+                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_DIR}/${DEPLOYMENT}-plan.txt"
                 )
                 ERR=$?
             fi
-            infomsg "Terraform result: $ERR"
-            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-                ERR=1
-                errmsg "Terraform failed: ${ERR}"
-                exit $ERR
-            fi
+            infomsg "Terraform summary result: $ERR"
+            (
+                set -o pipefail
+                terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
+            )
+            ERR=$?
+            infomsg "Terraform show result: $ERR"
         fi
     fi
 fi
