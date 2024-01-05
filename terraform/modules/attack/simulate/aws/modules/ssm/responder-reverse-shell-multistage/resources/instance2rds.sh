@@ -77,7 +77,10 @@ DB_SNAPSHOT_ARN=$(aws rds create-db-snapshot \
 log "DB Snapshot ARN: $DB_SNAPSHOT_ARN"
 
 log "Waiting for rds snapshot to complete..."
-aws rds wait db-snapshot-completed $opts --db-snapshot-identifier $DB_SNAPSHOT_ARN >> $LOGFILE 2>&1
+aws rds wait db-snapshot-completed  \
+    --profile=$PROFILE  \
+    --region=$REGION  \
+    --db-snapshot-identifier $DB_SNAPSHOT_ARN  >> $LOGFILE 2>&1
 log "RDS snapshot complete."
 
 log "Obtaining the KMS key id..."
@@ -114,8 +117,7 @@ EXPORT_TASK_ARN=$(aws rds start-export-task \
     --s3-bucket-name db-ec2-backup-$ENVIRONMENT-$DEPLOYMENT \
     --s3-prefix "$CURRENT_DATE" \
     --iam-role-arn $RDS_EXPORT_ROLE_ARN \
-    --kms-key-id=$KMS_KEY_ID \
-    $opts | jq -r '.ExportTasks[0].SourceArn') 
+    --kms-key-id=$KMS_KEY_ID | jq -r '.ExportTasks[0].SourceArn') 
 log "Export task arn: $EXPORT_TASK_ARN"
 log "Export task identifier: $EXPORT_TASK_IDENTIFIER"
 

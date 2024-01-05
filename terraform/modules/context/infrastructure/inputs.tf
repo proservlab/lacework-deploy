@@ -256,6 +256,7 @@ variable "config" {
           project_id            = string
           enabled               = bool
           use_pub_sub           = bool
+          org_integration       = bool
         })
         azure_audit_config      = object({
           project_id            = string
@@ -311,6 +312,7 @@ variable "config" {
         })
         gcp_agentless = object({
           enabled               = bool
+          org_integration       = bool
         })
         alerts = object({
           enabled               = bool
@@ -770,6 +772,7 @@ variable "config" {
           project_id            = null
           enabled               = false
           use_pub_sub           = false
+          org_integration       = false
         }
         azure_audit_config          = {
           project_id            = null
@@ -825,6 +828,7 @@ variable "config" {
         }
         gcp_agentless = {
           enabled               = false
+          org_integration       = false
         }
         alerts = {
           enabled               = false
