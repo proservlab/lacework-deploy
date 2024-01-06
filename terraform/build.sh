@@ -408,14 +408,6 @@ elif [ "destroy" = "${ACTION}" ]; then
                 )
                 ERR=$?
             fi
-            infomsg "Terraform summary result: $ERR"
-            (
-                set -o pipefail
-                terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
-            )
-            ERR=$?
-            infomsg "Terraform show result: $ERR"
-
             echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
             (
                 set -o pipefail 
