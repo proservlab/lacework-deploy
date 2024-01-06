@@ -423,6 +423,7 @@ elif [ "destroy" = "${ACTION}" ]; then
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
+            exit $ERR
         fi
     fi
 fi
