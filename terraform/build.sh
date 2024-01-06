@@ -186,7 +186,23 @@ check_tf_apply(){
     elif [ ${1} -eq 2 ]; then
         if [ "apply" = "${2}" ]; then
             infomsg "Changes required, applying"
-            # terraform show ${PLANFILE}
+            if command_exists tf-summarize &> /dev/null; then
+                infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
+                (
+                    set -o pipefail
+                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
+                )
+                ERR=$?
+            else
+                infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+                (
+                    set -o pipefail
+                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+                )
+                ERR=$?
+            fi
+            infomsg "Terraform summary result: $ERR"
+            
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             (
                 set -o pipefail
@@ -317,12 +333,6 @@ if [ "show" = "${ACTION}" ]; then
         )
         ERR=$?
     fi
-    infomsg "Terraform summary result: $ERR"
-    (
-        set -o pipefail
-        terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
-    )
-    ERR=$?
     infomsg "Terraform show result: $ERR"
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
@@ -353,12 +363,6 @@ elif [ "plan" = "${ACTION}" ]; then
         ERR=$?
     fi
     infomsg "Terraform summary result: $ERR"
-    (
-        set -o pipefail
-        terraform show -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
-    )
-    ERR=$?
-    infomsg "Terraform show result: $ERR"
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
