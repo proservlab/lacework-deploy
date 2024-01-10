@@ -50,7 +50,7 @@ resource "lacework_agent_access_token" "agent" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../../common/aws/ssm/base"
+    source          = "../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag

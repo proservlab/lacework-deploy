@@ -50,7 +50,7 @@ resource "lacework_agent_access_token" "agent" {
 #####################################################
 
 module "osconfig" {
-  source            = "../../../../../../common/gcp/osconfig/base"
+  source            = "../../../../../common/gcp/osconfig/base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id

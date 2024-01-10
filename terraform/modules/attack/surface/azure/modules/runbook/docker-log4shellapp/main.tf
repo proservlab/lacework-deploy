@@ -38,7 +38,7 @@ locals {
 #####################################################
 
 module "runbook" {
-    source = "../../../../../../common/azure/runbook/base"
+    source = "../../../../../common/azure/runbook/base"
     environment                 = var.environment
     deployment                  = var.deployment
     region                      = var.region
