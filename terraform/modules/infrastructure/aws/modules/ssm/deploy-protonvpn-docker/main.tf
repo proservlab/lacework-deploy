@@ -41,12 +41,12 @@ locals {
 # SSM 
 ###########################
 
-module "ssm" {
-    source          = "../../../../../common/aws/ssm/base"
-    environment     = var.environment
-    deployment      = var.deployment
-    tag             = var.tag
-    timeout         = var.timeout
-    cron            = var.cron
-    base64_payload  = local.base64_payload
-}
+# module "ssm" {
+#     source          = "../../../../../common/aws/ssm/base"
+#     environment     = var.environment
+#     deployment      = var.deployment
+#     tag             = var.tag
+#     timeout         = var.timeout
+#     cron            = var.cron
+#     base64_payload  = local.base64_payload
+# }
