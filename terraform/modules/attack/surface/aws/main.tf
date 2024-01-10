@@ -176,13 +176,12 @@ module "ec2-add-trusted-ingress-app" {
 }
 
 ##################################################
-# AWS SSM
-# ssm tag-based surface config
+# AWS SSM: Surface
 ##################################################
 
 module "ssh-keys" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/ssh-keys"
+  source = "./modules/ssm/ssh-keys"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
@@ -192,7 +191,7 @@ module "ssh-keys" {
 
 module "ssh-user" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/ssh-user"
+  source = "./modules/ssm/ssh-user"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   username = local.config.context.aws.ssm.ssh_user.username
@@ -201,7 +200,7 @@ module "ssh-user" {
 
 module "aws-credentials" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/aws-credentials"
+  source = "./modules/ssm/aws-credentials"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
@@ -209,9 +208,13 @@ module "aws-credentials" {
   compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user
 }
 
+##################################################
+# AWS SSM: Vulnerable Apps
+##################################################
+
 module "vulnerable-docker-log4shellapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/vulnerable/docker-log4shellapp"
+  source = "./modules/ssm/docker-log4shellapp"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   listen_port = local.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
@@ -219,7 +222,7 @@ module "vulnerable-docker-log4shellapp" {
 
 module "vulnerable-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/vulnerable/log4j-app"
+  source = "./modules/ssm/log4j-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
@@ -228,7 +231,7 @@ module "vulnerable-log4j-app" {
 
 module "vulnerable-npm-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.npm_app.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/vulnerable/npm-app"
+  source = "./modules/ssm/npm-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
@@ -237,7 +240,7 @@ module "vulnerable-npm-app" {
 
 module "vulnerable-python3-twisted-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/vulnerable/python3-twisted-app"
+  source = "./modules/ssm/python3-twisted-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
@@ -246,7 +249,7 @@ module "vulnerable-python3-twisted-app" {
 
 module "vulnerable-rds-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.rds_app.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/ec2/vulnerable/rds-app"
+  source = "./modules/ssm/rds-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   

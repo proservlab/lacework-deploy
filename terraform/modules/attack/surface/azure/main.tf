@@ -177,7 +177,7 @@ module "compute-add-app-trusted-ingress" {
 
 module "ssh-keys" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.ssh_keys.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/compute/ssh-keys"
+  source = "./modules/runbook/ssh-keys"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
@@ -193,7 +193,7 @@ module "ssh-keys" {
 
 module "vulnerable-docker-log4shellapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/compute/vulnerable/docker-log4shellapp"
+  source = "./modules/runbook/docker-log4shellapp"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
@@ -207,7 +207,7 @@ module "vulnerable-docker-log4shellapp" {
 
 module "vulnerable-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/compute/vulnerable/log4j-app"
+  source = "./modules/runbook/log4j-app"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
@@ -221,7 +221,7 @@ module "vulnerable-log4j-app" {
 
 module "vulnerable-npm-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.npm_app.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/compute/vulnerable/npm-app"
+  source = "./modules/runbook/npm-app"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
@@ -235,7 +235,7 @@ module "vulnerable-npm-app" {
 
 module "vulnerable-python3-twisted-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/compute/vulnerable/python3-twisted-app"
+  source = "./modules/runbook/python3-twisted-app"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region

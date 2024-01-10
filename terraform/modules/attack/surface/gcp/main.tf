@@ -151,7 +151,7 @@ module "gce-add-trusted-ingress" {
 
 module "ssh-keys" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.ssh_keys.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/ssh-keys"
+  source = "./modules/osconfig/ssh-keys"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
@@ -163,7 +163,7 @@ module "ssh-keys" {
 
 module "gcp-credentials" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.gcp_credentials.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/gcp-credentials"
+  source = "./modules/osconfig/gcp-credentials"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
@@ -177,7 +177,7 @@ module "gcp-credentials" {
 
 module "vulnerable-docker-log4shellapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/vulnerable/docker-log4shellapp"
+  source = "./modules/osconfig/docker-log4shellapp"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
@@ -190,7 +190,7 @@ module "vulnerable-docker-log4shellapp" {
 
 module "vulnerable-npm-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.npm_app.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/vulnerable/npm-app"
+  source = "./modules/osconfig/npm-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
@@ -203,7 +203,7 @@ module "vulnerable-npm-app" {
 
 module "vulnerable-python3-twisted-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/vulnerable/python3-twisted-app"
+  source = "./modules/osconfig/python3-twisted-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
@@ -216,7 +216,7 @@ module "vulnerable-python3-twisted-app" {
 
 module "vulnerable-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gce/vulnerable/log4j-app"
+  source = "./modules/osconfig/log4j-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
