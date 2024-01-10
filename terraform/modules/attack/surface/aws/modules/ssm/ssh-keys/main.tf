@@ -75,7 +75,7 @@ locals {
 ###########################
 
 module "ssm-public" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.public_tag
@@ -89,7 +89,7 @@ module "ssm-public" {
 ###########################
 
 module "ssm-private" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.private_tag

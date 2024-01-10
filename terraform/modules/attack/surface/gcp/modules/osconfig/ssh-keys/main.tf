@@ -71,7 +71,7 @@ locals {
 #####################################################
 
 module "osconfig-public" {
-  source            = "../../../../../common/gcp/osconfig/base"
+  source            = "../../../../../../common/gcp/osconfig/base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id
@@ -84,8 +84,8 @@ module "osconfig-public" {
 # GCP OSCONFIG PRIVATE
 #####################################################
 
-module "osconfig-public" {
-  source            = "../../../../../common/gcp/osconfig/base"
+module "osconfig-private" {
+  source            = "../../../../../../common/gcp/osconfig/base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id

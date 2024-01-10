@@ -198,7 +198,7 @@ module "aks" {
 
 module "runbook-deploy-lacework" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_agent == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-lacework"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -219,7 +219,7 @@ module "runbook-deploy-lacework" {
 
 module "runbook-deploy-lacework-syscall-config" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_syscall_config == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-lacework-syscall-config"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-syscall-config"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -239,7 +239,7 @@ module "runbook-deploy-lacework-syscall-config" {
 
 module "runbook-deploy-lacework-code-aware-agent" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_code_aware_agent == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-lacework-code-aware-agent"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-code-aware-agent"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -257,7 +257,7 @@ module "runbook-deploy-lacework-code-aware-agent" {
 
 module "runbook-deploy-docker" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_docker == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-docker"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-docker"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -275,7 +275,7 @@ module "runbook-deploy-docker" {
 
 module "runbook-deploy-git" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_git == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-git"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-git"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -293,7 +293,7 @@ module "runbook-deploy-git" {
 
 module "runbook-aws-cli" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_aws_cli == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-aws-cli"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-aws-cli"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -311,7 +311,7 @@ module "runbook-aws-cli" {
 
 module "runbook-lacework-cli" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_cli == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-lacework-cli"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-cli"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -329,7 +329,7 @@ module "runbook-lacework-cli" {
 
 module "runbook-kubectl-cli" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_kubectl_cli == true ) ? 1 : 0
-  source          = "./modules/runbook/deploy-kubectl-cli"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-kubectl-cli"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
