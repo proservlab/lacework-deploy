@@ -37,8 +37,10 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 # Determine Package Manager
 if command -v apt-get &>/dev/null; then
     PACKAGE_MANAGER="apt-get"
+    PACKAGES="${apt_packages}"
 elif command -v yum &>/dev/null; then
     PACKAGE_MANAGER="yum"
+    PACKAGES="${yum_packages}"
 else
     log "Neither apt-get nor yum found. Exiting..."
     exit 1
@@ -58,27 +60,27 @@ while check_package_manager; do
 done
 
 # Conditional Commands based on package manager
-if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${apt_packages}" ]; then
+if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${apt_pre_tasks}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${apt_pre_tasks}
 EOF
-    sudo /bin/bash -c "apt-get update && apt-get install -y ${apt_packages}" >> $LOGFILE 2>&1
-    if [ $? -ne 0 ]; then
-        log "Failed to install some_package using apt-get"
-        exit 1
-    fi
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${apt_post_tasks}
-EOF
-elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${yum_packages}" ]; then
+elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${yum_pre_tasks}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${yum_pre_tasks}
 EOF
-    sudo /bin/bash -c "yum update && yum install -y ${yum_packages}" >> $LOGFILE 2>&1
+fi
+if [ "" != "$PACKAGES" ]; then
+    sudo /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
     if [ $? -ne 0 ]; then
-        log "Failed to install some_package using apt-get"
+        log "Failed to install some_package using $PACKAGE_MANAGER"
         exit 1
     fi
+fi
+if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${apt_post_tasks}" ]; then
+    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+${apt_post_tasks}
+EOF
+elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${yum_post_tasks}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${yum_post_tasks}
 EOF
@@ -98,8 +100,10 @@ done
 log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
-cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+if [ "" != "${next_stage_payload}" ]; then
+    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${next_stage_payload}
 EOF
+fi
 
 log "Done"

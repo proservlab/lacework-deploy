@@ -1,5 +1,19 @@
 locals {
     aws_creds = join("\n", [ for u,k in var.compromised_credentials: "${k.rendered}" ])
+    
+    payload_test = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", {
+        script_name = basename(path.module)
+        log_rotation_count = 2
+        apt_pre_tasks = ""
+        apt_packages = "python3-pip"
+        apt_post_tasks: ""
+        yum_pre_tasks:  shell commands to execute before install
+        yum_packages: a list of yum packages to install
+        yum_post_tasks: shell commands to execute after install
+        script_delay_secs: total number of seconds to wait before starting the next stage
+        next_stage_payload: shell commands to execute after delay
+    }))
+    
     payload = <<-EOT
     LOGFILE=/tmp/${var.tag}.log
     function log {

@@ -71,109 +71,35 @@ locals {
 }
 
 #####################################################
-# RUNBOOK
+# RUNBOOK PUBLIC
 #####################################################
 
-locals {
-    automation_account_name = var.automation_account
-}
-
-
-data "azurerm_subscription" "current" {
-}
-
-#####################################################
-# RESOURCE GROUP RUNBOOK
-#####################################################
-
-resource "random_string" "this" {
-    length            = 4
-    special           = false
-    upper             = false
-    lower             = true
-    numeric           = true
+module "runbook-public" {
+    source = "../../../../../../common/azure/runbook/base"
+    environment                 = var.environment
+    deployment                  = var.deployment
+    region                      = var.region
+    
+    resource_group              = var.resource_group
+    automation_account          = var.automation_account
+    automation_princial_id      = var.automation_princial_id
+    tag                         = var.public_tag
+    base64_payload              = local.base64_payload_public
 }
 
 #####################################################
-# RESOURCE GROUP RUNBOOK PUBLIC KEY
+# RUNBOOK PRIVATE
 #####################################################
 
-resource "azurerm_automation_runbook" "public_demo_rb" {
-    name                    = "${var.public_tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
-    location                = var.resource_group.location
-    resource_group_name     = var.resource_group.name
-    automation_account_name = var.automation_account
-    log_verbose             = "true"
-    log_progress            = "true"
-    description             = "Attack simulation runbook"
-    runbook_type            = "Script"
-    content                 = templatefile(pathexpand("${path.module}/runbooks/powershell/RunCommand.ps1"), {
-                                subscription            = data.azurerm_subscription.current.subscription_id
-                                resource_group          = var.resource_group.name
-                                automation_account      = var.automation_princial_id
-                                base64_payload          = local.base64_payload_private
-                                module_name             = basename(abspath(path.module))
-                                tag                     = var.public_tag
-                            })
-}
-
-resource "azurerm_automation_schedule" "public_hourly" {
-  name                    = "${var.public_tag}-schedule-${var.environment}-${var.deployment}_${random_string.this.id}"
-  resource_group_name     = var.resource_group.name
-  automation_account_name = var.automation_account
-  frequency               = "Hour"
-  interval                = 1
-  timezone                = "UTC"
-  description             = "Run every hour"
-  start_time              = timeadd(timestamp(), "10m")
-}
-
-resource "azurerm_automation_job_schedule" "public_demo_sched" {
-    resource_group_name     = var.resource_group.name
-    automation_account_name = var.automation_account
-    schedule_name           = azurerm_automation_schedule.public_hourly.name
-    runbook_name            = azurerm_automation_runbook.public_demo_rb.name
-    depends_on              = [azurerm_automation_schedule.public_hourly]
-}
-
-#####################################################
-# RESOURCE GROUP RUNBOOK PRIVATE KEY
-#####################################################
-
-resource "azurerm_automation_runbook" "private_demo_rb" {
-    name                    = "${var.private_tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
-    location                = var.resource_group.location
-    resource_group_name     = var.resource_group.name
-    automation_account_name = var.automation_account
-    log_verbose             = "true"
-    log_progress            = "true"
-    description             = "Attack simulation runbook"
-    runbook_type            = "Script"
-    content                 = templatefile(pathexpand("${path.module}/runbooks/powershell/RunCommand.ps1"), {
-                                subscription            = data.azurerm_subscription.current.subscription_id
-                                resource_group          = var.resource_group.name
-                                automation_account      = var.automation_princial_id
-                                base64_payload          = local.base64_payload_private
-                                module_name             = basename(abspath(path.module))
-                                tag                     = var.private_tag
-                            })
-}
-
-resource "azurerm_automation_schedule" "private_hourly" {
-  name                    = "${var.private_tag}-schedule-${var.environment}-${var.deployment}_${random_string.this.id}"
-  resource_group_name     = var.resource_group.name
-  automation_account_name = var.automation_account
-  frequency               = "Hour"
-  interval                = 1
-  timezone                = "UTC"
-  description             = "Run every hour"
-  start_time              = timeadd(timestamp(), "10m")
-}
-
-resource "azurerm_automation_job_schedule" "private_demo_sched" {
-    resource_group_name     = var.resource_group.name
-    automation_account_name = var.automation_account
-    schedule_name           = azurerm_automation_schedule.private_hourly.name
-    runbook_name            = azurerm_automation_runbook.private_demo_rb.name
-    depends_on              = [azurerm_automation_schedule.private_hourly]
+module "runbook-private" {
+    source = "../../../../../../common/azure/runbook/base"
+    environment                 = var.environment
+    deployment                  = var.deployment
+    region                      = var.region
+    
+    resource_group              = var.resource_group
+    automation_account          = var.automation_account
+    automation_princial_id      = var.automation_princial_id
+    tag                         = var.private_tag
+    base64_payload              = local.base64_payload_private
 }

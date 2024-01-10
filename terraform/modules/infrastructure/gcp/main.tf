@@ -233,7 +233,7 @@ module "osconfig-deploy-lacework-syscall-config" {
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
 
-  syscall_config = "${path.module}/modules/osconfig/deploy-lacework-syscall-config/resources/syscall_config.yaml"
+  syscall_config = var.default_lacework_sysconfig_path
 
   tag = "osconfig_deploy_lacework_syscall"
 }
