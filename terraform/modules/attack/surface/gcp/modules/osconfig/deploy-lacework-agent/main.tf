@@ -11,9 +11,9 @@ module "payload" {
         gcp_location      = var.gcp_location
         tag               = var.tag
         lacework_agent_tags         = var.lacework_agent_tags
-        lacework_agent_temp_path    = var.lacework_agent_tags
-        lacework_agent_access_token = var.lacework_agent_tags
-        lacework_server_url         = var.lacework_agent_tags
+        lacework_agent_temp_path    = var.lacework_agent_temp_path
+        lacework_agent_access_token = var.lacework_agent_access_token
+        lacework_server_url         = var.lacework_server_url
     }   
 }
 
