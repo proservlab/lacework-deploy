@@ -49,6 +49,6 @@ locals {
                 }))
 
     outputs = {
-        base64_payload = base64_payload
+        base64_payload = local.base64_payload
     }
 }
