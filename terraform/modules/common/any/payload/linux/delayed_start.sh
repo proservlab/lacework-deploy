@@ -12,7 +12,7 @@
 # script_delay_secs: total number of seconds to wait before starting the next stage
 # next_stage_payload: shell commands to execute after delay
 
-LOCKFILE="${config['script_name']}.lock"
+LOCKFILE="${config["script_name"]}.lock"
 if [ -e "$LOCKFILE" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
@@ -24,23 +24,23 @@ function cleanup {
 }
 trap cleanup EXIT INT TERM
 
-SCRIPTNAME="${config['script_name']}"
+SCRIPTNAME="${config["script_name"]}"
 LOGFILE=/tmp/lacework-deploy-$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
 }
-MAXLOG=${config['log_rotation_count']}
+MAXLOG=${config["log_rotation_count"]}
 for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 # Determine Package Manager
 if command -v apt-get &>/dev/null; then
     PACKAGE_MANAGER="apt-get"
-    PACKAGES="${config['apt_packages']}"
+    PACKAGES="${config["apt_packages"]}"
 elif command -v yum &>/dev/null; then
     PACKAGE_MANAGER="yum"
-    PACKAGES="${config['yum_packages']}"
+    PACKAGES="${config["yum_packages"]}"
 else
     log "Neither apt-get nor yum found. Exiting..."
     exit 1
@@ -60,13 +60,13 @@ while check_package_manager; do
 done
 
 # Conditional Commands based on package manager
-if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config['apt_pre_tasks']}" ]; then
+if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config["apt_pre_tasks"]}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${config['apt_pre_tasks']}
+${config["apt_pre_tasks"]}
 EOF
-elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config['yum_pre_tasks']}" ]; then
+elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config["yum_pre_tasks"]}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${config['yum_pre_tasks']}
+${config["yum_pre_tasks"]}
 EOF
 fi
 if [ "" != "$PACKAGES" ]; then
@@ -76,17 +76,17 @@ if [ "" != "$PACKAGES" ]; then
         exit 1
     fi
 fi
-if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config['apt_post_tasks']}" ]; then
+if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config["apt_post_tasks"]}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${config['apt_post_tasks']}
+${config["apt_post_tasks"]}
 EOF
-elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config['yum_post_tasks']}" ]; then
+elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config["yum_post_tasks"]}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${config['yum_post_tasks']}
+${config["yum_post_tasks"]}
 EOF
 fi
 
-MAX_WAIT=${config['script_delay_secs']}
+MAX_WAIT=${config["script_delay_secs"]}
 CHECK_INTERVAL=60
 log "starting attack delay: $MAX_WAIT seconds"
 SECONDS_WAITED=0
@@ -100,9 +100,9 @@ done
 log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
-if [ "" != "${config['next_stage_payload']}" ]; then
+if [ "" != "${config["next_stage_payload"]}" ]; then
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
-${config['next_stage_payload']}
+${config["next_stage_payload"]}
 EOF
 fi
 
