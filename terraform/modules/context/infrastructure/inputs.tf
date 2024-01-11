@@ -68,7 +68,7 @@ variable "config" {
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
           deploy_lacework_code_aware_agent = bool
-          deploy_aws_cli        = bool
+          deploy_azure_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
           deploy_protonvpn_docker = bool
@@ -121,7 +121,7 @@ variable "config" {
           deploy_lacework_agent = bool
           deploy_lacework_syscall_config = bool
           deploy_lacework_code_aware_agent = bool
-          deploy_aws_cli        = bool
+          deploy_gcp_cli        = bool
           deploy_lacework_cli   = bool
           deploy_kubectl_cli    = bool
           deploy_protonvpn_docker = bool
@@ -462,7 +462,7 @@ variable "config" {
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
           deploy_lacework_code_aware_agent = false
-          deploy_aws_cli        = false
+          deploy_azure_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
           deploy_protonvpn_docker = false
@@ -579,7 +579,7 @@ variable "config" {
           deploy_lacework_agent = false
           deploy_lacework_syscall_config = false
           deploy_lacework_code_aware_agent = false
-          deploy_aws_cli        = false
+          deploy_gcp_cli        = false
           deploy_lacework_cli   = false
           deploy_kubectl_cli    = false
           deploy_protonvpn_docker = false

@@ -198,7 +198,7 @@ module "aks" {
 
 module "runbook-deploy-lacework" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_lacework_agent == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework"
+  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-agent"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -291,9 +291,9 @@ module "runbook-deploy-git" {
   ]
 }
 
-module "runbook-aws-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_aws_cli == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-aws-cli"
+module "runbook-azure-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.deploy_azure_cli == true ) ? 1 : 0
+  source          = "../../attack/surface/azure/modules/runbook/deploy-azure-cli"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.config.context.azure.region
@@ -301,7 +301,7 @@ module "runbook-aws-cli" {
   automation_account = module.automation-account[0].automation_account_name
   automation_princial_id = module.automation-account[0].automation_princial_id
   
-  tag             = "runbook_deploy_aws_cli"
+  tag             = "runbook_deploy_azure_cli"
   
   depends_on = [
     module.compute,

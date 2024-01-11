@@ -163,7 +163,7 @@ module "ssh-keys" {
 
 module "gcp-credentials" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.gcp_credentials.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/gcp-credentials"
+  source = "./modules/osconfig/deploy-gcp-credentials"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id

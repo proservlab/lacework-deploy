@@ -21,13 +21,13 @@ variable "tag" {
     default = "osconfig_exec_vuln_npm_app_target"
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "listen_port" {
   type = number
   description = "listening port for container"
   default=8000
-}
-
-variable "timeout" {
-    type = string
-    default = "600s"
 }

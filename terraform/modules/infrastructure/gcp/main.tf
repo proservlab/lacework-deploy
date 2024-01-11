@@ -249,16 +249,16 @@ module "osconfig-deploy-lacework-code-aware-agent" {
   tag = "osconfig_deploy_lacework_code_aware_agent"
 }
 
-# osconfig deploy aws cli
-module "osconfig-deploy-aws-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_aws_cli== true ) ? 1 : 0
-  source       = "../../attack/surface/gcp/modules/osconfig/deploy-aws-cli"
+# osconfig deploy gcp cli
+module "osconfig-deploy-gcp-cli" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_gcp_cli== true ) ? 1 : 0
+  source       = "../../attack/surface/gcp/modules/osconfig/deploy-gcp-cli"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
 
-  tag =  "osconfig_deploy_aws_cli"
+  tag =  "osconfig_deploy_gcp_cli"
 }
 
 # osconfig deploy lacework cli

@@ -191,6 +191,21 @@ module "ssh-keys" {
   ssh_authorized_keys_path = local.config.context.azure.runbook.ssh_keys.ssh_authorized_keys_path
 }
 
+module "ssh-keys" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.ssh_user.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/ssh-user"
+  environment     = local.config.context.global.environment
+  deployment      = local.config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
+  username = local.config.context.azure.runbook.ssh_user.username
+  password = local.config.context.azure.runbook.ssh_user.password
+}
+
 module "vulnerable-docker-log4shellapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
   source = "./modules/runbook/docker-log4shellapp"

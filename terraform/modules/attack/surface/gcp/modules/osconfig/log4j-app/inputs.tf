@@ -21,13 +21,13 @@ variable "tag" {
     default = "osconfig_exec_vuln_log4j_app_target"
 }
 
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
 variable "listen_port" {
   type = number
   description = "listening port for container"
   default=8080
-}
-
-variable "timeout" {
-    type = string
-    default = "600s"
 }

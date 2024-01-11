@@ -30,3 +30,21 @@ variable "timeout" {
     type = string
     default = "600s"
 }
+
+variable "ssh_public_key_path" {
+    type = string
+    description = "path to write ssh public key"
+    default = "/home/ubuntu/.ssh/secret_key"
+}
+
+variable "ssh_private_key_path" {
+    type = string
+    description = "path to write ssh private key"
+    default = "/home/ubuntu/.ssh/secret_key.pub"
+}
+
+variable "ssh_authorized_keys_path" {
+    type = string
+    description = "path to append ssh authorized key"
+    default = "/home/ubuntu/.ssh/authorized_keys"
+}

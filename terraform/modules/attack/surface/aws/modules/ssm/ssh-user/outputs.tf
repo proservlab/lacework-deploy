@@ -3,5 +3,5 @@ output "username" {
 }
 
 output "password" {
-    value = local.password
+    value = module.payload.outputs["password"]
 }

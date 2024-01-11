@@ -200,7 +200,7 @@ module "ssh-user" {
 
 module "aws-credentials" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/aws-credentials"
+  source = "./modules/ssm/deploy-aws-credentials"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 

@@ -70,7 +70,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           azure_credentials = object({ 
@@ -138,7 +138,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           gcp_credentials = object({ 
@@ -220,7 +220,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           aws_credentials = object({ 
@@ -429,7 +429,7 @@ variable "config" {
           }
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           }
           azure_credentials = {
@@ -497,7 +497,7 @@ variable "config" {
           },
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           },
           gcp_credentials = {
@@ -579,7 +579,7 @@ variable "config" {
           },
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           },
           aws_credentials = { 
