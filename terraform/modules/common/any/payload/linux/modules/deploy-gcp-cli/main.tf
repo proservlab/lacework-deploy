@@ -21,7 +21,7 @@ locals {
             && ./google-cloud-sdk/install.sh -q
 
         cat >> /etc/profile.d/gcloud <<EOF
-        PATH=${PATH}:/google-cloud-sdk/bin
+        PATH=$PATH:/google-cloud-sdk/bin
         EOF
         gcloud components install gke-gcloud-auth-plugin --quiet
         EOT
@@ -38,7 +38,7 @@ locals {
             && ./google-cloud-sdk/install.sh -q
 
         cat >> /etc/profile.d/gcloud <<EOF
-        PATH=${PATH}:/google-cloud-sdk/bin
+        PATH=$PATH:/google-cloud-sdk/bin
         EOF
         gcloud components install gke-gcloud-auth-plugin --quiet
         EOT
