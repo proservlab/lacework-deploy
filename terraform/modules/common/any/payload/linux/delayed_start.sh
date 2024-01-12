@@ -88,7 +88,7 @@ fi
 
 MAX_WAIT=${config["script_delay_secs"]}
 CHECK_INTERVAL=60
-log "starting attack delay: $MAX_WAIT seconds"
+log "starting delay: $MAX_WAIT seconds"
 SECONDS_WAITED=0
 while true; do 
     SECONDS_WAITED=$((SECONDS_WAITED + CHECK_INTERVAL))
@@ -101,9 +101,12 @@ log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
 if [ "" != "${config["next_stage_payload"]}" ]; then
+    log "found payload - starting execution..."
     cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${config["next_stage_payload"]}
 EOF
+else
+    log "no payload found - skipping next stage"
 fi
 
 log "Done"
