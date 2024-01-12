@@ -51,7 +51,15 @@ locals {
 # LACEWORK AGENT
 #####################################################
 
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
+}
+
 resource "lacework_agent_access_token" "agent" {
     count = try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? 0 : 1
-    name = "endpoint-aws-agent-access-token-${var.inputs["environment"]}-${var.inputs["deployment"]}"
+    name = "endpoint-agent-access-token-${random_string.this.id}-${var.inputs["environment"]}-${var.inputs["deployment"]}"
 }

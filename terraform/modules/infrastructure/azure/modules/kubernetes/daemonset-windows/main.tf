@@ -4,10 +4,18 @@ resource "local_file" "syscall_config" {
     filename = "${path.module}/helm-charts/lacework-agent-windows/config/syscall_config.yaml"
 }
 
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
+}
+
 # create a token for the daemonset
 resource "lacework_agent_access_token" "agent" {
     # count = can(length(var.lacework_agent_access_token)) ? 0 : 1
-    name = "daemonset-aws-windows-agent-access-token-${var.environment}-${var.deployment}"
+    name = "daemonset-windows-agent-access-token-${random_string.this.id}-${var.environment}-${var.deployment}"
 }
 
 # use the local chart to apply (current workaround for syscall_config.yaml)
