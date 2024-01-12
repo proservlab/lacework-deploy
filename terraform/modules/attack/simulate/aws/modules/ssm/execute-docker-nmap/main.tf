@@ -43,7 +43,7 @@ locals {
     log "background job started"
     log "done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 
     
     delayed_start   = base64encode(templatefile(

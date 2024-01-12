@@ -39,7 +39,7 @@ locals {
     ${local.aws_commands}
     log "Done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 ###########################

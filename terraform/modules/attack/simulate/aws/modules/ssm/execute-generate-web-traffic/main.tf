@@ -25,7 +25,7 @@ locals {
     ${local.curl_urls}
     log "Done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 ###########################

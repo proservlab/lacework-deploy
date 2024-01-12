@@ -20,7 +20,7 @@ locals {
     touch /tmp/runbook.txt
     log "done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 #####################################################

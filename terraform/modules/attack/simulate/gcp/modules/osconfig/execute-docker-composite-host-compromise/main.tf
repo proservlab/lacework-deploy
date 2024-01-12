@@ -44,7 +44,7 @@ locals {
     log "background job started"
     log "done."
     EOT
-    base64_payload      = base64encode(local.payload)
+    base64_payload      = base64gzip(local.payload)
     attack_script              = base64encode(templatefile(
                                 "${path.module}/resources/${local.attack_script_name}",
                                 {

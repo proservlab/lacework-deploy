@@ -40,7 +40,7 @@ locals {
     log "done."
     
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 
     delayed_start   = base64encode(templatefile(
                                 "${path.module}/resources/${local.start_script}",

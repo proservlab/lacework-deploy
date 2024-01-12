@@ -68,7 +68,7 @@ resource "google_os_config_os_policy_assignment" "this" {
           enforce {
             interpreter      = "SHELL"
             
-            script           = "echo ${var.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | bash & exit 100"
+            script           = "echo ${var.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | gunzip| bash & exit 100"
           }
         }
       }

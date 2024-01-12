@@ -21,7 +21,7 @@ locals {
     curl -s "$OAST_URL" >> $LOGFILE 2>&1
     log "done"
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 #####################################################

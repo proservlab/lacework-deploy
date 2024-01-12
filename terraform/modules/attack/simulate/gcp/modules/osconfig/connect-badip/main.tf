@@ -22,7 +22,7 @@ locals {
     ping -c 10 -w 5 $BADIP >> $LOGFILE 2>&1
     log "done"
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 #####################################################

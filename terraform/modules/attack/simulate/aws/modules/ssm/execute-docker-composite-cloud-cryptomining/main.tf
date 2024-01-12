@@ -57,7 +57,7 @@ locals {
     fi;
     log "Done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 
     protonvpn       = templatefile(
                                 "${path.module}/resources/protonvpn.env.tpl", 

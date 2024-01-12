@@ -15,7 +15,7 @@ locals {
     docker ps -a >> $LOGFILE 2>&1
     log "done"
     EOT
-    base64_payload = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = basename(path.module)
         log_rotation_count = 2
         apt_pre_tasks = ""

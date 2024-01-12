@@ -37,7 +37,7 @@ locals {
     killall -9 chisel
     log "done"
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 ###########################

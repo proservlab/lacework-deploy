@@ -42,7 +42,7 @@ locals {
     
     log "done."
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 
     discovery       = base64encode(file(
                                 "${path.module}/resources/${local.attack_script}", 

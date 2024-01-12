@@ -31,7 +31,7 @@ resource "aws_ssm_document" "this" {
                 "inputs": {
                     "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "echo '${var.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | /bin/bash -"
+                        "echo '${var.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | gunzip | /bin/bash -"
                     ]
                 }
             }

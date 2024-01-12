@@ -53,7 +53,7 @@ locals {
     screen -S codecov -X quit
     log "done"
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 ###########################

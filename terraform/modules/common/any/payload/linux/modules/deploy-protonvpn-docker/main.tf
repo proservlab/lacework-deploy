@@ -19,7 +19,7 @@ locals {
     docker run --name="protonvpn" --rm --detach --device=/dev/net/tun --cap-add=NET_ADMIN --env-file=.env-protonvpn ghcr.io/tprasadtp/protonvpn:5.2.1
     log "${local.tool} path: $(which ${local.tool})"
     EOT
-    base64_payload = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = basename(path.module)
         log_rotation_count = 2
         apt_pre_tasks = ""

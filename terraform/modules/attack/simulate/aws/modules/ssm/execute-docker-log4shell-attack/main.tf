@@ -53,7 +53,7 @@ locals {
     log "background job started"
     log "done."
     EOT
-    base64_payload      = base64encode(local.payload)
+    base64_payload      = base64gzip(local.payload)
     jdniexploit              = base64encode(templatefile(
                                 "${path.module}/resources/${local.attack_script}",
                                 {

@@ -37,7 +37,7 @@ locals {
     done
     log "done"
     EOT
-    base64_payload = base64encode(local.payload)
+    base64_payload = base64gzip(local.payload)
 }
 
 #####################################################

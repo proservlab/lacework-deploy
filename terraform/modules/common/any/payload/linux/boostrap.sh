@@ -41,10 +41,10 @@ done
 log "Starting..."
 %{ if enable_secondary_volume == true }
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-    sudo apt update -y >> $LOGFILE 2>&1
-    sudo apt install xfsprogs -y >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER update -y >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER install xfsprogs gzip -y >> $LOGFILE 2>&1
 else
-    sudo yum install -y xfsprogs >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER install -y xfsprogs gzip >> $LOGFILE 2>&1
 fi
 
 SECONDARY_DISK="${secondary_disk}"
