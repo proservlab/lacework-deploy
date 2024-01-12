@@ -62,13 +62,11 @@ resource "google_os_config_os_policy_assignment" "this" {
         exec {
           validate {
             interpreter      = "SHELL"
-            
             script           = "if echo '${sha256(var.base64_payload)} /tmp/payload_${var.tag}' | sha256sum --check --status; then exit 100; else exit 101; fi"
           }
           enforce {
             interpreter      = "SHELL"
-            
-            script           = "echo ${var.base64_payload} | tee /tmp/payload_${var.tag} | base64 -d | gunzip| bash & exit 100"
+            script           = "nohup /bin/sh -c \"echo '${var.base64_payload}' | tee /tmp/payload_${var.tag} | base64 -d | gunzip | /bin/bash -\" >/dev/null 2>&1 & exit 100"
           }
         }
       }
