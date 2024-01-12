@@ -18,15 +18,7 @@ locals {
   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
 }
 
-# resource "null_resource" "log" {
-#   triggers = {
-#     log_message = jsonencode(local.config)
-#   }
 
-#   provisioner "local-exec" {
-#     command = "echo '${jsonencode(local.config)}'"
-#   }
-# }
 
 ##################################################
 # GENERAL

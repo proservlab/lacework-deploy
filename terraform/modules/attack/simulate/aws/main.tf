@@ -150,15 +150,7 @@ locals {
   ]
 }
 
-# resource "null_resource" "log" {
-#   triggers = {
-#     log_message = jsonencode(local.config)
-#   }
 
-#   provisioner "local-exec" {
-#     command = "echo '${jsonencode(local.config)}'"
-#   }
-# }
 
 ##################################################
 # DEPLOYMENT CONTEXT
