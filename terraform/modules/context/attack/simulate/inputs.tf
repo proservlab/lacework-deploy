@@ -525,6 +525,7 @@ variable "config" {
                 enabled                     = bool
                 compromised_credentials     = any
                 compromised_keys_user       = string
+                profile                     = string
                 commands                    = list(string)
               })
             })
@@ -689,6 +690,7 @@ variable "config" {
                 enabled                     = bool
                 compromised_credentials     = any
                 compromised_keys_user       = string
+                profile                     = string
                 commands                    = list(string)
               })
             })
@@ -1233,6 +1235,7 @@ variable "config" {
                 enabled                     = false
                 compromised_credentials     = {}
                 compromised_keys_user       = null
+                profile                     = "aws-traffic"
                 commands                    = []
               }
             }
@@ -1406,6 +1409,7 @@ variable "config" {
                 enabled                     = false
                 compromised_credentials     = {}
                 compromised_keys_user       = null
+                profile                     = "aws-traffic"
                 commands                    = []
               }
             }

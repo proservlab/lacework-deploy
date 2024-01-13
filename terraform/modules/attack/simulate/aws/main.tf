@@ -408,6 +408,7 @@ module "ssm-execute-generate-aws-cli-traffic-attacker" {
 
   compromised_credentials = var.compromised_credentials
   compromised_keys_user   = local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.compromised_keys_user
+  profile                 = local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.profile
   commands                = local.config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.commands
   tag                     = "ssm_exec_generate_aws_cli_traffic_attacker"
 }

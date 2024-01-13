@@ -11,7 +11,7 @@ for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null ||
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 log "Checking for aws cli..."
-while ! which aws > /dev/null; do
+while ! command -v aws > /dev/null; do
     log "aws cli not found or not ready - waiting"
     sleep 120
 done

@@ -18,7 +18,7 @@ while check_apt; do
 done
 
 # check for required aws cli
-if ! which aws > /dev/null; then
+if ! command -v aws > /dev/null; then
     log "aws cli not found - installing..."
     sudo apt-get update && sudo apt-get install -y awscli
     log "done"

@@ -21,7 +21,7 @@ locals {
     done
     log "scan target: ${local.nmap_scan_host} ${local.nmap_ports}"
     log "checking for nmap"
-    if ! which nmap; then
+    if ! command -v nmap; then
         log "nmap not found"
         log "downloading: ${local.nmap_download}"
         if [ -f ${local.nmap_path} ]; then

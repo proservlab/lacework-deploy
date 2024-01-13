@@ -35,12 +35,12 @@ locals {
         echo '${base64encode(local.cloudcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
         echo '${base64encode(local.hostcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
         for i in $(echo "US US-FREE#34 NL-FREE#148 JP-FREE#3"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
-        while ! which docker > /dev/null || ! docker ps > /dev/null; do
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
             log "docker not found or not ready - waiting"
             sleep 120
         done
         for i in $(echo "AU CR IS JP LV NL NZ SG SK US"); do cp .env-protonvpn-paid .env-protonvpn-paid-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-paid-$i; done
-        while ! which docker > /dev/null || ! docker ps > /dev/null; do
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
             log "docker not found or not ready - waiting"
             sleep 120
         done

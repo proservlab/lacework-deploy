@@ -30,11 +30,11 @@ locals {
         sleep 10
     done
     log "Checking for docker..."
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
         log "docker not found or not ready - waiting"
         sleep 120
     done
-    log "docker path: $(which docker)"
+    log "docker path: $(command -v  docker)"
     server="${local.attacker_ip}"
     timeout=600
     start_time=$(date +%s)

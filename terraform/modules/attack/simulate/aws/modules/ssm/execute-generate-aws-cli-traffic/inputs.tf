@@ -38,6 +38,12 @@ variable "compromised_keys_user" {
   default = "khon.traktour@interlacelabs"
 }
 
+variable "profile" {
+  type = string
+  description = "the aws profile name to configure for the compromised keys user"
+  default = "aws-traffic"
+}
+
 variable "commands" {
   type = list(string)
   description = "list of aws cli commands to run"

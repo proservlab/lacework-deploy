@@ -24,12 +24,12 @@ locals {
     killall -9 chisel
     truncate -s 0 /tmp/chisel.log
     log "checking for chisel..."
-    while ! which chisel; do
+    while ! command -v chisel; do
         log "chisel not found - installing"
         curl https://i.jpillora.com/chisel! | bash
         sleep 10
     done
-    log "chisel: $(which chisel)"
+    log "chisel: $(command -v  chisel)"
     /usr/local/bin/chisel client -v ${local.host_ip}:${local.host_port} ${local.port_forwards} > /tmp/chisel.log 2>&1 &
     log "waiting 10 minutes..."
     sleep 600

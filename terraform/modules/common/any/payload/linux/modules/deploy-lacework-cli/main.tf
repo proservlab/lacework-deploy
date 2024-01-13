@@ -2,11 +2,11 @@ locals {
     tool="lacework"
     payload = <<-EOT
     log "Checking for ${local.tool}..."
-    if ! which ${local.tool}; then
+    if ! command -v ${local.tool}; then
         log "${local.tool} not found installation required"
         curl https://raw.githubusercontent.com/lacework/go-sdk/main/cli/install.sh | bash
     fi
-    log "${local.tool} path: $(which ${local.tool})"
+    log "${local.tool} path: $(command -v  ${local.tool})"
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = basename(path.module)

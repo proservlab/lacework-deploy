@@ -12,7 +12,7 @@
 # script_delay_secs: total number of seconds to wait before starting the next stage
 # next_stage_payload: shell commands to execute after delay
 
-LOCKFILE="${config["script_name"]}.lock"
+LOCKFILE="/tmp/${config["script_name"]}.lock"
 if [ -e "$LOCKFILE" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1

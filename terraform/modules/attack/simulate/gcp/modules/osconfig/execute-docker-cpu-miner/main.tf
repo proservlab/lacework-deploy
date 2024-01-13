@@ -25,11 +25,11 @@ locals {
         sleep 10
     done
     log "Checking for docker..."
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
         log "docker not found or not ready - waiting"
         sleep 120
     done
-    log "docker path: $(which docker)"
+    log "docker path: $(command -v  docker)"
     if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
     sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
     sudo docker ps -a >> $LOGFILE 2>&1

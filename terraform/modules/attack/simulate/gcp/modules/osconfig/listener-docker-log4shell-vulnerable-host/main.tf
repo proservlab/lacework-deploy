@@ -19,11 +19,11 @@ locals {
         sleep 10
     done
     log "Checking for docker..."
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
         log "docker not found or not ready - waiting"
         sleep 120
     done
-    log "docker path: $(which docker)"
+    log "docker path: $(command -v  docker)"
     if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
     log "$(echo 'docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}')"
     docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image} >> $LOGFILE 2>&1

@@ -40,11 +40,11 @@ locals {
     screen -S codecov -X quit
     truncate -s 0 /tmp/codecov.log
     log "checking for git..."
-    while ! which git; do
+    while ! command -v git; do
         log "git not found - waiting"
         sleep 10
     done
-    log "git: $(which git)"
+    log "git: $(command -v  git)"
     screen -d -Logfile /tmp/codecov.log -S codecov -m env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
     screen -S codecov -X colon "logfile flush 0^M"
     log 'sending screen command: ${local.command_payload}';

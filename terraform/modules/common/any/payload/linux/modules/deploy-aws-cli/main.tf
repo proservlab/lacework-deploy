@@ -8,7 +8,7 @@ locals {
         unzip awscliv2.zip
         sudo ./aws/install
     fi
-    log "${local.tool} path: $(which ${local.tool})"
+    log "${local.tool} path: $(command -v  ${local.tool})"
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = basename(path.module)

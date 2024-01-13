@@ -1,96 +1,22 @@
-locals {
-    attack_dir = "/nmap"
-    attack_script = "nmap.sh"
-    start_script = "delayed_start.sh"
-    lock_file = "/tmp/delay_nmap.lock"
-    payload = <<-EOT
-    LOCKFILE="${ local.lock_file }"
-    if [ -e "$LOCKFILE" ]; then
-        echo "Another instance of the script is already running. Exiting..."
-        exit 1
-    fi
-    LOGFILE=/tmp/${var.tag}.log
-    function log {
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+###########################
+# PAYLOAD 
+###########################
+
+module "payload" {
+    source = "../../../../../../common/any/payload/linux/modules/execute-docker-nmap"
+    inputs = {
+        environment     = var.environment
+        deployment      = var.deployment
+        tag             = var.tag
+        timeout         = var.timeout
+        cron            = var.cron
+        attack_delay    = var.attack_delay
+        image           = var.image
+        container_name  = var.container_name
+        use_tor         = var.use_tor
+        ports           = var.ports
+        targets         = var.targets
     }
-    MAXLOG=2
-    for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
-    mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
-    check_package_manager() {
-        pgrep -f "apt" || pgrep -f "dpkg" || pgrep -f "yum" || pgrep -f "rpm"
-    }
-    while check_package_manager; do
-        log "Waiting for package manager to be available..."
-        sleep 10
-    done
-    log "Checking for docker..."
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
-        log "docker not found or not ready - waiting"
-        sleep 120
-    done
-    log "docker path: $(which docker)"
-
-    log "cleaning app directory"
-    rm -rf ${local.attack_dir}
-    mkdir -p ${local.attack_dir}
-    cd ${local.attack_dir}
-    echo ${local.delayed_start} | base64 -d > ${local.start_script}
-    echo ${local.nmap} | base64 -d > ${local.attack_script}
-
-    log "starting background delayed script start..."
-    nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
-    log "background job started"
-    log "done."
-    EOT
-    base64_payload = base64gzip(local.payload)
-
-    
-    delayed_start   = base64encode(templatefile(
-                                "${path.module}/resources/${local.start_script}",
-                                {
-                                    scriptname = "delayed_start_hydra"
-                                    lock_file = local.lock_file
-                                    attack_delay = var.attack_delay
-                                    attack_dir = local.attack_dir
-                                    attack_script = local.attack_script
-                                }
-                        ))
-    
-    nmap            = base64encode(templatefile(
-                                "${path.module}/resources/${local.attack_script}",
-                                {
-                                    content =   <<-EOT
-                                                LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
-                                                log "LOCAL_NET: $LOCAL_NET"
-                                                log "Targets: ${join(",", var.targets)}"
-                                                echo "${ length(var.targets) > 0 ? join("\n", var.targets) : "$LOCAL_NET" }" > /tmp/nmap-targets.txt
-                                                log "Ports: ${join(",", var.ports)}"
-                                                if sudo docker ps -a | grep ${var.container_name}; then 
-                                                sudo docker stop ${var.container_name}
-                                                sudo docker rm ${var.container_name}
-                                                fi
-                                                ${ var.use_tor == true ? <<-EOF
-                                                log "Using tor network..."
-                                                if ! docker ps | grep torproxy > /dev/null; then
-                                                sudo docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
-                                                fi
-                                                TORPROXY=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' torproxy)
-                                                log "Running via docker: proxychains nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
-                                                sudo /bin/bash -c "docker run -v /tmp:/tmp -e TORPROXY=$TORPROXY --name ${var.container_name} ${var.image} nmap -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true" 
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
-                                                sudo /bin/bash -c "docker rm ${var.container_name}"
-                                                EOF
-                                                : <<-EOF
-                                                log "Running via docker: nmap -Pn -sS -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt"
-                                                sudo /bin/bash -c "docker run --rm -v /tmp:/tmp --entrypoint=nmap --name ${var.container_name} ${var.image} -Pn -sT -T2 -oX /tmp/scan.xml -p${join(",", var.ports)} -iL /tmp/nmap-targets.txt || true"
-                                                sudo /bin/bash -c "docker logs ${var.container_name} >> $LOGFILE 2>&1"
-                                                sudo /bin/bash -c "docker rm ${var.container_name}"
-                                                EOF
-                                                }
-                                                EOT
-                                }
-                        ))
 }
 
 ###########################
@@ -104,5 +30,5 @@ module "ssm" {
     tag             = var.tag
     timeout         = var.timeout
     cron            = var.cron
-    base64_payload  = local.base64_payload
+    base64_payload  = module.payload.outputs["base64_payload"]
 }

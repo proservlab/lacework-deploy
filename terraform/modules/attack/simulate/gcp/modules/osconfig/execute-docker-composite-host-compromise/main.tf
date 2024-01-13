@@ -26,11 +26,11 @@ locals {
         sleep 10
     done
     log "Checking for docker..."
-    while ! which docker > /dev/null || ! docker ps > /dev/null; do
+    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
         log "docker not found or not ready - waiting"
         sleep 120
     done
-    log "docker path: $(which docker)"
+    log "docker path: $(command -v  docker)"
     log "removing previous app directory"
     rm -rf ${local.attack_dir}
     log "creating app directory"
@@ -39,9 +39,9 @@ locals {
     echo ${local.attack_script} | base64 -d > ${local.attack_script_name}
     echo ${local.start_script} | base64 -d > ${local.start_script_name}
 
-    log "starting background delayed script start..."
-    nohup /bin/bash ${local.start_script_name} >/dev/null 2>&1 &
-    log "background job started"
+    log "starting script..."
+    /bin/bash ${local.start_script_name}
+
     log "done."
     EOT
     base64_payload      = base64gzip(local.payload)
