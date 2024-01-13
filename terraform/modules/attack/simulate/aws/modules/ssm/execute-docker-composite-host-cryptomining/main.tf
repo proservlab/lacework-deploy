@@ -10,6 +10,7 @@ module "payload" {
         tag             = var.tag
         timeout         = var.timeout
         cron            = var.cron
+        region          = var.region
         compromised_credentials         = var.compromised_credentials
         compromised_keys_user           = var.compromised_keys_user
         protonvpn_user                  = var.protonvpn_user

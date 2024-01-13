@@ -10,6 +10,7 @@ module "payload" {
         tag             = var.tag
         timeout         = var.timeout
         cron            = var.cron
+        cron            = var.cron
         host_ip         = var.host_ip
         port_forwards   = var.port_forwards
         host_ip         = var.host_ip
