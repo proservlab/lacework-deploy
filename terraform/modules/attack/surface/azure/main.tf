@@ -310,12 +310,12 @@ module "kubernetes-app" {
 # }
 
 module "vulnerable-kubernetes-log4j-app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.log4j-app.enabled == true ) ? 1 : 0
   source                        = "../kubernetes/azure/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 
-  service_port                  = local.config.context.kubernetes.azure.vulnerable.log4shellapp.service_port
+  service_port                  = local.config.context.kubernetes.azure.vulnerable.log4j-app.service_port
   trusted_attacker_source       = local.config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in try(data.azurerm_public_ips.public_attacker[0].public_ips, []): "${ip.ip_address}/32" ]
   ])  : []

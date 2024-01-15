@@ -44,8 +44,8 @@ output "target_aws_kubernetes_services" {
 #       voteapp_vote   = module.attacker-aws-attacksurface.voteapp_vote_service
 #       voteapp_result = module.attacker-aws-attacksurface.voteapp_result_service
 #     },
-#     log4shellapp = {
-#       log4shellapp = module.attacker-aws-attacksurface.log4shellapp_service
+#     log4j-app = {
+#       log4j-app = module.attacker-aws-attacksurface.log4j-app_service
 #     },
 #     rdsapp = {
 #       rdsapp = module.attacker-aws-attacksurface.rdsapp_service

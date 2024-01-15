@@ -44,7 +44,7 @@ variable "config" {
         runbook = object({
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j-app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -112,7 +112,7 @@ variable "config" {
         osconfig = object({
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j-app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -190,7 +190,7 @@ variable "config" {
         ssm = object({
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j-app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -241,7 +241,7 @@ variable "config" {
             enabled                       = bool
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j-app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -289,7 +289,7 @@ variable "config" {
             enabled                       = bool
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j-app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -330,7 +330,7 @@ variable "config" {
             enabled                       = bool
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j-app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -403,7 +403,7 @@ variable "config" {
         runbook = {
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j-app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -471,7 +471,7 @@ variable "config" {
         osconfig = {
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j-app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -549,7 +549,7 @@ variable "config" {
         ssm = {
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j-app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -597,7 +597,7 @@ variable "config" {
             enabled                       = false
           }
           vulnerable = {
-            log4shellapp = {
+            log4j-app = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
@@ -641,7 +641,7 @@ variable "config" {
             enabled                       = false
           }
           vulnerable = {
-            log4shellapp = {
+            log4j-app = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
@@ -690,7 +690,7 @@ variable "config" {
             enabled                       = false
           }
           vulnerable = {
-            log4shellapp = {
+            log4j-app = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true

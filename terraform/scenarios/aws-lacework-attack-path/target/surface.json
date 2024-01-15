@@ -32,7 +32,7 @@
         "ssm" :  {
           "vulnerable" :  {
             "docker" :  {
-              "log4shellapp" :  {
+              "log4j-app" :  {
                 "enabled" :  true
               }
             },

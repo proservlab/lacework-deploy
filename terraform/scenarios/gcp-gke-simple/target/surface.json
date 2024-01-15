@@ -33,7 +33,7 @@
             "enabled" :  false
           },
           "vulnerable" :  {
-            "log4shellapp" :  {
+            "log4j-app" :  {
               "enabled" :  false
             },
             "voteapp" :  {
@@ -58,7 +58,7 @@
             "enabled" :  false
           },
           "vulnerable" :  {
-            "log4shellapp" :  {
+            "log4j-app" :  {
               "enabled" :  false
             },
             "voteapp" :  {
