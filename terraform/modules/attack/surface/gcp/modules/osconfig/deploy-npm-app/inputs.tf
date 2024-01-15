@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_vuln_npm_app_target"
+    default = "osconfig_deploy_npm_app"
 }
 
 variable "timeout" {

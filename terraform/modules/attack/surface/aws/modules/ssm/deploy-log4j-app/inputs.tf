@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_vuln_log4j_app_target"
+  default = "ssm_deploy_log4j_app"
 }
 
 variable "timeout" {

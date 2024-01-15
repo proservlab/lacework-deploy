@@ -14,7 +14,7 @@ variable "region" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_docker_cloud_ransomware_attacker"
+  default = "ssm_exec_docker_cloud_ransomware"
 }
 
 variable "timeout" {

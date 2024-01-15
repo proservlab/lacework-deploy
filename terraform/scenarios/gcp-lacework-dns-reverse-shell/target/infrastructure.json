@@ -34,7 +34,7 @@
               "osconfig_deploy_lacework": "true",
               "osconfig_deploy_lacework_syscall": "true",
               "osconfig_deploy_lacework_code_aware_agent" : "true",
-              "osconfig_exec_reverse_shell_target"        : "true"
+              "osconfig_exec_reverse_shell"        : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

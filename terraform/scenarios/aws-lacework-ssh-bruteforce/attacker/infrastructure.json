@@ -30,7 +30,7 @@
                         "tags"                      : {
                             "owner"                                     : "lacework",
                             "ssm_deploy_docker"                         : "true",
-                            "ssm_exec_docker_hydra_external"            : "true"
+                            "ssm_exec_docker_hydra_attacker"            : "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null,

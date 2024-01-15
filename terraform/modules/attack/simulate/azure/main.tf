@@ -36,7 +36,6 @@ locals {
   attacker_resource_group = try(local.attacker_infrastructure_deployed.azure.compute[0].resource_group, null)
   target_resource_group = try(local.target_infrastructure_deployed.azure.compute[0].resource_group, null)
 
-
   default_kubeconfig = try(local.default_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
   target_kubeconfig = try(local.target_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
   attacker_kubeconfig = try(local.attacker_infrastructure_deployed.azure.aks[0].kubeconfig, pathexpand("~/.kube/config"))
@@ -70,28 +69,290 @@ resource "time_sleep" "wait" {
   create_duration = "120s"
 }
 
-data "azurerm_resources" "attacker_reverse_shell" {
+# ATTACKER INSTANCE LOOKUP
+
+# attacker_http_listener
+data "azurerm_resources" "attacker_http_listener" {
   provider = azurerm.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.http.enabled  == true) ? 1 : 0
   
   resource_group_name = local.attacker_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
   required_tags = {
     environment       = "attacker"
     deployment        = local.config.context.global.deployment
-    runbook_exec_reverse_shell_attacker = "true"
+    runbook_exec_responder_http_listener = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "attacker_http_listener" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.http.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.attacker_http_listener[0].resources[0].name
+  resource_group_name = local.attacker_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.attacker_http_listener
+  ]
+}
+
+# attacker_reverse_shell
+data "azurerm_resources" "attacker_reverse_shell" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.reverse_shell.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.attacker_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "attacker"
+    deployment        = local.config.context.global.deployment
+    runbook_exec_responder_reverse_shell = "true"
   }
   depends_on = [time_sleep.wait] 
 }
 
 data "azurerm_virtual_machine" "attacker_reverse_shell" {
   provider = azurerm.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.target.connect.reverse_shell.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.reverse_shell.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.attacker_reverse_shell[0].resources[0].name
   resource_group_name = local.attacker_resource_group.name
 
   depends_on = [
     data.azurerm_resources.attacker_reverse_shell
+  ]
+}
+
+# attacker_vuln_npm_app
+data "azurerm_resources" "attacker_vuln_npm_app" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.exploit_npm_app.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.attacker_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "attacker"
+    deployment        = local.config.context.global.deployment
+    osconfig_exec_exploit_npm_app = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "attacker_vuln_npm_app" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.exploit_npm_app.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.attacker_vuln_npm_app[0].resources[0].name
+  resource_group_name = local.attacker_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.attacker_vuln_npm_app
+  ]
+}
+
+# attacker_log4shell
+data "azurerm_resources" "attacker_log4shell" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.attacker_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "attacker"
+    deployment        = local.config.context.global.deployment
+    osconfig_exec_docker_exploit_log4j = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "attacker_log4shell" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.attacker_log4shell[0].resources[0].name
+  resource_group_name = local.attacker_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.attacker_log4shell
+  ]
+}
+
+# attacker_port_forward
+data "azurerm_resources" "attacker_port_forward" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.port_forward.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.attacker_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "attacker"
+    deployment        = local.config.context.global.deployment
+    runbook_exec_responder_port_forward = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "attacker_port_forward" {
+  provider = azurerm.attacker
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.port_forward.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.attacker_port_forward[0].resources[0].name
+  resource_group_name = local.attacker_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.attacker_port_forward
+  ]
+}
+
+# TARGET INSTANCE LOOKUP
+
+# target scenario public ips
+# target_vuln_npm_app ssm_deploy_npm_app
+data "azurerm_resources" "target_vuln_npm_app" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.exploit_npm_app.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_deploy_npm_app = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_vuln_npm_app" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.exploit_npm_app.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_vuln_npm_app[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_vuln_npm_app
+  ]
+}
+
+  # target_docker_log4shell ssm_deploy_docker_log4j_app
+data "azurerm_resources" "target_docker_log4shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_deploy_docker_log4j_app = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_docker_log4shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_docker_log4shell[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_docker_log4shell
+  ]
+}
+  # target_log4shell ssm_deploy_log4j_app
+data "azurerm_resources" "target_log4shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_deploy_log4j_app = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_log4shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_log4shell[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_log4shell
+  ]
+}
+  # target_reverse_shell ssm_exec_reverse_shell
+data "azurerm_resources" "target_reverse_shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.reverse_shell.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_exec_reverse_shell = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_reverse_shell" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.reverse_shell.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_reverse_shell[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_reverse_shell
+  ]
+}
+  # target_codecov ssm_connect_codecov
+data "azurerm_resources" "target_codecov" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.http.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_connect_codecov = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_codecov" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.listener.http.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_codecov[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_codecov
+  ]
+}
+  # target_port_forward = ssm_exec_port_forward
+data "azurerm_resources" "target_port_forward" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.port_forward.enabled  == true) ? 1 : 0
+  
+  resource_group_name = local.target_resource_group.name
+  type = "Microsoft.Compute/virtualmachines"
+  required_tags = {
+    environment       = "target"
+    deployment        = local.config.context.global.deployment
+    runbook_exec_port_forward = "true"
+  }
+  depends_on = [time_sleep.wait] 
+}
+
+data "azurerm_virtual_machine" "target_port_forward" {
+  provider = azurerm.target
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.responder.port_forward.enabled  == true) ? 1 : 0
+  name                = data.azurerm_resources.target_port_forward[0].resources[0].name
+  resource_group_name = local.target_resource_group.name
+
+  depends_on = [
+    data.azurerm_resources.target_port_forward
   ]
 }
 
@@ -169,7 +430,7 @@ module "runbook-responder-reverse-shell" {
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
-  tag             = "runbook_exec_reverse_shell_attacker"
+  tag             = "runbook_exec_responder_reverse_shell"
 
   listen_ip     = local.config.context.azure.runbook.attacker.responder.reverse_shell.listen_ip
   listen_port   = local.config.context.azure.runbook.attacker.responder.reverse_shell.listen_port

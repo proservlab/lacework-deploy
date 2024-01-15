@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_reverse_shell_target"
+    default = "osconfig_exec_reverse_shell"
 }
 
 variable "timeout" {

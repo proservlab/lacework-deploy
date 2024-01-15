@@ -3,16 +3,17 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/deploy-lacework-sycall-config"
+    source = "../../../../../../common/any/payload/linux/modules/deploy-lacework-syscall-config"
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
         region                      = var.region
-        
         resource_group              = var.resource_group
         automation_account          = var.automation_account
         automation_princial_id      = var.automation_princial_id
+        
         tag                         = var.tag
+        
         syscall_config              = var.syscall_config
     }   
 }
@@ -31,5 +32,6 @@ module "runbook" {
     automation_account          = var.automation_account
     automation_princial_id      = var.automation_princial_id
     tag                         = var.tag
+        
     base64_payload              = module.payload.outputs["base64_payload"]
 }

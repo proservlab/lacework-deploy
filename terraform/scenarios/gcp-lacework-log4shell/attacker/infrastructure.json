@@ -33,7 +33,7 @@
                         "tags": {
                           "osconfig_deploy_git"    : "true",
                           "osconfig_deploy_docker"  : "true",
-                          "osconfig_exec_docker_log4shell_attacker" : "true"
+                          "osconfig_exec_docker_exploit_log4j" : "true"
                         },
                         "user_data"        : null,
                         "user_data_base64" : null

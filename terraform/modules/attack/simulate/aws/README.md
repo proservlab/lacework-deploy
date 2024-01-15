@@ -39,8 +39,8 @@ These modules are respondible for executing both target and attacker attacks on 
 | <a name="module_ssm-connect-reverse-shell"></a> [ssm-connect-reverse-shell](#module\_ssm-connect-reverse-shell) | ./modules/ssm/connect-reverse-shell | n/a |
 | <a name="module_ssm-drop-malware-eicar"></a> [ssm-drop-malware-eicar](#module\_ssm-drop-malware-eicar) | ./modules/ssm/drop-malware-eicar | n/a |
 | <a name="module_ssm-execute-docker-cpuminer"></a> [ssm-execute-docker-cpuminer](#module\_ssm-execute-docker-cpuminer) | ./modules/ssm/execute-docker-cpu-miner | n/a |
-| <a name="module_ssm-execute-docker-log4shell-attack"></a> [ssm-execute-docker-log4shell-attack](#module\_ssm-execute-docker-log4shell-attack) | ./modules/ssm/execute-docker-log4shell-attack | n/a |
-| <a name="module_ssm-execute-vuln-npm-app-attack"></a> [ssm-execute-vuln-npm-app-attack](#module\_ssm-execute-vuln-npm-app-attack) | ./modules/ssm/execute-vuln-npm-app-attack | n/a |
+| <a name="module_ssm-execute-docker-exploit-log4j"></a> [ssm-execute-docker-exploit-log4j](#module\_ssm-execute-docker-exploit-log4j) | ./modules/ssm/execute-docker-log4shell | n/a |
+| <a name="module_ssm-execute-exploit-npm-app"></a> [ssm-execute-exploit-npm-app](#module\_ssm-execute-exploit-npm-app) | ./modules/ssm/execute-exploit-npm-app-attack | n/a |
 | <a name="module_ssm-listener-http-listener"></a> [ssm-listener-http-listener](#module\_ssm-listener-http-listener) | ./modules/ssm/listener-http-listener | n/a |
 | <a name="module_ssm-listener-port-forward"></a> [ssm-listener-port-forward](#module\_ssm-listener-port-forward) | ./modules/ssm/listener-port-forward | n/a |
 | <a name="module_ssm-responder-port-forward"></a> [ssm-responder-port-forward](#module\_ssm-responder-port-forward) | ./modules/ssm/responder-port-forward | n/a |

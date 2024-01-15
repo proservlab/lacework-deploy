@@ -8,11 +8,13 @@ module "payload" {
         environment                 = var.environment
         deployment                  = var.deployment
         region                      = var.region
-        
         resource_group              = var.resource_group
         automation_account          = var.automation_account
         automation_princial_id      = var.automation_princial_id
+        
         tag                         = var.tag
+        
+
         lacework_agent_tags         = var.lacework_agent_tags
         lacework_agent_temp_path    = var.lacework_agent_temp_path
         lacework_agent_access_token = var.lacework_agent_access_token
@@ -34,5 +36,6 @@ module "runbook" {
     automation_account          = var.automation_account
     automation_princial_id      = var.automation_princial_id
     tag                         = var.tag
+        
     base64_payload              = module.payload.outputs["base64_payload"]
 }

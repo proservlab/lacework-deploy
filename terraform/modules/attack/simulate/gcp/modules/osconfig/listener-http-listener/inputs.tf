@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_http_listener_attacker"
+    default = "osconfig_exec_responder_http_listener"
 }
 
 variable "timeout" {

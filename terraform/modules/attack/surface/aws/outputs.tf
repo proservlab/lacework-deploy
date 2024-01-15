@@ -32,7 +32,7 @@ output "default_provider" {
 output "kubernetes" {
     value = {
         vulnerable = {
-            log4shellapp = module.vulnerable-kubernetes-log4shellapp
+            log4shellapp = module.vulnerable-kubernetes-log4j-app
             privileged_pod = module.vulnerable-kubernetes-privileged-pod
             rds_app         = module.vulnerable-kubernetes-rdsapp
             vote_app        = module.vulnerable-kubernetes-voteapp

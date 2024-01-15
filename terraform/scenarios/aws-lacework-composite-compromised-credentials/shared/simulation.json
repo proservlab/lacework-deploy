@@ -9,7 +9,7 @@
       "ssm" :  {
         "attacker": {
           "execute": {
-            "docker_composite_compromised_credentials_attack": {
+            "docker_composite_compromised_credentials": {
               "enabled": true,
               "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
               "protonvpn_password": "${ attacker_context_config_protonvpn_password }",

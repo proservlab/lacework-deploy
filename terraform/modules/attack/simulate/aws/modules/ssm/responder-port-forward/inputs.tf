@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_port_forward_attacker"
+  default = "ssm_exec_responder_port_forward"
 }
 
 variable "timeout" {

@@ -36,7 +36,7 @@
               "osconfig_deploy_lacework_code_aware_agent" : "true",
               "osconfig_deploy_git": "true",
               "osconfig_deploy_docker": "true",
-              "osconfig_exec_docker_host_compromise_attacker": "true"
+              "osconfig_exec_docker_host_compromise": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null

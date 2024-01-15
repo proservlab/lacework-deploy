@@ -168,7 +168,7 @@ module "ec2-add-trusted-ingress-app" {
 }
 
 ##################################################
-# AWS SSM: Surface
+# AWS SSM
 ##################################################
 
 module "ssh-keys" {
@@ -176,6 +176,7 @@ module "ssh-keys" {
   source = "./modules/ssm/deploy-ssh-keys"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
+
   ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
   ssh_private_key_path = local.config.context.aws.ssm.ssh_keys.ssh_private_key_path
   ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
@@ -186,6 +187,9 @@ module "ssh-user" {
   source = "./modules/ssm/deploy-ssh-user"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
+  
+  tag = "ssm_deploy_ssh_user"
+
   username = local.config.context.aws.ssm.ssh_user.username
   password = local.config.context.aws.ssm.ssh_user.password
 }
@@ -196,6 +200,8 @@ module "aws-credentials" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
+  tag = "ssm_deploy_aws_credentials"
+
   compromised_credentials = var.compromised_credentials
   compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user
 }
@@ -204,12 +210,15 @@ module "aws-credentials" {
 # AWS SSM: Vulnerable Apps
 ##################################################
 
-module "vulnerable-docker-log4shellapp" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/ssm/deploy-docker-log4shellapp"
+module "vulnerable-docker-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4j-app.enabled == true ) ? 1 : 0
+  source = "./modules/ssm/deploy-docker-log4j-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
-  listen_port = local.config.context.aws.ssm.vulnerable.docker.log4shellapp.listen_port
+  
+  tag = "ssm_deploy_docker_log4j_app"
+
+  listen_port = local.config.context.aws.ssm.vulnerable.docker.log4j-app.listen_port
 }
 
 module "vulnerable-log4j-app" {
@@ -218,6 +227,8 @@ module "vulnerable-log4j-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
+  tag = "ssm_deploy_log4j_app"
+
   listen_port = local.config.context.aws.ssm.vulnerable.log4j_app.listen_port
 }
 
@@ -371,9 +382,9 @@ module "vulnerable-kubernetes-rdsapp" {
   }
 }
 
-module "vulnerable-kubernetes-log4shellapp" {
+module "vulnerable-kubernetes-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
-  source                        = "../kubernetes/aws/vulnerable/log4shellapp"
+  source                        = "../kubernetes/aws/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id

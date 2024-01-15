@@ -37,5 +37,6 @@ module "runbook" {
     automation_account          = var.automation_account
     automation_princial_id      = var.automation_princial_id
     tag                         = var.tag
+        
     base64_payload              = local.base64_payload 
 }

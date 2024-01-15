@@ -101,50 +101,70 @@ locals {
   attacker_http_listener = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_http_listener_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_responder_http_listener","false") == "true"
   ]
 
   attacker_reverse_shell = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_reverse_shell_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_responder_reverse_shell","false") == "true"
   ]
 
   attacker_vuln_npm_app = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_exploit_npm_app","false") == "true"
   ]
 
   attacker_log4shell = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_docker_log4shell_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_docker_exploit_log4j","false") == "true"
   ]
 
   attacker_port_forward = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_port_forward_attacker","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_responder_port_forward","false") == "true"
   ]
 
   # target scenario public ips
   target_vuln_npm_app = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_vuln_npm_app_target","false") == "true"
+      && lookup(instance.labels,"osconfig_deploy_npm_app","false") == "true"
   ]
 
   target_docker_log4shell = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_docker_log4shell_target","false") == "true"
+      && lookup(instance.labels,"osconfig_deploy_docker_log4j_app","false") == "true"
   ]
 
   target_log4shell = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_vuln_log4j_app_target","false") == "true"
+      && lookup(instance.labels,"osconfig_deploy_log4j_app","false") == "true"
+  ]
+  
+  target_reverse_shell = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.tags,"osconfig_exec_reverse_shell","false") == "true"
+    
+  ]
+
+  target_codecov = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.tags,"osconfig_connect_codecov","false") == "true"
+    
+  ]
+
+  target_port_forward = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.tags,"osconfig_exec_port_forward","false") == "true"
   ]
 }
 
@@ -231,7 +251,7 @@ module "osconfig-connect-reverse-shell" {
   host_ip       = coalesce(local.config.context.gcp.osconfig.target.connect.reverse_shell.host_ip, local.attacker_reverse_shell[0])
   host_port     = coalesce(local.config.context.gcp.osconfig.target.connect.reverse_shell.host_port, local.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port)
 
-  tag = "osconfig_exec_reverse_shell_target"
+  tag = "osconfig_exec_reverse_shell"
 }
 
 ##################################################
@@ -255,27 +275,28 @@ module "osconfig-drop-malware-eicar" {
 # EXECUTE
 ##################################################
 
-# module "simulation-attacker-exec-docker-compromised-credentials" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.enabled == true) ? 1 : 0
-#   source        = "./modules/osconfig/execute-docker-compromised-credentials"
-#   environment   = local.config.context.global.environment
-#   deployment    = local.config.context.global.deployment
-#   region        = local.default_infrastructure_config.context.gcp.region
+# simulation-attacker-exec-docker-composite-compromised-credentials
 
-#   compromised_credentials = var.compromised_credentials
-#   protonvpn_user = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_user
-#   protonvpn_password = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_password
-#   protonvpn_tier = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_tier
-#   protonvpn_protocol = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_protocol
-#   protonvpn_server = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.protonvpn_server
-#   ethermine_wallet = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.wallet
-#   minergate_user = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.minergate_user
-#   compromised_keys_user = local.config.context.gcp.osconfig.attacker.execute.docker_composite_compromised_credentials_attack.compromised_keys_user
-#   
-#   tag = "osconfig_exec_docker_compromised_keys_attacker"
-# }
+# simulation-attacker-exec-docker-composite-cloud-ransomware
 
-module "osconfig-execute-docker-cpuminer" {
+# simulation-attacker-exec-docker-composite-defense-evasion
+
+module "osconfig-execute-docker-composite-host-compromise" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-composite-host-compromise"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  attack_delay = local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise.attack_delay
+
+  tag = "osconfig_exec_docker_host_compromise"
+}
+
+# simulation-attacker-exec-docker-composite-host-cryptomining
+
+module "osconfig-execute-docker-cpu-miner" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.target.execute.docker_cpu_miner == true ) ? 1 : 0
   source        = "./modules/osconfig/execute-docker-cpu-miner"
   environment   = local.config.context.global.environment
@@ -291,50 +312,141 @@ module "osconfig-execute-docker-cpuminer" {
   tag = "osconfig_exec_docker_cpuminer"
 }
 
-module "osconfig-execute-docker-log4shell-attack" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.enabled == true) ? 1 : 0
-  source        = "./modules/osconfig/execute-docker-log4shell-attack"
+# execute-docker-hydra
+
+module "osconfig-execute-docker-exploit-log4j-attack" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-exploit-log4j"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  attacker_http_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_http_port
-  attacker_ldap_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ldap_port
-  attacker_ip = coalesce(local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.attacker_ip, local.attacker_log4shell[0])
+  attacker_http_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_http_port
+  attacker_ldap_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_ldap_port
+  attacker_ip = coalesce(local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_ip, local.attacker_log4shell[0])
   target_ip = try(local.target_docker_log4shell[0],local.target_log4shell[0])
-  target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.target_port
-  payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell_attack.payload
+  target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.target_port
+  payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.payload
 
-  tag = "osconfig_exec_docker_log4shell_attacker"
+  tag = "osconfig_exec_docker_exploit_log4j"
 }
 
-module "osconfig-execute-vuln-npm-app-attack" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.enabled == true) ? 1 : 0
-  source        = "./modules/osconfig/execute-vuln-npm-app-attack"
+module "osconfig-execute-docker-nmap-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_nmap.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-nmap"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_exec_docker_nmap_attacker"
+
+  use_tor = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.use_tor
+  ports = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.ports
+  targets = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
+module "osconfig-execute-docker-nmap-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.target.execute.docker_nmap.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/execute-docker-nmap"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_exec_docker_nmap_target"
+
+  use_tor = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.use_tor
+  ports = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.ports
+  targets = local.config.context.gcp.osconfig.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
+    length(local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) > 0 ? 
+      local.config.context.gcp.osconfig.attacker.execute.docker_nmap.targets : 
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
+      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
+  ])
+}
+
+# execute-generate-aws-cli-traffic
+
+# execute-generate-gcp-cli-traffic
+module "osconfig-execute-generate-gcp-cli-traffic-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-generate-gcp-cli-traffic"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag                     = "osconfig_exec_generate_gcp_cli_traffic_attacker"
+
+  compromised_credentials = var.compromised_credentials
+  compromised_keys_user   = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.compromised_keys_user
+  commands                = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
+}
+
+module "osconfig-execute-generate-gcp-cli-traffic-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-generate-gcp-cli-traffic"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag                     = "osconfig_exec_generate_gcp_cli_traffic_attacker"
+
+  compromised_credentials = var.compromised_credentials
+  compromised_keys_user   = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.compromised_keys_user
+  commands                = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
+}
+
+module "osconfig-execute-generate-web-traffic-attacker" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.config.context.gcp.osconfig.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-generate-web-traffic"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+  
+  tag                     = "osconfig_exec_generate_web_traffic_attacker"
+
+  delay                   = local.config.context.gcp.osconfig.attacker.execute.generate_web_traffic.delay
+  urls                    = local.config.context.gcp.osconfig.attacker.execute.generate_web_traffic.urls
+}
+
+module "osconfig-execute-generate-web-traffic-target" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.config.context.gcp.osconfig.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-generate-web-traffic"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+  
+  tag = "osconfig_exec_generate_web_traffic_target"
+
+  delay                   = local.config.context.gcp.osconfig.target.execute.generate_web_traffic.delay
+  urls                    = local.config.context.gcp.osconfig.target.execute.generate_web_traffic.urls
+}
+
+module "osconfig-execute-exploit-npm-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.exploit_npm_app.enabled == true) ? 1 : 0
+  source        = "./modules/osconfig/execute-exploit-npm-app"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_exec_exploit_npm_app"
 
   target_ip = local.target_vuln_npm_app[0]
-  target_port = local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.target_port
-  payload = local.config.context.gcp.osconfig.attacker.execute.vuln_npm_app_attack.payload
-
-  tag = "osconfig_exec_vuln_npm_app_attacker"
-}
-
-module "osconfig-execute-docker-composite-host-compromise" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.target == true && local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise_attack.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-docker-composite-host-compromise"
-  environment   = local.config.context.global.environment
-  deployment    = local.config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
-
-  attack_delay = local.config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise_attack.attack_delay
-
-  tag = "osconfig_exec_docker_host_compromise_attacker"
+  target_port = local.config.context.gcp.osconfig.attacker.execute.exploit_npm_app.target_port
+  payload = local.config.context.gcp.osconfig.attacker.execute.exploit_npm_app.payload
+  attack_delay = local.config.context.gcp.osconfig.attacker.execute.exploit_npm_app.attack_delay
 }
 
 ##################################################
@@ -348,11 +460,11 @@ module "osconfig-listener-http-listener" {
   deployment    = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
-
+  
+  tag = "osconfig_exec_responder_http_listener"
+  
   listen_ip     = "0.0.0.0"
   listen_port   = local.config.context.gcp.osconfig.attacker.listener.http.listen_port
-
-  tag = "osconfig_exec_http_listener_attacker"
 }
 
 module "osconfig-listener-port-forward" {
@@ -363,11 +475,11 @@ module "osconfig-listener-port-forward" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
+  tag = "osconfig_exec_port_forward"
+
   port_forwards = local.config.context.gcp.osconfig.target.listener.port_forward.port_forwards
   host_ip       = local.attacker_port_forward[0]
   host_port     = local.config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
-
-  tag = "osconfig_exec_port_forward_target"
 }
 
 ##################################################
@@ -382,6 +494,8 @@ module "osconfig-responder-port-forward" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
+  tag = "osconfig_exec_responder_port_forward"
+
   listen_port   = local.config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
 }
 
@@ -393,7 +507,28 @@ module "osconfig-responder-reverse-shell" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
+  tag = "osconfig_exec_responder_reverse_shell"
+
   listen_ip     = local.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_ip
   listen_port   = local.config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port
   payload       = local.config.context.gcp.osconfig.attacker.responder.reverse_shell.payload
+}
+
+module "osconfig-responder-reverse-shell-multistage" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/responder-reverse-shell-multistage"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_exec_reverse_shell_multistage_attacker"
+
+  listen_ip     = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.listen_ip
+  listen_port   = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.listen_port
+  payload       = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.payload
+
+  iam2rds_role_name = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.iam2rds_role_name
+  iam2rds_session_name = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.iam2rds_session_name
+  attack_delay  = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.attack_delay
 }

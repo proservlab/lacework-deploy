@@ -34,9 +34,9 @@
 | ./modules/attack/simulate/aws/modules/ssm/drop-malware-eicar | [README.md](./modules/attack/simulate/aws/modules/ssm/drop-malware-eicar/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-host-cryptomining | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-host-cryptomining/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/listener-port-forward | [README.md](./modules/attack/simulate/aws/modules/ssm/listener-port-forward/README.md) |
-| ./modules/attack/simulate/aws/modules/ssm/execute-vuln-npm-app-attack | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-vuln-npm-app-attack/README.md) |
+| ./modules/attack/simulate/aws/modules/ssm/execute-exploit-npm-app-attack | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-exploit-npm-app-attack/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-cloud-ransomware | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-cloud-ransomware/README.md) |
-| ./modules/attack/simulate/aws/modules/ssm/execute-docker-log4shell-attack | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-docker-log4shell-attack/README.md) |
+| ./modules/attack/simulate/aws/modules/ssm/execute-docker-log4shell | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-docker-log4shell/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-cloud-cryptomining | [README.md](./modules/attack/simulate/aws/modules/ssm/execute-docker-composite-cloud-cryptomining/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/connect-oast-host | [README.md](./modules/attack/simulate/aws/modules/ssm/connect-oast-host/README.md) |
 | ./modules/attack/simulate/aws/modules/ssm/connect-badip | [README.md](./modules/attack/simulate/aws/modules/ssm/connect-badip/README.md) |

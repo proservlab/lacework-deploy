@@ -33,7 +33,7 @@
                 "ssm_deploy_lacework_code_aware_agent"      : "true",
                 "ssm_deploy_aws_cli"                        : "true",
                 "ssm_deploy_docker"                         : "true",
-                "ssm_exec_vuln_log4j_app_target"            : "true",
+                "ssm_deploy_log4j_app"            : "true",
                 "ssm_deploy_secret_ssh_private"             : "true",
                 "ssm_deploy_secret_aws_creds"               : "true",
                 "ssm_exec_generate_aws_cli_traffic_target"  : "true"
@@ -55,7 +55,7 @@
                 "ssm_deploy_lacework"                           : "true",
                 "ssm_deploy_lacework_syscall"                   : "true",
                 "ssm_deploy_lacework_code_aware_agent"          : "true",
-                "ssm_exec_vuln_rdsapp_target"                   : "true",
+                "ssm_deploy_vuln_rdsapp"                   : "true",
                 "ssm_deploy_secret_ssh_public"                  : "true",
                 "ssm_exec_generate_web_traffic_target"          : "true"
             },

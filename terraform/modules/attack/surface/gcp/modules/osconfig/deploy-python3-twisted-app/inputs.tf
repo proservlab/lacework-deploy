@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_vuln_python3_twisted_app_target"
+    default = "osconfig_deploy_python3_twisted_app"
 }
 
 variable "timeout" {

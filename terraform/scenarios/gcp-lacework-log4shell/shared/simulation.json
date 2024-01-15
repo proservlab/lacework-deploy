@@ -9,7 +9,7 @@
       "osconfig" : {
         "attacker": {
           "execute": {
-            "docker_log4shell_attack": {
+            "docker_exploit_log4j": {
               "enabled": true,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,

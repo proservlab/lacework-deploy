@@ -14,7 +14,7 @@ variable "region" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_docker_defense_evasion_attacker"
+  default = "ssm_exec_docker_defense_evasion"
 }
 
 variable "timeout" {

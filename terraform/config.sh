@@ -839,7 +839,7 @@ clear
 ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
 TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
 
-for s in "docker_composite_compromised_credentials_attack" "docker_composite_cloud_cryptomining_attack" "docker_composite_cloud_ransomware_attack" "docker_composite_defense_evasion_attack" "docker_composite_host_cryptomining_attack"; do 
+for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryptomining" "docker_composite_cloud_ransomware" "docker_composite_defense_evasion" "docker_composite_host_cryptomining"; do 
     ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/${SCENARIOS_PATH}/${SCENARIO}/shared/simulation.json)
     if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
         break

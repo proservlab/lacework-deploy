@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_reverse_shell_attacker"
+  default = "ssm_exec_responder_reverse_shell"
 }
 
 variable "timeout" {

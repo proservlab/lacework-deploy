@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_docker_host_compromise_attacker"
+    default = "osconfig_exec_docker_host_compromise"
 }
 
 variable "timeout" {

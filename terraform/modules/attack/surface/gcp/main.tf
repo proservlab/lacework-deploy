@@ -145,8 +145,7 @@ module "gce-add-trusted-ingress" {
 }
 
 ##################################################
-# GCP OSCONFIG
-# osconfig tag-based surface config
+# GCP OSCONFIG: Surface
 ##################################################
 
 module "ssh-keys" {
@@ -169,6 +168,8 @@ module "ssh-user" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
+  tag = "osconfig_deploy_ssh_user"
+
   username = local.config.context.gcp.osconfig.ssh_user.username
   password = local.config.context.gcp.osconfig.ssh_user.password
 }
@@ -187,17 +188,34 @@ module "gcp-credentials" {
   compromised_keys_user = local.config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 }
 
-module "vulnerable-docker-log4shellapp" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/deploy-docker-log4shellapp"
+##################################################
+# GCP OSCONFIG: Vulnerable Apps
+##################################################
+
+module "vulnerable-docker-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/deploy-docker-log4j-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4shellapp.listen_port
+  tag = "osconfig_deploy_docker_log4j_app"
 
-  tag = "osconfig_exec_docker_log4shell_target"
+  listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4j-app.listen_port
+}
+
+module "vulnerable-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/deploy-log4j-app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+  
+  tag = "osconfig_deploy_log4j_app"
+
+  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
 }
 
 module "vulnerable-npm-app" {
@@ -208,9 +226,9 @@ module "vulnerable-npm-app" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
+  tag = "osconfig_deploy_npm_app"
 
-  tag = "osconfig_exec_vuln_npm_app_target"
+  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
 }
 
 module "vulnerable-python3-twisted-app" {
@@ -223,21 +241,16 @@ module "vulnerable-python3-twisted-app" {
 
   listen_port = local.config.context.gcp.osconfig.vulnerable.python3_twisted_app.listen_port
 
-  tag = "osconfig_exec_vuln_python3_twisted_app_target"
+  tag = "osconfig_deploy_python3_twisted_app"
 }
 
-module "vulnerable-log4j-app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source = "./modules/osconfig/deploy-log4j-app"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+# vulnerable-rds-app
 
-  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
+##################################################
+# GCP GKE
+##################################################
 
-  tag = "osconfig_exec_vuln_log4j_app_target"
-}
+# configure iam access to gke
 
 ##################################################
 # Kubernetes General
@@ -284,9 +297,11 @@ module "kubernetes-app" {
     # }
 # }
 
-module "vulnerable-kubernetes-log4shellapp" {
+# vulnerable-kubernetes-rdsapp
+
+module "vulnerable-kubernetes-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/vulnerable/log4shellapp"
+  source      = "../kubernetes/gcp/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 

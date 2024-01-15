@@ -33,7 +33,7 @@
               "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_docker"                : "true",
               "ssm_deploy_secret_ssh_private"    : "true",
-              "ssm_exec_vuln_log4j_app_target" : "true"
+              "ssm_deploy_log4j_app" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -50,7 +50,7 @@
               "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_deploy_secret_ssh_public" : "true",
-              "ssm_exec_docker_log4shell_target" : "true"
+              "ssm_deploy_docker_log4j" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -66,7 +66,7 @@
               "ssm_deploy_lacework": "true",
               "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_lacework_code_aware_agent" : "true",
-              "ssm_exec_vuln_log4j_app_target" : "true"
+              "ssm_deploy_log4j_app" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,

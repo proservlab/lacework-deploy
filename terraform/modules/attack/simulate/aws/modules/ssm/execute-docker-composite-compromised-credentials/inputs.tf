@@ -14,7 +14,7 @@ variable "region" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_docker_compromised_keys_attacker"
+  default = "ssm_exec_docker_compromised_keys"
 }
 
 variable "timeout" {

@@ -1,0 +1,29 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "enabled" : true,
+      "ssm" :  {
+        "attacker": {
+          "execute": {
+            "docker_composite_defense_evasion": {
+              "enabled": true,
+              "protonvpn_user": "${ attacker_context_config_protonvpn_user }",
+              "protonvpn_password": "${ attacker_context_config_protonvpn_password }",
+              "protonvpn_tier": 0,
+              "protonvpn_server": "RANDOM",
+              "protonvpn_protocol": "udp",
+              "wallet": "${ attacker_context_cloud_cryptomining_ethermine_wallet }",
+              "minergate_user": "${ attacker_context_host_cryptomining_minergate_user }",
+              "compromised_keys_user":  "dee.fensivason@interlacelabs",
+              "attack_delay":  50400
+            }
+          }
+        }
+      }
+    }
+  }
+}

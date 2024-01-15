@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_http_listener_attacker"
+  default = "ssm_exec_responder_http_listener"
 }
 
 variable "timeout" {

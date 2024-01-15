@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_vuln_npm_app_target"
+  default = "ssm_deploy_npm_app"
 }
 
 variable "timeout" {

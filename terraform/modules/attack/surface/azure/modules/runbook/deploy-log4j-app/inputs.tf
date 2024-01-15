@@ -31,7 +31,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_exec_vuln_log4j_app_target"
+    default = "runbook_deploy_log4j_app"
 }
 
 variable "listen_port" {

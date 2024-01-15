@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_vuln_log4j_app_target"
+    default = "osconfig_deploy_log4j_app"
 }
 
 variable "timeout" {

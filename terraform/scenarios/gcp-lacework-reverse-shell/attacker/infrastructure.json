@@ -31,7 +31,7 @@
                         "instance_type"             : "e2-micro",
                         "ami_name"                  : "ubuntu_focal",
                         "tags": {
-                          "osconfig_exec_reverse_shell_attacker" : "true"
+                          "osconfig_exec_responder_reverse_shell" : "true"
                         },
                         "user_data"        : null,
                         "user_data_base64" : null

@@ -9,7 +9,7 @@
       "osconfig" : {
         "attacker": {
           "execute": {
-            "docker_composite_host_compromise_attack": {
+            "docker_composite_host_compromise": {
               "enabled": true
             }
           }

@@ -132,7 +132,7 @@
               "ssm_deploy_lacework_syscall"           : "true",
               "ssm_deploy_lacework_code_aware_agent"  : "true",
               "ssm_deploy_docker"                     : "true",
-              "ssm_exec_docker_nmap_internal"         : "true"
+              "ssm_exec_docker_nmap_target"         : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,

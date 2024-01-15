@@ -10,7 +10,7 @@ variable "deployment" {
 
 variable "tag" {
   type = string
-  default = "ssm_exec_vuln_rdsapp_target"
+  default = "ssm_deploy_vuln_rdsapp"
 }
 
 variable "timeout" {

@@ -32,7 +32,7 @@
                             "runbook_deploy_lacework": "true",
                             "runbook_deploy_lacework_syscall": "true",
                             "runbook_deploy_lacework_code_aware_agent": "true",
-                            "runbook_exec_reverse_shell_attacker"   : "true"
+                            "runbook_exec_responder_reverse_shell"   : "true"
                         },
                         "user_data"        : null,
                         "user_data_base64" : null

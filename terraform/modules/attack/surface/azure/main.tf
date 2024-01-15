@@ -164,7 +164,7 @@ module "compute-add-app-trusted-ingress" {
 
 
 ##################################################
-# AZURE RUNBOOK SIMULATION
+# AZURE RUNBOOK
 ##################################################
 
 module "ssh-keys" {
@@ -183,13 +183,15 @@ module "ssh-keys" {
   ssh_authorized_keys_path = local.config.context.azure.runbook.ssh_keys.ssh_authorized_keys_path
 }
 
-module "ssh-keys" {
+module "ssh-user" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.ssh_user.enabled == true ) ? 1 : 0
   source = "./modules/runbook/deploy-ssh-user"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
+  tag = "runbook_deploy_ssh_user"
+
   resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
@@ -198,18 +200,24 @@ module "ssh-keys" {
   password = local.config.context.azure.runbook.ssh_user.password
 }
 
-module "vulnerable-docker-log4shellapp" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.docker.log4shellapp.enabled == true ) ? 1 : 0
-  source = "./modules/runbook/deploy-docker-log4shellapp"
+##################################################
+# AZURE RUNBOOK: Vulnerable Apps
+##################################################
+
+module "vulnerable-docker-log4j-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/deploy-docker-log4j-app"
   environment     = local.config.context.global.environment
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
+  
+  tag = "runbook_deploy_docker_log4j_app"
   
   resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
-  listen_port = local.config.context.azure.runbook.vulnerable.docker.log4shellapp.listen_port
+  listen_port = local.config.context.azure.runbook.vulnerable.docker.log4j-app.listen_port
 }
 
 module "vulnerable-log4j-app" {
@@ -219,6 +227,8 @@ module "vulnerable-log4j-app" {
   deployment      = local.config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
+  tag = "runbook_deploy_docker_log4j_app"
+
   resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
@@ -299,9 +309,9 @@ module "kubernetes-app" {
     # }
 # }
 
-module "vulnerable-kubernetes-log4shellapp" {
+module "vulnerable-kubernetes-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.azure.vulnerable.log4shellapp.enabled == true ) ? 1 : 0
-  source                        = "../kubernetes/azure/vulnerable/log4shellapp"
+  source                        = "../kubernetes/azure/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 

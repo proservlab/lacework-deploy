@@ -29,7 +29,7 @@
                         "ami_name"                  : "ubuntu_focal",
                         "tags"                      : {
                             "owner"                                     : "lacework",
-                            "ssm_exec_reverse_shell_attacker"           : "true"
+                            "ssm_exec_responder_reverse_shell"           : "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null,

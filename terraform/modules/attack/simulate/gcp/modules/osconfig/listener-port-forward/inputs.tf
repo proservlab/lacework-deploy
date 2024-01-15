@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_port_forward_target"
+    default = "osconfig_exec_port_forward"
 }
 
 variable "timeout" {

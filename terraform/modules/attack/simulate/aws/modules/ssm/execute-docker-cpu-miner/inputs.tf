@@ -23,26 +23,6 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
-# variable "nicehash_image" {
-#     type = string
-#     description = "nicehash docker image"
-# }
-
-# variable "nicehash_name" {
-#     type = string
-#     description = "nicehash docker name"
-# }
-
-# variable "nicehash_server" {
-#     type = string
-#     description = "nicehash server"
-# }
-
-# variable "nicehash_user" {
-#     type = string
-#     description = "nicehash user"
-# }
-
 variable "minergate_image" {
     type = string
     description = "minergate docker image"
