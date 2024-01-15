@@ -56,7 +56,7 @@
               "osconfig_deploy_lacework_syscall"      : "true",
               "osconfig_deploy_lacework_code_aware_agent"    : "true",
               "osconfig_deploy_secret_ssh_public"     : "true",
-              "osconfig_exec_docker_exploit_log4j_target" : "true",
+              "osconfig_exec_docker_exploit_log4j_app_target" : "true",
               "osconfig_exec_reverse_shell"    : "true"
             },
             "user_data"        : null,

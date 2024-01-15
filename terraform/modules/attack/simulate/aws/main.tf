@@ -101,7 +101,7 @@ locals {
   attacker_log4shell = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
     if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"ssm_exec_docker_exploit_log4j","false") == "true"
+      && lookup(instance.tags,"ssm_exec_docker_exploit_log4j_app","false") == "true"
   ]
 
   attacker_port_forward = [ 
@@ -449,12 +449,12 @@ module "ssm-execute-docker-hydra-internal" {
 }
 
 module "ssm-execute-docker-exploit-log4j" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-exploit-log4j"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
 
-  tag = "ssm_exec_docker_exploit_log4j"
+  tag = "ssm_exec_docker_exploit_log4j_app"
 
   attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.attacker_http_port
   attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.attacker_ldap_port

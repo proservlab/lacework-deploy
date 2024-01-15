@@ -152,21 +152,21 @@ data "azurerm_virtual_machine" "attacker_vuln_npm_app" {
 # attacker_log4shell
 data "azurerm_resources" "attacker_log4shell" {
   provider = azurerm.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   
   resource_group_name = local.attacker_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
   required_tags = {
     environment       = "attacker"
     deployment        = local.config.context.global.deployment
-    osconfig_exec_docker_exploit_log4j = "true"
+    osconfig_exec_docker_exploit_log4j_app = "true"
   }
   depends_on = [time_sleep.wait] 
 }
 
 data "azurerm_virtual_machine" "attacker_log4shell" {
   provider = azurerm.attacker
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.attacker_log4shell[0].resources[0].name
   resource_group_name = local.attacker_resource_group.name
 
@@ -233,7 +233,7 @@ data "azurerm_virtual_machine" "target_vuln_npm_app" {
   # target_docker_log4shell ssm_deploy_docker_log4j_app
 data "azurerm_resources" "target_docker_log4shell" {
   provider = azurerm.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   
   resource_group_name = local.target_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
@@ -247,7 +247,7 @@ data "azurerm_resources" "target_docker_log4shell" {
 
 data "azurerm_virtual_machine" "target_docker_log4shell" {
   provider = azurerm.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.target_docker_log4shell[0].resources[0].name
   resource_group_name = local.target_resource_group.name
 
@@ -258,7 +258,7 @@ data "azurerm_virtual_machine" "target_docker_log4shell" {
   # target_log4shell ssm_deploy_log4j_app
 data "azurerm_resources" "target_log4shell" {
   provider = azurerm.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   
   resource_group_name = local.target_resource_group.name
   type = "Microsoft.Compute/virtualmachines"
@@ -272,7 +272,7 @@ data "azurerm_resources" "target_log4shell" {
 
 data "azurerm_virtual_machine" "target_log4shell" {
   provider = azurerm.target
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j.enabled  == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.azure.runbook.attacker.execute.docker_exploit_log4j_app.enabled  == true) ? 1 : 0
   name                = data.azurerm_resources.target_log4shell[0].resources[0].name
   resource_group_name = local.target_resource_group.name
 

@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_exec_docker_exploit_log4j"
+    default = "osconfig_exec_docker_exploit_log4j_app"
 }
 
 variable "timeout" {

@@ -119,7 +119,7 @@ locals {
   attacker_log4shell = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.labels,"osconfig_exec_docker_exploit_log4j","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_docker_exploit_log4j_app","false") == "true"
   ]
 
   attacker_port_forward = [ 
@@ -315,7 +315,7 @@ module "osconfig-execute-docker-cpu-miner" {
 # execute-docker-hydra
 
 module "osconfig-execute-docker-exploit-log4j-attack" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j.enabled == true) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.enabled == true && local.attacker == true && local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.enabled == true) ? 1 : 0
   source        = "./modules/osconfig/execute-docker-exploit-log4j"
   environment   = local.config.context.global.environment
   deployment    = local.config.context.global.deployment
@@ -329,7 +329,7 @@ module "osconfig-execute-docker-exploit-log4j-attack" {
   target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.target_port
   payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.payload
 
-  tag = "osconfig_exec_docker_exploit_log4j"
+  tag = "osconfig_exec_docker_exploit_log4j_app"
 }
 
 module "osconfig-execute-docker-nmap-attacker" {

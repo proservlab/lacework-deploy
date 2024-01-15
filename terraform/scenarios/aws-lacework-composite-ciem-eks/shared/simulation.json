@@ -9,7 +9,7 @@
       "ssm" :  {
         "attacker": {
           "execute": {
-            "docker_exploit_log4j": {
+            "docker_exploit_log4j_app": {
               "enabled": false,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
