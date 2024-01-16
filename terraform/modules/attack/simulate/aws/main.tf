@@ -456,15 +456,15 @@ module "ssm-execute-docker-exploit-log4j" {
 
   tag = "ssm_exec_docker_exploit_log4j_app"
 
-  attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.attacker_http_port
-  attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.attacker_ldap_port
-  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell.attacker_ip, try(length(local.attacker_log4shell)>0, false) ? local.attacker_log4shell[0] : null)
-  target_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_log4shell.target_ip, try(local.target_docker_log4shell[0], local.target_log4shell[0]))
-  target_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.target_port
-  payload = local.config.context.aws.ssm.attacker.execute.docker_log4shell.payload
-  reverse_shell = local.config.context.aws.ssm.attacker.execute.docker_log4shell.reverse_shell
-  reverse_shell_port = local.config.context.aws.ssm.attacker.execute.docker_log4shell.reverse_shell_port
-  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_log4shell.attack_delay
+  attacker_http_port = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.attacker_http_port
+  attacker_ldap_port = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.attacker_ldap_port
+  attacker_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.attacker_ip, try(length(local.attacker_log4shell)>0, false) ? local.attacker_log4shell[0] : null)
+  target_ip = coalesce(local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.target_ip, try(local.target_docker_log4shell[0], local.target_log4shell[0]))
+  target_port = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.target_port
+  payload = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.payload
+  reverse_shell = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.reverse_shell
+  reverse_shell_port = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.reverse_shell_port
+  attack_delay = local.config.context.aws.ssm.attacker.execute.docker_exploit_log4j_app.attack_delay
 }
 
 module "ssm-execute-docker-nmap-attacker" {

@@ -32,7 +32,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_deploy_python3_twisted_app_target"
+    default = "runbook_exec_exploit_python3_twisted_app"
 }
 
 variable "listen_port" {

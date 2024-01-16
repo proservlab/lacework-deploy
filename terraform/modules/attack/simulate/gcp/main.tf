@@ -322,12 +322,12 @@ module "osconfig-execute-docker-exploit-log4j-attack" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  attacker_http_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_http_port
-  attacker_ldap_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_ldap_port
-  attacker_ip = coalesce(local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.attacker_ip, local.attacker_log4shell[0])
+  attacker_http_port = local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.attacker_http_port
+  attacker_ldap_port = local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.attacker_ldap_port
+  attacker_ip = coalesce(local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.attacker_ip, local.attacker_log4shell[0])
   target_ip = try(local.target_docker_log4shell[0],local.target_log4shell[0])
-  target_port = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.target_port
-  payload = local.config.context.gcp.osconfig.attacker.execute.docker_log4shell.payload
+  target_port = local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.target_port
+  payload = local.config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.payload
 
   tag = "osconfig_exec_docker_exploit_log4j_app"
 }

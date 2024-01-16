@@ -31,7 +31,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_exec_docker_log4shell_target"
+    default = "runbook_exec_docker_exploit_log4j_app"
 }
 
 variable "listen_port" {
