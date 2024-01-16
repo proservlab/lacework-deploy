@@ -12,7 +12,7 @@
 # script_delay_secs: total number of seconds to wait before starting the next stage
 # next_stage_payload: shell commands to execute after delay
 
-LOCKFILE="/tmp/${config["script_name"]}.lock"
+LOCKFILE="/tmp/lacework_deploy_${config["script_name"]}.lock"
 if [ -e "$LOCKFILE" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
@@ -25,7 +25,7 @@ function cleanup {
 trap cleanup EXIT INT TERM
 
 SCRIPTNAME="${config["script_name"]}"
-LOGFILE=/tmp/lacework-deploy-$SCRIPTNAME.log
+LOGFILE=/tmp/lacework_deploy_$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -60,14 +60,10 @@ while check_package_manager; do
 done
 
 # Conditional Commands based on package manager
-if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config["apt_pre_tasks"]}" ]; then
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 ${config["apt_pre_tasks"]}
-EOF
-elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config["yum_pre_tasks"]}" ]; then
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+elif [ "$PACKAGE_MANAGER" == "yum" ]; then
 ${config["yum_pre_tasks"]}
-EOF
 fi
 if [ "" != "$PACKAGES" ]; then
     sudo /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
@@ -76,14 +72,10 @@ if [ "" != "$PACKAGES" ]; then
         exit 1
     fi
 fi
-if [ "$PACKAGE_MANAGER" == "apt-get" ] && [ "" != "${config["apt_post_tasks"]}" ]; then
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 ${config["apt_post_tasks"]}
-EOF
-elif [ "$PACKAGE_MANAGER" == "yum" ] && [ "" != "${config["yum_post_tasks"]}" ]; then
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+elif [ "$PACKAGE_MANAGER" == "yum" ]; then
 ${config["yum_post_tasks"]}
-EOF
 fi
 
 MAX_WAIT=${config["script_delay_secs"]}
@@ -101,9 +93,7 @@ log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
 log "starting execution of next stage payload..."
-cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${config["next_stage_payload"]}
-EOF
 log "done next stage payload execution."
 
 log "Done"

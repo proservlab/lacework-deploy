@@ -22,7 +22,7 @@ locals {
     log "done"
     EOT
     base64_payload_public = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
-        script_name = basename(path.module)
+        script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
         apt_packages = ""
@@ -49,7 +49,7 @@ locals {
     log "done"
     EOT
     base64_payload_private = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
-        script_name = basename(path.module)
+        script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
         apt_packages = ""
