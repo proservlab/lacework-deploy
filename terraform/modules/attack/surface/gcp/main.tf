@@ -202,7 +202,7 @@ module "vulnerable-docker-log4j-app" {
 
   tag = "osconfig_deploy_docker_log4j_app"
 
-  listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4j-app.listen_port
+  listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4j_app.listen_port
 }
 
 module "vulnerable-log4j-app" {
@@ -300,12 +300,12 @@ module "kubernetes-app" {
 # vulnerable-kubernetes-rdsapp
 
 module "vulnerable-kubernetes-log4j-app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.log4j-app.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.log4j_app.enabled == true ) ? 1 : 0
   source      = "../kubernetes/gcp/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 
-  service_port                  = local.config.context.kubernetes.gcp.vulnerable.log4j-app.service_port
+  service_port                  = local.config.context.kubernetes.gcp.vulnerable.log4j_app.service_port
   trusted_attacker_source       = local.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
     [ for ip in local.attacker_app_public_ips: "${ip}/32" ]

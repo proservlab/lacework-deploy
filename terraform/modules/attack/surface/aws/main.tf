@@ -211,14 +211,14 @@ module "aws-credentials" {
 ##################################################
 
 module "vulnerable-docker-log4j-app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4j-app.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-docker-log4j-app"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
   tag = "ssm_deploy_docker_log4j_app"
 
-  listen_port = local.config.context.aws.ssm.vulnerable.docker.log4j-app.listen_port
+  listen_port = local.config.context.aws.ssm.vulnerable.docker.log4j_app.listen_port
 }
 
 module "vulnerable-log4j-app" {
@@ -383,24 +383,24 @@ module "vulnerable-kubernetes-rdsapp" {
 }
 
 module "vulnerable-kubernetes-log4j-app" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.log4j-app.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.log4j_app.enabled == true ) ? 1 : 0
   source                        = "../kubernetes/aws/vulnerable/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-  service_port                  = local.config.context.kubernetes.aws.vulnerable.log4j-app.service_port
-  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4j-app.trust_attacker_source ? flatten([
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.log4j_app.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j-app.additional_trusted_sources
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
 
-  image                         = local.config.context.kubernetes.aws.vulnerable.log4j-app.image
-  command                       = local.config.context.kubernetes.aws.vulnerable.log4j-app.command
-  args                          = local.config.context.kubernetes.aws.vulnerable.log4j-app.args
+  image                         = local.config.context.kubernetes.aws.vulnerable.log4j_app.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.log4j_app.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.log4j_app.args
 
   providers = {
     kubernetes = kubernetes.main
