@@ -29,8 +29,16 @@ locals {
 
 }
 
+data "aws_vpc" "database" {
+  id = data.aws_vpc.database.id
+}
+
+data "aws_security_group" "trusted" {
+  id = data.aws_security_group.trusted.id
+}
+
 resource "aws_route_table" "database" {
-    vpc_id = var.vpc_id
+    vpc_id = data.aws_vpc.database.id
     route {
         cidr_block = "0.0.0.0/0"
         gateway_id = var.igw_id
@@ -41,20 +49,32 @@ resource "aws_route_table" "database" {
         deployment = var.deployment
         environment = var.environment
     }
+
+    depends_on = [  
+      data.aws_vpc.database
+    ]
 }
 
 resource "aws_route_table_association" "database" {
   subnet_id = aws_subnet.database.id
   route_table_id = aws_route_table.database.id
+
+  depends_on = [  
+    data.aws_vpc.database
+  ]
 }
 
 resource "aws_route_table_association" "database2" {
   subnet_id = aws_subnet.database2.id
   route_table_id = aws_route_table.database.id
+
+  depends_on = [  
+    data.aws_vpc.database
+  ]
 }
 
 resource "aws_subnet" "database" {
-  vpc_id                  = var.vpc_id
+  vpc_id                  = data.aws_vpc.database.id
   cidr_block              = local.subnets_cidrs[0]
   availability_zone       = local.availability_zones[0]
 
@@ -63,10 +83,14 @@ resource "aws_subnet" "database" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  depends_on = [ 
+    data.aws_vpc.database
+  ]
 }
 
 resource "aws_subnet" "database2" {
-  vpc_id                  = var.vpc_id
+  vpc_id                  = data.aws_vpc.database.id
   cidr_block              = local.subnets_cidrs[1]
   availability_zone       = local.availability_zones[1]
 
@@ -75,6 +99,10 @@ resource "aws_subnet" "database2" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  depends_on = [ 
+    data.aws_vpc.database
+  ]
 }
 
 resource "aws_db_subnet_group" "database" {
@@ -88,20 +116,26 @@ resource "aws_db_subnet_group" "database" {
   tags = {
     Name = "db-subnet-group-${var.environment}-${var.deployment}"
   }
+
+  depends_on = [ 
+    data.aws_vpc.database,
+    aws_subnet.database.id,
+    aws_subnet.database2.id
+  ]
 }
 
 resource "aws_security_group" "database" {
   name = "db-sg-${var.environment}-${var.deployment}"
 
   description = "db security group"
-  vpc_id      = var.vpc_id
+  vpc_id      = data.aws_vpc.database.id
 
   ingress {
     from_port   = var.database_port
     to_port     = var.database_port
     protocol    = "tcp"
     description = "db mysql"
-    security_groups = [var.trusted_sg_id]
+    security_groups = [data.aws_security_group.trusted.id]
   }
 
   # Allow outbound traffic to private subnets.
@@ -109,8 +143,15 @@ resource "aws_security_group" "database" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    security_groups = [var.trusted_sg_id]
+    security_groups = [data.aws_security_group.trusted.id]
   }
+
+  depends_on = [
+    data.aws_vpc.database,
+    aws_subnet.database,
+    aws_subnet.database2,
+    aws_db_subnet_group.database,
+  ]
 }
 
 resource "aws_db_instance" "database" {
@@ -141,6 +182,7 @@ resource "aws_db_instance" "database" {
   }
 
   depends_on = [
+    data.aws_vpc.database,
     aws_subnet.database,
     aws_subnet.database2,
     aws_db_subnet_group.database,

@@ -1,3 +1,7 @@
+data "aws_security_group" "cluster" {
+  id = data.aws_security_group.cluster.id
+}
+
 resource "random_string" "root_db_password" {
     length            = 16
     special           = false
@@ -123,12 +127,23 @@ resource "kubernetes_cluster_role_binding" "database" {
 
 resource "aws_subnet" "database" {
   vpc_id                  = var.cluster_vpc_id
-  count                   = length(local.subnets_cidrs)
-  cidr_block              = element(local.subnets_cidrs, count.index)
-  availability_zone       = element(local.availability_zones, count.index)
+  cidr_block              = element(local.subnets_cidrs, 0)
+  availability_zone       = element(local.availability_zones, 0)
 
   tags = {
-    Name        = "${var.environment}-${element(local.availability_zones, count.index)}-private-subnet"
+    Name        = "${var.environment}-${element(local.availability_zones, 0)}-private-subnet"
+    environment = var.environment
+    deployment = var.deployment
+  }
+}
+
+resource "aws_subnet" "database2" {
+  vpc_id                  = var.cluster_vpc_id
+  cidr_block              = element(local.subnets_cidrs, 1)
+  availability_zone       = element(local.availability_zones, 1)
+
+  tags = {
+    Name        = "${var.environment}-${element(local.availability_zones, 1)}-private-subnet"
     environment = var.environment
     deployment = var.deployment
   }
@@ -137,7 +152,10 @@ resource "aws_subnet" "database" {
 resource "aws_db_subnet_group" "database" {
   description = "rdsapp db subnet group"
   name        = "rdsapp_subnet_group"
-  subnet_ids  = aws_subnet.database.*.id
+  subnet_ids  = [
+    aws_subnet.database.id,
+    aws_subnet.database2.id
+  ]
 
   tags = {
     Name = var.environment
@@ -155,7 +173,7 @@ resource "aws_security_group" "database" {
     to_port     = local.database_port
     protocol    = "tcp"
     description = "rdsapp mysql"
-    security_groups = [var.cluster_sg_id]
+    security_groups = [data.aws_security_group.cluster.id]
   }
 
   # Allow outbound traffic to private subnets.
@@ -163,8 +181,15 @@ resource "aws_security_group" "database" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    security_groups = [var.cluster_sg_id]
+    security_groups = [data.aws_security_group.cluster.id]
   }
+
+  depends_on = [
+    aws_subnet.database,
+    aws_subnet.database2,
+    aws_db_subnet_group.database,
+    aws_security_group.database
+  ]
 }
 
 resource "aws_db_instance" "database" {
@@ -193,6 +218,13 @@ resource "aws_db_instance" "database" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  depends_on = [
+    aws_subnet.database,
+    aws_subnet.database2,
+    aws_db_subnet_group.database,
+    aws_security_group.database
+  ]
 }
 
 locals {
