@@ -150,21 +150,21 @@ locals {
   target_reverse_shell = [
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.tags,"osconfig_exec_reverse_shell","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_reverse_shell","false") == "true"
     
   ]
 
   target_codecov = [
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.tags,"osconfig_connect_codecov","false") == "true"
+      && lookup(instance.labels,"osconfig_connect_codecov","false") == "true"
     
   ]
 
   target_port_forward = [
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
-      && lookup(instance.tags,"osconfig_exec_port_forward","false") == "true"
+      && lookup(instance.labels,"osconfig_exec_port_forward","false") == "true"
   ]
 }
 
