@@ -17,8 +17,8 @@ locals {
   database_port = var.database_port
 
   subnets_cidrs = [
-      cidrsubnet(var.vpc_subnet,8,200),
-      cidrsubnet(var.vpc_subnet,8,210)
+      cidrsubnet(var.vpc_subnet,8,204),
+      cidrsubnet(var.vpc_subnet,8,205)
   ]
 
   availability_zones = [
