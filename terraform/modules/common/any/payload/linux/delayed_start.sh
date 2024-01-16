@@ -12,7 +12,7 @@
 # script_delay_secs: total number of seconds to wait before starting the next stage
 # next_stage_payload: shell commands to execute after delay
 
-LOCKFILE="/tmp/lacework_deploy_${config["script_name"]}.lock"
+export LOCKFILE="/tmp/lacework_deploy_${config["script_name"]}.lock"
 if [ -e "$LOCKFILE" ]; then
     echo "Another instance of the script is already running. Exiting..."
     exit 1
@@ -24,8 +24,8 @@ function cleanup {
 }
 trap cleanup EXIT INT TERM
 
-SCRIPTNAME="${config["script_name"]}"
-LOGFILE=/tmp/lacework_deploy_$SCRIPTNAME.log
+export SCRIPTNAME="${config["script_name"]}"
+export LOGFILE=/tmp/lacework_deploy_$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -36,10 +36,10 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 # Determine Package Manager
 if command -v apt-get &>/dev/null; then
-    PACKAGE_MANAGER="apt-get"
+    export PACKAGE_MANAGER="apt-get"
     PACKAGES="${config["apt_packages"]}"
 elif command -v yum &>/dev/null; then
-    PACKAGE_MANAGER="yum"
+    export PACKAGE_MANAGER="yum"
     PACKAGES="${config["yum_packages"]}"
 else
     log "Neither apt-get nor yum found. Exiting..."
@@ -58,6 +58,9 @@ while check_package_manager; do
     log "Waiting for $PACKAGE_MANAGER to be available..."
     sleep 10
 done
+
+# export log function
+export -f log
 
 # Conditional Commands based on package manager
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
