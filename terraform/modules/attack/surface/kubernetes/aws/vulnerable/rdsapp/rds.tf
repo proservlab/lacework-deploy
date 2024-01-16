@@ -1,7 +1,3 @@
-data "aws_security_group" "cluster" {
-  id = data.aws_security_group.cluster.id
-}
-
 resource "random_string" "root_db_password" {
     length            = 16
     special           = false
@@ -29,6 +25,14 @@ locals {
       data.aws_availability_zones.available.names[0],
       data.aws_availability_zones.available.names[1]
   ]
+}
+
+data "aws_vpc" "cluster" {
+  id = var.cluster_vpc_id
+}
+
+data "aws_security_group" "cluster" {
+  id = var.cluster_sg_id
 }
 
 data "aws_iam_openid_connect_provider" "cluster" {
@@ -126,7 +130,7 @@ resource "kubernetes_cluster_role_binding" "database" {
 }
 
 resource "aws_subnet" "database" {
-  vpc_id                  = var.cluster_vpc_id
+  vpc_id                  = data.aws_vpc.cluster.id
   cidr_block              = element(local.subnets_cidrs, 0)
   availability_zone       = element(local.availability_zones, 0)
 
@@ -138,7 +142,7 @@ resource "aws_subnet" "database" {
 }
 
 resource "aws_subnet" "database2" {
-  vpc_id                  = var.cluster_vpc_id
+  vpc_id                  = data.aws_vpc.cluster.id
   cidr_block              = element(local.subnets_cidrs, 1)
   availability_zone       = element(local.availability_zones, 1)
 
@@ -166,7 +170,7 @@ resource "aws_security_group" "database" {
   name = "${var.environment}-rdsapp-mysql-private-sg"
 
   description = "rdsapp security group"
-  vpc_id      = var.cluster_vpc_id
+  vpc_id      = data.aws_vpc.cluster.id
 
   ingress {
     from_port   = local.database_port

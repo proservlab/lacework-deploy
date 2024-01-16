@@ -30,11 +30,11 @@ locals {
 }
 
 data "aws_vpc" "database" {
-  id = data.aws_vpc.database.id
+  id = var.vpc_id
 }
 
 data "aws_security_group" "trusted" {
-  id = data.aws_security_group.trusted.id
+  id = var.trusted_sg_id
 }
 
 resource "aws_route_table" "database" {
