@@ -100,13 +100,10 @@ done
 log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
-if [ "" != "${config["next_stage_payload"]}" ]; then
-    log "found payload - starting execution..."
-    cat <<EOF | /bin/bash >> $LOGFILE 2>&1
+log "starting execution of next stage payload..."
+cat <<EOF | /bin/bash >> $LOGFILE 2>&1
 ${config["next_stage_payload"]}
 EOF
-else
-    log "no payload found - skipping next stage"
-fi
+log "done next stage payload execution."
 
 log "Done"
