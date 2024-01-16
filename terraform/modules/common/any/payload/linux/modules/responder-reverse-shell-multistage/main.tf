@@ -106,19 +106,20 @@ locals {
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
         if ! command -v proxychains4 > /dev/null || ! command -v hydra > /dev/null || ! command -v hydra > /dev/null; then
-        yum install -y git
-        yum groupinstall -y 'Development Tools'
-        # proxychains4
-        cd /usr/local/src
-        git clone https://github.com/rofl0r/proxychains-ng
-        cd proxychains-ng
-        ./configure && make && make install
-        make install-config
-        # hydra
-        cd /usr/local/src
-        git clone https://github.com/vanhauser-thc/thc-hydra
-        cd thc-hydra
-        ./configure && make && make install
+            yum install -y git
+            yum groupinstall -y 'Development Tools'
+            # proxychains4
+            cd /usr/local/src
+            git clone https://github.com/rofl0r/proxychains-ng
+            cd proxychains-ng
+            ./configure && make && make install
+            make install-config
+            # hydra
+            cd /usr/local/src
+            git clone https://github.com/vanhauser-thc/thc-hydra
+            cd thc-hydra
+            ./configure && make && make install
+        fi
         EOT
         yum_packages = "nmap python3-pip"
         yum_post_tasks = ""
