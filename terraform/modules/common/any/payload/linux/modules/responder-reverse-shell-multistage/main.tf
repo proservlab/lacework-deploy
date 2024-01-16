@@ -34,9 +34,6 @@ locals {
         python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
         log "wait before using module..."
         sleep 5
-        log "starting background delayed script start..."
-        nohup /bin/bash ${local.start_script} >/dev/null 2>&1 &
-        log "background job started"
         if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
             log "adding tunneled port scanning user - socksuser..."
             adduser socksuser >> $LOGFILE 2>&1
@@ -47,6 +44,9 @@ locals {
             sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
             log "socksuser setup complete..."
         fi
+        log "starting background delayed script start..."
+        /bin/bash ${local.start_script}
+        log "done."
     fi
     log "done."
     EOT
