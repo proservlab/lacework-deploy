@@ -17,8 +17,8 @@ locals {
   database_port = var.database_port
 
   subnets_cidrs = [
-      cidrsubnet(var.vpc_subnet,8,204),
-      cidrsubnet(var.vpc_subnet,8,205)
+      cidrsubnet(var.vpc_subnet,8,200),
+      cidrsubnet(var.vpc_subnet,8,210)
   ]
 
   availability_zones = [
@@ -87,10 +87,6 @@ resource "aws_subnet" "database" {
   depends_on = [ 
     data.aws_vpc.database
   ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_subnet" "database2" {
@@ -107,10 +103,6 @@ resource "aws_subnet" "database2" {
   depends_on = [ 
     data.aws_vpc.database
   ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_db_subnet_group" "database" {
