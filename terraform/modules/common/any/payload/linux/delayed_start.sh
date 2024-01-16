@@ -61,9 +61,13 @@ done
 
 # Conditional Commands based on package manager
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+log "Starting apt pre-task";
 ${config["apt_pre_tasks"]}
+log "Done apt pre-task";
 elif [ "$PACKAGE_MANAGER" == "yum" ]; then
+log "Starting yum pre-task";
 ${config["yum_pre_tasks"]}
+log "Done yum pre-task";
 fi
 if [ "" != "$PACKAGES" ]; then
     sudo /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
@@ -73,9 +77,13 @@ if [ "" != "$PACKAGES" ]; then
     fi
 fi
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+log "Starting apt post-task";
 ${config["apt_post_tasks"]}
+log "Done apt post-task";
 elif [ "$PACKAGE_MANAGER" == "yum" ]; then
+log "Starting yum post-task";
 ${config["yum_post_tasks"]}
+log "Done yum post-task";
 fi
 
 MAX_WAIT=${config["script_delay_secs"]}
