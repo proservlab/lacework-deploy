@@ -119,8 +119,8 @@ resource "aws_db_subnet_group" "database" {
 
   depends_on = [ 
     data.aws_vpc.database,
-    aws_subnet.database.id,
-    aws_subnet.database2.id
+    aws_subnet.database,
+    aws_subnet.database2
   ]
 }
 
