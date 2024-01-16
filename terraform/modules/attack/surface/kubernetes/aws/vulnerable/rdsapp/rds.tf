@@ -139,6 +139,10 @@ resource "aws_subnet" "database" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "database2" {
@@ -150,6 +154,10 @@ resource "aws_subnet" "database2" {
     Name        = "${var.environment}-${element(local.availability_zones, 1)}-private-subnet"
     environment = var.environment
     deployment = var.deployment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

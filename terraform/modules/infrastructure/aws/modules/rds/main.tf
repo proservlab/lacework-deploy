@@ -87,6 +87,10 @@ resource "aws_subnet" "database" {
   depends_on = [ 
     data.aws_vpc.database
   ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "database2" {
@@ -103,6 +107,10 @@ resource "aws_subnet" "database2" {
   depends_on = [ 
     data.aws_vpc.database
   ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_db_subnet_group" "database" {
