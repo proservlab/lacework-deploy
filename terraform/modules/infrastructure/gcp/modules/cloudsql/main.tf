@@ -28,38 +28,116 @@ resource "google_service_networking_connection" "cloudsql_private_vpc_connection
     reserved_peering_ranges = [ google_compute_global_address.cloudsql_private_ip_address.name ]
 }
 
+resource "google_secret_manager_secret" "host" {
+  secret_id = "db_host"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "host" {
-  secret  = "db_host"
+  secret  = google_secret_manager_secret.host.id
   secret_data = google_sql_database_instance.this.dns_name
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret" "cert" {
+  secret_id = "db_cert"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "cert" {
-  secret  = "db_cert"
+  secret  = google_secret_manager_secret.cert.id
   secret_data = google_sql_database_instance.this.server_ca_cert.0.cert
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret" "connection" {
+  secret_id = "db_connection_name"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "connection" {
-  secret  = "db_connection_name"
+  secret  = google_secret_manager_secret.connection.id
   secret_data = google_sql_database_instance.this.connection_name
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret" "port" {
+  secret_id = "db_port"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "port" {
-  secret  = "db_port"
+  secret  = google_secret_manager_secret.port.id
   secret_data = local.database_port
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret" "username" {
+  secret_id = "db_username"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "username" {
-  secret  = "db_username"
+  secret  = google_secret_manager_secret.username.id
   secret_data = var.root_db_username
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret" "password" {
+  secret_id = "db_password"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret_version" "password" {
-  secret  = "db_password"
+  secret  = google_secret_manager_secret.password.id
   secret_data = local.init_db_password
   deletion_policy = "DELETE"
 }
