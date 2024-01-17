@@ -200,7 +200,7 @@ module "aws-credentials" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
-  tag = "ssm_deploy_aws_credentials"
+  tag = "ssm_deploy_secret_aws_credentials"
 
   compromised_credentials = var.compromised_credentials
   compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user

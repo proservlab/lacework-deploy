@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default =  "osconfig_deploy_secret_gcp_creds"
+    default =  "osconfig_deploy_secret_gcp_credentials"
 }
 
 variable "timeout" {

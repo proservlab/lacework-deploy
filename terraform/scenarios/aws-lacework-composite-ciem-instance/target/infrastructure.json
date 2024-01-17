@@ -35,7 +35,7 @@
                 "ssm_deploy_docker"                         : "true",
                 "ssm_deploy_log4j_app"            : "true",
                 "ssm_deploy_secret_ssh_private"             : "true",
-                "ssm_deploy_secret_aws_creds"               : "true"
+                "ssm_deploy_secret_aws_credentials"               : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,

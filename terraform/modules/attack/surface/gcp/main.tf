@@ -182,7 +182,7 @@ module "gcp-credentials" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  tag = "osconfig_deploy_secret_gcp_creds"
+  tag = "osconfig_deploy_secret_gcp_credentials"
 
   compromised_credentials = try(module.iam[0].access_keys, {})
   compromised_keys_user = local.config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
