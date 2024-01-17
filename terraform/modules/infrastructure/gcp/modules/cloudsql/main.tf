@@ -45,6 +45,7 @@ resource "google_secret_manager_secret_version" "host" {
   secret  = google_secret_manager_secret.host.id
   secret_data = google_sql_database_instance.this.dns_name
   deletion_policy = "DELETE"
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_secret_manager_secret" "cert" {
@@ -64,6 +65,8 @@ resource "google_secret_manager_secret_version" "cert" {
   secret  = google_secret_manager_secret.cert.id
   secret_data = google_sql_database_instance.this.server_ca_cert.0.cert
   deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_secret_manager_secret" "connection" {
@@ -83,6 +86,8 @@ resource "google_secret_manager_secret_version" "connection" {
   secret  = google_secret_manager_secret.connection.id
   secret_data = google_sql_database_instance.this.connection_name
   deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_secret_manager_secret" "port" {
@@ -102,6 +107,8 @@ resource "google_secret_manager_secret_version" "port" {
   secret  = google_secret_manager_secret.port.id
   secret_data = local.database_port
   deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_secret_manager_secret" "username" {
@@ -121,6 +128,8 @@ resource "google_secret_manager_secret_version" "username" {
   secret  = google_secret_manager_secret.username.id
   secret_data = var.root_db_username
   deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_secret_manager_secret" "password" {
@@ -140,6 +149,8 @@ resource "google_secret_manager_secret_version" "password" {
   secret  = google_secret_manager_secret.password.id
   secret_data = local.init_db_password
   deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
 }
 
 resource "google_sql_database_instance" "this" {
