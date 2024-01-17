@@ -7,7 +7,7 @@ output "sql_user" {
 }
 
 output "db_host" {
-    value = google_sql_database_instance.this.dns_name
+    value = google_sql_database_instance.this.server_ca_cert.0.common_name
 }
 
 output "db_name" {
@@ -28,6 +28,14 @@ output "db_port" {
 
 output "db_region" {
     value = var.gcp_location
+}
+
+output "db_public_ip" {
+    value = google_sql_database_instance.this.public_ip_address
+}
+
+output "db_private_ip" {
+    value = google_sql_database_instance.this.private_ip_address
 }
 
 output "db_latest_ca_cert" {
