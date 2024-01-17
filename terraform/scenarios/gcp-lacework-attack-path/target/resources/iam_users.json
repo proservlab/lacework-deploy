@@ -1,6 +1,8 @@
 [
   {
-    "name"   :  "gee-zeepay",
-    "policy" :  "roles/viewer"
+    "name"   :  "khon-traktour",
+    "roles" :  [
+      "roles/viewer"
+    ]
   }
 ]

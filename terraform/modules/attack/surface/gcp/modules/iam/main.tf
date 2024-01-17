@@ -14,10 +14,17 @@ resource "google_service_account_key" "keys" {
 }
 
 resource "google_project_iam_member" "roles" {
-  for_each = google_service_account.users
+  for_each = toset(flatten([
+    for user in var.users : [
+      for role in user.roles : {
+        name = user.name
+        role = role
+      }
+    ]
+  ]))
   project = var.gcp_project_id
-  role    = [ for i in var.users: i.policy if i.name == each.key ][0]
-  member = "serviceAccount:${each.value.email}"
+  role    = each.value.role
+  member  = "serviceAccount:${google_service_account.users[each.value.name].email}"
 }
 
 locals {

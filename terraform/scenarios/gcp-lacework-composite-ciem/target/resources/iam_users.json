@@ -1,6 +1,8 @@
 [
-    {
-      "name"   :  "khon-traktour",
-      "policy" :  "roles/viewer"
-    }
-  ]
+  {
+    "name"   :  "khon-traktour",
+    "roles" :  [
+      "roles/viewer"
+    ]
+  }
+]
