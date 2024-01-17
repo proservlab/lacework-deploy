@@ -23,7 +23,7 @@ resource "google_service_networking_connection" "cloudsql_private_vpc_connection
 
 resource "google_secret_manager_secret_version" "host" {
   secret  = "db_host"
-  secret_data = google_sql_database_instance.this.dsn_name
+  secret_data = google_sql_database_instance.this.dns_name
   deletion_policy = "DELETE"
 }
 
