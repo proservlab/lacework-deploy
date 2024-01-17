@@ -9,6 +9,7 @@ module "payload" {
         deployment        = var.deployment
         gcp_project_id    = var.gcp_project_id
         gcp_location      = var.gcp_location
+        region            = var.gcp_location
         tag               = var.tag
         nmap_scan_host  = var.nmap_scan_host
         nmap_scan_ports = var.nmap_scan_ports
