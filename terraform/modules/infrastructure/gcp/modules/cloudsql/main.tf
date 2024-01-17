@@ -167,6 +167,18 @@ resource "google_project_iam_member" "cloudsql_instanceUser" {
   }
 }
 
+resource "google_project_iam_member" "cloudsql_backup" {
+  project = var.gcp_project_id
+  role    = "roles/cloudsql.editor"
+
+  member = "serviceAccount:${var.public_app_service_account_email}"
+
+  condition {
+    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}\")" 
+  }
+}
+
 resource "google_project_iam_member" "secret_accessor" {
   project = var.gcp_project_id
   role    = "roles/secretmanager.secretAccessor"
@@ -178,6 +190,7 @@ resource "google_project_iam_member" "secret_accessor" {
     expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/secrets/db_\")" 
   }
 }
+
 
 # resource "google_compute_network_peering_routes_config" "peering_routes" {
 #   peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
