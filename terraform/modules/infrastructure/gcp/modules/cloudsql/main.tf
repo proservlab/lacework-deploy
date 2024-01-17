@@ -21,6 +21,36 @@ resource "google_service_networking_connection" "cloudsql_private_vpc_connection
     reserved_peering_ranges = [ google_compute_global_address.cloudsql_private_ip_address.name ]
 }
 
+resource "google_secret_manager_secret_version" "host" {
+  secret  = "db_host"
+  secret_data = google_sql_database_instance.this.dsn_name
+  deletion_policy = "DELETE"
+}
+
+resource "google_secret_manager_secret_version" "connection" {
+  secret  = "db_connection_name"
+  secret_data = google_sql_database_instance.this.connection_name
+  deletion_policy = "DELETE"
+}
+
+resource "google_secret_manager_secret_version" "port" {
+  secret  = "db_port"
+  secret_data = 3306
+  deletion_policy = "DELETE"
+}
+
+resource "google_secret_manager_secret_version" "username" {
+  secret  = "db_username"
+  secret_data = var.root_db_username
+  deletion_policy = "DELETE"
+}
+
+resource "google_secret_manager_secret_version" "password" {
+  secret  = "db_password"
+  secret_data = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
+  deletion_policy = "DELETE"
+}
+
 resource "google_sql_database_instance" "this" {
   name             = "cloudsql-${var.environment}-${var.deployment}"
   region           = var.gcp_location
