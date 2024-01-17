@@ -8,19 +8,22 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "gcp_location" {
+    type = string
+}
+
+variable "gcp_project_id" {
+    type    = string
+}
+
 variable "tag" {
-  type = string
-  default = "ssm_deploy_rds_app"
+    type = string
+    default = "osconfig_deploy_cloudsql_app"
 }
 
 variable "timeout" {
-  type = number
-  default = 1200
-}
-
-variable "cron" {
-  type = string
-  default = "cron(0/30 * * * ? *)"
+    type = string
+    default = "600s"
 }
 
 variable "listen_port" {

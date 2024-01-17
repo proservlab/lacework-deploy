@@ -238,6 +238,8 @@ module "vulnerable-npm-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
+  tag = "ssm_deploy_npm_app"
+
   listen_port = local.config.context.aws.ssm.vulnerable.npm_app.listen_port
 }
 
@@ -247,6 +249,8 @@ module "vulnerable-python3-twisted-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
+  tag = "ssm_deploy_python3_twisted_app"
+
   listen_port = local.config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
 }
 
@@ -256,6 +260,8 @@ module "vulnerable-rds-app" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
   
+  tag = "ssm_deploy_rds_app"
+
   listen_port = local.config.context.aws.ssm.vulnerable.rds_app.listen_port
 
   db_host = local.db_host

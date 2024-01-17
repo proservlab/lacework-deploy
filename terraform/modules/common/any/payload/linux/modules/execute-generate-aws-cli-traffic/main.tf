@@ -1,10 +1,11 @@
 locals {
+    tool = "gcloud"
     attack_dir = "/generate-aws-cli-traffic"
     aws_creds = join("\n", [ for u,k in var.inputs["compromised_credentials"]: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     aws_commands = join("\n", [ for command in var.inputs["commands"]: "${command}" ])
     payload = <<-EOT
-    while ! command -v aws > /dev/null; do
-        log "aws cli not found or not ready - waiting"
+    while ! command -v ${local.tool} > /dev/null; do
+        log "${local.tool} not found or not ready - waiting"
         sleep 120
     done
     rm -rf ${local.attack_dir}

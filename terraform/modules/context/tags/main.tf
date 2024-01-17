@@ -26,7 +26,7 @@ locals {
     ssm_exec_responder_http_listener = "false"
     ssm_exec_docker_cpuminer        = "false"
     ssm_deploy_python3_twisted_app = "false"
-    ssm_deploy_vuln_rdsapp = "false"
+    ssm_deploy_rds_app = "false"
     ssm_exec_docker_guardduty = "false"
     ssm_deploy_docker_log4j_app = "false"
     ssm_exec_docker_exploit_log4j_app = "false"
