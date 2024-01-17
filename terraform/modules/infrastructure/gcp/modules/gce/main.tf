@@ -30,7 +30,7 @@ module "public_service_account" {
   deployment = var.deployment
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
-  name = "public-sa"
+  name = "pub"
 }
 
 module "public_app_service_account" {
@@ -39,7 +39,7 @@ module "public_app_service_account" {
   deployment = var.deployment
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
-  name = "public-app-sa"
+  name = "pub-app"
 }
 
 module "private_service_account" {
@@ -48,7 +48,7 @@ module "private_service_account" {
   deployment = var.deployment
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
-  name = "prv-sa"
+  name = "prv"
 }
 
 module "private_app_service_account" {
@@ -57,7 +57,7 @@ module "private_app_service_account" {
   deployment = var.deployment
   gcp_location  = var.gcp_location
   gcp_project_id  = var.gcp_project_id
-  name = "prv-app-sa"
+  name = "prv-app"
 }
 
 # build private and public vpcs
