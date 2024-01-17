@@ -7,7 +7,7 @@ output "sql_user" {
 }
 
 output "db_host" {
-    value = google_sql_database_instance.database.dns_name
+    value = google_sql_database_instance.this.dns_name
 }
 
 output "db_name" {
