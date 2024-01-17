@@ -1,3 +1,10 @@
+locals {
+  database_name = "cloudsql-${var.environment}-${var.deployment}"
+  init_db_username = var.root_db_username
+  init_db_password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
+  database_port = 3306
+}
+
 resource "random_string" "root_db_password" {
     length            = 16
     special           = false
@@ -41,7 +48,7 @@ resource "google_secret_manager_secret_version" "connection" {
 
 resource "google_secret_manager_secret_version" "port" {
   secret  = "db_port"
-  secret_data = 3306
+  secret_data = local.database_port
   deletion_policy = "DELETE"
 }
 
@@ -53,12 +60,12 @@ resource "google_secret_manager_secret_version" "username" {
 
 resource "google_secret_manager_secret_version" "password" {
   secret  = "db_password"
-  secret_data = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
+  secret_data = local.init_db_password
   deletion_policy = "DELETE"
 }
 
 resource "google_sql_database_instance" "this" {
-  name             = "cloudsql-${var.environment}-${var.deployment}"
+  name             = local.database_name
   region           = var.gcp_location
   database_version = var.sql_engine
 
@@ -144,7 +151,7 @@ resource "google_project_iam_member" "cloudsql_client" {
 
   condition {
     title       = "client_cloudsql_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/cloudsql-${var.environment}-${var.deployment}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}}\")" 
   }
 }
 
@@ -156,7 +163,7 @@ resource "google_project_iam_member" "cloudsql_instanceUser" {
 
   condition {
     title       = "client_instanceuser_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/cloudsql-${var.environment}-${var.deployment}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}\")" 
   }
 }
 

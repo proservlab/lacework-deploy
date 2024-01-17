@@ -244,7 +244,25 @@ module "vulnerable-python3-twisted-app" {
   tag = "osconfig_deploy_python3_twisted_app"
 }
 
-# vulnerable-rds-app
+module "vulnerable-cloudsql-app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.vulnerable.cloudsql_app.enabled == true ) ? 1 : 0
+  source = "./modules/osconfig/deploy-cloudsql-app"
+  environment = local.config.context.global.environment
+  deployment  = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+
+  tag = "osconfig_deploy_cloudsql_app"
+
+  listen_port = local.config.context.gcp.osconfig.vulnerable.cloudsql_app.listen_port
+
+  db_host = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_host, null)
+  db_name = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_name, null)
+  db_user = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_user, null)
+  db_password = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_password, null)
+  db_port = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_port, null)
+  db_region = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_region, null)
+}
 
 ##################################################
 # GCP GKE
