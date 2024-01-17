@@ -129,6 +129,10 @@ variable "config" {
               enabled                   = bool
               listen_port               = number
             })
+            cloudsql_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
           })
           ssh_keys = object({ 
             enabled                     = bool
@@ -487,6 +491,10 @@ variable "config" {
             python3_twisted_app = {
               enabled                   = false
               listen_port               = 8090
+            }
+            cloudsql_app        = {
+              enabled                   = false
+              listen_port               = 8091
             }
           }
           ssh_keys = {
