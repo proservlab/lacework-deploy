@@ -43,7 +43,7 @@ resource "google_secret_manager_secret" "host" {
 
 resource "google_secret_manager_secret_version" "host" {
   secret  = google_secret_manager_secret.host.id
-  secret_data = google_sql_database_instance.this.dns_name
+  secret_data = google_sql_database_instance.this.server_ca_cert.0.common_name
   deletion_policy = "DELETE"
   depends_on = [ google_sql_database_instance.this ]
 }
