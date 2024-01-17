@@ -27,6 +27,12 @@ resource "google_secret_manager_secret_version" "host" {
   deletion_policy = "DELETE"
 }
 
+resource "google_secret_manager_secret_version" "cert" {
+  secret  = "db_cert"
+  secret_data = google_sql_database_instance.this.server_ca_cert.0.cert
+  deletion_policy = "DELETE"
+}
+
 resource "google_secret_manager_secret_version" "connection" {
   secret  = "db_connection_name"
   secret_data = google_sql_database_instance.this.connection_name
@@ -111,20 +117,59 @@ resource "google_sql_user" "iam_service_account" {
   ]
 }
 
-resource "google_project_iam_custom_role" "custom_sql_role" {
-  project = var.gcp_project_id
-  role_id     = "${var.user_role_name}_${var.environment}_${var.deployment}"
-  title       = "Cloud SQL Instance User"
-  description = "Custom role to provide access to specific Cloud SQL instance"
-  permissions = ["cloudsql.instances.connect", "cloudsql.instances.get"]
-}
+# resource "google_project_iam_custom_role" "custom_sql_role" {
+#   project = var.gcp_project_id
+#   role_id     = "${var.user_role_name}_${var.environment}_${var.deployment}"
+#   title       = "Cloud SQL Instance User"
+#   description = "Custom role to provide access to specific Cloud SQL instance"
+#   permissions = [
+#     "cloudsql.instances.connect", 
+#     "cloudsql.instances.get"
+#   ]
+# }
 
-resource "google_project_iam_member" "cloudsql_custom_access" {
+# resource "google_project_iam_member" "cloudsql_custom_access" {
+#   project = var.gcp_project_id
+#   role   = google_project_iam_custom_role.custom_sql_role.id
+#   member = "serviceAccount:${var.public_app_service_account_email}"
+
+#   depends_on = [ google_project_iam_custom_role.custom_sql_role ]
+# }
+
+resource "google_project_iam_member" "cloudsql_client" {
   project = var.gcp_project_id
-  role   = google_project_iam_custom_role.custom_sql_role.id
+  role    = "roles/cloudsql.client"
+
   member = "serviceAccount:${var.public_app_service_account_email}"
 
-  depends_on = [ google_project_iam_custom_role.custom_sql_role ]
+  condition {
+    title       = "client_cloudsql_${var.environment}-${var.deployment}*"
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/cloudsql-${var.environment}-${var.deployment}\")" 
+  }
+}
+
+resource "google_project_iam_member" "cloudsql_instanceUser" {
+  project = var.gcp_project_id
+  role    = "roles/cloudsql.instanceUser"
+
+  member = "serviceAccount:${var.public_app_service_account_email}"
+
+  condition {
+    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/cloudsql-${var.environment}-${var.deployment}\")" 
+  }
+}
+
+resource "google_project_iam_member" "secret_accessor" {
+  project = var.gcp_project_id
+  role    = "roles/secretmanager.secretAccessor"
+
+  member = "serviceAccount:${var.public_app_service_account_email}"
+
+  condition {
+    title       = "db_*"
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/secrets/db_\")" 
+  }
 }
 
 # resource "google_compute_network_peering_routes_config" "peering_routes" {

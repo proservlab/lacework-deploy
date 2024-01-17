@@ -18,6 +18,7 @@ locals {
     echo ${local.entrypoint} | base64 -d > entrypoint.sh
     echo ${local.index} | base64 -d > templates/index.html
     echo ${local.cast} | base64 -d > templates/cast.html
+    echo ${local.get_cloudsql_cert} | base64 -d > templates/get-cloudsql-cert.py
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
@@ -26,8 +27,12 @@ locals {
     python3 -m pip install -r requirements.txt >> $LOGFILE 2>&1
     log "requirements installed"
     
+    log "gettting cloudsql cert"
+    python3 get-cloudsql-cert.py
+    log "cloudsql cert complete"
+
     log "running mysql boostrap..."
-    mysql --ssl-ca=rds-combined-ca-bundle.pem --ssl-mode=REQUIRED -h ${split(":", var.inputs["db_host"])[0]} -u${var.inputs["db_user"]} -p${var.inputs["db_password"]} < bootstrap.sql
+    mysql --ssl-ca=cloudsql-combined-ca-bundle.pem --ssl-mode=REQUIRED -h ${split(":", var.inputs["db_host"])[0]} -u${var.inputs["db_user"]} -p${var.inputs["db_password"]} < bootstrap.sql
     log "mysql boostrap complete"
 
     log "starting app"
@@ -53,23 +58,14 @@ locals {
         next_stage_payload = local.payload
     }}))
 
-    app = base64encode(templatefile(
-                            "${path.module}/resources/app.py.tpl",
-                            {
-                                listen_port = var.inputs["listen_port"]
-                                region = var.inputs["db_region"]
-                            }
+    app = base64encode(file(
+                            "${path.module}/resources/app.py"
                         ))
-    test = base64encode(templatefile(
-                          "${path.module}/resources/test.py.tpl",
-                            {
-                               
-                                region = var.inputs["db_region"]
-                            }
+    test = base64encode(file(
+                          "${path.module}/resources/test.py"
                         ))
-    requirements = base64encode(templatefile(
+    requirements = base64encode(file(
                           "${path.module}/resources/requirements.txt",
-                          {}
                         ))
     database = base64encode(templatefile(
                           "${path.module}/resources/bootstrap.sql.tpl",
@@ -90,6 +86,9 @@ locals {
                         ))
     cast = base64encode(file(
                             "${path.module}/resources/cast.html"
+                        ))
+    get_cloudsql_cert = base64encode(file(
+                            "${path.module}/resources/get-cloudsql-cert.py"
                         ))
 
     outputs = {

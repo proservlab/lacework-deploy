@@ -1,63 +1,70 @@
+import uuid
 import logging
+from flask import Flask, request, make_response, session, render_template, url_for, redirect, render_template_string
+from flask_api import status
+import os
 import pymysql
 from pymysql.err import DatabaseError
-import boto3
-import botocore.session
-import os
-from botocore.utils import InstanceMetadataFetcher
-from botocore.credentials import InstanceMetadataProvider
+import json
+import sys
+import ssl
+from google.cloud import secretmanager
+from google.auth import compute_engine
+from google.oauth2 import service_account
 
-list_of_names = ""
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'Hello World!'
 
-# use ec2 instance role
-provider = InstanceMetadataProvider(iam_role_fetcher=InstanceMetadataFetcher(timeout=1000, num_attempts=2))
-creds = provider.load()
+# Use the IAM service account for authentication
+credentials = compute_engine.Credentials()
 
-session = boto3.Session(
-    aws_access_key_id=creds.access_key,
-    aws_secret_access_key=creds.secret_key,
-    aws_session_token=creds.token,
-    region_name='us-east-1'
-)
-
-ssm = session.client('ssm')
-
-parameter = ssm.get_parameter(Name='db_host', WithDecryption=True)
-DB_APP_URL=parameter['Parameter']['Value'].split(":")[0]
-DB_PORT=int(parameter['Parameter']['Value'].split(":")[1])
-
-parameter = ssm.get_parameter(Name='db_name', WithDecryption=True)
-DB_NAME=parameter['Parameter']['Value']
-
-parameter = ssm.get_parameter(Name='db_username', WithDecryption=True)
-DB_USER_NAME=parameter['Parameter']['Value']
-
-parameter = ssm.get_parameter(Name='db_password', WithDecryption=True)
-DB_PASSWORD=parameter['Parameter']['Value']
+# Create a Secret Manager client
+client = secretmanager.SecretManagerServiceClient(credentials=credentials)
+service_account_email = credentials.service_account_email
+db_username = service_account_email.split('@')[0]
 
 
-parameter = ssm.get_parameter(Name='db_region', WithDecryption=True)
-DB_REGION=parameter['Parameter']['Value'] 
+def access_secret_version(secret_id):
+    # Build the resource name of the secret version.
+    name = f"projects/my-project/secrets/{secret_id}/versions/latest"
+    # Access the secret version.
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode('UTF-8')
+
+
+# Retrieve your database connection details from Secret Manager
+DB_APP_URL = access_secret_version('db_host')
+DB_PORT = int(access_secret_version('db_port'))
+DB_NAME = access_secret_version('db_name')
+DB_USER_NAME = db_username
+# DB_USER_NAME = access_secret_version('db_username')
+# DB_PASSWORD = access_secret_version('db_password')
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 
-SSL_CA='rds-combined-ca-bundle.pem'
-
+# use provided cluster pod iam role to get db token
 client = session.client('rds')
-ssl = {'ca': 'rds-combined-ca-bundle.pem'}
-token = client.generate_db_auth_token(DBHostname=DB_APP_URL, Port=DB_PORT, DBUsername=DB_USER_NAME, Region=DB_REGION)
-print(token)
-connection = pymysql.connect(
-                            host=DB_APP_URL,
-                            user=DB_USER_NAME,
-                            password=token,
-                            port=DB_PORT,
-                            db=DB_NAME,
-                            ssl=ssl,
-                            charset='utf8mb4',
-                            cursorclass=pymysql.cursors.DictCursor
-)
 
+# Connect to the database
+
+
+def create_connection():
+    # Construct SSL
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.VerifyMode.CERT_NONE
+    token = credentials.token
+    return pymysql.connect(host=DB_APP_URL,
+                           user=DB_USER_NAME,
+                           password=token,
+                           port=DB_PORT,
+                           db=DB_NAME,
+                           ssl=ctx,
+                           charset='utf8mb4',
+                           cursorclass=pymysql.cursors.DictCursor
+                           )
+
+connection = create_connection()
 cursor = connection.cursor()
 cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
