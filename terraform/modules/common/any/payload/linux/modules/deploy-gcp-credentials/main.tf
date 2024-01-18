@@ -27,18 +27,18 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
-        if command -v ${local.tool} &>/dev/null; then
-            log "${local.tool} found no installation required"; 
-            exit 0; 
-        fi
+        while ! command -v ${local.tool} &>/dev/null; do
+            log "${local.tool} not found - waiting";
+            sleep 120 
+        done
         EOT
         apt_packages = ""
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
-        if command -v ${local.tool} &>/dev/null; then
-            log "${local.tool} found no installation required"; 
-            exit 0; 
-        fi
+        while ! command -v ${local.tool} &>/dev/null; do
+            log "${local.tool} not found - waiting";
+            sleep 120 
+        done
         EOT
         yum_packages = ""
         yum_post_tasks = ""

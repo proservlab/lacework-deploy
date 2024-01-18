@@ -31,17 +31,17 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
-        if [ -f /var/lib/lacework/config/config.json ]; then
-            log "${local.tool} found no installation required"; 
-            exit 0; 
+        while ! [ -f /var/lib/lacework/config/config.json ]; then
+            log "lacework installation not found - waiting"; 
+            sleep 120;
         fi
         EOT
         apt_packages = ""
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
-        if [ -f /var/lib/lacework/config/config.json ]; then
-            log "${local.tool} found no installation required"; 
-            exit 0; 
+        while ! [ -f /var/lib/lacework/config/config.json ]; then
+            log "lacework installation not found - waiting"; 
+            sleep 120;
         fi
         EOT
         yum_packages = ""
