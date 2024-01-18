@@ -30,14 +30,14 @@
             "instance_type"             : "e2-micro",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
-              "owner"                                         : "lacework",
-              "ssm_deploy_aws_cli"                            : "true",
-              "ssm_deploy_docker"                             : "true",
-              "ssm_deploy_lacework"                           : "true",
-              "ssm_deploy_lacework_syscall"                   : "true",
-              "ssm_deploy_lacework_code_aware_agent"          : "true",
-              "ssm_deploy_secret_ssh_public"                  : "true",
-              "ssm_exec_generate_web_traffic_target"          : "true"
+              "owner"                                              : "lacework",
+              "osconfig_deploy_aws_cli"                            : "true",
+              "osconfig_deploy_docker"                             : "true",
+              "osconfig_deploy_lacework"                           : "true",
+              "osconfig_deploy_lacework_syscall"                   : "true",
+              "osconfig_deploy_lacework_code_aware_agent"          : "true",
+              "sosconfig_deploy_secret_ssh_public"                 : "true",
+              "osconfig_exec_generate_web_traffic_target"          : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
