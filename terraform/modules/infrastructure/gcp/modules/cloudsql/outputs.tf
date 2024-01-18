@@ -7,7 +7,7 @@ output "sql_user" {
 }
 
 output "db_host" {
-    value = google_sql_database_instance.this.server_ca_cert.0.common_name
+    value = google_sql_database_instance.this.name
 }
 
 output "db_name" {
