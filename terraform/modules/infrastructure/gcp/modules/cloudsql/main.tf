@@ -148,7 +148,7 @@ resource "google_project_iam_member" "cloudsql_client" {
 
   condition {
     title       = "client_cloudsql_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
 
