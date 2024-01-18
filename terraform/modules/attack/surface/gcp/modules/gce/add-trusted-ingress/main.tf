@@ -1,5 +1,13 @@
+resource "random_string" "this" {
+    length            = 4
+    special           = false
+    upper             = false
+    lower             = true
+    numeric           = true
+}
+
 resource "google_compute_firewall" "public-ingress_rules" {
-  name                    = "${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
+  name                    = "${var.environment}-${var.deployment}-public-${var.role}-ingress-rule-${random_string.this.result}"
   description             = "${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
   direction               = "INGRESS"
   network                 = var.network
