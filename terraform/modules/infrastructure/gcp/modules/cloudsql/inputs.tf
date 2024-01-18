@@ -75,13 +75,6 @@ variable "authorized_networks" {
     default = []
 }
 
-
-variable "root_db_username" {
-    type = string
-    description = "root admin username"
-    default = "dbuser"
-}
-
 variable "database_name" {
     type = string
     description = "name of the database to store in parameter store"
