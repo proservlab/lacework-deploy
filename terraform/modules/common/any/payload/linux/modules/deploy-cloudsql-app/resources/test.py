@@ -64,16 +64,17 @@ def create_connection():
                            cursorclass=pymysql.cursors.DictCursor
                            )
 
+
 connection = create_connection()
 cursor = connection.cursor()
 cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
 cast_list = []
 for row in cursor.fetchall():
-    cast_list.append({'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
+    cast_list.append(
+        {'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
 
 print(cast_list)
 
 cursor.close()
-connection.close() 
-
+connection.close()
