@@ -27,7 +27,7 @@ variable "subnetwork" {
 }
 
 variable "sql_engine" {
-  default = "POSTGRES_11"
+default = "MYSQL_5_7"
 }
 
 variable "instance_type" {
