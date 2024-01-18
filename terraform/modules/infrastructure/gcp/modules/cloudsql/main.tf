@@ -1,9 +1,14 @@
+data "google_project" "project" {
+  project_id = var.gcp_project_id
+}
+
 locals {
   database_name = var.database_name
   instance_name = "cloudsql-${var.environment}-${var.deployment}"
   init_db_username = var.root_db_username
   init_db_password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
   database_port = 3306
+  gcp_project_number = data.google_project.project.number
 }
 
 resource "random_string" "root_db_password" {
@@ -175,6 +180,7 @@ resource "google_project_iam_member" "cloudsql_backup" {
 # SECRETS
 ##########################################
 
+# why this is project number I don't know
 resource "google_project_iam_member" "secret_accessor" {
   project = var.gcp_project_id
   role    = "roles/secretmanager.secretAccessor"
@@ -183,7 +189,7 @@ resource "google_project_iam_member" "secret_accessor" {
 
   condition {
     title       = "db_*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/secrets/db_\")" 
+    expression  = "resource.name.startsWith(\"projects/${local.gcp_project_number}/secrets/db_\")" 
   }
 }
 

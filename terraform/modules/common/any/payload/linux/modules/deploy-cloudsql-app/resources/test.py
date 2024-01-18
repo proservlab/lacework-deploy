@@ -41,7 +41,7 @@ def access_secret_version(secret_id):
 
 
 # Retrieve your database connection details from Secret Manager
-DB_APP_URL = access_secret_version('db_connection_name')
+DB_APP_URL = access_secret_version('db_host')
 DB_PORT = int(access_secret_version('db_port'))
 DB_NAME = "dev"
 DB_USER_NAME = access_secret_version('db_username')
