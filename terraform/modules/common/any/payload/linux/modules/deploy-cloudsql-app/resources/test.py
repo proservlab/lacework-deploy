@@ -56,38 +56,39 @@ os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 # function to return the database connection
 
 
-# def getconn() -> pymysql.connections.Connection:
-#     conn: pymysql.connections.Connection = connector.connect(
-#         DB_APP_URL,
-#         "pymysql",
-#         user=DB_USER_NAME,
-#         # password=credentials.token,
-#         db=DB_NAME,
-#         enable_iam_auth=True,
-#         ip_type=IPTypes.PRIVATE,
-#     )
-#     return conn
-
-# connection = getconn()
-
-def create_connection():
-    # Construct SSL
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.VerifyMode.CERT_NONE
-    token = credentials.token
-    return pymysql.connect(host=DB_PRIVATE_IP,
-                           user=db_username,
-                           password=token,
-                           port=DB_PORT,
-                           db=DB_NAME,
-                           ssl=ctx,
-                           charset='utf8mb4',
-                           cursorclass=pymysql.cursors.DictCursor
-                           )
+def getconn() -> pymysql.connections.Connection:
+    conn: pymysql.connections.Connection = connector.connect(
+        DB_APP_URL,
+        "pymysql",
+        user=db_username,
+        # password=credentials.token,
+        db=DB_NAME,
+        enable_iam_auth=True,
+        ip_type=IPTypes.PRIVATE,
+    )
+    return conn
 
 
-connection = create_connection()
+connection = getconn()
+
+# def create_connection():
+#     # Construct SSL
+#     ctx = ssl.create_default_context()
+#     ctx.check_hostname = False
+#     ctx.verify_mode = ssl.VerifyMode.CERT_NONE
+#     token = credentials.token
+#     return pymysql.connect(host=DB_PRIVATE_IP,
+#                            user='target-65438e56-pub-app',
+#                            password=token,
+#                            port=DB_PORT,
+#                            db=DB_NAME,
+#                            ssl=ctx,
+#                            charset='utf8mb4',
+#                            cursorclass=pymysql.cursors.DictCursor
+#                            )
+
+
+# connection = create_connection()
 # cursor = connection.cursor()
 # cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
