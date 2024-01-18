@@ -148,7 +148,7 @@ resource "google_project_iam_member" "cloudsql_client" {
 
   condition {
     title       = "client_cloudsql_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}}\")" 
   }
 }
 
@@ -160,7 +160,7 @@ resource "google_project_iam_member" "cloudsql_instanceUser" {
 
   condition {
     title       = "client_instanceuser_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
 
@@ -172,7 +172,7 @@ resource "google_project_iam_member" "cloudsql_backup" {
 
   condition {
     title       = "client_instanceuser_${var.environment}-${var.deployment}*"
-    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.database_name}\")" 
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
 
