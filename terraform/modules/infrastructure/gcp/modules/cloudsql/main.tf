@@ -103,7 +103,7 @@ resource "google_sql_user" "this" {
 }
 
 resource "google_sql_user" "iam_service_account" {
-  name     = trimsuffix(var.public_app_service_account_email, ".gserviceaccount.com")
+  name     = var.public_app_service_account_email
   instance = google_sql_database_instance.this.name
   type = "CLOUD_IAM_SERVICE_ACCOUNT"
 
