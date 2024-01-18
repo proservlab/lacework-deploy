@@ -13,12 +13,12 @@ locals {
     echo ${local.app} | base64 -d > app.py
     echo ${local.requirements} | base64 -d > requirements.txt
     echo ${local.test} | base64 -d > test.py
-    curl -LOJ https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+    echo ${local.get_cloudsql_cert} | base64 -d > get-cloudsql-cert.py
     echo ${local.database} | base64 -d > bootstrap.sql
     echo ${local.entrypoint} | base64 -d > entrypoint.sh
     echo ${local.index} | base64 -d > templates/index.html
     echo ${local.cast} | base64 -d > templates/cast.html
-    echo ${local.get_cloudsql_cert} | base64 -d > get-cloudsql-cert.py
+    
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
