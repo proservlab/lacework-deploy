@@ -275,6 +275,48 @@ resource "google_secret_manager_secret_version" "port" {
   depends_on = [ google_sql_database_instance.this ]
 }
 
+resource "google_secret_manager_secret" "public_ip" {
+  secret_id = "db_public_ip"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "public_ip" {
+  secret  = google_secret_manager_secret.public_ip.id
+  secret_data = google_sql_database_instance.this.public_ip_address
+  deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
+}
+
+resource "google_secret_manager_secret" "private_ip" {
+  secret_id = "db_private_ip"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "private_ip" {
+  secret  = google_secret_manager_secret.private_ip.id
+  secret_data = google_sql_database_instance.this.private_ip_address
+  deletion_policy = "DELETE"
+
+  depends_on = [ google_sql_database_instance.this ]
+}
+
 resource "google_secret_manager_secret" "username" {
   secret_id = "db_username"
 
