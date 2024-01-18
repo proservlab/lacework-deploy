@@ -69,7 +69,7 @@
         ]
       },
       "cloudsql": {
-        "enabled"                         : true,
+        "enabled"                         : false,
         "enable_public_ip"                : true
       },
       "osconfig": {
