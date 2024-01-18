@@ -4,4 +4,6 @@ pymysql==1.0.3
 google-auth==2.26.2
 google-cloud==0.34.0
 google-cloud-secret-manager==2.17.0
+cloud-sql-python-connector[pymysql]==1.6.0
+pyOpenSSL==23.3.0
 Werkzeug==2.2.2

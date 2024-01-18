@@ -8,15 +8,23 @@ from pymysql.err import DatabaseError
 import json
 import sys
 import ssl
+import urllib.request
+from google.cloud.sql.connector import Connector, IPTypes
 from google.cloud import secretmanager
 from google.auth import compute_engine
-from google.oauth2 import service_account
+from google.auth import transport
+from google.auth import default
+from google.auth.compute_engine import _metadata
+
+credentials, project_id = default()
+auth_req = transport.requests.Request()
+credentials.refresh(auth_req)
+
+# initialize Connector object
+connector = Connector(ip_type=IPTypes.PRIVATE, enable_iam_auth=True,)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Hello World!'
-
-# Use the IAM service account for authentication
-credentials = compute_engine.Credentials()
 
 # Create a Secret Manager client
 client = secretmanager.SecretManagerServiceClient(credentials=credentials)
@@ -26,55 +34,61 @@ db_username = service_account_email.split('@')[0]
 
 def access_secret_version(secret_id):
     # Build the resource name of the secret version.
-    name = f"projects/my-project/secrets/{secret_id}/versions/latest"
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
     # Access the secret version.
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode('UTF-8')
 
 
 # Retrieve your database connection details from Secret Manager
-DB_APP_URL = access_secret_version('db_host')
+DB_APP_URL = access_secret_version('db_connection_name')
 DB_PORT = int(access_secret_version('db_port'))
-DB_NAME = access_secret_version('db_name')
-DB_USER_NAME = db_username
-# DB_USER_NAME = access_secret_version('db_username')
-# DB_PASSWORD = access_secret_version('db_password')
+DB_NAME = "dev"
+DB_USER_NAME = access_secret_version('db_username')
+DB_PASSWORD = access_secret_version('db_password')
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 
-# use provided cluster pod iam role to get db token
-client = session.client('rds')
 
-# Connect to the database
-
-
-def create_connection():
-    # Construct SSL
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.VerifyMode.CERT_NONE
-    token = credentials.token
-    return pymysql.connect(host=DB_APP_URL,
-                           user=DB_USER_NAME,
-                           password=token,
-                           port=DB_PORT,
-                           db=DB_NAME,
-                           ssl=ctx,
-                           charset='utf8mb4',
-                           cursorclass=pymysql.cursors.DictCursor
-                           )
+# function to return the database connection
+def getconn() -> pymysql.connections.Connection:
+    conn: pymysql.connections.Connection = connector.connect(
+        DB_APP_URL,
+        "pymysql",
+        user=DB_USER_NAME,
+        password=credentials.token,
+        db="my-db-name"
+    )
+    return conn
 
 
-connection = create_connection()
-cursor = connection.cursor()
-cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
+# def create_connection():
+#     # Construct SSL
+#     ctx = ssl.create_default_context()
+#     ctx.check_hostname = False
+#     ctx.verify_mode = ssl.VerifyMode.CERT_NONE
+#     token = credentials.token
+#     return pymysql.connect(host="34.133.203.109",
+#                            user=DB_USER_NAME,
+#                            password=token,
+#                            port=DB_PORT,
+#                            db=DB_NAME,
+#                            ssl=ctx,
+#                            charset='utf8mb4',
+#                            cursorclass=pymysql.cursors.DictCursor
+#                            )
 
-cast_list = []
-for row in cursor.fetchall():
-    cast_list.append(
-        {'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
+connection = getconn()
+# connection = create_connection()
+# cursor = connection.cursor()
+# cursor.execute("SELECT `firstName`, `lastName`, `characterName` FROM `cast`")
 
-print(cast_list)
+# cast_list = []
+# for row in cursor.fetchall():
+#     cast_list.append(
+#         {'firstName': row["firstName"], 'lastName': row["lastName"], 'characterName': row["characterName"]})
 
-cursor.close()
-connection.close()
+# print(cast_list)
+
+# cursor.close()
+# connection.close()

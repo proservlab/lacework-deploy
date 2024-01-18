@@ -1,5 +1,6 @@
 locals {
-  database_name = "cloudsql-${var.environment}-${var.deployment}"
+  database_name = var.database_name
+  instance_name = "cloudsql-${var.environment}-${var.deployment}"
   init_db_username = var.root_db_username
   init_db_password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
   database_port = 3306
@@ -43,7 +44,27 @@ resource "google_secret_manager_secret" "host" {
 
 resource "google_secret_manager_secret_version" "host" {
   secret  = google_secret_manager_secret.host.id
-  secret_data = google_sql_database_instance.this.server_ca_cert.0.common_name
+  secret_data = google_sql_database_instance.this.connection_name
+  deletion_policy = "DELETE"
+  depends_on = [ google_sql_database_instance.this ]
+}
+
+resource "google_secret_manager_secret" "name" {
+  secret_id = "db_name"
+
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "name" {
+  secret  = google_secret_manager_secret.name.id
+  secret_data = local.database_name
   deletion_policy = "DELETE"
   depends_on = [ google_sql_database_instance.this ]
 }
@@ -64,27 +85,6 @@ resource "google_secret_manager_secret" "cert" {
 resource "google_secret_manager_secret_version" "cert" {
   secret  = google_secret_manager_secret.cert.id
   secret_data = google_sql_database_instance.this.server_ca_cert.0.cert
-  deletion_policy = "DELETE"
-
-  depends_on = [ google_sql_database_instance.this ]
-}
-
-resource "google_secret_manager_secret" "connection" {
-  secret_id = "db_connection_name"
-
-  labels = {
-    environment = var.environment
-    deployment = var.deployment
-  }
-
-  replication {
-    auto {}
-  }
-}
-
-resource "google_secret_manager_secret_version" "connection" {
-  secret  = google_secret_manager_secret.connection.id
-  secret_data = google_sql_database_instance.this.connection_name
   deletion_policy = "DELETE"
 
   depends_on = [ google_sql_database_instance.this ]
@@ -154,14 +154,14 @@ resource "google_secret_manager_secret_version" "password" {
 }
 
 resource "google_sql_database_instance" "this" {
-  name             = local.database_name
+  name             = local.instance_name
   region           = var.gcp_location
   database_version = var.sql_engine
 
   settings {
     tier = var.instance_type
     ip_configuration {
-      ipv4_enabled    = var.enable_public_ip
+      ipv4_enabled    = "${var.enable_public_ip}"
       private_network = var.network
       # enable_private_path_for_google_cloud_services = true
       require_ssl = "${var.require_ssl}"
@@ -281,9 +281,9 @@ resource "google_project_iam_member" "secret_accessor" {
 }
 
 
-# resource "google_compute_network_peering_routes_config" "peering_routes" {
-#   peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
-#   network              = var.network
-#   import_custom_routes = true
-#   export_custom_routes = true
-# }
+resource "google_compute_network_peering_routes_config" "peering_routes" {
+  peering              = google_service_networking_connection.cloudsql_private_vpc_connection.peering
+  network              = var.network
+  import_custom_routes = true
+  export_custom_routes = true
+}

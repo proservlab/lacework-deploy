@@ -74,3 +74,22 @@ variable "authorized_networks" {
     type = list(string)
     default = []
 }
+
+
+variable "root_db_username" {
+    type = string
+    description = "root admin username"
+    default = "dbuser"
+}
+
+variable "database_name" {
+    type = string
+    description = "name of the database to store in parameter store"
+    default = "dev"
+}
+
+variable "database_port" {
+    type = number
+    description = "port for rds database service"
+    default = 3306
+}
