@@ -160,6 +160,8 @@ module "dns-records" {
         recordHostName = "${lookup(local.public_compute_instances[count.index].labels, "name", "unknown")}.${coalesce(var.dynu_dns_domain, "unknown")}"
         recordValue    = local.public_compute_instances[count.index].network_interface[0].access_config[0].nat_ip
       }
+  
+  depends_on = [ module.instances ]
 }
 
 resource "google_compute_instance_group" "public_group" {
@@ -169,6 +171,8 @@ resource "google_compute_instance_group" "public_group" {
   zone        = data.google_compute_zones.this.names[0]
   network     = module.vpc.public_network.id
   instances   = local.public_instances
+
+  depends_on = [ module.instances ]
 }
 
 resource "google_compute_instance_group" "public_app_group" {
@@ -178,6 +182,8 @@ resource "google_compute_instance_group" "public_app_group" {
   zone        = data.google_compute_zones.this.names[0]
   network     = module.vpc.public_app_network.id
   instances   = local.public_app_instances
+
+  depends_on = [ module.instances ]
 }
 
 resource "google_compute_instance_group" "private_group" {
@@ -187,6 +193,8 @@ resource "google_compute_instance_group" "private_group" {
   zone        = data.google_compute_zones.this.names[0]
   network     = module.vpc.private_network.id
   instances   = local.private_instances
+
+  depends_on = [ module.instances ]
 }
 
 resource "google_compute_instance_group" "private_app_group" {
@@ -196,4 +204,6 @@ resource "google_compute_instance_group" "private_app_group" {
   zone        = data.google_compute_zones.this.names[0]
   network     = module.vpc.private_app_network.id
   instances   = local.private_app_instances
+
+  depends_on = [ module.instances ]
 }
