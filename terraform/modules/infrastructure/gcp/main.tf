@@ -113,10 +113,7 @@ module "cloudsql" {
   subnetwork                  = module.gce[0].public_app_subnetwork.ip_cidr_range
   enable_public_ip            = local.config.context.gcp.cloudsql.enable_public_ip
   require_ssl                 = local.config.context.gcp.cloudsql.require_ssl
-  authorized_networks         = flatten([
-    local.config.context.gcp.cloudsql.authorized_networks,
-    [module.gce[0].public_app_subnetwork.ip_cidr_range]
-  ])
+  authorized_networks         = local.config.context.gcp.cloudsql.authorized_networks
   
   public_service_account_email =  module.gce[0].public_service_account_email
   public_app_service_account_email =  module.gce[0].public_app_service_account_email
