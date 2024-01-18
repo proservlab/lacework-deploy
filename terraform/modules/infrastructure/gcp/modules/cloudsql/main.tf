@@ -49,6 +49,11 @@ resource "google_sql_database_instance" "this" {
 
   settings {
     tier = var.instance_type
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+
     ip_configuration {
       ipv4_enabled    = "${var.enable_public_ip}"
       private_network = var.network
@@ -69,6 +74,11 @@ resource "google_sql_database_instance" "this" {
   deletion_protection = false
 
   depends_on = [ google_service_networking_connection.cloudsql_private_vpc_connection ]
+}
+
+resource "google_sql_database" "database" {
+  name     = var.database_name
+  instance = google_sql_database_instance.this.name
 }
 
 resource "google_compute_network_peering_routes_config" "peering_routes" {
