@@ -139,9 +139,31 @@ module "gce-add-trusted-ingress" {
     [ for ip in local.target_public_ips: "${ip}/32" ],
     [ for ip in local.target_app_public_ips: "${ip}/32" ]
   ]) : []
-  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  trusted_workstation_source    = local.config.context.gcp.gce.add_trusted_ingress.trust_workstation ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.gcp.gce.add_trusted_ingress.trusted_tcp_ports
+}
+
+module "gce-add-trusted-app-ingress" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.gce.add_app_trusted_ingress.enabled == true ) ? 1 : 0
+  source        = "./modules/gce/add-trusted-ingress"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
+  gcp_location = local.default_infrastructure_config.context.gcp.region
+  
+  network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_app_network.name, null)
+  trusted_attacker_source       = local.config.context.gcp.gce.add_app_trusted_ingress.trust_attacker_source ? flatten([
+    [ for ip in local.attacker_public_ips: "${ip}/32" ],
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+  ])  : []
+  trusted_target_source         = local.config.context.gcp.gce.add_app_trusted_ingress.trust_target_source ? flatten([
+    [ for ip in local.target_public_ips: "${ip}/32" ],
+    [ for ip in local.target_app_public_ips: "${ip}/32" ]
+  ]) : []
+  trusted_workstation_source    = local.config.context.gcp.gce.add_app_trusted_ingress.trust_workstation ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources    = local.config.context.gcp.gce.add_app_trusted_ingress.additional_trusted_sources
+  trusted_tcp_ports             = local.config.context.gcp.gce.add_app_trusted_ingress.trusted_tcp_ports
 }
 
 ##################################################
