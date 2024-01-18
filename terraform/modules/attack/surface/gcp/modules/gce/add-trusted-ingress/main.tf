@@ -1,6 +1,6 @@
 resource "google_compute_firewall" "public-ingress_rules" {
-  name                    = "${var.environment}-${var.deployment}-public-ingress-rule"
-  description             = "${var.environment}-${var.deployment}-public-ingress-rule"
+  name                    = "${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
+  description             = "${var.environment}-${var.deployment}-public-${var.role}-ingress-rule"
   direction               = "INGRESS"
   network                 = var.network
   project                 = var.gcp_project_id

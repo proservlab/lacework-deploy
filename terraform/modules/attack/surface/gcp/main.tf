@@ -130,6 +130,7 @@ module "gce-add-trusted-ingress" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
   
+  role                          = "default"
   network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_network.name, null)
   trusted_attacker_source       = local.config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
@@ -152,6 +153,7 @@ module "gce-add-trusted-app-ingress" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
   
+  role                          = "app"
   network                       = try(local.default_infrastructure_deployed.gcp.gce[0].vpc.public_app_network.name, null)
   trusted_attacker_source       = local.config.context.gcp.gce.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
