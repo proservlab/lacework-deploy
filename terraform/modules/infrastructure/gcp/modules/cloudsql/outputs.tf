@@ -18,6 +18,10 @@ output "db_user" {
     value = local.init_db_username
 }
 
+output "db_iam_user" {
+    value = split("@", var.public_app_service_account_email)[0]
+}
+
 output "db_password" {
     value = local.init_db_password
 }

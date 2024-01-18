@@ -14,15 +14,23 @@ from pymysql.err import DatabaseError
 import json
 import sys
 import ssl
+from google.cloud.sql.connector import Connector, IPTypes
 from google.cloud import secretmanager
 from google.auth import compute_engine
-from google.oauth2 import service_account
+from google.auth import transport
+from google.auth import default
+from google.auth.compute_engine import _metadata
+
+# Use the IAM service account for authentication
+credentials, project_id = default()
+auth_req = transport.requests.Request()
+credentials.refresh(auth_req)
+
+# initialize Connector object
+connector = Connector(ip_type=IPTypes.PRIVATE, enable_iam_auth=True,)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Hello World!'
-
-# Use the IAM service account for authentication
-credentials = compute_engine.Credentials()
 
 # Create a Secret Manager client
 client = secretmanager.SecretManagerServiceClient(credentials=credentials)
@@ -42,16 +50,16 @@ def access_secret_version(secret_id):
 DB_APP_URL = access_secret_version('db_host')
 DB_PORT = int(access_secret_version('db_port'))
 DB_NAME = access_secret_version('db_name')
-DB_CERT = access_secret_version('db_cert')
-DB_USER_NAME = db_username
-# DB_USER_NAME = access_secret_version('db_username')
-# DB_PASSWORD = access_secret_version('db_password')
+DB_USER_NAME = access_secret_version('db_username')
+DB_PASSWORD = access_secret_version('db_password')
+DB_PRIVATE_IP = access_secret_version('db_private_ip')
+DB_PUBLIC_IP = access_secret_version('db_public_ip')
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 
 SSL_CA = 'cloudsql-combined-ca-bundle.pem'
-with open(SSL_CA, 'w') as f:
-    f.write(DB_CERT)
+# with open(SSL_CA, 'w') as f:
+#     f.write(DB_CERT)
 
 app.logger.info(SSL_CA)
 
@@ -60,8 +68,8 @@ def create_connection():
     # Construct SSL
     ssl = {'ca': SSL_CA}
     token = credentials.token
-    return pymysql.connect(host=DB_APP_URL,
-                           user=DB_USER_NAME,
+    return pymysql.connect(host=DB_PRIVATE_IP,
+                           user=db_username,
                            password=token,
                            port=DB_PORT,
                            db=DB_NAME,

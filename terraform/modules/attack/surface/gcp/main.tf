@@ -283,9 +283,12 @@ module "vulnerable-cloudsql-app" {
   db_host = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_host, null)
   db_name = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_name, null)
   db_user = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_user, null)
+  db_iam_user = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_iam_user, null)
   db_password = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_password, null)
   db_port = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_port, null)
   db_region = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_region, null)
+  db_private_ip =  = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_private_ip, null)
+  db_public_ip = try(local.default_infrastructure_deployed.gcp.cloudsql[0].db_public_ip, null)
 }
 
 ##################################################

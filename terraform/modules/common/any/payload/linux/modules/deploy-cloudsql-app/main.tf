@@ -18,7 +18,7 @@ locals {
     echo ${local.entrypoint} | base64 -d > entrypoint.sh
     echo ${local.index} | base64 -d > templates/index.html
     echo ${local.cast} | base64 -d > templates/cast.html
-    echo ${local.get_cloudsql_cert} | base64 -d > templates/get-cloudsql-cert.py
+    echo ${local.get_cloudsql_cert} | base64 -d > get-cloudsql-cert.py
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
@@ -28,11 +28,11 @@ locals {
     log "requirements installed"
     
     log "gettting cloudsql cert"
-    python3 get-cloudsql-cert.py
+    python3 get-cloudsql-cert.py >> $LOGFILE 2>&1
     log "cloudsql cert complete"
 
     log "running mysql boostrap..."
-    mysql --ssl-ca=cloudsql-combined-ca-bundle.pem --ssl-mode=REQUIRED -h ${split(":", var.inputs["db_host"])[0]} -u${var.inputs["db_user"]} -p${var.inputs["db_password"]} < bootstrap.sql
+    mysql --ssl-ca=cloudsql-combined-ca-bundle.pem --ssl-mode=REQUIRED -h ${var.inputs["db_private_ip"]} -u${var.inputs["db_user"]} -p${var.inputs["db_password"]} < bootstrap.sql  >> $LOGFILE 2>&1
     log "mysql boostrap complete"
 
     log "starting app"
@@ -72,6 +72,7 @@ locals {
                             {
                                 db_user = var.inputs["db_user"]
                                 db_name = var.inputs["db_name"]
+                                db_iam_user = var.inputs["db_iam_user"]
                             }
                         ))
     entrypoint = base64encode(templatefile(

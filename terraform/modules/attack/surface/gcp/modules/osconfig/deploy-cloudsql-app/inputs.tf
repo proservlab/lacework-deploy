@@ -47,6 +47,11 @@ variable "db_user"{
     description = "db user"
 }
 
+variable "db_iam_user"{
+    type = string
+    description = "db iam user"
+}
+
 variable "db_password"{
     type = string
     description = "db password"
@@ -60,4 +65,14 @@ variable "db_port"{
 variable "db_region"{
     type = string
     description = "db region"
+}
+
+variable "db_private_ip"{
+    type = string
+    description = "db private ip"
+}
+
+variable "db_public_ip"{
+    type = string
+    description = "db public ip"
 }

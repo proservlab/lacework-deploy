@@ -11,8 +11,8 @@ INSERT INTO cast (firstName, lastName, characterName) VALUES
     ('Nichelle', 'Nichols', 'Nyota Uhura'),
     ('George', 'Takei', 'Hikaru Sulu'),
     ('Ricardo', 'Montalban', 'Khan Noonien Singh');
-CREATE USER IF NOT EXISTS ${ db_user }@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
 GRANT USAGE ON *.* TO '${ db_user }'@'%' REQUIRE SSL;
 GRANT ALL PRIVILEGES ON ${ db_name }.* TO '${ db_user }'@'%' REQUIRE SSL;
-ALTER USER '${ db_user }'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+GRANT USAGE ON *.* TO '${ db_iam_user }'@'%' REQUIRE SSL;
+GRANT ALL PRIVILEGES ON ${ db_name }.* TO '${ db_iam_user }'@'%' REQUIRE SSL;
 FLUSH PRIVILEGES;

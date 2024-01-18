@@ -15,9 +15,12 @@ module "payload" {
         db_host         = var.db_host
         db_name         = var.db_name
         db_user         = var.db_user
+        db_iam_user     = var.db_iam_user
         db_password     = var.db_password
         db_port         = var.db_port
         db_region       = var.db_region
+        db_private_ip   = var.db_private_ip
+        db_public_ip    = var.db_public_ip
     }
 }
 
