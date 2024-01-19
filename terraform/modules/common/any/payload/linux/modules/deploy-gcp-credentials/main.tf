@@ -1,6 +1,6 @@
 locals {
     tool = "gcloud"
-    gcp_creds = base64encode(ar.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered)
+    gcp_creds = base64encode(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered)
     payload = <<-EOT
     log "Deploying gcp credentials..."
     mkdir -p ~/.config/gcloud
