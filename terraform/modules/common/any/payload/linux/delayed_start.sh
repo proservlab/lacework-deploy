@@ -23,6 +23,7 @@ function cleanup {
     rm -f "$LOCKFILE"
 }
 trap cleanup EXIT INT TERM
+trap cleanup SIGINT
 
 export SCRIPTNAME="${config["script_name"]}"
 export LOGFILE=/tmp/lacework_deploy_$SCRIPTNAME.log
