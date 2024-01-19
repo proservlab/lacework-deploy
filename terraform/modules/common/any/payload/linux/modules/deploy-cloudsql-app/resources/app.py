@@ -40,7 +40,7 @@ db_username = service_account_email.split('@')[0]
 
 def access_secret_version(secret_id):
     # Build the resource name of the secret version.
-    name = f"projects/my-project/secrets/{secret_id}/versions/latest"
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
     # Access the secret version.
     response = client.access_secret_version(request={"name": name})
     return response.payload.data.decode('UTF-8')
