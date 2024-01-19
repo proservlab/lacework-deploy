@@ -18,7 +18,7 @@
             },
             "generate_gcp_cli_traffic": {
               "enabled": true,
-              "compromised_keys_user" : "khon-traktour",
+              "compromised_keys_user" : "khon-traktour-${deployment}",
               "profile" : "gcp-traffic",
               "commands": [
                 "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",

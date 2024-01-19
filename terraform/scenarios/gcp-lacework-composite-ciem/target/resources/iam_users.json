@@ -1,6 +1,6 @@
 [
   {
-    "name"   :  "khon-traktour",
+    "name"   :  "khon-traktour-${deployment}",
     "roles" :  [
       "roles/viewer"
     ]

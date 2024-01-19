@@ -37,7 +37,7 @@
         "osconfig" :  {
           "gcp_credentials" : {
             "enabled" : true,
-            "compromised_keys_user" : "khon-traktour"
+            "compromised_keys_user" : "khon-traktour-${deployment}"
           },
           "ssh_keys" :  {
             "enabled" :  true

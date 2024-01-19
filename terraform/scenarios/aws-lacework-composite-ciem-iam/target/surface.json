@@ -37,7 +37,7 @@
         "ssm" :  {
           "aws_credentials" :  {
             "enabled" :  true,
-            "compromised_keys_user" : "khon.traktour@interlacelabs"
+            "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs"
           },
           "ssh_keys" :  {
             "enabled" :  true

