@@ -50,9 +50,14 @@ fi
 # Wait for Package Manager
 check_package_manager() {
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-        pgrep -f "apt" || pgrep -f "dpkg"
+        # Using regex to match specific apt operations
+        pgrep -f "apt-get (install|update|remove|upgrade)" || \
+        pgrep -f "aptitude (install|update|remove|upgrade)" || \
+        pgrep -f "dpkg (install|configure)"
     else
-        pgrep -f "yum" || pgrep -f "rpm"
+        # Check for yum or rpm processes with specific operations
+        pgrep -f "yum (install|update|remove|upgrade)" || \
+        pgrep -f "rpm (install|update|remove|upgrade)"
     fi
 }
 while check_package_manager; do
