@@ -420,7 +420,7 @@ locals {
       deployment = var.deployment
 
       # iam
-      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_power_user_policy.json")
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
   )

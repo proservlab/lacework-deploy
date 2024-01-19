@@ -22,8 +22,5 @@ variable "user_policies" {
 }
 
 variable "users" {
-    type = list(object({
-        name = string
-        roles = list(string)
-    }))
+    type = list(any)
 }
