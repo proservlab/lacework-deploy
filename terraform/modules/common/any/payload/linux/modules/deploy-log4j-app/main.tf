@@ -72,17 +72,28 @@ locals {
     # change to app root dir
     cd ${local.app_dir}
 
-    log "starting screen..."
-    if pgrep -f "spring-boot-application.jar"; then
-        kill -9 $(pgrep -f "spring-boot-application.jar")
-    fi
-    screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.inputs["listen_port"]}
-    screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
-    log 'waiting 30 minutes...';
-    sleep 1795
-    log "killing screen session..."
-    screen -S vuln_log4j_app_target -X quit
-    log "done"
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        log "starting app"
+        
+        if pgrep -f "spring-boot-application.jar"; then
+            kill -9 $(pgrep -f "spring-boot-application.jar")
+        fi
+        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.inputs["listen_port"]}
+        screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
+        log 'waiting 30 minutes...';
+        sleep 1795
+        log "killing screen session..."
+        screen -S vuln_log4j_app_target -X quit
+
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]

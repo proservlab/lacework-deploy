@@ -18,12 +18,22 @@ locals {
     echo ${local.index_js_base64} | base64 -d > index.js
     npm install >> $LOGFILE 2>&1
 
-    screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
-    screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
-    log 'waiting 30 minutes...';
-    sleep 1795
-    screen -S vuln_npm_app_target -X quit
-    log "done"
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        log "starting app"
+        screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
+        screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
+        log 'waiting 30 minutes...';
+        sleep 1795
+        screen -S vuln_npm_app_target -X quit
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    do
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]

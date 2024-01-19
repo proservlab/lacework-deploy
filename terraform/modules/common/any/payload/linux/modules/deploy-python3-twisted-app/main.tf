@@ -14,11 +14,21 @@ locals {
         python3 -m pip install -r requirements.txt >> $LOGFILE 2>&1
         log "requirements installed"
 
-        screen -d -L -Logfile /tmp/vuln_python3_twisted_app_target.log -S vuln_python3_twisted_app_target -m python3 /vuln_python3_twisted_app/app.py
-        screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
-        log 'waiting 30 minutes...';
-        sleep 1800
-        screen -S vuln_python3_twisted_app_target -X quit
+        while true; do
+            log "starting app"
+            screen -d -L -Logfile /tmp/vuln_python3_twisted_app_target.log -S vuln_python3_twisted_app_target -m python3 /vuln_python3_twisted_app/app.py
+            screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
+            log 'waiting 30 minutes...';
+            sleep 1800
+            screen -S vuln_python3_twisted_app_target -X quit
+            CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+        done
     else
         log "python twisted vulnerability required the following package installed:"
         log "python3-twisted/focal-updates,focal-security,now 18.9.0-11ubuntu0.20.04.1"

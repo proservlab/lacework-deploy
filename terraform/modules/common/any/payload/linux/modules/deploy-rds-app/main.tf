@@ -30,15 +30,18 @@ locals {
     mysql --ssl-ca=rds-combined-ca-bundle.pem --ssl-mode=REQUIRED -h ${split(":", var.inputs["db_host"])[0]} -u${var.inputs["db_user"]} -p${var.inputs["db_password"]} < bootstrap.sql
     log "mysql boostrap complete"
 
-    log "starting app"
-    screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
-    screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
-    log "check rds url..."
-    curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
-    log 'waiting 30 minutes...';
-    sleep 1800
-    screen -S ${local.app_dirname} -X quit
-    log "done"
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        log "starting app"
+        screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
+        screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
+        log "check rds url..."
+        curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
+        log 'waiting 30 minutes...';
+        sleep 1800
+        screen -S ${local.app_dirname} -X quit
+        log "restarting loop"
+    done
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
