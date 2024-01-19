@@ -54,12 +54,13 @@ DB_USER_NAME = access_secret_version('db_username')
 DB_PASSWORD = access_secret_version('db_password')
 DB_PRIVATE_IP = access_secret_version('db_private_ip')
 DB_PUBLIC_IP = access_secret_version('db_public_ip')
+DB_CERT = access_secret_version('db_cert')
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 
-SSL_CA = 'cloudsql-combined-ca-bundle.pem'
-# with open(SSL_CA, 'w') as f:
-#     f.write(DB_CERT)
+SSL_CA = os.path.abspath('cloudsql-combined-ca-bundle.pem')
+with open(SSL_CA, 'w') as f:
+    f.write(DB_CERT)
 
 app.logger.info(SSL_CA)
 

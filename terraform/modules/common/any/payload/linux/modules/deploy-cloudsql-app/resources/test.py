@@ -48,8 +48,13 @@ DB_USER_NAME = access_secret_version('db_username')
 DB_PASSWORD = access_secret_version('db_password')
 DB_PRIVATE_IP = access_secret_version('db_private_ip')
 DB_PUBLIC_IP = access_secret_version('db_public_ip')
+DB_CERT = access_secret_version('db_cert')
 
 os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
+
+SSL_CA = os.path.abspath('cloudsql-combined-ca-bundle.pem')
+with open(SSL_CA, 'w') as f:
+    f.write(DB_CERT)
 
 # function to return the database connection
 
@@ -67,25 +72,7 @@ os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
 #     return conn
 # connection = getconn()
 
-# # iam access via private
-# def create_connection():
-#     # Construct SSL
-#     ctx = ssl.create_default_context()
-#     ctx.check_hostname = False
-#     ctx.verify_mode = ssl.VerifyMode.CERT_NONE
-#     token = credentials.token
-#     return pymysql.connect(host=DB_PRIVATE_IP,
-#                            user=db_username,
-#                            password=token,
-#                            port=DB_PORT,
-#                            db=DB_NAME,
-#                            ssl=ctx,
-#                            charset='utf8mb4',
-#                            cursorclass=pymysql.cursors.DictCursor
-#                            )
-# connection = create_connection()
-
-# sql user access via private
+# iam access via private
 
 
 def create_connection():
@@ -93,15 +80,40 @@ def create_connection():
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.VerifyMode.CERT_NONE
+    token = credentials.token
     return pymysql.connect(host=DB_PRIVATE_IP,
-                           user=DB_USER_NAME,
-                           password=DB_PASSWORD,
+                           user=db_username,
+                           password=token,
                            port=DB_PORT,
                            db=DB_NAME,
                            ssl=ctx,
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor
                            )
+
+
+connection = create_connection()
+
+# sql user access via private
+# def create_connection():
+#     # Construct SSL
+#     ctx = ssl.create_default_context()
+#     ctx.check_hostname = False
+#     ctx.verify_mode = ssl.VerifyMode.CERT_NONE
+#     # Construct SSL
+#     ssl = {
+#         'ca': SSL_CA,
+#         'check_hostname': False,
+#     }
+#     return pymysql.connect(host=DB_PRIVATE_IP,
+#                            user=DB_USER_NAME,
+#                            password=DB_PASSWORD,
+#                            port=DB_PORT,
+#                            db=DB_NAME,
+#                            ssl=ssl,
+#                            charset='utf8mb4',
+#                            cursorclass=pymysql.cursors.DictCursor
+#                            )
 
 
 connection = create_connection()
