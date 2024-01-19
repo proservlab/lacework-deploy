@@ -60,6 +60,7 @@ check_package_manager() {
         pgrep -f "rpm (install|update|remove|upgrade)"
     fi
 }
+
 while check_package_manager; do
     log "Waiting for $PACKAGE_MANAGER to be available..."
     sleep 10

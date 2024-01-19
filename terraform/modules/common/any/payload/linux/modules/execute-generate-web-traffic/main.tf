@@ -6,7 +6,19 @@ locals {
     mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
     log "Enumerating urls..."
-    ${local.curl_urls}
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        ${local.curl_urls}
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
     log "Done."
     EOT
     

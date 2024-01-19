@@ -10,15 +10,27 @@ locals {
     ])
     base64_command_payload = base64encode(var.inputs["payload"])
     payload = <<-EOT
-    log "cleaning app directory"
-    rm -rf ${local.attack_dir}
-    mkdir -p ${local.attack_dir}
-    cd ${local.attack_dir}
-    echo ${local.delayed_start} | base64 -d > ${local.start_script}
-    echo ${local.hydra} | base64 -d > ${local.attack_script}
-    log "starting script..."
-    /bin/bash ${local.start_script}
-    log "done."
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        log "cleaning app directory"
+        rm -rf ${local.attack_dir}
+        mkdir -p ${local.attack_dir}
+        cd ${local.attack_dir}
+        echo ${local.delayed_start} | base64 -d > ${local.start_script}
+        echo ${local.hydra} | base64 -d > ${local.attack_script}
+        log "starting script..."
+        /bin/bash ${local.start_script}
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
+    log "Done."
     EOT
 
     delayed_start   = base64encode(templatefile(

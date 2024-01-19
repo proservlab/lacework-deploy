@@ -3,25 +3,44 @@ locals {
     name = "log4shell"
     listen_port=var.inputs["listen_port"]
     payload = <<-EOT
-    log "Checking for docker..."
-    while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
-        log "docker not found or not ready - waiting"
-        sleep 120
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
+        log "$(echo 'docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}')"
+        docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image} >> $LOGFILE 2>&1
+        docker ps -a >> $LOGFILE 2>&1
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
-    log "docker path: $(command -v  docker)"
-    if [[ `sudo docker ps | grep ${local.name}` ]]; then docker stop ${local.name}; fi
-    log "$(echo 'docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}')"
-    docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image} >> $LOGFILE 2>&1
-    docker ps -a >> $LOGFILE 2>&1
-    log "done"
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
-        apt_pre_tasks = ""
+        apt_pre_tasks = <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         apt_packages = ""
         apt_post_tasks = ""
-        yum_pre_tasks =  ""
+        yum_pre_tasks =  <<-EOT
+        log "Checking for docker..."
+        while ! command -v docker > /dev/null || ! docker ps > /dev/null; do
+            log "docker not found or not ready - waiting"
+            sleep 120
+        done
+        log "docker path: $(command -v  docker)"
+        EOT
         yum_packages = ""
         yum_post_tasks = ""
         script_delay_secs = 30

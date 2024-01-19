@@ -19,9 +19,20 @@ locals {
     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
     aws configure set region $REGION --profile=$PROFILE
     aws configure set output json --profile=$PROFILE
-
     log "Running aws commands..."
-    ${local.aws_commands}
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        ${local.aws_commands}
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
     log "Done."
     EOT
     

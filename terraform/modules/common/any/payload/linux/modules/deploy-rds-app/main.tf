@@ -33,14 +33,20 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "starting app"
+        screen -S ${local.app_dirname} -X quit
         screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
         screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
         log "check rds url..."
         curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
         log 'waiting 30 minutes...';
         sleep 1800
-        screen -S ${local.app_dirname} -X quit
-        log "restarting loop"
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

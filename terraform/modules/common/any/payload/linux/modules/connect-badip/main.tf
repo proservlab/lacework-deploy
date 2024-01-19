@@ -2,10 +2,21 @@ locals {
     iplist_url = var.inputs["iplist_url"]
     iplist_base64 = base64encode(file("${path.module}/resources/threatdb.csv"))
     payload = <<-EOT
-    echo ${local.iplist_base64} | base64 -d > threatdb.csv
-    log "enumerating bad ips in threatdb.csv"
-    for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
-    log "done."
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        echo ${local.iplist_base64} | base64 -d > threatdb.csv
+        log "enumerating bad ips in threatdb.csv"
+        for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
     EOT
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]

@@ -17,8 +17,20 @@ locals {
       echo ${local.gcp_creds} | base64 -d > ${local.attack_dir}/.config/gcloud/credentials.json
       gcloud auth activate-service-account --key-file=${local.attack_dir}/.config/gcloud/credentials.json
     fi
-    log "Running aws commands..."
-    ${local.gcp_commands}
+    log "Running gcp commands..."
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        ${local.gcp_commands}
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
     log "Done."
     EOT
     

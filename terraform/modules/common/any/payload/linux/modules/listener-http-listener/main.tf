@@ -48,17 +48,29 @@ locals {
             run()
     EOT
     payload = <<-EOT
-    log "listener: ${local.listen_ip}:${local.listen_port}"
-    screen -S http -X quit
-    truncate -s 0 /tmp/http.log
-    mkdir -p /tmp/www/
-    echo "index" > /tmp/www/index.html
-    mkdir -p /tmp/www/upload/v2
-    echo "upload" > /tmp/www/upload/v2/index.html
-    screen -d -L -Logfile /tmp/http.log -S http -m python3 -c "import base64; exec(base64.b64decode('${base64encode(local.server_py)}'))"
-    screen -S http -X colon "logfile flush 0^M"
-    log "listener started..."
-    log "done"
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        log "listener: ${local.listen_ip}:${local.listen_port}"
+        screen -S http -X quit
+        truncate -s 0 /tmp/http.log
+        mkdir -p /tmp/www/
+        echo "index" > /tmp/www/index.html
+        mkdir -p /tmp/www/upload/v2
+        echo "upload" > /tmp/www/upload/v2/index.html
+        screen -d -L -Logfile /tmp/http.log -S http -m python3 -c "import base64; exec(base64.b64decode('${base64encode(local.server_py)}'))"
+        screen -S http -X colon "logfile flush 0^M"
+        log "listener started..."
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
+    done
+    
     EOT
     
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

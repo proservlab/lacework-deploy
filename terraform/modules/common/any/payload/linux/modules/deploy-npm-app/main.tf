@@ -21,11 +21,11 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "starting app"
+        screen -S vuln_npm_app_target -X quit
         screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
         screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
         sleep 1795
-        screen -S vuln_npm_app_target -X quit
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         if [ "$CHECK_HASH" != "$START_HASH" ]; then
             log "payload update detected - exiting loop"
