@@ -66,7 +66,10 @@ app.logger.info(SSL_CA)
 
 def create_connection():
     # Construct SSL
-    ssl = {'ca': SSL_CA}
+    ssl = {
+        'ca': SSL_CA,
+        'check_hostname': False,
+    }
     token = credentials.token
     return pymysql.connect(host=DB_PRIVATE_IP,
                            user=db_username,
