@@ -19,7 +19,6 @@ locals {
         curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-416.0.0-linux-x86_64.tar.gz -LOJ \
             && tar -xf google-cloud-cli-416.0.0-linux-x86_64.tar.gz \
             && ./google-cloud-sdk/install.sh -q
-
         cat >> /etc/profile.d/gcloud <<EOF
         PATH=$PATH:/google-cloud-sdk/bin
         EOF
@@ -36,7 +35,6 @@ locals {
         curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-416.0.0-linux-x86_64.tar.gz -LOJ \
             && tar -xf google-cloud-cli-416.0.0-linux-x86_64.tar.gz \
             && ./google-cloud-sdk/install.sh -q
-
         cat >> /etc/profile.d/gcloud <<EOF
         PATH=$PATH:/google-cloud-sdk/bin
         EOF

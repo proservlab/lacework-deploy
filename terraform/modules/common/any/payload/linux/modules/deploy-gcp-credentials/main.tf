@@ -2,18 +2,6 @@ locals {
     tool = "gcloud"
     gcp_creds = base64encode(try(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered, ""))
     payload = <<-EOT
-    if ! command -v ${local.tool} &> /dev/null; then
-        log "${local.tool} required but not installed."
-        # install gcloud
-        curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-416.0.0-linux-x86_64.tar.gz -LOJ \
-            && tar -xf google-cloud-cli-416.0.0-linux-x86_64.tar.gz \
-            && ./google-cloud-sdk/install.sh -q
-
-        cat >> /etc/profile.d/gcloud <<EOF
-        PATH=$PATH:/google-cloud-sdk/bin
-        EOF
-        gcloud components install gke-gcloud-auth-plugin --quiet
-    fi
     log "Deploying gcp credentials..."
     mkdir -p ~/.config/gcloud
     if [  "${ local.gcp_creds == "" ? "false" : "true" }" == "true" ]; then
