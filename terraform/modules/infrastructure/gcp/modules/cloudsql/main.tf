@@ -382,12 +382,16 @@ resource "random_id" "db_bucket_suffix" {
 }
 
 resource "google_storage_bucket" "this" {
-  name     = "${local.database_name}-db-backup-${random_id.db_bucket_suffix.hex}"
+  name     = "${local.database_name}-db-backup-${environment}-${deployment}-${random_id.db_bucket_suffix.hex}"
   project  = var.gcp_project_id
   location = var.gcp_location
 
   force_destroy = true
   
+  labels = {
+    environment = var.environment
+    deployment = var.deployment
+  }
 
   storage_class = "REGIONAL"
   lifecycle_rule {
