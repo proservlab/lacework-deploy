@@ -1,5 +1,12 @@
 data "google_project" "project" {}
 
+resource "random_id" "suffix" {
+  byte_length = 2
+  keepers = {
+    project_id = "${data.google_project.project.project_id }"
+  }
+}
+
 # integration
 module "lacework_gcp_agentless_scanning_org_multi_region" {
   source  = "lacework/agentless-scanning/gcp"
@@ -16,5 +23,5 @@ module "lacework_gcp_agentless_scanning_org_multi_region" {
   regional                  = true
   lacework_integration_name = "agentless_from_terraform"
 
-  suffix = "${var.environment}-${var.deployment}"
+  suffix = "${var.environment}-${var.deployment}-${random_id.suffix.hex}"
 }
