@@ -382,7 +382,7 @@ resource "random_id" "db_bucket_suffix" {
 }
 
 resource "google_storage_bucket" "this" {
-  name     = "${local.database_name}-db-backup-${environment}-${deployment}-${random_id.db_bucket_suffix.hex}"
+  name     = "db-backup-${var.environment}-${var.deployment}-${random_id.db_bucket_suffix.hex}"
   project  = var.gcp_project_id
   location = var.gcp_location
 
