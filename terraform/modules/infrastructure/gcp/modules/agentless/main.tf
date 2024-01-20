@@ -9,7 +9,9 @@ module "lacework_gcp_agentless_scanning_org_multi_region" {
 
   integration_type = var.org_integration == true ? "ORGANIZATION" : "PROJECT"
   organization_id  = var.org_integration == true ? data.google_project.project.org_id : ""
-
+  
+  bucket_force_destroy      = true
+  
   global                    = true
   regional                  = true
   lacework_integration_name = "agentless_from_terraform"
