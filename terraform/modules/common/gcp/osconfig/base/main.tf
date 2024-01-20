@@ -50,6 +50,10 @@ resource "google_os_config_os_policy_assignment" "this" {
       os_short_name = "debian"
     }
 
+    inventories {
+      os_short_name = "centos"
+    }
+
   }
 
   os_policies {
@@ -71,12 +75,14 @@ resource "google_os_config_os_policy_assignment" "this" {
         }
       }
     }
+    allow_no_resource_group_match = false
   }
 
   rollout {
     disruption_budget {
-      percent = 50
+      percent = 100
     }
-    min_wait_duration = var.timeout
+
+    min_wait_duration = "3s"
   }
 }
