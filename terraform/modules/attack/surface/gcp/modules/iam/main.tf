@@ -1,4 +1,11 @@
 
+locals {
+        user_roles = [ for i in var.users: { for r in i.roles: "${i.name}-${r}" => {
+                name = i.name
+                role = r
+        }} ][0]
+}
+
 # create service accounts
 resource "google_service_account" "users" {
   for_each = { for i in var.users : i.name => i }
@@ -14,14 +21,7 @@ resource "google_service_account_key" "keys" {
 }
 
 resource "google_project_iam_member" "roles" {
-  for_each = toset(flatten([
-    for user in var.users : [
-      for role in user.roles : {
-        name = user.name
-        role = role
-      }
-    ]
-  ]))
+  for_each = local.user_roles
   project = var.gcp_project_id
   role    = each.value.role
   member  = "serviceAccount:${google_service_account.users[each.value.name].email}"
