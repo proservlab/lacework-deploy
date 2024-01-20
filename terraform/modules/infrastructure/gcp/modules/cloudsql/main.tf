@@ -368,3 +368,56 @@ resource "google_secret_manager_secret_version" "password" {
 
   depends_on = [ google_sql_database_instance.this ]
 }
+
+
+##########################################
+# BACKUP STORAGE BUCKET
+##########################################
+
+resource "random_id" "db_bucket_suffix" {
+  byte_length = 2
+  keepers = {
+    project_id = "${var.gcp_project_id}"
+  }
+}
+
+resource "google_storage_bucket" "this" {
+  name     = "${local.database_name}-db-backup-${random_id.db_bucket_suffix.hex}"
+  project  = var.gcp_project_id
+  location = var.gcp_location
+
+  force_destroy = true
+  
+
+  storage_class = "REGIONAL"
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+        age = 7
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "COLDLINE"
+    }
+    condition {
+      age = 30
+    }
+  }
+}
+
+resource "google_storage_bucket_iam_member" "db_service_account-roles_storage-objectAdmin" {
+  bucket = "${google_storage_bucket.this.name}"
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_sql_database_instance.this.service_account_email_address}"
+}
+
+resource "google_storage_bucket_iam_member" "db_admin-roles_storage-objectAdmin" {
+  bucket = "${google_storage_bucket.this.name}"
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${var.public_app_service_account_email}"
+}

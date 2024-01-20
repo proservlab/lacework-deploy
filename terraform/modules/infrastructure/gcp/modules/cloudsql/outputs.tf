@@ -47,3 +47,8 @@ output "db_latest_ca_cert" {
   value       = local.latest_ca_cert
   sensitive   = true
 }
+
+output "db_storage_bucket" {
+    description = "Storage bucket for backup"
+    value = google_storage_bucket.this
+}
