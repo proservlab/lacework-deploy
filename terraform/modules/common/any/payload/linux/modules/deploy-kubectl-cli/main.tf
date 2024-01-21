@@ -14,7 +14,7 @@ locals {
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
         if command -v ${local.tool} &>/dev/null; then
-            log "${local.tool} found no installation required"; 
+            log "${local.tool} found - no installation required"; 
             exit 0; 
         fi
         EOT
@@ -22,7 +22,7 @@ locals {
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
         if command -v ${local.tool} &>/dev/null; then
-            log "${local.tool} found no installation required"; 
+            log "${local.tool} found - no installation required"; 
             exit 0; 
         fi
         EOT
