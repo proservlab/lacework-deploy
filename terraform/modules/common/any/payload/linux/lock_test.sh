@@ -1,21 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# TEMPLATE INPUTS
-# script_name: name of the script, which will be used for the log file (e.g. /tmp/<script_name>.log)
-# log_rotation_count: total number of log files to keep
-# apt_pre_tasks: shell commands to execute before install
-# apt_packages: a list of apt packages to install
-# apt_post_tasks: shell commands to execute after install
-# yum_pre_tasks:  shell commands to execute before install
-# yum_packages: a list of yum packages to install
-# yum_post_tasks: shell commands to execute after install
-# script_delay_secs: total number of seconds to wait before starting the next stage
-# next_stage_payload: shell commands to execute after delay
-
-export SCRIPTNAME="${config["script_name"]}"
+export SCRIPTNAME="test"
 export LOCKFILE="/tmp/lacework_deploy_$SCRIPTNAME.lock"
 export LOCKLOG=/tmp/lock_$SCRIPTNAME.log
-export MAXLOG=${config["log_rotation_count"]}
+export MAXLOG=2
 truncate -s0 $LOCKLOG
 # Initial lock is debug for lock handler
 export LOGFILE=$LOCKLOG
@@ -60,10 +48,10 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 # Determine Package Manager
 if command -v apt-get &>/dev/null; then
     export PACKAGE_MANAGER="apt-get"
-    PACKAGES="${config["apt_packages"]}"
+    PACKAGES="wget jq"
 elif command -v yum &>/dev/null; then
     export PACKAGE_MANAGER="yum"
-    PACKAGES="${config["yum_packages"]}"
+    PACKAGES="wget jq"
 else
     log "Neither apt-get nor yum found. Exiting..."
     exit 1
@@ -94,11 +82,11 @@ export -f log
 # Conditional Commands based on package manager
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 log "Starting apt pre-task";
-${config["apt_pre_tasks"]}
+
 log "Done apt pre-task";
 elif [ "$PACKAGE_MANAGER" == "yum" ]; then
 log "Starting yum pre-task";
-${config["yum_pre_tasks"]}
+
 log "Done yum pre-task";
 fi
 if [ "" != "$PACKAGES" ]; then
@@ -110,15 +98,15 @@ if [ "" != "$PACKAGES" ]; then
 fi
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 log "Starting apt post-task";
-${config["apt_post_tasks"]}
+
 log "Done apt post-task";
 elif [ "$PACKAGE_MANAGER" == "yum" ]; then
 log "Starting yum post-task";
-${config["yum_post_tasks"]}
+
 log "Done yum post-task";
 fi
 
-MAX_WAIT=${config["script_delay_secs"]}
+MAX_WAIT=60
 CHECK_INTERVAL=60
 log "starting delay: $MAX_WAIT seconds"
 SECONDS_WAITED=0
@@ -133,7 +121,9 @@ log "delay complete"
 
 log "starting next stage after $SECONDS_WAITED seconds..."
 log "starting execution of next stage payload..."
-${config["next_stage_payload"]}
+log "Starting my process..."
+sleep 600
+log "Process ended"
 log "done next stage payload execution."
 
 log "Done"

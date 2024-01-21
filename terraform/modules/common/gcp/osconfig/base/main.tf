@@ -54,6 +54,10 @@ resource "google_os_config_os_policy_assignment" "this" {
       os_short_name = "centos"
     }
 
+    inventories {
+      os_short_name = "rocky"
+    }
+
   }
 
   os_policies {

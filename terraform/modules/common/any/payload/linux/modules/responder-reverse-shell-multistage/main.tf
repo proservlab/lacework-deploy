@@ -106,6 +106,7 @@ locals {
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
         if ! command -v proxychains4 > /dev/null || ! command -v hydra > /dev/null || ! command -v hydra > /dev/null; then
+            yum update -y
             yum install -y git
             yum groupinstall -y 'Development Tools'
             # proxychains4

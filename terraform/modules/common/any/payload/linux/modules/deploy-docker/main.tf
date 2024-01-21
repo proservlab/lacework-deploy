@@ -37,7 +37,8 @@ locals {
             log "${local.tool} found no installation required"; 
             exit 0; 
         fi
-        sudo yum remove docker \
+        yum update -y
+        yum remove docker \
                   docker-client \
                   docker-client-latest \
                   docker-common \
@@ -45,8 +46,8 @@ locals {
                   docker-latest-logrotate \
                   docker-logrotate \
                   docker-engine
-        sudo yum install -y yum-utils
-        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum install -y yum-utils
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         EOT
         yum_packages = "docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
         yum_post_tasks = ""
