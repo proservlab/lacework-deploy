@@ -239,7 +239,7 @@ module "vulnerable-log4j-app" {
   
   tag = "osconfig_deploy_log4j_app"
 
-  listen_port = local.config.context.gcp.osconfig.vulnerable.npm_app.listen_port
+  listen_port = local.config.context.gcp.osconfig.vulnerable.docker.log4j_app.listen_port
 }
 
 module "vulnerable-npm-app" {
