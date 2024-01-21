@@ -4,15 +4,13 @@ locals {
     start_script = "delayed_start.sh"
     lock_file = "/tmp/delay_nmap.lock"
     payload = <<-EOT
+    log "cleaning app directory"
+    rm -rf ${local.attack_dir}
+    mkdir -p ${local.attack_dir}
+    cd ${local.attack_dir}
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
-        log "cleaning app directory"
-        rm -rf ${local.attack_dir}
-        mkdir -p ${local.attack_dir}
-        cd ${local.attack_dir}
-
         log "starting script..."
-        
         LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
         log "LOCAL_NET: $LOCAL_NET"
         log "Targets: ${join(",", var.inputs["targets"])}"

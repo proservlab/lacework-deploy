@@ -3,9 +3,7 @@ locals {
     payload = <<-EOT
     screen -S vuln_python3_twisted_app_target -X quit
     truncate -s 0 /tmp/vuln_python3_twisted_app_target.log
-
     if command -v $PACKAGE_MANAGER && $PACKAGE_MANAGER list | grep "python3-twisted" | grep "18.9.0-11ubuntu0.20.04"; then
-    
         mkdir -p /vuln_python3_twisted_app
         cd /vuln_python3_twisted_app
         echo ${local.app_py_base64} | base64 -d > app.py

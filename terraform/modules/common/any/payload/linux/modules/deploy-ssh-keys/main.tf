@@ -12,6 +12,7 @@ locals {
     ssh_authorized_keys_path = var.inputs["ssh_authorized_keys_path"]
 
     payload_public = <<-EOT
+    log "starting script"
     log "creating public key: ${local.ssh_public_key_path}"
     rm -rf ${local.ssh_public_key_path}
     mkdir -p ${dirname(local.ssh_public_key_path)}

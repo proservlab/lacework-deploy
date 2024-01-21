@@ -10,6 +10,7 @@ locals {
     log "building app directory"
     mkdir -p /${local.app_dirname}/templates
     cd /${local.app_dirname}
+    
     echo ${local.app} | base64 -d > app.py
     echo ${local.requirements} | base64 -d > requirements.txt
     echo ${local.test} | base64 -d > test.py

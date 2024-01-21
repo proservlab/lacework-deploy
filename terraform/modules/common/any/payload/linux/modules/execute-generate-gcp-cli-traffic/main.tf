@@ -4,10 +4,6 @@ locals {
     gcp_creds = base64encode(try(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered, ""))
     gcp_commands = join("\n", [ for command in var.inputs["commands"]: "${command}" ])
     payload = <<-EOT
-    while ! command -v ${local.tool} > /dev/null; do
-        log "${local.tool} not found or not ready - waiting"
-        sleep 120
-    done
     rm -rf ${local.attack_dir}
     mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
@@ -37,10 +33,20 @@ locals {
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
-        apt_pre_tasks = ""
+        apt_pre_tasks = <<-EOT
+        while ! command -v ${local.tool} > /dev/null; do
+            log "${local.tool} not found or not ready - waiting"
+            sleep 120
+        done
+        EOT
         apt_packages = ""
         apt_post_tasks = ""
-        yum_pre_tasks =  ""
+        yum_pre_tasks =  <<-EOT
+        while ! command -v ${local.tool} > /dev/null; do
+            log "${local.tool} not found or not ready - waiting"
+            sleep 120
+        done
+        EOT
         yum_packages = ""
         yum_post_tasks = ""
         script_delay_secs = 30

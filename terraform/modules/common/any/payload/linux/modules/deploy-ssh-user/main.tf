@@ -1,6 +1,7 @@
 locals {
     password = try(length(var.inputs["password"]),"false") != "false" ? var.inputs["password"] :  random_password.password.result
     payload = <<-EOT
+    log "starting script"
     log "Setting up user: ${var.inputs["username"]}"
     adduser --gecos "" --disabled-password ${var.inputs["username"]}
     log "Setting passwd: ${local.password}"
