@@ -1,5 +1,5 @@
 locals {
-    tool = "gcloud"
+    tool = "aws"
     attack_dir = "/generate-aws-cli-traffic"
     aws_creds = join("\n", [ for u,k in var.inputs["compromised_credentials"]: "echo '${k.rendered}' > ${local.attack_dir}/.env-aws-${u}" ])
     aws_commands = join("\n", [ for command in var.inputs["commands"]: "${command}" ])
