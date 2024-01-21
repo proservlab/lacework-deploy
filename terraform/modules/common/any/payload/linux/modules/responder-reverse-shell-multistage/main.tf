@@ -45,7 +45,7 @@ locals {
             mv $PWNCAT_LOG "$PWNCAT_LOG.1" 2>/dev/null || true
             log "starting background process via screen..."
             screen -S pwncat -X quit
-            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${listen_port}" >/dev/null 2>&1 &
+            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
             screen -S pwncat -X colon "logfile flush 0^M"
             log "Checking for listener..."
             TIMEOUT=1800
@@ -55,7 +55,7 @@ locals {
                 ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
                 if grep "listener created" $PWNCAT_LOG; then
                     log "Found listener created log in $PWNCAT_LOG - checking for port response"
-                    while ! nc -z -w 5 -vv 127.0.0.1 ${listen_port} > /dev/null; do
+                    while ! nc -z -w 5 -vv 127.0.0.1 ${local.listen_port} > /dev/null; do
                         log "failed check - waiting for pwncat port response";
                         sleep 30;
                     done;
