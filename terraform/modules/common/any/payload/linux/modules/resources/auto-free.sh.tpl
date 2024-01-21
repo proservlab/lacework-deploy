@@ -12,12 +12,13 @@ function cleanup {
     rm -f "$LOCKFILE"
 }
 trap cleanup EXIT INT TERM
+trap cleanup SIGINT
 
 # set max vpn wait to 5 minutes
 MAX_WAIT=300
 CHECK_INTERVAL=5
 
-LOGFILE=/tmp/attacker_${attack_type}_auto-paid.sh.log
+LOGFILE=/tmp/attacker_${attack_type}_auto-free.sh.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -58,8 +59,8 @@ function execute_script {
 }
 
 # baseline
-log "Start protonvpn with .env-protonvpn-paid-US"
-bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-US >> $LOGFILE 2>&1
+log "Start protonvpn with .env-protonvpn-US"
+bash start.sh --container=protonvpn --env-file=.env-protonvpn-US >> $LOGFILE 2>&1
 wait_vpn_connection
 if [ $SECONDS_WAITED -lt $MAX_WAIT ]; then
     log "Starting docker log for protonvpn-US..."
@@ -74,12 +75,12 @@ fi;
 log "Wait ${attack_delay} seconds before starting attacker ${script}..."
 sleep ${attack_delay}
 
-SERVERS="AU JP NL SG LV CR IS"
+SERVERS="NL-FREE#148 JP-FREE#3 US-FREE#34"
 for SERVER in $SERVERS; do
     log "Wait 60 seconds before starting attacker ${script}..."
     sleep 60
-    log "Start protonvpn with .env-protonvpn-paid-$SERVER"
-    bash start.sh --container=protonvpn --env-file=.env-protonvpn-paid-$SERVER >> $LOGFILE 2>&1
+    log "Start protonvpn with .env-protonvpn-$SERVER"
+    bash start.sh --container=protonvpn --env-file=.env-protonvpn-$SERVER >> $LOGFILE 2>&1
     wait_vpn_connection
     execute_script "protonvpn-$SERVER"
 done
