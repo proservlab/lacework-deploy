@@ -31,7 +31,7 @@ locals {
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload
-    }}))
+    }})
 
     outputs = {
         base64_payload = local.base64_payload

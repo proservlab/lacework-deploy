@@ -33,7 +33,7 @@ locals {
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload_public
-    }}))
+    }})
 
     payload_private = <<-EOT
     log "creating private key: ${local.ssh_private_key_path}"
@@ -60,7 +60,7 @@ locals {
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload_private
-    }}))
+    }})
 
     outputs = {
         base64_payload_public = local.base64_payload_public

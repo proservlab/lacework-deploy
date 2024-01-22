@@ -19,7 +19,7 @@ locals {
     fi
     log "done."
     EOT
-    base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
@@ -40,10 +40,11 @@ locals {
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload
-    }}))
+    }})
 
     outputs = {
-        base64_payload = local.base64_payload
+        base64_payload = base64gzip(local.base64_payload)
+        base64_uncompressed_payload = base64encode(local.base64_payload)
     }
 }
 
