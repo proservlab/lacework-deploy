@@ -46,7 +46,7 @@ locals {
             break
         else
             log "restarting loop..."
-            log 'waiting ${var.inputs["attack_delay"]} seconds...';
+            log "waiting ${var.inputs["attack_delay"]} seconds...";
             sleep ${var.inputs["attack_delay"]}
         fi
     done

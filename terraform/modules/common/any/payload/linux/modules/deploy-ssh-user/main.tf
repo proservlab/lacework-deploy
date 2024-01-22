@@ -20,7 +20,7 @@ locals {
     service ssh reload
     log "Done."
     EOT
-    base64_payload = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
@@ -34,7 +34,8 @@ locals {
     }})
 
     outputs = {
-        base64_payload = local.base64_payload
+        base64_payload = base64gzip(local.base64_payload)
+        base64_uncompressed_payload = base64encode(local.base64_payload)
         password = local.password
     }
 }

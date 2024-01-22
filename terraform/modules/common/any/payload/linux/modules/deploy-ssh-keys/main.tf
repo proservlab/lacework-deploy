@@ -22,7 +22,7 @@ locals {
     log "public key: $(ls -l ${local.ssh_public_key_path})"
     log "done"
     EOT
-    base64_payload_public = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload_public = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["public_tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
@@ -49,7 +49,7 @@ locals {
     log "private key: $(ls -l ${local.ssh_private_key_path})"
     log "done"
     EOT
-    base64_payload_private = base64encode(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload_private = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["private_tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
@@ -63,7 +63,9 @@ locals {
     }})
 
     outputs = {
-        base64_payload_public = local.base64_payload_public
-        base64_payload_private = local.base64_payload_private
+        base64_payload_public = base64gzip(local.base64_payload_public)
+        base64_uncompressed_payload_public = base64encode(local.base64_payload_public)
+        base64_payload_private = base64gzip(local.base64_payload_private)
+        base64_uncompressed_payload_private = base64encode(local.base64_payload_private)
     }
 }

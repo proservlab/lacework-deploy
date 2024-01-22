@@ -39,7 +39,7 @@ locals {
         else
             log "restarting loop..."
         fi
-    do
+    done
     EOT
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]

