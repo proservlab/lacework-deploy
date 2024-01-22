@@ -66,8 +66,7 @@ locals {
         EOF
         }
         # Read Hydra output file line by line
-        while IFS= read -r line
-        do
+        while IFS= read -r line; do
             # Parse Hydra output
             host=$(echo "$line" | awk '{print $3}')
             username=$(echo "$line" | awk '{print $5}')

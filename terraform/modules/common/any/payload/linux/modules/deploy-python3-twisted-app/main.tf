@@ -23,7 +23,7 @@ locals {
             while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
                 log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
                 sleep 60
-            do
+            done
             log 'waiting 30 minutes...';
             sleep 1800
             CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
