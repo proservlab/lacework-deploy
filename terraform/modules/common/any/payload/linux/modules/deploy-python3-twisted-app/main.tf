@@ -18,6 +18,12 @@ locals {
             screen -S vuln_python3_twisted_app_target -X quit
             screen -d -L -Logfile /tmp/vuln_python3_twisted_app_target.log -S vuln_python3_twisted_app_target -m python3 /vuln_python3_twisted_app/app.py
             screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
+            sleep 30
+            log "check app url..."
+            while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
+                log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
+                sleep 60
+            do
             log 'waiting 30 minutes...';
             sleep 1800
             CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
@@ -38,10 +44,10 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
-        apt_packages = "python3-pip"
+        apt_packages = "curl python3-pip"
         apt_post_tasks = ""
         yum_pre_tasks =  ""
-        yum_packages = "python3-pip"
+        yum_packages = "curl python3-pip"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

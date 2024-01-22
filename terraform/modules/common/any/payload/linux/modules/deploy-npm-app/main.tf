@@ -24,8 +24,14 @@ locals {
         screen -S vuln_npm_app_target -X quit
         screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
         screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
+        sleep 30
+        log "check app url..."
+        while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
+            sleep 60
+        do
         log 'waiting 30 minutes...';
-        sleep 1795
+        sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         if [ "$CHECK_HASH" != "$START_HASH" ]; then
             log "payload update detected - exiting loop"
@@ -39,10 +45,10 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
-        apt_packages = "nodejs npm"
+        apt_packages = "curl nodejs npm"
         apt_post_tasks = ""
         yum_pre_tasks =  ""
-        yum_packages = "nodejs npm"
+        yum_packages = "curl nodejs npm"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

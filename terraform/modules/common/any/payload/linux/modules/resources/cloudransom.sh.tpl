@@ -140,6 +140,8 @@ aws kms put-key-policy \
     --key-id "$KEY_ID" \
     --policy file://./key_material/new_key_policy.json >> $LOGFILE 2>&1
 
+# use key to encrypt s3 bucket content
+
 log "Sleeping 60 seconds..."
 sleep 60
 

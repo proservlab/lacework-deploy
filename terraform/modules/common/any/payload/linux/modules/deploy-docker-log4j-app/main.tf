@@ -9,6 +9,12 @@ locals {
         log "$(echo 'docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image}')"
         docker run -d --name ${local.name} -v /tmp:/tmp --rm -p ${local.listen_port}:8080 ${local.image} >> $LOGFILE 2>&1
         docker ps -a >> $LOGFILE 2>&1
+        sleep 30
+        log "check app url..."
+        while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
+            sleep 60
+        do
         log 'waiting 30 minutes...';
         sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
@@ -31,7 +37,7 @@ locals {
         done
         log "docker path: $(command -v  docker)"
         EOT
-        apt_packages = ""
+        apt_packages = "curl"
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
         log "Checking for docker..."
@@ -41,7 +47,7 @@ locals {
         done
         log "docker path: $(command -v  docker)"
         EOT
-        yum_packages = ""
+        yum_packages = "curl"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

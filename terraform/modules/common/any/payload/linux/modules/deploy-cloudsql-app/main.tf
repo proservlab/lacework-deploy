@@ -19,7 +19,6 @@ locals {
     echo ${local.index} | base64 -d > templates/index.html
     echo ${local.cast} | base64 -d > templates/cast.html
     
-
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
 
@@ -41,8 +40,12 @@ locals {
         screen -S ${local.app_dirname} -X quit
         screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
         screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
-        log "check rds url..."
-        curl -sv http://localhost:8091/cast >> $LOGFILE 2>&1
+        sleep 30
+        log "check app url..."
+        while ! curl -sv http://localhost:${var.inputs["listen_port"]}/cast | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${var.inputs["listen_port"]}/cast - retrying"
+            sleep 60
+        do
         log 'waiting 30 minutes...';
         sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
@@ -58,10 +61,10 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
-        apt_packages = "python3-pip mysql-client-core-8.0"
+        apt_packages = "curl python3-pip mysql-client-core-8.0"
         apt_post_tasks = ""
         yum_pre_tasks =  ""
-        yum_packages = "python3-pip mysql-shell"
+        yum_packages = "curl python3-pip mysql-shell"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

@@ -1,65 +1,26 @@
 locals {
     listen_port = var.inputs["listen_port"]
     listen_ip = var.inputs["listen_ip"]
-    server_py = <<-EOT
-    #!/usr/bin/env python3
-
-    from http.server import BaseHTTPRequestHandler, HTTPServer
-    import logging
-
-    class S(BaseHTTPRequestHandler):
-        def _set_response(self):
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-
-        def do_GET(self):
-            logging.info("GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers))
-            self._set_response()
-            self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
-
-        def do_POST(self):
-            content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-            post_data = self.rfile.read(content_length) # <--- Gets the data itself
-            logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-                    str(self.path), str(self.headers), post_data.decode('utf-8'))
-            print(post_data)
-            self._set_response()
-            self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
-
-    def run(server_class=HTTPServer, handler_class=S, port=${local.listen_port}):
-        logging.basicConfig(level=logging.INFO)
-        server_address = ('', port)
-        httpd = server_class(server_address, handler_class)
-        logging.info('Starting httpd...\n')
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            pass
-        httpd.server_close()
-        logging.info('Stopping httpd...\n')
-
-    if __name__ == '__main__':
-        from sys import argv
-
-        if len(argv) == 2:
-            run(port=int(argv[1]))
-        else:
-            run()
-    EOT
     payload = <<-EOT
+    mkdir -p /tmp/www/
+    echo "index" > /tmp/www/index.html
+    mkdir -p /tmp/www/upload/v2
+    echo "upload" > /tmp/www/upload/v2/index.html
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "listener: ${local.listen_ip}:${local.listen_port}"
         screen -S http -X quit
-        truncate -s 0 /tmp/http.log
-        mkdir -p /tmp/www/
-        echo "index" > /tmp/www/index.html
-        mkdir -p /tmp/www/upload/v2
-        echo "upload" > /tmp/www/upload/v2/index.html
-        screen -d -L -Logfile /tmp/http.log -S http -m python3 -c "import base64; exec(base64.b64decode('${base64encode(local.server_py)}'))"
+        APPLOG=/tmp/http_$SCRIPTNAME.log
+        for i in `seq $((MAXLOG-1)) -1 1`; do mv "$APPLOG."{$i,$((i+1))} 2>/dev/null || true; done
+        mv $APPLOG "$APPLOG.1" 2>/dev/null || true
+        screen -d -L -Logfile /tmp/http.log -S http -m python3 -c "import base64; exec(base64.b64decode('${base64encode(local.app)}'))"
         screen -S http -X colon "logfile flush 0^M"
-        log "listener started..."
+        sleep 30
+        log "check app url..."
+        while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
+            sleep 60
+        do
         log 'waiting 30 minutes...';
         sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
@@ -70,17 +31,22 @@ locals {
             log "restarting loop..."
         fi
     done
-    
     EOT
+
+    app = base64encode(templatefile(
+                "${path.module}/resources/app.py.tpl",
+                {
+                    listen_port = var.inputs["listen_port"]
+                }))
     
     base64_payload = base64gzip(templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
-        apt_packages = ""
+        apt_packages = "curl"
         apt_post_tasks = ""
         yum_pre_tasks =  ""
-        yum_packages = ""
+        yum_packages = "curl"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload
