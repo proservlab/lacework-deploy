@@ -67,5 +67,6 @@ locals {
         base64_uncompressed_payload_public = base64encode(local.base64_payload_public)
         base64_payload_private = base64gzip(local.base64_payload_private)
         base64_uncompressed_payload_private = base64encode(local.base64_payload_private)
+        base64_uncompressed_payload_additional = []
     }
 }

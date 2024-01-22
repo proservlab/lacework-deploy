@@ -151,5 +151,15 @@ locals {
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
+        base64_uncompressed_payload_additional = [
+            {
+                name = "${basename(abspath(path.module))}_instance2rds.sh"
+                content = local.instance2rds
+            },
+            {
+                name = "${basename(abspath(path.module))}_iam2rds.sh"
+                content = local.iam2rds
+            }
+        ]
     }
 }

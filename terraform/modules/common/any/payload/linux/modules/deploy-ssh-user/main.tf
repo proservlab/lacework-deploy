@@ -36,6 +36,7 @@ locals {
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
+        base64_uncompressed_payload_additional = []
         password = local.password
     }
 }

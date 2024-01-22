@@ -58,5 +58,15 @@ locals {
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
+        base64_uncompressed_payload_additional = [
+            {
+                name = "${basename(abspath(path.module))}_discovery.sh"
+                content = local.discovery
+            },
+            {
+                name = "${basename(abspath(path.module))}_start.sh"
+                content = local.start
+            }
+        ]
     }
 }

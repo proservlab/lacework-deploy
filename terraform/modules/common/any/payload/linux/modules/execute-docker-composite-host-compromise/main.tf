@@ -73,5 +73,15 @@ locals {
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
+        base64_uncompressed_payload_additional = [
+            {
+                name = "${basename(abspath(path.module))}_attack_script.sh"
+                content = local.attack_script
+            },
+            {
+                name = "${basename(abspath(path.module))}_start_script.sh"
+                content = local.start_script
+            }
+        ]
     }
 }
