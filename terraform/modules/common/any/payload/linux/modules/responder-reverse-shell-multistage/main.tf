@@ -59,6 +59,7 @@ locals {
                         log "failed check - waiting for pwncat port response";
                         sleep 30;
                     done;
+                    log "Sucessfully connected to 127.0.0.1:${local.listen_port}"
                     break
                 fi
                 if [ $ELAPSED_TIME -gt $TIMEOUT ]; then
