@@ -204,6 +204,8 @@ module "aws-credentials" {
 
   compromised_credentials = var.compromised_credentials
   compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user
+
+  depends_on = [ module.iam ]
 }
 
 ##################################################

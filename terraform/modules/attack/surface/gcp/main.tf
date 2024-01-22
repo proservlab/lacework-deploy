@@ -210,6 +210,8 @@ module "gcp-credentials" {
 
   compromised_credentials = try(module.iam[0].access_keys, {})
   compromised_keys_user = local.config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
+
+  depends_on = [ module.iam ]
 }
 
 ##################################################
