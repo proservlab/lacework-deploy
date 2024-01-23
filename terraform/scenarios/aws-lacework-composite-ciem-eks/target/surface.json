@@ -48,20 +48,20 @@
     "kubernetes" :  {
       "aws": {
         "app" :  {
-          "enabled" :  false
+          "enabled" :  true
         },
         "psp" :  {
           "enabled" :  false
         },
         "vulnerable" :  {
           "log4j_app" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "voteapp" :  {
             "enabled" :  false
           },
           "rdsapp" :  {
-            "enabled" :  true
+            "enabled" :  false
           },
           "privileged_pod" :  {
             "enabled" :  false

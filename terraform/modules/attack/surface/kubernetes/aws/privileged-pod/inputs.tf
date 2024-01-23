@@ -9,11 +9,11 @@ variable "deployment" {
 }
 
 variable "app" {
-  default = "iis"
+  default = "privileged"
 }
 
 variable "app_namespace" {
-  default = "default"
+  default = "privileged"
 }
 
 variable "cluster_vpc_id" {
@@ -53,24 +53,21 @@ variable "additional_trusted_sources" {
 
 variable "privileged" {
     type = bool
-    default = false
+    default = true
 }
 
 variable "image" {
   type = string
-  default = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
+  default = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
 }
 
 variable "command" {
   type = list(string)
-  default = [
-                "powershell.exe",
-                "-command",
-                "Add-WindowsFeature Web-Server; Invoke-WebRequest -UseBasicParsing -Uri 'https://dotnetbinaries.blob.core.windows.net/servicemonitor/2.0.1.6/ServiceMonitor.exe' -OutFile 'C:\\ServiceMonitor.exe'; echo '<html><body><br/><br/><H1>Our first pods running on Windows managed node groups! Powered by Windows Server LTSC 2022.<H1></body><html>' > C:\\inetpub\\wwwroot\\iisstart.htm; C:\\ServiceMonitor.exe 'w3svc'; "
-            ]
+  default = ["java"]
 }
 
 variable "args" {
   type = list(string)
-  default = []
+  default = ["-jar", "/app/spring-boot-application.jar"]
 }
+

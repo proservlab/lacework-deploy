@@ -31,7 +31,7 @@
                             "owner"                                         : "lacework",
                             "ssm_deploy_aws_cli"                            : "true",
                             "ssm_deploy_docker"                             : "true",
-                            "ssm_exec_docker_exploit_log4j_app"            : "true",
+                            "ssm_exec_docker_exploit_log4j_app"             : "false",
                             "ssm_exec_reverse_shell_multistage_attacker"    : "true"
                         },
                         "user_data"                 : null,
@@ -48,7 +48,7 @@
         },
         "dynu_dns" : {
             "enabled"                        : true,
-            "api_key"                      : "${ dynu_api_key }",
+            "api_key"                        : "${ dynu_api_key }",
             "dns_domain"                     : "${ dynu_dns_domain }"
         }
     }

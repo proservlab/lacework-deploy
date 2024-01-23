@@ -236,13 +236,26 @@ variable "config" {
       kubernetes = object({
         aws = object({
           app = object({
-            enabled                       = bool
+            enabled                     = bool
+            service_port                = number
+            trust_attacker_source       = bool
+            trust_workstation_source    = bool
+            additional_trusted_sources  = list(string)
+            image                       = string
+            command                     = list(string)
+            args                        = list(string)
+            privileged                  = bool
           })
           app-windows = object({
-            enabled                       = bool
-          })
-          psp = object({
-            enabled                       = bool
+            enabled                     = bool
+            service_port                = number
+            trust_attacker_source       = bool
+            trust_workstation_source    = bool
+            additional_trusted_sources  = list(string)
+            image                       = string
+            command                     = list(string)
+            args                        = list(string)
+            privileged                  = bool
           })
           vulnerable = object({
             log4j_app = object({
@@ -254,6 +267,7 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
             })
             voteapp = object({
               enabled                     = bool
@@ -269,6 +283,7 @@ variable "config" {
               trust_attacker_source       = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
+              privileged                  = bool
             })
             privileged_pod = object({
               enabled                     = bool
@@ -279,9 +294,18 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
             })
           })
         })
@@ -640,13 +664,30 @@ variable "config" {
         }
         aws = {
           app = {
-            enabled                       = false
+            enabled                     = false
+            service_port                = 8000
+            trust_attacker_source       = true
+            trust_workstation_source    = true
+            additional_trusted_sources  = []
+            image                       = "nginx:latest"
+            command                     = ["tail"]
+            args                        = ["-f", "/dev/null"]
+            privileged                  = false
           }
           app-windows = {
-            enabled                       = false
-          }
-          psp = {
-            enabled                       = false
+            enabled                     = false
+            service_port                = 8000
+            trust_attacker_source       = true
+            trust_workstation_source    = true
+            additional_trusted_sources  = []
+            image                       = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
+            command                     = [
+                "powershell.exe",
+                "-command",
+                "Add-WindowsFeature Web-Server; Invoke-WebRequest -UseBasicParsing -Uri 'https://dotnetbinaries.blob.core.windows.net/servicemonitor/2.0.1.6/ServiceMonitor.exe' -OutFile 'C:\\ServiceMonitor.exe'; echo '<html><body><br/><br/><H1>Our first pods running on Windows managed node groups! Powered by Windows Server LTSC 2022.<H1></body><html>' > C:\\inetpub\\wwwroot\\iisstart.htm; C:\\ServiceMonitor.exe 'w3svc'; "
+            ]
+            args                        = []
+            privileged                  = false
           }
           vulnerable = {
             log4j_app = {
@@ -658,6 +699,7 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
             }
             voteapp = {
               enabled                     = false
@@ -674,6 +716,7 @@ variable "config" {
               trust_attacker_source       = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
+              privileged                  = false
             }
             privileged_pod = {
               enabled                     = false
@@ -684,9 +727,18 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
             }
           }
         }

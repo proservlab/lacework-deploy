@@ -36,6 +36,15 @@ module "deployment" {
     app = local.app_name
   }
   replicas      = 1
+  volume_mount  = {
+    name = "test-volume"
+    mount_path = "/host"
+  }
+  volume_host_path = [{
+    volume_name = "test-volume"
+    path_on_node = "/"
+    type = "Directory"
+  }]
 
   depends_on = [
     kubernetes_namespace.this

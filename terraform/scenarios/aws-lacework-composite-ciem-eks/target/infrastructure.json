@@ -26,7 +26,7 @@
       },
       "eks": {
         "enabled"      : true,
-        "cluster_name" : "target-cluster"
+        "cluster_name" : "dev"
       },
       "rds": {
         "enabled"      : false

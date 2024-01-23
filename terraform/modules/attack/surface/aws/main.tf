@@ -179,7 +179,7 @@ module "ssh-keys" {
 
   public_tag = "ssm_deploy_secret_ssh_public"
   private_tag = "ssm_deploy_secret_ssh_private"
-  
+
   ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
   ssh_private_key_path = local.config.context.aws.ssm.ssh_keys.ssh_private_key_path
   ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
@@ -312,8 +312,22 @@ module "eks-auth" {
 module "kubernetes-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.app.enabled == true ) ? 1 : 0
   source      = "../kubernetes/aws/app"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.app.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.app.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.app.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.app.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.app.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.app.args
   
   providers = {
     kubernetes = kubernetes.main
@@ -324,14 +338,41 @@ module "kubernetes-app" {
 module "kubernetes-app-windows" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.app-windows.enabled == true ) ? 1 : 0
   source      = "../kubernetes/aws/app-windows"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.app-windows.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.app-windows.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.app-windows.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.app-windows.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.app-windows.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.app-windows.args
+  
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main
   }
 }
+
+# module "dns-records" {
+#   for_each = { for instance in local.public_compute_instances: lookup(instance.tags, "Name", "unknown") => instance }
+#   source          = "../../../dynu/dns_record"
+#   dynu_dns_domain = var.dynu_dns_domain
+  
+#   record        = {
+#         recordType     = "A"
+#         recordName     = "${each.key}"
+#         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
+#         recordValue    = each.value.public_ip
+#       }
+# }
 
 ##################################################
 # Kubernetes AWS Vulnerable
@@ -339,7 +380,7 @@ module "kubernetes-app-windows" {
 
 module "vulnerable-kubernetes-voteapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.voteapp.enabled == true) ? 1 : 0
-  source                        = "../kubernetes/aws/vulnerable/voteapp"
+  source                        = "../kubernetes/aws/voteapp"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   region                        = local.default_infrastructure_config.context.aws.region
@@ -364,7 +405,7 @@ module "vulnerable-kubernetes-voteapp" {
 
 module "vulnerable-kubernetes-rdsapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.rdsapp.enabled == true ) ? 1 : 0
-  source                              = "../kubernetes/aws/vulnerable/rdsapp"
+  source                              = "../kubernetes/aws/rdsapp"
   environment                         = local.config.context.global.environment
   deployment                          = local.config.context.global.deployment
   region                              = local.default_infrastructure_config.context.aws.region
@@ -395,7 +436,7 @@ module "vulnerable-kubernetes-rdsapp" {
 
 module "vulnerable-kubernetes-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source                        = "../kubernetes/aws/vulnerable/log4j-app"
+  source                        = "../kubernetes/aws/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
@@ -421,7 +462,7 @@ module "vulnerable-kubernetes-log4j-app" {
 
 module "vulnerable-kubernetes-privileged-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/aws/vulnerable/privileged-pod"
+  source      = "../kubernetes/aws/privileged-pod"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
@@ -447,12 +488,39 @@ module "vulnerable-kubernetes-privileged-pod" {
 
 module "vulnerable-kubernetes-root-mount-fs-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/aws/vulnerable/root-mount-fs-pod"
-  environment = local.config.context.global.environment
-  deployment  = local.config.context.global.deployment
+  source      = "../kubernetes/aws/root-mount-fs-pod"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
+  service_port                  = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source    = [module.workstation-external-ip.cidr]
+  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
+  command                       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.command
+  args                          = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
+  
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main
   }
 }
+
+# module "dns-records" {
+#   for_each = { for instance in local.public_compute_instances: lookup(instance.tags, "Name", "unknown") => instance }
+#   source          = "../../../dynu/dns_record"
+#   dynu_dns_domain = var.dynu_dns_domain
+  
+#   record        = {
+#         recordType     = "A"
+#         recordName     = "${each.key}"
+#         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
+#         recordValue    = each.value.public_ip
+#       }
+# }

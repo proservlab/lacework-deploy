@@ -9,7 +9,7 @@ variable "deployment" {
 }
 
 variable "app" {
-  default = "iis"
+  default = "nginx"
 }
 
 variable "app_namespace" {
@@ -58,19 +58,15 @@ variable "privileged" {
 
 variable "image" {
   type = string
-  default = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
+  default = "nginx:latest"
 }
 
 variable "command" {
   type = list(string)
-  default = [
-                "powershell.exe",
-                "-command",
-                "Add-WindowsFeature Web-Server; Invoke-WebRequest -UseBasicParsing -Uri 'https://dotnetbinaries.blob.core.windows.net/servicemonitor/2.0.1.6/ServiceMonitor.exe' -OutFile 'C:\\ServiceMonitor.exe'; echo '<html><body><br/><br/><H1>Our first pods running on Windows managed node groups! Powered by Windows Server LTSC 2022.<H1></body><html>' > C:\\inetpub\\wwwroot\\iisstart.htm; C:\\ServiceMonitor.exe 'w3svc'; "
-            ]
+  default = ["tail"]
 }
 
 variable "args" {
   type = list(string)
-  default = []
+  default = ["-f", "/dev/null"]
 }

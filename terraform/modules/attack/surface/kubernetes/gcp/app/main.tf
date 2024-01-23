@@ -6,6 +6,10 @@ module "id" {
   source = "../../../../../context/deployment"
 }
 
+##################################################
+# LOCALS
+##################################################
+
 # manage the app deployment to this cluster in separate project - things that could be applied here are:
 # - token hardening
 # - default namespaces

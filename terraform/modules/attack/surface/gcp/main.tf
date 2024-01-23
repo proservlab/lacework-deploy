@@ -352,7 +352,7 @@ module "kubernetes-app" {
 
 module "vulnerable-kubernetes-log4j-app" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/vulnerable/log4j-app"
+  source      = "../kubernetes/gcp/log4j-app"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 
@@ -372,7 +372,7 @@ module "vulnerable-kubernetes-log4j-app" {
 
 module "vulnerable-kubernetes-privileged-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/vulnerable/privileged-pod"
+  source      = "../kubernetes/gcp/privileged-pod"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
@@ -384,7 +384,7 @@ module "vulnerable-kubernetes-privileged-pod" {
 
 module "vulnerable-kubernetes-root-mount-fs-pod" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.gcp.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/vulnerable/root-mount-fs-pod"
+  source      = "../kubernetes/gcp/root-mount-fs-pod"
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
