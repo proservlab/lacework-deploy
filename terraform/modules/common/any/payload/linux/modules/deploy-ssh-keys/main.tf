@@ -17,7 +17,7 @@ locals {
     log "starting script"
     log "creating public key: ${local.ssh_public_key_path}"
     log "adding user: ${local.public_key_user}..."
-    adduser "${local.public_key_user}" || log "${local.public_key_user} user already exists"
+    adduser --gecos "" --disabled-password "${local.public_key_user}" || log "${local.public_key_user} user already exists"
     mkdir -p ${dirname(local.ssh_public_key_path)}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
     chmod 600 ${local.ssh_public_key_path}
@@ -42,10 +42,11 @@ locals {
     }})
 
     payload_private = <<-EOT
+    log "starting script"
     log "creating private key: ${local.ssh_private_key_path}"
-    mkdir -p ${dirname(local.ssh_private_key_path)}
     log "adding user: ${local.private_key_user}..."
-    adduser "${local.private_key_user}" || log "${local.private_key_user} user already exists"
+    adduser --gecos "" --disabled-password "${local.private_key_user}" || log "${local.private_key_user} user already exists"
+    mkdir -p ${dirname(local.ssh_private_key_path)}
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}
     chmod 600 ${local.ssh_private_key_path}
     chown ${local.private_key_user}:${local.private_key_user} ${local.ssh_private_key_path}
