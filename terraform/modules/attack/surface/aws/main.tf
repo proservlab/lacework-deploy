@@ -316,18 +316,18 @@ module "kubernetes-app" {
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-  service_port                  = local.config.context.kubernetes.aws.vulnerable.app.service_port
-  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.app.trust_attacker_source ? flatten([
+  service_port                  = local.config.context.kubernetes.aws.app.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.app.additional_trusted_sources
+  additional_trusted_sources    = local.config.context.kubernetes.aws.app.additional_trusted_sources
 
-  image                         = local.config.context.kubernetes.aws.vulnerable.app.image
-  command                       = local.config.context.kubernetes.aws.vulnerable.app.command
-  args                          = local.config.context.kubernetes.aws.vulnerable.app.args
+  image                         = local.config.context.kubernetes.aws.app.image
+  command                       = local.config.context.kubernetes.aws.app.command
+  args                          = local.config.context.kubernetes.aws.app.args
   
   providers = {
     kubernetes = kubernetes.main
@@ -342,18 +342,18 @@ module "kubernetes-app-windows" {
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-  service_port                  = local.config.context.kubernetes.aws.vulnerable.app-windows.service_port
-  trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.app-windows.trust_attacker_source ? flatten([
+  service_port                  = local.config.context.kubernetes.aws.app-windows.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.app-windows.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-  additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.app-windows.additional_trusted_sources
+  additional_trusted_sources    = local.config.context.kubernetes.aws.app-windows.additional_trusted_sources
 
-  image                         = local.config.context.kubernetes.aws.vulnerable.app-windows.image
-  command                       = local.config.context.kubernetes.aws.vulnerable.app-windows.command
-  args                          = local.config.context.kubernetes.aws.vulnerable.app-windows.args
+  image                         = local.config.context.kubernetes.aws.app-windows.image
+  command                       = local.config.context.kubernetes.aws-windows.app.command
+  args                          = local.config.context.kubernetes.aws.app-windows.args
   
   providers = {
     kubernetes = kubernetes.main
