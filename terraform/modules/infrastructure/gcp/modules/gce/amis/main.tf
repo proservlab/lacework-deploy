@@ -18,6 +18,11 @@ data "google_compute_image" "centos8_20191002" {
   project = "centos-cloud"
 }
 
+data "google_compute_image" "rocky_linux_8" {
+  name    = "rocky"
+  project = "rocky-linux-cloud"
+}
+
 locals {
     ami_map = {
         ubuntu_focal = data.google_compute_image.ubuntu_focal.self_link

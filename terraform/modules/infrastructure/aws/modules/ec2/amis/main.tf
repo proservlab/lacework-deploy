@@ -86,6 +86,22 @@ data "aws_ami" "centos_8_2004" {
   }
 }
 
+data "aws_ami" "rocky_linux_8" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["Rocky-8-ec2-*.x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["792107900819"]
+}
+
 
 # ami-01ca03df4a6012157
 
@@ -97,5 +113,6 @@ locals {
         amazon_linux_20221210 = data.aws_ami.amazon_linux_20221210.id
         centos_8 = data.aws_ami.centos_8.id
         centos_8_2004 = data.aws_ami.centos_8_2004.id
+        rocky_linux_8 = data.aws_ami.rocky_linux_8.id
     }
 }

@@ -50,10 +50,10 @@ module "deployment" {
         value = var.region
     }
   ]
-  internal_port = {
+  internal_port = [{
     name = "container"
     internal_port = var.container_port
-  }
+  }]
   security_context_container = [{
       privileged = var.privileged
   }]
