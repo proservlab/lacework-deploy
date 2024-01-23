@@ -37,7 +37,7 @@ module "deployment" {
   }
   replicas      = 1
   volume_mount  = [{
-    name = "test-volume"
+    volume_name = "test-volume"
     mount_path = "/host"
   }]
   volume_host_path = [{
