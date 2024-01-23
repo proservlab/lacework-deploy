@@ -177,6 +177,9 @@ module "ssh-keys" {
   environment = local.config.context.global.environment
   deployment  = local.config.context.global.deployment
 
+  public_tag = "ssm_deploy_secret_ssh_public"
+  private_tag = "ssm_deploy_secret_ssh_private"
+  
   ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
   ssh_private_key_path = local.config.context.aws.ssm.ssh_keys.ssh_private_key_path
   ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path

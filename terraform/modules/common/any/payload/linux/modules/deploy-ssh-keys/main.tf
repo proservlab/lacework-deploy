@@ -10,15 +10,21 @@ locals {
     ssh_public_key = base64encode(chomp(tls_private_key.ssh.public_key_openssh))
     ssh_public_key_path = var.inputs["ssh_public_key_path"]
     ssh_authorized_keys_path = var.inputs["ssh_authorized_keys_path"]
+    public_key_user = split("/", local.ssh_public_key_path)[1] == "root" ? "root" : split("/", local.ssh_public_key_path)[2]
+    private_key_user = split("/", local.ssh_private_key_path)[1] == "root" ? "root" : split("/", local.ssh_private_key_path)[2]
 
     payload_public = <<-EOT
     log "starting script"
     log "creating public key: ${local.ssh_public_key_path}"
-    rm -rf ${local.ssh_public_key_path}
+    log "adding user: ${local.public_key_user}..."
+    adduser "${local.public_key_user}" || log "${local.public_key_user} user already exists"
     mkdir -p ${dirname(local.ssh_public_key_path)}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
     chmod 600 ${local.ssh_public_key_path}
-    chown ubuntu:ubuntu ${local.ssh_public_key_path}
+    chown ${local.public_key_user}:${local.public_key_user} ${local.ssh_public_key_path}
+    echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}
+    sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq
+    mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}
     log "public key: $(ls -l ${local.ssh_public_key_path})"
     log "done"
     EOT
@@ -37,15 +43,12 @@ locals {
 
     payload_private = <<-EOT
     log "creating private key: ${local.ssh_private_key_path}"
-    rm -rf ${local.ssh_private_key_path}
     mkdir -p ${dirname(local.ssh_private_key_path)}
+    log "adding user: ${local.private_key_user}..."
+    adduser "${local.private_key_user}" || log "${local.private_key_user} user already exists"
     echo '${base64decode(local.ssh_private_key)}' > ${local.ssh_private_key_path}
     chmod 600 ${local.ssh_private_key_path}
-    chown ubuntu:ubuntu ${local.ssh_private_key_path}
-    echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}
-    sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq
-    mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}
-    rm -f ${local.ssh_authorized_keys_path}.uniq
+    chown ${local.private_key_user}:${local.private_key_user} ${local.ssh_private_key_path}
     log "private key: $(ls -l ${local.ssh_private_key_path})"
     log "done"
     EOT

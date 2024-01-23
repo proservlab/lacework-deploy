@@ -427,9 +427,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           }
           ssh_user = {
             enabled                     = false
@@ -499,9 +499,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           },
           ssh_user = {
             enabled                     = false
@@ -581,9 +581,9 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           },
           ssh_user = {
             enabled                     = false

@@ -182,6 +182,10 @@ module "ssh-keys" {
 
   public_tag = "osconfig_deploy_secret_ssh_public"
   private_tag = "osconfig_deploy_secret_ssh_private"
+  
+  ssh_public_key_path = local.config.context.gcp.osconfig.ssh_keys.ssh_public_key_path
+  ssh_private_key_path = local.config.context.gcp.osconfig.s.ssh_keys.ssh_private_key_path
+  ssh_authorized_keys_path = local.config.context.gcp.osconfig.s.ssh_keys.ssh_authorized_keys_path
 }
 
 module "ssh-user" {
