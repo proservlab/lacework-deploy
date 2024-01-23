@@ -7,35 +7,6 @@ module "workstation-external-ip" {
   source       = "../../../general/workstation-external-ip"
 }
 
-data "azurerm_platform_image" "ubuntu_image" {
-    location  = var.region
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
-}
-
-data "azurerm_platform_image" "debian_image" {
-    location  = var.region
-    publisher = "Debian"
-    offer     = "debian-11"
-    sku       = "11"
-}
-
-# data "azurerm_platform_image" "centos8" {
-#     location  = var.region
-#     publisher = "OpenLogic"
-#     offer     = "CentOS"
-#     sku       = "8_5-gen2"
-#     version   = "latest"
-# }
-
-data "azurerm_platform_image" "windowsserver_image" {
-    location  = var.region
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
-}
-
 resource "azurerm_virtual_network" "network" {
     name                = "public-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.public_network]

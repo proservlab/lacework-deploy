@@ -175,10 +175,10 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     }
 
     source_image_reference {
-        publisher = data.azurerm_platform_image.ubuntu_image.publisher
-        offer     = data.azurerm_platform_image.ubuntu_image.offer
-        sku       = data.azurerm_platform_image.ubuntu_image.sku
-        version   = data.azurerm_platform_image.ubuntu_image.version
+        publisher = data.azurerm_platform_image[each.value["instance_type"]].publisher
+        offer     = data.azurerm_platform_image[each.value["instance_type"]].offer
+        sku       = data.azurerm_platform_image[each.value["instance_type"]].sku
+        version   = data.azurerm_platform_image[each.value["instance_type"]].version
     }
 
     computer_name  = "${each.key}-app-${var.environment}-${var.deployment}"
