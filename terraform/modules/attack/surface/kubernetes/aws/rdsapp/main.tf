@@ -28,28 +28,13 @@ module "deployment" {
   command       = var.command
   args          = var.args
   service_account_name = "database"
-  env           = [
-    {
-        name = "DB_APP_URL"
-        value = split(":", aws_db_instance.database.endpoint)[0]
-    },
-    {
-        name = "DB_USER_NAME"
-        value = var.service_account_db_user
-    },
-    {
-        name = "DB_NAME"
-        value = var.database_name
-    },
-    {
-        name = "DB_PORT"
-        value = var.database_port
-    },
-    {
-        name = "DB_REGION"
-        value = var.region
-    }
-  ]
+  env           = {
+                      "DB_APP_URL" = split(":", aws_db_instance.database.endpoint)[0]
+                      "DB_USER_NAME" = var.service_account_db_user
+                      "DB_NAME" = var.database_name
+                      "DB_PORT" = var.database_port
+                      "DB_REGION" = var.region
+                  }
   internal_port = [{
     name = "container"
     internal_port = var.container_port
