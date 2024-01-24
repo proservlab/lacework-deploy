@@ -16,7 +16,6 @@ data "google_compute_image" "centos8" {
 data "google_compute_image" "centos8_20191002" {
   name    = "centos-8-v20191002"
   project = "centos-cloud"
-  family = "centos-stream-8"
 }
 
 data "google_compute_image" "rocky_linux_8" {
