@@ -116,7 +116,7 @@ for i in "$@"; do
         shift # past argument=value
         ;;
     -f=*|--tfplan=*)
-        PLANFILE=="${i#*=}"
+        PLANFILE="${i#*=}"
         shift # past argument=value
         ;;
     *)
