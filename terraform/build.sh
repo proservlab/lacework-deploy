@@ -324,8 +324,9 @@ if [[ "$CSP" == "aws" ]]; then
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
-        cat ~/.kube/config
-        cat ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig
+        cat ~/.kube/config || echo "file not found: ~/.kube/config" 
+        cat ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig || echo "file not found: ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+        cat ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig || echo "file not found: ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
