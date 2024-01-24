@@ -18,7 +18,7 @@ variable "cluster_name" {
 
 variable "cluster_version" {
   type    = string
-  default = "1.29"
+  default = "1.28"
 }
 
 variable "aws_profile_name" {
