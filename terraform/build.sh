@@ -242,7 +242,7 @@ get_tfvar_value() {
 # get the deployment unique id
 tfvars_file="$SCRIPT_PATH/env_vars/variables-${WORK}.tfvars"
 infomsg "Retrieving deployment id from: ${tfvars_file}"
-DEPLOYMENT=$(get_tfvar_value "$tfvars_file" "deployment")
+export DEPLOYMENT=$(get_tfvar_value "$tfvars_file" "deployment")
 if [ $? -ne 0 ]; then
     errmsg "Failed to retrieve deployment id from:  ${tfvars_file}"
     exit 1
@@ -288,6 +288,40 @@ CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPL
 if [ ! -d "~/.kube" ]; then
     infomsg "~/.kube directory not found - creating..."
     mkdir -p ~/.kube
+fi
+if [[ "$CSP" == "aws" ]]; then
+    export ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
+    export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORKSPACE/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
+    export TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
+    export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORKSPACE/target/infrastructure.json| jq '.context.aws.eks.enabled')
+    if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
+        if ! command -v yq; then
+            curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+            chmod +x /usr/local/bin/yq
+        fi
+        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" 
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --kubeconfig="$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i ~/.kube/config
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "$CSP-attacker-$DEPLOYMENT-kubeconfig"
+        done
+    fi
+    if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
+        if ! command -v yq; then
+            curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+            chmod +x /usr/local/bin/yq
+        fi
+        for CLUSTER in $(aws eks list-clusters --profile=$TARGET_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER"
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --kubeconfig="$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i ~/.kube/config
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$CSP-target-$DEPLOYMENT-kubeconfig"
+        done
+    fi
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
     infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"

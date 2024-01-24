@@ -19,26 +19,22 @@ locals {
 provider "kubernetes" {
   alias = "main"
   config_path = local.default_kubeconfig
-  host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
 }
 
 provider "kubernetes" {
   alias = "attacker"
   config_path = local.attacker_kubeconfig
-  host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
 }
 
 provider "kubernetes" {
   alias = "target"
   config_path = local.target_kubeconfig
-  host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
 }
 
 provider "helm" {
   alias = "main"
   kubernetes {
     config_path = local.default_kubeconfig
-    host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
   }
 }
 
@@ -46,14 +42,12 @@ provider "helm" {
   alias = "attacker"
   kubernetes {
     config_path = local.attacker_kubeconfig
-    host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
   }
 }
 provider "helm" {
   alias = "target"
   kubernetes {
     config_path = local.target_kubeconfig
-    host = ! fileexists(local.default_kubeconfig) ? "https://jsonplaceholder.typicode.com" : null
   }
 }
 
