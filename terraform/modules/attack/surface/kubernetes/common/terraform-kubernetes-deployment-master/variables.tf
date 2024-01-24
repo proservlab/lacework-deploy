@@ -197,7 +197,7 @@ variable "security_context" {
   default     = []
 }
 variable "security_context_container" {
-  type = object({
+  type = list(object({
     allow_privilege_escalation = optional(string)
     privileged                 = optional(string)
     read_only_root_filesystem  = optional(string)
@@ -206,7 +206,7 @@ variable "security_context_container" {
       add  = optional(list(string))
       drop = optional(list(string))
     }),{})
-  })
+  }))
   description = "(Optional) Security context in pod."
   default     = []
 }
