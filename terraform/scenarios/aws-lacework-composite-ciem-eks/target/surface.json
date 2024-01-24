@@ -38,7 +38,7 @@
           "iam_user_names": []
         },
         "add_iam_user_admin_user": {
-          "enabled": true,
+          "enabled": false,
           "iam_user_names": [
             "clue.burnetes@interlacelabs"
           ]
