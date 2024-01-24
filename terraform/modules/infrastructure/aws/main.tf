@@ -30,9 +30,9 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
-  default_kubeconfig = try(module.eks[0].kubeconfg, local.default_infrastructure_config.context.global.environment == "target" ? var.target_kubeconfig : var.attacker_kubeconfig )
-  attacker_kubeconfig = local.default_infrastructure_config.context.global.environment == "attacker" ? try(module.eks[0].kubeconfg, var.attacker_kubeconfig) : var.attacker_kubeconfig
-  target_kubeconfig = local.default_infrastructure_config.context.global.environment == "target" ? try(module.eks[0].kubeconfg, var.target_kubeconfig) : var.target_kubeconfig
+  default_kubeconfig = try(module.eks[0].kubeconfig_path, local.default_infrastructure_config.context.global.environment == "target" ? var.target_kubeconfig : var.attacker_kubeconfig )
+  attacker_kubeconfig = local.default_infrastructure_config.context.global.environment == "attacker" ? try(module.eks[0].kubeconfig_path, var.attacker_kubeconfig) : var.attacker_kubeconfig
+  target_kubeconfig = local.default_infrastructure_config.context.global.environment == "target" ? try(module.eks[0].kubeconfig_path, var.target_kubeconfig) : var.target_kubeconfig
 
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
@@ -239,26 +239,26 @@ module "eks-windows" {
 
 
 # eks-autoscale
-# module "eks-autoscaler" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source       = "./modules/eks-autoscale"
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-#   region       = local.config.context.aws.region
+module "eks-autoscaler" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-autoscale"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
   
-#   cluster_name = module.eks[0].cluster_name
-#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+  cluster_name = module.eks[0].cluster_name
+  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks
-#   ]
-# }
+  depends_on = [
+    module.eks-windows,
+    module.eks
+  ]
+}
 
 module "eks-windows-configmap" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
