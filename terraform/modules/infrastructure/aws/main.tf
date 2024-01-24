@@ -238,185 +238,185 @@ module "eks-windows" {
 #################################################
 
 
-# # eks-autoscale
-# module "eks-autoscaler" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source       = "./modules/eks-autoscale"
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-#   region       = local.config.context.aws.region
+# eks-autoscale
+module "eks-autoscaler" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-autoscale"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
   
-#   cluster_name = module.eks[0].cluster_name
-#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+  cluster_name = module.eks[0].cluster_name
+  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks
-#   ]
-# }
+  depends_on = [
+    module.eks-windows,
+    module.eks
+  ]
+}
 
-# module "eks-windows-configmap" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
-#   source       = "./modules/eks-windows-configmap"
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
+module "eks-windows-configmap" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-windows-configmap"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
 
-#   cluster_name = module.eks-windows[0].cluster.id
-#   cluster_endpoint = module.eks-windows[0].cluster_endpoint
-#   cluster_ca_cert = module.eks-windows[0].cluster_ca_cert
-#   cluster_sg = module.eks-windows[0].cluster_sg_id
-#   cluster_subnet = module.eks-windows[0].cluster_subnet
-#   cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
+  cluster_name = module.eks-windows[0].cluster.id
+  cluster_endpoint = module.eks-windows[0].cluster_endpoint
+  cluster_ca_cert = module.eks-windows[0].cluster_ca_cert
+  cluster_sg = module.eks-windows[0].cluster_sg_id
+  cluster_subnet = module.eks-windows[0].cluster_subnet
+  cluster_node_role_arn = module.eks-windows[0].cluster_node_role_arn
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks
-#   ]
-# }
+  depends_on = [
+    module.eks-windows,
+    module.eks
+  ]
+}
 
-# ##################################################
-# # AWS EKS Calico
-# ##################################################
+##################################################
+# AWS EKS Calico
+##################################################
 
-# module "eks-calico" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.aws.eks.deploy_calico == true) ? 1 : 0
-#   source                                = "./modules/eks-calico"
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = module.eks[0].cluster.id
-#   region                                = local.config.context.aws.region
+module "eks-calico" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.aws.eks.deploy_calico == true) ? 1 : 0
+  source                                = "./modules/eks-calico"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = module.eks[0].cluster.id
+  region                                = local.config.context.aws.region
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
+  depends_on = [
+    module.eks-windows,
+    module.eks,
    
-#     # module.eks-autoscaler
-#   ]
-# }
+    module.eks-autoscaler
+  ]
+}
 
-# ##################################################
-# # AWS EKS Lacework
-# ##################################################
+##################################################
+# AWS EKS Lacework
+##################################################
 
-# # lacework daemonset and kubernetes compliance
-# module "lacework-daemonset" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
-#   source                                = "./modules/kubernetes/daemonset"
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = module.eks[0].cluster.id
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = module.eks[0].cluster.id
   
-#   lacework_agent_access_token           = local.config.context.lacework.agent.token
-#   lacework_server_url                   = local.config.context.lacework.server_url
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
   
-#   # compliance cluster agent
-#   lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
-#   lacework_cluster_agent_cluster_region = local.config.context.aws.region
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
+  lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
-#   syscall_config =  fileexists(var.default_lacework_sysconfig_path) ? file(var.default_lacework_sysconfig_path) : file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
+  syscall_config =  fileexists(var.default_lacework_sysconfig_path) ? file(var.default_lacework_sysconfig_path) : file(local.config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
+  depends_on = [
+    module.eks-windows,
+    module.eks,
    
-#     # module.eks-autoscaler
-#   ]
-# }
+    module.eks-autoscaler
+  ]
+}
 
-# # lacework daemonset and kubernetes compliance
-# module "lacework-daemonset-windows" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true  ) ? 1 : 0
-#   source                                = "./modules/kubernetes/daemonset-windows"
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = module.eks[0].cluster.id
-#   lacework_agent_access_token           = local.config.context.lacework.agent.token
-#   lacework_server_url                   = local.config.context.lacework.server_url
+# lacework daemonset and kubernetes compliance
+module "lacework-daemonset-windows" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true && local.config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true  ) ? 1 : 0
+  source                                = "./modules/kubernetes/daemonset-windows"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = module.eks[0].cluster.id
+  lacework_agent_access_token           = local.config.context.lacework.agent.token
+  lacework_server_url                   = local.config.context.lacework.server_url
   
-#   # compliance cluster agent
-#   lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
-#   lacework_cluster_agent_cluster_region = local.config.context.aws.region
+  # compliance cluster agent
+  lacework_cluster_agent_enable         = local.config.context.lacework.agent.kubernetes.compliance.enabled
+  lacework_cluster_agent_cluster_region = local.config.context.aws.region
 
-#   syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
+  syscall_config =  file(local.config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
+  depends_on = [
+    module.eks-windows,
+    module.eks,
    
-#     # module.eks-autoscaler
-#   ]
-# }
+    module.eks-autoscaler
+  ]
+}
 
-# # lacework kubernetes admission controller
-# module "lacework-admission-controller" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
-#   source                = "./modules/kubernetes/admission-controller"
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = module.eks[0].cluster.id
+# lacework kubernetes admission controller
+module "lacework-admission-controller" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
+  source                = "./modules/kubernetes/admission-controller"
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = module.eks[0].cluster.id
   
-#   lacework_account_name = local.config.context.lacework.account_name
-#   lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
+  lacework_account_name = local.config.context.lacework.account_name
+  lacework_proxy_token  = local.config.context.lacework.agent.kubernetes.proxy_scanner.token
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
+  depends_on = [
+    module.eks-windows,
+    module.eks,
    
-#     # module.eks-autoscaler
-#   ]
-# }
+    module.eks-autoscaler
+  ]
+}
 
-# # lacework eks audit
-# module "lacework-eks-audit" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true  ) ? 1 : 0
-#   source      = "./modules/eks-audit"
-#   region                                = local.config.context.aws.region
-#   environment                           = local.config.context.global.environment
-#   deployment                            = local.config.context.global.deployment
-#   cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
+# lacework eks audit
+module "lacework-eks-audit" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true && local.config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true  ) ? 1 : 0
+  source      = "./modules/eks-audit"
+  region                                = local.config.context.aws.region
+  environment                           = local.config.context.global.environment
+  deployment                            = local.config.context.global.deployment
+  cluster_name                          = "${local.config.context.aws.eks.cluster_name}-${local.config.context.global.environment}-${local.config.context.global.deployment}"
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
+  depends_on = [
+    module.eks-windows,
+    module.eks,
    
-#     # module.eks-autoscaler
-#   ]
-# }
+    module.eks-autoscaler
+  ]
+}
 
 ##################################################
 # AWS INSPECTOR
