@@ -1,3 +1,5 @@
+# aws eks describe-addon-versions --addon-name aws-ebs-csi-driver --kubernetes-version <KUBERNETES VERSION> \
+# --query "addons[].addonVersions[].[addonVersion, compatibilities[].defaultVersion]" --output text
 variable "addons" {
   type = list(object({
     name    = string
