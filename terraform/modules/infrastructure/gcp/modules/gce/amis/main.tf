@@ -23,6 +23,11 @@ data "google_compute_image" "rocky_linux_8" {
   family = "rocky-linux-8"
 }
 
+data "google_compute_image" "windows_2019" {
+  project = "windows-cloud"
+  family = "windows-2019"
+}
+
 locals {
     ami_map = {
         ubuntu_focal = data.google_compute_image.ubuntu_focal.self_link
@@ -30,5 +35,6 @@ locals {
         centos8 = data.google_compute_image.centos8.self_link
         centos8_20191002 = data.google_compute_image.centos8_20191002.self_link
         rocky_linux_8 = data.google_compute_image.rocky_linux_8.self_link
+        windows_2019 = data.google_compute_image.windows_2019.self_link
     }
 }
