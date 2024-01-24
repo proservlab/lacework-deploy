@@ -79,6 +79,10 @@ resource "aws_eks_cluster" "cluster" {
     endpoint_private_access = true
     endpoint_public_access = true
   }
+  tags = {
+    "environment" = var.environment
+    "deployment" = var.deployment
+  }
 
   depends_on = [
     aws_iam_role_policy_attachment.cluster-AmazonEKSClusterPolicy,
