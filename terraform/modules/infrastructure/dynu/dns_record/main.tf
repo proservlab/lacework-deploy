@@ -23,4 +23,5 @@ resource "restapi_object" "record" {
     ipv4Address = var.record.recordType == "A" ? var.record.recordValue : null
   })
   id_attribute  = "id"
+  force_new = true
 }
