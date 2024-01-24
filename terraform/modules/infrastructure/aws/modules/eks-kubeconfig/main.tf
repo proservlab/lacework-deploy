@@ -15,7 +15,7 @@ resource "null_resource" "eks_context_switcher" {
                 echo 'Applying Auth ConfigMap with kubectl...'
                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
                 if ! command -v yq; then
-                  wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq &&\
+                  curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
                   chmod +x /usr/local/bin/yq
                 fi
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
@@ -26,6 +26,8 @@ resource "null_resource" "eks_context_switcher" {
                 yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${var.kubeconfig_path}
               EOT
   }
+
+  depends_on = [ data.aws_eks_cluster.this ]
 }
 
 data "local_file" "kubeconfig" {
