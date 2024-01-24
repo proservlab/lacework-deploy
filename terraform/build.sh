@@ -261,6 +261,9 @@ echo "SCENARIOS_PATH    = ${SCENARIOS_PATH}"
 echo "DEPLOYMENT        = ${DEPLOYMENT}"
 echo "PLANFILE          = ${PLANFILE}"
 
+# change directory to provider directory
+cd $CSP
+
 # check for sso logged out session
 if [[ "$CSP" == "aws" ]]; then
     session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
@@ -301,11 +304,11 @@ if [[ "$CSP" == "aws" ]]; then
         fi
         for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" 
-            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --kubeconfig="$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i ~/.kube/config
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$CSP-attacker-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
         done
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
@@ -315,21 +318,20 @@ if [[ "$CSP" == "aws" ]]; then
         fi
         for CLUSTER in $(aws eks list-clusters --profile=$TARGET_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER"
-            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --kubeconfig="$CSP-target-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i ~/.kube/config
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$CSP-target-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
+        cat ~/.kube/config
+        cat ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig
     fi
 fi
 for CONFIG_FILE in ${CONFIG_FILES[@]}; do
     infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"
     touch ~/.kube/$CONFIG_FILE
 done
-
-# change directory to provider directory
-cd $CSP
 
 # truncate the log file
 truncate -s0 $LOGFILE
