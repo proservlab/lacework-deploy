@@ -24,7 +24,7 @@ locals {
         EOF
         gcloud components install gke-gcloud-auth-plugin --quiet
         EOT
-        apt_packages = ""
+        apt_packages = "jq"
         apt_post_tasks = ""
         yum_pre_tasks = <<-EOT
         if command -v ${local.tool} &>/dev/null; then
@@ -40,7 +40,7 @@ locals {
         EOF
         gcloud components install gke-gcloud-auth-plugin --quiet
         EOT
-        yum_packages = ""
+        yum_packages = "jq"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

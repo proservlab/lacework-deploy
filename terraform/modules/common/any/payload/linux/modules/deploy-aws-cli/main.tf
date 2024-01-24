@@ -19,7 +19,7 @@ locals {
             exit 0; 
         fi
         EOT
-        apt_packages = "unzip"
+        apt_packages = "jq unzip"
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
         if command -v ${local.tool} &>/dev/null; then
@@ -27,7 +27,7 @@ locals {
             exit 0; 
         fi
         EOT
-        yum_packages = "unzip"
+        yum_packages = "jq unzip"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload

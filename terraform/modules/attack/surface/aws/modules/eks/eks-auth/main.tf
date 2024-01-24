@@ -40,13 +40,13 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
                         - system:nodes
                     YAML
         mapUsers =  <<-YAML
-                    %{ for user_arn in current_role_admins }
+                    %{ for user_arn in local.current_role_admins }
                     - groups:
                         - ${ local.admin_role_name }
                       rolearn: ${ user_arn }
                       username: ${ regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0] }
                     %{ endfor }
-                    %{ for user_arn in current_user_admins }
+                    %{ for user_arn in local.current_user_admins }
                     - groups:
                         - ${ local.admin_role_name }
                       userarn: ${ user_arn }

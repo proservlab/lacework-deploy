@@ -17,7 +17,7 @@ locals {
             exit 0
         fi
         EOT
-        apt_packages = ""
+        apt_packages = "jq"
         apt_post_tasks = ""
         yum_pre_tasks = <<-EOT
         if ! command ${local.tool}; then
@@ -25,7 +25,7 @@ locals {
             exit 0
         fi
         EOT
-        yum_packages = ""
+        yum_packages = "jq"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload
