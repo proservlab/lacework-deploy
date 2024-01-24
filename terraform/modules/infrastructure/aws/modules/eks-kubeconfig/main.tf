@@ -11,7 +11,6 @@ resource "null_resource" "eks_context_switcher" {
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command = <<-EOT
-                set -e
                 echo 'Applying Auth ConfigMap with kubectl...'
                 aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
                 if ! command -v yq; then
