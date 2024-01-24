@@ -32,9 +32,9 @@ module "deployment" {
     name = "container"
     internal_port = var.container_port
   }]
-  security_context_container = [{
+  security_context_container = {
       privileged = var.privileged
-  }]
+  }
   custom_labels = {
     app = local.app_name
   }
