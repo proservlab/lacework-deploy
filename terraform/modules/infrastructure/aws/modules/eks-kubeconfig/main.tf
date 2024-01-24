@@ -1,3 +1,7 @@
+data "aws_eks_cluster" "this" {
+  name = var.cluster_name
+}
+
 # for _user convenience_ ensure that we update the local config after the build of our cluster (yes there are better ways to do this)
 resource "null_resource" "eks_context_switcher" {
   triggers = {
@@ -16,10 +20,10 @@ resource "null_resource" "eks_context_switcher" {
                 fi
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${var.kubeconfig_path}
-                yq -i -r '(.users[] | select(.name == "arn:aws:eks:us-east-1:421996542948:cluster/dev-target-f18eaefa")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
-                yq -i -r '(.users[] | select(.name == "arn:aws:eks:us-east-1:421996542948:cluster/dev-target-f18eaefa")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ~/.kube/config
-                yq -i -r '(.users[] | select(.name == "arn:aws:eks:us-east-1:421996542948:cluster/dev-target-f18eaefa")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ${var.kubeconfig_path}
-                yq -i -r '(.users[] | select(.name == "arn:aws:eks:us-east-1:421996542948:cluster/dev-target-f18eaefa")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${var.kubeconfig_path}
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ~/.kube/config
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ${var.kubeconfig_path}
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${var.kubeconfig_path}
               EOT
   }
 }
