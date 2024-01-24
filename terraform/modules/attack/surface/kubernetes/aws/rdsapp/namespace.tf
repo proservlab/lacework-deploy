@@ -1,7 +1,7 @@
 data "kubernetes_all_namespaces" "allns" {}
 
 resource "kubernetes_namespace" "this" {
-  for_each = toset([ for k in [var.app_namespace] : k if !contains(keys(data.kubernetes_all_namespaces.allns), k) ])
+  for_each = toset([ for k in [var.app_namespace] : k if !contains(keys(data.kubernetes_all_namespaces.allns), k) && k != "default" ])
   metadata {
     name = each.key
   }
