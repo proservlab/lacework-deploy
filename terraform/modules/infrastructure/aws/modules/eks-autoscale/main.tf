@@ -82,7 +82,7 @@ resource "helm_release" "cluster-autoscaler" {
   }
   set{
     name = "image.tag"
-    value="v1.22.2"
+    value="v1.29.0"
   }
   set{
     name  = "cloudProvider"
