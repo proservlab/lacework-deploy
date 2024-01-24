@@ -9,8 +9,8 @@ locals {
     admin_role_name = "admin-pods"
 
 
-    current_user_admins = use_assumed_role ? [] : [ current_user_arn ]
-    current_role_admins = use_assumed_role ? [ current_user_arn ] : []
+    current_user_admins = local.use_assumed_role ? [] : [ local.current_user_arn ]
+    current_role_admins = local.use_assumed_role ? [ local.current_user_arn ] : []
 
     iam_eks_admins = var.iam_eks_admins
     iam_eks_readers = var.iam_eks_readers
