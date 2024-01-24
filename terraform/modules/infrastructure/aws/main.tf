@@ -220,6 +220,22 @@ module "eks" {
   deploy_calico = local.config.context.aws.eks.deploy_calico
 }
 
+module "aws-eks-kubeconfig" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks.enabled == true || local.config.context.aws.eks.enabled == true) ) ? 1 : 0
+  source = "./modules/eks-kubeconfig"
+
+  environment = local.config.context.global.environment
+  deployment = local.config.context.global.deployment
+  aws_profile_name = local.config.context.aws.profile_name
+  region = local.config.context.aws.region
+  cluster_name = module.eks.cluster[0].id
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+
+  depends_on = [ 
+    module.eks
+  ]
+}
+
 # eks
 module "eks-windows" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
@@ -231,6 +247,22 @@ module "eks-windows" {
 
   cluster_name = local.config.context.aws.eks-windows.cluster_name
   kubeconfig_path = var.default_kubeconfig
+}
+
+module "aws-eks-windows-kubeconfig" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks.enabled == true || local.config.context.aws.eks-windows.enabled == true) ) ? 1 : 0
+  source = "./modules/eks-kubeconfig"
+
+  environment = local.config.context.global.environment
+  deployment = local.config.context.global.deployment
+  aws_profile_name = local.config.context.aws.profile_name
+  region = local.config.context.aws.region
+  cluster_name = module.eks-windows.cluster[0].id
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+
+  depends_on = [ 
+    module.eks-windows
+  ]
 }
 
 #################################################
@@ -256,7 +288,8 @@ module "eks-autoscaler" {
 
   depends_on = [
     module.eks-windows,
-    module.eks
+    module.eks,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -280,7 +313,8 @@ module "eks-windows-configmap" {
 
   depends_on = [
     module.eks-windows,
-    module.eks
+    module.eks,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -305,7 +339,8 @@ module "eks-calico" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler
+    module.eks-autoscaler,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -339,7 +374,8 @@ module "lacework-daemonset" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler
+    module.eks-autoscaler,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -368,7 +404,8 @@ module "lacework-daemonset-windows" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler
+    module.eks-autoscaler,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -392,7 +429,8 @@ module "lacework-admission-controller" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler
+    module.eks-autoscaler,
+    module.aws-eks-kubeconfig
   ]
 }
 
@@ -414,7 +452,8 @@ module "lacework-eks-audit" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler
+    module.eks-autoscaler,
+    module.aws-eks-kubeconfig
   ]
 }
 

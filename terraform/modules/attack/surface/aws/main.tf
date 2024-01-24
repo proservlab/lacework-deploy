@@ -365,19 +365,6 @@ module "kubernetes-app-windows" {
   depends_on = [ module.eks-auth ]
 }
 
-# module "dns-records" {
-#   for_each = { for instance in local.public_compute_instances: lookup(instance.tags, "Name", "unknown") => instance }
-#   source          = "../../../dynu/dns_record"
-#   dynu_dns_domain = var.dynu_dns_domain
-  
-#   record        = {
-#         recordType     = "A"
-#         recordName     = "${each.key}"
-#         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
-#         recordValue    = each.value.public_ip
-#       }
-# }
-
 ##################################################
 # Kubernetes AWS Vulnerable
 ##################################################
@@ -526,15 +513,18 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   depends_on = [ module.eks-auth ]
 }
 
-# module "dns-records" {
-#   for_each = { for instance in local.public_compute_instances: lookup(instance.tags, "Name", "unknown") => instance }
-#   source          = "../../../dynu/dns_record"
-#   dynu_dns_domain = var.dynu_dns_domain
+module "dns-records-service" {
+  for_each = { for service in flatten([
+    try(module.kubernetes-app[0].services,[]),
+    try(module.kubernetes-app-windows[0].services,[])
+  ]): service.name => service }
+  source          = "../../../dynu/dns_record"
+  dynu_dns_domain = var.dynu_dns_domain
   
-#   record        = {
-#         recordType     = "A"
-#         recordName     = "${each.key}"
-#         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
-#         recordValue    = each.value.public_ip
-#       }
-# }
+  record        = {
+        recordType     = "CNAME"
+        recordName     = "${each.key}"
+        recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
+        recordValue    = each.value.hostname
+      }
+}
