@@ -221,14 +221,14 @@ module "eks" {
 }
 
 module "aws-eks-kubeconfig" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks.enabled == true || local.config.context.aws.eks.enabled == true) ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
   source = "./modules/eks-kubeconfig"
 
   environment = local.config.context.global.environment
   deployment = local.config.context.global.deployment
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
-  cluster_name = module.eks.cluster[0].id
+  cluster_name = module.eks[0].cluster.id
   kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   depends_on = [ 
@@ -250,14 +250,14 @@ module "eks-windows" {
 }
 
 module "aws-eks-windows-kubeconfig" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks.enabled == true || local.config.context.aws.eks-windows.enabled == true) ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && (local.config.context.aws.eks-windows.enabled == true) ) ? 1 : 0
   source = "./modules/eks-kubeconfig"
 
   environment = local.config.context.global.environment
   deployment = local.config.context.global.deployment
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
-  cluster_name = module.eks-windows.cluster[0].id
+  cluster_name = module.eks-windows[0].cluster.id
   kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   depends_on = [ 
