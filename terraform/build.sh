@@ -353,10 +353,10 @@ EOF
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].name) = "AWS_REGION"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
-        kubectl get pods -A
-        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
-        cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
-        cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+        # kubectl get pods -A
+        # cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
+        # cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+        # cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
 fi
 for CONFIG_FILE in "${CONFIG_FILES[@]}"; do
