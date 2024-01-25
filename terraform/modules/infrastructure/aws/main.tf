@@ -271,27 +271,27 @@ module "aws-eks-windows-kubeconfig" {
 
 
 # eks-autoscale
-# module "eks-autoscaler" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source       = "./modules/eks-autoscale"
-#   environment  = local.config.context.global.environment
-#   deployment   = local.config.context.global.deployment
-#   region       = local.config.context.aws.region
+module "eks-autoscaler" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source       = "./modules/eks-autoscale"
+  environment  = local.config.context.global.environment
+  deployment   = local.config.context.global.deployment
+  region       = local.config.context.aws.region
   
-#   cluster_name = module.eks[0].cluster_name
-#   cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
+  cluster_name = module.eks[0].cluster_name
+  cluster_oidc_issuer = module.eks[0].cluster.identity[0].oidc[0].issuer
 
-#   providers = {
-#     kubernetes = kubernetes.main
-#     helm = helm.main
-#   }
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
 
-#   depends_on = [
-#     module.eks-windows,
-#     module.eks,
-#     module.aws-eks-kubeconfig
-#   ]
-# }
+  depends_on = [
+    module.eks-windows,
+    module.eks,
+    module.aws-eks-kubeconfig
+  ]
+}
 
 module "eks-windows-configmap" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks-windows.enabled == true ) ? 1 : 0
@@ -339,7 +339,7 @@ module "eks-calico" {
     module.eks-windows,
     module.eks,
    
-    # module.eks-autoscaler,
+    module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -374,7 +374,7 @@ module "lacework-daemonset" {
     module.eks-windows,
     module.eks,
    
-    # module.eks-autoscaler,
+    module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -404,7 +404,7 @@ module "lacework-daemonset-windows" {
     module.eks-windows,
     module.eks,
    
-    # module.eks-autoscaler,
+    module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -429,7 +429,7 @@ module "lacework-admission-controller" {
     module.eks-windows,
     module.eks,
    
-    # module.eks-autoscaler,
+    module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -452,7 +452,7 @@ module "lacework-eks-audit" {
     module.eks-windows,
     module.eks,
    
-    # module.eks-autoscaler,
+    module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
