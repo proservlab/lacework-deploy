@@ -118,7 +118,9 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
-    } 
+      "enabled"                        : true,
+      "api_key"                        : "${ dynu_api_key }",
+      "dns_domain"                     : "${ dynu_dns_domain }"
+    }
   }
 }
