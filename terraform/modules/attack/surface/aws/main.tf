@@ -527,23 +527,23 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 }
 
-module "dns-records-service" {
-  for_each = { for service in flatten([
-    try(module.kubernetes-app[0].services,[]),
-    try(module.kubernetes-app-windows[0].services,[]),
-    try(module.vulnerable-kubernetes-voteapp[0].services,[]),
-    try(module.vulnerable-kubernetes-rdsapp[0].services,[]),
-    try(module.vulnerable-kubernetes-log4j-app[0].services,[]),
-    try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
-    try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[])
-  ]): service.name => service }
-  source          = "../../../infrastructure/dynu/dns_record"
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+# module "dns-records-service" {
+#   for_each = { for service in flatten([
+#     try(module.kubernetes-app[0].services,[]),
+#     try(module.kubernetes-app-windows[0].services,[]),
+#     try(module.vulnerable-kubernetes-voteapp[0].services,[]),
+#     try(module.vulnerable-kubernetes-rdsapp[0].services,[]),
+#     try(module.vulnerable-kubernetes-log4j-app[0].services,[]),
+#     try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
+#     try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[])
+#   ]): service.name => service }
+#   source          = "../../../infrastructure/dynu/dns_record"
+#   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   
-  record        = {
-        recordType     = "CNAME"
-        recordName     = "${each.key}"
-        recordHostName = "${each.key}.${coalesce(local.default_infrastructure_config.context.dynu_dns.dns_domain, "unknown")}"
-        recordValue    = each.value.hostname
-      }
-}
+#   record        = {
+#         recordType     = "CNAME"
+#         recordName     = "${each.key}"
+#         recordHostName = "${each.key}.${coalesce(local.default_infrastructure_config.context.dynu_dns.dns_domain, "unknown")}"
+#         recordValue    = each.value.hostname
+#       }
+# }
