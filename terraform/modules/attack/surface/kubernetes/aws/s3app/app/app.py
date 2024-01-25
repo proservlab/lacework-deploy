@@ -5,8 +5,6 @@ import uuid
 from flask import Flask, request, make_response, session, render_template, url_for, redirect, render_template_string
 from flask_api import status
 import os
-import pymysql
-from pymysql.err import DatabaseError
 import json
 import sys
 import boto3

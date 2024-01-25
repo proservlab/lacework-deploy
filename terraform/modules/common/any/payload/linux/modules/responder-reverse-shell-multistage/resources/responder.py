@@ -274,7 +274,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 result = session.platform.run(
                     "${default_payload}",
                     cwd="/tmp")
-                log(result)
+                log(f'Result: {result.returncode}')
 
             log("Removing sesssion lock...")
             session_lock.unlink()
