@@ -52,20 +52,20 @@ workspace_summary(){
         for workspace in "${workspaces[@]}"
         do
             # Removing leading whitespace
-            workspace=$(echo $workspace | sed -e 's/^[[:space:]]*//')
+            workspace=$(echo $WORK | sed -e 's/^[[:space:]]*//')
 
-            #echo "Switching to workspace $workspace"
-            terraform workspace select $workspace > /dev/null 2>&1
+            #echo "Switching to workspace $WORK"
+            terraform workspace select $WORK > /dev/null 2>&1
 
             # Use terraform state list to count resources
             resource_count=$(terraform state list 2>/dev/null | wc -l)
             if [ "$resource_count" -gt "0" ]; then
-                echo "$workspace $resource_count"
+                echo "$WORK $resource_count"
             else
-                if [ "$workspace" != "default" ]; then
-                    echo "removing empty workspace: $workspace $resource_count"
+                if [ "$WORK" != "default" ]; then
+                    echo "removing empty workspace: $WORK $resource_count"
                     terraform workspace select default > /dev/null 2>&1
-                    terraform workspace delete $workspace > /dev/null 2>&1
+                    terraform workspace delete $WORK > /dev/null 2>&1
                 fi
             fi
         done
@@ -292,11 +292,12 @@ if [ ! -d "~/.kube" ]; then
     infomsg "~/.kube directory not found - creating..."
     mkdir -p ~/.kube
 fi
+# for eks we need to ensure that if kubeconfig is wiped between runs (e.g. CICD) that we repopulate as best we can
 if [[ "$CSP" == "aws" ]]; then
     export ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
-    export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORKSPACE/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
+    export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
     export TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
-    export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORKSPACE/target/infrastructure.json| jq '.context.aws.eks.enabled')
+    export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
     if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
         if ! command -v yq; then
             curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
