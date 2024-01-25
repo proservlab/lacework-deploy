@@ -332,7 +332,7 @@ variable "config" {
       })
       dynu_dns = object({
         enabled                 = bool
-        api_key               = string
+        api_key                 = string
         dns_domain              = string
       })
     })
@@ -848,7 +848,7 @@ variable "config" {
       }
       dynu_dns = {
         enabled                 = false
-        api_key               = null
+        api_key                 = null
         dns_domain              = null
       }
     }
