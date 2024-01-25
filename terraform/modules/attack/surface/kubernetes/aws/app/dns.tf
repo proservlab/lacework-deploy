@@ -9,4 +9,7 @@ module "dns-records-service" {
         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
         recordValue    = each.value.hostname
         }
+    depends_on = [ 
+        kubernetes_service_v1.this 
+    ]
 }
