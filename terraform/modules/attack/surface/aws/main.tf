@@ -316,6 +316,7 @@ module "kubernetes-app" {
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
+  container_port                = 80 
   service_port                  = local.config.context.kubernetes.aws.app.service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
@@ -447,6 +448,7 @@ module "vulnerable-kubernetes-log4j-app" {
   deployment                    = local.config.context.global.deployment
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
+  container_port                = 8080 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.log4j_app.service_port
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
@@ -546,6 +548,7 @@ module "vulnerable-kubernetes-s3app" {
   cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
   cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
   
+  container_port                      = 80 
   service_port                        = local.config.context.kubernetes.aws.vulnerable.s3app.service_port
   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],

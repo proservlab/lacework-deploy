@@ -22,11 +22,12 @@ module "deployment" {
   name          = local.app_name
   command       = var.command
   args          = var.args
+  
   internal_port = [{
     name = "container"
     internal_port = var.container_port
   }]
- security_context_container = [{
+  security_context_container = [{
       privileged = var.privileged
   }]
   custom_labels = {

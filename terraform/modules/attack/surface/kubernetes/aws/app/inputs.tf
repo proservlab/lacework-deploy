@@ -30,7 +30,7 @@ variable "service_port" {
 variable "container_port" {
   type = number
   description = "Internal container port"
-  default = 8080
+  default = 80
 }
 
 variable "trusted_attacker_source" {
