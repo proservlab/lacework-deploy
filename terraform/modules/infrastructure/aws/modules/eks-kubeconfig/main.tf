@@ -12,17 +12,17 @@ resource "null_resource" "eks_context_switcher" {
     interpreter = ["/bin/bash", "-c"]
     command = <<-EOT
                 echo 'Applying Auth ConfigMap with kubectl...'
-                aws eks wait cluster-active --profile '${var.aws_profile_name}' --name '${var.cluster_name}'
+                aws eks wait cluster-active --profile '${var.aws_profile_name}' --region=${var.region} --name '${var.cluster_name}'
                 if ! command -v yq; then
                   curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
                   chmod +x /usr/local/bin/yq
                 fi
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
-                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${var.kubeconfig_path}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ~/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ${var.kubeconfig_path}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${var.kubeconfig_path}
+                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${pathexpand(var.kubeconfig_path)}
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i $HOME/.kube/config
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i $HOME/.kube/config
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ${pathexpand(var.kubeconfig_path)}
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${pathexpand(var.kubeconfig_path)}
               EOT
   }
 
