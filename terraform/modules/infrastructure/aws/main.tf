@@ -339,7 +339,7 @@ module "eks-calico" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler,
+    # module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -374,7 +374,7 @@ module "lacework-daemonset" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler,
+    # module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -404,7 +404,7 @@ module "lacework-daemonset-windows" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler,
+    # module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -429,7 +429,7 @@ module "lacework-admission-controller" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler,
+    # module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
@@ -452,7 +452,7 @@ module "lacework-eks-audit" {
     module.eks-windows,
     module.eks,
    
-    module.eks-autoscaler,
+    # module.eks-autoscaler,
     module.aws-eks-kubeconfig
   ]
 }
