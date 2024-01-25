@@ -288,9 +288,9 @@ fi
 # stage kubeconfig
 infomsg "Staging kubeconfig files..."
 CONFIG_FILES=('config' "$CSP-attacker-$DEPLOYMENT-kubeconfig" "$CSP-target-$DEPLOYMENT-kubeconfig")
-if [ ! -d "~/.kube" ]; then
-    infomsg "~/.kube directory not found - creating..."
-    mkdir -p ~/.kube
+if [ ! -d "$HOME/.kube" ]; then
+    infomsg "$HOME/.kube directory not found - creating..."
+    mkdir -p "$HOME/.kube"
 fi
 # for eks we need to ensure that if kubeconfig is wiped between runs (e.g. CICD) that we repopulate as best we can
 if [[ "$CSP" == "aws" ]]; then
@@ -318,11 +318,11 @@ EOF
         for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION
-            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i ~/.kube/config
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
         done
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
@@ -337,20 +337,20 @@ EOF
         for CLUSTER in $(echo $CLUSTERS | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION
-            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION --kubeconfig="~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i ~/.kube/config
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
-            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
-        cat ~/.kube/config || echo "file not found: ~/.kube/config" 
-        cat ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig || echo "file not found: ~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
-        cat ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig || echo "file not found: ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
+        cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+        cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
 fi
 for CONFIG_FILE in "${CONFIG_FILES[@]}"; do
-    infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"
-    touch ~/.kube/$CONFIG_FILE
+    infomsg "Creating kubeconfig: $HOME/.kube/$CONFIG_FILE"
+    touch "$HOME/.kube/$CONFIG_FILE"
 done
 
 # truncate the log file
