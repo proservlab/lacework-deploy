@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_acl" "this" {
-    bucket = aws_s3_bucket.this[0].id
+    bucket = aws_s3_bucket.this.id
     acl    = "private" # or can be public-read
 }
 
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
-resource "aws_iam_role" "s3_access_role" {
+resource "aws_iam_role" "s3_access" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
   name               = "eks-s3-role"
 }
@@ -65,8 +65,8 @@ resource "aws_iam_policy" "s3_rw_encrypt_policy" {
         ],
         Effect = "Allow",
         Resource = [
-          "arn:aws:s3:::${aws_s3_bucket.this.name}",
-          "arn:aws:s3:::${aws_s3_bucket.this.name}/*"
+          "arn:aws:s3:::${aws_s3_bucket.this.id}",
+          "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
         ],
       },
     ],
@@ -74,6 +74,6 @@ resource "aws_iam_policy" "s3_rw_encrypt_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "attach_s3_rw_encrypt" {
-  role       = aws_iam_role.s3_access_role.name
+  role       = aws_iam_role.s3_access.name
   policy_arn = aws_iam_policy.s3_rw_encrypt_policy.arn
 }
