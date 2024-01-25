@@ -302,8 +302,10 @@ if [[ "$CSP" == "aws" ]]; then
     export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
     cat <<EOF
 ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
+ATTACKER_AWS_REGION=$(get_tfvar_value "$tfvars_file" "attacker_aws_region")
 ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
 TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
+TARGET_AWS_REGION=$(get_tfvar_value "$tfvars_file" "target_aws_region")
 TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
 EOF
     if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
@@ -321,8 +323,12 @@ EOF
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_REGION"' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/config"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_REGION"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
         done
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
@@ -340,8 +346,12 @@ EOF
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_PROFILE)' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_REGION"' -i "$HOME/.kube/config"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/config"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_PROFILE)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_REGION"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
         kubectl get pods -A
         cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
