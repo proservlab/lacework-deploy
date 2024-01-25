@@ -77,6 +77,5 @@ variable "enable_dynu_dns" {
 }
 
 variable "dynu_dns_domain" {
-  type = bool
-  default = false
+  type = string
 }
