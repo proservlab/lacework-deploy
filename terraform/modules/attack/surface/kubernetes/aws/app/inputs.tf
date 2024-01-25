@@ -70,3 +70,13 @@ variable "args" {
   type = list(string)
   default = []
 }
+
+variable "enable_dynu_dns" {
+  type = bool
+  default = false
+}
+
+variable "dynu_dns_domain" {
+  type = bool
+  default = false
+}
