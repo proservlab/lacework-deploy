@@ -295,8 +295,10 @@ fi
 # for eks we need to ensure that if kubeconfig is wiped between runs (e.g. CICD) that we repopulate as best we can
 if [[ "$CSP" == "aws" ]]; then
     export ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
+    export ATTACKER_AWS_REGION=$(get_tfvar_value "$tfvars_file" "attacker_aws_region")
     export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
     export TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
+    export TARGET_AWS_REGION=$(get_tfvar_value "$tfvars_file" "target_aws_region")
     export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
     cat <<EOF
 ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
@@ -305,15 +307,18 @@ TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
 TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
 EOF
     if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
+        echo "EKS in attacker scenario enabled..."
         if ! command -v yq; then
             curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
             chmod +x /usr/local/bin/yq
         fi
         echo "Found yq: $(command -v yq)"
-        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
+        CLUSTERS=$(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION)
+        echo $CLUSTERS
+        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
-            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" 
-            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION
+            aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = "$ATTACKER_AWS_PROFILE"' -i ~/.kube/config
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
@@ -321,14 +326,18 @@ EOF
         done
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
+        echo "EKS in target scenario enabled..."
         if ! command -v yq; then
             curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
             chmod +x /usr/local/bin/yq
         fi
-        for CLUSTER in $(aws eks list-clusters --profile=$TARGET_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
+        echo "Found yq: $(command -v yq)"
+        CLUSTERS=$(aws eks list-clusters --profile=$TARGET_AWS_PROFILE --region=$TARGET_AWS_REGION)
+        echo $CLUSTERS
+        for CLUSTER in $(echo $CLUSTERS | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
-            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER"
-            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION
+            aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION --kubeconfig="~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i ~/.kube/config
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
