@@ -334,7 +334,9 @@ module "kubernetes-app" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "kubernetes-app-windows" {
@@ -362,7 +364,9 @@ module "kubernetes-app-windows" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 ##################################################
@@ -393,7 +397,9 @@ module "vulnerable-kubernetes-voteapp" {
     helm = helm.main
   }
   
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "vulnerable-kubernetes-rdsapp" {
@@ -426,7 +432,9 @@ module "vulnerable-kubernetes-rdsapp" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "vulnerable-kubernetes-log4j-app" {
@@ -454,7 +462,9 @@ module "vulnerable-kubernetes-log4j-app" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "vulnerable-kubernetes-privileged-pod" {
@@ -482,7 +492,9 @@ module "vulnerable-kubernetes-privileged-pod" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "vulnerable-kubernetes-root-mount-fs-pod" {
@@ -510,7 +522,9 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
     helm = helm.main
   }
 
-  depends_on = [ # module.eks-auth ]
+  depends_on = [ 
+    # module.eks-auth 
+  ]
 }
 
 module "dns-records-service" {
