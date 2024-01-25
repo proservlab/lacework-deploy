@@ -29,7 +29,7 @@ module "deployment" {
     name          = local.app_name
     command       = var.command
     args          = var.args
-    service_account_name = kubernetes_service_account.web_service.metadata["name"]
+    service_account_name = kubernetes_service_account.web_service.metadata[0].name
     env           = {
                         BUCKET_NAME = aws_s3_bucket.this.id
                         # "DB_APP_URL" = split(":", aws_db_instance.database.endpoint)[0]
