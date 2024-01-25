@@ -298,12 +298,20 @@ if [[ "$CSP" == "aws" ]]; then
     export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
     export TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
     export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
+    cat <<EOF
+ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
+ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
+TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
+TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
+EOF
     if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
         if ! command -v yq; then
             curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
             chmod +x /usr/local/bin/yq
         fi
-        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
+        echo "Found yq: $(command -v yq)"
+        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
+            echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" 
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
@@ -317,7 +325,8 @@ if [[ "$CSP" == "aws" ]]; then
             curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
             chmod +x /usr/local/bin/yq
         fi
-        for CLUSTER in $(aws eks list-clusters --profile=$TARGET_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith("-$DEPLOYMENT"))'); do
+        for CLUSTER in $(aws eks list-clusters --profile=$TARGET_AWS_PROFILE | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
+            echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER"
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --kubeconfig="~/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i ~/.kube/config
