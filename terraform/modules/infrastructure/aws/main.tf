@@ -30,9 +30,9 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
-  default_kubeconfig = try(module.eks[0].kubeconfig_path, local.default_infrastructure_config.context.global.environment == "target" ? var.target_kubeconfig : var.attacker_kubeconfig )
-  attacker_kubeconfig = local.default_infrastructure_config.context.global.environment == "attacker" ? try(module.eks[0].kubeconfig_path, var.attacker_kubeconfig) : var.attacker_kubeconfig
-  target_kubeconfig = local.default_infrastructure_config.context.global.environment == "target" ? try(module.eks[0].kubeconfig_path, var.target_kubeconfig) : var.target_kubeconfig
+  default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
+  target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
 
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
@@ -215,7 +215,7 @@ module "eks" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks.cluster_name
-  kubeconfig_path = var.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   deploy_calico = local.config.context.aws.eks.deploy_calico
 }
@@ -246,7 +246,7 @@ module "eks-windows" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks-windows.cluster_name
-  kubeconfig_path = var.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 }
 
 module "aws-eks-windows-kubeconfig" {
