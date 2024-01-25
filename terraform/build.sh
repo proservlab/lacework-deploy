@@ -348,7 +348,7 @@ EOF
         cat ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig || echo "file not found: ~/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
 fi
-for CONFIG_FILE in ${CONFIG_FILES[@]}; do
+for CONFIG_FILE in "${CONFIG_FILES[@]}"; do
     infomsg "Creating kubeconfig: ~/.kube/$CONFIG_FILE"
     touch ~/.kube/$CONFIG_FILE
 done
