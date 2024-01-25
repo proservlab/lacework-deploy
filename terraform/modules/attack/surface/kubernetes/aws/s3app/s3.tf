@@ -3,11 +3,6 @@ resource "aws_s3_bucket" "this" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_acl" "this" {
-    bucket = aws_s3_bucket.this.id
-    acl    = "private" # or can be public-read
-}
-
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
   versioning_configuration {
@@ -39,6 +34,10 @@ data "aws_iam_policy_document" "assume_role_policy" {
       type        = "Federated"
     }
   }
+
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
 
 resource "aws_iam_role" "s3_access" {

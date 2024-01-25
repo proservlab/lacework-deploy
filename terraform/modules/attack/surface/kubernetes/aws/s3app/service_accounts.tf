@@ -3,6 +3,9 @@ resource "kubernetes_service_account" "web_service" {
     name = var.service_account
     namespace = local.app_namespace
   }
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
 
 resource "kubernetes_service_account" "worker_logger" {
@@ -10,6 +13,9 @@ resource "kubernetes_service_account" "worker_logger" {
     name = "worker-logger"
     namespace = local.app_namespace
   }
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
 
 resource "kubernetes_role" "list_pods" {
@@ -23,6 +29,9 @@ resource "kubernetes_role" "list_pods" {
     resources = ["pods"]
     verbs = ["list"]
   }
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
 
 resource "kubernetes_role_binding" "web_service_binding" {
@@ -42,6 +51,10 @@ resource "kubernetes_role_binding" "web_service_binding" {
     name = var.service_account
     namespace = local.app_namespace
   }
+
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
 
 // Annotate Kubernetes service account with IAM role
@@ -54,4 +67,8 @@ resource "kubernetes_service_account" "s3_access" {
       "eks.amazonaws.com/role-arn" = aws_iam_role.s3_access.arn
     }
   }
+
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }
