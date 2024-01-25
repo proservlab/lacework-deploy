@@ -68,6 +68,14 @@
           },
           "root_mount_fs_pod" :  {
             "enabled" :  false
+          },
+          "s3app" :  {
+            "enabled" :  true,
+            "service_port": 8000,
+            "trust_attacker_source": true,
+            "trust_workstation_source": true,
+            "additional_trusted_sources": [],
+            "privileged": false
           }
         }
       }

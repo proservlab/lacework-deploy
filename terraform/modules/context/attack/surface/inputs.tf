@@ -307,6 +307,14 @@ variable "config" {
               args                        = list(string)
               privileged                  = bool
             })
+            s3app = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              privileged                  = bool
+            })
           })
         })
         gcp = object({
@@ -738,6 +746,14 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+            }
+            s3app = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
               privileged                  = false
             }
           }

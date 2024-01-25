@@ -530,6 +530,44 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 }
 
+module "vulnerable-kubernetes-s3app" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.s3app.enabled == true ) ? 1 : 0
+  source                              = "../kubernetes/aws/s3app"
+  environment                         = local.config.context.global.environment
+  deployment                          = local.config.context.global.deployment
+  region                              = local.default_infrastructure_config.context.aws.region
+  cluster_vpc_id                      = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  # trusted security group for rds connections
+  cluster_sg_id                       = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_sg_id
+  cluster_vpc_subnet                  = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_subnet
+  
+  # oidc provider for pod assumed database roles
+  cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
+  cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
+  
+  service_port                        = local.config.context.kubernetes.aws.vulnerable.s3app.service_port
+  trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip
+  ])  : []
+  trusted_workstation_source          = [module.workstation-external-ip.cidr]
+  additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = true
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [ 
+    module.eks-auth
+  ]
+}
+
 locals {
   service_dns = { for service in flatten([
     try(module.kubernetes-app[0].services,[]),
@@ -538,6 +576,8 @@ locals {
     try(module.vulnerable-kubernetes-rdsapp[0].services,[]),
     try(module.vulnerable-kubernetes-log4j-app[0].services,[]),
     try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
-    try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[])
+    try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
+    try(module.vulnerable-kubernetes-s3app[0].services,[]),
+
   ]): service.name => service }
 }
