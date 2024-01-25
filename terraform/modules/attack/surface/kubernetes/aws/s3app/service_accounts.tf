@@ -2,7 +2,12 @@ resource "kubernetes_service_account" "web_service" {
   metadata {
     name = var.service_account
     namespace = local.app_namespace
+
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.s3_access.arn
+    }
   }
+  
   depends_on = [  
     kubernetes_namespace.this
   ]
