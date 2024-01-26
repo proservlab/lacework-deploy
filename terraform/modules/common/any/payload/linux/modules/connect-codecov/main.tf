@@ -25,6 +25,7 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         screen -S codecov -X quit
+        screen -wipe
         truncate -s 0 /tmp/codecov.log
         log "checking for git..."
         while ! command -v git; do

@@ -31,6 +31,7 @@ for i in `seq $((MAXLOG-1)) -1 1`; do mv "$PWNCAT_LOG."{$i,$((i+1))} 2>/dev/null
 mv $PWNCAT_LOG "$PWNCAT_LOG.1" 2>/dev/null || true
 log "starting background process via screen..."
 screen -S pwncat -X quit
+screen -wipe
 nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${listen_port}" >/dev/null 2>&1 &
 screen -S pwncat -X colon "logfile flush 0^M"
 log "Checking for listener..."

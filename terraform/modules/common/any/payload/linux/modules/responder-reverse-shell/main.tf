@@ -6,6 +6,7 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         screen -S netcat -X quit
+        screen -wipe
         truncate -s 0 /tmp/netcat.log
         screen -d -L -Logfile /tmp/netcat.log -S netcat -m nc -vv -nl ${local.listen_ip} ${local.listen_port}
         screen -S netcat -X colon "logfile flush 0^M"

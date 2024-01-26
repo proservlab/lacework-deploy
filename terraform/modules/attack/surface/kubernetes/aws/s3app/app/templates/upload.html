@@ -3,6 +3,6 @@
 <body>
 username: {{ username }}, <a href="{{ url_for('logout') }}">logout</a>
 <br>
-{{ upload_form }}
+{{ upload_form | safe }}
 </body>
 </html>

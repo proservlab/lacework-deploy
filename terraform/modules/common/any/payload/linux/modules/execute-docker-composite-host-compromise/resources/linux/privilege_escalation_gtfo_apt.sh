@@ -16,6 +16,7 @@ while check_apt; do
   sleep 10
 done
 screen -S $SCRIPTNAME -X quit
+screen -wipe
 screen -d -L -Logfile /tmp/pwned_$SCRIPTNAME.log -S $SCRIPTNAME -m sudo apt-get update -o APT::Update::Pre-Invoke::=/bin/sh
 screen -S $SCRIPTNAME -X colon "logfile flush 0^M"
 log "shell started.."

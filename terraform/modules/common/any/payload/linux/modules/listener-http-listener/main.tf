@@ -10,6 +10,7 @@ locals {
     while true; do
         log "listener: ${local.listen_ip}:${local.listen_port}"
         screen -S http -X quit
+        screen -wipe
         APPLOG=/tmp/http_$SCRIPTNAME.log
         for i in `seq $((MAXLOG-1)) -1 1`; do mv "$APPLOG."{$i,$((i+1))} 2>/dev/null || true; done
         mv $APPLOG "$APPLOG.1" 2>/dev/null || true

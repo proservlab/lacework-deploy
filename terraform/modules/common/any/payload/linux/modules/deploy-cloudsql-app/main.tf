@@ -4,6 +4,7 @@ locals {
     app_path = "/${local.app_dirname}/app.py"
     payload = <<-EOT
     screen -S vuln_cloudsql_app_target -X quit
+    screen -wipe
     truncate -s 0 /tmp/vuln_cloudsql_app_target.log
     log "removing previous app directory"
     rm -rf /${local.app_dirname}
@@ -38,6 +39,7 @@ locals {
     while true; do
         log "starting app"
         screen -S ${local.app_dirname} -X quit
+        screen -wipe
         screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/entrypoint.sh
         screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
         sleep 30

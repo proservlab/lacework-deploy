@@ -22,6 +22,7 @@ locals {
     while true; do
         log "starting app"
         screen -S vuln_npm_app_target -X quit
+        screen -wipe
         screen -d -L -Logfile /tmp/vuln_npm_app_target.log -S vuln_npm_app_target -m npm start --prefix /vuln_npm_app_target/CVE-2021-21315-PoC
         screen -S vuln_npm_app_target -X colon "logfile flush 0^M"
         sleep 30

@@ -10,6 +10,7 @@ locals {
         log "Session lock doesn't exist and screen session not runing. Continuing..."
         log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
         screen -S pwncat -X quit
+        screen -wipe
         log "cleaning app directory"
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
@@ -45,6 +46,7 @@ locals {
             mv $PWNCAT_LOG "$PWNCAT_LOG.1" 2>/dev/null || true
             log "starting background process via screen..."
             screen -S pwncat -X quit
+            screen -wipe
             nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
             screen -S pwncat -X colon "logfile flush 0^M"
             log "Checking for listener..."

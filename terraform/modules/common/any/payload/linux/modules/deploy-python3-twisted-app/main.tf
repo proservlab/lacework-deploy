@@ -2,6 +2,7 @@ locals {
     listen_port=var.inputs["listen_port"]
     payload = <<-EOT
     screen -S vuln_python3_twisted_app_target -X quit
+    screen -wipe
     truncate -s 0 /tmp/vuln_python3_twisted_app_target.log
     if command -v $PACKAGE_MANAGER && $PACKAGE_MANAGER list | grep "python3-twisted" | grep "18.9.0-11ubuntu0.20.04"; then
         mkdir -p /vuln_python3_twisted_app
@@ -16,6 +17,7 @@ locals {
         while true; do
             log "starting app"
             screen -S vuln_python3_twisted_app_target -X quit
+            screen -wipe
             screen -d -L -Logfile /tmp/vuln_python3_twisted_app_target.log -S vuln_python3_twisted_app_target -m python3 /vuln_python3_twisted_app/app.py
             screen -S vuln_python3_twisted_app_target -X colon "logfile flush 0^M"
             sleep 30

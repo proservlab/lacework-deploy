@@ -40,8 +40,9 @@ def login():
     password = request.form.get("password")
     app.logger.info(username)
     if username.strip():
-        if username == "admin" and password != str(uuid.uuid4()):
+        if username != "admin" and password != str(uuid.uuid4()):
             return "login failed"
+
         app.logger.info(url_for('index'))
         resp = make_response(redirect(url_for("index")))
         session['username'] = username

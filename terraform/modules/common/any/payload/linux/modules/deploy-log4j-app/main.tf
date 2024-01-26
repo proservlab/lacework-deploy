@@ -3,6 +3,7 @@ locals {
     listen_port=var.inputs["listen_port"]
     payload = <<-EOT
     screen -S vuln_log4j_app_target -X quit
+    screen -wipe
     truncate -s 0 /tmp/vuln_log4j_app_target.log
     
     rm -rf ${local.app_dir}
@@ -79,6 +80,7 @@ locals {
             kill -9 $(pgrep -f "spring-boot-application.jar")
         fi
         screen -S vuln_log4j_app_target -X quit
+        screen -wipe
         screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.inputs["listen_port"]}
         screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
         sleep 30
