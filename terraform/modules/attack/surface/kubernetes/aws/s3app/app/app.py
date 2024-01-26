@@ -50,6 +50,12 @@ def login():
         return "login failed"
 
 
+@app.route("/content", methods=['GET'])
+def content():
+    content = request.args.get("content")
+    return render_template_string(content)
+
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     app.logger.info(request.cookies)
