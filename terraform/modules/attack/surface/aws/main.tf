@@ -307,6 +307,13 @@ module "eks-auth" {
 ##################################################
 # Kubernetes General
 ##################################################
+module "kubernetes-reloader" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/common/app"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+}
+
 
 # example of pushing kubernetes deployment via terraform
 module "kubernetes-app" {

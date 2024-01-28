@@ -47,6 +47,9 @@
     },
     "kubernetes" :  {
       "aws": {
+        "reloader": {
+          "enabled": true
+        },
         "app" :  {
           "enabled" :  true,
           "service_port": 8000,

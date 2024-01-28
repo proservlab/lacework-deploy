@@ -35,6 +35,7 @@ module "deployment" {
   }
   template_annotations = {
     app = local.app_name
+    "reloader.stakater.com/auto": "true"
   }
   replicas      = 1
 

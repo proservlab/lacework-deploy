@@ -235,6 +235,10 @@ variable "config" {
       })
       kubernetes = object({
         aws = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
             enabled                     = bool
             service_port                = number
@@ -318,6 +322,10 @@ variable "config" {
           })
         })
         gcp = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
             enabled                       = bool
           })
@@ -359,6 +367,10 @@ variable "config" {
           })
         })
         azure = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
             enabled                       = bool
           })
@@ -630,6 +642,10 @@ variable "config" {
       }
       kubernetes = {
         gcp = {
+          reloader = {
+            enabled                       = false
+            ignore_namespaces             = []
+          }
           app = {
             enabled                       = false
           }
@@ -671,6 +687,10 @@ variable "config" {
           }
         }
         aws = {
+          reloader = {
+            enabled                     = false
+            ignore_namespaces           = []
+          }
           app = {
             enabled                     = false
             service_port                = 8000
@@ -759,6 +779,10 @@ variable "config" {
           }
         }
         azure = {
+          reloader = {
+            enabled                       = false
+            ignore_namespaces             = []
+          }
           app = {
             enabled                       = false
           }
