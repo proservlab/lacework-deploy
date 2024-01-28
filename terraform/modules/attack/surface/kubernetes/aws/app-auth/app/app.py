@@ -4,7 +4,7 @@
 # flask-unsign --sign --cookie "{'logged_in': True}" --secret 'CHANGEME'
 
 from dataclasses import dataclass, asdict
-from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, flash, render_template_string
+from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 import os
 import json
@@ -81,14 +81,17 @@ def initialize_database():
 
     users = [
         User.create(
-            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!", role="user")),
+            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
         User.create(
-            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!", role="admin"))
+            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
     ]
 
     db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(users)
     db.session.commit()
+
+
+initialize_database()
 
 
 @login_manager.user_loader
