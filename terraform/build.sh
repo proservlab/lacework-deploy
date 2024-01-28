@@ -321,15 +321,27 @@ EOF
             echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            echo "Adding profile and region context to kubeconfig..."
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
+            echo "Add env AWS_PROFILE to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/config"
+            echo "Add env AWS_PROFILE value to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].name) = "AWS_REGION"' -i "$HOME/.kube/config"
+            echo "Add env AWS_REGION to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/config"
+            echo "Add env AWS_REGION value to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_PROFILE to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[0].value) = strenv(ATTACKER_AWS_PROFILE)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_PROFILE value to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].name) = "AWS_REGION"' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_REGION to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
         done
+        kubectl get pods -A
+        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
+        cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
         echo "EKS in target scenario enabled..."
@@ -345,18 +357,25 @@ EOF
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/config"
+            echo "Add env AWS_PROFILE to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_PROFILE)' -i "$HOME/.kube/config"
+            echo "Add env AWS_PROFILE value to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].name) = "AWS_REGION"' -i "$HOME/.kube/config"
+            echo "Add env AWS_REGION to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/config"
+            echo "Add env AWS_REGION value to default kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].name) = "AWS_PROFILE"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_PROFILE to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[0].value) = strenv(TARGET_AWS_PROFILE)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_PROFILE value to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].name) = "AWS_REGION"' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_REGION to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
+            echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
         done
-        # kubectl get pods -A
-        # cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
-        # cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
-        # cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
+        kubectl get pods -A
+        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
+        cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
     fi
 fi
 for CONFIG_FILE in "${CONFIG_FILES[@]}"; do
