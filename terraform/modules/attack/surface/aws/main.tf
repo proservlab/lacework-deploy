@@ -309,7 +309,7 @@ module "eks-auth" {
 ##################################################
 module "kubernetes-reloader" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/common/app"
+  source      = "../kubernetes/common/reloader"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
 }
