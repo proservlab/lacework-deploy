@@ -30,10 +30,6 @@ locals {
   cluster_openid_connect_provider_arn = try(module.eks[0].cluster_openid_connect_provider.arn, null)
   cluster_openid_connect_provider_url = try(module.eks[0].cluster_openid_connect_provider.url, null)
 
-  default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
-  attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
-  target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
-
   aws_profile_name = local.default_infrastructure_config.context.aws.profile_name
   aws_region = local.default_infrastructure_config.context.aws.region
 }
@@ -215,7 +211,7 @@ module "eks" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks.cluster_name
-  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = local.default_kubeconfig
 
   deploy_calico = local.config.context.aws.eks.deploy_calico
 }
@@ -229,7 +225,7 @@ module "aws-eks-kubeconfig" {
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
   cluster_name = module.eks[0].cluster.id
-  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = local.default_kubeconfig
 
   depends_on = [ 
     module.eks
@@ -246,7 +242,7 @@ module "eks-windows" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks-windows.cluster_name
-  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = local.default_kubeconfig
 }
 
 module "aws-eks-windows-kubeconfig" {
@@ -258,7 +254,7 @@ module "aws-eks-windows-kubeconfig" {
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
   cluster_name = module.eks-windows[0].cluster.id
-  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  kubeconfig_path = local.default_kubeconfig
 
   depends_on = [ 
     module.eks-windows
@@ -288,6 +284,7 @@ module "eks-autoscaler" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
     module.aws-eks-kubeconfig
   ]
@@ -313,6 +310,7 @@ module "eks-windows-configmap" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
     module.aws-eks-kubeconfig
   ]
@@ -337,10 +335,10 @@ module "eks-calico" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
-   
+    module.aws-eks-kubeconfig,
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
   ]
 }
 
@@ -372,10 +370,10 @@ module "lacework-daemonset" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
-   
+    module.aws-eks-kubeconfig,
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
   ]
 }
 
@@ -402,10 +400,10 @@ module "lacework-daemonset-windows" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
-   
+    module.aws-eks-kubeconfig,
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
   ]
 }
 
@@ -427,10 +425,10 @@ module "lacework-admission-controller" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
-   
+    module.aws-eks-kubeconfig,
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
   ]
 }
 
@@ -450,10 +448,10 @@ module "lacework-eks-audit" {
 
   depends_on = [
     module.eks-windows,
+    module.aws-eks-windows-kubeconfig,
     module.eks,
-   
+    module.aws-eks-kubeconfig,
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
   ]
 }
 

