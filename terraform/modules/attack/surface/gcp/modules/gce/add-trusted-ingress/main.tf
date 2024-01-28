@@ -12,11 +12,11 @@ resource "google_compute_firewall" "public-ingress_rules" {
   direction               = "INGRESS"
   network                 = var.network
   project                 = var.gcp_project_id
-  source_ranges           = flatten([
+  source_ranges           = sort(flatten([
                                 var.trusted_attacker_source,
                                 var.trusted_target_source,
                                 var.trusted_workstation_source
-                            ])
+                            ]))
 
   allow {
     protocol              = "tcp"

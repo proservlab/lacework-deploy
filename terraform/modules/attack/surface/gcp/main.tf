@@ -140,7 +140,7 @@ module "gce-add-trusted-ingress" {
     [ for ip in local.target_public_ips: "${ip}/32" ],
     [ for ip in local.target_app_public_ips: "${ip}/32" ]
   ]) : []
-  trusted_workstation_source    = local.config.context.gcp.gce.add_trusted_ingress.trust_workstation ? [ module.workstation-external-ip.cidr ] : []
+  trusted_workstation_source    = local.config.context.gcp.gce.add_trusted_ingress.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.gcp.gce.add_trusted_ingress.trusted_tcp_ports
 }
@@ -163,7 +163,7 @@ module "gce-add-trusted-app-ingress" {
     [ for ip in local.target_public_ips: "${ip}/32" ],
     [ for ip in local.target_app_public_ips: "${ip}/32" ]
   ]) : []
-  trusted_workstation_source    = local.config.context.gcp.gce.add_app_trusted_ingress.trust_workstation ? [ module.workstation-external-ip.cidr ] : []
+  trusted_workstation_source    = local.config.context.gcp.gce.add_app_trusted_ingress.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.gcp.gce.add_app_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.gcp.gce.add_app_trusted_ingress.trusted_tcp_ports
 }

@@ -9,11 +9,11 @@ resource "aws_security_group" "app_lb" {
     from_port        = 1024
     to_port          = 65535
     protocol         = "tcp"
-    cidr_blocks      =  flatten([
+    cidr_blocks      =  sort(flatten([
       var.trusted_attacker_source,
       var.trusted_workstation_source,
       var.additional_trusted_sources,
-    ])
+    ]))
   }
 
   egress {

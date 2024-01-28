@@ -78,11 +78,11 @@ resource "kubernetes_service_v1" "log4shell" {
 
         type = "LoadBalancer"
 
-        load_balancer_source_ranges = flatten([
+        load_balancer_source_ranges = sort(flatten([
           var.trusted_attacker_source,
           var.trusted_workstation_source,
           var.additional_trusted_sources,
-        ])
+        ]))
     }
 
     
