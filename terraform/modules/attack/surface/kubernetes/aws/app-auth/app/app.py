@@ -12,7 +12,7 @@
 
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, roles_required, UserMixin, AnonymousUserMixin
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin, AnonymousUserMixin
 import os
 import json
 import sys
@@ -59,8 +59,7 @@ class User(UserMixin, BaseModel):
     email = sa.Column(sa.Text, unique=True, nullable=False)
     password = sa.Column(sa.Text, unique=True, nullable=False)
     created_at = sa.Column(sa.DateTime, default=datetime.datetime.utcnow)
-    roles = db.relationship('Role', secondary='user_roles',
-                            backref=db.backref('users', lazy='dynamic'))
+    role = sa.Column(sa.Text, default="user", nullable=False)
 
 
 @dataclass
@@ -112,8 +111,6 @@ BaseModel.set_session(db.session)
 
 def initialize_database():
     db.create_all()
-
-    # create products
     products = [
         Product(name='Laptop',
                 description='A high-performance laptop.', price=999.99),
@@ -122,26 +119,15 @@ def initialize_database():
     ]
 
     # create users
-    user = User.create(
-        username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
-    admin = User.create(
-        username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
     users = [
-        user,
-        admin
+        User.create(
+            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
+        User.create(
+            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
     ]
 
-    # create admin role and assign to admin user
-    admin_role = Role(name='admin'),
-    roles = [
-        admin_role
-    ]
-    admin.roles.append(admin_role)
-
-    # commit
     db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(users)
-    db.session.bulk_save_objects(roles)
     db.session.commit()
 
 
@@ -202,6 +188,7 @@ def products():
     products = Product.query.order_by(Product.name).all()
     data = json.loads(json.dumps(products, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
+    print(data)
     return render_template("table.html", data=data, columns=columns)
 
 
