@@ -13,7 +13,7 @@
         "gce" :  {
           "add_trusted_ingress" :  {
             "enabled"                     :  true,
-            "trust_workstation"           :  true,
+            "trust_workstation_source"    :  true,
             "trust_attacker_source"       :  true,
             "trust_target_source"         :  true,
             "additional_trusted_sources"  :  [],

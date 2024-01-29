@@ -20,7 +20,7 @@ variable "config" {
         compute = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -31,7 +31,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -88,7 +88,7 @@ variable "config" {
         gce = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -99,7 +99,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -160,7 +160,7 @@ variable "config" {
         ec2 = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -171,7 +171,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -427,7 +427,7 @@ variable "config" {
         compute = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -438,7 +438,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -495,7 +495,7 @@ variable "config" {
         gce = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -506,7 +506,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -567,7 +567,7 @@ variable "config" {
         ec2 = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -578,7 +578,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
