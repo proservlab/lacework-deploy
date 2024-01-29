@@ -12,7 +12,7 @@
 
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin, AnonymousUserMixin
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, roles_required, UserMixin, AnonymousUserMixin
 import os
 import json
 import sys
@@ -59,7 +59,8 @@ class User(UserMixin, BaseModel):
     email = sa.Column(sa.Text, unique=True, nullable=False)
     password = sa.Column(sa.Text, unique=True, nullable=False)
     created_at = sa.Column(sa.DateTime, default=datetime.datetime.utcnow)
-    role = sa.Column(sa.Text, nullable=False)
+    roles = db.relationship('Role', secondary='user_roles',
+                            backref=db.backref('users', lazy='dynamic'))
 
 
 @dataclass
@@ -71,6 +72,7 @@ class Anonymous(AnonymousUserMixin):
         return False
 
 
+@dataclass
 class Product(db.Model):
     id: int
     name: str
@@ -81,6 +83,22 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(100))
     price = db.Column(db.Float, nullable=False)
+
+
+# Define Role model
+class Role(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+# Define UserRoles model
+
+
+class UserRoles(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey(
+        'role.id', ondelete='CASCADE'))
 
 ######## Initialize ########
 
@@ -94,23 +112,36 @@ BaseModel.set_session(db.session)
 
 def initialize_database():
     db.create_all()
+
+    # create products
     products = [
         Product(name='Laptop',
                 description='A high-performance laptop.', price=999.99),
         Product(name='Smartphone',
                 description='A new generation smartphone.', price=499.99),
-        # Add more products as needed
     ]
 
+    # create users
+    user = User.create(
+        username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
+    admin = User.create(
+        username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
     users = [
-        User.create(
-            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
-        User.create(
-            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
+        user,
+        admin
     ]
 
+    # create admin role and assign to admin user
+    admin_role = Role(name='admin'),
+    roles = [
+        admin_role
+    ]
+    admin.roles.append(admin_role)
+
+    # commit
     db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(users)
+    db.session.bulk_save_objects(roles)
     db.session.commit()
 
 
@@ -159,22 +190,6 @@ def logout():
 
 @app.route('/products')
 def products():
-    # if session.new:
-    #     if 'anonymous_user_id' not in session:
-    #         session['anonymous_user_id'] = ""
-
-    #     user = User()
-    # else:
-    #     if 'anonymous_user_id' not in session:
-    #         session['anonymous_user_id'] = ""
-
-    #     user = User.query.get(session['anonymous_user_id'])
-
-    #     session['anonymous_user_id'] = user.id
-
-    if 'cart' not in session:
-        session['cart'] = []
-
     columns = []
     mapper = sa.inspect(Product)
     for column in mapper.attrs:
@@ -187,7 +202,6 @@ def products():
     products = Product.query.order_by(Product.name).all()
     data = json.loads(json.dumps(products, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
-    print(data)
     return render_template("table.html", data=data, columns=columns)
 
 
@@ -210,12 +224,6 @@ def users():
 
 @app.route('/add-to-cart/<int:product_id>')
 def add_to_cart(product_id):
-    # if session.new:
-    #     user = User()
-    #     session['anonymous_user_id'] = user.id
-    # else:
-    #     user = User.query.get(session['anonymous_user_id'])
-
     if 'cart' not in session:
         session['cart'] = []
 
