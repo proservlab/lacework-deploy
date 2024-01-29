@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"

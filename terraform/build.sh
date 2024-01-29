@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SCRIPTNAME="$(basename "$0")"
 SHORT_NAME="${SCRIPTNAME%.*}"
@@ -412,6 +412,8 @@ if [ "show" = "${ACTION}" ]; then
         ERR=$?
     fi
     infomsg "Terraform show result: $ERR"
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
@@ -441,6 +443,8 @@ elif [ "plan" = "${ACTION}" ]; then
         ERR=$?
     fi
     infomsg "Terraform summary result: $ERR"
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
@@ -457,6 +461,9 @@ elif [ "apply" = "${ACTION}" ]; then
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    infomsg "Resource updates: $CHANGE_COUNT"
+    if [[ $CHANGE_COUNT -gt 0 ]]; then ERR=2; fi
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
@@ -466,6 +473,8 @@ elif [ "destroy" = "${ACTION}" ]; then
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    infomsg "Resource updates: $CHANGE_COUNT"
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
         if grep "Error: " $LOGFILE; then
