@@ -12,7 +12,7 @@
 
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin, AnonymousUserMixin
 import os
 import json
 import sys
@@ -27,8 +27,6 @@ import datetime
 from collections import defaultdict
 
 app = Flask(__name__)
-login_manager = LoginManager()
-login_manager.init_app(app)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Hello World!')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -64,6 +62,15 @@ class User(UserMixin, BaseModel):
     role = sa.Column(sa.Text, nullable=False)
 
 
+@dataclass
+class Anonymous(AnonymousUserMixin):
+    def __init__(self):
+        self.username = 'Guest'
+
+    def is_authenticated(self):
+        return False
+
+
 class Product(db.Model):
     id: int
     name: str
@@ -77,6 +84,10 @@ class Product(db.Model):
 
 ######## Initialize ########
 
+
+login_manager = LoginManager()
+login_manager.anonymous_user = Anonymous
+login_manager.init_app(app)
 
 BaseModel.set_session(db.session)
 
@@ -148,6 +159,22 @@ def logout():
 
 @app.route('/products')
 def products():
+    # if session.new:
+    #     if 'anonymous_user_id' not in session:
+    #         session['anonymous_user_id'] = ""
+
+    #     user = User()
+    # else:
+    #     if 'anonymous_user_id' not in session:
+    #         session['anonymous_user_id'] = ""
+
+    #     user = User.query.get(session['anonymous_user_id'])
+
+    #     session['anonymous_user_id'] = user.id
+
+    if 'cart' not in session:
+        session['cart'] = []
+
     columns = []
     mapper = sa.inspect(Product)
     for column in mapper.attrs:
@@ -183,8 +210,15 @@ def users():
 
 @app.route('/add-to-cart/<int:product_id>')
 def add_to_cart(product_id):
+    # if session.new:
+    #     user = User()
+    #     session['anonymous_user_id'] = user.id
+    # else:
+    #     user = User.query.get(session['anonymous_user_id'])
+
     if 'cart' not in session:
         session['cart'] = []
+
     session['cart'].append(product_id)
     return jsonify({"cart": session['cart']})
 
