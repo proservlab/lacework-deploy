@@ -339,9 +339,6 @@ EOF
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
         done
-        kubectl get pods -A
-        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
-        cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
         echo "EKS in target scenario enabled..."
