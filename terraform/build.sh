@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SCRIPTNAME="$(basename "$0")"
 SHORT_NAME="${SCRIPTNAME%.*}"
