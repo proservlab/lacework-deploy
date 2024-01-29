@@ -13,6 +13,7 @@
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin, AnonymousUserMixin
+from functools import wraps
 import os
 import json
 import sys
@@ -23,6 +24,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_mixins import AllFeaturesMixin
 import sqlalchemy as sa
 import datetime
+import secrets
 
 from collections import defaultdict
 
@@ -66,9 +68,11 @@ class User(UserMixin, BaseModel):
 class Anonymous(AnonymousUserMixin):
     def __init__(self):
         self.username = 'Guest'
+        self.role = None
+        self.is_authenticated = False
 
-    def is_authenticated(self):
-        return False
+    def is_authenticated(self, value):
+        self.is_authenticated = value
 
 
 @dataclass
@@ -121,14 +125,26 @@ def initialize_database():
     # create users
     users = [
         User.create(
-            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", "somewhatsecret!"), role="user"),
+            username='user', email="user@interlacelabs.com", password=os.environ.get("USERPWD", secrets.token_hex(32)), role="user"),
         User.create(
-            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", "supersecret!"), role="admin")
+            username='admin', email="admin@interlacelabs.com", password=os.environ.get("ADMINPWD", secrets.token_hex(32)), role="admin")
     ]
 
     db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(users)
     db.session.commit()
+
+
+def requires_roles(roles):
+    """ Flask decorator that allow to allow role authorization with flask_login. """
+    def fwrap(f):
+        @wraps(f)
+        def wrapped_f(*args, **kwargs):
+            if not current_user.role in roles:
+                return abort(401)
+            return f(*args, **kwargs)
+        return wrapped_f
+    return fwrap
 
 
 initialize_database()
@@ -171,10 +187,12 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return Response('logout sucess.<br/><a href="/login">login</a>')
+    return render_template('logout.html')
 
 
 @app.route('/products')
+@login_required
+@requires_roles(["user", "admin"])
 def products():
     columns = []
     mapper = sa.inspect(Product)
@@ -189,33 +207,61 @@ def products():
     data = json.loads(json.dumps(products, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
     print(data)
-    return render_template("table.html", data=data, columns=columns)
+    return render_template("table.html", data=data, columns=columns, request=request)
 
 
 @app.route("/users")
+@requires_roles(["admin"])
 @login_required
 def users():
     columns = []
     mapper = sa.inspect(User)
     for column in mapper.attrs:
-        columns.append({
-            "field": column.key,  # which is the field's name of data key
-            "title": column.key,  # display as the table header's name
-            "sortable": True,
-        })
-    users = User.query.order_by(User.username).all()
+        if column.key in ["id", "username", "email", "role"]:
+            columns.append({
+                "field": column.key,  # which is the field's name of data key
+                "title": column.key,  # display as the table header's name
+                "sortable": True,
+            })
+    users = User.query.with_entities(
+        User.id, User.username, User.email, User.role).order_by(User.id).all()
+    print(users)
     data = json.loads(json.dumps(users, default=lambda d: {
         k["field"]: str(getattr(d, k["field"])) for k in columns}))
-    return render_template("table.html", data=data, columns=columns)
+    return render_template("table.html", data=data, columns=columns, request=request)
 
 
 @app.route('/add-to-cart/<int:product_id>')
 def add_to_cart(product_id):
+
     if 'cart' not in session:
         session['cart'] = []
 
     session['cart'].append(product_id)
     return jsonify({"cart": session['cart']})
+
+# expose feature flag
+
+
+@app.route('/debug/feature-status')
+@requires_roles("admin")
+@login_required
+def feature_status():
+    # Get feature name from cookie
+    feature_name = session.get('FEATURE_FLAG')
+    # Insecure retrieval of environment variable based on cookie value
+    # WARNING: This introduces a security vulnerability
+    if feature_name:
+        feature_status = os.environ.get(feature_name, 'Not Found')
+    else:
+        feature_name = 'Not found'
+        feature_status = 'Not found'
+    return jsonify({
+        "Session": {"FEATURE_FLAG": feature_name},
+        "Environment": {
+            "Variable": {"FEATURE_FLAG": feature_status}
+        }
+    })
 
 # SSTI - allow config render
 # @app.route("/content", methods=['GET'])
@@ -225,10 +271,12 @@ def add_to_cart(product_id):
 
 
 @app.route('/')
-@login_required
 def home():
-    return Response(f"{current_user.username}: <a href='/logout'>Logout</a>")
+    if 'cart' not in session:
+        session['cart'] = []
+
+    return render_template("home.html", current_user=current_user, request=request)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8088, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)

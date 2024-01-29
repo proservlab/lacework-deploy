@@ -39,9 +39,6 @@
         "app" :  {
           "enabled" :  false
         },
-        "psp" :  {
-          "enabled" :  false
-        },
         "vulnerable" :  {
           "log4j_app" :  {
             "enabled" :  true

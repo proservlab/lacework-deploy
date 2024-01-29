@@ -249,6 +249,8 @@ variable "config" {
             command                     = list(string)
             args                        = list(string)
             privileged                  = bool
+            enable_dynu_dns             = bool
+            dynu_dns_domain             = string
           })
           app-windows = object({
             enabled                     = bool
@@ -272,6 +274,8 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             voteapp = object({
               enabled                     = bool
@@ -288,6 +292,8 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             privileged_pod = object({
               enabled                     = bool
@@ -299,6 +305,8 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
@@ -310,6 +318,8 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             s3app = object({
               enabled                     = bool
@@ -318,6 +328,23 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
+            })
+            app-auth = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              admin_password              = string
+              user_password               = string
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
@@ -701,6 +728,8 @@ variable "config" {
             command                     = ["tail"]
             args                        = ["-f", "/dev/null"]
             privileged                  = false
+            enable_dynu_dns             = false
+            dynu_dns_domain             = null
           }
           app-windows = {
             enabled                     = false
@@ -728,6 +757,8 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             voteapp = {
               enabled                     = false
@@ -745,6 +776,8 @@ variable "config" {
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             privileged_pod = {
               enabled                     = false
@@ -756,6 +789,8 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = true
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
               enabled                     = false
@@ -767,6 +802,8 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             s3app = {
               enabled                     = false
@@ -775,6 +812,23 @@ variable "config" {
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
+            }
+            app-auth = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = true
+              trust_workstation_source    = true
+              additional_trusted_sources  = []
+              image                       = "nginx:latest"
+              command                     = ["tail"]
+              args                        = ["-f", "/dev/null"]
+              privileged                  = false
+              admin_password              = null
+              user_password               = null
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }

@@ -23,6 +23,19 @@ module "deployment" {
   command       = var.command
   args          = var.args
   
+  env_secret = [
+    {
+      name = "ADMINPWD"
+      secret_name = kubernetes_secret.this.metadata.0.name 
+      secret_key = "ADMINPWD"
+    },
+    {
+      name = "USERPWD"
+      secret_name = kubernetes_secret.this.metadata.0.name 
+      secret_key = "USERPWD"
+    }
+  ]
+
   internal_port = [{
     name = "container"
     internal_port = var.container_port

@@ -56,26 +56,33 @@
           "trust_attacker_source": true,
           "trust_workstation_source": true,
           "additional_trusted_sources": ["154.5.138.43/32"],
-          "privileged": false
-        },
-        "psp" :  {
-          "enabled" :  false
+          "privileged": false,
+          "enable_dynu_dns": false,
+          "dynu_dns_domain": "${ dynu_dns_domain }"
         },
         "vulnerable" :  {
           "log4j_app" :  {
-            "enabled" :  false
+            "enabled" :  false,
+            "enable_dynu_dns": false,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "voteapp" :  {
             "enabled" :  false
           },
           "rdsapp" :  {
-            "enabled" :  false
+            "enabled" :  false,
+            "enable_dynu_dns": false,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "privileged_pod" :  {
-            "enabled" :  false
+            "enabled" :  false,
+            "enable_dynu_dns": false,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "root_mount_fs_pod" :  {
-            "enabled" :  false
+            "enabled" :  false,
+            "enable_dynu_dns": false,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "s3app" :  {
             "enabled" :  false,
@@ -83,7 +90,19 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": ["154.5.138.43/32"],
-            "privileged": false
+            "privileged": false,
+            "enable_dynu_dns": false,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
+          },
+          "app-auth" :  {
+            "enabled" :  true,
+            "service_port": 8000,
+            "trust_attacker_source": true,
+            "trust_workstation_source": true,
+            "additional_trusted_sources": ["154.5.138.43/32"],
+            "privileged": false,
+            "enable_dynu_dns": true,
+            "dynu_dns_domain": "${ dynu_dns_domain }"
           }
         }
       }
