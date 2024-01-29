@@ -601,12 +601,12 @@ function aws_check_vpcs {
     fi
 
     # Get the number of VPCs deployed in the default region
-    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])' --profile $profile --output json)
+    vpcs=$(aws ec2 describe-vpcs --region="$region" --query 'length(Vpcs[])' --profile "$profile" --output json)
 
     infomsg "number of VPCs deployed in the $region region: $vpcs"
 
     # Get the remaining VPC service quota for instances
-    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --profile $profile --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
+    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region="$region" --profile "$profile" --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
 
     infomsg "vpc service quota: $vpc_quota"
     
@@ -625,7 +625,7 @@ function select_aws_profile {
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
     
-    if (( $(echo -n $aws_profiles | wc -c) > 0 )); then
+    if (( $(echo -n "$aws_profiles" | wc -c) > 0 )); then
         infomsg "aws profiles found"
     else
         errmsg "no aws profiles configured - please add at least one aws profile"
@@ -672,7 +672,7 @@ function select_aws_profile {
         done
 
         infomsg "Please choose the $environment aws region from the list below:"
-        region_list=$(aws ec2 describe-regions --profile=$profile_name --query 'Regions[*].RegionName' --output text)
+        region_list=$(aws ec2 describe-regions --profile="$profile_name" --query 'Regions[*].RegionName' --output text)
         select region in $region_list; do
             if [ -n "$region" ]; then
                 infomsg "Selected $environment aws region: $region"
@@ -685,11 +685,11 @@ function select_aws_profile {
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AWS_PROFILE=$profile_name
             ATTACKER_AWS_REGION=$region
-            aws_check_vpcs -r $ATTACKER_AWS_REGION -p $ATTACKER_AWS_PROFILE
+            aws_check_vpcs -r "$ATTACKER_AWS_REGION" -p "$ATTACKER_AWS_PROFILE"
         elif [ "$environment" == "target" ]; then
             TARGET_AWS_PROFILE=$profile_name
             TARGET_AWS_REGION=$region
-            aws_check_vpcs -r $TARGET_AWS_REGION -p $TARGET_AWS_PROFILE
+            aws_check_vpcs -r "$TARGET_AWS_REGION" -p "$TARGET_AWS_PROFILE"
         fi;
     done;
 }
@@ -714,7 +714,7 @@ function select_gcp_project {
         done
 
         infomsg "Fetching valid GCP locations..."
-        locations=$(gcloud compute regions list --project=$project_id --format="value(name)")
+        locations=$(gcloud compute regions list --project="$project_id" --format="value(name)")
 
         # Prompt the user to select a region
         PS3="Please select a locations: "
@@ -805,7 +805,7 @@ function select_lacework_profile {
         if [[ -n "$opt" ]]; then
             LACEWORK_PROFILE=$opt
             infomsg "selected lacework profile: $LACEWORK_PROFILE"
-            LACEWORK_ACCOUNT=$(lacework configure show account --profile=$LACEWORK_PROFILE)
+            LACEWORK_ACCOUNT=$(lacework configure show account --profile="$LACEWORK_PROFILE")
             break
         fi
     done
@@ -926,17 +926,17 @@ select_scenario
 
 clear
 
-ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
-ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
-ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
-TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
-TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
-TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/infrastructure.json)
+ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
+ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/infrastructure.json)
+TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
+TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
 
-ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
-TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
-ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
-TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
+TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
+ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
+TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
 
 if [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_ENABLED}" ]]; then
     info "Kubneretes apps enabled - some scenarios use docker to build containers.."
@@ -944,7 +944,7 @@ if [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${ATT
 fi
 
 for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryptomining" "docker_composite_cloud_ransomware" "docker_composite_defense_evasion" "docker_composite_host_cryptomining"; do 
-    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/${SCENARIOS_PATH}/${SCENARIO}/shared/simulation.json)
+    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/"${SCENARIOS_PATH}"/"${SCENARIO}"/shared/simulation.json)
     if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
         break
     fi
@@ -955,20 +955,20 @@ if [ -e "$CONFIG_FILE" ]; then
     echo "$(cat $CONFIG_FILE)"
 fi
 
-if check_file_exists $CONFIG_FILE; then
+if check_file_exists "$CONFIG_FILE"; then
     infomsg "Configuration file will be overwritten: $CONFIG_FILE"
     
     # set provider to first segement of workspace name
-    PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
+    PROVIDER=$(echo "$SCENARIO" | awk -F '-' '{ print $1 }')
     
     # check for sso logged out session
     if [[ "$PROVIDER" == "aws" ]]; then
-        session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
-        if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+        session_check=$(aws sts get-caller-identity "${SSO_PROFILE}" 2>&1)
+        if echo "$session_check" | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
             read -p "> aws sso session has expired - login now? (y/n): " login
             case "$login" in
                 y|Y )
-                    aws sso login ${SSO_PROFILE}
+                    aws sso login "${SSO_PROFILE}"
                     ;;
                 n|N )
                     errmsg "aws session expired - manual login required."
@@ -1069,11 +1069,11 @@ if check_file_exists $CONFIG_FILE; then
     case "$overwrite_config" in
         y|Y )
             if [ "$PROVIDER" == "aws" ]; then
-                output_aws_config > $CONFIG_FILE
+                output_aws_config > "$CONFIG_FILE"
             elif [ "$PROVIDER" == "gcp" ]; then
-                output_gcp_config > $CONFIG_FILE
+                output_gcp_config > "$CONFIG_FILE"
             elif [ "$PROVIDER" == "azure" ]; then
-                output_azure_config > $CONFIG_FILE
+                output_azure_config > "$CONFIG_FILE"
             fi
             infomsg "configuration file updated."
             if [ "${SCENARIOS_PATH}" == "../scenarios" ]; then
