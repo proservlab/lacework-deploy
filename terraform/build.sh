@@ -315,9 +315,8 @@ EOF
             chmod +x /usr/local/bin/yq
         fi
         echo "Found yq: $(command -v yq)"
-        CLUSTERS=$(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION)
-        echo $CLUSTERS
-        for CLUSTER in $(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
+        CLUSTERS=$(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION --output=json)
+        for CLUSTER in $(echo $CLUSTERS| jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION
             aws eks update-kubeconfig --profile=$ATTACKER_AWS_PROFILE --name="$CLUSTER" --region=$ATTACKER_AWS_REGION --kubeconfig="$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
@@ -348,7 +347,6 @@ EOF
         fi
         echo "Found yq: $(command -v yq)"
         CLUSTERS=$(aws eks list-clusters --profile=$TARGET_AWS_PROFILE --region=$TARGET_AWS_REGION)
-        echo $CLUSTERS
         for CLUSTER in $(echo $CLUSTERS | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
             echo "Found cluster: $CLUSTER"
             aws eks update-kubeconfig --profile=$TARGET_AWS_PROFILE --name="$CLUSTER" --region=$TARGET_AWS_REGION
@@ -370,9 +368,6 @@ EOF
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
         done
-        kubectl get pods -A
-        cat "$HOME/.kube/config" || echo "file not found: "$HOME/.kube/config"" 
-        cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig" || echo "file not found: $HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
     fi
 fi
 for CONFIG_FILE in "${CONFIG_FILES[@]}"; do

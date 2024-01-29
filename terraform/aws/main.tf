@@ -411,6 +411,14 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      # dynu config
+      dynu_api_key    = var.dynu_api_key
+      dynu_dns_domain = var.dynu_dns_domain
+
+      # iam
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
+      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
   )
   target-attacksurface-config-file = templatefile(
@@ -418,6 +426,10 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      # dynu config
+      dynu_api_key    = var.dynu_api_key
+      dynu_dns_domain = var.dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -662,7 +674,8 @@ locals {
       environment = "attacker"
       deployment  = var.deployment
 
-      # dynu
+      # dynu config
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # aws
@@ -688,7 +701,8 @@ locals {
       environment = "target"
       deployment  = var.deployment
 
-      # dynu
+      # dynu config
+      dynu_api_key    = var.dynu_api_key
       dynu_dns_domain = var.dynu_dns_domain
 
       # aws
