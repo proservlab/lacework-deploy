@@ -1,5 +1,6 @@
 locals {
   use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
+  user_is_root = can(regex("arn:aws:iam::${data.aws_caller_identity.current.account_id}:root", data.aws_caller_identity.current.arn))
   current_user_arn       = local.use_assumed_role ? "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0]}" : data.aws_caller_identity.current.arn
 }
 
@@ -13,7 +14,9 @@ resource "aws_kms_key" "this" {
                         "Sid": "Allow access for Account Holder",
                         "Effect": "Allow",
                         "Principal": {
-                            "AWS": [
+                            "AWS": user_is_root ? [
+                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                            ] : [
                                 "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
                                 "${local.current_user_arn}"
                             ]

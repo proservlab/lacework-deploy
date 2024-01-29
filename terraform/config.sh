@@ -222,7 +222,7 @@ check_jq() {
                     fi
                     brew install jq
                 else
-                    errmsg "Unsupported operating system. Please install aws-cli manually."
+                    errmsg "Unsupported operating system. Please install jq manually."
                     exit 1
                 fi
                 ;;
@@ -234,6 +234,91 @@ check_jq() {
             * )
                 errmsg "invalid input. jq will not be installed"
                 errmsg "jq is required to proceed. please install it manually."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+# Check if yq is installed and install if not
+check_yq() {
+    if command_exists jq &> /dev/null; then
+        infomsg "yq installed."
+    else
+        infomsg "yq is not installed."
+        
+        read -p "> Would you like to install it? (y/n): " install_yq
+        case "$install_yq" in
+            y|Y )
+                if [[ $(uname -s) == "Linux" ]]; then
+                    infomsg "installing jq for linux..."
+                    sudo apt-get update
+                    sudo apt-get install -y yq
+                elif [[ $(uname -s) == "Darwin" ]]; then
+                    infomsg "installing yq for mac..."
+                    if ! command_exists brew &> /dev/null; then
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
+                        exit 1
+                    fi
+                    brew install yq
+                else
+                    errmsg "Unsupported operating system. Please install yq manually."
+                    exit 1
+                fi
+                ;;
+            n|N )
+                errmsg "yq will not be installed."
+                errmsg "yq is required to proceed. please install it manually."
+                exit 1
+                ;;
+            * )
+                errmsg "invalid input. yq will not be installed"
+                errmsg "yq is required to proceed. please install it manually."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+check_docker() {
+    if command_exists docker &> /dev/null; then
+        infomsg "Docker is installed."
+    else
+        infomsg "Docker is not installed."
+
+        read -p "> Would you like to install Docker? (y/n): " install_docker
+        case "$install_docker" in
+            y|Y )
+                if [[ $(uname -s) == "Linux" ]]; then
+                    infomsg "Installing Docker for Linux..."
+                    # Installation steps can vary based on the Linux distribution
+                    # The following are general steps for Ubuntu/Debian
+                    sudo apt-get update
+                    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+                    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+                    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+                    sudo apt-get update
+                    sudo apt-get install -y docker-ce
+                elif [[ $(uname -s) == "Darwin" ]]; then
+                    infomsg "Installing Docker for Mac..."
+                    if ! command_exists brew &> /dev/null; then
+                        errmsg "brew is not installed. Please install brew first: https://brew.sh/"
+                        exit 1
+                    fi
+                    brew install --cask docker
+                else
+                    errmsg "Unsupported operating system. Please install Docker manually."
+                    exit 1
+                fi
+                ;;
+            n|N )
+                errmsg "Docker will not be installed."
+                errmsg "Docker is required to proceed. Please install it manually."
+                exit 1
+                ;;
+            * )
+                errmsg "Invalid input. Docker will not be installed."
+                errmsg "Docker is required to proceed. Please install it manually."
                 exit 1
                 ;;
         esac
@@ -831,13 +916,32 @@ check_jq
 
 clear
 
+# check for yq
+check_yq
+
+clear
+
 # scenario selection
 select_scenario
 
 clear
 
-ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
-TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
+ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
+ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
+ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
+TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+
+ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
+TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json | uniq)
+TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' $CSP/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json | uniq)
+
+if [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_ENABLED}" ]]; then
+    info "Kubneretes apps enabled - some scenarios use docker to build containers.."
+    check_docker
+fi
 
 for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryptomining" "docker_composite_cloud_ransomware" "docker_composite_defense_evasion" "docker_composite_host_cryptomining"; do 
     ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/${SCENARIOS_PATH}/${SCENARIO}/shared/simulation.json)
@@ -906,9 +1010,11 @@ if check_file_exists $CONFIG_FILE; then
             config_protonvpn
             clear
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
+        else
+            infomsg "Skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
         echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
@@ -924,7 +1030,7 @@ if check_file_exists $CONFIG_FILE; then
         else
             infomsg "Skipping protonvpn configuration as it is not required..."
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
         else
@@ -942,9 +1048,11 @@ if check_file_exists $CONFIG_FILE; then
             config_protonvpn
             clear
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
+        else
+            infomsg "Skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
         echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
