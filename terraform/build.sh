@@ -188,33 +188,32 @@ check_tf_apply(){
             infomsg "Changes required, applying"
             if command_exists tf-summarize &> /dev/null; then
                 infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-                # Ensure pipefail is set
-                set -o pipefail
                 (
+                    set -o pipefail
                     terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
                 )
+                infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
                 ERR=$?
-                set +o pipefail
+                infomsg "Terraform result: $ERR"
             else
                 infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                # Ensure pipefail is set
-                set -o pipefail
                 (
+                    set -o pipefail
                     terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
                 )
+                infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
                 ERR=$?
-                set +o pipefail
+                infomsg "Terraform result: $ERR"
             fi
             infomsg "Terraform summary result: $ERR"
             
             infomsg "Running: terraform apply -input=false -no-color ${3}"
-            # Ensure pipefail is set
-            set -o pipefail
             (
+                set -o pipefail
                 terraform apply -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
             )
+            infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
             ERR=$?
-            set +o pipefail
             infomsg "Terraform result: $ERR"
             if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
                 errmsg "Terraform failed: ${ERR}"
@@ -272,8 +271,8 @@ cd $CSP
 
 # check for sso logged out session
 if [[ "$CSP" == "aws" ]]; then
-    session_check=$(aws sts get-caller-identity "${SSO_PROFILE}" 2>&1)
-    if echo "$session_check" | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+    session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
+    if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
         read -p "> aws sso session has expired - login now? (y/n): " login
         case "$login" in
             y|Y )
@@ -404,33 +403,32 @@ if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
     if command_exists tf-summarize &> /dev/null; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-        # Ensure pipefail is set
-        set -o pipefail
         (
+            set -o pipefail
             terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
         )
+        infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
         ERR=$?
-        set +o pipefail
+        infomsg "Terraform result: $ERR"
     else
         infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        # Ensure pipefail is set
-        set -o pipefail
         (
+            set -o pipefail
             terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
         )
+        infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
         ERR=$?
-        set +o pipefail
+        infomsg "Terraform result: $ERR"
     fi
     infomsg "Terraform show result: $ERR"
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    # Ensure pipefail is set
-    set -o pipefail
     (
+        set -o pipefail
         terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
+    infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
     ERR=$?
-    set +o pipefail
     infomsg "Terraform result: $ERR"
     if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
         ERR=1
@@ -439,54 +437,51 @@ elif [ "plan" = "${ACTION}" ]; then
     fi
     if command_exists tf-summarize &> /dev/null; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-        # Ensure pipefail is set
-        set -o pipefail
         (
+            set -o pipefail
             terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
         )
+        infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
         ERR=$?
-        set +o pipefail
+        infomsg "Terraform result: $ERR"
     else
         infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        # Ensure pipefail is set
-        set -o pipefail
         (
+            set -o pipefail
             terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
         )
+        infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
         ERR=$?
-        set +o pipefail
+        infomsg "Terraform result: $ERR"
     fi
     infomsg "Terraform summary result: $ERR"
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
-    # Ensure pipefail is set
-    set -o pipefail
     (
+        set -o pipefail
         terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
+    infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
     ERR=$?
-    set +o pipefail
     infomsg "Terraform result: $ERR"
 elif [ "apply" = "${ACTION}" ]; then        
     echo "Running: terraform plan ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    # Ensure pipefail is set
-    set -o pipefail
     (
+        set -o pipefail
         terraform plan ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
+    infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
     ERR=$?
-    set +o pipefail
     infomsg "Terraform result: $ERR"
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    # Ensure pipefail is set
-    set -o pipefail
     (
+        set -o pipefail
         terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 | tee -a $LOGFILE
     )
+    infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
     ERR=$?
-    set +o pipefail
     infomsg "Terraform result: $ERR"
     # additional check because plan doesn't return 0 for -destory
     if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
@@ -499,31 +494,30 @@ elif [ "destroy" = "${ACTION}" ]; then
         else
             if command_exists tf-summarize &> /dev/null; then
                 infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-                # Ensure pipefail is set
-                set -o pipefail
                 (
+                    set -o pipefail
                     terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
                 )
+                infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
                 ERR=$?
-                set +o pipefail
+                infomsg "Terraform result: $ERR"
             else
                 infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                # Ensure pipefail is set
-                set -o pipefail
                 (
+                    set -o pipefail
                     terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
                 )
+                infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
                 ERR=$?
-                set +o pipefail
+                infomsg "Terraform result: $ERR"
             fi
             echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
-            # Ensure pipefail is set
-            set -o pipefail
             (
+                set -o pipefail 
                 terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color 2>&1 | tee -a $LOGFILE
             )
+            infomsg "PIPESTATUS: ${PIPESTATUS[0]}"
             ERR=$?
-            set +o pipefail
             infomsg "Terraform result: $ERR"
             exit $ERR
         fi
