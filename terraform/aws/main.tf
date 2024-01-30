@@ -632,11 +632,10 @@ module "attacker-aws-attacksurface" {
     module.target-attacksurface-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
+    time_sleep.wait_120_seconds.id,
 
-  depends_on = [ 
-    module.attacker-aws-eks-kubeconfig  
+    # eks kubeconfig
+    try(module.attacker-aws-eks-kubeconfig[0].id, null)
   ]
 }
 
@@ -698,11 +697,10 @@ module "target-aws-attacksurface" {
     module.target-attacksurface-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
+    time_sleep.wait_120_seconds.id,
 
-  depends_on = [ 
-    module.target-aws-eks-kubeconfig  
+    # eks kubeconfig
+    try(module.target-aws-eks-kubeconfig[0].id, null)
   ]
 }
 
@@ -916,11 +914,10 @@ module "attacker-aws-attacksimulation" {
     module.target-attacksimulation-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
+    time_sleep.wait_120_seconds.id,
 
-  depends_on = [ 
-    module.attacker-aws-eks-kubeconfig  
+    # eks kubeconfig
+    try(module.attacker-aws-eks-kubeconfig[0].id, null)
   ]
 }
 
@@ -993,10 +990,9 @@ module "target-aws-attacksimulation" {
     module.target-attacksimulation-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
-  ]
+    time_sleep.wait_120_seconds.id,
 
-  depends_on = [ 
-    module.target-aws-eks-kubeconfig  
+    # eks kubeconfig
+    try(module.attacker-aws-eks-kubeconfig[0].id, null)
   ]
 }

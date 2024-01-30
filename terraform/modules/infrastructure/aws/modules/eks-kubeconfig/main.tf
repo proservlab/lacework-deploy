@@ -1,3 +1,11 @@
+##################################################
+# MODULE ID
+##################################################
+
+module "id" {
+  source = "../../context/deployment"
+}
+
 data "aws_eks_cluster" "this" {
   name = var.cluster_name
 }
