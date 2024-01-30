@@ -129,7 +129,7 @@ resource "aws_security_group" "database" {
 
   description = "db security group"
   vpc_id      = data.aws_vpc.database.id
-
+  
   ingress {
     from_port   = var.database_port
     to_port     = var.database_port

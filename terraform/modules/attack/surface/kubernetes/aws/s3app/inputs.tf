@@ -118,6 +118,12 @@ variable "container_port" {
   default = 80
 }
 
+variable "trusted_target_source" {
+  type = list(string)
+  description = "Allow all target source public addresses inbound to the app load balancer(s)"
+  default = []
+}
+
 variable "trusted_attacker_source" {
   type = list(string)
   description = "Allow all attacker source public addresses inbound to the app load balancer(s)"
