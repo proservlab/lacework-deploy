@@ -601,10 +601,6 @@ module "kubernetes-authapp" {
   trusted_workstation_source    = local.config.context.kubernetes.aws.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.authapp.additional_trusted_sources
 
-  image                         = local.config.context.kubernetes.aws.authapp.image
-  command                       = local.config.context.kubernetes.aws.authapp.command
-  args                          = local.config.context.kubernetes.aws.authapp.args
-
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = true
   

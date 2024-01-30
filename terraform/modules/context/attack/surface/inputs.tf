@@ -337,9 +337,6 @@ variable "config" {
               trust_attacker_source       = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
-              image                       = string
-              command                     = list(string)
-              args                        = list(string)
               privileged                  = bool
               admin_password              = string
               user_password               = string
@@ -821,9 +818,6 @@ variable "config" {
               trust_attacker_source       = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
-              image                       = "nginx:latest"
-              command                     = ["tail"]
-              args                        = ["-f", "/dev/null"]
               privileged                  = false
               admin_password              = null
               user_password               = null
