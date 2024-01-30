@@ -308,6 +308,15 @@ module "kubernetes-reloader" {
   source      = "../kubernetes/common/reloader"
   environment                   = local.config.context.global.environment
   deployment                    = local.config.context.global.deployment
+
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [ 
+    module.eks-auth
+  ]
 }
 
 

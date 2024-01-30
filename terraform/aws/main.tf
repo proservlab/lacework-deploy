@@ -402,6 +402,42 @@ module "target-lacework-platform-infrastructure" {
 }
 
 ##################################################
+# KUBERNETES CONFIG
+##################################################
+
+module "attacker-aws-eks-kubeconfig" {
+  count = (module.attacker-infrastructure-context.config.context.global.enable_all == true) || (module.attacker-infrastructure-context.config.context.global.disable_all != true && module.attacker-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source = "./modules/infrastructure/modules/eks-kubeconfig"
+
+  environment = "attacker"
+  deployment = var.deployment
+  aws_profile_name = var.attacker_aws_profile
+  region = var.attacker_aws_region
+  cluster_name = module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name
+  kubeconfig_path = module.attacker-aws-infrastructure.config.context.aws.eks[0].kubeconfig_path
+
+  depends_on = [ 
+    module.attacker-aws-infrastructure
+  ]
+}
+
+module "target-aws-eks-kubeconfig" {
+  count = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
+  source = "./modules/infrastructure/modules/eks-kubeconfig"
+
+  environment = "target"
+  deployment = var.deployment
+  aws_profile_name = var.target_aws_profile
+  region = var.target_aws_region
+  cluster_name = module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name
+  kubeconfig_path = module.target-aws-infrastructure.config.context.aws.eks[0].kubeconfig_path
+
+  depends_on = [ 
+    module.target-aws-infrastructure
+  ]
+}
+
+##################################################
 # ATTACK SURFACE CONFIG
 ##################################################
 
@@ -598,6 +634,10 @@ module "attacker-aws-attacksurface" {
     # config destory delay
     time_sleep.wait_120_seconds.id
   ]
+
+  depends_on = [ 
+    module.attacker-aws-eks-kubeconfig  
+  ]
 }
 
 module "target-aws-attacksurface" {
@@ -659,6 +699,10 @@ module "target-aws-attacksurface" {
 
     # config destory delay
     time_sleep.wait_120_seconds.id
+  ]
+
+  depends_on = [ 
+    module.target-aws-eks-kubeconfig  
   ]
 }
 
@@ -874,6 +918,10 @@ module "attacker-aws-attacksimulation" {
     # config destory delay
     time_sleep.wait_120_seconds.id
   ]
+
+  depends_on = [ 
+    module.attacker-aws-eks-kubeconfig  
+  ]
 }
 
 
@@ -946,5 +994,9 @@ module "target-aws-attacksimulation" {
 
     # config destory delay
     time_sleep.wait_120_seconds.id
+  ]
+
+  depends_on = [ 
+    module.target-aws-eks-kubeconfig  
   ]
 }
