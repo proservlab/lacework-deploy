@@ -13,15 +13,18 @@ module "id" {
 locals {
     app_name = var.app
     app_namespace = var.app_namespace
+    service_account = "authapp"
 }
 
 module "deployment" {
   source        = "../../common/terraform-kubernetes-deployment-master"
   namespace     = local.app_namespace
-  image         = var.image
+  image         = "${aws_ecr_repository.repo.repository_url}:${var.tag}"
   name          = local.app_name
   command       = var.command
   args          = var.args
+  
+  service_account_name = kubernetes_service_account.this.metadata[0].name
   
   env_secret = [
     {

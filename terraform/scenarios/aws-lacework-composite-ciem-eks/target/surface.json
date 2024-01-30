@@ -29,7 +29,15 @@
           "compromised_keys_user" : "clue.burnetes@interlacelabs"
         },
         "ssh_keys" :  {
-          "enabled" :  true
+          "enabled" :  true,
+          "ssh_private_key_path" : "/home/cburnetes/.ssh/secret_key",
+          "ssh_public_key_path" :  "/root/.ssh/secret_key.pub",
+          "ssh_authorized_keys_path": "/root/.ssh/authorized_keys"
+        },
+        "ssh_user" :  {
+          "enabled" :  true,
+          "username" : "cburnetes",
+          "password" : "4920616d20616d617a696e672e2045766572796f6e65206b6e6f777320746869732e"
         }
       },
       "eks" :  {
@@ -102,7 +110,8 @@
             "additional_trusted_sources": ["154.5.138.43/32"],
             "privileged": false,
             "enable_dynu_dns": true,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ dynu_dns_domain }",
+            "admin_password": "4920616d20616d617a696e672e2045766572796f6e65206b6e6f777320746869732e"
           }
         }
       }

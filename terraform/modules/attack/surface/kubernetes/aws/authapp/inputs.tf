@@ -100,3 +100,15 @@ variable "dynu_dns_domain" {
   description = "The hostname you want to update"
   default = ""
 }
+
+variable "user_password" {
+  type = string
+  description = "Password for app user"
+  default = null
+}
+
+variable "admin_password" {
+  type = string
+  description = "Password for app admin"
+  default = null
+}

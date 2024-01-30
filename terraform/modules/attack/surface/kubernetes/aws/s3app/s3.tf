@@ -1,17 +1,20 @@
-resource "aws_s3_bucket" "this" {
-  bucket = "eks-data-${var.environment}-${var.deployment}"
+###################################
+# DEV BUCKET
+###################################
+resource "aws_s3_bucket" "dev" {
+  bucket = "eks-data-dev-${var.environment}-${var.deployment}"
   force_destroy = true
 }
 
-resource "aws_s3_bucket_versioning" "this" {
-  bucket = aws_s3_bucket.this.id
+resource "aws_s3_bucket_versioning" "dev" {
+  bucket = aws_s3_bucket.dev.id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "dev" {
+  bucket = aws_s3_bucket.dev.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -19,6 +22,36 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
     }
   }
 }
+
+###################################
+# PROD BUCKET
+###################################
+
+resource "aws_s3_bucket" "prod" {
+  bucket = "eks-data-prod-${var.environment}-${var.deployment}"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_versioning" "prod" {
+  bucket = aws_s3_bucket.prod.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "prod" {
+  bucket = aws_s3_bucket.prod.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+###################################
+# IAM ROLE AND POLICY
+###################################
 
 data "aws_iam_policy_document" "assume_role_policy" {
   statement {
@@ -42,7 +75,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
 resource "aws_iam_role" "s3_access" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-  name               = "eks-s3-role"
+  name               = "eks-s3-dev-role"
 }
 
 resource "aws_iam_policy" "s3_rw_encrypt_policy" {
@@ -63,9 +96,10 @@ resource "aws_iam_policy" "s3_rw_encrypt_policy" {
           "s3:PutEncryptionConfiguration"
         ],
         Effect = "Allow",
+        # OVERSCOPED PERMISSIONS ALLOWING ACCESS TO DEV AND PROD
         Resource = [
-          "arn:aws:s3:::${aws_s3_bucket.this.id}",
-          "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
+          "arn:aws:s3:::eks-data-*-${var.environment}-${var.deployment}",
+          "arn:aws:s3:::eks-data-*-${var.environment}-${var.deployment}/*"
         ],
       },
     ],

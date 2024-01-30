@@ -23,6 +23,25 @@
         "public_ingress_rules"          : [],
         "instances": [
           {
+            "name"                      : "jumphost",
+            "public"                    : true,
+            "role"                      : "app",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags"                      : {
+                "owner"                                     : "lacework",
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_deploy_secret_ssh_private"             : "true",
+                "ssm_deploy_ssh_user"                       : "true"
+
+            },
+            "user_data"                 : null,
+            "user_data_base64"          : null,
+            "enable_swap"               : true
+          },
+          {
             "name"                      : "kubeadmin",
             "public"                    : true,
             "role"                      : "app",
@@ -37,8 +56,7 @@
                 "ssm_deploy_kubectl_cli"                    : "true",
                 "ssm_deploy_docker"                         : "true",
                 "ssm_deploy_secret_aws_credentials"         : "true",
-                "ssm_deploy_secret_ssh_public"              : "true",
-                "ssm_deploy_secret_ssh_private"             : "true"
+                "ssm_deploy_secret_ssh_public"              : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,
