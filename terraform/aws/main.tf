@@ -407,7 +407,7 @@ module "target-lacework-platform-infrastructure" {
 
 module "attacker-aws-eks-kubeconfig" {
   count = (module.attacker-infrastructure-context.config.context.global.enable_all == true) || (module.attacker-infrastructure-context.config.context.global.disable_all != true && module.attacker-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
-  source = "./modules/infrastructure/modules/eks-kubeconfig"
+  source = "../modules/infrastructure/aws/modules/eks-kubeconfig"
 
   environment = "attacker"
   deployment = var.deployment
@@ -421,7 +421,7 @@ module "attacker-aws-eks-kubeconfig" {
   ]
 }
 
-module "target-aws-eks-kubeconfig" {
+module "../modules/infrastructure/aws/modules/eks-kubeconfig" {
   count = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
   source = "./modules/infrastructure/modules/eks-kubeconfig"
 
