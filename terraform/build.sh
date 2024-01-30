@@ -475,39 +475,37 @@ elif [ "destroy" = "${ACTION}" ]; then
     infomsg "Terraform result: $ERR"
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
     infomsg "Resource updates: $CHANGE_COUNT"
+    if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
+    
     # additional check because plan doesn't return 0 for -destory
-    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-        if grep "Error: " $LOGFILE; then
-            ERR=1
-            errmsg "Terraform failed: ${ERR}"
-            exit $ERR
-        elif terraform show -no-color ${PLANFILE} | grep -E "No changes. No objects need to be destroyed."; then
-            ERR=0;
-        else
-            if command_exists tf-summarize &> /dev/null; then
-                infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-                (
-                    set -o pipefail
-                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-                )
-                ERR=$?
-            else
-                infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                (
-                    set -o pipefail
-                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                )
-                ERR=$?
-            fi
-            echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
+    if [ $ERR -eq 1 ] || grep "Error: " $LOGFILE; then
+        ERR=1
+        errmsg "Terraform failed: ${ERR}"
+        exit $ERR
+    else
+        if command_exists tf-summarize &> /dev/null; then
+            infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
             (
-                set -o pipefail 
-                terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color 2>&1 | tee -a $LOGFILE
+                set -o pipefail
+                terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
             )
             ERR=$?
-            infomsg "Terraform result: $ERR"
-            exit $ERR
+        else
+            infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+            (
+                set -o pipefail
+                terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+            )
+            ERR=$?
         fi
+        echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
+        (
+            set -o pipefail 
+            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color 2>&1 | tee -a $LOGFILE
+        )
+        ERR=$?
+        infomsg "Terraform result: $ERR"
+        exit $ERR
     fi
 fi
 
