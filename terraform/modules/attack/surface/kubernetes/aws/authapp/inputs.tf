@@ -13,7 +13,7 @@ variable "app" {
 }
 
 variable "app_namespace" {
-  default = "default"
+  default = "authapp"
 }
 
 variable "tag" {
