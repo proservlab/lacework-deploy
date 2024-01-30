@@ -498,10 +498,10 @@ elif [ "destroy" = "${ACTION}" ]; then
             )
             ERR=$?
         fi
-        echo "Running: terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color"
+        echo "Running: terraform apply -destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
         (
             set -o pipefail 
-            terraform destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color 2>&1 | tee -a $LOGFILE
+            terraform apply -destroy ${BACKEND} ${VARS} -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
         )
         ERR=$?
         infomsg "Terraform result: $ERR"
