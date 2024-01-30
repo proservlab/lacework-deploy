@@ -94,7 +94,7 @@
             "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
-          "app-auth" :  {
+          "authapp" :  {
             "enabled" :  true,
             "service_port": 8000,
             "trust_attacker_source": true,

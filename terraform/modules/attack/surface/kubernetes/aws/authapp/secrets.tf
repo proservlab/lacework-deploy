@@ -12,7 +12,7 @@ resource "random_password" "admin_password" {
 
 resource "kubernetes_secret" "this" {
   metadata {
-    name = "app-auth-env-vars"
+    name = "authapp-env-vars"
     namespace = local.app_namespace
   }
 

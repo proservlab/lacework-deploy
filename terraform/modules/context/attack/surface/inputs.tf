@@ -331,7 +331,7 @@ variable "config" {
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
-            app-auth = object({
+            authapp = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -815,7 +815,7 @@ variable "config" {
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
-            app-auth = {
+            authapp = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true

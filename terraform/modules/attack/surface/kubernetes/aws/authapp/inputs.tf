@@ -9,7 +9,7 @@ variable "deployment" {
 }
 
 variable "app" {
-  default = "nginx"
+  default = "authapp"
 }
 
 variable "app_namespace" {
@@ -25,7 +25,7 @@ variable "tag" {
 variable "image_name" {
   description = "Name to use for deployed Docker image"
   type        = string
-  default     = "app-auth/app"
+  default     = "authapp/app"
 }
 
 variable "source_path" {
@@ -42,7 +42,7 @@ variable "cluster_vpc_id" {
 variable "service_port" {
   type = number
   description = "External port to expose result service on"
-  default = 8080
+  default = 8000
 }
 
 variable "container_port" {

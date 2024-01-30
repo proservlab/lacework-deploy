@@ -583,6 +583,41 @@ module "vulnerable-kubernetes-s3app" {
   ]
 }
 
+# example of pushing kubernetes deployment via terraform
+module "kubernetes-authapp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.authapp.enabled == true ) ? 1 : 0
+  source      = "../kubernetes/aws/authapp"
+  environment                   = local.config.context.global.environment
+  deployment                    = local.config.context.global.deployment
+  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+
+  container_port                = 80 
+  service_port                  = local.config.context.kubernetes.aws.authapp.service_port
+  trusted_attacker_source       = local.config.context.kubernetes.aws.authapp.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    local.attacker_eks_public_ip,
+  ])  : []
+  trusted_workstation_source    = local.config.context.kubernetes.aws.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources    = local.config.context.kubernetes.aws.authapp.additional_trusted_sources
+
+  image                         = local.config.context.kubernetes.aws.authapp.image
+  command                       = local.config.context.kubernetes.aws.authapp.command
+  args                          = local.config.context.kubernetes.aws.authapp.args
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = true
+  
+  providers = {
+    kubernetes = kubernetes.main
+    helm = helm.main
+  }
+
+  depends_on = [ 
+    module.eks-auth
+  ]
+}
+
 locals {
   service_dns = { for service in flatten([
     try(module.kubernetes-app[0].services,[]),
