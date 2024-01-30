@@ -421,9 +421,9 @@ module "attacker-aws-eks-kubeconfig" {
   ]
 }
 
-module "../modules/infrastructure/aws/modules/eks-kubeconfig" {
+module "target-aws-eks-kubeconfig" {
   count = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
-  source = "./modules/infrastructure/modules/eks-kubeconfig"
+  source = "../modules/infrastructure/aws/modules/eks-kubeconfig"
 
   environment = "target"
   deployment = var.deployment
