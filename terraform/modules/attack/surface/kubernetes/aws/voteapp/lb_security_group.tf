@@ -1,5 +1,5 @@
 # app lb security group
-resource "aws_security_group" "app_lb" {
+resource "aws_security_group" "this" {
   name        = "app_lb"
   description = "Allow inbound traffic from trusted source"
   vpc_id      = var.cluster_vpc_id
