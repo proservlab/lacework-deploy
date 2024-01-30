@@ -243,6 +243,7 @@ variable "config" {
             enabled                     = bool
             service_port                = number
             trust_attacker_source       = bool
+            trust_target_source         = bool
             trust_workstation_source    = bool
             additional_trusted_sources  = list(string)
             image                       = string
@@ -256,6 +257,7 @@ variable "config" {
             enabled                     = bool
             service_port                = number
             trust_attacker_source       = bool
+            trust_target_source         = bool
             trust_workstation_source    = bool
             additional_trusted_sources  = list(string)
             image                       = string
@@ -268,6 +270,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
@@ -282,6 +285,7 @@ variable "config" {
               vote_service_port           = number
               result_service_port         = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
             })
@@ -289,6 +293,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
@@ -299,6 +304,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
@@ -312,6 +318,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
@@ -325,6 +332,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
@@ -335,6 +343,7 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
@@ -719,6 +728,7 @@ variable "config" {
             enabled                     = false
             service_port                = 8000
             trust_attacker_source       = true
+            trust_target_source         = true
             trust_workstation_source    = true
             additional_trusted_sources  = []
             image                       = "nginx:latest"
@@ -732,6 +742,7 @@ variable "config" {
             enabled                     = false
             service_port                = 8000
             trust_attacker_source       = true
+            trust_target_source         = true
             trust_workstation_source    = true
             additional_trusted_sources  = []
             image                       = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
@@ -748,6 +759,7 @@ variable "config" {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
@@ -762,14 +774,16 @@ variable "config" {
               vote_service_port           = 8001
               result_service_port         = 8002
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
-              additional_trusted_sources = []
+              additional_trusted_sources  = []
             }
 
             rdsapp = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false
@@ -780,6 +794,7 @@ variable "config" {
               enabled                     = false
               service_port                = 8003
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
@@ -793,6 +808,7 @@ variable "config" {
               enabled                     = false
               service_port                = 8004
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
@@ -806,6 +822,7 @@ variable "config" {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false
@@ -816,6 +833,7 @@ variable "config" {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
+              trust_target_source         = true
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false

@@ -335,6 +335,11 @@ module "kubernetes-app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.app.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.app.additional_trusted_sources
 
@@ -368,6 +373,11 @@ module "kubernetes-app-windows" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.app-windows.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.app-windows.additional_trusted_sources
 
@@ -405,6 +415,11 @@ module "vulnerable-kubernetes-voteapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
 
@@ -440,6 +455,11 @@ module "vulnerable-kubernetes-rdsapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 
@@ -467,6 +487,11 @@ module "vulnerable-kubernetes-log4j-app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
 
@@ -497,6 +522,11 @@ module "vulnerable-kubernetes-privileged-pod" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
 
@@ -527,6 +557,11 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
 
@@ -567,6 +602,11 @@ module "vulnerable-kubernetes-s3app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
 
@@ -598,6 +638,11 @@ module "kubernetes-authapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
+  trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    local.target_eks_public_ip
+  ]) : []
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources
 

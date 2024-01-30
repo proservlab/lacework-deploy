@@ -92,6 +92,12 @@ variable "trusted_attacker_source" {
   default = []
 }
 
+variable "trusted_target_source" {
+  type = list(string)
+  description = "Allow all target source public addresses inbound to the app load balancer(s)"
+  default = []
+}
+
 variable "trusted_workstation_source" {
   type = list(string)
   description = "Allow current workstation public address inbound to the app load balancer(s)"
