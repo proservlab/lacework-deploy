@@ -1,7 +1,20 @@
 terraform {
-  required_version = ">= 0.14.8"
-
   required_providers {
-    kubernetes = ">= 2.1.0"
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
+    restapi = {
+      source = "Mastercard/restapi"
+      version = "1.18.2"
+    }
   }
 }
