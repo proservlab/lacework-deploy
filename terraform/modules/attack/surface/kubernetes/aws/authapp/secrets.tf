@@ -21,5 +21,5 @@ resource "kubernetes_secret" "this" {
     ADMINPWD = random_password.admin_password.result
   }
 
-  type = "kubernetes.io/basic-auth"
+  type = "Opaque"
 }
