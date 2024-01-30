@@ -463,7 +463,7 @@ elif [ "apply" = "${ACTION}" ]; then
     infomsg "Terraform result: $ERR"
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
     infomsg "Resource updates: $CHANGE_COUNT"
-    if [[ $CHANGE_COUNT -gt 0 ]]; then ERR=2; fi
+    if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
