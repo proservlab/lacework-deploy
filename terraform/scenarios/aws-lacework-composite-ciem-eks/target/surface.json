@@ -85,13 +85,13 @@
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "s3app" :  {
-            "enabled" :  false,
+            "enabled" :  true,
             "service_port": 8000,
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": ["154.5.138.43/32"],
             "privileged": false,
-            "enable_dynu_dns": false,
+            "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "app-auth" :  {
