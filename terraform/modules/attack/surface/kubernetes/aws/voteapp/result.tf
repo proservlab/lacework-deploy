@@ -12,7 +12,7 @@ resource "kubernetes_service_v1" "result" {
         }
         namespace = local.result_app_namespace
         annotations = {
-          "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.app_lb.id
+          "service.beta.kubernetes.io/aws-load-balancer-security-groups" = aws_security_group.this.id
           "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags" = "environment=${var.environment}"
         }
     }

@@ -1,5 +1,5 @@
 # app lb security group
-resource "aws_security_group" "app_lb" {
+resource "aws_security_group" "this" {
   name        = "app_lb"
   description = "Allow inbound traffic from trusted source"
   vpc_id      = var.cluster_vpc_id
@@ -36,7 +36,7 @@ resource "aws_security_group_rule" "target_ingress_service_port_result" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow all tcp inbound from to service port"
-  security_group_id = aws_security_group.app_lb.id
+  security_group_id = aws_security_group.this.id
 }
 
 resource "aws_security_group_rule" "target_ingress_service_port_vote" {
@@ -46,5 +46,5 @@ resource "aws_security_group_rule" "target_ingress_service_port_vote" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow all tcp inbound from to service port"
-  security_group_id = aws_security_group.app_lb.id
+  security_group_id = aws_security_group.this.id
 }
