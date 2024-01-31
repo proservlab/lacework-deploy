@@ -138,7 +138,7 @@
     "dynu_dns" : {
       "enabled"                        : true,
       "api_key"                        : "${ dynu_api_key }",
-      "dns_domain"                     : "${ dynu_dynu_dns_domain }"
+      "dns_domain"                     : "${ dynu_dns_domain }"
     }
   }
 }
