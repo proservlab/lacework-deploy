@@ -668,6 +668,9 @@ module "kubernetes-authapp" {
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources
 
+  user_password = local.config.context.kubernetes.aws.vulnerable.authapp.user_password
+  admin_password = local.config.context.kubernetes.aws.vulnerable.authapp.admin_password
+
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = true
   
