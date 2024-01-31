@@ -6,7 +6,7 @@ locals {
     kubeconfig_path = pathexpand("~/.kube/aws-${var.environment}-${var.deployment}-kubeconfig")
 }
 
-module "aws-eks-kubeconfig" {
+module "eks-kubeconfig" {
   source = "../eks-kubeconfig"
 
   environment = var.environment

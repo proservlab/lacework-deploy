@@ -216,7 +216,7 @@ module "eks" {
   deploy_calico = local.config.context.aws.eks.deploy_calico
 }
 
-module "aws-eks-kubeconfig" {
+module "eks-kubeconfig" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.eks.enabled == true ) ? 1 : 0
   source = "./modules/eks-kubeconfig"
 
