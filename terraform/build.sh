@@ -296,17 +296,17 @@ fi
 if [[ "$CSP" == "aws" ]]; then
     export ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
     export ATTACKER_AWS_REGION=$(get_tfvar_value "$tfvars_file" "attacker_aws_region")
-    export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
+    export ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq -r 'try .context.aws.eks.enabled catch false')
     export TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
     export TARGET_AWS_REGION=$(get_tfvar_value "$tfvars_file" "target_aws_region")
-    export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
+    export TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq -r 'try .context.aws.eks.enabled catch false')
     cat <<EOF
-ATTACKER_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "attacker_aws_profile")
-ATTACKER_AWS_REGION=$(get_tfvar_value "$tfvars_file" "attacker_aws_region")
-ATTACKER_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/attacker/infrastructure.json| jq '.context.aws.eks.enabled')
-TARGET_AWS_PROFILE=$(get_tfvar_value "$tfvars_file" "target_aws_profile")
-TARGET_AWS_REGION=$(get_tfvar_value "$tfvars_file" "target_aws_region")
-TARGET_EKS_ENABLED=$(cat $SCENARIOS_PATH/$WORK/target/infrastructure.json| jq '.context.aws.eks.enabled')
+ATTACKER_AWS_PROFILE=$ATTACKER_AWS_PROFILE
+ATTACKER_AWS_REGION=$ATTACKER_AWS_REGION
+ATTACKER_EKS_ENABLED=$ATTACKER_EKS_ENABLED
+TARGET_AWS_PROFILE=$TARGET_AWS_PROFILE
+TARGET_AWS_REGION=$TARGET_AWS_REGION
+TARGET_EKS_ENABLED=$TARGET_EKS_ENABLED
 EOF
     if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
         echo "EKS in attacker scenario enabled..."

@@ -116,16 +116,16 @@ function select_scenario {
 
     
     # Ask user to select AWS profile
-    infomsg "Select the scenario to configure:"
-    PS3="Scenario number: "
+    infomsg "select the scenario to configure:"
+    PS3="scenario number: "
     select scenario in $scenarios; do
         if [ -n "$scenario" ]; then
-            infomsg "Selected scenario: $scenario"
+            infomsg "selected scenario: $scenario"
             SCENARIO=$scenario
             CONFIG_FILE="env_vars/variables-$SCENARIO.tfvars"
             break
         else
-            errmsg "Invalid selection. Try again."
+            errmsg "invalid selection. Try again."
         fi
     done
 }
@@ -165,39 +165,39 @@ check_free_memory() {
 
         # Check if total memory is less than 4GB (4096MB)
         if [ "$total_memory" -lt "4096" ]; then
-            warnmsg "Total memory is less than 4GB." 
+            warnmsg "total memory is less than 4GB." 
             
             # Check if the swap file already exists
             if swapon --show | grep -q "^/swapfile"; then
-                infomsg "Swap file /swapfile already exists."
+                infomsg "swap file /swapfile already exists."
             else
-                read -p "> Do you want to create a swap file? (y/n): " response
+                read -p "> do you want to create a swap file? (y/n): " response
                 
                 # If user says 'yes', create a 4GB swap file
                 case "$response" in
                     y|Y )
-                        infomsg "Creating a 4GB swap file..."
+                        infomsg "creating a 4GB swap file..."
                         sudo fallocate -l 4G /swapfile
                         sudo chmod 600 /swapfile
                         sudo mkswap /swapfile
                         sudo swapon /swapfile
                         echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
-                        infomsg "Swap file created and activated."
+                        infomsg "swap file created and activated."
                         ;;
                     n|N )
-                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        warnmsg "no swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
                         ;;
                     * )
                         errmsg "invalid input. aws cli will not be installed"
-                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        warnmsg "no swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
                         ;;
                 esac
             fi
         else
-            infomsg "Total memory is greater than or equal to 4GB. No need to create a swap file."
+            infomsg "total memory is greater than or equal to 4GB. No need to create a swap file."
         fi
     else
-        infomsg "Skipping free memory check."
+        infomsg "skipping free memory check."
     fi
     sleep 2
 }
@@ -209,7 +209,7 @@ check_jq() {
     else
         infomsg "jq is not installed."
         
-        read -p "> Would you like to install it? (y/n): " install_jq
+        read -p "> would you like to install it? (y/n): " install_jq
         case "$install_jq" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -224,7 +224,7 @@ check_jq() {
                     fi
                     brew install jq
                 else
-                    errmsg "Unsupported operating system. Please install jq manually."
+                    errmsg "unsupported operating system. please install jq manually."
                     exit 1
                 fi
                 ;;
@@ -249,7 +249,7 @@ check_yq() {
     else
         infomsg "yq is not installed."
         
-        read -p "> Would you like to install it? (y/n): " install_yq
+        read -p "> would you like to install it? (y/n): " install_yq
         case "$install_yq" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -264,7 +264,7 @@ check_yq() {
                     fi
                     brew install yq
                 else
-                    errmsg "Unsupported operating system. Please install yq manually."
+                    errmsg "unsupported operating system. please install yq manually."
                     exit 1
                 fi
                 ;;
@@ -284,15 +284,15 @@ check_yq() {
 
 check_docker() {
     if command_exists docker &> /dev/null; then
-        infomsg "Docker is installed."
+        infomsg "docker is installed."
     else
-        infomsg "Docker is not installed."
+        infomsg "docker is not installed."
 
-        read -p "> Would you like to install Docker? (y/n): " install_docker
+        read -p "> would you like to install docker? (y/n): " install_docker
         case "$install_docker" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
-                    infomsg "Installing Docker for Linux..."
+                    infomsg "installing docker for Linux..."
                     # Installation steps can vary based on the Linux distribution
                     # The following are general steps for Ubuntu/Debian
                     sudo apt-get update
@@ -302,25 +302,25 @@ check_docker() {
                     sudo apt-get update
                     sudo apt-get install -y docker-ce
                 elif [[ $(uname -s) == "Darwin" ]]; then
-                    infomsg "Installing Docker for Mac..."
+                    infomsg "installing docker for Mac..."
                     if ! command_exists brew &> /dev/null; then
-                        errmsg "brew is not installed. Please install brew first: https://brew.sh/"
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
                         exit 1
                     fi
                     brew install --cask docker
                 else
-                    errmsg "Unsupported operating system. Please install Docker manually."
+                    errmsg "unsupported operating system. please install docker manually."
                     exit 1
                 fi
                 ;;
             n|N )
-                errmsg "Docker will not be installed."
-                errmsg "Docker is required to proceed. Please install it manually."
+                errmsg "docker will not be installed."
+                errmsg "docker is required to proceed. please install it manually."
                 exit 1
                 ;;
             * )
-                errmsg "Invalid input. Docker will not be installed."
-                errmsg "Docker is required to proceed. Please install it manually."
+                errmsg "invalid input. docker will not be installed."
+                errmsg "docker is required to proceed. please install it manually."
                 exit 1
                 ;;
         esac
@@ -334,7 +334,7 @@ check_aws_cli() {
     else
         infomsg "aws-cli is not installed."
         
-        read -p "> Would you like to install it? (y/n): " install_aws_cli
+        read -p "> would you like to install it? (y/n): " install_aws_cli
         case "$install_aws_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -349,7 +349,7 @@ check_aws_cli() {
                     fi
                     brew install awscli
                 else
-                    errmsg "Unsupported operating system. Please install aws-cli manually."
+                    errmsg "unsupported operating system. please install aws-cli manually."
                     exit 1
                 fi
                 ;;
@@ -389,7 +389,7 @@ check_gcloud_cli() {
                     fi
                     brew install google-cloud-sdk
                 else
-                    errmsg "unsupported operating system. Please install gcloud manually."
+                    errmsg "unsupported operating system. please install gcloud manually."
                     exit 1
                 fi
                 ;;
@@ -413,7 +413,7 @@ check_azure_cli() {
         infomsg "azure cli installed."
     else
         
-        read -p "> azure cli is not installed. Would you like to install it? (y/n) " install_azure
+        read -p "> azure cli is not installed. would you like to install it? (y/n) " install_azure
         case "$install_azure" in
             y|Y )
                 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -428,7 +428,7 @@ check_azure_cli() {
                     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
                 else
                     errmsg "unsupported operating system. please install azure cli manually."
-                    errmsg "azure cli is required to proceed. Please install it manually."
+                    errmsg "azure cli is required to proceed. please install it manually."
                     exit 1
                 fi
                 ;;
@@ -452,7 +452,7 @@ check_lacework_cli() {
         infomsg "lacework cli installed."
     else
         
-        read -p "> Lacework CLI is not installed. Would you like to install it? (y/n) " install_lacework
+        read -p "> Lacework CLI is not installed. would you like to install it? (y/n) " install_lacework
         case "$install_lacework" in
             y|Y )
                 # check if on Linux or macOS
@@ -592,7 +592,7 @@ function aws_check_vpcs {
             shift # past value
             ;;
             *)
-            errmsg "Unknown option: $1"
+            errmsg "unknown option: $1"
             exit 1
             ;;
         esac
@@ -662,25 +662,25 @@ function select_aws_profile {
     for environment in $environments; do 
         # Ask user to select AWS profile
         infomsg "select the $environment AWS profile:"
-        PS3="Profile number: "
+        PS3="profile number: "
         aws_profiles=$(aws configure list-profiles)
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
-                infomsg "Selected $environment aws profile: $profile_name"
+                infomsg "selected $environment aws profile: $profile_name"
                 break
             else
-                errmsg "Invalid selection. Try again."
+                errmsg "invalid selection. Try again."
             fi
         done
 
-        infomsg "Please choose the $environment aws region from the list below:"
+        infomsg "please choose the $environment aws region from the list below:"
         region_list=$(aws ec2 describe-regions --profile="$profile_name" --query 'Regions[*].RegionName' --output text)
         select region in $region_list; do
             if [ -n "$region" ]; then
-                infomsg "Selected $environment aws region: $region"
+                infomsg "selected $environment aws region: $region"
                 break
             else
-                errmsg "Invalid selection. Try again."
+                errmsg "invalid selection. Try again."
             fi
         done
 
@@ -705,27 +705,27 @@ function select_gcp_project {
     for environment in $environments; do 
         infomsg "select the $environment gcp project:"
         # Prompt the user to select a project
-        PS3="Please select the $environment gcp project: "
+        PS3="please select the $environment gcp project: "
         select project_id in $projects; do
             if [[ -n "$project_id" ]]; then
-                infomsg "Selected $environment gcp project: $project_id"
+                infomsg "selected $environment gcp project: $project_id"
                 break
             else
-                errmsg "Invalid selection. Please try again."
+                errmsg "invalid selection. please try again."
             fi
         done
 
-        infomsg "Fetching valid GCP locations..."
+        infomsg "fetching valid GCP locations..."
         locations=$(gcloud compute regions list --project="$project_id" --format="value(name)")
 
         # Prompt the user to select a region
-        PS3="Please select a locations: "
+        PS3="please select a locations: "
         select location in $locations; do
             if [[ -n "$location" ]]; then
-                infomsg "Selected location: $location"
+                infomsg "selected location: $location"
                 break
             else
-                errmsg "Invalid selection. Please try again."
+                errmsg "invalid selection. please try again."
             fi
         done
         
@@ -760,19 +760,19 @@ function select_azure_subscription {
             fi
         done
 
-        infomsg "Retrieving list of Azure regions..."
+        infomsg "retrieving list of Azure regions..."
         regions=($(az account list-locations --query "[].name" --output tsv))
         if [ ${#regions[@]} -eq 0 ]; then
-            echo "No valid Azure regions found for subscription $subscription_id."
+            echo "no valid Azure regions found for subscription $subscription_id."
             return 1
         fi
-        PS3="Enter the number of the Azure region you want to use: "
+        PS3="enter the number of the Azure region you want to use: "
         select region in "${regions[@]}"; do
             if [[ -n $region ]]; then
-                echo "You chose the Azure region: $region"
+                echo "you chose the Azure region: $region"
                 break
             else
-                echo "Invalid selection. Please try again."
+                echo "invalid selection. please try again."
             fi
         done
 
@@ -788,7 +788,7 @@ function select_azure_subscription {
     done;
 
     # Print the selected subscription and organization
-    # infomsg "Current tenant: $tenant_id"
+    # infomsg "current tenant: $tenant_id"
 }
 
 function select_lacework_profile {
@@ -801,7 +801,7 @@ function select_lacework_profile {
         exit 1
     fi
     infomsg "select a lacework profile:"
-    PS3="Profile number: "
+    PS3="profile number: "
     local IFS=$'\n'
     select opt in $options; do
         if [[ -n "$opt" ]]; then
@@ -903,12 +903,13 @@ function config_dynu {
             TARGET_DYNU_DNS_DOMAIN=$dynu_dns_domain
         fi
         clear
-        read -p "> $environment  dynu dns api key: " dynu_api_key
+        read -p "> $environment dynu dns api key: " dynu_api_key
         if [ "$environment" == "attacker" ]; then
             ATTACKER_DYNU_DNS_API_TOKEN=$dynu_api_key
         else
             TARGET_DYNU_DNS_API_TOKEN=$dynu_api_key
         fi
+        clear
     done;
 }
 
@@ -920,7 +921,7 @@ function select_option {
       infomsg "$opt"
       break
     else
-      infomsg "Invalid option. Try another one."
+      infomsg "invalid option. Try another one."
     fi
   done
 }
@@ -946,21 +947,25 @@ select_scenario
 
 clear
 
-ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/infrastructure.json)
-ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
-ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
-TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/infrastructure.json)
-TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
-TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
+CSP=$(echo ${SCENARIO} | awk -F '-' '{ print $1 }')
 
-ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
-TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
-ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/attacker/surface.json | uniq)
-TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' "$CSP"/"${SCENARIOS_PATH}"/"${SCENARIO}"/target/surface.json | uniq)
+ATTACKER_DYNU_REQUIRED=$(jq -r 'try .context.dynu_dns.enabled catch false' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json 2>/dev/null)
+ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq )
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json 2>/dev/null)
+TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+
+ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq )
+ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
 
 if [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_ENABLED}" ]]; then
-    info "Kubneretes apps enabled - some scenarios use docker to build containers.."
+    infomsg "kubneretes apps enabled - some scenarios use docker to build containers.."
+    sleep 3
     check_docker
+    sleep 3
 fi
 
 for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryptomining" "docker_composite_cloud_ransomware" "docker_composite_defense_evasion" "docker_composite_host_cryptomining"; do 
@@ -971,20 +976,21 @@ for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryp
 done
 
 if [ -e "$CONFIG_FILE" ]; then
-    infomsg "Existing config file:"
+    infomsg "existing config file:"
     echo "$(cat $CONFIG_FILE)"
 fi
 
 if check_file_exists "$CONFIG_FILE"; then
-    infomsg "Configuration file will be overwritten: $CONFIG_FILE"
-    
+    warnmsg "configuration will overwrite existing config if saved: $CONFIG_FILE"
+    sleep 3
+
     # set provider to first segement of workspace name
     PROVIDER=$(echo "$SCENARIO" | awk -F '-' '{ print $1 }')
     
     # check for sso logged out session
     if [[ "$PROVIDER" == "aws" ]]; then
         session_check=$(aws sts get-caller-identity "${SSO_PROFILE}" 2>&1)
-        if echo "$session_check" | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+        if echo "$session_check" | grep "the sso session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
             read -p "> aws sso session has expired - login now? (y/n): " login
             case "$login" in
                 y|Y )
@@ -1034,7 +1040,7 @@ if check_file_exists "$CONFIG_FILE"; then
             config_dynu
             clear
         else
-            infomsg "Skipping dynu configuration as it is not required..."
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
         echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
@@ -1048,13 +1054,13 @@ if check_file_exists "$CONFIG_FILE"; then
             config_protonvpn
             clear
         else
-            infomsg "Skipping protonvpn configuration as it is not required..."
+            infomsg "skipping protonvpn configuration as it is not required..."
         fi
         if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
         else
-            infomsg "Skipping dynu configuration as it is not required..."
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
         echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
@@ -1072,7 +1078,7 @@ if check_file_exists "$CONFIG_FILE"; then
             config_dynu
             clear
         else
-            infomsg "Skipping dynu configuration as it is not required..."
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
         echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
@@ -1111,6 +1117,6 @@ if check_file_exists "$CONFIG_FILE"; then
             ;;
     esac
 else
-  errmsg "Existing configuration file found exiting."
+  errmsg "existing configuration file found exiting."
   exit 1
 fi
