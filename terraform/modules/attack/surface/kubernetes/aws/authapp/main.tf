@@ -26,18 +26,10 @@ module "deployment" {
   
   service_account_name = kubernetes_service_account.this.metadata[0].name
   
-  env_secret = [
-    {
-      name = "ADMINPWD"
-      secret_name = kubernetes_secret.this.metadata[0].name 
-      secret_key = "admin_password"
-    },
-    {
-      name = "USERPWD"
-      secret_name = kubernetes_secret.this.metadata.0.name 
-      secret_key = "user_password"
-    }
-  ]
+  env_secret = {
+    ADMINPWD = kubernetes_secret.this.metadata[0].name 
+    USERPWD = kubernetes_secret.this.metadata[0].name 
+  }
 
   internal_port = [{
     name = "container"

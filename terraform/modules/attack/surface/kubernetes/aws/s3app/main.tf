@@ -31,13 +31,9 @@ module "deployment" {
     args          = var.args
     service_account_name = kubernetes_service_account.web_service.metadata[0].name
     
-    env_secret = [
-        {
-            name = "BUCKET_NAME"
-            secret_name = kubernetes_secret.this.metadata[0].name 
-            secret_key = "bucket_name"
-        }
-    ]
+    env_secret = {
+            BUCKET_NAME = kubernetes_secret.this.metadata[0].name 
+    }
     
     internal_port = [{
         name = "container"

@@ -5,7 +5,7 @@ resource "kubernetes_secret" "this" {
   }
 
   data = {
-    bucket_name = aws_s3_bucket.dev.id
+    BUCKET_NAME = aws_s3_bucket.dev.id
   }
 
   type = "Opaque"
