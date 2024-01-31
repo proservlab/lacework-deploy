@@ -280,13 +280,12 @@ module "vulnerable-rds-app" {
 
 module "eks-kubeconfig" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true) ? 1 : 0
-  source = "./modules/eks-kubeconfig"
+  source = "./modules/eks/eks-kubeconfig"
 
   environment = local.config.context.global.environment
   deployment = local.config.context.global.deployment
   aws_profile_name = local.aws_profile_name
-  aws_region = local.aws.region
-  region = local.aws.region
+  region = local.aws_region
   cluster_name = local.default_infrastructure_config.context.aws.eks.cluster_name
   kubeconfig_path = local.default_kubeconfig
 }
