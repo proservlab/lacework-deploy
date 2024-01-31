@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-    cluster_name = "${var.cluster_name}-${var.environment}-${var.deployment}"
+    cluster_name = var.cluster_name
     aws_account_id = data.aws_caller_identity.current.account_id
     use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
     current_user_arn       = local.use_assumed_role ? "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0]}" : data.aws_caller_identity.current.arn
