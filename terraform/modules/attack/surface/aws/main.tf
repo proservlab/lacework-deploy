@@ -286,7 +286,7 @@ module "eks-kubeconfig" {
   deployment = local.config.context.global.deployment
   aws_profile_name = local.aws_profile_name
   region = local.aws_region
-  cluster_name = local.default_infrastructure_config.context.aws.eks.cluster_name
+  cluster_name = local.cluster_name
   kubeconfig_path = local.default_kubeconfig
 }
 
