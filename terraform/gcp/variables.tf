@@ -368,12 +368,23 @@ variable "attacker_context_host_cryptomining_nicehash_user" {
 ##################################################
 
 # dns hostname provisioning api key
-variable "dynu_api_key" {
+variable "attacker_dynu_api_key" {
   type    = string
   default = ""
 }
 
-variable "dynu_dns_domain" {
+variable "attacker_dynu_dns_domain" {
+  type    = string
+  default = ""
+}
+
+
+variable "target_dynu_api_key" {
+  type    = string
+  default = ""
+}
+
+variable "target_dynu_dns_domain" {
   type    = string
   default = ""
 }

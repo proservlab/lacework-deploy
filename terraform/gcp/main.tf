@@ -81,8 +81,8 @@ locals {
       gcp_region  = var.attacker_gcp_region
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
 
       # lacework
       lacework_profile = var.lacework_profile
@@ -100,8 +100,8 @@ locals {
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # lacework
       lacework_server_url   = var.lacework_server_url
@@ -461,6 +461,9 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
     }
   )
   target-attacksurface-config-file = templatefile(
@@ -468,6 +471,9 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -668,7 +674,8 @@ locals {
       deployment  = var.deployment
 
       # dynu
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
 
       # aws
       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
@@ -713,7 +720,8 @@ locals {
       deployment  = var.deployment
 
       # dynu
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # aws
       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""

@@ -82,9 +82,9 @@ locals {
       azure_region       = var.attacker_azure_region
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.dynu_dns_domain
-
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
+      
       # lacework
       lacework_profile = var.lacework_profile
     }
@@ -101,8 +101,8 @@ locals {
       azure_region       = var.target_azure_region
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # lacework
       lacework_server_url   = var.lacework_server_url
@@ -352,6 +352,9 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
     }
   )
   target-attacksurface-config-file = templatefile(
@@ -359,6 +362,9 @@ locals {
     {
       # deployment id
       deployment = var.deployment
+
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -565,7 +571,8 @@ locals {
       deployment  = var.deployment
 
       # dynu
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
 
       # azure
       attacker_azure_subscription = can(length(var.attacker_azure_subscription)) ? var.attacker_azure_subscription : ""
@@ -593,7 +600,8 @@ locals {
       deployment  = var.deployment
 
       # dynu
-      dynu_dns_domain = var.dynu_dns_domain
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
       # azure
       attacker_azure_subscription = can(length(var.attacker_azure_subscription)) ? var.attacker_azure_subscription : ""

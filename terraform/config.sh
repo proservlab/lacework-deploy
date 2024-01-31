@@ -40,8 +40,10 @@ ATTACKER_PROTONVPN_PASSWORD=""
 ATTACKER_PROTONVPN_PRIVATEKEY=""
 
 # DYNDNS API TOKEN
-DYNU_DNS_DOMAIN=""
-DYNU_DNS_API_TOKEN=""
+ATTACKER_DYNU_DNS_DOMAIN=""
+ATTACKER_DYNU_DNS_API_TOKEN=""
+TARGET_DYNU_DNS_DOMAIN=""
+TARGET_DYNU_DNS_API_TOKEN=""
 
 help(){
 cat <<EOH
@@ -825,8 +827,10 @@ lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
-dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_api_key = "$ATTACKER_DYNU_DNS_API_TOKEN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_api_key = "$TARGET_DYNU_DNS_API_TOKEN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -846,8 +850,10 @@ lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
-dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_api_key = "$ATTACKER_DYNU_DNS_API_TOKEN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_api_key = "$TARGET_DYNU_DNS_API_TOKEN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -867,8 +873,10 @@ lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
-dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_api_key = "$ATTACKER_DYNU_DNS_API_TOKEN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_api_key = "$TARGET_DYNU_DNS_API_TOKEN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -884,12 +892,24 @@ function config_protonvpn {
 }
 
 function config_dynu {
-    infomsg "dynu configuration if required for this scenario."
-    read -p "> dynu dns domain: " dynu_dns_domain
-    DYNU_DNS_DOMAIN=$dynu_dns_domain
-    clear
-    read -p "> dynu dns api key: " dynu_api_key
-    DYNU_DNS_API_TOKEN=$dynu_api_key
+    infomsg "dynu configuration if required for this scenario. attacker and target dynu domain and api can be the same."
+    # iterate through the attack and target environments
+    environments="attacker target"
+    for environment in $environments; do 
+        read -p "> $environment dynu dns domain: " dynu_dns_domain
+        if [ "$environment" == "attacker" ]; then
+            ATTACKER_DYNU_DNS_DOMAIN=$dynu_dns_domain
+        else
+            TARGET_DYNU_DNS_DOMAIN=$dynu_dns_domain
+        fi
+        clear
+        read -p "> $environment  dynu dns api key: " dynu_api_key
+        if [ "$environment" == "attacker" ]; then
+            ATTACKER_DYNU_DNS_API_TOKEN=$dynu_api_key
+        else
+            TARGET_DYNU_DNS_API_TOKEN=$dynu_api_key
+        fi
+    done;
 }
 
 function select_option {
