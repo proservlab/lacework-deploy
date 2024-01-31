@@ -296,7 +296,7 @@ module "eks-auth" {
   source      = "./modules/eks/eks-auth"
   environment       = local.config.context.global.environment
   deployment        = local.config.context.global.deployment
-  cluster_name      = local.default_infrastructure_config.context.aws.eks.cluster_name
+  cluster_name      = local.cluster_name
 
   # user here needs to be created by iam module
   iam_eks_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
