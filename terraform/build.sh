@@ -271,7 +271,7 @@ if [[ "$CSP" == "aws" ]]; then
         read -p "> aws sso session has expired - login now? (y/n): " login
         case "$login" in
             y|Y )
-                aws sso login "${SSO_PROFILE}"
+                aws sso login ${SSO_PROFILE}
                 ;;
             n|N )
                 errmsg "aws session expired - manual login required."
