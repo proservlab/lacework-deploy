@@ -285,7 +285,7 @@ module "eks-autoscaler" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -310,7 +310,7 @@ module "eks-windows-configmap" {
   depends_on = [
     module.eks-windows,
     module.eks,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -336,7 +336,7 @@ module "eks-calico" {
     module.eks,
    
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -371,7 +371,7 @@ module "lacework-daemonset" {
     module.eks,
    
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -401,7 +401,7 @@ module "lacework-daemonset-windows" {
     module.eks,
    
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -426,7 +426,7 @@ module "lacework-admission-controller" {
     module.eks,
    
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
@@ -449,7 +449,7 @@ module "lacework-eks-audit" {
     module.eks,
    
     module.eks-autoscaler,
-    module.aws-eks-kubeconfig
+    module.eks-kubeconfig
   ]
 }
 
