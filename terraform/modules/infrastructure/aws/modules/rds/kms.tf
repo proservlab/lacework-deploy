@@ -14,12 +14,10 @@ resource "aws_kms_key" "this" {
                         "Sid": "Allow access for Account Holder",
                         "Effect": "Allow",
                         "Principal": {
-                            "AWS": local.user_is_root ? [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-                            ] : [
-                                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-                                "${local.current_user_arn}"
-                            ]
+                            "AWS": distinct([
+                                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+                                    "${local.current_user_arn}"
+                                ])
                         },
                         "Action": [
                             "kms:Create*",

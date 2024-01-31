@@ -368,15 +368,15 @@ variable "attacker_context_host_cryptomining_nicehash_user" {
 
 # dns hostname provisioning api key
 variable "dynu_api_key" {
-  type    = string
+  type        = string
   description = "deprecated - will be removed in future versions. use target_dynu_api_key and/or attacker_dynu_api_key"
-  default = ""
+  default     = ""
 }
 
 variable "dynu_dns_domain" {
-  type    = string
+  type        = string
   description = "deprecated - will be removed in future versions. use target_dynu_dns_domain and/or attacker_dynu_dns_domain"
-  default = ""
+  default     = ""
 }
 
 variable "attacker_dynu_api_key" {
