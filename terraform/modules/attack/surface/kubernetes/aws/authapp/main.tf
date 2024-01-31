@@ -29,7 +29,7 @@ module "deployment" {
   env_secret = [
     {
       name = "ADMINPWD"
-      secret_name = kubernetes_secret.this.metadata.0.name 
+      secret_name = kubernetes_secret.this.metadata[0].name 
       secret_key = "ADMINPWD"
     },
     {
