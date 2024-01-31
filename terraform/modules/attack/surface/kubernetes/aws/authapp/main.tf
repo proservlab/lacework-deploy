@@ -30,12 +30,12 @@ module "deployment" {
     {
       name = "ADMINPWD"
       secret_name = kubernetes_secret.this.metadata[0].name 
-      secret_key = "ADMINPWD"
+      secret_key = "admin_password"
     },
     {
       name = "USERPWD"
       secret_name = kubernetes_secret.this.metadata.0.name 
-      secret_key = "USERPWD"
+      secret_key = "user_password"
     }
   ]
 

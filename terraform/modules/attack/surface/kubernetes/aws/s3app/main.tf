@@ -35,7 +35,7 @@ module "deployment" {
         {
             name = "BUCKET_NAME"
             secret_name = kubernetes_secret.this.metadata[0].name 
-            secret_key = "BUCKET_NAME"
+            secret_key = "bucket_name"
         }
     ]
     

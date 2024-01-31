@@ -12,13 +12,13 @@ resource "random_password" "admin_password" {
 
 resource "kubernetes_secret" "this" {
   metadata {
-    name = "authapp-env-vars"
+    name = "${local.app_name}-env-vars"
     namespace = local.app_namespace
   }
 
   data = {
-    USERPWD = try(length(var.user_password), "false") != "false" ? var.user_password : random_password.user_password.result
-    ADMINPWD = try(length(var.admin_password), "false") != "false" ? var.admin_password :  random_password.admin_password.result
+    user_password = try(length(var.user_password), "false") != "false" ? var.user_password : random_password.user_password.result
+    admin_password = try(length(var.admin_password), "false") != "false" ? var.admin_password :  random_password.admin_password.result
   }
 
   type = "Opaque"
