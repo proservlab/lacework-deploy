@@ -109,6 +109,4 @@ resource "aws_kms_key" "this" {
         environment = var.environment
         deployment = var.deployment
     }
-
-    depends_on = [ local_file.policy ]
 }
