@@ -38,13 +38,11 @@ command_exists() {
 workspace_summary(){
     echo "finding all active workspaces - this may take some time..."
     providers=("aws" "gcp" "azure")
-
+    
     for provider in "${providers[@]}"
     do
-        # echo "Checking resources for $provider"
-        
         # Change directory to the provider's directory
-        cd $provider
+        cd "${SCRIPT_PATH}/${provider}"
 
         # Get the list of workspaces
         workspaces=($(terraform workspace list | tr -d '*'))
@@ -52,26 +50,23 @@ workspace_summary(){
         for workspace in "${workspaces[@]}"
         do
             # Removing leading whitespace
-            workspace=$(echo $WORK | sed -e 's/^[[:space:]]*//')
+            workspace=$(echo $workspace | sed -e 's/^[[:space:]]*//')
 
-            #echo "Switching to workspace $WORK"
-            terraform workspace select $WORK > /dev/null 2>&1
+            #echo "Switching to workspace $workspace"
+            terraform workspace select $workspace > /dev/null 2>&1
 
             # Use terraform state list to count resources
             resource_count=$(terraform state list 2>/dev/null | wc -l)
             if [ "$resource_count" -gt "0" ]; then
-                echo "$WORK $resource_count"
+                echo "$workspace $resource_count"
             else
-                if [ "$WORK" != "default" ]; then
-                    echo "removing empty workspace: $WORK $resource_count"
+                if [ "$workspace" != "default" ]; then
+                    echo "removing empty workspace: $workspace $resource_count"
                     terraform workspace select default > /dev/null 2>&1
-                    terraform workspace delete $WORK > /dev/null 2>&1
+                    terraform workspace delete $workspace > /dev/null 2>&1
                 fi
             fi
         done
-
-        # Change directory back to the parent directory
-        cd ..
     done
 
     exit 0
