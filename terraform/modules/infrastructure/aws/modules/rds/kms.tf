@@ -1,7 +1,7 @@
 locals {
   use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
   user_is_root = can(regex("arn:aws:iam::${data.aws_caller_identity.current.account_id}:root", data.aws_caller_identity.current.arn))
-  current_user_arn = local.use_assumed_role ? data.aws_iam_roles.current_user.arns[0] : data.aws_caller_identity.current.arn
+  current_user_arn = local.use_assumed_role ? tolist(data.aws_iam_roles.current_user.arns)[0] : data.aws_caller_identity.current.arn
 }
 
 data "aws_iam_roles" "current_user" {
