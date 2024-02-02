@@ -4,7 +4,8 @@ locals {
     cluster_name = var.cluster_name
     aws_account_id = data.aws_caller_identity.current.account_id
     use_assumed_role = can(regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn))
-    current_user_arn = local.use_assumed_role ? data.aws_iam_role.current_user[0].arn : data.aws_caller_identity.current.arn
+    user_is_root = can(regex("arn:aws:iam::${data.aws_caller_identity.current.account_id}:root", data.aws_caller_identity.current.arn))
+    current_user_arn = local.use_assumed_role ? tolist(data.aws_iam_roles.current_user.arns)[0] : data.aws_caller_identity.current.arn
     read_role_name = "read-pods"
     admin_role_name = "admin-pods"
 
@@ -16,9 +17,8 @@ locals {
     iam_eks_readers = var.iam_eks_readers
 }
 
-data "aws_iam_role" "current_user" {
-    count = local.use_assumed_role ? 1 : 0
-    name = regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0]
+data "aws_iam_roles" "current_user" {
+    name_regex = local.use_assumed_role ? regex(".*:assumed-role/(.*)/", data.aws_caller_identity.current.arn)[0] : ""
 }
 
 data "aws_iam_user" "read_users" {
