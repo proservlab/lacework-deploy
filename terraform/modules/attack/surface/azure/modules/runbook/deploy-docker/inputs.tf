@@ -33,3 +33,8 @@ variable "tag" {
     description = "tag associated with this runbook"
     default = "runbook_deploy_docker"
 }
+
+variable "docker_users" {
+    type = list(string)
+    default = []
+}

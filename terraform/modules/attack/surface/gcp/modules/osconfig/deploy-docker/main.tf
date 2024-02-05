@@ -11,6 +11,7 @@ module "payload" {
         gcp_location      = var.gcp_location
         region            = var.gcp_location
         tag               = var.tag
+        docker_users      = var.docker_users
     }   
 }
 

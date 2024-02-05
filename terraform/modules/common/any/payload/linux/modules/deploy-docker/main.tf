@@ -13,6 +13,10 @@ locals {
         apt_pre_tasks = <<-EOT
         if command -v ${local.tool} &>/dev/null; then
             log "${local.tool} found - no installation required"; 
+            # ensure non root users are added to the docker group
+            if [[ "" != "${join(" ", var.inputs["docker_users"])}" ]] && grep docker /etc/group > /dev/null 2>&1;  then
+                usermod -aG docker ${join("\nusermod -aG docker ", var.inputs["docker_users"])}
+            fi
             exit 0; 
         fi
         sudo apt-get update
@@ -31,10 +35,19 @@ locals {
         sudo apt-get update
         EOT
         apt_packages = "docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-        apt_post_tasks = ""
+        apt_post_tasks = <<-EOT
+        # ensure non root users are added to the docker group
+        if [[ "" != "${join(" ", var.inputs["docker_users"])}" ]] && grep docker /etc/group > /dev/null 2>&1;  then
+            usermod -aG docker ${join("\nusermod -aG docker ", var.inputs["docker_users"])}
+        fi
+        EOT
         yum_pre_tasks = <<-EOT
         if command -v ${local.tool} &>/dev/null; then
-            log "${local.tool} found - no installation required"; 
+            log "${local.tool} found - no installation required";
+            # ensure non root users are added to the docker group
+            if [[ "" != "${join(" ", var.inputs["docker_users"])}" ]] && grep docker /etc/group > /dev/null 2>&1;  then
+                usermod -aG docker ${join("\nusermod -aG docker ", var.inputs["docker_users"])}
+            fi
             exit 0; 
         fi
         yum update -y
@@ -50,7 +63,12 @@ locals {
         yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         EOT
         yum_packages = "docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-        yum_post_tasks = ""
+        yum_post_tasks = <<-EOT
+        # ensure non root users are added to the docker group
+        if [[ "" != "${join(" ", var.inputs["docker_users"])}" ]] && grep docker /etc/group > /dev/null 2>&1;  then
+            usermod -aG docker ${join("\nusermod -aG docker ", var.inputs["docker_users"])}
+        fi
+        EOT
         script_delay_secs = 30
         next_stage_payload = local.payload
     }})

@@ -471,7 +471,7 @@ module "inspector" {
 
 # ssm deploy inspector agent
 module "ssm-deploy-inspector-agent" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_inspector_agent == true && local.config.context.aws.inspector.enabled == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_inspector_agent.enabled == true && local.config.context.aws.inspector.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-inspector-agent"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -479,7 +479,7 @@ module "ssm-deploy-inspector-agent" {
 
 # ssm deploy git
 module "ssm-deploy-git" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_git== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_git.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-git"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -487,15 +487,17 @@ module "ssm-deploy-git" {
 
 # ssm deploy docker
 module "ssm-deploy-docker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_docker== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_docker.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-docker"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
+  
+  docker_users = local.config.context.aws.ssm.deploy_docker.docker_users
 }
 
 # ssm deploy lacework agent
 module "ssm-deploy-lacework-agent" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_agent == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_agent.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-lacework-agent"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -506,7 +508,7 @@ module "ssm-deploy-lacework-agent" {
 
 # ssm deploy lacework syscall_config.yaml
 module "lacework-ssm-deployment-syscall-config" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_syscall_config == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_syscall_config.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-lacework-syscall-config"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -515,7 +517,7 @@ module "lacework-ssm-deployment-syscall-config" {
 }
 
 module "ssm-deploy-lacework-code-aware-agent" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_code_aware_agent == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_code_aware_agent.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-lacework-code-aware-agent"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -523,7 +525,7 @@ module "ssm-deploy-lacework-code-aware-agent" {
 
 # ssm deploy aws cli
 module "ssm-deploy-aws-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_aws_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_aws_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-aws-cli"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -531,7 +533,7 @@ module "ssm-deploy-aws-cli" {
 
 # ssm deploy lacework cli
 module "ssm-deploy-lacework-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_lacework_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-lacework-cli"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -539,7 +541,7 @@ module "ssm-deploy-lacework-cli" {
 
 # ssm deploy kubectl cli
 module "ssm-deploy-kubectl-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_kubectl_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_kubectl_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-kubectl-cli"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment
@@ -547,7 +549,7 @@ module "ssm-deploy-kubectl-cli" {
 
 # ssm deploy protonvpn docker
 module "ssm-deploy-protonvpn-docker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_protonvpn_docker== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.enabled == true && local.config.context.aws.ssm.deploy_protonvpn_docker.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/aws/modules/ssm/deploy-protonvpn-docker"
   environment  = local.config.context.global.environment
   deployment   = local.config.context.global.deployment

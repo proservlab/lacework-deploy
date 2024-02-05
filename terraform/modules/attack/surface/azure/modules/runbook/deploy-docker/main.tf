@@ -13,6 +13,8 @@ module "payload" {
         automation_princial_id      = var.automation_princial_id
         
         tag                         = var.tag
+
+        docker_users                = var.docker_users
         
     }   
 }

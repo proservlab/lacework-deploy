@@ -1,0 +1,11 @@
+cat > /tmp/hydra-passwords.txt <<'EOF'
+123456
+123456789
+111111
+password
+qwerty
+abc123
+12345678
+password1
+1234567
+123123

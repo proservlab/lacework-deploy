@@ -33,11 +33,11 @@
       },
       "ssm": {
         "enabled"                        : false,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_git"                     : { "enabled" : false },
+        "deploy_docker"                  : { "enabled" : false },
+        "deploy_inspector_agent"         : { "enabled" : false },
+        "deploy_lacework_agent"          : { "enabled" : false },
+        "deploy_lacework_syscall_config" : { "enabled" : false }
       }
     },
     "lacework": {

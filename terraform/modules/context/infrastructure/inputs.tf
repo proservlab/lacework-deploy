@@ -63,15 +63,34 @@ variable "config" {
         })
         runbook = object({
           enabled               = bool
-          deploy_git            = bool
-          deploy_docker         = bool
-          deploy_lacework_agent = bool
-          deploy_lacework_syscall_config = bool
-          deploy_lacework_code_aware_agent = bool
-          deploy_azure_cli        = bool
-          deploy_lacework_cli   = bool
-          deploy_kubectl_cli    = bool
-          deploy_protonvpn_docker = bool
+          deploy_git            = object({
+            enabled             = bool
+          })
+          deploy_docker         = object({
+            enabled             = bool
+            docker_users        = list(string)
+          })
+          deploy_lacework_agent = object({
+            enabled             = bool
+          })
+          deploy_lacework_syscall_config = object({
+            enabled             = bool
+          })
+          deploy_lacework_code_aware_agent = object({
+            enabled             = bool
+          })
+          deploy_azure_cli        = object({
+            enabled             = bool
+          })
+          deploy_lacework_cli   = object({
+            enabled             = bool
+          })
+          deploy_kubectl_cli    = object({
+            enabled             = bool
+          })
+          deploy_protonvpn_docker = object({
+            enabled             = bool
+          })
         })
       })
       gcp = object({
@@ -116,15 +135,34 @@ variable "config" {
         })
         osconfig = object({
           enabled               = bool
-          deploy_git            = bool
-          deploy_docker         = bool
-          deploy_lacework_agent = bool
-          deploy_lacework_syscall_config = bool
-          deploy_lacework_code_aware_agent = bool
-          deploy_gcp_cli        = bool
-          deploy_lacework_cli   = bool
-          deploy_kubectl_cli    = bool
-          deploy_protonvpn_docker = bool
+          deploy_git            = object({
+            enabled             = bool
+          })
+          deploy_docker         = object({
+            enabled             = bool
+            docker_users        = list(string)
+          })
+          deploy_lacework_agent = object({
+            enabled             = bool
+          })
+          deploy_lacework_syscall_config = object({
+            enabled             = bool
+          })
+          deploy_lacework_code_aware_agent = object({
+            enabled             = bool
+          })
+          deploy_gcp_cli        = object({
+            enabled             = bool
+          })
+          deploy_lacework_cli   = object({
+            enabled             = bool
+          })
+          deploy_kubectl_cli    = object({
+            enabled             = bool
+          })
+          deploy_protonvpn_docker = object({
+            enabled             = bool
+          })
         })
       })
       aws = object({
@@ -177,16 +215,37 @@ variable "config" {
         })
         ssm = object({
           enabled               = bool
-          deploy_git            = bool
-          deploy_docker         = bool
-          deploy_inspector_agent = bool
-          deploy_lacework_agent = bool
-          deploy_lacework_syscall_config = bool
-          deploy_lacework_code_aware_agent = bool
-          deploy_aws_cli        = bool
-          deploy_lacework_cli   = bool
-          deploy_kubectl_cli    = bool
-          deploy_protonvpn_docker = bool
+          deploy_git            = object({
+            enabled             = bool
+          })
+          deploy_docker         = object({
+            enabled             = bool
+            docker_users        = list(string)
+          })
+          deploy_inspector_agent = object({
+            enabled             = bool
+          })
+          deploy_lacework_agent = object({
+            enabled             = bool
+          })
+          deploy_lacework_syscall_config = object({
+            enabled             = bool
+          })
+          deploy_lacework_code_aware_agent = object({
+            enabled             = bool
+          })
+          deploy_aws_cli        = object({
+            enabled             = bool
+          })
+          deploy_lacework_cli   = object({
+            enabled             = bool
+          })
+          deploy_kubectl_cli    = object({
+            enabled             = bool
+          })
+          deploy_protonvpn_docker = object({
+            enabled             = bool
+          })
         })
       })
       
@@ -457,15 +516,34 @@ variable "config" {
         }
         runbook = {
           enabled               = false
-          deploy_git            = false
-          deploy_docker         = false
-          deploy_lacework_agent = false
-          deploy_lacework_syscall_config = false
-          deploy_lacework_code_aware_agent = false
-          deploy_azure_cli        = false
-          deploy_lacework_cli   = false
-          deploy_kubectl_cli    = false
-          deploy_protonvpn_docker = false
+          deploy_git            = {
+            enabled             = false
+          }
+          deploy_docker         = {
+            enabled             = false
+            docker_users        = []
+          }
+          deploy_lacework_agent = {
+            enabled             = false
+          }
+          deploy_lacework_syscall_config = {
+            enabled             = false
+          }
+          deploy_lacework_code_aware_agent = {
+            enabled             = false
+          }
+          deploy_azure_cli        = {
+            enabled             = false
+          }
+          deploy_lacework_cli   = {
+            enabled             = false
+          }
+          deploy_kubectl_cli    = {
+            enabled             = false
+          }
+          deploy_protonvpn_docker = {
+            enabled             = false
+          }
         }
       }
       gcp = {
@@ -574,15 +652,34 @@ variable "config" {
         }
         osconfig = {
           enabled               = false
-          deploy_git            = false
-          deploy_docker         = false
-          deploy_lacework_agent = false
-          deploy_lacework_syscall_config = false
-          deploy_lacework_code_aware_agent = false
-          deploy_gcp_cli        = false
-          deploy_lacework_cli   = false
-          deploy_kubectl_cli    = false
-          deploy_protonvpn_docker = false
+          deploy_git            = {
+            enabled             = false
+          }
+          deploy_docker         = {
+            enabled             = false
+            docker_users        = []
+          }
+          deploy_lacework_agent = {
+            enabled             = false
+          }
+          deploy_lacework_syscall_config = {
+            enabled             = false
+          }
+          deploy_lacework_code_aware_agent = {
+            enabled             = false
+          }
+          deploy_gcp_cli        = {
+            enabled             = false
+          }
+          deploy_lacework_cli   = {
+            enabled             = false
+          }
+          deploy_kubectl_cli    = {
+            enabled             = false
+          }
+          deploy_protonvpn_docker = {
+            enabled             = false
+          }
         }
       }
       aws = {
@@ -700,16 +797,37 @@ variable "config" {
         }
         ssm = {
           enabled               = false
-          deploy_git            = false
-          deploy_docker         = false
-          deploy_inspector_agent = false
-          deploy_lacework_agent = false
-          deploy_lacework_syscall_config = false
-          deploy_lacework_code_aware_agent = false
-          deploy_aws_cli        = false
-          deploy_lacework_cli   = false
-          deploy_kubectl_cli    = false
-          deploy_protonvpn_docker = false
+          deploy_git            = {
+            enabled             = false
+          }
+          deploy_docker         = {
+            enabled             = false
+            docker_users        = []
+          }
+          deploy_inspector_agent = {
+            enabled             = false
+          }
+          deploy_lacework_agent = {
+            enabled             = false
+          }
+          deploy_lacework_syscall_config = {
+            enabled             = false
+          }
+          deploy_lacework_code_aware_agent = {
+            enabled             = false
+          }
+          deploy_aws_cli        = {
+            enabled             = false
+          }
+          deploy_lacework_cli   = {
+            enabled             = false
+          }
+          deploy_kubectl_cli    = {
+            enabled             = false
+          }
+          deploy_protonvpn_docker = {
+            enabled             = false
+          }
         }
       }
       lacework = {

@@ -22,3 +22,8 @@ variable "cron" {
   type = string
   default = "cron(0/30 * * * ? *)"
 }
+
+variable "docker_users" {
+  type = list(string)
+  default = []
+}

@@ -40,7 +40,7 @@
             },
             "ssm": {
                 "enabled"                        : true,
-                "deploy_docker"                  : true
+                "deploy_docker"                  : { "enabled" : true }
             }
         },
         "dynu_dns" : {

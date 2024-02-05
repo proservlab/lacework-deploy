@@ -42,6 +42,12 @@ variable "config" {
           })
         })
         runbook = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
               log4j_app = object({
@@ -110,6 +116,12 @@ variable "config" {
           })
         })
         osconfig = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
               log4j_app = object({
@@ -192,6 +204,12 @@ variable "config" {
           })
         })
         ssm = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
               log4j_app = object({
@@ -482,6 +500,12 @@ variable "config" {
           }
         }
         runbook = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
               log4j_app = {
@@ -550,6 +574,12 @@ variable "config" {
           }
         }
         osconfig = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
               log4j_app = {
@@ -632,6 +662,12 @@ variable "config" {
           }
         }
         ssm = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
               log4j_app = {

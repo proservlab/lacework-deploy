@@ -25,3 +25,8 @@ variable "timeout" {
     type = string
     default = "600s"
 }
+
+variable "docker_users" {
+    type = list(string)
+    default = []
+}

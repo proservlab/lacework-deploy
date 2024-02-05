@@ -45,9 +45,9 @@
             },
             "osconfig": {
                 "enabled"                        : true,
-                "deploy_git"                     : true,
-                "deploy_docker"                  : true,
-                "deploy_aws_cli"                 : true
+                "deploy_git"                     : { "enabled" : true },
+                "deploy_docker"                  : { "enabled" : true },
+                "deploy_aws_cli"                 : { "enabled" : true }
             }
         },
         "dynu_dns" : {

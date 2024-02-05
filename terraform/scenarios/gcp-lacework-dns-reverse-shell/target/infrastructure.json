@@ -47,11 +47,11 @@
       },
       "osconfig": {
         "enabled"                        : true,
-        "deploy_git"                     : true,
-        "deploy_docker"                  : true,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true
+        "deploy_git"                     : { "enabled" : true },
+        "deploy_docker"                  : { "enabled" : true },
+        "deploy_lacework_agent"          : { "enabled" : true },
+        "deploy_lacework_syscall_config" : { "enabled" : true },
+        "deploy_lacework_code_aware_agent" : { "enabled" : true }
       }
     },
     "lacework": {

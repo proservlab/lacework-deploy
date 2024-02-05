@@ -25,8 +25,8 @@
             },
             "ssm": {
                 "enabled"                        : false,
-                "deploy_git"                     : false,
-                "deploy_docker"                  : false
+                "deploy_git"                     : { "enabled" : false },
+                "deploy_docker"                  : { "enabled" : false }
             }
         },
         "dynu_dns" : {

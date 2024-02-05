@@ -179,7 +179,7 @@ module "gke" {
 
 # osconfig deploy git
 module "osconfig-deploy-git" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_git== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_git.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-git"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
@@ -191,19 +191,21 @@ module "osconfig-deploy-git" {
 
 # osconfig deploy docker
 module "osconfig-deploy-docker" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true  && local.config.context.gcp.osconfig.deploy_docker== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true  && local.config.context.gcp.osconfig.deploy_docker.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-docker"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
 
+  docker_users                = local.config.context.gcp.osconfig.deploy_docker.docker_users
+
   tag = "osconfig_deploy_docker"
 }
 
 # osconfig deploy lacework agent
 module "osconfig-deploy-lacework-agent" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_agent == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_agent.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-lacework-agent"
   environment                 = local.config.context.global.environment
   deployment                  = local.config.context.global.deployment
@@ -218,7 +220,7 @@ module "osconfig-deploy-lacework-agent" {
 
 # osconfig deploy lacework syscall_config.yaml
 module "osconfig-deploy-lacework-syscall-config" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_syscall_config == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_syscall_config.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-lacework-syscall-config"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
@@ -231,7 +233,7 @@ module "osconfig-deploy-lacework-syscall-config" {
 }
 
 module "osconfig-deploy-lacework-code-aware-agent" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_code_aware_agent == true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_code_aware_agent.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-lacework-code-aware-agent"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
@@ -243,7 +245,7 @@ module "osconfig-deploy-lacework-code-aware-agent" {
 
 # osconfig deploy gcp cli
 module "osconfig-deploy-gcp-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_gcp_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_gcp_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-gcp-cli"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
@@ -255,7 +257,7 @@ module "osconfig-deploy-gcp-cli" {
 
 # osconfig deploy lacework cli
 module "osconfig-deploy-lacework-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_lacework_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-lacework-cli"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
@@ -267,7 +269,7 @@ module "osconfig-deploy-lacework-cli" {
 
 # osconfig deploy kubectl cli
 module "osconfig-deploy-kubectl-cli" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_kubectl_cli== true ) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true  && local.config.context.gcp.osconfig.enabled == true && local.config.context.gcp.osconfig.deploy_kubectl_cli.enabled == true ) ? 1 : 0
   source       = "../../attack/surface/gcp/modules/osconfig/deploy-kubectl-cli"
   gcp_project_id              = local.config.context.gcp.project_id
   gcp_location                = local.config.context.gcp.region
