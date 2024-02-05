@@ -34,6 +34,7 @@
                 "ssm_deploy_lacework_syscall"               : "true",
                 "ssm_deploy_lacework_code_aware_agent"      : "true",
                 "ssm_deploy_secret_ssh_private"             : "true",
+                "ssm_deploy_docker"                         : "true",
                 "ssm_deploy_ssh_user"                       : "true"
 
             },
