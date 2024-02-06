@@ -39,37 +39,11 @@ while ! command -v docker >/dev/null; do
     sleep 30;
 done
 
-cat > /tmp/hydra-users.txt <<'EOF'
-root
-admin
-test
-guest
-info
-adm
-mysql
-user
-administrator
-oracle
-ftp
-pi
-puppet
-ansible
-ec2-user
-vagrant
-azureuser
-EOF
-cat > /tmp/hydra-passwords.txt <<'EOF'
-123456
-123456789
-111111
-password
-qwerty
-abc123
-12345678
-password1
-1234567
-123123
-EOF
+while ! [ -f "/tmp/hydra-users.txt" ] || ! [ -f "/tmp/hydra-passwords.txt" ]; do
+    echo "waiting for /tmp/hydra-users.txt and /tmp/hydra-passwords.txt..."
+    sleep 30
+done
+
 LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
 generate_ips "$LOCAL_NET" > /tmp/hydra-targets.txt
 echo $LOCAL_NET > /tmp/nmap-targets.txt
