@@ -211,7 +211,7 @@ module "eks" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks.cluster_name
-  kubeconfig_path = local.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   deploy_calico = local.config.context.aws.eks.deploy_calico
 }
@@ -225,7 +225,7 @@ module "eks-kubeconfig" {
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
   cluster_name = module.eks[0].cluster.id
-  kubeconfig_path = local.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   depends_on = [ 
     module.eks
@@ -242,7 +242,7 @@ module "eks-windows" {
   aws_profile_name = local.config.context.aws.profile_name
 
   cluster_name = local.config.context.aws.eks-windows.cluster_name
-  kubeconfig_path = local.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 }
 
 module "aws-eks-windows-kubeconfig" {
@@ -254,7 +254,7 @@ module "aws-eks-windows-kubeconfig" {
   aws_profile_name = local.config.context.aws.profile_name
   region = local.config.context.aws.region
   cluster_name = module.eks-windows[0].cluster.id
-  kubeconfig_path = local.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 
   depends_on = [ 
     module.eks-windows

@@ -287,7 +287,7 @@ module "eks-kubeconfig" {
   aws_profile_name = local.aws_profile_name
   region = local.aws_region
   cluster_name = local.cluster_name
-  kubeconfig_path = local.default_kubeconfig
+  kubeconfig_path = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
 }
 
 # assign iam user cluster readonly role
