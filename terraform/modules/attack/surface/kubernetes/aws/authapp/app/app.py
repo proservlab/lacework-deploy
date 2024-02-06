@@ -17,8 +17,6 @@ from functools import wraps
 import os
 import json
 import sys
-import boto3
-from botocore.exceptions import NoCredentialsError
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_mixins import AllFeaturesMixin
