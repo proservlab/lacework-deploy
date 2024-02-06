@@ -63,7 +63,7 @@ variable "payload" {
 variable "reverse_shell_host" {
   type = string
   description = "The hostname or ip for reverse shell connections"
-  default = None
+  default = null
 }
 
 variable "reverse_shell_port" {
