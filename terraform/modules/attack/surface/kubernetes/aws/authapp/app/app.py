@@ -10,6 +10,7 @@
 # example: flask-unsign --sign --cookie "{'_fresh': True, '_id': 'ee9b5996575c831cd47cc8c008248771af996555a6c354b0d3550f4e581319cf31f3eeceee719de381cba941ebd5ac4a282516879c367df267179ca582785b90', '_user_id': '1'}" --secret 'Hello World!'
 # .eJwlzjEOwyAMQNG7eO6AMcZ2LhOBMWpX0kxV795U2b70l_eBfa44nrC91xkP2F8DNoiwzmaVhV0JfRRxV09Jc1ERbPM_mVt14tLTIOY0S7AiofkknBThESFoI0jRe7OC0Qc3Ly1rZqwq5lRlzFwFr26sWZS7Jbgg5xHr1iB8f4fZLoA.ZbajkQ.v_65FKzXlncYwwZlFddBKB-n0ak
 
+
 from dataclasses import dataclass, asdict
 from flask import Flask, jsonify, request, Response, abort, redirect, url_for, render_template, session, flash, render_template_string
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin, AnonymousUserMixin
