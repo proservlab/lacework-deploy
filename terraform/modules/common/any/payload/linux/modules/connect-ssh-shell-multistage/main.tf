@@ -15,10 +15,7 @@ locals {
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
         cd ${local.attack_dir}
-        echo ${local.listener} | base64 -d > listener.py
-        echo ${local.responder} | base64 -d > plugins/responder.py
-        echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
-        echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
+        echo ${local.connector} | base64 -d > connector.py
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -90,36 +87,36 @@ locals {
     log "done."
     EOT
 
-    listener        = base64encode(file(
-                                "${path.module}/resources/listener.py", 
+    connector        = base64encode(file(
+                                "${path.module}/resources/connector.py", 
                             ))
-    responder       = base64encode(templatefile(
-                                "${path.module}/resources/responder.py", 
-                                {
-                                    default_payload = var.inputs["payload"],
-                                    iam2rds_role_name = var.inputs["iam2rds_role_name"]
-                                    iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
-                                }
-                            ))
-    instance2rds    = base64encode(templatefile(
-                                "${path.module}/resources/instance2rds.sh", 
-                                {
-                                    region = var.inputs["region"],
-                                    environment = var.inputs["environment"],
-                                    deployment = var.inputs["deployment"]
-                                }
-                            ))
+    # attacker_session       = base64encode(templatefile(
+    #                             "${path.module}/resources/attacker_session.py", 
+    #                             {
+    #                                 default_payload = var.inputs["payload"],
+    #                                 iam2rds_role_name = var.inputs["iam2rds_role_name"]
+    #                                 iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
+    #                             }
+    #                         ))
+    # instance2rds    = base64encode(templatefile(
+    #                             "${path.module}/resources/instance2rds.sh", 
+    #                             {
+    #                                 region = var.inputs["region"],
+    #                                 environment = var.inputs["environment"],
+    #                                 deployment = var.inputs["deployment"]
+    #                             }
+    #                         ))
 
-    iam2rds         = base64encode(templatefile(
-                                "${path.module}/resources/iam2rds.sh", 
-                                {
-                                    region = var.inputs["region"],
-                                    environment = var.inputs["environment"],
-                                    deployment = var.inputs["deployment"],
-                                    iam2rds_role_name = var.inputs["iam2rds_role_name"]
-                                    iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
-                                }
-                            ))
+    # iam2rds         = base64encode(templatefile(
+    #                             "${path.module}/resources/iam2rds.sh", 
+    #                             {
+    #                                 region = var.inputs["region"],
+    #                                 environment = var.inputs["environment"],
+    #                                 deployment = var.inputs["deployment"],
+    #                                 iam2rds_role_name = var.inputs["iam2rds_role_name"]
+    #                                 iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
+    #                             }
+    #                         ))
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
@@ -154,14 +151,14 @@ locals {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
         base64_uncompressed_payload_additional = [
-            {
-                name = "${basename(abspath(path.module))}_instance2rds.sh"
-                content = local.instance2rds
-            },
-            {
-                name = "${basename(abspath(path.module))}_iam2rds.sh"
-                content = local.iam2rds
-            }
+            # {
+            #     name = "${basename(abspath(path.module))}_instance2rds.sh"
+            #     content = local.instance2rds
+            # },
+            # {
+            #     name = "${basename(abspath(path.module))}_iam2rds.sh"
+            #     content = local.iam2rds
+            # }
         ]
     }
 }
