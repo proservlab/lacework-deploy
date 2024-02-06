@@ -1,7 +1,5 @@
 locals {
-    listen_port = var.inputs["listen_port"]
-    listen_ip = var.inputs["listen_ip"]
-    attack_dir = "/pwncat"
+    attack_dir = "/pwncat_connector"
     payload = <<-EOT
     PWNCAT_LOG="/tmp/pwncat_connector.log"
     PWNCAT_SESSION="pwncat_connector"
@@ -18,6 +16,7 @@ locals {
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
         cd ${local.attack_dir}
         echo ${local.connector} | base64 -d > connector.py
+        echo ${local.scan} | base64 -d > scan.sh
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -28,16 +27,6 @@ locals {
         python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
         log "wait before using module..."
         sleep 5
-        if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
-            log "adding tunneled port scanning user - socksuser..."
-            adduser socksuser >> $LOGFILE 2>&1
-            log "adding ssh keys for socks user..."
-            sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-            log "socksuser setup complete..."
-        fi
         log "checking for user and password list before starting..."
         while ! [ -f "${var.inputs["user_list"]}" ] || ! [ -f "${var.inputs["password_list"]}" ]; do
             log "waiting for ${var.inputs["user_list"]} and ${var.inputs["password_list"]}..."
@@ -56,7 +45,7 @@ locals {
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."
             sleep 1800
             log "sleep complete - checking for running sessions..."
-            while [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "pwncat_connector"; do
+            while [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; do
                 log "pwncat session still running - waiting before restart..."
                 sleep 600
             done
@@ -76,34 +65,11 @@ locals {
     connector        = base64encode(file(
                                 "${path.module}/resources/connector.py", 
                             ))
-
-    # attacker_session       = base64encode(templatefile(
-    #                             "${path.module}/resources/attacker_session.py", 
-    #                             {
-    #                                 default_payload = var.inputs["payload"],
-    #                                 iam2rds_role_name = var.inputs["iam2rds_role_name"]
-    #                                 iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
-    #                             }
-    #                         ))
-    # instance2rds    = base64encode(templatefile(
-    #                             "${path.module}/resources/instance2rds.sh", 
-    #                             {
-    #                                 region = var.inputs["region"],
-    #                                 environment = var.inputs["environment"],
-    #                                 deployment = var.inputs["deployment"]
-    #                             }
-    #                         ))
-
-    # iam2rds         = base64encode(templatefile(
-    #                             "${path.module}/resources/iam2rds.sh", 
-    #                             {
-    #                                 region = var.inputs["region"],
-    #                                 environment = var.inputs["environment"],
-    #                                 deployment = var.inputs["deployment"],
-    #                                 iam2rds_role_name = var.inputs["iam2rds_role_name"]
-    #                                 iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
-    #                             }
-    #                         ))
+    
+    scan            = base64encode(file(
+                                "${path.module}/resources/scan.sh", 
+                            ))
+    
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
@@ -130,7 +96,7 @@ locals {
         EOT
         yum_packages = "nmap python3-pip"
         yum_post_tasks = ""
-        script_delay_secs = 30
+        script_delay_secs = var.inputs["attack_delay"]
         next_stage_payload = local.payload
     }})
 
@@ -138,14 +104,10 @@ locals {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
         base64_uncompressed_payload_additional = [
-            # {
-            #     name = "${basename(abspath(path.module))}_instance2rds.sh"
-            #     content = local.instance2rds
-            # },
-            # {
-            #     name = "${basename(abspath(path.module))}_iam2rds.sh"
-            #     content = local.iam2rds
-            # }
+            {
+                name = "${basename(abspath(path.module))}_scan.sh"
+                content = local.scan
+            },
         ]
     }
 }

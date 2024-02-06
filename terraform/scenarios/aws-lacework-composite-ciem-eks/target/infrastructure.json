@@ -110,7 +110,7 @@
             "enabled" : true
           },
           "eks_audit_logs": {
-            "enabled" : true
+            "enabled" : false
           },
           "admission_controller": {
             "enabled" : true

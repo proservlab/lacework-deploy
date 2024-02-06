@@ -574,6 +574,19 @@ module "ssm-execute-exploit-npm-app" {
   attack_delay = local.config.context.aws.ssm.attacker.execute.exploit_npm_app.attack_delay
 }
 
+module "ssm-execute-exploit-authapp" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.execute.exploit_authapp.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-exploit-authapp"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+
+  tag = "ssm_exec_exploit_authapp"
+
+  target_ip = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
+  target_port = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
+  attack_delay = local.config.context.aws.ssm.attacker.execute.exploit_authapp.attack_delay
+}
+
 
 
 ##################################################
@@ -649,4 +662,20 @@ module "ssm-responder-reverse-shell-multistage" {
   iam2rds_role_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_role_name
   iam2rds_session_name = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_session_name
   attack_delay  = local.config.context.aws.ssm.attacker.responder.reverse_shell_multistage.attack_delay
+}
+
+module "ssm-connect-ssh-shell-multistage" {
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.enabled == true && local.attacker == true && local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/connect-ssh-shell-multistage"
+  environment   = local.config.context.global.environment
+  deployment    = local.config.context.global.deployment
+  region        = local.default_infrastructure_config.context.aws.region
+
+  tag = "ssm_connect_ssh_shell_multistage_attacker"
+
+  reverse_shell_host     = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.listen_ip
+  reverse_shell_port   = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.listen_port
+  attack_delay  = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.attack_delay
+  payload       = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.payload
+  task          = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.task
 }
