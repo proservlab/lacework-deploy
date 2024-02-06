@@ -5,7 +5,7 @@ locals {
   profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
   region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
 
-  default_kubeconfig = pathexpand(try(module.eks-kubeconfig[0].kubeconfig_path, "~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig"))
+  default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
   target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
 }
