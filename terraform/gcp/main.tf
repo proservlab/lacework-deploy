@@ -100,8 +100,8 @@ locals {
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
 
       # dynu config
-      dynu_api_key    = var.target_dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key         = var.target_dynu_api_key
+      dynu_dns_domain      = var.target_dynu_dns_domain
 
       # lacework
       lacework_server_url   = var.lacework_server_url
