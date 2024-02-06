@@ -83,13 +83,7 @@ resource "aws_eks_node_group" "cluster" {
 
 # tag nodes with name
 resource "aws_autoscaling_group_tag" "nodes_group" {
-  for_each = toset(
-    [for asg in flatten(
-      [for resources in aws_eks_node_group.cluster.resources : resources.autoscaling_groups]
-    ) : asg.name]
-  )
-
-  autoscaling_group_name = each.value
+  autoscaling_group_name = aws_eks_node_group.cluster.resources[0].autoscaling_groups[0].name
 
   tag {
     key   = "Name"
