@@ -5,7 +5,7 @@ locals {
   profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
   region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
 
-  default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
+  default_kubeconfig = pathexpand(module.eks-kubeconfig.kubeconfig_path)
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
   target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
 }
@@ -14,10 +14,12 @@ provider "kubernetes" {
   alias = "main"
   config_path = local.default_kubeconfig
 }
+
 provider "kubernetes" {
   alias = "attacker"
   config_path = local.attacker_kubeconfig
 }
+
 provider "kubernetes" {
   alias = "target"
   config_path = local.target_kubeconfig
@@ -29,6 +31,8 @@ provider "helm" {
     config_path = local.default_kubeconfig
   }
 }
+
+
 provider "helm" {
   alias = "attacker"
   kubernetes {
