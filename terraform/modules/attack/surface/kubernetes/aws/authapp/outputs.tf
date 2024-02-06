@@ -9,10 +9,15 @@ locals {
         }
     ]
 }
+
 output "id" {
     value = module.id.id
 }
 
 output "services" {
     value = local.services
+}
+
+output "hash" {
+    value = data.external.hash.result["hash"]
 }

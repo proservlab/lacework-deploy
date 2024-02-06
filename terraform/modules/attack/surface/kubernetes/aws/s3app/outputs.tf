@@ -28,3 +28,7 @@ output "service" {
 output "service_port" {
     value = kubernetes_service_v1.this.spec[0].port[0].port
 }
+
+output "hash" {
+    value = data.external.hash.result["hash"]
+}
