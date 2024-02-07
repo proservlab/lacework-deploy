@@ -11,7 +11,7 @@ resource "null_resource" "push" {
 
   provisioner "local-exec" {
     command     = <<COMMAND
-cd "${path.module}/${var.source_path}" && DOCKER_BUILDKIT=1 docker build -t ${var.image_name}:${var.tag} . \
+cd "${path.module}/${var.source_path}" && DOCKER_BUILDKIT=1 docker build -t ${var.image_name}:${data.external.hash.result["hash"]} . \
 &&  echo "${data.aws_ecr_authorization_token.token.password}" | cut -d' ' -f2 | docker login --username AWS --password-stdin "${aws_ecr_repository.repo.repository_url}" \
 && docker tag "${var.image_name}:${data.external.hash.result["hash"]}" "${aws_ecr_repository.repo.repository_url}:${data.external.hash.result["hash"]}" \
 && docker push "${aws_ecr_repository.repo.repository_url}:${data.external.hash.result["hash"]}"
