@@ -35,17 +35,19 @@ from botocore.credentials import InstanceMetadataProvider
 from collections import defaultdict
 
 # use ec2 instance role
-provider = InstanceMetadataProvider(
-    iam_role_fetcher=InstanceMetadataFetcher(timeout=1000, num_attempts=2))
-creds = provider.load()
+# provider = InstanceMetadataProvider(
+#     iam_role_fetcher=InstanceMetadataFetcher(timeout=1000, num_attempts=2))
+# creds = provider.load()
 
-boto3_session = boto3.Session(
-    aws_access_key_id=creds.access_key,
-    aws_secret_access_key=creds.secret_key,
-    aws_session_token=creds.token,
-)
+# boto3_session = boto3.Session(
+#     aws_access_key_id=creds.access_key,
+#     aws_secret_access_key=creds.secret_key,
+#     aws_session_token=creds.token,
+# )
 
-s3_client = boto3_session.client('s3')
+# s3_client = boto3_session.client('s3')
+
+s3_client = boto3.client('s3')
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
