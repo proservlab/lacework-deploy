@@ -23,6 +23,18 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "dev" {
   }
 }
 
+resource "aws_s3_object" "object" {
+  bucket = aws_s3_bucket.dev.id
+  key    = "development.db"
+  content = <<-EOT
+  development only content
+  EOT
+
+  depends_on = [ 
+    aws_s3_bucket.dev
+  ]
+}
+
 ###################################
 # PROD BUCKET
 ###################################
@@ -47,6 +59,18 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "prod" {
       sse_algorithm = "AES256"
     }
   }
+}
+
+resource "aws_s3_object" "object" {
+  bucket = aws_s3_bucket.prod.id
+  key    = "production.db"
+  content = <<-EOT
+  production only content
+  EOT
+
+  depends_on = [ 
+    aws_s3_bucket.prod
+  ]
 }
 
 ###################################
