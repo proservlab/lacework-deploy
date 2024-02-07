@@ -39,13 +39,13 @@ provider = InstanceMetadataProvider(
     iam_role_fetcher=InstanceMetadataFetcher(timeout=1000, num_attempts=2))
 creds = provider.load()
 
-session = boto3.Session(
+boto3_session = boto3.Session(
     aws_access_key_id=creds.access_key,
     aws_secret_access_key=creds.secret_key,
     aws_session_token=creds.token,
 )
 
-s3_client = session.client('s3')
+s3_client = boto3_session.client('s3')
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
@@ -320,40 +320,22 @@ def files():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    app.logger.info(request.cookies)
-    try:
-        username = session['username']
-        if request.method == 'POST':
-            # Handle file upload
-            if 'file' in request.files:
-                file = request.files['file']
-                if file.filename == '':
-                    return 'No selected file', 400
-                if file:
-                    filename = secure_filename(file.filename)
-                    try:
-                        s3_client.upload_fileobj(file, BUCKET_NAME, filename)
-                        return 'File uploaded successfully', 200
-                    except NoCredentialsError:
-                        return 'Credentials not available', 403
+    if request.method == 'POST':
+        # Handle file upload
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename == '':
+                return 'No selected file', 400
+            if file:
+                filename = secure_filename(file.filename)
+                try:
+                    s3_client.upload_fileobj(file, BUCKET_NAME, filename)
+                    return 'File uploaded successfully', 200
+                except NoCredentialsError:
+                    return 'Credentials not available', 403
         else:
             # Display page with forms
-            upload_form = """
-            <h2>Upload a file</h2>
-            <form action="{upload_url}" method="post" enctype="multipart/form-data">
-                <input type="file" name="file">
-                <input type="submit" value="Upload">
-            </form>
-            """.format(upload_url=url_for('index'))
-
-            return render_template("upload.html", username=username, upload_form=upload_form)
-    except Exception:
-        # Fallback login form
-        return """<form action="%s" method='post'>
-            <input type="text" name="username" required>
-            <input type="password" name="password" required>
-            <input type="submit" value="submit">
-            </form>""" % url_for("login")
+            return render_template("upload.html")
 
 
 @app.route('/download/<filename>', methods=['GET'])
