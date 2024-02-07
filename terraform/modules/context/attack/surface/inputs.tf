@@ -354,6 +354,8 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              admin_password              = string
+              user_password               = string
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -862,6 +864,8 @@ variable "config" {
               trust_workstation_source    = true
               additional_trusted_sources  = []
               privileged                  = false
+              admin_password              = null
+              user_password               = null
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }

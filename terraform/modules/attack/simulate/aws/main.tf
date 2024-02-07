@@ -585,6 +585,9 @@ module "ssm-execute-exploit-authapp" {
   target_ip = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
   target_port = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
   attack_delay = local.config.context.aws.ssm.attacker.execute.exploit_authapp.attack_delay
+
+  compromised_user_first_name = local.config.context.aws.ssm.attacker.execute.exploit_authapp.compromised_user_first_name
+  compromised_user_last_name = local.config.context.aws.ssm.attacker.execute.exploit_authapp.compromised_user_last_name
 }
 
 

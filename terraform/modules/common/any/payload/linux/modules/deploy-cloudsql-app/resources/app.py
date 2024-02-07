@@ -14,6 +14,7 @@ from pymysql.err import DatabaseError
 import json
 import sys
 import ssl
+import secrets
 from google.cloud.sql.connector import Connector, IPTypes
 from google.cloud import secretmanager
 from google.auth import compute_engine
@@ -30,7 +31,10 @@ credentials.refresh(auth_req)
 connector = Connector(ip_type=IPTypes.PRIVATE, enable_iam_auth=True,)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Hello World!'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# app.config['SECRET_KEY'] = os.environ.get(
+#     'SECRET_KEY', 'change_this_super_secret_random_string')
 
 # Create a Secret Manager client
 client = secretmanager.SecretManagerServiceClient(credentials=credentials)

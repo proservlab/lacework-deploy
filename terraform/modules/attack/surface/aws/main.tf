@@ -634,6 +634,9 @@ module "vulnerable-kubernetes-s3app" {
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = true
 
+  user_password = local.config.context.kubernetes.aws.vulnerable.s3app.user_password
+  admin_password = local.config.context.kubernetes.aws.vulnerable.s3app.admin_password
+
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main

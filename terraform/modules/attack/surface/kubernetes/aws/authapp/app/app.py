@@ -28,7 +28,10 @@ import secrets
 from collections import defaultdict
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Hello World!')
+
+# app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+app.config['SECRET_KEY'] = os.environ.get(
+    'SECRET_KEY', 'change_this_super_secret_random_string')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'SQLALCHEMY_DATABASE_URI', 'sqlite:///:memory:')

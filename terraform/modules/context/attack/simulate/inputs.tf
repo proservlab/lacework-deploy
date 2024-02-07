@@ -165,6 +165,8 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
               })
               docker_exploit_log4j_app = object({
                 enabled                     = bool
@@ -447,6 +449,8 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
               })
               docker_exploit_log4j_app = object({
                 enabled                     = bool
@@ -729,6 +733,8 @@ variable "config" {
                 target_ip                   = string
                 target_port                 = number
                 attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
               })
               docker_exploit_log4j_app = object({
                 enabled                     = bool
@@ -1020,6 +1026,8 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8000
                 attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
               }
               docker_exploit_log4j_app = {
                 enabled                     = false
@@ -1302,6 +1310,8 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8000
                 attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
               }
               docker_exploit_log4j_app = {
                 enabled                     = false
@@ -1604,6 +1614,8 @@ variable "config" {
                 target_ip                   = null
                 target_port                 = 8000
                 attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
               }
               docker_exploit_log4j_app = {
                 enabled                     = false
