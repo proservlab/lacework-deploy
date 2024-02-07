@@ -32,7 +32,9 @@ module "deployment" {
     service_account_name = kubernetes_service_account.web_service.metadata[0].name
     
     env_secret = {
-            BUCKET_NAME = kubernetes_secret.this.metadata[0].name 
+        ADMINPWD = kubernetes_secret.this.metadata[0].name 
+        USERPWD = kubernetes_secret.this.metadata[0].name 
+        BUCKET_NAME = kubernetes_secret.this.metadata[0].name 
     }
     
     internal_port = [{
