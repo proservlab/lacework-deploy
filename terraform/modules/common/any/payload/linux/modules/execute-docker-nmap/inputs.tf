@@ -5,7 +5,6 @@ variable "inputs" {
                 tag = string
                 timeout = optional(string)
                 cron = optional(string)
-                region = string
                 attack_delay = string
                 image = string
                 container_name = string
