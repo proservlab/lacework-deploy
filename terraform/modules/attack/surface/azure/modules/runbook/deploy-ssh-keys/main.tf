@@ -7,10 +7,6 @@ module "payload" {
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
-        region                      = var.region
-        resource_group              = var.resource_group
-        automation_account          = var.automation_account
-        automation_princial_id      = var.automation_princial_id
         public_tag                  = var.public_tag
         private_tag                 = var.private_tag
         ssh_public_key_path         = var.ssh_public_key_path

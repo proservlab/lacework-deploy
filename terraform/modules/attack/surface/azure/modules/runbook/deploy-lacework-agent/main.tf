@@ -7,13 +7,8 @@ module "payload" {
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
-        region                      = var.region
-        resource_group              = var.resource_group
-        automation_account          = var.automation_account
-        automation_princial_id      = var.automation_princial_id
         
         tag                         = var.tag
-        
 
         lacework_agent_tags         = var.lacework_agent_tags
         lacework_agent_temp_path    = var.lacework_agent_temp_path

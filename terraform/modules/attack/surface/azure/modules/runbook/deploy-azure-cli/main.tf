@@ -7,10 +7,6 @@ module "payload" {
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
-        region                      = var.region
-        resource_group              = var.resource_group
-        automation_account          = var.automation_account
-        automation_princial_id      = var.automation_princial_id
         
         tag                         = var.tag
         
