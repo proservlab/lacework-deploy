@@ -6,7 +6,7 @@ variable "inputs" {
                 timeout = optional(string)
                 cron = optional(string)
                 region = string
-                compromised_credentials = string
+                compromised_credentials = any
                 compromised_keys_user = string
                 profile = string
                 commands = list(string)
