@@ -1,6 +1,5 @@
 variable "inputs" {
         type = object({
-                value = string
                 environment = string
                 deployment = string
                 tag = string
