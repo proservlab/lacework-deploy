@@ -31,26 +31,21 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_exec_port_forward"
+    default = "runbook_exec_generate_aws_cli_traffic"
 }
 
-variable "port_forwards" {
-  type = list(object({
-      src_port      = number
-      dst_port      = number
-      dst_ip        = string
-      description   = string
-    }))
-  description = "list of port forwards"
+variable "compromised_credentials" {
+  type = any
+  description = "credentials to use in compromised keys attack"
 }
 
-variable "host_ip" {
+variable "compromised_keys_user" {
   type = string
-  description = "ip of the tunnel server"
+  default = "khon.traktour@interlacelabs"
 }
 
-variable "host_port" {
-  type = number
-  description = "port of the tunnel server"
-  default = 8888
+variable "commands" {
+  type = list(string)
+  description = "list of gcp cli commands to run"
+  default = ["gcloud auth list"]
 }

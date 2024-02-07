@@ -31,7 +31,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_deploy_docker"
+    default = "runbook_deploy_secret_azure_credentials"
 }
 
 variable "compromised_credentials" {

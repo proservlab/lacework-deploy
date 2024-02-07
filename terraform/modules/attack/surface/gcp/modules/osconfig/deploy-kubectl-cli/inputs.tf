@@ -18,7 +18,7 @@ variable "gcp_project_id" {
 
 variable "tag" {
     type = string
-    default = "osconfig_deploy_docker"
+    default = "osconfig_deploy_kubectl_cli"
 }
 
 variable "timeout" {

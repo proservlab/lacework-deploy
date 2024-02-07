@@ -32,7 +32,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_deploy_npm_app_target"
+    default = "runbook_deploy_npm_app"
 }
 
 variable "listen_port" {

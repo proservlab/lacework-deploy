@@ -31,7 +31,7 @@ variable "automation_princial_id"{
 variable "tag" {
     type = string
     description = "tag associated with this runbook"
-    default = "runbook_deploy_aws_cli"
+    default = "runbook_exec_responder_port_forward"
 }
 
 variable "listen_port" {

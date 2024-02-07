@@ -9,30 +9,22 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
-variable "region" {
+variable "gcp_location" {
     type = string
-    description = "azure region"
 }
 
-variable "resource_group" {
-  description = "resource group"
-  type = any
-}
-
-variable "automation_account" {
-    type = string
-    description = "automation account name"
-}
-
-variable "automation_princial_id"{
-    type = string
-    description = "automation account principal id"
+variable "gcp_project_id" {
+    type    = string
 }
 
 variable "tag" {
     type = string
-    description = "tag associated with this runbook"
-    default = "runbook_deploy_proton_vpn"
+    default = "osconfig_deploy_proton_vpn"
+}
+
+variable "timeout" {
+    type = string
+    default = "600s"
 }
 
 variable "protonvpn_user" {
