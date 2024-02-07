@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         minergate_image     = var.minergate_image
         minergate_name      = var.minergate_name
         minergate_server    = var.minergate_server

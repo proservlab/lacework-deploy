@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         region          = var.region
         compromised_credentials         = var.compromised_credentials
         compromised_keys_user           = var.compromised_keys_user

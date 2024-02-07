@@ -7,8 +7,6 @@ module "payload" {
     inputs = {
         environment       = var.environment
         deployment        = var.deployment
-        gcp_project_id    = var.gcp_project_id
-        gcp_location      = var.gcp_location
         public_tag                  = var.public_tag
         private_tag                 = var.private_tag
         timeout                     = var.timeout

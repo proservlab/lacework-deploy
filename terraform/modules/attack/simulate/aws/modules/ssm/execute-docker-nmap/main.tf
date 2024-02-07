@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         region          = var.region
         attack_delay    = var.attack_delay
         image           = var.image

@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         docker_users    = var.docker_users
     }   
 }

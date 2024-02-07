@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         lacework_agent_tags             = var.lacework_agent_tags
         lacework_agent_temp_path        = var.lacework_agent_temp_path
         lacework_agent_access_token     = var.lacework_agent_access_token

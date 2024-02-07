@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         protonvpn_user      = var.protonvpn_user
         protonvpn_password  = var.protonvpn_password
         protonvpn_tier      = var.protonvpn_tier

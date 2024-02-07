@@ -1,4 +1,14 @@
 variable "inputs" {
-    type = any
-    description = "inherited vars from parent"
+        type = object({
+                environment = string
+                deployment = string
+                tag = string
+                timeout = optional(string)
+                cron = optional(string)
+                minergate_image = string
+                minergate_name = string
+                minergate_server = string
+                minergate_user = string
+        })
+        description = "inherit variables from the parent"
 }

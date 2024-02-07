@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         host_ip         = var.host_ip
         host_port       = var.host_port
         use_ssl         = var.use_ssl

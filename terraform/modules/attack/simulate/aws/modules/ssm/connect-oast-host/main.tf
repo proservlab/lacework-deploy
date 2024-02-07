@@ -8,9 +8,7 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
-    }
+            }
 }
 
 ###########################

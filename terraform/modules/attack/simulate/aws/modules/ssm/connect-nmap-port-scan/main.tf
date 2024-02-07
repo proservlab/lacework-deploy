@@ -8,8 +8,6 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        timeout         = var.timeout
-        cron            = var.cron
         nmap_scan_host  = var.nmap_scan_host
         nmap_scan_ports = var.nmap_scan_ports
     }

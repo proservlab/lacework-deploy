@@ -7,9 +7,6 @@ module "payload" {
     inputs = {
         environment       = var.environment
         deployment        = var.deployment
-        gcp_project_id    = var.gcp_project_id
-        gcp_location      = var.gcp_location
-        region            = var.gcp_location
         tag               = var.tag
         listen_ip       = var.listen_ip
         listen_port     = var.listen_port
