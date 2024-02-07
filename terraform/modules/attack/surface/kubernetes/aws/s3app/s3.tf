@@ -23,7 +23,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "dev" {
   }
 }
 
-resource "aws_s3_object" "object" {
+resource "aws_s3_object" "dev" {
   bucket = aws_s3_bucket.dev.id
   key    = "development.db"
   content = <<-EOT
@@ -61,7 +61,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "prod" {
   }
 }
 
-resource "aws_s3_object" "object" {
+resource "aws_s3_object" "prod" {
   bucket = aws_s3_bucket.prod.id
   key    = "production.db"
   content = <<-EOT
