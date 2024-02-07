@@ -9,7 +9,6 @@ variable "inputs" {
                 ssh_public_key_path = string
                 ssh_private_key_path = string
                 ssh_authorized_keys_path = string
-                tag = string
         })
         description = "inherit variables from the parent"
 }
