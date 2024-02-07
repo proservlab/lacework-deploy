@@ -10,14 +10,14 @@
                 <a class="nav-link" href="{{ url_for('home') }}">Home</a>
             </li>
             {%- if current_user.is_authenticated -%}
-            {%- if current_user.role in ["admin","user"] -%}
-            <li class="nav-item {% if url_for(request.endpoint) in [url_for('products')] %}active{% endif %}">
-                <a class="nav-link" href="{{ url_for('products') }}">Products</a>
-            </li>
-            {%- endif -%}
             {%- if current_user.role in ["admin"] -%}
             <li class="nav-item {% if url_for(request.endpoint) in [url_for('users')] %}active{% endif %}">
                 <a class="nav-link" href="{{ url_for('users') }}">Users</a>
+            </li>
+            {%- endif -%}
+            {%- if current_user.role in ["admin"] -%}
+            <li class="nav-item {% if url_for(request.endpoint) in [url_for('files')] %}active{% endif %}">
+                <a class="nav-link" href="{{ url_for('files') }}">Files</a>
             </li>
             {%- endif -%}
             {%- if current_user.role in ["admin"] -%}
