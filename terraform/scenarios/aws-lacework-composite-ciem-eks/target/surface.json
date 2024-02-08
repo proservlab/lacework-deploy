@@ -53,17 +53,35 @@
           "name": "custom-role-1",
           "enabled": true,
           "iam_user_names": [ "clue.burnetes@interlacelabs" ],
-          "rules": [{
+          "rules": [
+          {
             "api_groups": ["*"],
             "resources": ["pods"],
-            "verbs": ["get", "list"],
+            "verbs": ["list"],
             "resource_names": []
           },
           {
             "api_groups": ["*"],
             "resources": ["secrets"],
-            "verbs": ["get", "list", "patch", "update", "watch"],
-            "resource_names": ["s3app-env-vars", "authapp-env-vars"]
+            "verbs": ["list"],
+            "resource_names": []
+          },
+          {
+            "api_groups": ["*"],
+            "resources": ["secrets"],
+            "verbs": ["get", "patch", "update", "watch"],
+            "resource_names": ["s3app-env-vars"]
+          },
+          {
+            "api_groups": ["*"],
+            "resources": ["secrets"],
+            "verbs": ["get" ],
+            "resource_names": ["authapp-env-vars"]
+          },
+          {
+            "api_groups": ["batch"],
+            "resources": ["cronjobs"],
+            "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]
           }]
         }]
       }
