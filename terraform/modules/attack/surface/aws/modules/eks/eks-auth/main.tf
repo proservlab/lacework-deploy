@@ -19,7 +19,7 @@ locals {
     custom_users_yaml = join("\n", [for role in var.custom_cluster_roles : join("\n", [for username in role.iam_user_names : <<-EOT
     - groups:
         - ${role.name}
-      userarn: ${data.aws_iam_user.specified_users[username].arn}
+      userarn: ${data.aws_iam_user.custom[username].arn}
       username: ${username}
     EOT
     ]) if role.enabled])
