@@ -398,11 +398,11 @@ module "osconfig-execute-generate-gcp-cli-traffic-target" {
   gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
   gcp_location = local.default_infrastructure_config.context.gcp.region
 
-  tag                     = "osconfig_exec_generate_gcp_cli_traffic_attacker"
+  tag                     = "osconfig_exec_generate_gcp_cli_traffic_target"
 
   compromised_credentials = var.compromised_credentials
-  compromised_keys_user   = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.compromised_keys_user
-  commands                = local.config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
+  compromised_keys_user   = local.config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.compromised_keys_user
+  commands                = local.config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.commands
 }
 
 module "osconfig-execute-generate-web-traffic-attacker" {
