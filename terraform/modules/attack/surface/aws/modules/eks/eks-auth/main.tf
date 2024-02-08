@@ -98,10 +98,10 @@ resource "kubernetes_cluster_role" "read_pods" {
                             "*",
                         ]
     resources      =    [
-                            "*"
+                            "pods"
                         ]
     verbs          =    [
-                            "get", "list", "patch", "update", "watch"
+                            "get", "list"
                         ]
   }
 }
@@ -182,6 +182,7 @@ resource "kubernetes_cluster_role" "custom" {
       api_groups = rule.value.api_groups
       resources  = rule.value.resources
       verbs      = rule.value.verbs
+      resource_names = rule.value.resource_names
     }
   }
 }

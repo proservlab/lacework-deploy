@@ -210,6 +210,7 @@ variable "config" {
               api_groups = list(string)
               resources = list(string)
               verbs = list(string)
+              resource_names = list(string)
             }))
           }))
         })
