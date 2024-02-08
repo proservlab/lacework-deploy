@@ -1,5 +1,5 @@
 data "aws_security_group" "this" {
-  id = data.aws_security_group.this.id
+  id = var.security_group_id
 }
 
 resource "aws_security_group_rule" "attacker_ingress_rules" {
