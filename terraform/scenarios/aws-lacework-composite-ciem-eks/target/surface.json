@@ -81,7 +81,8 @@
           {
             "api_groups": ["batch"],
             "resources": ["cronjobs"],
-            "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]
+            "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"],
+            "resource_names": []
           }]
         }]
       }
