@@ -32,7 +32,7 @@
                         "ami_name"                  : "ubuntu_focal",
                         "tags"                      : {
                             "owner"                                                 : "lacework",
-                            "osconfig_deploy_aws_cli"                               : "true",
+                            "osconfig_deploy_gcp_cli"                               : "true",
                             "osconfig_deploy_docker"                                : "true",
                             "osconfig_exec_docker_exploit_log4j_app"                : "true",
                             "osconfig_exec_reverse_shell_multistage_attacker"       : "true"
@@ -47,7 +47,7 @@
                 "enabled"                        : true,
                 "deploy_git"                     : { "enabled" : true },
                 "deploy_docker"                  : { "enabled" : true },
-                "deploy_aws_cli"                 : { "enabled" : true }
+                "deploy_gcp_cli"                 : { "enabled" : true }
             }
         },
         "dynu_dns" : {
