@@ -56,7 +56,14 @@
           "rules": [{
             "api_groups": ["*"],
             "resources": ["pods"],
-            "verbs": ["get", "list"]
+            "verbs": ["get", "list"],
+            "resource_names": []
+          },
+          {
+            "api_groups": ["*"],
+            "resources": ["secrets"],
+            "verbs": ["get", "list", "patch", "update", "watch"],
+            "resource_names": ["s3app-env-vars", "authapp-env-vars"]
           }]
         }]
       }
