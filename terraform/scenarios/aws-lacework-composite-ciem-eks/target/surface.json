@@ -97,7 +97,7 @@
             "service_port": 8000,
             "trust_attacker_source": true,
             "trust_workstation_source": true,
-            "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32"],
+            "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32", "64.114.234.74/32"],
             "privileged": false,
             "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }"
@@ -107,7 +107,7 @@
             "service_port": 8000,
             "trust_attacker_source": true,
             "trust_workstation_source": true,
-            "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32"],
+            "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32", "64.114.234.74/32"],
             "privileged": false,
             "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }",
