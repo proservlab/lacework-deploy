@@ -12,6 +12,7 @@ variable "inputs" {
                 use_tor = string
                 custom_user_list = list(string)
                 custom_password_list = list(string)
+                container_name = string
                 user_list = string
                 password_list = string
                 targets = list(string)

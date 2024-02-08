@@ -19,6 +19,7 @@ module "payload" {
         password_list                       = var.password_list
         targets                             = var.targets
         ssh_user                            = var.ssh_user
+        container_name                      = var.container_name
     }
 }
 
