@@ -202,6 +202,16 @@ variable "config" {
             enabled = bool
             iam_user_names =  list(string)
           })
+          custom_cluster_roles = list(object({
+            enabled = bool
+            name = string
+            iam_user_names = list(string)
+            rules = list(object({
+              api_groups = list(string)
+              resources = list(string)
+              verbs = list(string)
+            }))
+          }))
         })
         ssm = object({
           deploy = object({
@@ -662,6 +672,7 @@ variable "config" {
             enabled = false
             iam_user_names =  []
           }
+          custom_cluster_roles = []
         }
         ssm = {
           deploy = {

@@ -15,6 +15,14 @@ locals {
 
     iam_eks_admins = var.iam_eks_admins
     iam_eks_readers = var.iam_eks_readers
+
+    custom_users_yaml = join("\n", [for role in var.custom_cluster_roles : join("\n", [for username in role.iam_user_names : <<-EOT
+    - groups:
+        - ${role.name}
+      userarn: ${data.aws_iam_user.specified_users[username].arn}
+      username: ${username}
+    EOT
+    ]) if role.enabled])
 }
 
 data "aws_iam_roles" "current_user" {
@@ -69,11 +77,16 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
                       userarn: ${ iam_user.arn }
                       username: ${ reverse(split("/", iam_user.arn))[0] }
                     %{ endfor }
+                    ${local.custom_users_yaml}
                     YAML
     }
 
     force = true
 }
+
+#############################################################
+# READ ROLE
+#############################################################
 
 resource "kubernetes_cluster_role" "read_pods" {
   metadata {
@@ -109,6 +122,10 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
     }
 }
 
+#############################################################
+# ADMIN ROLE
+#############################################################
+
 resource "kubernetes_cluster_role" "admin" {
   metadata {
     name = local.admin_role_name
@@ -141,4 +158,54 @@ resource "kubernetes_cluster_role_binding" "admin_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
+}
+
+#############################################################
+# CUSTOM ROLES
+#############################################################
+data "aws_iam_user" "custom" {
+  for_each  = toset(flatten([for role in var.custom_cluster_roles : role.iam_user_names if role.enabled]))
+  user_name = each.key
+}
+
+resource "kubernetes_cluster_role" "custom" {
+  for_each = { for idx, role in var.custom_cluster_roles : idx => role if role.enabled }
+
+  metadata {
+    name = each.value.name
+  }
+
+  dynamic "rule" {
+    for_each = each.value.rules
+
+    content {
+      api_groups = rule.value.api_groups
+      resources  = rule.value.resources
+      verbs      = rule.value.verbs
+    }
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "custom_binding" {
+  for_each = { for role in var.custom_cluster_roles : role.name => role if role.enabled }
+
+  dynamic "subject" {
+    for_each = [for username in each.value.iam_user_names : data.aws_iam_user.custom[username] if data.aws_iam_user.custom[username] != null]
+
+    content {
+      kind     = "User"
+      name     = subject.value.user_name
+      api_group = "rbac.authorization.k8s.io"
+    }
+  }
+
+  metadata {
+    name = "${each.key}-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = each.key
+  }
 }

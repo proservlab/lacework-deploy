@@ -46,11 +46,19 @@
           "iam_user_names": []
         },
         "add_iam_user_admin_user": {
+          "enabled": false,
+          "iam_user_names": []
+        },
+        "custom_cluster_roles": [{
+          "name": "custom-role-1",
           "enabled": true,
-          "iam_user_names": [
-            "clue.burnetes@interlacelabs"
-          ]
-        }
+          "iam_user_names": [ "clue.burnetes@interlacelabs" ],
+          "rules": [{
+            "api_groups": ["*"],
+            "resources": ["pods"],
+            "verbs": ["get"]
+          }]
+        }]
       }
     },
     "kubernetes" :  {
