@@ -27,9 +27,9 @@ module "deployment" {
   service_account_name = kubernetes_service_account.this.metadata[0].name
 
   deployment_annotations = {
-    # configmap.reloader.stakater.com/reload: "test-configmap"
-    secret.reloader.stakater.com / reload : kubernetes_secret.this.metadata[0].name
-    # reloader.stakater.com/auto: "true"
+    # "configmap.reloader.stakater.com/reload": "test-configmap"
+    "secret.reloader.stakater.com/reload" : kubernetes_secret.this.metadata[0].name
+    # "reloader.stakater.com/auto" : "true"
   }
 
   env_secret = {
