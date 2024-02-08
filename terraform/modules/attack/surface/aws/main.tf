@@ -292,7 +292,7 @@ module "eks-kubeconfig" {
 
 # assign iam user cluster readonly role
 module "eks-auth" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true )) ? 1 : 0
+  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
   source      = "./modules/eks/eks-auth"
   environment       = local.config.context.global.environment
   deployment        = local.config.context.global.deployment
