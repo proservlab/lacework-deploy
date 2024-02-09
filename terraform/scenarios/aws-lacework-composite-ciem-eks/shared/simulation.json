@@ -21,7 +21,7 @@
           },
           "execute": {
             "exploit_authapp": {
-              "enabled": false,
+              "enabled": true,
               "target_port": 8000,
               "target_ip": "authapp.${ dynu_dns_domain }",
               "attack_delay": 50400,
