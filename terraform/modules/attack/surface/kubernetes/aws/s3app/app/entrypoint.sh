@@ -1,4 +1,5 @@
 #!/bin/sh
+mount-s3 $BUCKET_NAME /s3-mountpoint
 export FLASK_APP=./app.py
-export FLASK_DEBUG=1
+export FLASK_DEBUG=0
 flask run -h 0.0.0.0 -p 80
