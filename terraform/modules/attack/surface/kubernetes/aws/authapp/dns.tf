@@ -5,7 +5,7 @@ module "dns-records-service" {
 
     record        = {
         recordType     = "CNAME"
-        recordName     = "${each.key}"
+        recordName     = "${each.key}-${var.environment}-${var.deployment}"
         recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
         recordValue    = each.value.hostname
         }
