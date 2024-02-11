@@ -582,7 +582,7 @@ module "ssm-execute-exploit-authapp" {
 
   tag = "ssm_exec_exploit_authapp"
 
-  target_ip = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
+  target_ip = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_ip
   target_port = local.config.context.aws.ssm.attacker.execute.exploit_authapp.target_port
   attack_delay = local.config.context.aws.ssm.attacker.execute.exploit_authapp.attack_delay
 

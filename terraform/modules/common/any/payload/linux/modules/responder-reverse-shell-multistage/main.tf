@@ -61,6 +61,11 @@ locals {
                     while ! nc -z -w 5 -vv 127.0.0.1 ${local.listen_port} > /dev/null; do
                         log "failed check - waiting for pwncat port response";
                         sleep 30;
+                        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
+                        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+                            log "payload update detected - exiting loop"
+                            break 3
+                        fi
                     done;
                     log "Sucessfully connected to 127.0.0.1:${local.listen_port}"
                     break
