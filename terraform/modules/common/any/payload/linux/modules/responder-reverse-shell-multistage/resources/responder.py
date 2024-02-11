@@ -264,22 +264,24 @@ class Module(BaseModule):
             task_name = session.platform.getenv("TASK")
             log(f"task environment: {task_name}")
             if task_name == "instance2rds" or task_name == "iam2rds":
+                csp = "aws"
                 enumerate()
-                exfiltrate()
-                prep_local_env("aws", task_name)
+                exfiltrate(csp)
+                prep_local_env(csp, task_name)
                 credentialed_access_tor(
-                    "aws",
+                    csp,
                     task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
                 )
             # update to add 15 minute timeout
             elif task_name == "gcpiam2cloudsql":
+                csp = "gcp"
                 enumerate()
-                exfiltrate()
-                prep_local_env("gcp", task_name)
+                exfiltrate(csp)
+                prep_local_env(csp, task_name)
                 credentialed_access_tor(
-                    "gcp",
+                    csp,
                     task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
