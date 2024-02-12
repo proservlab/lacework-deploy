@@ -90,14 +90,16 @@ def execute(session: pwncat.manager.Session, task):
             file_list = ", ".join(files)
             session.log(
                 f"copying scan results: {file_list}...")
-            for f in files:
-                with session.platform.open(f, 'rb') as f1:
-                    with open(f'/tmp/{args.target_ip}_{os.path.basename(f)}', 'wb') as f2:
+            for file in files:
+                with session.platform.open(file, 'rb') as f1:
+                    with open(f'/tmp/{args.target_ip}_{os.path.basename(file)}', 'wb') as f2:
                         f2.write(f1.read())
-            session.log("reading local /tmp/hydra-targets.txt...")
+
+            session.log(
+                f"reading local /tmp/{args.target_ip}_hydra-targets.txt...")
             ssh_targets = []
-            with open("/tmp/hydra-targets.txt") as f:
-                ssh_targets = f.readlines.splitlines()
+            with open(f"/tmp/{args.target_ip}_hydra-targets.txt") as f:
+                ssh_targets = f.read().splitlines()
             session.log(f"found ssh target - {ssh_targets[0]}")
 
             # ideally we determine the key using the ssh_keys archive paths

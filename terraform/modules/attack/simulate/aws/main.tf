@@ -676,13 +676,13 @@ module "ssm-connect-ssh-shell-multistage" {
 
   tag = "ssm_connect_ssh_shell_multistage_attacker"
 
-  reverse_shell_host     = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.reverse_shell_host
-  reverse_shell_port   = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.reverse_shell_port
-  user_list     = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.user_list  
-  password_list = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.password_list
-  attack_delay  = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.attack_delay
-  payload       = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.payload
-  task          = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.task
-  target_ip     = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_ip
-  target_port   = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_port
+  reverse_shell_host    = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.reverse_shell_host
+  reverse_shell_port    = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.reverse_shell_port
+  user_list             = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.user_list  
+  password_list         = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.password_list
+  attack_delay          = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.attack_delay
+  payload               = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.payload
+  task                  = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.task
+  target_ip             = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_ip
+  target_port           = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_port
 }
