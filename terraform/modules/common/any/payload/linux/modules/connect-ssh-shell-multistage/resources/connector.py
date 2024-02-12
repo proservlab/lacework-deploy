@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import base64
 import os
-from pwncat.util import console
 import pwncat.manager
 from pwncat.channel import ChannelError
 import argparse
@@ -39,6 +38,7 @@ def execute(session: pwncat.manager.Session, task):
     session_lock = Path("/tmp/pwncat_connector_session.lock")
     try:
         if task == "custom":
+            payload = args.payload
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
                 cwd="/tmp", timeout=900)
@@ -123,19 +123,19 @@ with pwncat.manager.Manager() as manager:
 
     if args.user_list is not None and Path(args.user_list).exists():
         with open(Path(args.user_list)) as f:
-            users = f.read().read().splitlines()
+            users = f.read().splitlines()
     elif args.user is not None:
         users.append(args.user)
 
     if args.password_list is not None and Path(args.user_list).exists():
         with open(Path(args.password_list)) as f:
-            users = f.read().read().splitlines()
+            users = f.read().splitlines()
     elif args.password is not None:
         passwords.append(args.password)
 
     if args.identity_list is not None and Path(args.identity_list).exists():
         with open(Path(args.identity_list)) as f:
-            for i in f.read().read().splitlines():
+            for i in f.read().splitlines():
                 identities.append(base64.b64decode(i))
     elif args.identity is not None:
         identities.append(base64.b64decode(args.identity))

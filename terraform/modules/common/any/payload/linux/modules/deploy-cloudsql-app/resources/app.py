@@ -5,22 +5,22 @@
 
 
 import uuid
-import logging
+# import logging
 from flask import Flask, request, make_response, session, render_template, url_for, redirect, render_template_string
 from flask_api import status
 import os
 import pymysql
-from pymysql.err import DatabaseError
-import json
-import sys
-import ssl
+# from pymysql.err import DatabaseError
+# import json
+# import sys
+# import ssl
 import secrets
 from google.cloud.sql.connector import Connector, IPTypes
 from google.cloud import secretmanager
-from google.auth import compute_engine
+# from google.auth import compute_engine
 from google.auth import transport
 from google.auth import default
-from google.auth.compute_engine import _metadata
+# from google.auth.compute_engine import _metadata
 
 # Use the IAM service account for authentication
 credentials, project_id = default()
@@ -71,7 +71,7 @@ app.logger.info(SSL_CA)
 
 def create_connection():
     # Construct SSL
-    ssl = {
+    ssl_config = {
         'ca': SSL_CA,
         'check_hostname': False,
     }
@@ -81,7 +81,7 @@ def create_connection():
                            password=token,
                            port=DB_PORT,
                            db=DB_NAME,
-                           ssl=ssl,
+                           ssl=ssl_config,
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor
                            )

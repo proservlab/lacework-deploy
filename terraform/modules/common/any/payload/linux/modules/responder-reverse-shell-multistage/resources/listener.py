@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 def new_session(session: pwncat.manager.Session):
     # Returning false causes the session to be removed immediately
-    session.log(f"new session")
+    session.log("new session")
     session.run("responder")
     return False
 

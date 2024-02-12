@@ -1,21 +1,20 @@
-import uuid
-import logging
-from flask import Flask, request, make_response, session, render_template, url_for, redirect, render_template_string
-from flask_api import status
+# import uuid
+# import logging
+from flask import Flask
 import os
 import pymysql
-from pymysql.err import DatabaseError
-import json
-import sys
+# from pymysql.err import DatabaseError
+# import json
+# import sys
 import ssl
-import urllib.request
+# import urllib.request
 import secrets
 from google.cloud.sql.connector import Connector, IPTypes
 from google.cloud import secretmanager
-from google.auth import compute_engine
+# from google.auth import compute_engine
 from google.auth import transport
 from google.auth import default
-from google.auth.compute_engine import _metadata
+# from google.auth.compute_engine import _metadata
 
 credentials, project_id = default()
 auth_req = transport.requests.Request()

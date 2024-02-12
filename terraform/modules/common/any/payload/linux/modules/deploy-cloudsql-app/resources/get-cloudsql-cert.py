@@ -2,11 +2,11 @@
 
 import argparse
 from google.cloud import secretmanager
-from google.auth import compute_engine
-from google.oauth2 import service_account
+# from google.auth import compute_engine
+# from google.oauth2 import service_account
 from google.auth import transport
 from google.auth import default
-from google.auth.compute_engine import _metadata
+# from google.auth.compute_engine import _metadata
 
 credentials, project_id = default()
 auth_req = transport.requests.Request()
