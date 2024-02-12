@@ -161,6 +161,7 @@ class Module(BaseModule):
                 try:
                     payload = base64.b64encode(
                         'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
+                    log(f"Running payload: {payload}")
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                     log(f'Return Code: {result.returncode}')
@@ -175,6 +176,7 @@ class Module(BaseModule):
                             f"stopping and removing and {script} tunnelled container proxychains-{jobname}-{csp}...")
                         payload = base64.b64encode(
                             f'docker rm --force proxychains-{jobname}-{csp}'.encode('utf-8'))
+                        log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
@@ -197,6 +199,7 @@ class Module(BaseModule):
 
                         payload = base64.b64encode(
                             f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "$PWD":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                        log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
                         log(f'Return Code: {result.returncode}')
