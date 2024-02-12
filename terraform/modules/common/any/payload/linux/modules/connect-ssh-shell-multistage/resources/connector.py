@@ -121,19 +121,19 @@ with pwncat.manager.Manager() as manager:
     identities = []
     payload = args.payload
 
-    if args.user_list is not None and Path.exists(args.user_list):
+    if args.user_list is not None and Path(args.user_list).exists():
         with open(Path(args.user_list)) as f:
             users = f.read().read().splitlines()
     elif args.user is not None:
         users.append(args.user)
 
-    if args.password_list is not None and Path.exists(args.password_list):
+    if args.password_list is not None and Path(args.user_list).exists():
         with open(Path(args.password_list)) as f:
             users = f.read().read().splitlines()
     elif args.password is not None:
         passwords.append(args.password)
 
-    if args.identity_list is not None and Path.exists(args.identity_list):
+    if args.identity_list is not None and Path(args.identity_list).exists():
         with open(Path(args.identity_list)) as f:
             for i in f.read().read().splitlines():
                 identities.append(base64.b64decode(i))
