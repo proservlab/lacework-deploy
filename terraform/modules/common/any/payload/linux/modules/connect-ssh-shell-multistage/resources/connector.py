@@ -41,7 +41,7 @@ def execute(session: pwncat.manager.Session, task):
     session_lock = Path("/tmp/pwncat_connector_session.lock")
     try:
         if task == "custom":
-            payload = args.payload
+            payload = base64.b64encode(str(args.payload).encode("utf-8"))
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
                 cwd="/tmp", timeout=900)
@@ -165,7 +165,7 @@ for user in users:
                     user=user,
                     password=password,
                 )
-                execute(session)
+                execute(session, args.task)
         except ChannelError as e:
             if e.args[0] in [
                 'ssh authentication failed: Authentication failed.',
@@ -199,7 +199,7 @@ for user in users:
                                 user=user,
                                 password=password,
                             )
-                            execute(session)
+                            execute(session, args.task)
                             reconnect = False
                     except ChannelError as e:
                         if e.args[0] in [
@@ -233,7 +233,7 @@ for user in users:
                     user=user,
                     identity=identity,
                 )
-                execute(session)
+                execute(session, args.task)
         except ChannelError as e:
             if e.args[0] in [
                 'ssh authentication failed: Authentication failed.',
@@ -267,7 +267,7 @@ for user in users:
                                 user=user,
                                 password=password,
                             )
-                            execute(session)
+                            execute(session, args.task)
                             reconnect = False
                     except ChannelError as e:
                         if e.args[0] in [
