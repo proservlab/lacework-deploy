@@ -62,7 +62,7 @@ def execute(session: pwncat.manager.Session, task):
 
             session.log("copying /tmp/ssh_keys.tar.gz...")
             with session.platform.open('/tmp/ssh_keys.tar.gz', 'rb') as f1:
-                with open(f'/tmp/{args.host}_ssh_keys.tar.gz', 'wb') as f2:
+                with open(f'/tmp/{args.target_ip}_ssh_keys.tar.gz', 'wb') as f2:
                     f2.write(f1.read())
 
             session.log(
@@ -90,7 +90,7 @@ def execute(session: pwncat.manager.Session, task):
                 f"copying scan results: {file_list}...")
             for f in files:
                 with session.platform.open(f, 'rb') as f1:
-                    with open(f'/tmp/{args.host}_{os.path.basename(f)}', 'wb') as f2:
+                    with open(f'/tmp/{args.target_ip}_{os.path.basename(f)}', 'wb') as f2:
                         f2.write(f1.read())
             session.log("reading local /tmp/hydra-targets.txt...")
             ssh_targets = []
