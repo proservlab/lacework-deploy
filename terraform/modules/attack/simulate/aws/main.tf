@@ -683,4 +683,6 @@ module "ssm-connect-ssh-shell-multistage" {
   attack_delay  = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.attack_delay
   payload       = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.payload
   task          = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.task
+  target_ip     = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_ip
+  target_port   = local.config.context.aws.ssm.attacker.connect.ssh_shell_multistage.target_port
 }

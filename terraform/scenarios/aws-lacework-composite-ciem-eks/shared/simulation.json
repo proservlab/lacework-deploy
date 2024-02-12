@@ -15,6 +15,7 @@
               "password_list": "/tmp/hydra-password.txt",
               "attack_delay": 50400,
               "task": "scan2kubeshell",
+              "target_ip": "jumphost-target-${ deployment }.${ dynu_dns_domain }",
               "reverse_shell_host": "shell-attacker-${ deployment }.${ dynu_dns_domain }",
               "reverse_shell_port": 4444
             }

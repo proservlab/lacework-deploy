@@ -14,6 +14,8 @@ module "payload" {
         user_list               = var.user_list
         password_list           = var.password_list
         task                    = var.task
+        target_ip               = var.target_ip
+        target_port             = var.target_port
         reverse_shell_host      = var.reverse_shell_host
         reverse_shell_port      = var.reverse_shell_port
     }

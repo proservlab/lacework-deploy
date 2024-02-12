@@ -60,6 +60,18 @@ variable "payload" {
             EOT
 }
 
+variable "target_ip" {
+  type = string
+  description = "The host name or ip for the target system"
+  default = null
+}
+
+variable "target_port" {
+  type = number
+  description = "The port for the target system"
+  default = 22
+}
+
 variable "reverse_shell_host" {
   type = string
   description = "The hostname or ip for reverse shell connections"
