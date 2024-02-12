@@ -26,13 +26,13 @@ parser.add_argument('--payload', dest='payload', type=str,
 parser.add_argument('--task', dest='task', type=str,
                     default="custom", help='target task name - use custom to execute payload')
 parser.add_argument('--target-ip', dest='target_ip', type=str,
-                    default=None, help='target ip')
+                    required=True, help='target ip')
 parser.add_argument('--target-port', dest='target_port', type=int,
                     default=22, help='target port')
 parser.add_argument('--reverse-shell-host', dest='reverse_shell_host', type=str,
-                    default=None, help='reverse shell host to be used as second stage')
+                    required=True, help='reverse shell host to be used as second stage')
 parser.add_argument('--reverse-shell-port', dest='reverse_shell_port', type=str,
-                    default=None, help='reverse shell port to be used as second stage')
+                    required=True, help='reverse shell port to be used as second stage')
 
 args = parser.parse_args()
 
