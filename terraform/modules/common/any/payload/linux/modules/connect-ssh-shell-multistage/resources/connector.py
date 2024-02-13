@@ -77,8 +77,8 @@ def execute(session: pwncat.manager.Session, task):
 
             session.log("building nmap and hydra scan paylod...")
             payload = ""
-            with open("scan.sh") as f:
-                payload = base64.b64encode(f.read().encode("utf-8"))
+            with open("scan.sh", 'rb') as f:
+                payload = base64.b64encode(f.read())
 
             session.log("running scan payload...")
             result = session.platform.run(
