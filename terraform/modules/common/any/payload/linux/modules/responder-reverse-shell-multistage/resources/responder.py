@@ -237,7 +237,7 @@ class Module(BaseModule):
                         f'aws configure list-profiles'.encode('utf-8'))
                     log(f"Running payload: {payload}")
                     result = subprocess.run(
-                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
                     log(f'Return Code: {result.returncode}')
                     log(f'Output: {result.stdout}')
                     log(f'Error Output: {result.stderr}')
@@ -246,7 +246,7 @@ class Module(BaseModule):
                         f'aws configure list --profile=default'.encode('utf-8'))
                     log(f"Running payload: {payload}")
                     result = subprocess.run(
-                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
                     log(f'Return Code: {result.returncode}')
                     log(f'Output: {result.stdout}')
                     log(f'Error Output: {result.stderr}')
