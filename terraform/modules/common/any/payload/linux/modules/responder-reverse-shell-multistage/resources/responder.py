@@ -221,9 +221,9 @@ class Module(BaseModule):
                 if csp == "aws":
                     # create aws directory
                     aws_dir = Path.joinpath(Path.home(), Path(".aws"))
-                    if aws_dir.exists() and aws_dir.is_dir():
-                        shutil.rmtree(aws_dir)
-                    aws_dir.mkdir(parents=True)
+                    if not aws_dir.exists():
+                        # shutil.rmtree(aws_dir)
+                        aws_dir.mkdir(parents=True)
 
                     # extract the first set aws creds
                     file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
@@ -232,6 +232,24 @@ class Module(BaseModule):
                             file.extract(m.path, task_path)
                             shutil.copy2(Path.joinpath(
                                 task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
+
+                    payload = base64.b64encode(
+                        f'aws configure list-profiles'.encode('utf-8'))
+                    log(f"Running payload: {payload}")
+                    result = subprocess.run(
+                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                    log(f'Return Code: {result.returncode}')
+                    log(f'Output: {result.stdout}')
+                    log(f'Error Output: {result.stderr}')
+
+                    payload = base64.b64encode(
+                        f'aws configure list --profile=default'.encode('utf-8'))
+                    log(f"Running payload: {payload}")
+                    result = subprocess.run(
+                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
+                    log(f'Return Code: {result.returncode}')
+                    log(f'Output: {result.stdout}')
+                    log(f'Error Output: {result.stderr}')
                 elif csp == "gcp":
                     # create aws directory
                     # ~/.config/gcloud/credentials.json
