@@ -284,27 +284,43 @@ class Module(BaseModule):
             log(f"task environment: {task_name}")
             if task_name == "instance2rds" or task_name == "iam2rds":
                 csp = "aws"
+                log("running enumerate...")
                 enumerate()
+                log("enumerate complete")
+                log("running exfiltrate...")
                 exfiltrate(csp)
+                log("exfiltrate complete")
+                log("running prep_local_env...")
                 prep_local_env(csp, task_name)
+                log("prep_local_env complete")
+                log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp,
                     task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
                 )
+                log("credentialed_access_tor complete")
             # update to add 15 minute timeout
             elif task_name == "gcpiam2cloudsql":
                 csp = "gcp"
+                log("running enumerate...")
                 enumerate()
+                log("enumerate complete")
+                log("running exfiltrate...")
                 exfiltrate(csp)
+                log("exfiltrate complete")
+                log("running prep_local_env...")
                 prep_local_env(csp, task_name)
+                log("prep_local_env complete")
+                log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp,
                     task_name,
                     f'/{task_name}',
                     f'{task_name}.sh'
                 )
+                log("credentialed_access_tor complete")
             elif task_name == "socksscan":
                 # PROXYCHAINS_CONF_FILE=./myproxychains.conf
                 # get the attacker public ip
