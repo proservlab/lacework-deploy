@@ -20,6 +20,7 @@ locals {
         echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
         echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
         echo ${local.gcpiam2cloudsql} | base64 -d > resources/gcpiam2cloudsql.sh
+        echo ${local.scan2kubeshell} | base64 -d > resources/scan2kubeshell.sh
         echo ${local.requirements} | base64 -d > requirements.txt
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
@@ -140,6 +141,10 @@ locals {
                                 "${path.module}/resources/requirements.txt", 
                             ))
 
+    scan2kubeshell = base64encode(file(
+                                "${path.module}/resources/scan2kubeshell.sh"
+                            ))
+
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
@@ -181,6 +186,14 @@ locals {
             {
                 name = "${basename(abspath(path.module))}_iam2rds.sh"
                 content = local.iam2rds
+            },
+            {
+                name = "${basename(abspath(path.module))}_scan2kubeshell.sh"
+                content = local.scan2kubeshell
+            },
+            {
+                name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
+                content = local.gcpiam2cloudsql
             }
         ]
     }

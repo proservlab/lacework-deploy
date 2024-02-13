@@ -62,6 +62,18 @@
           },
           {
             "api_groups": ["*"],
+            "resources": ["deployments"],
+            "verbs": ["list"],
+            "resource_names": []
+          },
+          {
+            "api_groups": ["*"],
+            "resources": ["deployments"],
+            "verbs": ["get" ],
+            "resource_names": ["s3app"]
+          },
+          {
+            "api_groups": ["*"],
             "resources": ["secrets"],
             "verbs": ["list"],
             "resource_names": []

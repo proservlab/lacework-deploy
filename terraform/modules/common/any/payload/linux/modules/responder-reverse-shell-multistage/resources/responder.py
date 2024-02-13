@@ -167,7 +167,10 @@ class Module(BaseModule):
                 if not csp in ["aws", "gcp", "azure"]:
                     raise Exception(f'Unknown csp used {csp}')
 
-                container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
+                if task_name == "scan2kubeshell":
+                    container = f'ghcr.io/credibleforce/proxychains-aws-cli:main'
+                else:
+                    container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = base64.b64encode(
                         'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy'.encode('utf-8'))
@@ -207,8 +210,11 @@ class Module(BaseModule):
                                 "$HOME/.config/gcloud")
                             container_creds = "/root/.config/gcloud"
 
+                        local_kube_creds = os.path.expandvars("$HOME/.kube")
+                        container_kube_creds = "/root/.kube"
+
                         payload = base64.b64encode(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "/{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "/{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
                         log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
