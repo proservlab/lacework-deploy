@@ -4,6 +4,8 @@ import os
 from uu import encode
 import pwncat.manager
 from pwncat.channel import ChannelError
+import signal
+import sys
 import subprocess
 import argparse
 from pathlib import Path
@@ -36,6 +38,14 @@ parser.add_argument('--reverse-shell-port', dest='reverse_shell_port', type=str,
                     required=True, help='reverse shell port to be used as second stage')
 
 args = parser.parse_args()
+
+
+def signal_handler(sig, frame):
+    session.log('Interrupt caught...')
+    session_lock = Path("/tmp/pwncat_connector_session.lock")
+    if session_lock.exists():
+        session_lock.unlink()
+    sys.exit(0)
 
 
 def execute(session: pwncat.manager.Session, task):
@@ -119,6 +129,9 @@ def execute(session: pwncat.manager.Session, task):
     finally:
         session_lock.unlink()
 
+
+# add interrupt handler for cleanup of lock file
+signal.signal(signal.SIGINT, signal_handler)
 
 users = []
 passwords = []
