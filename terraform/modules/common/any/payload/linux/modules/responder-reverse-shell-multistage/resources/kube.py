@@ -1,4 +1,5 @@
-#!/usr/bin/python3.7
+#!/usr/bin/env python3
+
 import kubernetes.client
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
@@ -78,13 +79,6 @@ create_and_update_operations(apps_v1, 'default', 'deployment',
 
 # NOTE: Ensure you replace 'example-pod', 'example-deployment', etc., with actual resource names relevant to your environment.
 # The resource bodies (e.g., deployment_body) should be crafted according to your testing scenario.
-
-
-##########
-# stage 2
-#########
-
-#!/usr/bin/python3.7
 
 # Load configuration from '/root/config'
 config.load_kube_config("/root/config")

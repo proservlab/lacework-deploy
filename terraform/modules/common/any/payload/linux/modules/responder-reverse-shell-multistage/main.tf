@@ -20,6 +20,7 @@ locals {
         echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
         echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
         echo ${local.gcpiam2cloudsql} | base64 -d > resources/gcpiam2cloudsql.sh
+        echo ${local.requirements} | base64 -d > requirements.txt
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -27,7 +28,7 @@ locals {
         log "wait before using module..."
         sleep 5
         python3.9 -m pip install -U pip setuptools wheel setuptools_rust jinja2 jc >> $LOGFILE 2>&1
-        python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
+        python3.9 -m pip install -r requirements.txt >> $LOGFILE 2>&1
         log "wait before using module..."
         sleep 5
         if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
@@ -134,6 +135,11 @@ locals {
                                     deployment = var.inputs["deployment"]
                                 }
                             ))
+    
+    requirements = base64encode(file(
+                                "${path.module}/resources/requirements.txt", 
+                            ))
+
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
