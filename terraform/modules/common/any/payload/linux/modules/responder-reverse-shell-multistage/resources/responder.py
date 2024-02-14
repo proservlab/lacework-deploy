@@ -290,17 +290,18 @@ class Module(BaseModule):
                 linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
                 shutil.copy2(linpeas, task_path)
 
-                # extract the kube config
+                # extract the kube config if they exist
                 kube_dir = Path.joinpath(
                     Path.home(), Path(".kube"))
                 if not kube_dir.exists():
                     kube_dir.mkdir(parents=True)
-                file = tarfile.open(f'/tmp/{hostname}_kube_creds.tgz')
-                for m in file.members:
-                    if m.isfile() and (m.path.endswith('/.kube/config')):
-                        file.extract(m.path, task_path)
-                        shutil.copy2(Path.joinpath(
-                            task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
+                if Path(f'/tmp/{hostname}_kube_creds.tgz').exists():
+                    file = tarfile.open(f'/tmp/{hostname}_kube_creds.tgz')
+                    for m in file.members:
+                        if m.isfile() and (m.path.endswith('/.kube/config')):
+                            file.extract(m.path, task_path)
+                            shutil.copy2(Path.joinpath(
+                                task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
 
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
