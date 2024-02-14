@@ -17,7 +17,6 @@ locals {
         cd ${local.attack_dir}
         echo ${local.connector} | base64 -d > connector.py
         echo ${local.scan} | base64 -d > scan.sh
-        echo ${local.requirements} | base64 -d > requirements.txt
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -25,7 +24,7 @@ locals {
         log "wait before using module..."
         sleep 5
         python3.9 -m pip install -U pip setuptools wheel setuptools_rust jinja2 jc >> $LOGFILE 2>&1
-        python3.9 -m pip install -r requirements.txt >> $LOGFILE 2>&1
+        python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
         log "wait before using module..."
         sleep 5
         log "checking for user and password list before starting..."
@@ -69,10 +68,6 @@ locals {
     
     scan            = base64encode(file(
                                 "${path.module}/resources/scan.sh", 
-                            ))
-    
-    requirements            = base64encode(file(
-                                "${path.module}/resources/requirements.txt", 
                             ))
     
     base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
