@@ -15,6 +15,8 @@ module "payload" {
         attack_delay            = var.attack_delay
         iam2rds_role_name       = var.iam2rds_role_name
         iam2rds_session_name    = var.iam2rds_session_name
+        reverse_shell_host      = var.reverse_shell_host
+        reverse_shell_port      = var.listen_port
     }
 }
 

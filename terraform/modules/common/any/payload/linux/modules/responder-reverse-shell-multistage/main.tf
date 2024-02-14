@@ -106,8 +106,10 @@ locals {
                                 "${path.module}/resources/responder.py", 
                                 {
                                     default_payload = var.inputs["payload"],
-                                    iam2rds_role_name = var.inputs["iam2rds_role_name"]
-                                    iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
+                                    iam2rds_role_name = var.inputs["iam2rds_role_name"],
+                                    iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}",
+                                    reverse_shell_host = var.inputs["reverse_shell_host"],
+                                    reverse_shell_port = var.inputs["reverse_shell_port"],
                                 }
                             ))
     instance2rds    = base64encode(templatefile(

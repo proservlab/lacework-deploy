@@ -127,6 +127,12 @@ locals {
     if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
       && lookup(instance.labels,"osconfig_exec_responder_port_forward","false") == "true"
   ]
+  
+  attacker_reverse_shell_multistage = [
+    for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.network_interface[0].access_config[0].nat_ip
+    if lookup(try(instance.network_interface[0].access_config[0], {}), "nat_ip", "false") != "false" 
+      && lookup(instance.labels,"osconfig_exec_reverse_shell_multistage_attacker","false") == "true"
+  ]
 
   # target scenario public ips
   target_vuln_npm_app = [ 
@@ -531,4 +537,7 @@ module "osconfig-responder-reverse-shell-multistage" {
   iam2rds_role_name = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.iam2rds_role_name
   iam2rds_session_name = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.iam2rds_session_name
   attack_delay  = local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.attack_delay
+  
+  # if reverse_shell_host not provided in config use the public ip
+  reverse_shell_host = try(length(local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.reverse_shell_host), "false") != "false" ? local.config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.reverse_shell_host : local.attacker_reverse_shell_multistage[0]
 }

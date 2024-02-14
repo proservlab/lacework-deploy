@@ -12,6 +12,8 @@ variable "inputs" {
                 attack_delay = string
                 iam2rds_role_name = string
                 iam2rds_session_name = string
+                reverse_shell_host = string
+                reverse_shell_port = string
         })
         description = "inherit variables from the parent"
 }

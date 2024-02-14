@@ -148,6 +148,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -434,6 +435,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -720,6 +722,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -1015,6 +1018,7 @@ variable "config" {
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false
@@ -1301,6 +1305,7 @@ variable "config" {
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false
@@ -1607,6 +1612,7 @@ variable "config" {
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false

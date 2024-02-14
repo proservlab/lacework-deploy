@@ -63,3 +63,9 @@ variable "iam2rds_session_name" {
   description = "The default role name to use for the iam2rds attack"
   default = "attacker-session"
 }
+
+variable "reverse_shell_host" {
+  type = string
+  description = "the hostname or ip for the reverse shell server - used in multistage"
+  default = null
+}
