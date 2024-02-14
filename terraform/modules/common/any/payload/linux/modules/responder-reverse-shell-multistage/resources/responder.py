@@ -348,7 +348,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     csp=csp,
                     task_name=task_name,
                     cwd=f'/{task_name}',
-                    script=f'{task_name}.sh'
+                    script=f'{task_name}.sh',
                     args=""
                 )
                 log("credentialed_access_tor complete")
