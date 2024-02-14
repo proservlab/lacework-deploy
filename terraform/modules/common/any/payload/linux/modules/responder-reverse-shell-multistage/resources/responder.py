@@ -152,11 +152,11 @@ class Module(BaseModule):
                 for file in files:
                     if session.platform.Path(file).exists():
                         log(f"copying {file}...")
-                        if Path(f'/tmp/{hostname}_{csp}_{os.path.basename(file)}').exists():
+                        if Path(f'/tmp/{hostname}_{os.path.basename(file)}').exists():
                             os.unlink(
-                                f'/tmp/{hostname}_{csp}_{os.path.basename(file)}')
+                                f'/tmp/{hostname}_{os.path.basename(file)}')
                         with session.platform.open(file, 'rb') as f1:
-                            with open(f'/tmp/{hostname}_{csp}_{os.path.basename(file)}', 'wb') as f2:
+                            with open(f'/tmp/{hostname}_{os.path.basename(file)}', 'wb') as f2:
                                 f2.write(f1.read())
                         session.platform.unlink(file)
                     else:
