@@ -325,7 +325,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
-                    task_name=task_name,
+                    jobname=task_name,
                     cwd=f'/{task_name}',
                     script=f'{task_name}.sh',
                     args=""
@@ -346,7 +346,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
-                    task_name=task_name,
+                    jobname=task_name,
                     cwd=f'/{task_name}',
                     script=f'{task_name}.sh',
                     args=""
@@ -433,7 +433,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
-                    task_name=task_name,
+                    jobname=task_name,
                     cwd=f'/{task_name}',
                     script=f'{task_name}.sh',
                     args='--reverse-shell-host=${reverse_shell_host} --reverse-shell-port=${reverse_shell_port}'
