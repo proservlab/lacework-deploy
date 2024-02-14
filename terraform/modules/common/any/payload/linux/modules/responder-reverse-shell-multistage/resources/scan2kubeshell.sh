@@ -72,7 +72,8 @@ entities=("pods" "namespaces" "cronjobs" "secrets" "configmaps" "deployments" "s
 read_actions=("get" "list" "describe")
 for action in "${read_actions[@]}"; do
     for entity in "${entities[@]}"; do
-        kubectl $action $entity -A 2>&1 | tee -a $LOGFILE
+      log "Running: kubectl $action $entity -A"
+      kubectl $action $entity -A 2>&1 | tee -a $LOGFILE
     done
 done
 
