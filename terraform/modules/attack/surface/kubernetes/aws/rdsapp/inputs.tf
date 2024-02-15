@@ -118,10 +118,22 @@ variable "container_port" {
   default = 8000
 }
 
+variable "trusted_target_source_enabled" {
+  type = bool
+  description = "Allow all target source public addresses inbound to the app load balancer(s)"
+  default = false
+}
+
 variable "trusted_target_source" {
   type = list(string)
   description = "Allow all target source public addresses inbound to the app load balancer(s)"
   default = []
+}
+
+variable "trusted_attacker_source_enabled" {
+  type = bool
+  description = "Allow all attacker source public addresses inbound to the app load balancer(s)"
+  default = false
 }
 
 variable "trusted_attacker_source" {
@@ -130,10 +142,22 @@ variable "trusted_attacker_source" {
   default = []
 }
 
+variable "trusted_workstation_source_enabled" {
+  type = bool
+  description = "Allow current workstation public address inbound to the app load balancer(s)"
+  default = false
+}
+
 variable "trusted_workstation_source" {
   type = list(string)
   description = "Allow current workstation public address inbound to the app load balancer(s)"
   default = []
+}
+
+variable "additional_trusted_sources_enabled" {
+  type = bool
+  description = "List of additional trusted sources allowed inbound to the app load balancer(s)"
+  default = false
 }
 
 variable "additional_trusted_sources" {
@@ -160,4 +184,15 @@ variable "command" {
 variable "args" {
   type = list(string)
   default = ["/app/boostrap.sh"]
+}
+
+variable "enable_dynu_dns" {
+  type = bool
+  default = false
+}
+
+variable "dynu_dns_domain" {
+  type = string
+  description = "The hostname you want to update"
+  default = ""
 }

@@ -126,17 +126,21 @@ module "ec2-add-trusted-ingress" {
   deployment                    = local.config.context.global.deployment
   
   security_group_id             = local.default_public_sg
+  trusted_attacker_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source
   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
   trusted_workstation_source    = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = length(local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
 }
@@ -148,17 +152,21 @@ module "ec2-add-trusted-ingress-app" {
   deployment                    = local.config.context.global.deployment
   
   security_group_id             = local.default_public_app_sg
+  trusted_attacker_source_enabled       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source
   trusted_attacker_source       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
   trusted_workstation_source    = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = length(local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports             = local.config.context.aws.ec2.add_app_trusted_ingress.trusted_tcp_ports
 }
@@ -345,17 +353,21 @@ module "kubernetes-app" {
 
   container_port                = 80 
   service_port                  = local.config.context.kubernetes.aws.app.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.app.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
+  trusted_target_source_enabled  = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled    = local.config.context.kubernetes.aws.app.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.app.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.app.additional_trusted_sources) > 0 ? true: false
   additional_trusted_sources    = local.config.context.kubernetes.aws.app.additional_trusted_sources
 
   image                         = local.config.context.kubernetes.aws.app.image
@@ -363,7 +375,7 @@ module "kubernetes-app" {
   args                          = local.config.context.kubernetes.aws.app.args
 
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-  enable_dynu_dns = true
+  enable_dynu_dns = local.config.context.kubernetes.aws.app
   
   providers = {
     kubernetes = kubernetes.main
@@ -384,18 +396,25 @@ module "kubernetes-app-windows" {
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
   service_port                  = local.config.context.kubernetes.aws.app-windows.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.app-windows.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.app-windows.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.kubernetes.aws.app-windows.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.app-windows.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.app-windows.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.app-windows.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.app-windows.enable_dynu_dns
 
   image                         = local.config.context.kubernetes.aws.app-windows.image
   command                       = local.config.context.kubernetes.aws-windows.app.command
@@ -427,18 +446,25 @@ module "vulnerable-kubernetes-voteapp" {
 
   vote_service_port             = local.config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
   result_service_port           = local.config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled  = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled    = length(local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
   providers = {
     kubernetes = kubernetes.main
@@ -468,18 +494,25 @@ module "vulnerable-kubernetes-rdsapp" {
   cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
   
   service_port                        = local.config.context.kubernetes.aws.vulnerable.rdsapp.service_port
+  trusted_attacker_source_enabled     = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source
   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled  = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source
   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
 
   providers = {
     kubernetes = kubernetes.main
@@ -501,18 +534,25 @@ module "vulnerable-kubernetes-log4j-app" {
 
   container_port                = 8080 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.log4j_app.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.log4j_app.enable_dynu_dns
 
   image                         = local.config.context.kubernetes.aws.vulnerable.log4j_app.image
   command                       = local.config.context.kubernetes.aws.vulnerable.log4j_app.command
@@ -537,18 +577,25 @@ module "vulnerable-kubernetes-privileged-pod" {
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.privileged_pod.enable_dynu_dns
 
   image                         = local.config.context.kubernetes.aws.vulnerable.privileged_pod.image
   command                       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.command
@@ -573,18 +620,25 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
+
+  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enable_dynu_dns
 
   image                         = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
   command                       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.command
@@ -619,21 +673,25 @@ module "vulnerable-kubernetes-s3app" {
   
   container_port                      = 80 
   service_port                        = local.config.context.kubernetes.aws.vulnerable.s3app.service_port
+  trusted_attacker_source_enabled     = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source
   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled  = local.config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source
   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
 
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-  enable_dynu_dns = true
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.s3app.enable_dynu_dns
 
   user_password = local.config.context.kubernetes.aws.vulnerable.s3app.user_password
   admin_password = local.config.context.kubernetes.aws.vulnerable.s3app.admin_password
@@ -659,24 +717,28 @@ module "kubernetes-authapp" {
 
   container_port                = 80 
   service_port                  = local.config.context.kubernetes.aws.vulnerable.authapp.service_port
+  trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source
   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
+  trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
   ]) : []
+  trusted_workstation_source_enabled    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source
   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources
 
   user_password = local.config.context.kubernetes.aws.vulnerable.authapp.user_password
   admin_password = local.config.context.kubernetes.aws.vulnerable.authapp.admin_password
 
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-  enable_dynu_dns = true
+  enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
   
   providers = {
     kubernetes = kubernetes.main

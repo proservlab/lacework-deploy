@@ -293,6 +293,8 @@ variable "config" {
             command                     = list(string)
             args                        = list(string)
             privileged                  = bool
+            enable_dynu_dns             = bool
+            dynu_dns_domain             = string
           })
           vulnerable = object({
             log4j_app = object({
@@ -777,9 +779,9 @@ variable "config" {
           app = {
             enabled                     = false
             service_port                = 8000
-            trust_attacker_source       = true
-            trust_target_source         = true
-            trust_workstation_source    = true
+            trust_attacker_source       = false
+            trust_target_source         = false
+            trust_workstation_source    = false
             additional_trusted_sources  = []
             image                       = "nginx:latest"
             command                     = ["tail"]
@@ -791,9 +793,9 @@ variable "config" {
           app-windows = {
             enabled                     = false
             service_port                = 8000
-            trust_attacker_source       = true
-            trust_target_source         = true
-            trust_workstation_source    = true
+            trust_attacker_source       = false
+            trust_target_source         = false
+            trust_workstation_source    = false
             additional_trusted_sources  = []
             image                       = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
             command                     = [
@@ -803,14 +805,16 @@ variable "config" {
             ]
             args                        = []
             privileged                  = false
+            enable_dynu_dns             = false
+            dynu_dns_domain             = null
           }
           vulnerable = {
             log4j_app = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
@@ -823,18 +827,18 @@ variable "config" {
               enabled                     = false
               vote_service_port           = 8001
               result_service_port         = 8002
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
             }
 
             rdsapp = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
               enable_dynu_dns             = false
@@ -843,9 +847,9 @@ variable "config" {
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
@@ -857,9 +861,9 @@ variable "config" {
             root_mount_fs_pod = {
               enabled                     = false
               service_port                = 8004
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
@@ -871,9 +875,9 @@ variable "config" {
             s3app = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
               admin_password              = null
@@ -884,9 +888,9 @@ variable "config" {
             authapp = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_target_source         = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
               admin_password              = null
