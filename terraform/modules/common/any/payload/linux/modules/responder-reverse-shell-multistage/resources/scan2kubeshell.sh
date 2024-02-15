@@ -116,6 +116,7 @@ log "new bucket name: $(echo -n $NEW_BUCKET_NAME | base64 -d)"
 # update secret to point to prod bucket
 log "updating secret with new bucket name..."
 kubectl get secret s3app-env-vars -n s3app -o json | sed "s/$BUCKET_NAME/$NEW_BUCKET_NAME/g" > /tmp/kubernets_prod_bucket.json
+kubectl apply -f /tmp/kubernets_prod_bucket.json
 
 # we should probably curl the admin interface with our token here but this might be enough for now
 log "waiting for pod restart..."
