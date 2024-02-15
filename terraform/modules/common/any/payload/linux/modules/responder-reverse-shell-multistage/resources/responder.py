@@ -215,7 +215,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                         log(f"Starting tor tunneled docker...")
                         payload = base64.b64encode(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "/{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}'.encode('utf-8'))
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}'.encode('utf-8'))
                         log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
