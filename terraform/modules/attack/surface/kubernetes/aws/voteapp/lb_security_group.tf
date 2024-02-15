@@ -24,7 +24,7 @@ resource "aws_security_group" "this" {
 ###########################
 
 resource "aws_security_group_rule" "attacker_ingress_rules_result_port" {
-  count = vartrusted_attacker_source_enabled == true ? 1 : 0
+  count = var.trusted_attacker_source_enabled == true ? 1 : 0
   type              = "ingress"
   from_port         = var.result_service_port
   to_port           = var.result_service_port
@@ -96,7 +96,7 @@ resource "aws_security_group_rule" "additional_sources_ingress_rules_result_port
 ###########################
 
 resource "aws_security_group_rule" "attacker_ingress_rules_vote_port" {
-  count = vartrusted_attacker_source_enabled == true ? 1 : 0
+  count = var.trusted_attacker_source_enabled == true ? 1 : 0
   type              = "ingress"
   from_port         = var.vote_service_port
   to_port           = var.vote_service_port

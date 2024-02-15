@@ -3,7 +3,7 @@ data "aws_security_group" "this" {
 }
 
 resource "aws_security_group_rule" "attacker_ingress_rules" {
-  count = vartrusted_attacker_source_enabled == true ? 1 : 0
+  count = var.trusted_attacker_source_enabled == true ? 1 : 0
   type              = "ingress"
   from_port         = var.trusted_tcp_ports.from_port
   to_port           = var.trusted_tcp_ports.to_port
