@@ -49,7 +49,7 @@ resource "google_compute_instance" "instance" {
     boot_disk {
         initialize_params {
             image = var.ami
-            size = 12
+            size = 20
         }
     }
 
