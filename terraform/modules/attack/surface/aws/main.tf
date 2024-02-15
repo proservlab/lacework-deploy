@@ -298,6 +298,11 @@ module "eks-kubeconfig" {
   kubeconfig_path = local.default_kubeconfig
 }
 
+resource "time_sleep" "wait_2_minutes" {
+  create_duration = "120s"
+  depends_on = [module.eks-kubeconfig]
+}
+
 # assign iam user cluster readonly role
 module "eks-auth" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
@@ -317,6 +322,7 @@ module "eks-auth" {
   }
 
   depends_on = [
+    time_sleep.wait_2_minutes,
     module.iam,
     module.eks-kubeconfig
   ]                    
