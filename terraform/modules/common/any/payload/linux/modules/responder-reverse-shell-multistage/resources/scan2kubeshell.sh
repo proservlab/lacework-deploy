@@ -68,6 +68,10 @@ if ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; then
   exit 1
 fi
 
+if ! command -v jq; then
+  curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/local/bin/jq
+fi
+
 log "starting get enumeration..."
 entities=("pods" "namespaces" "cronjobs" "secrets" "configmaps" "deployments" "services" "roles" "clusterroles" "rolebindings" "clusterrolebindings")
 read_actions=("get" "list" "describe")
