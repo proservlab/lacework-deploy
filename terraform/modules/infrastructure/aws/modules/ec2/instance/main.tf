@@ -39,7 +39,7 @@ resource "aws_instance" "instance" {
   user_data_replace_on_change = true
 
   root_block_device {
-    volume_size    = 12
+    volume_size    = 20
     volume_type    = "gp2"
   }
 }
