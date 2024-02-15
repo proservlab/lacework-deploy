@@ -58,10 +58,14 @@ resource "aws_route_table" "database" {
 resource "aws_route_table_association" "database" {
   subnet_id = aws_subnet.database.id
   route_table_id = aws_route_table.database.id
-
+  
   depends_on = [  
     data.aws_vpc.database
   ]
+
+  lifecycle {
+      ignore_changes = [subnet_id]
+  }
 }
 
 resource "aws_route_table_association" "database2" {
@@ -71,6 +75,10 @@ resource "aws_route_table_association" "database2" {
   depends_on = [  
     data.aws_vpc.database
   ]
+
+  lifecycle {
+      ignore_changes = [subnet_id]
+  }
 }
 
 resource "aws_subnet" "database" {
@@ -87,6 +95,10 @@ resource "aws_subnet" "database" {
   depends_on = [ 
     data.aws_vpc.database
   ]
+
+  lifecycle {
+      ignore_changes = [cidr_block]
+  }
 }
 
 resource "aws_subnet" "database2" {
@@ -103,6 +115,10 @@ resource "aws_subnet" "database2" {
   depends_on = [ 
     data.aws_vpc.database
   ]
+
+  lifecycle {
+      ignore_changes = [cidr_block]
+  }
 }
 
 resource "aws_db_subnet_group" "database" {
@@ -122,6 +138,10 @@ resource "aws_db_subnet_group" "database" {
     aws_subnet.database,
     aws_subnet.database2
   ]
+
+  lifecycle {
+      ignore_changes = [subnet_ids]
+  }
 }
 
 resource "aws_security_group" "database" {
