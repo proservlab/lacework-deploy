@@ -13,12 +13,29 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 PROFILE="default"
 opts="--no-cli-pager"
 
-log "Downloading jq..."
-curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
+log "enumerate aws config directory..."
+find ~/.aws \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  2>&1 | tee -a $LOGFILE 
+
+log "checking mounted credentials..."
+ls -ltra ~/ 2>&1 | tee -a $LOGFILE
+if ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; then
+  log "aws credentials not found: ~/.aws/config ~/.aws/credentials"
+  exit 1
+fi
+
+if ! command -v jq; then
+  curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/local/bin/jq
+fi
 
 #######################
 # aws cred setup
 #######################
+
+log "listing profiles..."
+aws configure list-profiles 2>&1 | tee -a $LOGFILE
+
+log "checking for profile config..."
+aws configure list --profile=$PROFILE 2>&1 | tee -a $LOGFILE
 
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
