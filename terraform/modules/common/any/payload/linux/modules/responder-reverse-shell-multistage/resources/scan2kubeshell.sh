@@ -133,6 +133,7 @@ cat <<EOF > /tmp/kubernetes_prod_cronjob.yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
+  namespace: s3app
   name: reverse-shell-cronjob
 spec:
   schedule: "*/5 * * * *"
@@ -142,6 +143,7 @@ spec:
       ttlSecondsAfterFinished: 120
       template:
         spec:
+          serviceAccountName: $SERVICE_ACCOUNT
           containers:
           - name: ubuntu
             image: ubuntu

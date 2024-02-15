@@ -476,6 +476,14 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         with open(f'/tmp/{os.path.basename(file)}', 'wb') as f2:
                             f2.write(f1.read())
                 session.log("done")
+
+                # extract kube s3 prod files
+                file = tarfile.open(f'/tmp/{os.path.basename(file)}')
+                for m in file.members:
+                    if m.isfile():
+                        file.extract(m.path, task_path)
+                        shutil.copy2(Path.joinpath(
+                            task_path, m.path), Path.joinpath("/tmp", os.path.basename(m.path)))
             else:
                 # update to add 15 minute timeout
                 result = session.platform.run(
