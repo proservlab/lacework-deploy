@@ -1,6 +1,7 @@
 #!/bin/bash
-SCRIPTNAME="scan2kubeshell"
-LOGFILE="/tmp/$SCRIPTNAME.log"
+
+SCRIPTNAME=scan2kubeshell
+LOGFILE=/tmp/$SCRIPTNAME.log
 function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
@@ -55,14 +56,14 @@ log "listing home directory..."
 ls -ltra ~/ 2>&1 | tee -a $LOGFILE
 
 log "checking mounted local kubeconfig..."
-if ! [ -f "~/.kube/config" ]; then
+if ! [ -f ~/.kube/config ]; then
   log "kubeconfig not found: ~/.kube/config"
   exit 1
 fi
 
 log "checking mounted credentials..."
 ls -ltra ~/ 2>&1 | tee -a $LOGFILE
-if ! [ -f "~/.aws/config" ] || ! [ -f "~/.aws/credentials" ]; then
+if ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; then
   log "aws credentials not found: ~/.aws/config ~/.aws/credentials"
   exit 1
 fi
@@ -156,15 +157,3 @@ log "starting cronjob..."
 kubectl apply -f /tmp/kubernetes_prod_cronjob.yaml
 
 log "done."
-
-
-
-
-
-
-
-
-
-
-
-
