@@ -22,6 +22,7 @@ locals {
         echo ${local.gcpiam2cloudsql} | base64 -d > resources/gcpiam2cloudsql.sh
         echo ${local.scan2kubeshell} | base64 -d > resources/scan2kubeshell.sh
         echo ${local.kube2s3} | base64 -d > resources/kube2s3.sh 
+        echo ${local.iam2enum} | base64 -d > resources/iam2enum.sh
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -130,6 +131,16 @@ locals {
                                     iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
                                 }
                             ))
+    
+    iam2enum = base64encode(templatefile(
+                                "${path.module}/resources/iam2enum.sh", 
+                                {
+                                    region = var.inputs["region"],
+                                    environment = var.inputs["environment"],
+                                    deployment = var.inputs["deployment"]
+                                }
+                            ))
+                            
     gcpiam2cloudsql = base64encode(templatefile(
                                 "${path.module}/resources/gcpiam2cloudsql.sh", 
                                 {
@@ -200,6 +211,10 @@ locals {
             {
                 name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
                 content = local.gcpiam2cloudsql
+            },
+            {
+                name = "${basename(abspath(path.module))}_iam2enum.sh"
+                content = local.iam2enum
             }
         ]
     }

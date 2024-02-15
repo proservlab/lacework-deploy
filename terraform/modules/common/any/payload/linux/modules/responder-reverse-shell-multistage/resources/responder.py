@@ -311,7 +311,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
             log(f"script dir: {script_dir}")
             task_name = session.platform.getenv("TASK")
             log(f"task environment: {task_name}")
-            if task_name == "instance2rds" or task_name == "iam2rds":
+            if task_name == "instance2rds" or task_name == "iam2rds" or task_name == "iam2enum":
                 csp = "aws"
                 log("running enumerate...")
                 enumerate()
