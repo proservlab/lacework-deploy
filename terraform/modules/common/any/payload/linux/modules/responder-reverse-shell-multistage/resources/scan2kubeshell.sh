@@ -138,6 +138,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 120
       template:
         spec:
           containers:
