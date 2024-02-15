@@ -145,7 +145,7 @@ spec:
             image: ubuntu
             env:
             - name: BUCKET_NAME
-              value: "$NEW_BUCKET_NAME"
+              value: "$(echo -n $NEW_BUCKET_NAME | base64 -d)"
             command: [
                 "/bin/bash", 
                 "-c", 
