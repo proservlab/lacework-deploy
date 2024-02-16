@@ -52,6 +52,8 @@ REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST
 REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT
 EOF
 
+log "public ip: $(curl -s https://icanhazip.com)"
+
 log "listing home directory..."
 ls -ltra ~/ 2>&1 | tee -a $LOGFILE
 

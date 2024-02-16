@@ -13,6 +13,8 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 PROFILE="default"
 opts="--no-cli-pager"
 
+log "public ip: $(curl -s https://icanhazip.com)"
+
 log "enumerate aws config directory..."
 find ~/.aws \( -type f -a \( -name 'credentials' -a -path '*.aws/credentials' \) -o \( -name 'config' -a -path '*.aws/config' \) \)  2>&1 | tee -a $LOGFILE 
 

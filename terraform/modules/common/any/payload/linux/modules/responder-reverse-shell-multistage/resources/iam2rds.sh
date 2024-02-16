@@ -26,6 +26,8 @@ curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq
 # aws cred setup
 #######################
 
+log "public ip: $(curl -s https://icanhazip.com)"
+
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
 

@@ -10,6 +10,9 @@ for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null ||
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 log "starting..."
+
+log "public ip: $(curl -s https://icanhazip.com)"
+
 log "bucket name from env: $BUCKET_NAME"
 
 log "creating local storage..."

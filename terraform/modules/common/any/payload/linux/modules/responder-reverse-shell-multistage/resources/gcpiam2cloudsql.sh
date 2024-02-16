@@ -13,6 +13,8 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 log "Downloading jq..."
 curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
 
+log "public ip: $(curl -s https://icanhazip.com)"
+
 #######################
 # gcp cred setup
 #######################
