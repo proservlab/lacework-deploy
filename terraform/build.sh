@@ -198,10 +198,10 @@ check_tf_apply(){
             fi
             infomsg "Terraform summary result: $ERR"
             
-            infomsg "Running: terraform apply -input=false -no-color ${3}"
+            infomsg "Running: terraform apply -parallelism=1 -input=false -no-color ${3}"
             (
                 set -o pipefail
-                terraform apply -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
+                terraform apply -parallelism=1 -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
@@ -493,10 +493,10 @@ elif [ "destroy" = "${ACTION}" ]; then
             )
             ERR=$?
         fi
-        echo "Running: terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
+        echo "Running: terraform apply -parallelism=1 -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
         (
             set -o pipefail 
-            terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
+            terraform apply -parallelism=1 -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
         )
         ERR=$?
         infomsg "Terraform result: $ERR"
