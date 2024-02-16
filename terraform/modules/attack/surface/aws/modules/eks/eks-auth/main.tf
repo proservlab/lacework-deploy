@@ -1,5 +1,14 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_eks_cluster" "this" {
+  name = var.cluster_name
+}
+
+data "aws_eks_cluster_auth" "this" {
+  name = var.cluster_name
+}
+
+
 locals {
     cluster_name = var.cluster_name
     aws_account_id = data.aws_caller_identity.current.account_id
@@ -82,6 +91,11 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
     }
 
     force = true
+
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
 
 #############################################################
@@ -120,6 +134,11 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
+
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
 
 #############################################################
@@ -127,21 +146,26 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
 #############################################################
 
 resource "kubernetes_cluster_role" "admin" {
-  metadata {
-    name = local.admin_role_name
-  }
+    metadata {
+      name = local.admin_role_name
+    }
 
-  rule {
-    api_groups     =    [
-                            "*"
-                        ]
-    resources      =    [
-                            "*"
-                        ]
-    verbs          =    [
-                            "*"
-                        ]
-  }
+    rule {
+      api_groups     =    [
+                              "*"
+                          ]
+      resources      =    [
+                              "*"
+                          ]
+      verbs          =    [
+                              "*"
+                          ]
+    }
+
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
 
 resource "kubernetes_cluster_role_binding" "admin_pods" {
@@ -158,6 +182,11 @@ resource "kubernetes_cluster_role_binding" "admin_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
+
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
 
 #############################################################
@@ -169,44 +198,53 @@ data "aws_iam_user" "custom" {
 }
 
 resource "kubernetes_cluster_role" "custom" {
-  for_each = { for idx, role in var.custom_cluster_roles : idx => role if role.enabled }
+    for_each = { for idx, role in var.custom_cluster_roles : idx => role if role.enabled }
 
-  metadata {
-    name = each.value.name
-  }
-
-  dynamic "rule" {
-    for_each = each.value.rules
-
-    content {
-      api_groups = rule.value.api_groups
-      resources  = rule.value.resources
-      verbs      = rule.value.verbs
-      resource_names = rule.value.resource_names
+    metadata {
+      name = each.value.name
     }
-  }
+
+    dynamic "rule" {
+      for_each = each.value.rules
+
+      content {
+        api_groups = rule.value.api_groups
+        resources  = rule.value.resources
+        verbs      = rule.value.verbs
+        resource_names = rule.value.resource_names
+      }
+    }
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
 
 resource "kubernetes_cluster_role_binding" "custom_binding" {
-  for_each = { for role in var.custom_cluster_roles : role.name => role if role.enabled }
+    for_each = { for role in var.custom_cluster_roles : role.name => role if role.enabled }
 
-  dynamic "subject" {
-    for_each = [for username in each.value.iam_user_names : data.aws_iam_user.custom[username] if data.aws_iam_user.custom[username] != null]
+    dynamic "subject" {
+      for_each = [for username in each.value.iam_user_names : data.aws_iam_user.custom[username] if data.aws_iam_user.custom[username] != null]
 
-    content {
-      kind     = "User"
-      name     = subject.value.user_name
-      api_group = "rbac.authorization.k8s.io"
+      content {
+        kind     = "User"
+        name     = subject.value.user_name
+        api_group = "rbac.authorization.k8s.io"
+      }
     }
-  }
 
-  metadata {
-    name = "${each.key}-binding"
-  }
+    metadata {
+      name = "${each.key}-binding"
+    }
 
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = each.key
-  }
+    role_ref {
+      api_group = "rbac.authorization.k8s.io"
+      kind      = "ClusterRole"
+      name      = each.key
+    }
+
+    depends_on = [ 
+      data.aws_eks_cluster.this,
+      data.aws_eks_cluster_auth.this
+    ]
 }
