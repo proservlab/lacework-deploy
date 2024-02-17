@@ -93,9 +93,9 @@ provider "kubernetes" {
 provider "helm" {
   alias = "main"
   kubernetes {
-    host                   = var.eks_enabled ? data.aws_eks_cluster.example.endpoint : null
-    cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.example.certificate_authority[0].data) : null
-    token                  = var.eks_enabled ? data.aws_eks_cluster_auth.example.token : null
+    host                   = var.eks_enabled ? data.aws_eks_cluster.this.endpoint : null
+    cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this.certificate_authority[0].data) : null
+    token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this.token : null
     config_path            = var.eks_enabled ? null : local.default_kubeconfig
   }
 }
