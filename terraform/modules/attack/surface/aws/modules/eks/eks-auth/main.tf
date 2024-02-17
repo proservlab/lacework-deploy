@@ -1,14 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_eks_cluster" "this" {
-  name = var.cluster_name
-}
-
-data "aws_eks_cluster_auth" "this" {
-  name = var.cluster_name
-}
-
-
 locals {
     cluster_name = var.cluster_name
     aws_account_id = data.aws_caller_identity.current.account_id
@@ -48,7 +39,7 @@ data "aws_iam_user" "admin_users" {
     user_name = each.key
 }
 
-resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
+resource "kubernetes_config_map" "aws_auth_configmap" {
     metadata {
         name      = "aws-auth"
         namespace = "kube-system"
@@ -89,13 +80,6 @@ resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
                     ${local.custom_users_yaml}
                     YAML
     }
-
-    force = true
-
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
 
 #############################################################
@@ -134,11 +118,6 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
-
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
 
 #############################################################
@@ -161,11 +140,6 @@ resource "kubernetes_cluster_role" "admin" {
                               "*"
                           ]
     }
-
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
 
 resource "kubernetes_cluster_role_binding" "admin_pods" {
@@ -182,11 +156,6 @@ resource "kubernetes_cluster_role_binding" "admin_pods" {
         kind      = "User"
         name      = "${ reverse(split("/", each.value.arn))[0] }"
     }
-
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
 
 #############################################################
@@ -214,10 +183,6 @@ resource "kubernetes_cluster_role" "custom" {
         resource_names = rule.value.resource_names
       }
     }
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
 
 resource "kubernetes_cluster_role_binding" "custom_binding" {
@@ -242,9 +207,4 @@ resource "kubernetes_cluster_role_binding" "custom_binding" {
       kind      = "ClusterRole"
       name      = each.key
     }
-
-    depends_on = [ 
-      data.aws_eks_cluster.this,
-      data.aws_eks_cluster_auth.this
-    ]
 }
