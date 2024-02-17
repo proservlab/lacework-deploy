@@ -86,9 +86,9 @@ locals {
 # DEPLOYMENT CONTEXT
 ##################################################
 
-resource "time_sleep" "wait" {
-  create_duration = "120s"
-}
+# resource "time_sleep" "wait" {
+#   create_duration = "120s"
+# }
 
 ##################################################
 # GENERAL
