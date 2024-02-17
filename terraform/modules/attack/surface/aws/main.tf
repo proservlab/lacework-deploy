@@ -286,22 +286,22 @@ module "vulnerable-rds-app" {
 # AWS EKS
 ##################################################
 
-module "eks-kubeconfig" {
-  count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true) ? 1 : 0
-  source = "./modules/eks/eks-kubeconfig"
+# module "eks-kubeconfig" {
+#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true) ? 1 : 0
+#   source = "./modules/eks/eks-kubeconfig"
 
-  environment = local.config.context.global.environment
-  deployment = local.config.context.global.deployment
-  aws_profile_name = local.aws_profile_name
-  region = local.aws_region
-  cluster_name = local.cluster_name
-  kubeconfig_path = local.default_kubeconfig
-}
+#   environment = local.config.context.global.environment
+#   deployment = local.config.context.global.deployment
+#   aws_profile_name = local.aws_profile_name
+#   region = local.aws_region
+#   cluster_name = local.cluster_name
+#   kubeconfig_path = local.default_kubeconfig
+# }
 
-resource "time_sleep" "wait_2_minutes" {
-  create_duration = "120s"
-  depends_on = [module.eks-kubeconfig]
-}
+# resource "time_sleep" "wait_2_minutes" {
+#   create_duration = "120s"
+#   depends_on = [# module.eks-kubeconfig]
+# }
 
 # assign iam user cluster readonly role
 module "eks-auth" {
@@ -322,9 +322,9 @@ module "eks-auth" {
   }
 
   depends_on = [
-    time_sleep.wait_2_minutes,
+    # time_sleep.wait_2_minutes,
     module.iam,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]                    
 }
 
@@ -344,7 +344,7 @@ module "kubernetes-reloader" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -390,7 +390,7 @@ module "kubernetes-app" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -433,7 +433,7 @@ module "kubernetes-app-windows" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -479,7 +479,7 @@ module "vulnerable-kubernetes-voteapp" {
   
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -527,7 +527,7 @@ module "vulnerable-kubernetes-rdsapp" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -571,7 +571,7 @@ module "vulnerable-kubernetes-log4j-app" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -614,7 +614,7 @@ module "vulnerable-kubernetes-privileged-pod" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -657,7 +657,7 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -709,7 +709,7 @@ module "vulnerable-kubernetes-s3app" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
@@ -753,7 +753,7 @@ module "kubernetes-authapp" {
 
   depends_on = [ 
     module.eks-auth,
-    module.eks-kubeconfig
+    # module.eks-kubeconfig
   ]
 }
 
