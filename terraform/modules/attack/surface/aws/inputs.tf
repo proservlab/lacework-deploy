@@ -24,6 +24,11 @@ variable "compromised_credentials" {
   default = ""
 }
 
+variable "eks_enabled" {
+  type = bool
+  default = false
+}
+
 variable "cluster_name" {
   type = string
   default = null

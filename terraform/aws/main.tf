@@ -593,6 +593,7 @@ module "attacker-aws-attacksurface" {
     }
   }
 
+  eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
   cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
@@ -681,6 +682,7 @@ module "target-aws-attacksurface" {
   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
   cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
 
   parent = [
