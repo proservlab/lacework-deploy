@@ -84,18 +84,18 @@ data "aws_eks_cluster_auth" "this" {
 
 provider "kubernetes" {
   alias = "main"
-  host                   = var.eks_enabled ? data.aws_eks_cluster.this.endpoint : null
-  cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this.certificate_authority[0].data) : null
-  token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this.token : null
+  host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
+  cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
+  token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
   config_path            = var.eks_enabled ? null : local.default_kubeconfig
 }
 
 provider "helm" {
   alias = "main"
   kubernetes {
-    host                   = var.eks_enabled ? data.aws_eks_cluster.this.endpoint : null
-    cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this.certificate_authority[0].data) : null
-    token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this.token : null
+    host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
+    cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
+    token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
     config_path            = var.eks_enabled ? null : local.default_kubeconfig
   }
 }
