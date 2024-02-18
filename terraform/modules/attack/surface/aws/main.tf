@@ -35,17 +35,17 @@ locals {
   attacker_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_sg.id, null)
   attacker_app_public_sg = try(local.attacker_infrastructure_deployed.aws.ec2[0].public_app_sg.id, null)
 
-  cluster_name                        = try(local.default_infrastructure_deployed.aws.eks[0].cluster.id, "cluster")
-  cluster_endpoint                    = try(local.default_infrastructure_deployed.aws.eks[0].cluster.endpoint, null)
-  cluster_ca_cert                     = try(local.default_infrastructure_deployed.aws.eks[0].cluster.certificate_authority[0].data, null)
-  cluster_oidc_issuer                 = try(local.default_infrastructure_deployed.aws.eks[0].cluster.identity[0].oidc[0].issuer, null)
-  cluster_security_group              = try(local.default_infrastructure_deployed.aws.eks[0].cluster_sg_id, null)
-  cluster_subnet                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_subnet, null)
-  cluster_vpc_id                      = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_id, null)
-  cluster_node_role_arn               = try(local.default_infrastructure_deployed.aws.eks[0].cluster_node_role_arn, null)
-  cluster_vpc_subnet                  = try(local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_subnet, null)
-  cluster_openid_connect_provider_arn = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn, null)
-  cluster_openid_connect_provider_url = try(local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url, null)
+  cluster_name                        = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster.id : null
+  cluster_endpoint                    = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster.endpoint : null
+  cluster_ca_cert                     = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster.certificate_authority[0].data : null
+  cluster_oidc_issuer                 = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster.identity[0].oidc[0].issuer : null
+  cluster_security_group              = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_sg_id : null
+  cluster_subnet                      = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_subnet : null
+  cluster_vpc_id                      = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_id : null
+  cluster_node_role_arn               = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_node_role_arn : null
+  cluster_vpc_subnet                  = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_vpc_subnet : null
+  cluster_openid_connect_provider_arn = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.arn : null
+  cluster_openid_connect_provider_url = var.eks_enabled ? local.default_infrastructure_deployed.aws.eks[0].cluster_openid_connect_provider.url : null
 
   db_host = try(local.default_infrastructure_deployed.aws.rds[0].db_host, null)
   db_name = try(local.default_infrastructure_deployed.aws.rds[0].db_name, null)
