@@ -39,7 +39,7 @@ data "aws_iam_user" "admin_users" {
     user_name = each.key
 }
 
-resource "kubernetes_config_map" "aws_auth_configmap" {
+resource "kubernetes_config_map_v1_data" "aws_auth_configmap" {
     metadata {
         name      = "aws-auth"
         namespace = "kube-system"
@@ -80,13 +80,15 @@ resource "kubernetes_config_map" "aws_auth_configmap" {
                     ${local.custom_users_yaml}
                     YAML
     }
+
+    force = true
 }
 
 #############################################################
 # READ ROLE
 #############################################################
 
-resource "kubernetes_cluster_role" "read_pods" {
+resource "kubernetes_cluster_role_v1" "read_pods" {
   metadata {
     name = local.read_role_name
   }
@@ -104,7 +106,7 @@ resource "kubernetes_cluster_role" "read_pods" {
   }
 }
 
-resource "kubernetes_cluster_role_binding" "read_pods" {
+resource "kubernetes_cluster_role_binding_v1" "read_pods" {
     for_each = data.aws_iam_user.read_users
     metadata {
         name      = "${local.read_role_name}-${ reverse(split("/", each.value.arn))[0] }-role-binding"
@@ -124,7 +126,7 @@ resource "kubernetes_cluster_role_binding" "read_pods" {
 # ADMIN ROLE
 #############################################################
 
-resource "kubernetes_cluster_role" "admin" {
+resource "kubernetes_cluster_role_v1" "admin" {
     metadata {
       name = local.admin_role_name
     }
@@ -142,7 +144,7 @@ resource "kubernetes_cluster_role" "admin" {
     }
 }
 
-resource "kubernetes_cluster_role_binding" "admin_pods" {
+resource "kubernetes_cluster_role_binding_v1" "admin_pods" {
     for_each = data.aws_iam_user.admin_users
     metadata {
         name      = "${local.admin_role_name}-${ reverse(split("/", each.value.arn))[0] }-role-binding"
@@ -166,7 +168,7 @@ data "aws_iam_user" "custom" {
   user_name = each.key
 }
 
-resource "kubernetes_cluster_role" "custom" {
+resource "kubernetes_cluster_role_v1" "custom" {
     for_each = { for idx, role in var.custom_cluster_roles : idx => role if role.enabled }
 
     metadata {
@@ -185,7 +187,7 @@ resource "kubernetes_cluster_role" "custom" {
     }
 }
 
-resource "kubernetes_cluster_role_binding" "custom_binding" {
+resource "kubernetes_cluster_role_binding_v1" "custom_binding" {
     for_each = { for role in var.custom_cluster_roles : role.name => role if role.enabled }
 
     dynamic "subject" {
