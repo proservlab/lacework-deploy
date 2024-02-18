@@ -24,42 +24,32 @@ locals {
   certificate_authority_data_list_internal = local.certificate_authority_data_list[0]
   certificate_authority_data_map           = local.certificate_authority_data_list_internal[0]
   certificate_authority_data               = local.certificate_authority_data_map["data"]
-
-  # cluster_endpoint_data     = join("", aws_eks_cluster.default[*].endpoint) # use `join` instead of `one` to keep the value a string
-  # need_kubernetes_provider = local.enabled && var.apply_config_map_aws_auth
-
-  # kubeconfig_path_enabled = local.need_kubernetes_provider && var.kubeconfig_path_enabled
-  # kube_exec_auth_enabled  = local.kubeconfig_path_enabled ? false : local.need_kubernetes_provider && var.kube_exec_auth_enabled
-  # kube_data_auth_enabled  = local.kube_exec_auth_enabled ? false : local.need_kubernetes_provider && var.kube_data_auth_enabled
-
-  # exec_profile = local.kube_exec_auth_enabled && var.kube_exec_auth_aws_profile_enabled ? ["--profile", var.kube_exec_auth_aws_profile] : []
-  # exec_role    = local.kube_exec_auth_enabled && var.kube_exec_auth_role_arn_enabled ? ["--role-arn", var.kube_exec_auth_role_arn] : []
-
-  # cluster_endpoint_data     = join("", aws_eks_cluster.default[*].endpoint) # use `join` instead of `one` to keep the value a string
-  # cluster_auth_map_endpoint = var.apply_config_map_aws_auth ? local.cluster_endpoint_data : var.dummy_kubeapi_server
+  cluster_endpoint_data     = join("", local.cluster_endpoint) # use `join` instead of `one` to keep the value a string
 }
 
-# variable "dummy_kubeapi_server" {
-#   type        = string
-#   default     = "https://jsonplaceholder.typicode.com"
-#   description = <<-EOT
-#     URL of a dummy API server for the Kubernetes server to use when the real one is unknown.
-#     This is a workaround to ignore connection failures that break Terraform even though the results do not matter.
-#     You can disable it by setting it to `null`; however, as of Kubernetes provider v2.3.2, doing so _will_
-#     cause Terraform to fail in several situations unless you provide a valid `kubeconfig` file
-#     via `kubeconfig_path` and set `kubeconfig_path_enabled` to `true`.
-#     EOT
-# }
+resource "null_resource" "wait_for_cluster" {
+  count = var.eks_enabled ? 1 : 0
+  triggers = {
+    always = timestamp()
+  }
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                echo "Waiting for cluster: ${local.cluster_name} [${local.cluster_endpoint}]"
+                aws eks wait cluster-active --profile '${var.default_aws_profile}' --region=${var.default_aws_region} --name '${local.cluster_name}'
+              EOT
+    environment = {
+      ENDPOINT = local.cluster_endpoint_data
+    }
+  }
+}
 
 data "aws_eks_cluster" "this" {
   count = var.eks_enabled ? 1 : 0
   name  = local.cluster_name
-}
 
-# data "aws_eks_cluster_auth" "this" {
-#   count = var.eks_enabled ? 1 : 0
-#   name  = local.cluster_name
-# }
+  depends_on = [ null_resource.wait_for_cluster ]
+}
 
 provider "kubernetes" {
   host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
@@ -69,7 +59,10 @@ provider "kubernetes" {
     content {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted"), "--profile", var.default_aws_profile]
+      env         = {
+        AWS_PROFILE = var.default_aws_profile
+      }
+      args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
     }
   }
 }
@@ -83,7 +76,10 @@ provider "kubernetes" {
     content {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted"), "--profile", var.default_aws_profile, "--region", var.default_aws_region]
+      env         = {
+        AWS_PROFILE = var.default_aws_profile
+      }
+      args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
     }
   }
 }
@@ -97,7 +93,10 @@ provider "helm" {
       content {
         api_version = "client.authentication.k8s.io/v1beta1"
         command     = "aws"
-        args        = ["eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted"), "--profile", var.default_aws_profile]
+        env         = {
+          AWS_PROFILE = var.default_aws_profile
+        }
+        args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
       }
     }
   }
@@ -113,7 +112,10 @@ provider "helm" {
       content {
         api_version = "client.authentication.k8s.io/v1beta1"
         command     = "aws"
-        args        = ["eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted"), "--profile", var.default_aws_profile]
+        env         = {
+          AWS_PROFILE = var.default_aws_profile
+        }
+        args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
       }
     }
   }

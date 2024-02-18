@@ -286,23 +286,6 @@ module "vulnerable-rds-app" {
 # AWS EKS
 ##################################################
 
-# module "eks-kubeconfig" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true) ? 1 : 0
-#   source = "./modules/eks/eks-kubeconfig"
-
-#   environment = local.config.context.global.environment
-#   deployment = local.config.context.global.deployment
-#   aws_profile_name = local.aws_profile_name
-#   region = local.aws_region
-#   cluster_name = local.cluster_name
-#   kubeconfig_path = local.default_kubeconfig
-# }
-
-# resource "time_sleep" "wait_2_minutes" {
-#   create_duration = "120s"
-#   depends_on = [# module.eks-kubeconfig]
-# }
-
 # assign iam user cluster readonly role
 module "eks-auth" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
@@ -322,9 +305,8 @@ module "eks-auth" {
   }
 
   depends_on = [
-    # time_sleep.wait_2_minutes,
+    null_resource.wait_for_cluster,
     module.iam,
-    # module.eks-kubeconfig
   ]                    
 }
 
@@ -342,10 +324,10 @@ module "kubernetes-reloader" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
-  ]
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
+  ] 
 }
 
 
@@ -388,9 +370,9 @@ module "kubernetes-app" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -431,9 +413,9 @@ module "kubernetes-app-windows" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -477,9 +459,9 @@ module "vulnerable-kubernetes-voteapp" {
     helm = helm.main
   }
   
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -525,9 +507,9 @@ module "vulnerable-kubernetes-rdsapp" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -569,9 +551,9 @@ module "vulnerable-kubernetes-log4j-app" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -612,9 +594,9 @@ module "vulnerable-kubernetes-privileged-pod" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -655,9 +637,9 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -707,9 +689,9 @@ module "vulnerable-kubernetes-s3app" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
@@ -751,9 +733,9 @@ module "kubernetes-authapp" {
     helm = helm.main
   }
 
-  depends_on = [ 
-    module.eks-auth,
-    # module.eks-kubeconfig
+  depends_on = [
+    null_resource.wait_for_cluster,
+    module.iam,
   ]
 }
 
