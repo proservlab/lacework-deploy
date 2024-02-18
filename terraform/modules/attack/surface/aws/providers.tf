@@ -18,7 +18,13 @@ locals {
   default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
+  
   dummy_kubeapi_server = "https://jsonplaceholder.typicode.com"
+  certificate_authority_data_list          = coalescelist(data.aws_eks_cluster.this[0].certificate_authority, [[{ data : "" }]])
+  certificate_authority_data_list_internal = local.certificate_authority_data_list[0]
+  certificate_authority_data_map           = local.certificate_authority_data_list_internal[0]
+  certificate_authority_data               = local.certificate_authority_data_map["data"]
+
   # cluster_endpoint_data     = join("", aws_eks_cluster.default[*].endpoint) # use `join` instead of `one` to keep the value a string
   # need_kubernetes_provider = local.enabled && var.apply_config_map_aws_auth
 
@@ -57,7 +63,7 @@ data "aws_eks_cluster" "this" {
 
 provider "kubernetes" {
   host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data)
+  cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
   dynamic "exec" {
     for_each = var.eks_enabled ? ["exec"] : []
     content {
@@ -71,7 +77,7 @@ provider "kubernetes" {
 provider "kubernetes" {
   alias = "main"
   host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data)
+  cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
   dynamic "exec" {
     for_each = var.eks_enabled ? ["exec"] : []
     content {
@@ -85,7 +91,7 @@ provider "kubernetes" {
 provider "helm" {
   kubernetes {
     host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data)
+    cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
     dynamic "exec" {
       for_each = var.eks_enabled ? ["exec"] : []
       content {
@@ -101,7 +107,7 @@ provider "helm" {
   alias = "main"
   kubernetes {
     host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data)
+    cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
     dynamic "exec" {
       for_each = var.eks_enabled ? ["exec"] : []
       content {
