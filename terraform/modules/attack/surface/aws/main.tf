@@ -306,6 +306,7 @@ module "eks-auth" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]                    
 }
@@ -326,8 +327,9 @@ module "kubernetes-reloader" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
-  ] 
+  ]
 }
 
 
@@ -372,8 +374,9 @@ module "kubernetes-app" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
-  ]
+  ]  
 }
 
 module "kubernetes-app-windows" {
@@ -415,8 +418,9 @@ module "kubernetes-app-windows" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
-  ]
+  ]  
 }
 
 ##################################################
@@ -461,6 +465,7 @@ module "vulnerable-kubernetes-voteapp" {
   
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -509,6 +514,7 @@ module "vulnerable-kubernetes-rdsapp" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -553,6 +559,7 @@ module "vulnerable-kubernetes-log4j-app" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -596,6 +603,7 @@ module "vulnerable-kubernetes-privileged-pod" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -639,6 +647,7 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -691,6 +700,7 @@ module "vulnerable-kubernetes-s3app" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
@@ -735,6 +745,7 @@ module "kubernetes-authapp" {
 
   depends_on = [
     null_resource.wait_for_cluster,
+    data.aws_eks_cluster.this,
     module.iam,
   ]
 }
