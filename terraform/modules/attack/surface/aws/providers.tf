@@ -48,8 +48,6 @@ resource "null_resource" "wait_for_cluster" {
 data "aws_eks_cluster" "this" {
   count = var.eks_enabled ? 1 : 0
   name  = local.cluster_name
-
-  depends_on = [ null_resource.wait_for_cluster ]
 }
 
 provider "kubernetes" {
