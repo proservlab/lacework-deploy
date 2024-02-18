@@ -20,7 +20,7 @@ locals {
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
   
   dummy_kubeapi_server = "https://jsonplaceholder.typicode.com"
-  certificate_authority_data_list          = coalescelist(data.aws_eks_cluster.this[0].certificate_authority, [[{ data : "" }]])
+  certificate_authority_data_list          = try(data.aws_eks_cluster.this[0].certificate_authority, [[{ data : "" }]])
   certificate_authority_data_list_internal = local.certificate_authority_data_list[0]
   certificate_authority_data_map           = local.certificate_authority_data_list_internal[0]
   certificate_authority_data               = local.certificate_authority_data_map["data"]
