@@ -31,6 +31,7 @@ resource "null_resource" "wait_for_cluster" {
   count = var.eks_enabled ? 1 : 0
   triggers = {
     always = timestamp()
+    "before" = "${aws_eks_cluster.this.id}"
   }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
