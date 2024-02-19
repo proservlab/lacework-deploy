@@ -153,6 +153,7 @@ module "dns-records" {
   count           = length(local.public_compute_instances)
   source          = "../../../dynu/dns_record"
   dynu_dns_domain_id = var.dynu_dns_domain_id
+  dynu_dns_domain    = var.dynu_dns_domain
   
   record        = {
         recordType     = "A"
