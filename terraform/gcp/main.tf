@@ -180,7 +180,7 @@ module "dynu_attacker_domain_id" {
 }
 
 module "dynu_target_domain_id" {
-  count = module.target-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
+  count = module.target-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
   source = "../modules/infrastructure/dynu/domain_id"
   dynu_dns_domain = var.target_dynu_dns_domain
 }
