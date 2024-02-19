@@ -310,7 +310,7 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
-            allow_privilege_escalation  = bool
+              allow_privilege_escalation  = bool
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -416,6 +416,8 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
             })
             voteapp = object({
               enabled                     = bool
@@ -429,14 +431,31 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
@@ -461,6 +480,8 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
             })
             voteapp = object({
               enabled                     = bool
@@ -474,14 +495,31 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
@@ -755,6 +793,8 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
             }
             voteapp = {
               enabled                     = false
@@ -767,15 +807,32 @@ variable "config" {
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }
@@ -830,7 +887,7 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
-            allow_privilege_escalation  = false
+              allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -852,7 +909,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
-            allow_privilege_escalation  = false
+              allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -881,7 +938,7 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
-            allow_privilege_escalation  = false
+              allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -893,7 +950,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
-            allow_privilege_escalation  = false
+              allow_privilege_escalation  = false
               admin_password              = null
               user_password               = null
               enable_dynu_dns             = false
@@ -907,7 +964,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
-            allow_privilege_escalation  = false
+              allow_privilege_escalation  = false
               admin_password              = null
               user_password               = null
               enable_dynu_dns             = false
@@ -936,6 +993,8 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
             }
             voteapp = {
               enabled                     = false
@@ -948,15 +1007,32 @@ variable "config" {
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }
