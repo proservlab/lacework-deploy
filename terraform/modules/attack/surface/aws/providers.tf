@@ -30,7 +30,7 @@ resource "null_resource" "wait_for_cluster" {
     interpreter = ["/bin/bash", "-c"]
     command = <<-EOT
                 echo "Waiting for cluster: ${local.cluster_name} [${local.cluster_endpoint}]"
-                aws eks wait cluster-active --profile '${var.default_aws_profile}' --region=${var.default_aws_region} --name '${local.cluster_name}'
+                aws --profile '${var.default_aws_profile}' eks wait cluster-active --region=${var.default_aws_region} --name '${local.cluster_name}'
               EOT
     environment = {
       ENDPOINT = local.cluster_endpoint
