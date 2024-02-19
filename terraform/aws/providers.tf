@@ -2,7 +2,7 @@ provider "restapi" {
     alias = "attacker"
     uri                  = "https://api.dynu.com/v2"
     write_returns_object = true
-    debug                = false
+    debug                = true
 
     headers = {
     "API-Key" = try(var.attacker_dynu_api_key, ""),
