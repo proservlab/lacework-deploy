@@ -251,7 +251,7 @@ module "dynu_target_domain_id" {
   dynu_dns_domain = var.target_dynu_dns_domain
 }
 
-data "utils_deep_merge_json" "attack-infrastructure-config-dynu" {
+data "utils_deep_merge_json" "attacker-infrastructure-config-dynu" {
   input = [
     jsonencode(module.attacker-infrastructure-context.config),
     jsonencode({
