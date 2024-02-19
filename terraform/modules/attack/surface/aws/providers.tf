@@ -48,6 +48,30 @@ data "local_file" "default_kubeconfig" {
   depends_on = [ data.aws_eks_cluster.this ]
 }
 
+resource "local_file" "default_kubeconfig" {
+  filename = "/tmp/config"
+  content = data.local_file.default_kubeconfig.content
+  depends_on = [ data.local_file.default_kubeconfig ]
+}
+
+resource "null_resource" "wait_for_config" {
+  count = var.eks_enabled ? 1 : 0
+  triggers = {
+    always = timestamp()
+  }
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+              base64 -d ${local_file.default_kubeconfig.content_base64}
+              EOT
+    environment = {
+      ENDPOINT = local.cluster_endpoint
+    }
+  }
+
+  depends_on = [ local_file.default_kubeconfig ]
+}
+
 # provider "kubernetes" {
 #   config_path             = data.local_file.default_kubeconfig.filename
 # }
