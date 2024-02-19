@@ -26,7 +26,7 @@ module "deployment" {
     name = "container"
     internal_port = var.container_port
   }]
- security_context_container = [{
+  security_context_container = [{
       privileged = var.privileged
   }]
   custom_labels = {
@@ -35,7 +35,6 @@ module "deployment" {
   template_annotations = {
     app = local.app_name
   }
-  replicas      = 1
   volume_mount  = [{
     volume_name = "test-volume"
     mount_path = "/host"
@@ -45,6 +44,11 @@ module "deployment" {
     path_on_node = "/"
     type = "Directory"
   }]
+  replicas      = 1
+  rolling_update = {
+    max_surge = 0
+    max_unavailable = 1
+  }
 
   depends_on = [
     kubernetes_namespace.this

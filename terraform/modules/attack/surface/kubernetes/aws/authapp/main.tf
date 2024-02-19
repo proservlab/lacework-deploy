@@ -52,6 +52,10 @@ module "deployment" {
     "reloader.stakater.com/auto" : "true"
   }
   replicas = 1
+  rolling_update = {
+    max_surge = 0
+    max_unavailable = 1
+  }
 
   depends_on = [
     kubernetes_namespace.this
