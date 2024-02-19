@@ -754,7 +754,7 @@ module "vulnerable-kubernetes-s3app" {
 }
 
 # example of pushing kubernetes deployment via terraform
-module "kubernetes-authapp" {
+module "vulnerable-kubernetes-authapp" {
   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.authapp.enabled == true ) ? 1 : 0
   source      = "../kubernetes/aws/authapp"
   environment                   = local.config.context.global.environment
@@ -817,7 +817,7 @@ locals {
     try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
     try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
     try(module.vulnerable-kubernetes-s3app[0].services,[]),
-    try(module.kubernetes-authapp[0].services,[]),
+    try(module.vulnerable-kubernetes-authapp[0].services,[]),
 
   ]): service.name => service }
 }
