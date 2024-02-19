@@ -279,6 +279,7 @@ variable "config" {
             command                     = list(string)
             args                        = list(string)
             privileged                  = bool
+            allow_privilege_escalation  = bool
             enable_dynu_dns             = bool
             dynu_dns_domain             = string
           })
@@ -293,6 +294,7 @@ variable "config" {
             command                     = list(string)
             args                        = list(string)
             privileged                  = bool
+            allow_privilege_escalation  = bool
             enable_dynu_dns             = bool
             dynu_dns_domain             = string
           })
@@ -308,6 +310,7 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+            allow_privilege_escalation  = bool
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -328,6 +331,7 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              allow_privilege_escalation  = bool
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -342,6 +346,7 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+              allow_privilege_escalation  = bool
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -356,6 +361,7 @@ variable "config" {
               command                     = list(string)
               args                        = list(string)
               privileged                  = bool
+              allow_privilege_escalation  = bool
               enable_dynu_dns             = bool
               dynu_dns_domain             = string
             })
@@ -367,6 +373,7 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              allow_privilege_escalation  = bool
               admin_password              = string
               user_password               = string
               enable_dynu_dns             = bool
@@ -380,6 +387,7 @@ variable "config" {
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               privileged                  = bool
+              allow_privilege_escalation  = bool
               admin_password              = string
               user_password               = string
               enable_dynu_dns             = bool
@@ -787,6 +795,7 @@ variable "config" {
             command                     = ["tail"]
             args                        = ["-f", "/dev/null"]
             privileged                  = false
+            allow_privilege_escalation  = false
             enable_dynu_dns             = false
             dynu_dns_domain             = null
           }
@@ -805,6 +814,7 @@ variable "config" {
             ]
             args                        = []
             privileged                  = false
+            allow_privilege_escalation  = false
             enable_dynu_dns             = false
             dynu_dns_domain             = null
           }
@@ -820,6 +830,7 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
+            allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -841,6 +852,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
+            allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -869,6 +881,7 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = false
+            allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }
@@ -880,6 +893,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
+            allow_privilege_escalation  = false
               admin_password              = null
               user_password               = null
               enable_dynu_dns             = false
@@ -893,6 +907,7 @@ variable "config" {
               trust_workstation_source    = false
               additional_trusted_sources  = []
               privileged                  = false
+            allow_privilege_escalation  = false
               admin_password              = null
               user_password               = null
               enable_dynu_dns             = false

@@ -106,6 +106,7 @@
           "trust_workstation_source": true,
           "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32", "72.2.49.106/32"],
           "privileged": false,
+          "allow_privilege_escalation": false,
           "enable_dynu_dns": false,
           "dynu_dns_domain": "${ dynu_dns_domain }"
         },
@@ -116,6 +117,8 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
+            "privileged": false,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
@@ -134,6 +137,8 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
+            "privileged": false,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
@@ -143,6 +148,8 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
+            "privileged": true,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
@@ -152,6 +159,8 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
+            "privileged": true,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
@@ -163,6 +172,7 @@
             "trust_workstation_source": true,
             "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32", "72.2.49.106/32"],
             "privileged": false,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
@@ -174,6 +184,7 @@
             "trust_workstation_source": true,
             "additional_trusted_sources": ["154.5.138.43/32", "38.142.1.26/32", "72.2.49.106/32"],
             "privileged": false,
+            "allow_privilege_escalation": false,
             "enable_dynu_dns": true,
             "dynu_dns_domain": "${ dynu_dns_domain }",
             "admin_password": "4920616d20616d617a696e672e2045766572796f6e65206b6e6f777320746869732e"

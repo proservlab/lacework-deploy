@@ -33,6 +33,7 @@ module "deployment" {
     internal_port = var.container_port
   }]
   security_context_container = [{
+      allow_privilege_escalation = var.allow_privilege_escalation
       privileged = var.privileged
   }]
   custom_labels = {

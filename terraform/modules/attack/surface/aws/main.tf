@@ -363,6 +363,8 @@ module "kubernetes-app" {
   image                         = local.config.context.kubernetes.aws.app.image
   command                       = local.config.context.kubernetes.aws.app.command
   args                          = local.config.context.kubernetes.aws.app.args
+  privileged                    = local.config.context.kubernetes.aws.app.privileged
+  allow_privilege_escalation    = local.config.context.kubernetes.aws.app.allow_allow_privilege_escalation
 
   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
@@ -410,8 +412,10 @@ module "kubernetes-app-windows" {
   enable_dynu_dns = local.config.context.kubernetes.aws.app-windows.enable_dynu_dns
 
   image                         = local.config.context.kubernetes.aws.app-windows.image
-  command                       = local.config.context.kubernetes.aws-windows.app.command
+  command                       = local.config.context.kubernetes.aws.app-windows.command
   args                          = local.config.context.kubernetes.aws.app-windows.args
+  privileged                    = local.config.context.kubernetes.aws.app-windows.privileged
+  allow_privilege_escalation    = local.config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
   
   providers = {
     kubernetes = kubernetes.main
@@ -514,6 +518,9 @@ module "vulnerable-kubernetes-rdsapp" {
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
 
+  privileged                    = local.config.context.kubernetes.aws.vulnerable.rdsapp.privileged
+  allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
+
   providers = {
     kubernetes = kubernetes.main
     helm = helm.main
@@ -562,6 +569,8 @@ module "vulnerable-kubernetes-log4j-app" {
   image                         = local.config.context.kubernetes.aws.vulnerable.log4j_app.image
   command                       = local.config.context.kubernetes.aws.vulnerable.log4j_app.command
   args                          = local.config.context.kubernetes.aws.vulnerable.log4j_app.args
+  privileged                    = local.config.context.kubernetes.aws.vulnerable.log4j_app.privileged
+  allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
 
   providers = {
     kubernetes = kubernetes.main
@@ -611,6 +620,9 @@ module "vulnerable-kubernetes-privileged-pod" {
   image                         = local.config.context.kubernetes.aws.vulnerable.privileged_pod.image
   command                       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.command
   args                          = local.config.context.kubernetes.aws.vulnerable.privileged_pod.args
+  privileged                    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.privileged
+  allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.allow_allow_privilege_escalation
+
 
   providers = {
     kubernetes = kubernetes.main

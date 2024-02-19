@@ -166,6 +166,11 @@ variable "additional_trusted_sources" {
   default = []
 }
 
+variable "allow_privilege_escalation" {
+    type = bool
+    default = false
+}
+
 variable "privileged" {
     type = bool
     default = false
