@@ -196,3 +196,9 @@ variable "dynu_dns_domain" {
   description = "The hostname you want to update"
   default = ""
 }
+
+variable "dynu_dns_domain_id" {
+  type = string
+  description = "The domain id for dynu hostname you want to update"
+  default = ""
+}

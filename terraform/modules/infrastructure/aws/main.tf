@@ -191,6 +191,7 @@ module "ec2" {
 
   enable_dynu_dns                     = local.config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id                  = local.config.context.dynu_dns.domain_id
 
   depends_on = [
     time_sleep.lacework_wait_90

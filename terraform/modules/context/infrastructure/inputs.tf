@@ -393,6 +393,7 @@ variable "config" {
         enabled                 = bool
         api_key                 = string
         dns_domain              = string
+        domain_id               = string
       })
     })
   })
@@ -968,6 +969,7 @@ variable "config" {
         enabled                 = false
         api_key                 = null
         dns_domain              = null
+        domain_id               = null
       }
     }
   }

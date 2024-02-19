@@ -94,6 +94,7 @@ module "gce" {
 
   enable_dynu_dns                     = local.config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id                  = local.config.context.dynu_dns.dns_domain_id
 
 }
 

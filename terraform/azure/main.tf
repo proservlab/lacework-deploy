@@ -171,12 +171,54 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 ##################################################
+# DYNU CONFIG
+##################################################
+
+module "dynu_attacker_domain_id" {
+  count = module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.attacker_dynu_dns_domain
+}
+
+module "dynu_target_domain_id" {
+  count = module.target-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.target_dynu_dns_domain
+}
+
+data "utils_deep_merge_json" "attack-infrastructure-config-dynu" {
+  input = [
+    jsonencode(module.attacker-infrastructure-context.config),
+    jsonencode({
+      context = {
+        dynu_dns = {
+          domain_id = try(module.dynu_attacker_domain_id[0].dynu_dns_domain_id, null)
+        }
+      }
+    })
+  ]
+}
+
+data "utils_deep_merge_json" "target-infrastructure-config-dynu" {
+  input = [
+    jsonencode(module.target-infrastructure-context.config),
+    jsonencode({
+      context = {
+        dynu_dns = {
+          domain_id = try(module.dynu_target_domain_id[0].dynu_dns_domain_id, null)
+        }
+      }
+    })
+  ]
+}
+
+##################################################
 # INFRASTRUCTURE DEPLOYMENT
 ##################################################
 
 module "attacker-azure-infrastructure" {
   source = "./modules/infrastructure/azure"
-  config = module.attacker-infrastructure-context.config
+  config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config-dynu.output)
 
   default_azure_subscription          = var.attacker_azure_subscription
   default_azure_tenant                = var.attacker_azure_tenant
@@ -214,7 +256,7 @@ module "attacker-azure-infrastructure" {
 
 module "target-azure-infrastructure" {
   source = "./modules/infrastructure/azure"
-  config = module.target-infrastructure-context.config
+  config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config-dynu.output)
 
   default_azure_subscription          = var.target_azure_subscription
   default_azure_tenant                = var.target_azure_tenant

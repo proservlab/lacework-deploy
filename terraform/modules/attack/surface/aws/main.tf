@@ -364,6 +364,7 @@ module "kubernetes-app" {
   command                       = local.config.context.kubernetes.aws.app.command
   args                          = local.config.context.kubernetes.aws.app.args
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.app
   
@@ -404,6 +405,7 @@ module "kubernetes-app-windows" {
   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.app-windows.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.app-windows.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.app-windows.enable_dynu_dns
 
@@ -420,6 +422,7 @@ module "kubernetes-app-windows" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app
   ]  
 }
 
@@ -455,6 +458,7 @@ module "vulnerable-kubernetes-voteapp" {
   additional_trusted_sources_enabled    = length(local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
@@ -467,6 +471,8 @@ module "vulnerable-kubernetes-voteapp" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows
   ]
 }
 
@@ -504,6 +510,7 @@ module "vulnerable-kubernetes-rdsapp" {
   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
 
@@ -516,6 +523,9 @@ module "vulnerable-kubernetes-rdsapp" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp
   ]
 }
 
@@ -545,6 +555,7 @@ module "vulnerable-kubernetes-log4j-app" {
   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.log4j_app.enable_dynu_dns
 
@@ -561,6 +572,10 @@ module "vulnerable-kubernetes-log4j-app" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp,
+    module.vulnerable-kubernetes-rdsapp
   ]
 }
 
@@ -589,6 +604,7 @@ module "vulnerable-kubernetes-privileged-pod" {
   additional_trusted_sources_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.privileged_pod.enable_dynu_dns
 
@@ -605,6 +621,11 @@ module "vulnerable-kubernetes-privileged-pod" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp,
+    module.vulnerable-kubernetes-rdsapp,
+    module.vulnerable-kubernetes-log4j-app,
   ]
 }
 
@@ -633,6 +654,7 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enable_dynu_dns
 
@@ -649,6 +671,12 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp,
+    module.vulnerable-kubernetes-rdsapp,
+    module.vulnerable-kubernetes-log4j-app,
+    module.vulnerable-kubernetes-privileged-pod,
   ]
 }
 
@@ -687,6 +715,7 @@ module "vulnerable-kubernetes-s3app" {
   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.s3app.enable_dynu_dns
 
@@ -702,6 +731,13 @@ module "vulnerable-kubernetes-s3app" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp,
+    module.vulnerable-kubernetes-rdsapp,
+    module.vulnerable-kubernetes-log4j-app,
+    module.vulnerable-kubernetes-privileged-pod,
+    module.vulnerable-kubernetes-root-mount-fs-pod,
   ]
 }
 
@@ -735,6 +771,7 @@ module "kubernetes-authapp" {
   user_password = local.config.context.kubernetes.aws.vulnerable.authapp.user_password
   admin_password = local.config.context.kubernetes.aws.vulnerable.authapp.admin_password
 
+  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
   
@@ -747,6 +784,14 @@ module "kubernetes-authapp" {
     null_resource.wait_for_cluster,
     data.aws_eks_cluster.this,
     module.iam,
+    module.kubernetes-app,
+    module.kubernetes-app-windows,
+    module.vulnerable-kubernetes-voteapp,
+    module.vulnerable-kubernetes-rdsapp,
+    module.vulnerable-kubernetes-log4j-app,
+    module.vulnerable-kubernetes-privileged-pod,
+    module.vulnerable-kubernetes-root-mount-fs-pod,
+    module.vulnerable-kubernetes-s3app,
   ]
 }
 
@@ -760,6 +805,7 @@ locals {
     try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
     try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
     try(module.vulnerable-kubernetes-s3app[0].services,[]),
+    try(module.vulnerable-kubernetes-authapp[0].services,[]),
 
   ]): service.name => service }
 }

@@ -66,6 +66,22 @@ resource "null_resource" "kubeconfig" {
 }
 
 ##################################################
+# DYNU CONFIG
+##################################################
+
+module "dynu_attacker_domain_id" {
+  count = module.attacker-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.attacker_dynu_dns_domain
+}
+
+module "dynu_target_domain_id" {
+  count = module.target-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.attacker_dynu_dns_domain
+}
+
+##################################################
 # INFRASTRUCTURE CONFIG
 ##################################################
 
@@ -182,6 +198,10 @@ locals {
   }
 }
 
+##################################################
+# INFRASTRUCTURE MERGE WITH OVERRIDE
+##################################################
+
 data "utils_deep_merge_json" "attacker-infrastructure-config" {
   input = [
     jsonencode(module.default-infrastructure-context.config),
@@ -232,13 +252,55 @@ resource "time_sleep" "wait_120_seconds" {
 }
 
 ##################################################
+# DYNU CONFIG
+##################################################
+
+module "dynu_attacker_domain_id" {
+  count = module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.attacker_dynu_dns_domain
+}
+
+module "dynu_target_domain_id" {
+  count = module.target-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
+  source = "../modules/infrastructure/dynu/domain_id"
+  dynu_dns_domain = var.target_dynu_dns_domain
+}
+
+data "utils_deep_merge_json" "attack-infrastructure-config-dynu" {
+  input = [
+    jsonencode(module.attacker-infrastructure-context.config),
+    jsonencode({
+      context = {
+        dynu_dns = {
+          domain_id = try(module.dynu_attacker_domain_id[0].dynu_dns_domain_id, null)
+        }
+      }
+    })
+  ]
+}
+
+data "utils_deep_merge_json" "target-infrastructure-config-dynu" {
+  input = [
+    jsonencode(module.target-infrastructure-context.config),
+    jsonencode({
+      context = {
+        dynu_dns = {
+          domain_id = try(module.dynu_target_domain_id[0].dynu_dns_domain_id, null)
+        }
+      }
+    })
+  ]
+}
+
+##################################################
 # INFRASTRUCTURE DEPLOYMENT
 ##################################################
 
 # deploy infrastructure
 module "attacker-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
-  config = module.attacker-infrastructure-context.config
+  config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config-dynu.output)
 
   default_aws_profile                 = var.attacker_aws_profile
   default_aws_region                  = var.attacker_aws_region
@@ -273,7 +335,7 @@ module "attacker-aws-infrastructure" {
 
 module "target-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
-  config = module.target-infrastructure-context.config
+  config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config-dynu.output)
 
   default_aws_profile                 = var.target_aws_profile
   default_aws_region                  = var.target_aws_region
@@ -400,42 +462,6 @@ module "target-lacework-platform-infrastructure" {
     time_sleep.wait_120_seconds.id
   ]
 }
-
-##################################################
-# KUBERNETES CONFIG
-##################################################
-
-# module "attacker-aws-eks-kubeconfig" {
-#   count = (module.attacker-infrastructure-context.config.context.global.enable_all == true) || (module.attacker-infrastructure-context.config.context.global.disable_all != true && module.attacker-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source = "../modules/infrastructure/aws/modules/eks-kubeconfig"
-
-#   environment = "attacker"
-#   deployment = var.deployment
-#   aws_profile_name = var.attacker_aws_profile
-#   region = var.attacker_aws_region
-#   cluster_name = module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name
-#   kubeconfig_path = module.attacker-aws-infrastructure.config.context.aws.eks[0].kubeconfig_path
-
-#   depends_on = [ 
-#     module.attacker-aws-infrastructure
-#   ]
-# }
-
-# module "target-aws-eks-kubeconfig" {
-#   count = (module.target-infrastructure-context.config.context.global.enable_all == true) || (module.target-infrastructure-context.config.context.global.disable_all != true && module.target-infrastructure-context.config.context.aws.eks.enabled == true ) ? 1 : 0
-#   source = "../modules/infrastructure/aws/modules/eks-kubeconfig"
-
-#   environment = "target"
-#   deployment = var.deployment
-#   aws_profile_name = var.target_aws_profile
-#   region = var.target_aws_region
-#   cluster_name = module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name
-#   kubeconfig_path = module.target-aws-infrastructure.config.context.aws.eks[0].kubeconfig_path
-
-#   depends_on = [ 
-#     module.target-aws-infrastructure
-#   ]
-# }
 
 ##################################################
 # ATTACK SURFACE CONFIG
