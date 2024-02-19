@@ -18,13 +18,6 @@ locals {
   default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
   target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
-  
-  dummy_kubeapi_server                     = "https://jsonplaceholder.typicode.com"
-  certificate_authority_data_list          = var.eks_enabled ? data.aws_eks_cluster.this[0].certificate_authority : [[{ data : "" }]]
-  certificate_authority_data_list_internal = local.certificate_authority_data_list[0]
-  certificate_authority_data_map           = local.certificate_authority_data_list_internal[0]
-  certificate_authority_data               = local.certificate_authority_data_map["data"]
-  cluster_endpoint_data                    = local.cluster_endpoint
 }
 
 resource "null_resource" "wait_for_cluster" {
@@ -50,109 +43,32 @@ data "aws_eks_cluster" "this" {
   name  = local.cluster_name
 }
 
+data "local_file" "default_kubeconfig" {
+  filename = local.default_kubeconfig
+  depends_on = [ data.aws_eks_cluster.this ]
+}
+
 provider "kubernetes" {
-  host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-  cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
-  dynamic "exec" {
-    for_each = var.eks_enabled ? ["exec"] : []
-    content {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      env         = {
-        AWS_PROFILE = var.default_aws_profile
-      }
-      args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
-    }
-  }
+  config_path             = data.local_file.default_kubeconfig.filename
 }
 
 provider "kubernetes" {
   alias = "main"
-  host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-  cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
-  dynamic "exec" {
-    for_each = var.eks_enabled ? ["exec"] : []
-    content {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      env         = {
-        AWS_PROFILE = var.default_aws_profile
-      }
-      args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
-    }
-  }
+  config_path             = data.local_file.default_kubeconfig.filename
 }
 
 provider "helm" {
   kubernetes {
-    host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-    cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
-    dynamic "exec" {
-      for_each = var.eks_enabled ? ["exec"] : []
-      content {
-        api_version = "client.authentication.k8s.io/v1beta1"
-        command     = "aws"
-        env         = {
-          AWS_PROFILE = var.default_aws_profile
-        }
-        args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
-      }
-    }
+    config_path           = data.local_file.default_kubeconfig.filename
   }
 }
 
 provider "helm" {
   alias = "main"
   kubernetes {
-    host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : local.dummy_kubeapi_server
-    cluster_ca_certificate = var.eks_enabled ? base64decode(local.certificate_authority_data) : null
-    dynamic "exec" {
-      for_each = var.eks_enabled ? ["exec"] : []
-      content {
-        api_version = "client.authentication.k8s.io/v1beta1"
-        command     = "aws"
-        env         = {
-          AWS_PROFILE = var.default_aws_profile
-        }
-        args        = ["--region", var.default_aws_region, "eks", "get-token", "--cluster-name", try(data.aws_eks_cluster.this[0].id, "deleted")]
-      }
-    }
+    config_path           = data.local_file.default_kubeconfig.filename
   }
 }
-
-# provider "kubernetes" {
-#   host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
-#   cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
-#   token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
-#   config_path            = var.eks_enabled ? null : local.default_kubeconfig
-# }
-
-# provider "kubernetes" {
-#   alias = "main"
-#   host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
-#   cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
-#   token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
-#   config_path            = var.eks_enabled ? null : local.default_kubeconfig
-# }
-
-# provider "helm" {
-#   kubernetes {
-#     host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
-#     cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
-#     token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
-#     config_path            = var.eks_enabled ? null : local.default_kubeconfig
-#   }
-# }
-
-# provider "helm" {
-#   alias = "main"
-#   kubernetes {
-#     host                   = var.eks_enabled ? data.aws_eks_cluster.this[0].endpoint : null
-#     cluster_ca_certificate = var.eks_enabled ? base64decode(data.aws_eks_cluster.this[0].certificate_authority[0].data) : null
-#     token                  = var.eks_enabled ? data.aws_eks_cluster_auth.this[0].token : null
-#     config_path            = var.eks_enabled ? null : local.default_kubeconfig
-#   }
-# }
 
 provider "aws" {
   profile = var.default_aws_profile
