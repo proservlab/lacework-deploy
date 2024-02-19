@@ -22,4 +22,8 @@ resource "kubernetes_secret" "this" {
   }
 
   type = "Opaque"
+
+  depends_on = [  
+    kubernetes_namespace.this
+  ]
 }

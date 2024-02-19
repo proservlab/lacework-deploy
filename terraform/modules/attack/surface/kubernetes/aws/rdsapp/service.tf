@@ -24,4 +24,8 @@ resource "kubernetes_service_v1" "this" {
 
         type = "LoadBalancer"
     }
+
+    depends_on = [  
+        kubernetes_namespace.this
+    ]
 }
