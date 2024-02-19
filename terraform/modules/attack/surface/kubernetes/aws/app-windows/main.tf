@@ -42,10 +42,7 @@ module "deployment" {
     app = local.app_name
   }
   replicas      = 1
-  rolling_update = {
-    max_surge = 0
-    max_unavailable = 1
-  }
+  termination_grace_period_seconds = 0
   node_selector = {
                     "kubernetes.io/os" = "windows"
                   }
