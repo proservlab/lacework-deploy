@@ -66,22 +66,6 @@ resource "null_resource" "kubeconfig" {
 }
 
 ##################################################
-# DYNU CONFIG
-##################################################
-
-module "dynu_attacker_domain_id" {
-  count = module.attacker-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
-  source = "../modules/infrastructure/dynu/domain_id"
-  dynu_dns_domain = var.attacker_dynu_dns_domain
-}
-
-module "dynu_target_domain_id" {
-  count = module.target-infrastructure-context.config.dynu_dns.enabled == true ? 1 : 0
-  source = "../modules/infrastructure/dynu/domain_id"
-  dynu_dns_domain = var.attacker_dynu_dns_domain
-}
-
-##################################################
 # INFRASTRUCTURE CONFIG
 ##################################################
 
