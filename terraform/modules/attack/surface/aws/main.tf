@@ -817,7 +817,7 @@ locals {
     try(module.vulnerable-kubernetes-privileged-pod[0].services,[]),
     try(module.vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
     try(module.vulnerable-kubernetes-s3app[0].services,[]),
-    try(module.vulnerable-kubernetes-authapp[0].services,[]),
+    try(module.kubernetes-authapp[0].services,[]),
 
   ]): service.name => service }
 }

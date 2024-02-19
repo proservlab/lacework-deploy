@@ -48,11 +48,11 @@ data "local_file" "default_kubeconfig" {
   depends_on = [ data.aws_eks_cluster.this ]
 }
 
-resource "local_file" "default_kubeconfig" {
-  filename = "/tmp/config"
-  content = data.local_file.default_kubeconfig.content
-  depends_on = [ data.local_file.default_kubeconfig ]
-}
+# resource "local_file" "default_kubeconfig" {
+#   filename = "/tmp/config"
+#   content = data.local_file.default_kubeconfig.content
+#   depends_on = [ data.local_file.default_kubeconfig ]
+# }
 
 resource "null_resource" "wait_for_config" {
   count = var.eks_enabled ? 1 : 0
