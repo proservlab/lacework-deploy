@@ -924,6 +924,7 @@ variable "config" {
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
               privileged                  = true
+              allow_privilege_escalation  = false
               enable_dynu_dns             = false
               dynu_dns_domain             = null
             }

@@ -159,7 +159,7 @@
             "trust_attacker_source": true,
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
-            "privileged": true,
+            "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
             "dynu_dns_domain": "${ dynu_dns_domain }"
