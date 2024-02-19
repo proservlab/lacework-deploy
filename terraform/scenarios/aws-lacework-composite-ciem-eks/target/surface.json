@@ -156,7 +156,7 @@
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "s3app" :  {
-            "enabled" :  true,
+            "enabled" :  false,
             "service_port": 8000,
             "trust_target_source": true,
             "trust_attacker_source": true,
@@ -167,7 +167,7 @@
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "authapp" :  {
-            "enabled" :  true,
+            "enabled" :  false,
             "service_port": 8000,
             "trust_target_source": true,
             "trust_attacker_source": true,
