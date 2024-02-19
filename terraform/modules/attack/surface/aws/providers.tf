@@ -33,7 +33,7 @@ resource "null_resource" "wait_for_cluster" {
                 aws eks wait cluster-active --profile '${var.default_aws_profile}' --region=${var.default_aws_region} --name '${local.cluster_name}'
               EOT
     environment = {
-      ENDPOINT = local.cluster_endpoint_data
+      ENDPOINT = local.cluster_endpoint
     }
   }
 }
@@ -48,20 +48,20 @@ data "local_file" "default_kubeconfig" {
   depends_on = [ data.aws_eks_cluster.this ]
 }
 
-provider "kubernetes" {
-  config_path             = data.local_file.default_kubeconfig.filename
-}
+# provider "kubernetes" {
+#   config_path             = data.local_file.default_kubeconfig.filename
+# }
 
 provider "kubernetes" {
   alias = "main"
   config_path             = data.local_file.default_kubeconfig.filename
 }
 
-provider "helm" {
-  kubernetes {
-    config_path           = data.local_file.default_kubeconfig.filename
-  }
-}
+# provider "helm" {
+#   kubernetes {
+#     config_path           = data.local_file.default_kubeconfig.filename
+#   }
+# }
 
 provider "helm" {
   alias = "main"
