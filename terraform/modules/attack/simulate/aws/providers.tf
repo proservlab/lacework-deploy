@@ -50,7 +50,8 @@ provider "restapi" {
 
   headers = {
     "API-Key" = try(local.default_infrastructure_config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json"
+    "Content-Type" = "application/json",
+    "accept" = "application/json"
   }
 
   create_method  = "POST"
