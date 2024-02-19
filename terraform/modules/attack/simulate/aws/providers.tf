@@ -44,7 +44,9 @@ provider "lacework" {
 provider "restapi" {
   uri                  = "https://api.dynu.com/v2"
   write_returns_object = true
-  debug                = true
+  rate_limit           = 5
+  timeout              = 120
+  debug                = false
 
   headers = {
     "API-Key" = try(local.default_infrastructure_config.context.dynu_dns.api_key, ""),
