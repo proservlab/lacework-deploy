@@ -74,23 +74,27 @@ resource "null_resource" "wait_for_config" {
 
 # provider "kubernetes" {
 #   config_path             = data.local_file.default_kubeconfig.filename
+#   config_context          = data.aws_eks_cluster.this[0].arn
 # }
 
 provider "kubernetes" {
   alias = "main"
   config_path             = data.local_file.default_kubeconfig.filename
+  config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
 }
 
 # provider "helm" {
 #   kubernetes {
 #     config_path           = data.local_file.default_kubeconfig.filename
+#     config_context        = data.aws_eks_cluster.this[0].arn
 #   }
 # }
 
 provider "helm" {
   alias = "main"
   kubernetes {
-    config_path           = data.local_file.default_kubeconfig.filename
+    config_path             = data.local_file.default_kubeconfig.filename
+    config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
   }
 }
 
