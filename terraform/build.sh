@@ -404,10 +404,12 @@ terraform workspace select -no-color -or-create=true ${WORK}
 # update modules as required
 terraform get -update=true -no-color
 if [ -z ${LOCAL_BACKEND} ]; then
-    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color
+    infomsg "Running terraform init..."
+    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color >> $LOGFILE
     BACKEND="-var-file=env_vars/backend.tfvars"
 else
-    terraform init -upgrade -input=false -no-color
+    infomsg "Running terraform init..."
+    terraform init -upgrade -input=false -no-color >> $LOGFILE
     BACKEND=""
 fi;
 
