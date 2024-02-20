@@ -19,7 +19,7 @@ EOI
 
 help(){
 cat <<EOH
-usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] [--sso-profile=SSO_PROFILE] --workspace=WORK --action=ACTION
+usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] [--sso-profile=SSO_PROFILE] --workspace=WORK --action=ACTION --parallelism=PARALLELISM
 
 -h                      print this message and exit
 --workspace-summary     print a count of resources per workspace
@@ -27,6 +27,7 @@ usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] 
 --scenarios-path        the custom scenarios directory path (default is ../scenarios)
 --action                terraform actions (i.e. show, plan, apply, refresh, destroy)
 --sso-profile           specify an sso login profile
+--parallelism           set the terraform parallelism parameter (default: 15 - small number can reduce memory footprint but increase duration)
 EOH
     exit 1
 }
@@ -114,6 +115,10 @@ for i in "$@"; do
         PLANFILE="${i#*=}"
         shift # past argument=value
         ;;
+    -c=*|--parallelism=*)
+        PARALLELISM=="${i#*=}"
+        shift # past argument=value
+        ;;
     *)
       # unknown option
       ;;
@@ -147,6 +152,11 @@ if [ -z ${ACTION} ]; then
 elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ] && [ "${ACTION}" != "show" ]; then
     errmsg "Invalid action: --action should be one of show, plan, apply, refresh or destroy"
     help
+fi
+
+if [ -z ${PARALLELISM} ]; then
+    PARALLELISM=15
+    infomsg "--parallelism not set, using default ${PARALLELISM}"
 fi
 
 infomsg "Setting working directory to script directory: $SCRIPT_PATH"
@@ -201,7 +211,7 @@ check_tf_apply(){
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             (
                 set -o pipefail
-                terraform apply -parallelism=10 -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
+                terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
@@ -255,6 +265,7 @@ echo "CSP               = ${CSP}"
 echo "SCENARIOS_PATH    = ${SCENARIOS_PATH}"
 echo "DEPLOYMENT        = ${DEPLOYMENT}"
 echo "PLANFILE          = ${PLANFILE}"
+echo "PARALLELISM       = ${PARALLELISM}"
 
 # change directory to provider directory
 cd $CSP
@@ -498,7 +509,7 @@ elif [ "destroy" = "${ACTION}" ]; then
         echo "Running: terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
         (
             set -o pipefail 
-            terraform apply -parallelism=10 -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
+            terraform apply -parallelism=$PARALLELISM -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 | tee -a $LOGFILE
         )
         ERR=$?
         infomsg "Terraform result: $ERR"
