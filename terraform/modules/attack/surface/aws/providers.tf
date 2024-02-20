@@ -48,47 +48,11 @@ data "local_file" "default_kubeconfig" {
   depends_on = [ data.aws_eks_cluster.this ]
 }
 
-# resource "local_file" "default_kubeconfig" {
-#   filename = "/tmp/config"
-#   content = data.local_file.default_kubeconfig.content
-#   depends_on = [ data.local_file.default_kubeconfig ]
-# }
-
-# resource "null_resource" "wait_for_config" {
-#   count = var.eks_enabled ? 1 : 0
-#   triggers = {
-#     always = timestamp()
-#   }
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command = <<-EOT
-#               base64 -d ${local_file.default_kubeconfig.content_base64}
-#               EOT
-#     environment = {
-#       ENDPOINT = local.cluster_endpoint
-#     }
-#   }
-
-#   depends_on = [ local_file.default_kubeconfig ]
-# }
-
-# provider "kubernetes" {
-#   config_path             = data.local_file.default_kubeconfig.filename
-#   config_context          = data.aws_eks_cluster.this[0].arn
-# }
-
 provider "kubernetes" {
   alias = "main"
   config_path             = data.local_file.default_kubeconfig.filename
   config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
 }
-
-# provider "helm" {
-#   kubernetes {
-#     config_path           = data.local_file.default_kubeconfig.filename
-#     config_context        = data.aws_eks_cluster.this[0].arn
-#   }
-# }
 
 provider "helm" {
   alias = "main"
@@ -113,10 +77,6 @@ provider "aws" {
   alias = "target"
   profile = var.target_aws_profile
   region = var.target_aws_region
-}
-
-provider "lacework" {
-  profile    = var.default_lacework_profile
 }
 
 provider "restapi" {

@@ -15,34 +15,10 @@ provider "kubernetes" {
   config_path = local.default_kubeconfig
 }
 
-provider "kubernetes" {
-  alias = "attacker"
-  config_path = local.attacker_kubeconfig
-}
-
-provider "kubernetes" {
-  alias = "target"
-  config_path = local.target_kubeconfig
-}
-
 provider "helm" {
   alias = "main"
   kubernetes {
     config_path = local.default_kubeconfig
-  }
-}
-
-
-provider "helm" {
-  alias = "attacker"
-  kubernetes {
-    config_path = local.attacker_kubeconfig
-  }
-}
-provider "helm" {
-  alias = "target"
-  kubernetes {
-    config_path = local.target_kubeconfig
   }
 }
 

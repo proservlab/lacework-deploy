@@ -36,25 +36,3 @@ provider "aws" {
   profile = var.target_aws_profile
   region = var.target_aws_region
 }
-
-provider "lacework" {
-  profile    = var.default_lacework_profile
-}
-
-provider "restapi" {
-  uri                  = "https://api.dynu.com/v2"
-  write_returns_object = true
-  rate_limit           = 5
-  timeout              = 120
-  debug                = false
-
-  headers = {
-    "API-Key" = try(local.default_infrastructure_config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json",
-    "accept" = "application/json"
-  }
-
-  create_method  = "POST"
-  update_method  = "PUT"
-  destroy_method = "DELETE"
-}

@@ -12,36 +12,6 @@ locals {
   target_region = try(length(local.target_infrastructure_config.context.azure.region), "false") == "false" ? "West US 2" :  local.target_infrastructure_config.context.azure.region
 }
 
-provider "kubernetes" {
-  config_path = local.default_kubeconfig
-}
-provider "kubernetes" {
-  alias = "attacker"
-  config_path = local.attacker_kubeconfig
-}
-provider "kubernetes" {
-  alias = "target"
-  config_path = local.target_kubeconfig
-}
-
-provider "helm" {
-  kubernetes {
-    config_path = local.default_kubeconfig
-  }
-}
-provider "helm" {
-  alias = "attacker"
-  kubernetes {
-    config_path = local.attacker_kubeconfig
-  }
-}
-provider "helm" {
-  alias = "target"
-  kubernetes {
-    config_path = local.default_kubeconfig
-  }
-}
-
 provider "azurerm" {
   features {}
   tenant_id = var.default_azure_tenant
@@ -60,26 +30,4 @@ provider "azurerm" {
   features {}
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
-}
-
-provider "lacework" {
-  profile    = var.default_lacework_profile
-}
-
-provider "restapi" {
-  uri                  = "https://api.dynu.com/v2"
-  write_returns_object = true
-  rate_limit           = 5
-  timeout              = 120
-  debug                = false
-
-  headers = {
-    "API-Key" = try(local.default_infrastructure_config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json",
-    "accept" = "application/json"
-  }
-
-  create_method  = "POST"
-  update_method  = "PUT"
-  destroy_method = "DELETE"
 }
