@@ -28,7 +28,7 @@ usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] 
 --action                terraform actions (i.e. show, plan, apply, refresh, destroy)
 --sso-profile           specify an sso login profile
 --parallelism           set the terraform parallelism parameter (default: 20 - small number can reduce memory footprint but increase duration)
---refresh-on-plan       set the terraform plan argument refresh=true (default: false)
+--no-refresh-on-plan    set the terraform plan argument refresh=true (default: true)
 EOH
     exit 1
 }
@@ -120,8 +120,8 @@ for i in "$@"; do
         PARALLELISM="${i#*=}"
         shift # past argument=value
         ;;
-    -r|--refresh-on-plan)
-        REFRESH_ON_PLAN="-refresh=true"
+    -n|--no-refresh-on-plan)
+        NO_REFRESH_ON_PLAN="-refresh=false"
         shift # past argument=value
         ;;
     *)
@@ -164,9 +164,9 @@ if [ -z ${PARALLELISM} ]; then
     infomsg "--parallelism not set, using default ${PARALLELISM}"
 fi
 
-if [ -z ${REFRESH_ON_PLAN} ]; then
-    REFRESH_ON_PLAN="${REFRESH_ON_PLAN}"
-    infomsg "--refresh-on-plan not set, using default ${REFRESH_ON_PLAN}"
+if [ -z ${NO_REFRESH_ON_PLAN} ]; then
+    NO_REFRESH_ON_PLAN="-refresh=true"
+    infomsg "--refresh-on-plan not set, using default ${NO_REFRESH_ON_PLAN}"
 fi
 
 infomsg "Setting working directory to script directory: $SCRIPT_PATH"
@@ -276,7 +276,7 @@ echo "SCENARIOS_PATH    = ${SCENARIOS_PATH}"
 echo "DEPLOYMENT        = ${DEPLOYMENT}"
 echo "PLANFILE          = ${PLANFILE}"
 echo "PARALLELISM       = ${PARALLELISM}"
-echo "REFRESH_ON_PLAN   = ${REFRESH_ON_PLAN}"
+echo "REFRESH_ON_PLAN   = ${NO_REFRESH_ON_PLAN}"
 
 # change directory to provider directory
 cd $CSP
@@ -435,10 +435,10 @@ if [ "show" = "${ACTION}" ]; then
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
     infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "plan" = "${ACTION}" ]; then
-    echo "Running: terraform plan ${REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -474,10 +474,10 @@ elif [ "refresh" = "${ACTION}" ]; then
     ERR=$?
     infomsg "Terraform result: $ERR"
 elif [ "apply" = "${ACTION}" ]; then        
-    echo "Running: terraform plan ${REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -486,10 +486,10 @@ elif [ "apply" = "${ACTION}" ]; then
     if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
-    echo "Running: terraform plan ${REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
