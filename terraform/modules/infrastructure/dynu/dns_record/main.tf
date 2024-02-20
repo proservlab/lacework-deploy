@@ -11,7 +11,7 @@ data "restapi_object" "domain" {
 }
 
 resource "restapi_object" "record" {
-  path          = "/dns/${trim(data.restapi_object.domain.id)}/record"
+  path          = "/dns/${data.restapi_object.domain.id}/record"
   destroy_data  = ""
   data          = jsonencode({
     nodeName    = var.record.recordName
