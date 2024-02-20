@@ -27,8 +27,8 @@ usage: $SCRIPTNAME [-h] [--workspace-summary] [--scenarios-path=SCENARIOS_PATH] 
 --scenarios-path        the custom scenarios directory path (default: ../scenarios)
 --action                terraform actions (i.e. show, plan, apply, refresh, destroy)
 --sso-profile           specify an sso login profile
---parallelism           set the terraform parallelism parameter (default: 20 - small number can reduce memory footprint but increase duration)
---no-refresh-on-plan    set the terraform plan argument refresh=true (default: true)
+--parallelism           set the terraform parallelism parameter (default: 10 - smaller number can reduce memory footprint but increase duration)
+--no-refresh-on-plan    set the terraform plan argument refresh=true (default: true - this can reduce plan timing but cause misaligned plan)
 EOH
     exit 1
 }
@@ -160,7 +160,7 @@ elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}"
 fi
 
 if [ -z ${PARALLELISM} ]; then
-    PARALLELISM=20
+    PARALLELISM=10
     infomsg "--parallelism not set, using default ${PARALLELISM}"
 fi
 
