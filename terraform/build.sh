@@ -413,9 +413,10 @@ if [ "show" = "${ACTION}" ]; then
         infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
-            terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+            terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
         )
         ERR=$?
+        infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
     fi
     infomsg "Terraform show result: $ERR"
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
@@ -493,16 +494,17 @@ elif [ "destroy" = "${ACTION}" ]; then
             infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
             (
                 set -o pipefail
-                terraform show -json -no-color ${PLANFILE} | tf-summarize > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
+                terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
             )
             ERR=$?
         else
             infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
             (
                 set -o pipefail
-                terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+                terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
             )
             ERR=$?
+            infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
         fi
         echo "Running: terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
         (
