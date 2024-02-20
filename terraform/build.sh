@@ -201,7 +201,7 @@ check_tf_apply(){
     elif [ ${1} -eq 2 ]; then
         if [ "apply" = "${2}" ]; then
             infomsg "Changes required, applying"
-            if command_exists tf-summarize > /dev/null; then
+            if command_exists tf-summarize; then
                 infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
                 (
                     set -o pipefail
@@ -415,7 +415,7 @@ fi;
 
 if [ "show" = "${ACTION}" ]; then
     echo "Running: terraform show"
-    if command_exists tf-summarize > /dev/null; then
+    if command_exists tf-summarize; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
@@ -447,7 +447,7 @@ elif [ "plan" = "${ACTION}" ]; then
         errmsg "Terraform failed: ${ERR}"
         exit $ERR
     fi
-    if command_exists tf-summarize > /dev/null; then
+    if command_exists tf-summarize; then
         infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
         (
             set -o pipefail
@@ -503,7 +503,7 @@ elif [ "destroy" = "${ACTION}" ]; then
         errmsg "Terraform failed: ${ERR}"
         exit $ERR
     else
-        if command_exists tf-summarize > /dev/null; then
+        if command_exists tf-summarize; then
             infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
             (
                 set -o pipefail
