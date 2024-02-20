@@ -239,51 +239,51 @@ resource "time_sleep" "wait_120_seconds" {
 # DYNU CONFIG
 ##################################################
 
-module "dynu_attacker_domain_id" {
-  count = module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
-  source = "../modules/infrastructure/dynu/domain_id"
-  dynu_dns_domain = var.attacker_dynu_dns_domain
+# module "dynu_attacker_domain_id" {
+#   count = module.attacker-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
+#   source = "../modules/infrastructure/dynu/domain_id"
+#   dynu_dns_domain = var.attacker_dynu_dns_domain
 
-  providers = {
-    restapi = restapi.attacker
-  }
-}
+#   providers = {
+#     restapi = restapi.attacker
+#   }
+# }
 
-module "dynu_target_domain_id" {
-  count = module.target-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
-  source = "../modules/infrastructure/dynu/domain_id"
-  dynu_dns_domain = var.target_dynu_dns_domain
+# module "dynu_target_domain_id" {
+#   count = module.target-infrastructure-context.config.context.dynu_dns.enabled == true ? 1 : 0
+#   source = "../modules/infrastructure/dynu/domain_id"
+#   dynu_dns_domain = var.target_dynu_dns_domain
 
-  providers = {
-    restapi = restapi.target
-  }
-}
+#   providers = {
+#     restapi = restapi.target
+#   }
+# }
 
-data "utils_deep_merge_json" "attacker-infrastructure-config-dynu" {
-  input = [
-    jsonencode(module.attacker-infrastructure-context.config),
-    jsonencode({
-      context = {
-        dynu_dns = {
-          domain_id = try(module.dynu_attacker_domain_id[0].dynu_dns_domain_id, null)
-        }
-      }
-    })
-  ]
-}
+# data "utils_deep_merge_json" "attacker-infrastructure-config-dynu" {
+#   input = [
+#     jsonencode(module.attacker-infrastructure-context.config),
+#     jsonencode({
+#       context = {
+#         dynu_dns = {
+#           domain_id = try(module.dynu_attacker_domain_id[0].dynu_dns_domain_id, null)
+#         }
+#       }
+#     })
+#   ]
+# }
 
-data "utils_deep_merge_json" "target-infrastructure-config-dynu" {
-  input = [
-    jsonencode(module.target-infrastructure-context.config),
-    jsonencode({
-      context = {
-        dynu_dns = {
-          domain_id = try(module.dynu_target_domain_id[0].dynu_dns_domain_id, null)
-        }
-      }
-    })
-  ]
-}
+# data "utils_deep_merge_json" "target-infrastructure-config-dynu" {
+#   input = [
+#     jsonencode(module.target-infrastructure-context.config),
+#     jsonencode({
+#       context = {
+#         dynu_dns = {
+#           domain_id = try(module.dynu_target_domain_id[0].dynu_dns_domain_id, null)
+#         }
+#       }
+#     })
+#   ]
+# }
 
 ##################################################
 # INFRASTRUCTURE DEPLOYMENT
@@ -292,7 +292,7 @@ data "utils_deep_merge_json" "target-infrastructure-config-dynu" {
 # deploy infrastructure
 module "attacker-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
-  config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config-dynu.output)
+  config = module.attacker-infrastructure-context.config
 
   default_aws_profile                 = var.attacker_aws_profile
   default_aws_region                  = var.attacker_aws_region
@@ -327,7 +327,7 @@ module "attacker-aws-infrastructure" {
 
 module "target-aws-infrastructure" {
   source = "../modules/infrastructure/aws"
-  config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config-dynu.output)
+  config = module.target-infrastructure-context.config
 
   default_aws_profile                 = var.target_aws_profile
   default_aws_region                  = var.target_aws_region
