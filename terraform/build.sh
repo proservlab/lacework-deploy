@@ -343,7 +343,6 @@ EOF
             echo "Add env AWS_REGION to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(endswith("strenv(DEPLOYMENT)")|.user.exec.env[1].value) = strenv(ATTACKER_AWS_REGION)' -i "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
             echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
-            cat "$HOME/.kube/$CSP-attacker-$DEPLOYMENT-kubeconfig"
         done
     fi
     if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
@@ -374,7 +373,6 @@ EOF
             echo "Add env AWS_REGION to deployment kubeconfig - Result: $?"
             yq -i -r '(.users[] | select(.name | test(map("-", strenv(DEPLOYMENT), "$") | join(""))) | .user.exec.env[1].value) = strenv(TARGET_AWS_REGION)' -i "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
             echo "Add env AWS_REGION value to deployment kubeconfig - Result: $?"
-            cat "$HOME/.kube/$CSP-target-$DEPLOYMENT-kubeconfig"
         done
     fi
 fi
