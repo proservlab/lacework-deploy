@@ -38,29 +38,29 @@ locals {
 #   }
 # }
 
-# data "aws_eks_cluster" "this" {
-#   count = var.eks_enabled ? 1 : 0
-#   name  = local.cluster_name
-# }
+data "aws_eks_cluster" "this" {
+  count = var.eks_enabled ? 1 : 0
+  name  = local.cluster_name
+}
 
-# data "local_file" "default_kubeconfig" {
-#   filename = local.default_kubeconfig
-#   depends_on = [ data.aws_eks_cluster.this ]
-# }
+data "local_file" "default_kubeconfig" {
+  filename = local.default_kubeconfig
+  depends_on = [ data.aws_eks_cluster.this ]
+}
 
-# provider "kubernetes" {
-#   alias = "main"
-#   config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
-#   config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : null
-# }
+provider "kubernetes" {
+  alias = "main"
+  config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
+  config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : null
+}
 
-# provider "helm" {
-#   alias = "main"
-#   kubernetes {
-#     config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
-#     config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
-#   }
-# }
+provider "helm" {
+  alias = "main"
+  kubernetes {
+    config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
+    config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
+  }
+}
 
 provider "aws" {
   profile = var.default_aws_profile
