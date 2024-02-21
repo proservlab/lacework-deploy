@@ -20,47 +20,47 @@ locals {
   attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
 }
 
-resource "null_resource" "wait_for_cluster" {
-  count = var.eks_enabled ? 1 : 0
-  triggers = {
-    always = timestamp()
-    "before" = "${data.aws_eks_cluster.this[0].id}"
-  }
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = <<-EOT
-                echo "Waiting for cluster: ${local.cluster_name} [${local.cluster_endpoint}]"
-                aws --profile '${var.default_aws_profile}' eks wait cluster-active --region=${var.default_aws_region} --name '${local.cluster_name}'
-              EOT
-    environment = {
-      ENDPOINT = local.cluster_endpoint
-    }
-  }
-}
+# resource "null_resource" "wait_for_cluster" {
+#   count = var.eks_enabled ? 1 : 0
+#   triggers = {
+#     always = timestamp()
+#     "before" = "${data.aws_eks_cluster.this[0].id}"
+#   }
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command = <<-EOT
+#                 echo "Waiting for cluster: ${local.cluster_name} [${local.cluster_endpoint}]"
+#                 aws --profile '${var.default_aws_profile}' eks wait cluster-active --region=${var.default_aws_region} --name '${local.cluster_name}'
+#               EOT
+#     environment = {
+#       ENDPOINT = local.cluster_endpoint
+#     }
+#   }
+# }
 
-data "aws_eks_cluster" "this" {
-  count = var.eks_enabled ? 1 : 0
-  name  = local.cluster_name
-}
+# data "aws_eks_cluster" "this" {
+#   count = var.eks_enabled ? 1 : 0
+#   name  = local.cluster_name
+# }
 
-data "local_file" "default_kubeconfig" {
-  filename = local.default_kubeconfig
-  depends_on = [ data.aws_eks_cluster.this ]
-}
+# data "local_file" "default_kubeconfig" {
+#   filename = local.default_kubeconfig
+#   depends_on = [ data.aws_eks_cluster.this ]
+# }
 
-provider "kubernetes" {
-  alias = "main"
-  config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
-  config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : null
-}
+# provider "kubernetes" {
+#   alias = "main"
+#   config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
+#   config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : null
+# }
 
-provider "helm" {
-  alias = "main"
-  kubernetes {
-    config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
-    config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
-  }
-}
+# provider "helm" {
+#   alias = "main"
+#   kubernetes {
+#     config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
+#     config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
+#   }
+# }
 
 provider "aws" {
   profile = var.default_aws_profile
