@@ -42,7 +42,7 @@ module "aws-deployment" {
   
   # attacker
   attacker_infrastructure_config       = module.attacker-infrastructure-context.config
-  attacker_surface_config              = module.attacker-surface-context.config
+  attacker_surface_config              = module.attacker-attacksurface-context.config
   attacker_simulate_config             = module.attacker-attacksimulation-context.config
   attacker_aws_profile                 = var.attacker_aws_profile
   attacker_aws_region                  = var.attacker_aws_region
@@ -61,7 +61,7 @@ module "aws-deployment" {
 
   # target
   target_infrastructure_config        = module.target-infrastructure-context.config
-  target_surface_config               = module.target-surface-context.config
+  target_surface_config               = module.target-attacksurface-context.config
   target_simulate_config              = module.target-attacksimulation-context.config
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region

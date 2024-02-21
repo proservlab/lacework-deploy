@@ -4,7 +4,7 @@
 
 locals {
   target_infrastructure_config                = var.target_infrastructure_config
-  target_kubeconfig                           = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
+  target_kubeconfig                           = pathexpand("~/.kube/aws-target-${local.target_infrastructure_config.context.global.deployment}-kubeconfig")
   target_cluster_name                         = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.id : null
   target_cluster_endpoint                     = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.endpoint : null
   target_cluster_ca_cert                      = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.certificate_authority[0].data : null
@@ -103,13 +103,13 @@ module "target-lacework-agentless" {
 
   # attempt to use the existing vpc if possible (try default first then app if no vpc_id is provided)
   use_existing_vpc = local.target_infrastructure_config.context.lacework.aws_agentless.use_existing_vpc
-  vpc_id = local.target_infrastructure_config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.target_infrastructure_config.context.lacework.aws_agentless.vpc_id), "false") != "false" ? local.target_infrastructure_config.context.lacework.aws_agentless.vpc_id : try(module.target.ec2[0].public_vpc.id, module.target.ec2[0].public_app_vpc.id)) : ""
+  vpc_id = local.target_infrastructure_config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.target_infrastructure_config.context.lacework.aws_agentless.vpc_id), "false") != "false" ? local.target_infrastructure_config.context.lacework.aws_agentless.vpc_id : try(module.target-ec2[0].public_vpc.id, module.target-ec2[0].public_app_vpc.id)) : ""
   # assume /16 for the public subnet and use x.x.100.0/24 as the network space for agentless
-  vpc_cidr_block = local.target_infrastructure_config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.target_infrastructure_config.context.lacework.aws_agentless.vpc_cidr_block), "false") != "false" ? local.target_infrastructure_config.context.lacework.vpc_cidr_block.vpc_id : cidrsubnet(try(module.target.ec2[0].public_vpc.cidr_block, module.target.ec2[0].public_app_vpc.cidr_block),8,100)) : "10.10.32.0/24"
+  vpc_cidr_block = local.target_infrastructure_config.context.lacework.aws_agentless.use_existing_vpc == true ? (try(length(local.target_infrastructure_config.context.lacework.aws_agentless.vpc_cidr_block), "false") != "false" ? local.target_infrastructure_config.context.lacework.vpc_cidr_block.vpc_id : cidrsubnet(try(module.target-ec2[0].public_vpc.cidr_block, module.target-ec2[0].public_app_vpc.cidr_block),8,100)) : "10.10.32.0/24"
 
   depends_on = [
-    module.target.lacework-audit-config,
-    module.target.ec2
+    module.target-lacework-audit-config,
+    module.target-ec2
   ]
 
   providers = {
@@ -229,8 +229,8 @@ module "target-eks-autoscaler" {
   deployment   = local.target_infrastructure_config.context.global.deployment
   region       = local.target_infrastructure_config.context.aws.region
   
-  cluster_name = module.target.eks[0].cluster_name
-  cluster_oidc_issuer = module.target.eks[0].cluster.identity[0].oidc[0].issuer
+  cluster_name = module.target-eks[0].cluster_name
+  cluster_oidc_issuer = module.target-eks[0].cluster.identity[0].oidc[0].issuer
 
   providers = {
     aws = aws.target
@@ -239,8 +239,8 @@ module "target-eks-autoscaler" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
+    module.target-eks,
+    module.target-eks-windows,
   ]
 }
 
@@ -250,12 +250,12 @@ module "target-eks-windows-configmap" {
   environment  = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
 
-  cluster_name = module.target.eks-windows[0].cluster.id
-  cluster_endpoint = module.target.eks-windows[0].cluster_endpoint
-  cluster_ca_cert = module.target.eks-windows[0].cluster_ca_cert
-  cluster_sg = module.target.eks-windows[0].cluster_sg_id
-  cluster_subnet = module.target.eks-windows[0].cluster_subnet
-  cluster_node_role_arn = module.target.eks-windows[0].cluster_node_role_arn
+  cluster_name = module.target-eks-windows[0].cluster.id
+  cluster_endpoint = module.target-eks-windows[0].cluster_endpoint
+  cluster_ca_cert = module.target-eks-windows[0].cluster_ca_cert
+  cluster_sg = module.target-eks-windows[0].cluster_sg_id
+  cluster_subnet = module.target-eks-windows[0].cluster_subnet
+  cluster_node_role_arn = module.target-eks-windows[0].cluster_node_role_arn
 
   providers = {
     aws = aws.target
@@ -264,8 +264,8 @@ module "target-eks-windows-configmap" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
+    module.target-eks,
+    module.target-eks-windows,
   ]
 }
 
@@ -278,7 +278,7 @@ module "target-eks-calico" {
   source                                = "./modules/eks-calico"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
-  cluster_name                          = module.target.eks[0].cluster.id
+  cluster_name                          = module.target-eks[0].cluster.id
   region                                = local.target_infrastructure_config.context.aws.region
 
   providers = {
@@ -287,9 +287,9 @@ module "target-eks-calico" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
-    module.target.eks-autoscaler,
+    module.target-eks,
+    module.target-eks-windows,
+    module.target-eks-autoscaler,
   ]
 }
 
@@ -303,7 +303,7 @@ module "target-lacework-daemonset" {
   source                                = "./modules/lacework-kubernetes-daemonset"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
-  cluster_name                          = module.target.eks[0].cluster.id
+  cluster_name                          = module.target-eks[0].cluster.id
   
   lacework_agent_access_token           = local.target_infrastructure_config.context.lacework.agent.token
   lacework_server_url                   = local.target_infrastructure_config.context.lacework.server_url
@@ -321,9 +321,9 @@ module "target-lacework-daemonset" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
-    module.target.eks-autoscaler,
+    module.target-eks,
+    module.target-eks-windows,
+    module.target-eks-autoscaler,
   ]
 }
 
@@ -333,7 +333,7 @@ module "target-lacework-daemonset-windows" {
   source                                = "./modules/lacework-kubernetes-daemonset-windows"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
-  cluster_name                          = module.target.eks[0].cluster.id
+  cluster_name                          = module.target-eks[0].cluster.id
   lacework_agent_access_token           = local.target_infrastructure_config.context.lacework.agent.token
   lacework_server_url                   = local.target_infrastructure_config.context.lacework.server_url
   
@@ -350,9 +350,9 @@ module "target-lacework-daemonset-windows" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
-    module.target.eks-autoscaler,
+    module.target-eks,
+    module.target-eks-windows,
+    module.target-eks-autoscaler,
   ]
 }
 
@@ -362,7 +362,7 @@ module "target-lacework-admission-controller" {
   source                = "./modules/lacework-kubernetes-admission-controller"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
-  cluster_name                          = module.target.eks[0].cluster.id
+  cluster_name                          = module.target-eks[0].cluster.id
   
   lacework_account_name = local.target_infrastructure_config.context.lacework.account_name
   lacework_proxy_token  = local.target_infrastructure_config.context.lacework.agent.kubernetes.proxy_scanner.token
@@ -374,9 +374,9 @@ module "target-lacework-admission-controller" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
-    module.target.eks-autoscaler,
+    module.target-eks,
+    module.target-eks-windows,
+    module.target-eks-autoscaler,
   ]
 }
 
@@ -395,9 +395,9 @@ module "target-lacework-eks-audit" {
   }
 
   depends_on = [
-    module.target.eks,
-    module.target.eks-windows,
-    module.target.eks-autoscaler,
+    module.target-eks,
+    module.target-eks-windows,
+    module.target-eks-autoscaler,
   ]
 }
 
@@ -543,16 +543,16 @@ module "target-rds" {
   deployment                    = local.target_infrastructure_config.context.global.deployment
   region                        = local.target_infrastructure_config.context.aws.region
   
-  igw_id                        = module.target.ec2[0].public_app_igw.id
-  vpc_id                        = module.target.ec2[0].public_app_vpc.id
-  vpc_subnet                    = module.target.ec2[0].public_app_network
-  ec2_instance_role_name        = module.target.ec2[0].ec2_instance_app_role.name
+  igw_id                        = module.target-ec2[0].public_app_igw.id
+  vpc_id                        = module.target-ec2[0].public_app_vpc.id
+  vpc_subnet                    = module.target-ec2[0].public_app_network
+  ec2_instance_role_name        = module.target-ec2[0].ec2_instance_app_role.name
   user_role_name                = local.target_infrastructure_config.context.aws.rds.user_role_name
   instance_type                 = local.target_infrastructure_config.context.aws.rds.instance_type
-  trusted_sg_id                 = module.target.ec2[0].public_app_sg.id
+  trusted_sg_id                 = module.target-ec2[0].public_app_sg.id
 
   depends_on = [
-    module.target.ec2
+    module.target-ec2
   ]
 
   providers = {

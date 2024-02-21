@@ -4,7 +4,7 @@
 
 locals {
   attacker_infrastructure_config                = var.attacker_infrastructure_config
-  attacker_kubeconfig                           = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
+  attacker_kubeconfig                           = pathexpand("~/.kube/aws-attacker-${local.attacker_infrastructure_config.context.global.deployment}-kubeconfig")
   attacker_cluster_name                         = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.id : null
   attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
   attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.certificate_authority[0].data : null
