@@ -1,42 +1,42 @@
 
-output "target-aws-instances" {
-  value = [
-    for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
-    [
-      for compute in ec2.instances : {
-        id         = compute.instance.id
-        name       = compute.instance.tags["Name"]
-        private_ip = compute.instance.private_ip
-        public_ip  = compute.instance.public_ip
-        tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
-        profile    = var.target_aws_profile
-        region     = var.target_aws_region
-      }
-    ]
-  ][0]
-}
+# output "target-aws-instances" {
+#   value = [
+#     for ec2 in can(length(module.target-aws-infrastructure.config.context.aws.ec2)) ? module.target-aws-infrastructure.config.context.aws.ec2 : [] :
+#     [
+#       for compute in ec2.instances : {
+#         id         = compute.instance.id
+#         name       = compute.instance.tags["Name"]
+#         private_ip = compute.instance.private_ip
+#         public_ip  = compute.instance.public_ip
+#         tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
+#         profile    = var.target_aws_profile
+#         region     = var.target_aws_region
+#       }
+#     ]
+#   ][0]
+# }
 
-output "attacker-aws-instances" {
-  value = [
-    for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
-    [
-      for compute in ec2.instances : {
-        id        = compute.instance.id
-        name      = compute.instance.tags["Name"]
-        public_ip = compute.instance.public_ip
-        tags      = { for k, v in compute.instance.tags : k => v if v != "false" }
-        profile   = var.attacker_aws_profile
-        region    = var.attacker_aws_region
-      }
-    ]
-  ][0]
-}
+# output "attacker-aws-instances" {
+#   value = [
+#     for ec2 in can(length(module.attacker-aws-infrastructure.config.context.aws.ec2)) ? module.attacker-aws-infrastructure.config.context.aws.ec2 : [] :
+#     [
+#       for compute in ec2.instances : {
+#         id        = compute.instance.id
+#         name      = compute.instance.tags["Name"]
+#         public_ip = compute.instance.public_ip
+#         tags      = { for k, v in compute.instance.tags : k => v if v != "false" }
+#         profile   = var.attacker_aws_profile
+#         region    = var.attacker_aws_region
+#       }
+#     ]
+#   ][0]
+# }
 
-output "target_aws_kubernetes_services" {
-  value = {
-    vulnerable = module.target-aws-attacksurface.kubernetes.vulnerable
-  }
-}
+# output "target_aws_kubernetes_services" {
+#   value = {
+#     vulnerable = module.target-aws-attacksurface.kubernetes.vulnerable
+#   }
+# }
 
 # output "attacker_aws_kubernetes_services" {
 #   value = {
