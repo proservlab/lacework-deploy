@@ -1,31 +1,3 @@
-# aws eks describe-addon-versions --addon-name aws-ebs-csi-driver --kubernetes-version <KUBERNETES VERSION> \
-# --query "addons[].addonVersions[].[addonVersion, compatibilities[].defaultVersion]" --output text
-variable "addons" {
-  type = list(object({
-    name    = string
-    version = string
-  }))
-
-  default = [
-    {
-      name    = "kube-proxy"
-      version = "v1.29.0-eksbuild.1"
-    },
-    {
-      name    = "vpc-cni"
-      version = "v1.16.0-eksbuild.1"
-    },
-    {
-      name    = "coredns"
-      version = "v1.11.1-eksbuild.4"
-    },
-    {
-      name    = "aws-ebs-csi-driver"
-      version = "v1.26.1-eksbuild.1"
-    }
-  ]
-}
-
 # updated to allow calico deployment
 resource "aws_eks_addon" "addons" {
   for_each          = { for addon in var.addons : addon.name => addon }

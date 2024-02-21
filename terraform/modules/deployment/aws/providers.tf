@@ -1,55 +1,65 @@
-locals {
-  # ugly hack to force ignoring unconfigure aws provider
-  access_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_access_key"
-  secret_key = coalesce(var.config.context.aws.profile_name, "false") != "false" ? null : "mock_secret_key"
-  profile = coalesce(var.config.context.aws.profile_name, "false") == "false" ? null : var.config.context.aws.profile_name
-  region = coalesce(var.config.context.aws.profile_name, "false") == "false" ? "us-east-1" : var.config.context.aws.region
-
-  default_kubeconfig = pathexpand("~/.kube/aws-${local.config.context.global.environment}-${local.config.context.global.deployment}-kubeconfig")
-  attacker_kubeconfig = pathexpand("~/.kube/aws-attacker-${local.config.context.global.deployment}-kubeconfig")
-  target_kubeconfig = pathexpand("~/.kube/aws-target-${local.config.context.global.deployment}-kubeconfig")
-}
-
 provider "kubernetes" {
-  alias = "main"
-  config_path = local.default_kubeconfig
+  alias = "attacker"
+  config_path = local.attacker_kubeconfig
 }
-
+provider "kubernetes" {
+  alias = "target"
+  config_path = local.target_kubeconfig
+}
 provider "helm" {
-  alias = "main"
+  alias = "attacker"
   kubernetes {
-    config_path = local.default_kubeconfig
+    config_path = local.attacker_kubeconfig
   }
 }
-
-provider "aws" {
-  profile = var.default_aws_profile
-  region = var.default_aws_region
+provider "helm" {
+  alias = "target"
+  kubernetes {
+    config_path = local.target_kubeconfig
+  }
 }
-
 provider "aws" {
   alias = "attacker"
   profile = var.attacker_aws_profile
   region = var.attacker_aws_region
 }
-
 provider "aws" {
   alias = "target"
   profile = var.target_aws_profile
   region = var.target_aws_region
 }
-
 provider "lacework" {
-  profile    = var.default_lacework_profile
+  alias = "attacker"
+  profile    = var.attacker_lacework_profile
 }
-
+provider "lacework" {
+  alias = "target"
+  profile    = var.target_lacework_profile
+}
 provider "restapi" {
+  alias = "attacker"
   uri                  = "https://api.dynu.com/v2"
   write_returns_object = true
   debug                = true
 
   headers = {
-    "API-Key" = try(var.config.context.dynu_dns.api_key, ""),
+    "API-Key" = try(local.attacker_default_infrastructure_config.context.dynu_dns.api_key, ""),
+    "Content-Type" = "application/json"
+  }
+
+  create_method  = "POST"
+  update_method  = "PUT"
+  destroy_method = "DELETE"
+}
+
+provider "restapi" {
+  alias = "target"
+  uri                  = "https://api.dynu.com/v2"
+  write_returns_object = true
+  debug                = true
+
+  headers = {
+    "API-Key" = try(local.target_infrastructure_config.context.dynu_dns.api_key, ""),
     "Content-Type" = "application/json"
   }
 
