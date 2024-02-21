@@ -161,19 +161,11 @@ data "utils_deep_merge_json" "target-infrastructure-config" {
 module "attacker-infrastructure-context" {
   source = "../modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.attacker-infrastructure-config.output)
-
-  parent = [
-    module.deployment.id
-  ]
 }
 
 module "target-infrastructure-context" {
   source = "../modules/context/infrastructure"
   config = jsondecode(data.utils_deep_merge_json.target-infrastructure-config.output)
-
-  parent = [
-    module.deployment.id
-  ]
 }
 
 ##################################################
@@ -273,37 +265,11 @@ data "utils_deep_merge_json" "target-attacksurface-config" {
 module "attacker-attacksurface-context" {
   source = "../modules/context/attack/surface"
   config = jsondecode(data.utils_deep_merge_json.attacker-attacksurface-config.output)
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-
-    # config destory delay
-    # time_sleep.wait_120_seconds.id
-  ]
 }
 
 module "target-attacksurface-context" {
   source = "../modules/context/attack/surface"
   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-
-    # config destory delay
-    # time_sleep.wait_120_seconds.id
-  ]
 }
 
 ##################################################
@@ -394,52 +360,10 @@ data "utils_deep_merge_json" "target-attacksimulation-config" {
 module "attacker-attacksimulation-context" {
   source = "../modules/context/attack/simulate"
   config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-
-    # surface context
-    module.attacker-attacksurface-context.id,
-    module.target-attacksurface-context.id,
-
-    # surface
-    module.attacker-aws-attacksurface.id,
-    module.target-aws-attacksurface.id,
-
-    # config destory delay
-    # time_sleep.wait_120_seconds.id
-  ]
 }
 
 # set attack the context
 module "target-attacksimulation-context" {
   source = "../modules/context/attack/simulate"
   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
-
-  parent = [
-    # infrastructure context
-    module.attacker-infrastructure-context.id,
-    module.target-infrastructure-context.id,
-
-    # infrastructure
-    module.attacker-aws-infrastructure.id,
-    module.target-aws-infrastructure.id,
-
-    # surface context
-    module.attacker-attacksurface-context.id,
-    module.target-attacksurface-context.id,
-
-    # surface
-    module.attacker-aws-attacksurface.id,
-    module.target-aws-attacksurface.id,
-
-    # config destory delay
-    # time_sleep.wait_120_seconds.id
-  ]
 }
