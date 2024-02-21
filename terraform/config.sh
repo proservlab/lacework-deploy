@@ -11,6 +11,11 @@ CONFIG_FILE=""
 # LACEWORK
 LACEWORK_PROFILE=""
 LACEWORK_ACCOUNT=""
+ATTACKER_LACEWORK_PROFILE=""
+ATTACKER_LACEWORK_ACCOUNT=""
+TARGET_LACEWORK_PROFILE=""
+TARGET_LACEWORK_ACCOUNT=""
+
 
 # AWS
 ATTACKER_AWS_PROJECT=""
@@ -793,22 +798,45 @@ function select_azure_subscription {
 
 function select_lacework_profile {
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
-    if (( $(echo -n $options | wc -c) > 0 )); then
+    local attacker_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+    if (( $(echo -n $attacker_options | wc -c) > 0 )); then
         infomsg "lacework profiles found"
     else
         errmsg "no lacework profiles configured - please add a lacework api key"
         exit 1
     fi
-    infomsg "select a lacework profile:"
-    PS3="profile number: "
+    
+    infomsg "select a attacker lacework profile:"
+    PS3="attacker profile number: "
     local IFS=$'\n'
-    select opt in $options; do
+    select opt in $attacker_options; do
+        if [[ -n "$opt" ]]; then
+            ATTACKER_LACEWORK_PROFILE=$opt
+            infomsg "selected $environment lacework profile: $ATTACKER_LACEWORK_PROFILE"
+            ATTACKER_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$ATTACKER_LACEWORK_PROFILE")
+            break;
+        fi
+    done
+    sleep 3
+    clear
+    local target_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+    if (( $(echo -n $target_options | wc -c) > 0 )); then
+        infomsg "lacework profiles found"
+    else
+        errmsg "no lacework profiles configured - please add a lacework api key"
+        exit 1
+    fi
+    infomsg "select a target lacework profile:"
+    PS3="target profile number: "
+    local IFS=$'\n'
+    select opt in $target_options; do
         if [[ -n "$opt" ]]; then
             LACEWORK_PROFILE=$opt
-            infomsg "selected lacework profile: $LACEWORK_PROFILE"
+            TARGET_LACEWORK_PROFILE=$opt
+            infomsg "selected $environment lacework profile: $TARGET_LACEWORK_PROFILE"
             LACEWORK_ACCOUNT=$(lacework configure show account --profile="$LACEWORK_PROFILE")
-            break
+            TARGET_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$TARGET_LACEWORK_PROFILE")
+            break;
         fi
     done
 }
@@ -824,6 +852,12 @@ target_aws_region = "$TARGET_AWS_REGION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_lacework_profile = "$ATTACKER_LACEWORK_PROFILE"
+attacker_lacework_account_name = "$ATTACKER_LACEWORK_ACCOUNT"
+attacker_lacework_server_url = "https://$ATTACKER_LACEWORK_ACCOUNT.lacework.net"
+target_lacework_profile = "$TARGET_LACEWORK_PROFILE"
+target_lacework_account_name = "$TARGET_LACEWORK_ACCOUNT"
+target_lacework_server_url = "https://$TARGET_LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
