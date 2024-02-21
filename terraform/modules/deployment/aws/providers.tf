@@ -35,11 +35,11 @@ provider "aws" {
   region = var.target_aws_region
 }
 provider "lacework" {
-  alias = "attacker"
+  alias      = "attacker"
   profile    = var.attacker_lacework_profile
 }
 provider "lacework" {
-  alias = "target"
+  alias      = "target"
   profile    = var.target_lacework_profile
 }
 provider "restapi" {
@@ -50,7 +50,8 @@ provider "restapi" {
 
   headers = {
     "API-Key" = try(local.attacker_infrastructure_config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json"
+    "Content-Type" = "application/json",
+    "accept" = "application/json"
   }
 
   create_method  = "POST"
@@ -66,7 +67,8 @@ provider "restapi" {
 
   headers = {
     "API-Key" = try(local.target_infrastructure_config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json"
+    "Content-Type" = "application/json",
+    "accept" = "application/json"
   }
 
   create_method  = "POST"
