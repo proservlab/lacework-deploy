@@ -435,10 +435,10 @@ if [ "show" = "${ACTION}" ]; then
     CHANGE_COUNT=$(terraform show -json ${PLANFILE} | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "plan" = "${ACTION}" ]; then
-    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -474,10 +474,10 @@ elif [ "refresh" = "${ACTION}" ]; then
     ERR=$?
     infomsg "Terraform result: $ERR"
 elif [ "apply" = "${ACTION}" ]; then        
-    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -486,10 +486,10 @@ elif [ "apply" = "${ACTION}" ]; then
     if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     check_tf_apply ${ERR} apply ${PLANFILE}
 elif [ "destroy" = "${ACTION}" ]; then
-    echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
