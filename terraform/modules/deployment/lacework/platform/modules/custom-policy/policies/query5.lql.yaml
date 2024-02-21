@@ -1,0 +1,11 @@
+---
+queryId: TF_CUSTOM_AWS_EC2_TAG_QUERY
+queryText: |-
+  {
+      source {
+          LW_CFG_AWS cfg
+      }
+      return distinct {
+          cfg.*
+      }
+  }

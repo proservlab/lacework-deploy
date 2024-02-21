@@ -1,0 +1,53 @@
+variable "environment" {
+    type = string
+    description = "name of the environment"
+}
+
+variable "deployment" {
+    type = string
+    description = "unique deployment id"
+}
+
+variable "tag" {
+  type = string
+  default = "ssm_connect_codecov"
+}
+
+variable "timeout" {
+  type = number
+  default = 1200
+}
+
+variable "cron" {
+  type = string
+  default = "cron(0/30 * * * ? *)"
+}
+
+variable "host_ip" {
+  type = string
+  description = "IP address of attacker"
+}
+
+variable "host_port" {
+  type = number
+  description = "Port address of attacker"
+  default = 8080
+}
+
+variable "use_ssl" {
+  type = bool
+  description = "Enable disable use to HTTPS"
+  default = false
+}
+
+variable "git_origin" {
+  type = string
+  description = "git origin to add to posted payload"
+  default="git@git.localhost:repo/repo.git"
+}
+
+variable "env_secrets" {
+  type = list(string)
+  description = "list of env secrets to add to posted payload"
+  default=["SECRET=supersecret123"]
+}
