@@ -310,100 +310,100 @@ module "target-aws-infrastructure" {
   ]
 }
 
-# ##################################################
-# # INFRASTRUCTURE LACEWORK PLATFORM
-# ##################################################
+##################################################
+# INFRASTRUCTURE LACEWORK PLATFORM
+##################################################
 
-# module "attacker-lacework-platform-infrastructure" {
-#   source = "../modules/infrastructure/lacework/platform"
-#   config = module.attacker-infrastructure-context.config
+module "attacker-lacework-platform-infrastructure" {
+  source = "../modules/infrastructure/lacework/platform"
+  config = module.attacker-infrastructure-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
-# module "target-lacework-platform-infrastructure" {
-#   source = "../modules/infrastructure/lacework/platform"
-#   config = module.target-infrastructure-context.config
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
+module "target-lacework-platform-infrastructure" {
+  source = "../modules/infrastructure/lacework/platform"
+  config = module.target-infrastructure-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
 
 ##################################################
 # ATTACK SURFACE CONFIG
@@ -674,295 +674,295 @@ module "target-aws-attacksurface" {
   ]
 }
 
-# ##################################################
-# # ATTACKSIMULATION CONFIG
-# ##################################################
+##################################################
+# ATTACKSIMULATION CONFIG
+##################################################
 
-# locals {
-#   attacker-attacksimulation-config-file = templatefile(
-#     "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
-#     {
-#       # environment
-#       environment = "attacker"
-#       deployment  = var.deployment
+locals {
+  attacker-attacksimulation-config-file = templatefile(
+    "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
+    {
+      # environment
+      environment = "attacker"
+      deployment  = var.deployment
 
-#       # dynu config
-#       dynu_api_key    = var.attacker_dynu_api_key
-#       dynu_dns_domain = var.attacker_dynu_dns_domain
+      # dynu config
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
 
-#       # aws
-#       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-#       attacker_aws_region  = var.attacker_aws_region
-#       target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-#       target_aws_region    = var.target_aws_region
+      # aws
+      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+      attacker_aws_region  = var.attacker_aws_region
+      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+      target_aws_region    = var.target_aws_region
 
-#       # variables
-#       compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
-#       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
-#       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
-#       attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
-#       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-#       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
-#       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
-#     }
-#   )
-#   target-attacksimulation-config-file = templatefile(
-#     "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
-#     {
-#       # environment
-#       environment = "target"
-#       deployment  = var.deployment
+      # variables
+      compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
+      attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+      attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
+      attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+      attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+      attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
+    }
+  )
+  target-attacksimulation-config-file = templatefile(
+    "${var.scenarios_path}/${var.scenario}/shared/simulation.json",
+    {
+      # environment
+      environment = "target"
+      deployment  = var.deployment
 
-#       # dynu config
-#       dynu_api_key    = var.target_dynu_api_key
-#       dynu_dns_domain = var.target_dynu_dns_domain
+      # dynu config
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
-#       # aws
-#       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-#       attacker_aws_region  = var.attacker_aws_region
-#       target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-#       target_aws_region    = var.target_aws_region
+      # aws
+      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
+      attacker_aws_region  = var.attacker_aws_region
+      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
+      target_aws_region    = var.target_aws_region
 
-#       # variables
-#       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
-#       attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
-#       attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
-#       attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
-#       attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
-#       attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
-#     }
-#   )
-#   attacker_attacksimulation_temp_config = jsondecode(local.attacker-attacksimulation-config-file)
-#   target_attacksimulation_temp_config   = jsondecode(local.target-attacksimulation-config-file)
-#   attacker_attacksimulation_override    = {}
-#   target_attacksimulation_override      = {}
-# }
+      # variables
+      attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
+      attacker_context_config_protonvpn_password           = var.attacker_context_config_protonvpn_password
+      attacker_context_config_protonvpn_tier               = var.attacker_context_config_protonvpn_tier
+      attacker_context_cloud_cryptomining_ethermine_wallet = var.attacker_context_cloud_cryptomining_ethermine_wallet
+      attacker_context_host_cryptomining_minergate_user    = var.attacker_context_host_cryptomining_minergate_user
+      attacker_context_host_cryptomining_nicehash_user     = var.attacker_context_host_cryptomining_nicehash_user
+    }
+  )
+  attacker_attacksimulation_temp_config = jsondecode(local.attacker-attacksimulation-config-file)
+  target_attacksimulation_temp_config   = jsondecode(local.target-attacksimulation-config-file)
+  attacker_attacksimulation_override    = {}
+  target_attacksimulation_override      = {}
+}
 
-# data "utils_deep_merge_json" "attacker-attacksimulation-config" {
-#   input = [
-#     jsonencode(module.default-attacksimulation-context.config),
-#     local.attacker-attacksimulation-config-file,
-#     jsonencode(local.attacker_attacksimulation_override)
-#   ]
-# }
+data "utils_deep_merge_json" "attacker-attacksimulation-config" {
+  input = [
+    jsonencode(module.default-attacksimulation-context.config),
+    local.attacker-attacksimulation-config-file,
+    jsonencode(local.attacker_attacksimulation_override)
+  ]
+}
 
-# data "utils_deep_merge_json" "target-attacksimulation-config" {
-#   input = [
-#     jsonencode(module.default-attacksimulation-context.config),
-#     local.target-attacksimulation-config-file,
-#     jsonencode(local.target_attacksimulation_override)
-#   ]
-# }
+data "utils_deep_merge_json" "target-attacksimulation-config" {
+  input = [
+    jsonencode(module.default-attacksimulation-context.config),
+    local.target-attacksimulation-config-file,
+    jsonencode(local.target_attacksimulation_override)
+  ]
+}
 
-# ##################################################
-# # ATTACKSIMULATION CONTEXT
-# ##################################################
+##################################################
+# ATTACKSIMULATION CONTEXT
+##################################################
 
-# # set attack the context
-# module "attacker-attacksimulation-context" {
-#   source = "../modules/context/attack/simulate"
-#   config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
+# set attack the context
+module "attacker-attacksimulation-context" {
+  source = "../modules/context/attack/simulate"
+  config = jsondecode(data.utils_deep_merge_json.attacker-attacksimulation-config.output)
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # surface
-#     module.attacker-aws-attacksurface.id,
-#     module.target-aws-attacksurface.id,
+    # surface
+    module.attacker-aws-attacksurface.id,
+    module.target-aws-attacksurface.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
 
-# # set attack the context
-# module "target-attacksimulation-context" {
-#   source = "../modules/context/attack/simulate"
-#   config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
+# set attack the context
+module "target-attacksimulation-context" {
+  source = "../modules/context/attack/simulate"
+  config = jsondecode(data.utils_deep_merge_json.target-attacksimulation-config.output)
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # surface
-#     module.attacker-aws-attacksurface.id,
-#     module.target-aws-attacksurface.id,
+    # surface
+    module.attacker-aws-attacksurface.id,
+    module.target-aws-attacksurface.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
 
-# ##################################################
-# # ATTACKSIMULATION DEPLOYMENT
-# ##################################################
+##################################################
+# ATTACKSIMULATION DEPLOYMENT
+##################################################
 
-# # deploy target attacksimulation
-# module "attacker-aws-attacksimulation" {
-#   source = "../modules/attack/simulate/aws"
-#   # attack surface config
-#   config = module.attacker-attacksimulation-context.config
+# deploy target attacksimulation
+module "attacker-aws-attacksimulation" {
+  source = "../modules/attack/simulate/aws"
+  # attack surface config
+  config = module.attacker-attacksimulation-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
-#   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-#   cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
-#   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
+  ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
-#   default_aws_profile                 = var.attacker_aws_profile
-#   default_aws_region                  = var.attacker_aws_region
-#   attacker_aws_profile                = var.attacker_aws_profile
-#   attacker_aws_region                 = var.attacker_aws_region
-#   target_aws_profile                  = var.target_aws_profile
-#   target_aws_region                   = var.target_aws_region
-#   default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
-#   attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
-#   target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
-#   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_aws_profile                 = var.attacker_aws_profile
+  default_aws_region                  = var.attacker_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
+  default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # surface
-#     module.attacker-aws-attacksurface.id,
-#     module.target-aws-attacksurface.id,
+    # surface
+    module.attacker-aws-attacksurface.id,
+    module.target-aws-attacksurface.id,
 
-#     # simulation context
-#     module.attacker-attacksimulation-context.id,
-#     module.target-attacksimulation-context.id,
+    # simulation context
+    module.attacker-attacksimulation-context.id,
+    module.target-attacksimulation-context.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id,
+    # config destory delay
+    # time_sleep.wait_120_seconds.id,
 
-#     # eks kubeconfig
-#     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
-#   ]
-# }
+    # eks kubeconfig
+    # try(module.attacker-aws-eks-kubeconfig[0].id, null)
+  ]
+}
 
 
-# # deploy target attacksimulation
-# module "target-aws-attacksimulation" {
-#   source = "../modules/attack/simulate/aws"
-#   # attack surface config
-#   config = module.target-attacksimulation-context.config
+# deploy target attacksimulation
+module "target-aws-attacksimulation" {
+  source = "../modules/attack/simulate/aws"
+  # attack surface config
+  config = module.target-attacksimulation-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   # compromised credentials (excluded from config to avoid dynamic dependancy...)
-#   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-#   cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
-#   ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
+  # compromised credentials (excluded from config to avoid dynamic dependancy...)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
+  ssh_user                = try(module.target-aws-attacksurface.ssh_user, null)
 
-#   default_aws_profile                 = var.target_aws_profile
-#   default_aws_region                  = var.target_aws_region
-#   attacker_aws_profile                = var.attacker_aws_profile
-#   attacker_aws_region                 = var.attacker_aws_region
-#   target_aws_profile                  = var.target_aws_profile
-#   target_aws_region                   = var.target_aws_region
-#   default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
-#   attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
-#   target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
-#   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_aws_profile                 = var.target_aws_profile
+  default_aws_region                  = var.target_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
+  default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # surface
-#     module.attacker-aws-attacksurface.id,
-#     module.target-aws-attacksurface.id,
+    # surface
+    module.attacker-aws-attacksurface.id,
+    module.target-aws-attacksurface.id,
 
-#     # simulation context
-#     module.attacker-attacksimulation-context.id,
-#     module.target-attacksimulation-context.id,
+    # simulation context
+    module.attacker-attacksimulation-context.id,
+    module.target-attacksimulation-context.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id,
+    # config destory delay
+    # time_sleep.wait_120_seconds.id,
 
-#     # eks kubeconfig
-#     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
-#   ]
-# }
+    # eks kubeconfig
+    # try(module.attacker-aws-eks-kubeconfig[0].id, null)
+  ]
+}
