@@ -5,17 +5,17 @@
 locals {
   attacker_infrastructure_config                = var.attacker_infrastructure_config
   attacker_kubeconfig                           = pathexpand("~/.kube/aws-attacker-${local.attacker_infrastructure_config.context.global.deployment}-kubeconfig")
-  attacker_cluster_name                         = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.id : null
-  attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
-  attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.certificate_authority[0].data : null
-  attacker_cluster_oidc_issuer                  = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.identity[0].oidc[0].issuer : null
-  attacker_cluster_security_group               = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_sg_id : null
-  attacker_cluster_subnet                       = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_subnet : null
-  attacker_cluster_vpc_id                       = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_vpc_id : null
-  attacker_cluster_node_role_arn                = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_node_role_arn : null
-  attacker_cluster_vpc_subnet                   = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_vpc_subnet : null
-  attacker_cluster_openid_connect_provider_arn  = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_openid_connect_provider.arn : null
-  attacker_cluster_openid_connect_provider_url  = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster_openid_connect_provider.url : null
+  attacker_cluster_name                         = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster.id,null) : null
+  attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster.endpoint,null) : null
+  attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster.certificate_authority[0].data,null) : null
+  attacker_cluster_oidc_issuer                  = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster.identity[0].oidc[0].issuer,null) : null
+  attacker_cluster_security_group               = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_sg_id ,null): null
+  attacker_cluster_subnet                       = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_subnet,null) : null
+  attacker_cluster_vpc_id                       = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_vpc_id,null) : null
+  attacker_cluster_node_role_arn                = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_node_role_arn,null) : null
+  attacker_cluster_vpc_subnet                   = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_vpc_subnet,null) : null
+  attacker_cluster_openid_connect_provider_arn  = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_openid_connect_provider.arn,null) : null
+  attacker_cluster_openid_connect_provider_url  = local.attacker_infrastructure_config.context.aws.eks.enabled == true ? can(module.attacker-eks[0].cluster_openid_connect_provider.url,null) : null
   attacker_aws_profile_name                     = local.attacker_infrastructure_config.context.aws.profile_name
   attacker_aws_region                           = local.attacker_infrastructure_config.context.aws.region
 }

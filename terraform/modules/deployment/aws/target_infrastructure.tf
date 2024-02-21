@@ -5,17 +5,17 @@
 locals {
   target_infrastructure_config                = var.target_infrastructure_config
   target_kubeconfig                           = pathexpand("~/.kube/aws-target-${local.target_infrastructure_config.context.global.deployment}-kubeconfig")
-  target_cluster_name                         = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.id : null
-  target_cluster_endpoint                     = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.endpoint : null
-  target_cluster_ca_cert                      = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.certificate_authority[0].data : null
-  target_cluster_oidc_issuer                  = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.identity[0].oidc[0].issuer : null
-  target_cluster_security_group               = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_sg_id : null
-  target_cluster_subnet                       = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_subnet : null
-  target_cluster_vpc_id                       = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_vpc_id : null
-  target_cluster_node_role_arn                = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_node_role_arn : null
-  target_cluster_vpc_subnet                   = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_vpc_subnet : null
-  target_cluster_openid_connect_provider_arn  = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_openid_connect_provider.arn : null
-  target_cluster_openid_connect_provider_url  = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster_openid_connect_provider.url : null
+  target_cluster_name                         = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster.id,null) : null
+  target_cluster_endpoint                     = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster.endpoint,null) : null
+  target_cluster_ca_cert                      = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster.certificate_authority[0].data,null) : null
+  target_cluster_oidc_issuer                  = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster.identity[0].oidc[0].issuer,null) : null
+  target_cluster_security_group               = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_sg_id ,null): null
+  target_cluster_subnet                       = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_subnet,null) : null
+  target_cluster_vpc_id                       = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_vpc_id,null) : null
+  target_cluster_node_role_arn                = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_node_role_arn,null) : null
+  target_cluster_vpc_subnet                   = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_vpc_subnet,null) : null
+  target_cluster_openid_connect_provider_arn  = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_openid_connect_provider.arn,null) : null
+  target_cluster_openid_connect_provider_url  = local.target_infrastructure_config.context.aws.eks.enabled == true ? can(module.target-eks[0].cluster_openid_connect_provider.url,null) : null
   target_aws_profile_name                     = local.target_infrastructure_config.context.aws.profile_name
   target_aws_region                           = local.target_infrastructure_config.context.aws.region
 }
