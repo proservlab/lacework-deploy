@@ -432,7 +432,7 @@ if [ "show" = "${ACTION}" ]; then
         infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
     fi
     infomsg "Terraform show result: $ERR"
-    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE} | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
@@ -463,7 +463,7 @@ elif [ "plan" = "${ACTION}" ]; then
         ERR=$?
     fi
     infomsg "Terraform summary result: $ERR"
-    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
@@ -481,7 +481,7 @@ elif [ "apply" = "${ACTION}" ]; then
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
-    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
     if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     check_tf_apply ${ERR} apply ${PLANFILE}
@@ -493,7 +493,7 @@ elif [ "destroy" = "${ACTION}" ]; then
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
-    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length')
+    CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
     if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     
