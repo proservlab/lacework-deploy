@@ -407,7 +407,7 @@ module "attacker-lacework-eks-audit" {
 # inspector
 module "attacker-inspector" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.aws.inspector.enabled == true ) ? 1 : 0
-  source       = "./modules/inspector"
+  source       = "./modules/deploy-inspector"
   environment  = local.attacker_infrastructure_config.context.global.environment
   deployment   = local.attacker_infrastructure_config.context.global.deployment
 
