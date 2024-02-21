@@ -57,7 +57,7 @@ provider "kubernetes" {
 provider "helm" {
   alias = "main"
   kubernetes {
-    config_path             = data.local_file.default_kubeconfig.filename
+    config_path             = var.eks_enabled ? data.local_file.default_kubeconfig.filename : local.default_kubeconfig
     config_context          = var.eks_enabled ? data.aws_eks_cluster.this[0].arn : ""
   }
 }
