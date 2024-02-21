@@ -226,14 +226,14 @@ module "target-infrastructure-context" {
   ]
 }
 
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [
-    module.attacker-infrastructure-context,
-    module.target-infrastructure-context
-  ]
+# resource "time_sleep" "wait_120_seconds" {
+#   depends_on = [
+#     module.attacker-infrastructure-context,
+#     module.target-infrastructure-context
+#   ]
 
-  destroy_duration = "120s"
-}
+#   destroy_duration = "120s"
+# }
 
 ##################################################
 # INFRASTRUCTURE DEPLOYMENT
@@ -271,7 +271,7 @@ module "attacker-aws-infrastructure" {
     module.target-infrastructure-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    # time_sleep.wait_120_seconds.id
   ]
 }
 
@@ -306,7 +306,7 @@ module "target-aws-infrastructure" {
     module.target-infrastructure-context.id,
 
     # config destory delay
-    time_sleep.wait_120_seconds.id
+    # time_sleep.wait_120_seconds.id
   ]
 }
 
@@ -356,7 +356,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-infrastructure.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 # module "target-lacework-platform-infrastructure" {
@@ -401,7 +401,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-infrastructure.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 
@@ -513,7 +513,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-infrastructure.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 
@@ -531,7 +531,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-infrastructure.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 
@@ -601,7 +601,7 @@ module "target-aws-infrastructure" {
 #     module.target-attacksurface-context.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id,
+#     # time_sleep.wait_120_seconds.id,
 
 #     # eks kubeconfig
 #     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
@@ -667,7 +667,7 @@ module "target-aws-infrastructure" {
 #     module.target-attacksurface-context.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id,
+#     # time_sleep.wait_120_seconds.id,
 
 #     # eks kubeconfig
 #     # try(module.target-aws-eks-kubeconfig[0].id, null)
@@ -781,7 +781,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-attacksurface.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 
@@ -808,7 +808,7 @@ module "target-aws-infrastructure" {
 #     module.target-aws-attacksurface.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id
+#     # time_sleep.wait_120_seconds.id
 #   ]
 # }
 
@@ -884,7 +884,7 @@ module "target-aws-infrastructure" {
 #     module.target-attacksimulation-context.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id,
+#     # time_sleep.wait_120_seconds.id,
 
 #     # eks kubeconfig
 #     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
@@ -960,7 +960,7 @@ module "target-aws-infrastructure" {
 #     module.target-attacksimulation-context.id,
 
 #     # config destory delay
-#     time_sleep.wait_120_seconds.id,
+#     # time_sleep.wait_120_seconds.id,
 
 #     # eks kubeconfig
 #     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
