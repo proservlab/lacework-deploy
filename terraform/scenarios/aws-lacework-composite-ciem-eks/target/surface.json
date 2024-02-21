@@ -51,7 +51,7 @@
         },
         "custom_cluster_roles": [{
           "name": "custom-role-1",
-          "enabled": false,
+          "enabled": true,
           "iam_user_names": [ "clue.burnetes@interlacelabs" ],
           "rules": [
           {
@@ -96,7 +96,7 @@
     "kubernetes" :  {
       "aws": {
         "reloader": {
-          "enabled": false
+          "enabled": true
         },
         "app" :  {
           "enabled" :  false,
@@ -165,7 +165,7 @@
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "s3app" :  {
-            "enabled" :  false,
+            "enabled" :  true,
             "service_port": 8000,
             "trust_target_source": true,
             "trust_attacker_source": true,
@@ -177,7 +177,7 @@
             "dynu_dns_domain": "${ dynu_dns_domain }"
           },
           "authapp" :  {
-            "enabled" :  false,
+            "enabled" :  true,
             "service_port": 8000,
             "trust_target_source": true,
             "trust_attacker_source": true,
