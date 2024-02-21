@@ -172,7 +172,8 @@ module "attacker-ec2" {
   dynu_dns_domain_id                  = local.attacker_infrastructure_config.context.dynu_dns.domain_id
 
   providers = {
-    aws = aws.attacker
+    aws      = aws.attacker
+    restapi  = restapi.attacker
   }
 }
 
