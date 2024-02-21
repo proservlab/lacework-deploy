@@ -405,274 +405,274 @@ module "target-aws-infrastructure" {
 #   ]
 # }
 
-# ##################################################
-# # ATTACK SURFACE CONFIG
-# ##################################################
+##################################################
+# ATTACK SURFACE CONFIG
+##################################################
 
-# locals {
-#   attacker-attacksurface-config-file = templatefile(
-#     "${var.scenarios_path}/${var.scenario}/attacker/surface.json",
-#     {
-#       # deployment id
-#       deployment = var.deployment
+locals {
+  attacker-attacksurface-config-file = templatefile(
+    "${var.scenarios_path}/${var.scenario}/attacker/surface.json",
+    {
+      # deployment id
+      deployment = var.deployment
 
-#       # dynu config
-#       dynu_api_key    = var.attacker_dynu_api_key
-#       dynu_dns_domain = var.attacker_dynu_dns_domain
+      # dynu config
+      dynu_api_key    = var.attacker_dynu_api_key
+      dynu_dns_domain = var.attacker_dynu_dns_domain
 
-#       # iam
-#       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
-#       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
-#     }
-#   )
-#   target-attacksurface-config-file = templatefile(
-#     "${var.scenarios_path}/${var.scenario}/target/surface.json",
-#     {
-#       # deployment id
-#       deployment = var.deployment
+      # iam
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
+      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
+    }
+  )
+  target-attacksurface-config-file = templatefile(
+    "${var.scenarios_path}/${var.scenario}/target/surface.json",
+    {
+      # deployment id
+      deployment = var.deployment
 
-#       # dynu config
-#       dynu_api_key    = var.target_dynu_api_key
-#       dynu_dns_domain = var.target_dynu_dns_domain
+      # dynu config
+      dynu_api_key    = var.target_dynu_api_key
+      dynu_dns_domain = var.target_dynu_dns_domain
 
-#       # iam
-#       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
-#       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
-#     }
-#   )
+      # iam
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
+      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
+    }
+  )
 
-#   attacker_attacksurface_temp_config = jsondecode(local.attacker-attacksurface-config-file)
-#   target_attacksurface_temp_config   = jsondecode(local.target-attacksurface-config-file)
-#   attacker_attacksurface_override = {
-#     context = {
-#       aws = {
-#         ec2 = {
-#           add_trusted_ingress = {
-#             enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
-#           }
-#           add_app_trusted_ingress = {
-#             enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
-#           }
-#         }
-#       }
-#     }
-#   }
-#   target_attacksurface_override = {
-#     context = {
-#       aws = {
-#         ec2 = {
-#           add_trusted_ingress = {
-#             enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
-#           }
-#           add_app_trusted_ingress = {
-#             enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
-#           }
-#         }
-#       }
-#     }
-#   }
+  attacker_attacksurface_temp_config = jsondecode(local.attacker-attacksurface-config-file)
+  target_attacksurface_temp_config   = jsondecode(local.target-attacksurface-config-file)
+  attacker_attacksurface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+          }
+        }
+      }
+    }
+  }
+  target_attacksurface_override = {
+    context = {
+      aws = {
+        ec2 = {
+          add_trusted_ingress = {
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+          }
+          add_app_trusted_ingress = {
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+          }
+        }
+      }
+    }
+  }
 
-#   infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
-#   # infrastructure_target_kubeconfig_path   = can(fileexists(pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
-#   infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
-#   #infrastructure_attacker_kubeconfig_path = can(fileexists(pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
-# }
+  infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
+  # infrastructure_target_kubeconfig_path   = can(fileexists(pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.target-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
+  infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
+  #infrastructure_attacker_kubeconfig_path = can(fileexists(pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path))) ? pathexpand(module.attacker-aws-infrastructure["config"].context.aws.eks[0].kubeconfig_path) : pathexpand("~/.kube/config")
+}
 
-# data "utils_deep_merge_json" "attacker-attacksurface-config" {
-#   input = [
-#     jsonencode(module.default-attacksurface-context.config),
-#     local.attacker-attacksurface-config-file,
-#     jsonencode(local.attacker_attacksurface_override)
-#   ]
-# }
+data "utils_deep_merge_json" "attacker-attacksurface-config" {
+  input = [
+    jsonencode(module.default-attacksurface-context.config),
+    local.attacker-attacksurface-config-file,
+    jsonencode(local.attacker_attacksurface_override)
+  ]
+}
 
-# data "utils_deep_merge_json" "target-attacksurface-config" {
-#   input = [
-#     jsonencode(module.default-attacksurface-context.config),
-#     local.target-attacksurface-config-file,
-#     jsonencode(local.target_attacksurface_override)
-#   ]
-# }
+data "utils_deep_merge_json" "target-attacksurface-config" {
+  input = [
+    jsonencode(module.default-attacksurface-context.config),
+    local.target-attacksurface-config-file,
+    jsonencode(local.target_attacksurface_override)
+  ]
+}
 
-# ##################################################
-# # ATTACK SURFACE CONTEXT
-# ##################################################
+##################################################
+# ATTACK SURFACE CONTEXT
+##################################################
 
-# # set attack the context
-# module "attacker-attacksurface-context" {
-#   source = "../modules/context/attack/surface"
-#   config = jsondecode(data.utils_deep_merge_json.attacker-attacksurface-config.output)
+# set attack the context
+module "attacker-attacksurface-context" {
+  source = "../modules/context/attack/surface"
+  config = jsondecode(data.utils_deep_merge_json.attacker-attacksurface-config.output)
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
 
-# module "target-attacksurface-context" {
-#   source = "../modules/context/attack/surface"
-#   config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
+module "target-attacksurface-context" {
+  source = "../modules/context/attack/surface"
+  config = jsondecode(data.utils_deep_merge_json.target-attacksurface-config.output)
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id
-#   ]
-# }
+    # config destory delay
+    # time_sleep.wait_120_seconds.id
+  ]
+}
 
-# ##################################################
-# # ATTACK SURFACE DEPLOYMENT
-# ##################################################
+##################################################
+# ATTACK SURFACE DEPLOYMENT
+##################################################
 
-# # deploy attacksurface
-# module "attacker-aws-attacksurface" {
-#   source = "../modules/attack/surface/aws"
-#   # attack surface config
-#   config = module.attacker-attacksurface-context.config
+# deploy attacksurface
+module "attacker-aws-attacksurface" {
+  source = "../modules/attack/surface/aws"
+  # attack surface config
+  config = module.attacker-attacksurface-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
+  # infrasturcture config and deployed state
+  infrastructure = {
 
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
 
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
-#   cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
-#   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
+  cluster_name            = try(module.attacker-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
 
 
-#   default_aws_profile                 = var.attacker_aws_profile
-#   default_aws_region                  = var.attacker_aws_region
-#   attacker_aws_profile                = var.attacker_aws_profile
-#   attacker_aws_region                 = var.attacker_aws_region
-#   target_aws_profile                  = var.target_aws_profile
-#   target_aws_region                   = var.target_aws_region
-#   default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
-#   attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
-#   target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
-#   default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_aws_profile                 = var.attacker_aws_profile
+  default_aws_region                  = var.attacker_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.infrastructure_attacker_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
+  default_lacework_profile            = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.attacker_lacework_agent_access_token)) ? var.attacker_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id,
+    # config destory delay
+    # time_sleep.wait_120_seconds.id,
 
-#     # eks kubeconfig
-#     # try(module.attacker-aws-eks-kubeconfig[0].id, null)
-#   ]
-# }
+    # eks kubeconfig
+    # try(module.attacker-aws-eks-kubeconfig[0].id, null)
+  ]
+}
 
-# module "target-aws-attacksurface" {
-#   source = "../modules/attack/surface/aws"
+module "target-aws-attacksurface" {
+  source = "../modules/attack/surface/aws"
 
-#   # initial configuration reference
-#   config = module.target-attacksurface-context.config
+  # initial configuration reference
+  config = module.target-attacksurface-context.config
 
-#   # infrasturcture config and deployed state
-#   infrastructure = {
-#     # initial configuration reference
-#     config = {
-#       attacker = module.attacker-infrastructure-context.config
-#       target   = module.target-infrastructure-context.config
-#     }
-#     # deployed state configuration reference
-#     deployed_state = {
-#       target   = try(module.target-aws-infrastructure.config, {})
-#       attacker = try(module.attacker-aws-infrastructure.config, {})
-#     }
-#   }
+  # infrasturcture config and deployed state
+  infrastructure = {
+    # initial configuration reference
+    config = {
+      attacker = module.attacker-infrastructure-context.config
+      target   = module.target-infrastructure-context.config
+    }
+    # deployed state configuration reference
+    deployed_state = {
+      target   = try(module.target-aws-infrastructure.config, {})
+      attacker = try(module.attacker-aws-infrastructure.config, {})
+    }
+  }
 
-#   default_aws_profile                 = var.target_aws_profile
-#   default_aws_region                  = var.target_aws_region
-#   attacker_aws_profile                = var.attacker_aws_profile
-#   attacker_aws_region                 = var.attacker_aws_region
-#   target_aws_profile                  = var.target_aws_profile
-#   target_aws_region                   = var.target_aws_region
-#   default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
-#   attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
-#   target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
-#   default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-#   default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-#   default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
-#   default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
-#   default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
-#   default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
-#   default_protonvpn_user              = var.attacker_context_config_protonvpn_user
-#   default_protonvpn_password          = var.attacker_context_config_protonvpn_password
-#   default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
-#   default_protonvpn_server            = var.attacker_context_config_protonvpn_server
-#   default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
+  default_aws_profile                 = var.target_aws_profile
+  default_aws_region                  = var.target_aws_region
+  attacker_aws_profile                = var.attacker_aws_profile
+  attacker_aws_region                 = var.attacker_aws_region
+  target_aws_profile                  = var.target_aws_profile
+  target_aws_region                   = var.target_aws_region
+  default_kubeconfig                  = local.infrastructure_target_kubeconfig_path
+  attacker_kubeconfig                 = local.infrastructure_attacker_kubeconfig_path
+  target_kubeconfig                   = local.infrastructure_target_kubeconfig_path
+  default_lacework_profile            = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
+  default_lacework_account_name       = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
+  default_lacework_server_url         = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+  default_lacework_agent_access_token = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_agent_access_token : var.lacework_agent_access_token
+  default_lacework_proxy_token        = can(length(var.target_lacework_agent_access_token)) ? var.target_lacework_proxy_token : var.lacework_proxy_token
+  default_lacework_sysconfig_path     = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
+  default_protonvpn_user              = var.attacker_context_config_protonvpn_user
+  default_protonvpn_password          = var.attacker_context_config_protonvpn_password
+  default_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
+  default_protonvpn_server            = var.attacker_context_config_protonvpn_server
+  default_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
 
-#   compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
-#   eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
-#   cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
+  compromised_credentials = try(module.target-aws-attacksurface.compromised_credentials, "")
+  eks_enabled             = module.attacker-infrastructure-context.config.context.aws.eks.enabled 
+  cluster_name            = try(module.target-aws-infrastructure.config.context.aws.eks[0].cluster_name, null)
 
-#   parent = [
-#     # infrastructure context
-#     module.attacker-infrastructure-context.id,
-#     module.target-infrastructure-context.id,
+  parent = [
+    # infrastructure context
+    module.attacker-infrastructure-context.id,
+    module.target-infrastructure-context.id,
 
-#     # infrastructure
-#     module.attacker-aws-infrastructure.id,
-#     module.target-aws-infrastructure.id,
+    # infrastructure
+    module.attacker-aws-infrastructure.id,
+    module.target-aws-infrastructure.id,
 
-#     # surface context
-#     module.attacker-attacksurface-context.id,
-#     module.target-attacksurface-context.id,
+    # surface context
+    module.attacker-attacksurface-context.id,
+    module.target-attacksurface-context.id,
 
-#     # config destory delay
-#     # time_sleep.wait_120_seconds.id,
+    # config destory delay
+    # time_sleep.wait_120_seconds.id,
 
-#     # eks kubeconfig
-#     # try(module.target-aws-eks-kubeconfig[0].id, null)
-#   ]
-# }
+    # eks kubeconfig
+    # try(module.target-aws-eks-kubeconfig[0].id, null)
+  ]
+}
 
 # ##################################################
 # # ATTACKSIMULATION CONFIG
