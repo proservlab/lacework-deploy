@@ -18,6 +18,12 @@ provider "helm" {
     config_path = local.target_kubeconfig
   }
 }
+
+provider "aws" { 
+  profile = var.target_aws_profile
+  region = var.target_aws_region
+}
+
 provider "aws" {
   alias = "attacker"
   profile = var.attacker_aws_profile

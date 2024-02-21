@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/responder-reverse-shell"
+    source = "../../../../../common/any/payload/linux/modules/responder-reverse-shell"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -19,7 +19,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../../common/aws/ssm/base"
+    source          = "../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag

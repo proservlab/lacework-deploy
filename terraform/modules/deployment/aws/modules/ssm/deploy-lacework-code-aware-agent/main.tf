@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/deploy-lacework-code-aware-agent"
+    source = "../../../../../common/any/payload/linux/modules/deploy-lacework-code-aware-agent"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -16,7 +16,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../../common/aws/ssm/base"
+    source          = "../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag

@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/deploy-protonvpn-docker"
+    source = "../../../../../common/any/payload/linux/modules/deploy-protonvpn-docker"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -21,7 +21,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../../common/aws/ssm/base"
+    source          = "../../../../../common/aws/ssm/base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag
