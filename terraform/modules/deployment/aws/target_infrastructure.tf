@@ -277,7 +277,6 @@ module "target-eks-calico" {
   region                                = local.target_infrastructure_config.context.aws.region
 
   providers = {
-    aws = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
   }
@@ -311,7 +310,6 @@ module "target-lacework-daemonset" {
   syscall_config =  fileexists(var.target_lacework_sysconfig_path) ? file(var.target_lacework_sysconfig_path) : file(local.target_infrastructure_config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   providers = {
-    aws = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     lacework = lacework.target
@@ -341,7 +339,6 @@ module "target-lacework-daemonset-windows" {
   syscall_config =  file(local.target_infrastructure_config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
   providers = {
-    aws = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     lacework = lacework.target
@@ -366,7 +363,6 @@ module "target-lacework-admission-controller" {
   lacework_proxy_token  = local.target_infrastructure_config.context.lacework.agent.kubernetes.proxy_scanner.token
 
   providers = {
-    aws = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     lacework = lacework.target
@@ -390,8 +386,6 @@ module "target-lacework-eks-audit" {
 
   providers = {
     aws = aws.target
-    kubernetes = kubernetes.target
-    helm = helm.target
     lacework = lacework.target
   }
 

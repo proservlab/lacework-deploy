@@ -281,7 +281,6 @@ module "attacker-eks-calico" {
   region                                = local.attacker_infrastructure_config.context.aws.region
 
   providers = {
-    aws = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
@@ -300,7 +299,7 @@ module "attacker-eks-calico" {
 # lacework daemonset and kubernetes compliance
 module "attacker-lacework-daemonset" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.aws.eks.enabled == true && local.attacker_infrastructure_config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
-  source                                = "./modules/kubernetes/daemonset"
+  source                                = "./modules/lacework-kubernetes-daemonset"
   environment                           = local.attacker_infrastructure_config.context.global.environment
   deployment                            = local.attacker_infrastructure_config.context.global.deployment
   cluster_name                          = module.attacker-eks[0].cluster.id
@@ -315,7 +314,6 @@ module "attacker-lacework-daemonset" {
   syscall_config =  fileexists(var.attacker_lacework_sysconfig_path) ? file(var.attacker_lacework_sysconfig_path) : file(local.attacker_infrastructure_config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   providers = {
-    aws = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     lacework = lacework.attacker
@@ -331,7 +329,7 @@ module "attacker-lacework-daemonset" {
 # lacework daemonset and kubernetes compliance
 module "attacker-lacework-daemonset-windows" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.aws.eks-windows.enabled == true && local.attacker_infrastructure_config.context.lacework.agent.kubernetes.daemonset-windows.enabled == true  ) ? 1 : 0
-  source                                = "./modules/kubernetes/daemonset-windows"
+  source                                = "./modules/lacework-kubernetes-daemonset-windows"
   environment                           = local.attacker_infrastructure_config.context.global.environment
   deployment                            = local.attacker_infrastructure_config.context.global.deployment
   cluster_name                          = module.attacker-eks[0].cluster.id
@@ -345,7 +343,6 @@ module "attacker-lacework-daemonset-windows" {
   syscall_config =  file(local.attacker_infrastructure_config.context.lacework.agent.kubernetes.daemonset-windows.syscall_config_path)
 
   providers = {
-    aws = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     lacework = lacework.attacker
@@ -361,7 +358,7 @@ module "attacker-lacework-daemonset-windows" {
 # lacework kubernetes admission controller
 module "attacker-lacework-admission-controller" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.aws.eks.enabled == true && local.attacker_infrastructure_config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
-  source                = "./modules/kubernetes/admission-controller"
+  source                = "./modules/lacework-kubernetes-admission-controller"
   environment                           = local.attacker_infrastructure_config.context.global.environment
   deployment                            = local.attacker_infrastructure_config.context.global.deployment
   cluster_name                          = module.attacker-eks[0].cluster.id
@@ -370,7 +367,6 @@ module "attacker-lacework-admission-controller" {
   lacework_proxy_token  = local.attacker_infrastructure_config.context.lacework.agent.kubernetes.proxy_scanner.token
 
   providers = {
-    aws = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     lacework = lacework.attacker
@@ -386,7 +382,7 @@ module "attacker-lacework-admission-controller" {
 # lacework eks audit
 module "attacker-lacework-eks-audit" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.aws.eks.enabled == true && local.attacker_infrastructure_config.context.lacework.agent.kubernetes.eks_audit_logs.enabled == true  ) ? 1 : 0
-  source      = "./modules/eks-audit"
+  source      = "./modules/lacework-eks-audit"
   region                                = local.attacker_infrastructure_config.context.aws.region
   environment                           = local.attacker_infrastructure_config.context.global.environment
   deployment                            = local.attacker_infrastructure_config.context.global.deployment
@@ -394,8 +390,6 @@ module "attacker-lacework-eks-audit" {
 
   providers = {
     aws = aws.attacker
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
     lacework = lacework.attacker
   }
 
@@ -579,7 +573,7 @@ module "attacker-rds" {
   providers = {
     aws = aws.attacker
   }
-  
+
   depends_on = [
     module.attacker-ec2
   ]
