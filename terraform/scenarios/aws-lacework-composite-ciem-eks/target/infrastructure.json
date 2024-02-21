@@ -66,7 +66,7 @@
         ]
       },
       "eks": {
-        "enabled"      : true,
+        "enabled"      : false,
         "cluster_name" : "dev"
       },
       "rds": {
@@ -98,22 +98,22 @@
         "enabled" : true,
 
         "kubernetes": {
-          "enabled" : true,
+          "enabled" : false,
           "proxy_scanner": {
-            "enabled" : true
+            "enabled" : false
           },
           "daemonset": {
-            "enabled"        : true,
+            "enabled"        : false,
             "syscall_config_path" : "${ syscall_config_path }"
           },
           "compliance": {
-            "enabled" : true
+            "enabled" : false
           },
           "eks_audit_logs": {
-            "enabled" : true
+            "enabled" : false
           },
           "admission_controller": {
-            "enabled" : true
+            "enabled" : false
           }
         }
       },
@@ -137,7 +137,7 @@
       }
     },
     "dynu_dns" : {
-      "enabled"                        : true,
+      "enabled"                        : false,
       "api_key"                        : "${ dynu_api_key }",
       "dns_domain"                     : "${ dynu_dns_domain }"
     }
