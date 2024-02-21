@@ -35,9 +35,9 @@ locals {
       dynu_dns_domain = var.attacker_dynu_dns_domain
 
       # lacework
-      lacework_profile      = can(length(var.attacker_lacework_profile)) ? var.attacker_lacework_profile : var.lacework_profile
-      lacework_account_name = can(length(var.attacker_lacework_account_name)) ? var.attacker_lacework_account_name : var.lacework_account_name
-      lacework_server_url   = can(length(var.attacker_lacework_server_url)) ? var.attacker_lacework_server_url : var.lacework_server_url
+      lacework_profile      = var.attacker_lacework_profile
+      lacework_account_name = var.attacker_lacework_account_name
+      lacework_server_url   = var.attacker_lacework_server_url
       syscall_config_path   = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/syscall_config.yaml")
     }
   )
@@ -56,9 +56,9 @@ locals {
       dynu_dns_domain = var.target_dynu_dns_domain
 
       # lacework
-      lacework_profile      = can(length(var.target_lacework_profile)) ? var.target_lacework_profile : var.lacework_profile
-      lacework_account_name = can(length(var.target_lacework_account_name)) ? var.target_lacework_account_name : var.lacework_account_name
-      lacework_server_url   = can(length(var.target_lacework_server_url)) ? var.target_lacework_server_url : var.lacework_server_url
+      lacework_profile      = var.target_lacework_profile
+      lacework_account_name = var.target_lacework_account_name
+      lacework_server_url   = var.target_lacework_server_url
       syscall_config_path   = abspath("${var.scenarios_path}/${var.scenario}/target/resources/syscall_config.yaml")
 
       # slack

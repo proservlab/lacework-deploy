@@ -453,6 +453,7 @@ module "attacker-ssm-deploy-lacework-agent" {
 
   providers = {
     aws = aws.attacker
+    lacework = lacework.target
   }
 }
 

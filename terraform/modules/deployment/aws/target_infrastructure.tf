@@ -449,6 +449,7 @@ module "target-ssm-deploy-lacework-agent" {
 
   providers = {
     aws = aws.target
+    lacework = lacework.target
   }
 }
 
