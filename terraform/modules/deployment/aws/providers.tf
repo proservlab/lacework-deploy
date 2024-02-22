@@ -1,25 +1,31 @@
+data "local_file" "attacker_kubeconfig" {
+  count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  filename = pathexpand(module.attacker-eks[0].kubeconfig_path)
+}
+
+data "local_file" "target_kubeconfig" {
+  count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  filename = pathexpand(module.target-eks[0].kubeconfig_path)
+}
+
 provider "kubernetes" {
   alias = "attacker"
-  config_path = try(module.attacker-eks[0].kubeconfig_path, local.attacker_kubeconfig)
-  config_context = try(module.attacker-eks[0].cluster.arn, null)
+  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig)
 }
 provider "kubernetes" {
   alias = "target"
-  config_path = try(module.target-eks[0].kubeconfig_path, local.target_kubeconfig)
-  config_context = try(module.target-eks[0].cluster.arn, null)
+  config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig)
 }
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = try(module.attacker-eks[0].kubeconfig_path, local.attacker_kubeconfig)
-    config_context = try(module.attacker-eks[0].cluster.arn, null)
+    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig)
   }
 }
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = try(module.target-eks[0].kubeconfig_path, local.target_kubeconfig)
-    config_context = try(module.target-eks[0].cluster.arn, null)
+    config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig)
   }
 }
 provider "aws" { 
