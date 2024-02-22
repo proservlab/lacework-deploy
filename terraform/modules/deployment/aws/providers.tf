@@ -63,7 +63,7 @@ provider "restapi" {
 provider "restapi" {
   alias = "target"
   uri                  = "https://api.dynu.com"
-  write_returns_object = true
+  write_returns_object = false
   debug                = true
 
   headers = {
