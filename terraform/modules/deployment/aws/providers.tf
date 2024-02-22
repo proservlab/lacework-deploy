@@ -49,6 +49,7 @@ provider "restapi" {
   uri                  = "https://api.dynu.com"
   write_returns_object = true
   debug                = true
+  id_attribute         = "id"
 
   headers = {
     "API-Key" = var.attacker_dynu_api_key,
@@ -65,6 +66,7 @@ provider "restapi" {
   uri                  = "https://api.dynu.com/v2"
   write_returns_object = true
   debug                = true
+  id_attribute         = "id"
 
   headers = {
     "API-Key" = var.target_dynu_api_key
