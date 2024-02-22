@@ -35,11 +35,6 @@ locals {
     try(module.attacker-vulnerable-kubernetes-authapp[0].services,[]),
 
   ]): service.name => service }
-
-  attacker_ssh_user = try(length(module.attacker-deploy-ssh-user[0]), "false") != "false" ? {
-        username = module.attacker-deploy-ssh-user[0].username
-        password = module.attacker-deploy-ssh-user[0].password
-    } : null
 }
 
 ##################################################
@@ -56,10 +51,6 @@ module "attacker-iam" {
 
   user_policies     = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_policies_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
   users             = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.users_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 ##################################################
@@ -91,17 +82,13 @@ module "attacker-ec2-add-trusted-ingress" {
   additional_trusted_sources_enabled    = length(local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources            = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
   trusted_tcp_ports                     = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
-  
+
   depends_on = [ 
     module.attacker-ec2,
     module.target-ec2,
     module.attacker-eks,
     module.targte-eks,
   ]
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-ec2-add-trusted-ingress-app" {
@@ -135,10 +122,6 @@ module "attacker-ec2-add-trusted-ingress-app" {
     module.attacker-eks,
     module.targte-eks,
   ]
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 ##################################################
@@ -157,10 +140,6 @@ module "attacker-ssh-keys" {
   ssh_public_key_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_public_key_path
   ssh_private_key_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_private_key_path
   ssh_authorized_keys_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-ssh-user" {
@@ -173,10 +152,6 @@ module "attacker-ssh-user" {
 
   username = local.attacker_attacksurface_config.context.aws.ssm.ssh_user.username
   password = local.attacker_attacksurface_config.context.aws.ssm.ssh_user.password
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-aws-credentials" {
@@ -194,10 +169,6 @@ module "attacker-aws-credentials" {
     module.target-iam,
     module.attacker-iam 
   ]
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 ##################################################
@@ -213,10 +184,6 @@ module "attacker-vulnerable-docker-log4j-app" {
   tag = "ssm_deploy_docker_log4j_app"
 
   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.listen_port
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-vulnerable-log4j-app" {
@@ -228,10 +195,6 @@ module "attacker-vulnerable-log4j-app" {
   tag = "ssm_deploy_log4j_app"
 
   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.listen_port
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-vulnerable-npm-app" {
@@ -243,10 +206,6 @@ module "attacker-vulnerable-npm-app" {
   tag = "ssm_deploy_npm_app"
 
   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.npm_app.listen_port
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-vulnerable-python3-twisted-app" {
@@ -258,10 +217,6 @@ module "attacker-vulnerable-python3-twisted-app" {
   tag = "ssm_deploy_python3_twisted_app"
 
   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 module "attacker-vulnerable-rds-app" {
@@ -284,10 +239,6 @@ module "attacker-vulnerable-rds-app" {
   depends_on = [
     module.attacker-rds
   ]
-
-  providers = {
-    aws = aws.attacker
-  }
 }
 
 
@@ -307,16 +258,16 @@ module "attacker-eks-auth" {
   iam_eks_readers = local.attacker_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
   iam_eks_admins = local.attacker_attacksurface_config.context.aws.eks.add_iam_user_admin_user.iam_user_names
   custom_cluster_roles = local.attacker_attacksurface_config.context.aws.eks.custom_cluster_roles
+  
+  providers = {
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+  }
 
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
-  ]
-
-  providers = {
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
-  }                  
+  ]                  
 }
 
 ##################################################
@@ -329,15 +280,15 @@ module "attacker-kubernetes-reloader" {
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 
@@ -377,16 +328,16 @@ module "attacker-kubernetes-app" {
   dynu_dns_domain_id = local.attacker_infrastructure_config.context.dynu_dns.domain_id
   dynu_dns_domain = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.app
+  
+  providers = {
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+  }
 
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
   ]
-
-  providers = {
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
-  }
 }
 
 module "attacker-kubernetes-app-windows" {
@@ -423,16 +374,16 @@ module "attacker-kubernetes-app-windows" {
   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.args
   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.privileged
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
+  
+  providers = {
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+  }
 
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
   ] 
-
-  providers = {
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
-  }
 }
 
 ##################################################
@@ -471,15 +422,15 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   dynu_dns_domain = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+  
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 module "attacker-vulnerable-kubernetes-rdsapp" {
@@ -523,15 +474,15 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.privileged
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 module "attacker-vulnerable-kubernetes-log4j-app" {
@@ -570,15 +521,15 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.privileged
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 module "attacker-vulnerable-kubernetes-privileged-pod" {
@@ -616,15 +567,16 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.privileged
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.allow_allow_privilege_escalation
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
 
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
@@ -659,16 +611,16 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.command
   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
+  
+  providers = {
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+  }
 
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
   ]
-
-  providers = {
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
-  }
 }
 
 module "attacker-vulnerable-kubernetes-s3app" {
@@ -713,15 +665,15 @@ module "attacker-vulnerable-kubernetes-s3app" {
   user_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.user_password
   admin_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.admin_password
 
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
 
 # example of pushing kubernetes deployment via terraform
@@ -758,13 +710,13 @@ module "attacker-vulnerable-kubernetes-authapp" {
   dynu_dns_domain = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
   
-  depends_on = [
-    module.attacker-eks,
-    module.attacker-iam,
-  ]
-
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
+
+  depends_on = [
+    module.attacker-eks,
+    module.attacker-iam,
+  ]
 }
