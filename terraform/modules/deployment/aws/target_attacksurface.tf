@@ -73,11 +73,11 @@ module "target-iam" {
 # append ingress rules
 module "target-ec2-add-trusted-ingress" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-  source        = "./modules/ec2-surface/add-trusted-ingress"
+  source        = "./modules/ec2-add-trusted-ingress"
   environment                           = local.target_attacksurface_config.context.global.environment
   deployment                            = local.target_attacksurface_config.context.global.deployment
   
-  security_group_id                     = local.default_public_sg
+  security_group_id                     = local.target_public_sg
   trusted_attacker_source_enabled       = local.target_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_attacker_source
   trusted_attacker_source               = local.target_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],

@@ -69,7 +69,7 @@ module "attacker-iam" {
 # append ingress rules
 module "attacker-ec2-add-trusted-ingress" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
-  source        = "./modules/ec2-surface/add-trusted-ingress"
+  source        = "./modules/ec2-add-trusted-ingress"
   environment                           = local.attacker_attacksurface_config.context.global.environment
   deployment                            = local.attacker_attacksurface_config.context.global.deployment
   
