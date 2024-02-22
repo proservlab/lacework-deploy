@@ -58,8 +58,6 @@ resource "restapi_object" "record" {
   destroy_method = "DELETE"
   update_method = "POST"
 
-  read_path = "/dns/${local.dynu_domain_id}/record/${var.record.recordName}.${var.dynu_dns_domain}?recordType=${var.record.recordType}"
-
   data          = var.record.recordType == "CNAME" ? jsonencode({
     nodeName    = var.record.recordName
     recordType  = var.record.recordType
