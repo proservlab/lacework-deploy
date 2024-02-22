@@ -20,12 +20,13 @@ locals {
   })
 }
 
-resource "null_resource" "get_prometheus_ip" {
+resource "null_resource" "log" {
   triggers  =  { 
     always_run = "${timestamp()}" 
     "before" = "${restapi_object.record.id}"
   }
   provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
     command = "echo \"DNS Data: ${base64encode(local.data)}\""
   }
   depends_on = [ data.http.dynu_domain_id, data.http.dynu_records ]
