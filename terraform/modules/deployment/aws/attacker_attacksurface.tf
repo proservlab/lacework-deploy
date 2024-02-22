@@ -347,7 +347,7 @@ module "attacker-kubernetes-app" {
   source      = "./modules/kubernetes-app"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   container_port                = 80 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.app.service_port
@@ -394,7 +394,7 @@ module "attacker-kubernetes-app-windows" {
   source      = "./modules/kubernetes-app-windows"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.service_port
   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_attacker_source
@@ -445,7 +445,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
   region                        = local.attacker_infrastructure_config.context.aws.region
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
 
   vote_service_port             = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
@@ -488,15 +488,15 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   environment                         = local.attacker_attacksurface_config.context.global.environment
   deployment                          = local.attacker_attacksurface_config.context.global.deployment
   region                              = local.attacker_infrastructure_config.context.aws.region
-  cluster_vpc_id                      = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                      = module.attacker-eks[0].cluster_vpc_id
 
   # trusted security group for rds connections
-  cluster_sg_id                       = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_sg_id
-  cluster_vpc_subnet                  = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_subnet
+  cluster_sg_id                       = module.attacker-eks[0].cluster_sg_id
+  cluster_vpc_subnet                  = module.attacker-eks[0].cluster_vpc_subnet
   
   # oidc provider for pod assumed database roles
-  cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
-  cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
+  cluster_openid_connect_provider_arn = module.attacker-eks[0].cluster_openid_connect_provider.arn
+  cluster_openid_connect_provider_url = module.attacker-eks[0].cluster_openid_connect_provider.url
   
   service_port                        = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.service_port
   trusted_attacker_source_enabled     = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source
@@ -539,7 +539,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   source                        = "./modules/kubernetes-log4j-app"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   container_port                = 8080 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.service_port
@@ -586,7 +586,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   source      = "./modules/kubernetes-privileged-pod"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source
@@ -632,7 +632,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   source      = "./modules/kubernetes-root-mount-fs-pod"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.service_port
   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source
@@ -677,15 +677,15 @@ module "attacker-vulnerable-kubernetes-s3app" {
   environment                         = local.attacker_attacksurface_config.context.global.environment
   deployment                          = local.attacker_attacksurface_config.context.global.deployment
   region                              = local.attacker_infrastructure_config.context.aws.region
-  cluster_vpc_id                      = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                      = module.attacker-eks[0].cluster_vpc_id
 
   # trusted security group for rds connections
-  cluster_sg_id                       = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_sg_id
-  cluster_vpc_subnet                  = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_subnet
+  cluster_sg_id                       = module.attacker-eks[0].cluster_sg_id
+  cluster_vpc_subnet                  = module.attacker-eks[0].cluster_vpc_subnet
   
   # oidc provider for pod assumed database roles
-  cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
-  cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
+  cluster_openid_connect_provider_arn = module.attacker-eks[0].cluster_openid_connect_provider.arn
+  cluster_openid_connect_provider_url = module.attacker-eks[0].cluster_openid_connect_provider.url
   
   container_port                      = 80 
   service_port                        = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.service_port
@@ -730,7 +730,7 @@ module "attacker-vulnerable-kubernetes-authapp" {
   source      = "./modules/kubernetes-authapp"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-  cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+  cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
 
   container_port                = 80 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.service_port
