@@ -50,7 +50,7 @@ provider "restapi" {
   write_returns_object = true
   debug                = true
   id_attribute         = "id"
-  timeout              = 600
+  timeout              = 900
 
   headers = {
     "API-Key" = var.attacker_dynu_api_key,
@@ -69,7 +69,7 @@ provider "restapi" {
   write_returns_object = true
   debug                = true
   id_attribute         = "id"
-  timeout              = 600
+  timeout              = 900
 
   headers = {
     "API-Key" = var.target_dynu_api_key
