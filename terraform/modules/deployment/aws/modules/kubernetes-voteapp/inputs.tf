@@ -145,8 +145,8 @@ variable "dynu_dns_domain" {
   default = ""
 }
 
-variable "dynu_dns_domain_id" {
+variable "dynu_api_key" {
   type = string
-  description = "The domain id for dynu hostname you want to update"
+  description = "The dynu api key"
   default = ""
 }

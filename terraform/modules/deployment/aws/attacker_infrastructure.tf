@@ -166,8 +166,8 @@ module "attacker-ec2" {
   private_app_nat_subnet              = local.attacker_infrastructure_config.context.aws.ec2.private_app_nat_subnet
 
   enable_dynu_dns                     = local.attacker_infrastructure_config.context.dynu_dns.enabled
-  dynu_dns_domain                     = var.attacker_dynu_api_key
-  dynu_dns_domain_id                  = local.attacker_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain                     = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_api_key                        = local.attacker_infrastructure_config.context.dynu_dns.api_key
 
   providers = {
     aws      = aws.attacker

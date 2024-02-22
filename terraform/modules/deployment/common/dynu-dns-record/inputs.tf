@@ -3,9 +3,9 @@ variable "dynu_dns_domain" {
     description = "The hostname the domain to be updated"
 }
 
-variable "dynu_dns_domain_id" {
+variable "dynu_api_key" {
     type = string
-    description = "The the id for the domain to be updated"
+    description = "The dynu api key"
 }
 
 variable "record" {

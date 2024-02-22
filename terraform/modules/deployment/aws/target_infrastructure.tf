@@ -167,7 +167,7 @@ module "target-ec2" {
 
   enable_dynu_dns                     = local.target_infrastructure_config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.target_infrastructure_config.context.dynu_dns.dns_domain
-  dynu_dns_domain_id                  = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_api_key                        = local.target_infrastructure_config.context.dynu_dns.api_key
 
   providers = {
     aws      = aws.target
