@@ -82,7 +82,7 @@ variable "attacker_dynu_api_key" {
   description = "dynu dns api key"
   default = null
 }
-variable "attacker_dynu_dns_domain " {
+variable "attacker_dynu_dns_domain" {
   type = string
   description = "dynu dns domain"
   default = null
