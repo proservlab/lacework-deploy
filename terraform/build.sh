@@ -205,14 +205,14 @@ check_tf_apply(){
                 infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
                 (
                     set -o pipefail
-                    terraform show -json -no-color ${PLANFILE} | tf-summarize > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
+                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
                 )
                 ERR=$?
             else
                 infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
                 (
                     set -o pipefail
-                    terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
                 )
                 ERR=$?
             fi
