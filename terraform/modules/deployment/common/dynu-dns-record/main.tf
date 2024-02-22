@@ -6,6 +6,7 @@ locals {
 
 data "http" "dynu_domain_id" {
   url = local.dynu_api
+  method = "GET"
 
   # Optional request headers
   request_headers = {
