@@ -49,7 +49,7 @@ provider "restapi" {
   debug                = true
 
   headers = {
-    "X-Auth-Token" = var.attacker_dynu_api_key,
+    "API-Key" = var.attacker_dynu_api_key,
     "Content-Type" = "application/json",
     "accept" = "application/json"
   }
@@ -66,7 +66,7 @@ provider "restapi" {
   debug                = true
 
   headers = {
-    "X-Auth-Token" = var.target_dynu_api_key
+    "API-Key" = var.target_dynu_api_key
     "Content-Type" = "application/json",
     "accept" = "application/json"
   }
