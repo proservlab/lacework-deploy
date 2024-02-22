@@ -167,7 +167,7 @@ module "target-ssh-keys" {
   }
 }
 
-module "target-ssh-user" {
+module "target-deploy-ssh-user" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-ssh-user"
   environment = local.target_attacksurface_config.context.global.environment

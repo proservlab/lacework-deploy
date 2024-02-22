@@ -163,7 +163,7 @@ module "attacker-ssh-keys" {
   }
 }
 
-module "attacker-ssh-user" {
+module "attacker-deploy-ssh-user" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-ssh-user"
   environment = local.attacker_attacksurface_config.context.global.environment
