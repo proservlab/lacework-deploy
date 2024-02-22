@@ -8,6 +8,7 @@ locals {
 data "http" "dynu_domain_id" {
   url = local.dynu_api
   method = "GET"
+  request_timeout_ms = 120000
 
   # Optional request headers
   request_headers = {
@@ -31,7 +32,8 @@ data "http" "dynu_domain_id" {
 data "http" "dynu_records" {
   url = "${local.dynu_api}/${local.dynu_domain_id}/record"
   method = "GET"
-
+  request_timeout_ms = 120000
+  
   # Optional request headers
   request_headers = {
     API-Key = var.dynu_api_key
