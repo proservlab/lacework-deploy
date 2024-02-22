@@ -297,7 +297,7 @@ module "target-vulnerable-rds-app" {
 
 # assign iam user cluster readonly role
 module "target-eks-auth" {
-  count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.target_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.target_attacksurface_config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.target_attacksurface_config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
+  count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_infrastructure_config.context.aws.eks.enabled == true && (local.target_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.target_attacksurface_config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.target_attacksurface_config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
   source      = "./modules/eks-auth"
   environment       = local.target_attacksurface_config.context.global.environment
   deployment        = local.target_attacksurface_config.context.global.deployment
@@ -374,8 +374,8 @@ module "target-kubernetes-app" {
   privileged                    = local.target_attacksurface_config.context.kubernetes.aws.app.privileged
   allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.aws.app.allow_allow_privilege_escalation
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.app
   
   depends_on = [
@@ -414,8 +414,8 @@ module "target-kubernetes-app-windows" {
   additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.aws.app-windows.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.aws.app-windows.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.app-windows.enable_dynu_dns
 
   image                         = local.target_attacksurface_config.context.kubernetes.aws.app-windows.image
@@ -444,7 +444,7 @@ module "target-vulnerable-kubernetes-voteapp" {
   source                        = "./modules/kubernetes-voteapp"
   environment                   = local.target_attacksurface_config.context.global.environment
   deployment                    = local.target_attacksurface_config.context.global.deployment
-  region                        = local.default_infrastructure_config.context.aws.region
+  region                        = local.target_infrastructure_config.context.aws.region
   cluster_vpc_id                = module.target-eks[0].cluster_vpc_id
   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
 
@@ -467,8 +467,8 @@ module "target-vulnerable-kubernetes-voteapp" {
   additional_trusted_sources_enabled    = length(local.target_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
   depends_on = [
@@ -487,7 +487,7 @@ module "target-vulnerable-kubernetes-rdsapp" {
   source                              = "./modules/kubernetes-rdsapp"
   environment                         = local.target_attacksurface_config.context.global.environment
   deployment                          = local.target_attacksurface_config.context.global.deployment
-  region                              = local.default_infrastructure_config.context.aws.region
+  region                              = local.target_infrastructure_config.context.aws.region
   cluster_vpc_id                      = module.target-eks[0].cluster_vpc_id
 
   # trusted security group for rds connections
@@ -516,8 +516,8 @@ module "target-vulnerable-kubernetes-rdsapp" {
   additional_trusted_sources_enabled  = length(local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
 
   privileged                    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.privileged
@@ -560,8 +560,8 @@ module "target-vulnerable-kubernetes-log4j-app" {
   additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.enable_dynu_dns
 
   image                         = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.image
@@ -606,8 +606,8 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   additional_trusted_sources_enabled = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.enable_dynu_dns
 
   image                         = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.image
@@ -653,8 +653,8 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   additional_trusted_sources_enabled  = length(local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enable_dynu_dns
 
   image                         = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
@@ -677,7 +677,7 @@ module "target-vulnerable-kubernetes-s3app" {
   source                              = "./modules/kubernetes-s3app"
   environment                         = local.target_attacksurface_config.context.global.environment
   deployment                          = local.target_attacksurface_config.context.global.deployment
-  region                              = local.default_infrastructure_config.context.aws.region
+  region                              = local.target_infrastructure_config.context.aws.region
   cluster_vpc_id                      = module.target-eks[0].cluster_vpc_id
 
   # trusted security group for rds connections
@@ -707,8 +707,8 @@ module "target-vulnerable-kubernetes-s3app" {
   additional_trusted_sources_enabled  = length(local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources) > 0 ? true : false
   additional_trusted_sources          = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.enable_dynu_dns
 
   user_password = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.user_password
@@ -755,8 +755,8 @@ module "target-vulnerable-kubernetes-authapp" {
   user_password = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.user_password
   admin_password = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.admin_password
 
-  dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
-  dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_dns_domain_id = local.target_infrastructure_config.context.dynu_dns.domain_id
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
 
   depends_on = [

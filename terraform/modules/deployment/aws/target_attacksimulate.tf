@@ -149,7 +149,7 @@ module "target-ssm-drop-malware-eicar" {
 module "target-ssm-execute-docker-composite-guardduty" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.attacker.execute.docker_composite_guardduty.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-composite-guardduty"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   
@@ -167,7 +167,7 @@ module "target-ssm-execute-docker-composite-host-compromise" {
   source        = "./modules/ssm/execute-docker-composite-host-compromise"
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_host_compromise"
 
@@ -199,7 +199,7 @@ module "target-ssm-execute-docker-cpu-miner" {
 module "target-ssm-execute-docker-hydra-external" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   
@@ -226,7 +226,7 @@ module "target-ssm-execute-docker-hydra-external" {
 module "target-ssm-execute-docker-hydra-internal" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   
@@ -253,7 +253,7 @@ module "target-ssm-execute-docker-hydra-internal" {
 module "target-ssm-execute-docker-nmap-attacker" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
 
@@ -276,7 +276,7 @@ module "target-ssm-execute-docker-nmap-attacker" {
 module "target-ssm-execute-docker-nmap-target" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
 
@@ -299,7 +299,7 @@ module "target-ssm-execute-docker-nmap-target" {
 module "target-ssm-execute-generate-aws-cli-traffic-attacker" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-aws-cli-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
 
@@ -318,7 +318,7 @@ module "target-ssm-execute-generate-aws-cli-traffic-attacker" {
 module "target-ssm-execute-generate-aws-cli-traffic-target" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-aws-cli-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
 
@@ -336,7 +336,7 @@ module "target-ssm-execute-generate-aws-cli-traffic-target" {
 module "target-ssm-execute-generate-web-traffic-attacker" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-web-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   
@@ -353,7 +353,7 @@ module "target-ssm-execute-generate-web-traffic-attacker" {
 module "target-ssm-execute-generate-web-traffic-target" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-web-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.target_infrastructure_config.context.aws.region
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   

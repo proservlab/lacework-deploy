@@ -64,7 +64,7 @@ module "attacker-simulation-attacker-exec-docker-composite-cloud-cryptomining" {
   source        = "./modules/ssm/execute-docker-composite-cloud-cryptomining"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_cloud_cryptomining"
 
@@ -90,7 +90,7 @@ module "attacker-simulation-attacker-exec-docker-composite-cloud-ransomware" {
   source        = "./modules/ssm/execute-docker-composite-cloud-ransomware"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_cloud_ransomware"
 
@@ -116,7 +116,7 @@ module "attacker-simulation-attacker-exec-docker-composite-compromised-credentia
   source        = "./modules/ssm/execute-docker-composite-compromised-credentials"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_compromised_keys"
 
@@ -142,7 +142,7 @@ module "attacker-simulation-attacker-exec-docker-composite-defense-evasion" {
   source        = "./modules/ssm/execute-docker-composite-defense-evasion"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_defense_evasion"
 
@@ -166,7 +166,7 @@ module "attacker-simulation-attacker-exec-docker-composite-defense-evasion" {
 module "attacker-ssm-execute-docker-composite-guardduty" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_composite_guardduty.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-composite-guardduty"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
   
@@ -184,7 +184,7 @@ module "attacker-simulation-attacker-exec-docker-composite-host-cryptomining" {
   source        = "./modules/ssm/execute-docker-composite-host-cryptomining"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_docker_host_cryptomining"
 
@@ -209,7 +209,7 @@ module "attacker-simulation-attacker-exec-docker-composite-host-cryptomining" {
 module "attacker-ssm-execute-docker-hydra-external" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
   
@@ -236,7 +236,7 @@ module "attacker-ssm-execute-docker-hydra-external" {
 module "attacker-ssm-execute-docker-hydra-internal" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
   
@@ -286,7 +286,7 @@ module "attacker-ssm-execute-docker-exploit-log4j" {
 module "attacker-ssm-execute-docker-nmap-attacker" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
 
@@ -309,7 +309,7 @@ module "attacker-ssm-execute-docker-nmap-attacker" {
 module "attacker-ssm-execute-docker-nmap-target" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
 
@@ -332,7 +332,7 @@ module "attacker-ssm-execute-docker-nmap-target" {
 module "attacker-ssm-execute-generate-aws-cli-traffic-attacker" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-aws-cli-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
 
@@ -351,7 +351,7 @@ module "attacker-ssm-execute-generate-aws-cli-traffic-attacker" {
 module "attacker-ssm-execute-generate-aws-cli-traffic-target" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-aws-cli-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
 
@@ -369,7 +369,7 @@ module "attacker-ssm-execute-generate-aws-cli-traffic-target" {
 module "attacker-ssm-execute-generate-web-traffic-attacker" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-web-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
   
@@ -386,7 +386,7 @@ module "attacker-ssm-execute-generate-web-traffic-attacker" {
 module "attacker-ssm-execute-generate-web-traffic-target" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-web-traffic"
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
   
@@ -518,7 +518,7 @@ module "attacker-ssm-responder-reverse-shell-multistage" {
   source        = "./modules/ssm/responder-reverse-shell-multistage"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_reverse_shell_multistage_attacker"
 
@@ -543,7 +543,7 @@ module "attacker-ssm-connect-ssh-shell-multistage" {
   source        = "./modules/ssm/connect-ssh-shell-multistage"
   environment   = local.attacker_attacksimulate_config.context.global.environment
   deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  region        = local.default_infrastructure_config.context.aws.region
+  region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_connect_ssh_shell_multistage_attacker"
 
