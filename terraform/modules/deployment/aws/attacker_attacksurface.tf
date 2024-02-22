@@ -96,7 +96,7 @@ module "attacker-ec2-add-trusted-ingress" {
     module.attacker-ec2,
     module.target-ec2,
     module.attacker-eks,
-    module.targte-eks,
+    module.target-eks,
   ]
 
   providers = {
@@ -133,7 +133,7 @@ module "attacker-ec2-add-trusted-ingress-app" {
     module.attacker-ec2,
     module.target-ec2,
     module.attacker-eks,
-    module.targte-eks,
+    module.target-eks,
   ]
 
   providers = {
@@ -446,7 +446,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
   region                        = local.attacker_infrastructure_config.context.aws.region
   cluster_vpc_id                = module.attacker-eks[0].cluster_vpc_id
-  secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+  secret_credentials            = try(module.attacker-iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
 
   vote_service_port             = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
   result_service_port           = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
