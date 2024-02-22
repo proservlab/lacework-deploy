@@ -61,15 +61,15 @@ resource "restapi_object" "record" {
   data          = var.record.recordType == "CNAME" ? jsonencode({
     nodeName    = var.record.recordName
     recordType  = var.record.recordType
-    ttl         = "90"
-    state       = "true"
+    ttl         = 90
+    state       = true
     group       = ""
     host        = var.record.recordValue
   }) : jsonencode({
     nodeName    = var.record.recordName
     recordType  = var.record.recordType
-    ttl         = "90"
-    state       = "true"
+    ttl         = 90
+    state       = true
     group       = ""
     ipv4Address = var.record.recordValue
   })
