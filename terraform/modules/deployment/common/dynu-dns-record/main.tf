@@ -17,7 +17,7 @@ data "http" "dynu_domain_id" {
 
   lifecycle {
     postcondition {
-      condition     = contains([200], self.status_code)
+      condition     = contains([200], self.status_code) && try(length(self.request_body)>0, false)
       error_message = "Status code invalid"
     }
   }
