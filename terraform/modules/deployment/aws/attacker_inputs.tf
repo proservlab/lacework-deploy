@@ -6,11 +6,11 @@ variable "attacker_infrastructure_config" {
   type = any
   description = "Schema defined in modules/context/infrastructure"
 }
-variable "attacker_surface_config" {
+variable "attacker_attacksurface_config" {
   type = any
   description = "Schema defined in modules/context/surface"
 }
-variable "attacker_simulate_config" {
+variable "attacker_attacksimulate_config" {
   type = any
   description = "Schema defined in modules/context/simulate"
 }

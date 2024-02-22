@@ -1,27 +1,10 @@
-# ##################################################
-# # MODULE ID
-# ##################################################
-
-# module "id" {
-#   source = "../../../context/deployment"
-# }
-
-# ##################################################
-# # LOCALS
-# ##################################################
-
-# module "default-config" {
-#   source = "../../../context/attack/surface"
-# }
 
 # locals {
-#   config = try(length(var.config), {}) == {} ? module.default-config.config : var.config
+#   attacker_attacksurface_config = var.attacker_attacksurface_config
   
-#   default_infrastructure_config = var.infrastructure.config[local.config.context.global.environment]
-#   attacker_infrastructure_config = var.infrastructure.config["attacker"]
-#   target_infrastructure_config = var.infrastructure.config["target"]
+#   default_infrastructure_config = var.infrastructure.config[local.attacker_attacksurface_config.context.global.environment]
   
-#   default_infrastructure_deployed = var.infrastructure.deployed_state[local.config.context.global.environment].context
+#   default_infrastructure_deployed = var.infrastructure.deployed_state[local.attacker_attacksurface_config.context.global.environment].context
 #   attacker_infrastructure_deployed = var.infrastructure.deployed_state["attacker"].context
 #   target_infrastructure_deployed = var.infrastructure.deployed_state["target"].context
 
@@ -86,14 +69,14 @@
 
 # # create iam users
 # module "iam" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.iam.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.iam.enabled == true ) ? 1 : 0
 #   source      = "./modules/iam"
-#   environment       = local.config.context.global.environment
-#   deployment        = local.config.context.global.deployment
+#   environment       = local.attacker_attacksurface_config.context.global.environment
+#   deployment        = local.attacker_attacksurface_config.context.global.deployment
 #   region            = local.default_infrastructure_config.context.aws.region
 
-#   user_policies     = jsondecode(templatefile(local.config.context.aws.iam.user_policies_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
-#   users             = jsondecode(templatefile(local.config.context.aws.iam.users_path, { environment = local.config.context.global.environment, deployment = local.config.context.global.deployment }))
+#   user_policies     = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_policies_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
+#   users             = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.users_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
 # }
 
 # ##################################################
@@ -102,55 +85,55 @@
 
 # # append ingress rules
 # module "ec2-add-trusted-ingress" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
 #   source        = "./modules/ec2-surface/add-trusted-ingress"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
   
 #   security_group_id             = local.default_public_sg
-#   trusted_attacker_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled = length(local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
-#   trusted_tcp_ports             = local.config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.additional_trusted_sources
+#   trusted_tcp_ports             = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trusted_tcp_ports
 # }
 
 # module "ec2-add-trusted-ingress-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
 #   source        = "./modules/ec2/add-trusted-ingress"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
   
 #   security_group_id             = local.default_public_app_sg
-#   trusted_attacker_source_enabled       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
+#   trusted_attacker_source_enabled       = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled = length(local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources
-#   trusted_tcp_ports             = local.config.context.aws.ec2.add_app_trusted_ingress.trusted_tcp_ports
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.additional_trusted_sources
+#   trusted_tcp_ports             = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trusted_tcp_ports
 # }
 
 # ##################################################
@@ -158,41 +141,41 @@
 # ##################################################
 
 # module "ssh-keys" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-ssh-keys"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
 
 #   public_tag = "ssm_deploy_secret_ssh_public"
 #   private_tag = "ssm_deploy_secret_ssh_private"
 
-#   ssh_public_key_path = local.config.context.aws.ssm.ssh_keys.ssh_public_key_path
-#   ssh_private_key_path = local.config.context.aws.ssm.ssh_keys.ssh_private_key_path
-#   ssh_authorized_keys_path = local.config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
+#   ssh_public_key_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_public_key_path
+#   ssh_private_key_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_private_key_path
+#   ssh_authorized_keys_path = local.attacker_attacksurface_config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
 # }
 
 # module "ssh-user" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-ssh-user"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_ssh_user"
 
-#   username = local.config.context.aws.ssm.ssh_user.username
-#   password = local.config.context.aws.ssm.ssh_user.password
+#   username = local.attacker_attacksurface_config.context.aws.ssm.ssh_user.username
+#   password = local.attacker_attacksurface_config.context.aws.ssm.ssh_user.password
 # }
 
 # module "aws-credentials" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-aws-credentials"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
 
 #   tag = "ssm_deploy_secret_aws_credentials"
 
 #   compromised_credentials = var.compromised_credentials
-#   compromised_keys_user = local.config.context.aws.ssm.aws_credentials.compromised_keys_user
+#   compromised_keys_user = local.attacker_attacksurface_config.context.aws.ssm.aws_credentials.compromised_keys_user
 
 #   depends_on = [ module.iam ]
 # }
@@ -202,58 +185,58 @@
 # ##################################################
 
 # module "vulnerable-docker-log4j-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-docker-log4j-app"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_docker_log4j_app"
 
-#   listen_port = local.config.context.aws.ssm.vulnerable.docker.log4j_app.listen_port
+#   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.listen_port
 # }
 
 # module "vulnerable-log4j-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-log4j-app"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_log4j_app"
 
-#   listen_port = local.config.context.aws.ssm.vulnerable.log4j_app.listen_port
+#   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.listen_port
 # }
 
 # module "vulnerable-npm-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.npm_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.vulnerable.npm_app.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-npm-app"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_npm_app"
 
-#   listen_port = local.config.context.aws.ssm.vulnerable.npm_app.listen_port
+#   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.npm_app.listen_port
 # }
 
 # module "vulnerable-python3-twisted-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-python3-twisted-app"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_python3_twisted_app"
 
-#   listen_port = local.config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
+#   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
 # }
 
 # module "vulnerable-rds-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.aws.ssm.vulnerable.rds_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.aws.ssm.vulnerable.rds_app.enabled == true ) ? 1 : 0
 #   source = "./modules/ssm/deploy-rds-app"
-#   environment = local.config.context.global.environment
-#   deployment  = local.config.context.global.deployment
+#   environment = local.attacker_attacksurface_config.context.global.environment
+#   deployment  = local.attacker_attacksurface_config.context.global.deployment
   
 #   tag = "ssm_deploy_rds_app"
 
-#   listen_port = local.config.context.aws.ssm.vulnerable.rds_app.listen_port
+#   listen_port = local.attacker_attacksurface_config.context.aws.ssm.vulnerable.rds_app.listen_port
 
 #   db_host = local.db_host
 #   db_name = local.db_name
@@ -270,16 +253,16 @@
 
 # # assign iam user cluster readonly role
 # module "eks-auth" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.attacker_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.attacker_attacksurface_config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.attacker_attacksurface_config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
 #   source      = "./modules/eks/eks-auth"
-#   environment       = local.config.context.global.environment
-#   deployment        = local.config.context.global.deployment
+#   environment       = local.attacker_attacksurface_config.context.global.environment
+#   deployment        = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_name      = local.cluster_name
 
 #   # user here needs to be created by iam module
-#   iam_eks_readers = local.config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
-#   iam_eks_admins = local.config.context.aws.eks.add_iam_user_admin_user.iam_user_names
-#   custom_cluster_roles = local.config.context.aws.eks.custom_cluster_roles
+#   iam_eks_readers = local.attacker_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.iam_user_names
+#   iam_eks_admins = local.attacker_attacksurface_config.context.aws.eks.add_iam_user_admin_user.iam_user_names
+#   custom_cluster_roles = local.attacker_attacksurface_config.context.aws.eks.custom_cluster_roles
   
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -297,10 +280,10 @@
 # ##################################################
 
 # module "kubernetes-reloader" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/common/reloader"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -316,40 +299,40 @@
 
 # # example of pushing kubernetes deployment via terraform
 # module "kubernetes-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.app.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/aws/app"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
 #   container_port                = 80 
-#   service_port                  = local.config.context.kubernetes.aws.app.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.app.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.app.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.app.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip,
 #   ])  : []
-#   trusted_target_source_enabled  = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled  = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled    = local.config.context.kubernetes.aws.app.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.app.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
-#   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.app.additional_trusted_sources) > 0 ? true: false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.app.additional_trusted_sources
+#   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.kubernetes.aws.app.additional_trusted_sources) > 0 ? true: false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.app.additional_trusted_sources
 
-#   image                         = local.config.context.kubernetes.aws.app.image
-#   command                       = local.config.context.kubernetes.aws.app.command
-#   args                          = local.config.context.kubernetes.aws.app.args
-#   privileged                    = local.config.context.kubernetes.aws.app.privileged
-#   allow_privilege_escalation    = local.config.context.kubernetes.aws.app.allow_allow_privilege_escalation
+#   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.app.image
+#   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.app.command
+#   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.app.args
+#   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.app.privileged
+#   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.app.allow_allow_privilege_escalation
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.app
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.app
   
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -363,39 +346,39 @@
 # }
 
 # module "kubernetes-app-windows" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.app-windows.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/aws/app-windows"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-#   service_port                  = local.config.context.kubernetes.aws.app-windows.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.app-windows.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.app-windows.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.kubernetes.aws.app-windows.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.app-windows.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.app-windows.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.app-windows.additional_trusted_sources
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.app-windows.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.enable_dynu_dns
 
-#   image                         = local.config.context.kubernetes.aws.app-windows.image
-#   command                       = local.config.context.kubernetes.aws.app-windows.command
-#   args                          = local.config.context.kubernetes.aws.app-windows.args
-#   privileged                    = local.config.context.kubernetes.aws.app-windows.privileged
-#   allow_privilege_escalation    = local.config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
+#   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.image
+#   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.command
+#   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.args
+#   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.privileged
+#   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
   
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -413,36 +396,36 @@
 # ##################################################
 
 # module "vulnerable-kubernetes-voteapp" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.voteapp.enabled == true) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enabled == true) ? 1 : 0
 #   source                        = "../kubernetes/aws/voteapp"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   region                        = local.default_infrastructure_config.context.aws.region
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 #   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
 
-#   vote_service_port             = local.config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
-#   result_service_port           = local.config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source ? flatten([
+#   vote_service_port             = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.vote_service_port
+#   result_service_port           = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.result_service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled  = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled  = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled    = length(local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled    = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -456,10 +439,10 @@
 # }
 
 # module "vulnerable-kubernetes-rdsapp" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.rdsapp.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.enabled == true ) ? 1 : 0
 #   source                              = "../kubernetes/aws/rdsapp"
-#   environment                         = local.config.context.global.environment
-#   deployment                          = local.config.context.global.deployment
+#   environment                         = local.attacker_attacksurface_config.context.global.environment
+#   deployment                          = local.attacker_attacksurface_config.context.global.deployment
 #   region                              = local.default_infrastructure_config.context.aws.region
 #   cluster_vpc_id                      = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
@@ -471,30 +454,30 @@
 #   cluster_openid_connect_provider_arn = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.arn
 #   cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
   
-#   service_port                        = local.config.context.kubernetes.aws.vulnerable.rdsapp.service_port
-#   trusted_attacker_source_enabled     = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source
-#   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source ? flatten([
+#   service_port                        = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.service_port
+#   trusted_attacker_source_enabled     = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source
+#   trusted_attacker_source             = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled  = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source
-#   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
+#   trusted_workstation_source_enabled  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source
+#   trusted_workstation_source          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled  = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.enable_dynu_dns
 
-#   privileged                    = local.config.context.kubernetes.aws.vulnerable.rdsapp.privileged
-#   allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
+#   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.privileged
+#   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
 
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -508,40 +491,40 @@
 # }
 
 # module "vulnerable-kubernetes-log4j-app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.log4j_app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.enabled == true ) ? 1 : 0
 #   source                        = "../kubernetes/aws/log4j-app"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
 #   container_port                = 8080 
-#   service_port                  = local.config.context.kubernetes.aws.vulnerable.log4j_app.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.log4j_app.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.enable_dynu_dns
 
-#   image                         = local.config.context.kubernetes.aws.vulnerable.log4j_app.image
-#   command                       = local.config.context.kubernetes.aws.vulnerable.log4j_app.command
-#   args                          = local.config.context.kubernetes.aws.vulnerable.log4j_app.args
-#   privileged                    = local.config.context.kubernetes.aws.vulnerable.log4j_app.privileged
-#   allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
+#   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.image
+#   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.command
+#   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.args
+#   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.privileged
+#   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
 
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -555,39 +538,39 @@
 # }
 
 # module "vulnerable-kubernetes-privileged-pod" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/aws/privileged-pod"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-#   service_port                  = local.config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.privileged_pod.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.enable_dynu_dns
 
-#   image                         = local.config.context.kubernetes.aws.vulnerable.privileged_pod.image
-#   command                       = local.config.context.kubernetes.aws.vulnerable.privileged_pod.command
-#   args                          = local.config.context.kubernetes.aws.vulnerable.privileged_pod.args
-#   privileged                    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.privileged
-#   allow_privilege_escalation    = local.config.context.kubernetes.aws.vulnerable.privileged_pod.allow_allow_privilege_escalation
+#   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.image
+#   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.command
+#   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.args
+#   privileged                    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.privileged
+#   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.allow_allow_privilege_escalation
 
 
 #   providers = {
@@ -602,37 +585,37 @@
 # }
 
 # module "vulnerable-kubernetes-root-mount-fs-pod" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/aws/root-mount-fs-pod"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
-#   service_port                  = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
+#   trusted_workstation_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled  = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enable_dynu_dns
 
-#   image                         = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
-#   command                       = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.command
-#   args                          = local.config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
+#   image                         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.image
+#   command                       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.command
+#   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
   
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -646,10 +629,10 @@
 # }
 
 # module "vulnerable-kubernetes-s3app" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.s3app.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.enabled == true ) ? 1 : 0
 #   source                              = "../kubernetes/aws/s3app"
-#   environment                         = local.config.context.global.environment
-#   deployment                          = local.config.context.global.deployment
+#   environment                         = local.attacker_attacksurface_config.context.global.environment
+#   deployment                          = local.attacker_attacksurface_config.context.global.deployment
 #   region                              = local.default_infrastructure_config.context.aws.region
 #   cluster_vpc_id                      = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
@@ -662,30 +645,30 @@
 #   cluster_openid_connect_provider_url = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_openid_connect_provider.url
   
 #   container_port                      = 80 
-#   service_port                        = local.config.context.kubernetes.aws.vulnerable.s3app.service_port
-#   trusted_attacker_source_enabled     = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source
-#   trusted_attacker_source             = local.config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source ? flatten([
+#   service_port                        = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.service_port
+#   trusted_attacker_source_enabled     = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source
+#   trusted_attacker_source             = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled  = local.config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source
-#   trusted_workstation_source          = local.config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
-#   additional_trusted_sources_enabled  = length(local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources          = local.config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
+#   trusted_workstation_source_enabled  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source
+#   trusted_workstation_source          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+#   additional_trusted_sources_enabled  = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.additional_trusted_sources
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.s3app.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.enable_dynu_dns
 
-#   user_password = local.config.context.kubernetes.aws.vulnerable.s3app.user_password
-#   admin_password = local.config.context.kubernetes.aws.vulnerable.s3app.admin_password
+#   user_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.user_password
+#   admin_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.admin_password
 
 #   providers = {
 #     kubernetes = kubernetes.main
@@ -700,37 +683,37 @@
 
 # # example of pushing kubernetes deployment via terraform
 # module "vulnerable-kubernetes-authapp" {
-#   count = (local.config.context.global.enable_all == true) || (local.config.context.global.disable_all != true && local.config.context.kubernetes.aws.vulnerable.authapp.enabled == true ) ? 1 : 0
+#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enabled == true ) ? 1 : 0
 #   source      = "../kubernetes/aws/authapp"
-#   environment                   = local.config.context.global.environment
-#   deployment                    = local.config.context.global.deployment
+#   environment                   = local.attacker_attacksurface_config.context.global.environment
+#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 #   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
 
 #   container_port                = 80 
-#   service_port                  = local.config.context.kubernetes.aws.vulnerable.authapp.service_port
-#   trusted_attacker_source_enabled = local.config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source
-#   trusted_attacker_source       = local.config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source ? flatten([
+#   service_port                  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.service_port
+#   trusted_attacker_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source
+#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.trust_attacker_source ? flatten([
 #     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
 #     local.attacker_eks_public_ip,
 #   ])  : []
-#   trusted_target_source_enabled = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source
-#   trusted_target_source         = local.config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+#   trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
+#   trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
 #     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
 #     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
 #     local.target_eks_public_ip
 #   ]) : []
-#   trusted_workstation_source_enabled    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source
-#   trusted_workstation_source    = local.config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
-#   additional_trusted_sources_enabled = length(local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources) > 0 ? true : false
-#   additional_trusted_sources    = local.config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources
+#   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source
+#   trusted_workstation_source    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+#   additional_trusted_sources_enabled = length(local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources) > 0 ? true : false
+#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.additional_trusted_sources
 
-#   user_password = local.config.context.kubernetes.aws.vulnerable.authapp.user_password
-#   admin_password = local.config.context.kubernetes.aws.vulnerable.authapp.admin_password
+#   user_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.user_password
+#   admin_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.admin_password
 
 #   dynu_dns_domain_id = local.default_infrastructure_config.context.dynu_dns.domain_id
 #   dynu_dns_domain = local.default_infrastructure_config.context.dynu_dns.dns_domain
-#   enable_dynu_dns = local.config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
+#   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
   
 #   providers = {
 #     kubernetes = kubernetes.main
