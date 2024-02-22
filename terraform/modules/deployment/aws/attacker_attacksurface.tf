@@ -314,8 +314,9 @@ module "attacker-eks-auth" {
   ]
 
   providers = {
-    kubernetes = kubernetes.attacker
-    helm = helm.attacker
+    aws         = aws.attacker
+    kubernetes  = kubernetes.attacker
+    helm        = helm.attacker
   }                  
 }
 
@@ -335,6 +336,7 @@ module "attacker-kubernetes-reloader" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
   }
@@ -384,6 +386,7 @@ module "attacker-kubernetes-app" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -431,6 +434,7 @@ module "attacker-kubernetes-app-windows" {
   ] 
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -479,6 +483,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -532,6 +537,7 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -580,6 +586,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -627,6 +634,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -672,6 +680,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -726,6 +735,7 @@ module "attacker-vulnerable-kubernetes-s3app" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker
@@ -772,6 +782,7 @@ module "attacker-vulnerable-kubernetes-authapp" {
   ]
 
   providers = {
+    aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
     restapi = restapi.attacker

@@ -311,6 +311,7 @@ module "target-eks-auth" {
   ]                  
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
   }
@@ -332,6 +333,7 @@ module "target-kubernetes-reloader" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
   }
@@ -381,6 +383,7 @@ module "target-kubernetes-app" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -428,6 +431,7 @@ module "target-kubernetes-app-windows" {
   ] 
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -476,6 +480,7 @@ module "target-vulnerable-kubernetes-voteapp" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -529,6 +534,7 @@ module "target-vulnerable-kubernetes-rdsapp" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -577,6 +583,7 @@ module "target-vulnerable-kubernetes-log4j-app" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -625,6 +632,7 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -670,6 +678,7 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -724,6 +733,7 @@ module "target-vulnerable-kubernetes-s3app" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
@@ -770,6 +780,7 @@ module "target-vulnerable-kubernetes-authapp" {
   ]
 
   providers = {
+    aws         = aws.target
     kubernetes = kubernetes.target
     helm = helm.target
     restapi = restapi.target
