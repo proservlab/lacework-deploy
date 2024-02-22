@@ -1,6 +1,6 @@
 locals {
   dynu_api = "https://api.dynu.com/v2/dns"
-  dynu_domains_response = jsondecode(data.http.dynu_domain_id.request_body)
+  dynu_domains_response = jsondecode(data.http.dynu_domain_id.response_body)
   dynu_domain_id = one([ for domain in local.dynu_domains_response["domains"]: domain.id if domain.name == var.dynu_dns_domain  ])
 }
 
@@ -21,7 +21,7 @@ data "http" "dynu_domain_id" {
 
   lifecycle {
     postcondition {
-      condition     = contains([200], self.status_code) && try(length(self.request_body)>0, false)
+      condition     = contains([200], self.status_code) && try(length(self.response_body)>0, false)
       error_message = "Status code invalid"
     }
   }
