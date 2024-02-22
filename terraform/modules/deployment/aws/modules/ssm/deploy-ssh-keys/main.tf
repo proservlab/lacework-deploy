@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../common/any/payload/linux/modules/deploy-ssh-keys"
+    source = "../../../../common/payloads/linux/modules/deploy-ssh-keys"
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
@@ -22,7 +22,7 @@ module "payload" {
 ###########################
 
 module "ssm-public" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.public_tag
@@ -36,7 +36,7 @@ module "ssm-public" {
 ###########################
 
 module "ssm-private" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.private_tag

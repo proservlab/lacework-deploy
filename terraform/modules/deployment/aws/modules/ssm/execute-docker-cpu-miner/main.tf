@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../common/any/payload/linux/modules/execute-docker-cpu-miner"
+    source = "../../../../common/payloads/linux/modules/execute-docker-cpu-miner"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -20,7 +20,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag

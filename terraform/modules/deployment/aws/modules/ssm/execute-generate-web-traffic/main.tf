@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../common/any/payload/linux/modules/execute-generate-web-traffic"
+    source = "../../../../common/payloads/linux/modules/execute-generate-web-traffic"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -19,7 +19,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag

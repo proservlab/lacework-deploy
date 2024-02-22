@@ -9,7 +9,7 @@ locals {
 }
 
 module "deployment" {
-  source        = "../terraform-kubernetes-deployment-master"
+  source        = "../../../common/terraform-kubernetes-deployment-master"
   namespace = local.app_namespace
   image     = "${aws_ecr_repository.repo.repository_url}:${data.external.hash.result["hash"]}"
   name      = local.app_name

@@ -3,5 +3,5 @@
 ##################################################
 
 module "workstation-external-ip" {
-  source       = "../general/workstation-external-ip"
+  source       = "../common/workstation-external-ip"
 }

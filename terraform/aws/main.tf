@@ -42,8 +42,8 @@ module "aws-deployment" {
   
   # attacker
   attacker_infrastructure_config       = module.attacker-infrastructure-context.config
-  attacker_attacksurface_config              = module.attacker-attacksurface-context.config
-  attacker_attacksimulate_config             = module.attacker-attacksimulation-context.config
+  attacker_attacksurface_config        = module.attacker-attacksurface-context.config
+  attacker_attacksimulate_config       = module.attacker-attacksimulation-context.config
   attacker_aws_profile                 = var.attacker_aws_profile
   attacker_aws_region                  = var.attacker_aws_region
   attacker_kubeconfig                  = local.attacker_kubeconfig_path
@@ -61,8 +61,8 @@ module "aws-deployment" {
 
   # target
   target_infrastructure_config        = module.target-infrastructure-context.config
-  target_attacksurface_config               = module.target-attacksurface-context.config
-  target_attacksimulate_config              = module.target-attacksimulation-context.config
+  target_attacksurface_config         = module.target-attacksurface-context.config
+  target_attacksimulate_config        = module.target-attacksimulation-context.config
   target_aws_profile                  = var.target_aws_profile
   target_aws_region                   = var.target_aws_region
   target_kubeconfig                   = local.target_kubeconfig_path

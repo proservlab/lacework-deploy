@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../common/any/payload/linux/modules/deploy-rds-app"
+    source = "../../../../common/payloads/linux/modules/deploy-rds-app"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
@@ -23,7 +23,7 @@ module "payload" {
 ###########################
 
 module "ssm" {
-    source          = "../../../../../common/aws/ssm/base"
+    source          = "../base"
     environment     = var.environment
     deployment      = var.deployment
     tag             = var.tag
