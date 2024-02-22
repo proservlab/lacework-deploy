@@ -383,6 +383,7 @@ module "target-kubernetes-app" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -429,6 +430,7 @@ module "target-kubernetes-app-windows" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -476,6 +478,7 @@ module "target-vulnerable-kubernetes-voteapp" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -528,6 +531,7 @@ module "target-vulnerable-kubernetes-rdsapp" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -575,6 +579,7 @@ module "target-vulnerable-kubernetes-log4j-app" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -622,6 +627,7 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -666,6 +672,7 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -719,6 +726,7 @@ module "target-vulnerable-kubernetes-s3app" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }
 
@@ -764,5 +772,6 @@ module "target-vulnerable-kubernetes-authapp" {
   providers = {
     kubernetes = kubernetes.target
     helm = helm.target
+    restapi = restapi.target
   }
 }

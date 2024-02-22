@@ -386,6 +386,7 @@ module "attacker-kubernetes-app" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -432,6 +433,7 @@ module "attacker-kubernetes-app-windows" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -479,6 +481,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -531,6 +534,7 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -578,6 +582,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -624,6 +629,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -668,6 +674,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -721,6 +728,7 @@ module "attacker-vulnerable-kubernetes-s3app" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
 
@@ -766,5 +774,6 @@ module "attacker-vulnerable-kubernetes-authapp" {
   providers = {
     kubernetes = kubernetes.attacker
     helm = helm.attacker
+    restapi = restapi.attacker
   }
 }
