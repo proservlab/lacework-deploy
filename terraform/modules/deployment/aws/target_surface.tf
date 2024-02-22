@@ -46,7 +46,7 @@ locals {
 ##################################################
 
 # create iam users
-module "iam" {
+module "target-iam" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.iam.enabled == true ) ? 1 : 0
   source      = "./modules/iam"
   environment       = local.target_attacksurface_config.context.global.environment
@@ -62,7 +62,7 @@ module "iam" {
 ##################################################
 
 # append ingress rules
-module "ec2-add-trusted-ingress" {
+module "target-ec2-add-trusted-ingress" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ec2.add_trusted_ingress.enabled == true ) ? 1 : 0
   source        = "./modules/ec2-surface/add-trusted-ingress"
   environment                           = local.target_attacksurface_config.context.global.environment
@@ -95,7 +95,7 @@ module "ec2-add-trusted-ingress" {
   ]
 }
 
-module "ec2-add-trusted-ingress-app" {
+module "target-ec2-add-trusted-ingress-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.enabled == true ) ? 1 : 0
   source        = "./modules/ec2/add-trusted-ingress"
   environment                           = local.target_attacksurface_config.context.global.environment
@@ -132,7 +132,7 @@ module "ec2-add-trusted-ingress-app" {
 # AWS SSM
 ##################################################
 
-module "ssh-keys" {
+module "target-ssh-keys" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.ssh_keys.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-ssh-keys"
   environment = local.target_attacksurface_config.context.global.environment
@@ -146,7 +146,7 @@ module "ssh-keys" {
   ssh_authorized_keys_path = local.target_attacksurface_config.context.aws.ssm.ssh_keys.ssh_authorized_keys_path
 }
 
-module "ssh-user" {
+module "target-ssh-user" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.ssh_user.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-ssh-user"
   environment = local.target_attacksurface_config.context.global.environment
@@ -158,7 +158,7 @@ module "ssh-user" {
   password = local.target_attacksurface_config.context.aws.ssm.ssh_user.password
 }
 
-module "aws-credentials" {
+module "target-aws-credentials" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.aws_credentials.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-aws-credentials"
   environment = local.target_attacksurface_config.context.global.environment
@@ -179,7 +179,7 @@ module "aws-credentials" {
 # AWS SSM: Vulnerable Apps
 ##################################################
 
-module "vulnerable-docker-log4j-app" {
+module "target-vulnerable-docker-log4j-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-docker-log4j-app"
   environment = local.target_attacksurface_config.context.global.environment
@@ -190,7 +190,7 @@ module "vulnerable-docker-log4j-app" {
   listen_port = local.target_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.listen_port
 }
 
-module "vulnerable-log4j-app" {
+module "target-vulnerable-log4j-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-log4j-app"
   environment = local.target_attacksurface_config.context.global.environment
@@ -201,7 +201,7 @@ module "vulnerable-log4j-app" {
   listen_port = local.target_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.listen_port
 }
 
-module "vulnerable-npm-app" {
+module "target-vulnerable-npm-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.vulnerable.npm_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-npm-app"
   environment = local.target_attacksurface_config.context.global.environment
@@ -212,7 +212,7 @@ module "vulnerable-npm-app" {
   listen_port = local.target_attacksurface_config.context.aws.ssm.vulnerable.npm_app.listen_port
 }
 
-module "vulnerable-python3-twisted-app" {
+module "target-vulnerable-python3-twisted-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.vulnerable.python3_twisted_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-python3-twisted-app"
   environment = local.target_attacksurface_config.context.global.environment
@@ -223,7 +223,7 @@ module "vulnerable-python3-twisted-app" {
   listen_port = local.target_attacksurface_config.context.aws.ssm.vulnerable.python3_twisted_app.listen_port
 }
 
-module "vulnerable-rds-app" {
+module "target-vulnerable-rds-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.aws.ssm.vulnerable.rds_app.enabled == true ) ? 1 : 0
   source = "./modules/ssm/deploy-rds-app"
   environment = local.target_attacksurface_config.context.global.environment
@@ -251,7 +251,7 @@ module "vulnerable-rds-app" {
 ##################################################
 
 # assign iam user cluster readonly role
-module "eks-auth" {
+module "target-eks-auth" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.default_infrastructure_config.context.aws.eks.enabled == true && (local.target_attacksurface_config.context.aws.eks.add_iam_user_readonly_user.enabled == true || local.target_attacksurface_config.context.aws.eks.add_iam_user_admin_user.enabled == true || length([ for role in local.target_attacksurface_config.context.aws.eks.custom_cluster_roles: role.enabled if role.enabled == true ]) > 0 )) ? 1 : 0
   source      = "./modules/eks/eks-auth"
   environment       = local.target_attacksurface_config.context.global.environment
@@ -278,7 +278,7 @@ module "eks-auth" {
 # Kubernetes General
 ##################################################
 
-module "kubernetes-reloader" {
+module "target-kubernetes-reloader" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
   source      = "../kubernetes/common/reloader"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -297,7 +297,7 @@ module "kubernetes-reloader" {
 
 
 # example of pushing kubernetes deployment via terraform
-module "kubernetes-app" {
+module "target-kubernetes-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.app.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes-app"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -344,7 +344,7 @@ module "kubernetes-app" {
   ]
 }
 
-module "kubernetes-app-windows" {
+module "target-kubernetes-app-windows" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.app-windows.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes-app-windows"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -394,7 +394,7 @@ module "kubernetes-app-windows" {
 # Kubernetes AWS Vulnerable
 ##################################################
 
-module "vulnerable-kubernetes-voteapp" {
+module "target-vulnerable-kubernetes-voteapp" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enabled == true) ? 1 : 0
   source                        = "./modules/kubernetes-voteapp"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -437,7 +437,7 @@ module "vulnerable-kubernetes-voteapp" {
   ]
 }
 
-module "vulnerable-kubernetes-rdsapp" {
+module "target-vulnerable-kubernetes-rdsapp" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.enabled == true ) ? 1 : 0
   source                              = "./modules/kubernetes-rdsapp"
   environment                         = local.target_attacksurface_config.context.global.environment
@@ -489,7 +489,7 @@ module "vulnerable-kubernetes-rdsapp" {
   ]
 }
 
-module "vulnerable-kubernetes-log4j-app" {
+module "target-vulnerable-kubernetes-log4j-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.enabled == true ) ? 1 : 0
   source                        = "./modules/kubernetes-log4j-app"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -536,7 +536,7 @@ module "vulnerable-kubernetes-log4j-app" {
   ]
 }
 
-module "vulnerable-kubernetes-privileged-pod" {
+module "target-vulnerable-kubernetes-privileged-pod" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes-privileged-pod"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -583,7 +583,7 @@ module "vulnerable-kubernetes-privileged-pod" {
   ]
 }
 
-module "vulnerable-kubernetes-root-mount-fs-pod" {
+module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes-root-mount-fs-pod"
   environment                   = local.target_attacksurface_config.context.global.environment
@@ -627,7 +627,7 @@ module "vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 }
 
-module "vulnerable-kubernetes-s3app" {
+module "target-vulnerable-kubernetes-s3app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.enabled == true ) ? 1 : 0
   source                              = "./modules/kubernetes-s3app"
   environment                         = local.target_attacksurface_config.context.global.environment
@@ -681,7 +681,7 @@ module "vulnerable-kubernetes-s3app" {
 }
 
 # example of pushing kubernetes deployment via terraform
-module "vulnerable-kubernetes-authapp" {
+module "target-vulnerable-kubernetes-authapp" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enabled == true ) ? 1 : 0
   source      = "./modules/kubernetes-authapp"
   environment                   = local.target_attacksurface_config.context.global.environment
