@@ -49,7 +49,7 @@ provider "restapi" {
   debug                = true
 
   headers = {
-    "API-Key" = try(local.attacker_infrastructure_config.context.dynu_dns.api_key, ""),
+    "X-Auth-Token" = var.attacker_dynu_api_key,
     "Content-Type" = "application/json",
     "accept" = "application/json"
   }
@@ -66,7 +66,7 @@ provider "restapi" {
   debug                = true
 
   headers = {
-    "API-Key" = try(local.target_infrastructure_config.context.dynu_dns.api_key, ""),
+    "X-Auth-Token" = var.target_dynu_api_key
     "Content-Type" = "application/json",
     "accept" = "application/json"
   }

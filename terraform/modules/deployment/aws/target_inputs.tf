@@ -77,3 +77,13 @@ variable "target_protonvpn_protocol" {
   description = "protonvpn protocol"
   default     = "udp"
 }
+variable "target_dynu_api_key" {
+  type = string
+  description = "dynu dns api key"
+  default = null
+}
+variable "target_dynu_dns_domain " {
+  type = string
+  description = "dynu dns domain"
+  default = null
+}
