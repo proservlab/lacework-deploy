@@ -30,14 +30,26 @@ data "http" "dynu_domain_id" {
 resource "restapi_object" "record" {
   path          = "/dns/${local.dynu_domain_id}/record"
   destroy_data  = ""
-  data          = jsonencode({
+  data          = var.record.recordType == "CNAME" ? jsonencode({
     nodeName    = var.record.recordName
     recordType  = var.record.recordType
     ttl         = "90"
     state       = "true"
     group       = ""
-    host        = var.record.recordType == "CNAME" ? var.record.recordValue : null
-    ipv4Address = var.record.recordType == "A" ? var.record.recordValue : null
+    host        = var.record.recordValue
+  }) : jsonencode({
+    nodeName    = var.record.recordName
+    recordType  = var.record.recordType
+    ttl         = "90"
+    state       = "true"
+    group       = ""
+    ipv4Address = var.record.recordValue
   })
   id_attribute  = "id"
+
+  force_new = [ 
+    var.record.recordName,
+    var.record.recordValue,
+    var.record.recordType
+  ]
 }
