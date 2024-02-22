@@ -1,11 +1,8 @@
 locals {
   target_attacksurface_config = var.target_attacksurface_config
-
-  target_eks_public_ip = try(["${local.target_infrastructure_deployed.aws.eks[0].cluster_nat_public_ip}/32"],[])
-  
+  target_eks_public_ip = try(["${module.target-eks[0].cluster_nat_public_ip}/32"],[])
   target_public_sg = try(module.target-ec2[0].public_sg.id, null)
   target_public_app_sg = try(module.target-ec2[0].public_app_sg.id, null)
-
   target_db_host = try(module.target-rds[0].db_host, null)
   target_db_name = try(module.target-rds[0].db_name, null)
   target_db_user = try(module.target-rds[0].db_user, null)

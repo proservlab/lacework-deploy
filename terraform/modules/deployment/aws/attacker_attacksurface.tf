@@ -1,7 +1,7 @@
 
 locals {
   attacker_attacksurface_config = var.attacker_attacksurface_config
-  attacker_eks_public_ip = try(["${local.attacker_infrastructure_deployed.aws.eks[0].cluster_nat_public_ip}/32"],[])
+  attacker_eks_public_ip = try(["${module.attacker-eks[0].cluster_nat_public_ip}/32"],[])
   attacker_public_sg = try(module.attacker-ec2[0].public_sg.id, null)
   attacker_public_app_sg = try(module.attacker-ec2[0].public_app_sg.id, null)
   attacker_db_host = try(module.attacker-rds[0].db_host, null)
