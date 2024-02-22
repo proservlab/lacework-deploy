@@ -3,6 +3,29 @@ locals {
   dynu_domains_response = jsondecode(data.http.dynu_domain_id.response_body)
   dynu_domain_id = one([ for domain in local.dynu_domains_response["domains"]: domain.id if domain.name == var.dynu_dns_domain  ])
   dynu_records_response  = jsondecode(data.http.dynu_records.response_body)
+  data = var.record.recordType == "CNAME" ? jsonencode({
+    nodeName    = var.record.recordName
+    recordType  = var.record.recordType
+    ttl         = 90
+    state       = true
+    group       = ""
+    host        = var.record.recordValue
+  }) : jsonencode({
+    nodeName    = var.record.recordName
+    recordType  = var.record.recordType
+    ttl         = 90
+    state       = true
+    group       = ""
+    ipv4Address = var.record.recordValue
+  })
+}
+
+resource "null_resource" "get_prometheus_ip" {
+  triggers  =  { always_run = "${timestamp()}" }
+  provisioner "local-exec" {
+    command = "echo \"DNS Data: ${base64encode(local.data)}\""
+  }
+  depends_on = [ data.http.dynu_domain_id, data.http.dynu_records ]
 }
 
 data "http" "dynu_domain_id" {
@@ -60,21 +83,7 @@ resource "restapi_object" "record" {
   destroy_method = "DELETE"
   update_method = "POST"
 
-  data          = var.record.recordType == "CNAME" ? jsonencode({
-    nodeName    = var.record.recordName
-    recordType  = var.record.recordType
-    ttl         = 90
-    state       = true
-    group       = ""
-    host        = var.record.recordValue
-  }) : jsonencode({
-    nodeName    = var.record.recordName
-    recordType  = var.record.recordType
-    ttl         = 90
-    state       = true
-    group       = ""
-    ipv4Address = var.record.recordValue
-  })
+  data          = local.data
   id_attribute  = "id"
 
   force_new = [ 
