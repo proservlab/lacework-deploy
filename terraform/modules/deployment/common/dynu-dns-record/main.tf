@@ -15,7 +15,7 @@ data "http" "dynu_domain_id" {
     Content-Type = "application/json"
   }
 
-  rety {
+  retry {
     attempts = 3
   }
 
