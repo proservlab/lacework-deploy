@@ -80,5 +80,4 @@ module "aws-deployment" {
   target_protonvpn_protocol           = var.attacker_context_config_protonvpn_protocol # currently only attacker has proton vpn config defined - ideally we deprecate this
   target_dynu_api_key                 = var.target_dynu_api_key
   target_dynu_dns_domain              = var.target_dynu_dns_domain
-
 }
