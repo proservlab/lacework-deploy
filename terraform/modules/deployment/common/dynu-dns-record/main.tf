@@ -21,7 +21,10 @@ locals {
 }
 
 resource "null_resource" "get_prometheus_ip" {
-  triggers  =  { always_run = "${timestamp()}" }
+  triggers  =  { 
+    always_run = "${timestamp()}" 
+    "before" = "${restapi_object.record.id}"
+  }
   provisioner "local-exec" {
     command = "echo \"DNS Data: ${base64encode(local.data)}\""
   }
