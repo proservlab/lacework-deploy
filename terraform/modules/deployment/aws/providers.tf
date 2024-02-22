@@ -55,7 +55,8 @@ provider "restapi" {
   headers = {
     "API-Key" = var.attacker_dynu_api_key,
     "Content-Type" = "application/json",
-    "accept" = "application/json"
+    "accept" = "application/json",
+    "Cache-Control" =  "no-cache, no-store"
   }
 
   create_method  = "POST"
@@ -73,7 +74,8 @@ provider "restapi" {
   headers = {
     "API-Key" = var.target_dynu_api_key
     "Content-Type" = "application/json",
-    "accept" = "application/json"
+    "accept" = "application/json",
+    "Cache-Control" =  "no-cache, no-store"
   }
 
   create_method  = "POST"
