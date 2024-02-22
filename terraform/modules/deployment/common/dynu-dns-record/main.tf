@@ -15,6 +15,10 @@ data "http" "dynu_domain_id" {
     Content-Type = "application/json"
   }
 
+  rety {
+    attempts = 3
+  }
+
   lifecycle {
     postcondition {
       condition     = contains([200], self.status_code) && try(length(self.request_body)>0, false)
