@@ -23,7 +23,7 @@ locals {
 resource "null_resource" "log" {
   triggers  =  { 
     always_run = "${timestamp()}" 
-    "before" = "${data.http.dynu_records.response_body}"
+    "before" = "${local.data}"
   }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
