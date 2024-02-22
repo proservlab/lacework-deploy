@@ -44,7 +44,7 @@ provider "lacework" {
 }
 provider "restapi" {
   alias = "attacker"
-  uri                  = "https://api.dynu.com/v2"
+  uri                  = "https://api.dynu.com"
   write_returns_object = true
   debug                = true
 
@@ -61,7 +61,7 @@ provider "restapi" {
 
 provider "restapi" {
   alias = "target"
-  uri                  = "https://api.dynu.com/v2"
+  uri                  = "https://api.dynu.com"
   write_returns_object = true
   debug                = true
 

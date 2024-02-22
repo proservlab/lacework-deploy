@@ -3,7 +3,7 @@ locals {
 }
 
 data "restapi_object" "domain" {
-  path         = "/dns"
+  path         = "/v2/dns"
   search_key   = "name"
   search_value = var.dynu_dns_domain
   id_attribute = "id"
@@ -11,7 +11,7 @@ data "restapi_object" "domain" {
 }
 
 resource "restapi_object" "record" {
-  path          = "/dns/${data.restapi_object.domain.id}/record"
+  path          = "/v2/dns/${data.restapi_object.domain.id}/record"
   destroy_data  = ""
   data          = jsonencode({
     nodeName    = var.record.recordName
