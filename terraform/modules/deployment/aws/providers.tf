@@ -51,6 +51,7 @@ provider "restapi" {
   debug                = true
   id_attribute         = "id"
   timeout              = 900
+  rate_limit           = 1
 
   headers = {
     "API-Key" = var.attacker_dynu_api_key,
@@ -70,6 +71,7 @@ provider "restapi" {
   debug                = true
   id_attribute         = "id"
   timeout              = 900
+  rate_limit           = 1
 
   headers = {
     "API-Key" = var.target_dynu_api_key
