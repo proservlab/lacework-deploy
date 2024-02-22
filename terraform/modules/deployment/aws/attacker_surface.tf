@@ -276,7 +276,7 @@ module "eks-auth" {
 
 module "kubernetes-reloader" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.aws.reloader.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/common/reloader"
+  source      = "./modules/kubernetes-reloader"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 

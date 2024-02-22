@@ -1,12 +1,4 @@
 ##################################################
-# MODULE ID
-##################################################
-
-module "id" {
-  source = "../../../../../context/deployment"
-}
-
-##################################################
 # LOCALS
 ##################################################
 
@@ -22,7 +14,7 @@ resource "kubernetes_namespace" "this" {
 }
 
 module "deployment" {
-  source        = "../../common/terraform-kubernetes-deployment-master"
+  source        = "../terraform-kubernetes-deployment-master"
   namespace     = local.app_namespace
   image         = var.image
   name          = local.app_name

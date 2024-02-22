@@ -1,7 +1,3 @@
-output "id" {
-    value = module.id.id
-}
-
 output "services" {
     value = [
         {
