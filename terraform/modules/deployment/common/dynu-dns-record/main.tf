@@ -9,7 +9,7 @@ data "http" "dynu_domain_id" {
 
   # Optional request headers
   request_headers = {
-    API-Key = var.dynu_api_key
+    API-Key = "X2YXcfW5dc3d5Xbfcc6V5X4736W64345"
     Accept = "application/json"
     Content-Type = "application/json"
   }
