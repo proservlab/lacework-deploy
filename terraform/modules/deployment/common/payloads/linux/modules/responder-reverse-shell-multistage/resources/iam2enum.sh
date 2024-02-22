@@ -50,4 +50,4 @@ log "Account Number: $AWS_ACCOUNT_NUMBER"
 # cloud enumeration
 #######################
 
-scout aws --profile=$PROFILE --report-dir /root/scout-report --no-browser
+scout aws --profile=$PROFILE --report-dir /root/scout-report --no-browser | tee -a $LOGFILE
