@@ -50,14 +50,14 @@ provider "restapi" {
   write_returns_object = true
   debug                = true
   id_attribute         = "id"
-  timeout              = 900
-  rate_limit           = 1
+  timeout              = 600
 
   headers = {
-    "API-Key" = var.attacker_dynu_api_key,
-    "Content-Type" = "application/json",
-    "accept" = "application/json",
-    "Cache-Control" =  "no-cache, no-store"
+    API-Key = var.attacker_dynu_api_key
+    Content-Type = "application/json"
+    accept = "application/json"
+    Cache-Control =  "no-cache, no-store"
+    User-Agent = "curl/8.4.0"
   }
 
   create_method  = "POST"
@@ -70,14 +70,14 @@ provider "restapi" {
   write_returns_object = true
   debug                = true
   id_attribute         = "id"
-  timeout              = 900
-  rate_limit           = 1
+  timeout              = 600
 
   headers = {
-    "API-Key" = var.target_dynu_api_key
-    "Content-Type" = "application/json",
-    "accept" = "application/json",
-    "Cache-Control" =  "no-cache, no-store"
+    API-Key = var.target_dynu_api_key
+    Content-Type = "application/json"
+    accept = "application/json"
+    Cache-Control =  "no-cache, no-store"
+    User-Agent = "curl/8.4.0"
   }
 
   create_method  = "POST"

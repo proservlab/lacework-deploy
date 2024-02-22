@@ -82,8 +82,6 @@ data "http" "dynu_records" {
 
 resource "restapi_object" "record" {
   path          = "/dns/${local.dynu_domain_id}/record"
-  destroy_data  = ""
-  update_data   = ""
   create_method = "POST"
   destroy_method = "DELETE"
   update_method = "POST"
