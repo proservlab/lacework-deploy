@@ -356,7 +356,7 @@ module "target-lacework-gcp-agentless" {
 # lacework daemonset and kubernetes compliance
 module "target-lacework-daemonset" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.gcp.gke.enabled == true && local.target_infrastructure_config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
-  source                                = "./modules/kubernetes/daemonset"
+  source                                = "./modules/lacework-kubernetes-daemonset"
   cluster_name                          = "${local.target_infrastructure_config.context.gcp.gke.cluster_name}-${local.target_infrastructure_config.context.global.environment}-${local.target_infrastructure_config.context.global.deployment}"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
@@ -385,7 +385,7 @@ module "target-lacework-daemonset" {
 # lacework kubernetes admission controller
 module "target-lacework-admission-controller" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.gcp.gke.enabled == true && local.target_infrastructure_config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
-  source                = "./modules/kubernetes/admission-controller"
+  source                = "./modules/lacework-kubernetes-admission-controller"
   environment           = local.target_infrastructure_config.context.global.environment
   deployment            = local.target_infrastructure_config.context.global.deployment
   
@@ -407,7 +407,7 @@ module "target-lacework-admission-controller" {
 # lacework gke audit
 module "target-lacework-gke-audit" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.gcp.gke.enabled == true && local.target_infrastructure_config.context.lacework.agent.kubernetes.gke_audit_logs.enabled == true  ) ? 1 : 0
-  source                              = "./modules/gke-audit"
+  source                              = "./modules/lacework-gke-audit"
   environment                         = local.target_infrastructure_config.context.global.environment
   deployment                          = local.target_infrastructure_config.context.global.deployment
 
