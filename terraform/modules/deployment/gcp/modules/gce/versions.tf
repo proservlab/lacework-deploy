@@ -8,5 +8,9 @@ terraform {
       source = "hashicorp/google"
       version = "~> 4.84"
     }
+    restapi = {
+      source = "Mastercard/restapi"
+      version = "1.18.2"
+    }
   }
 }
