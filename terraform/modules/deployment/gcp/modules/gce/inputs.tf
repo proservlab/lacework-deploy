@@ -228,15 +228,15 @@ variable "enable_dynu_dns" {
   default = false
 }
 
-variable "dynu_dns_domain" {
+variable "dynu_api_key" {
   type = string
-  description = "The hostname you want to update"
+  description = "The api key for dynu domain"
   default = ""
 }
 
-variable "dynu_dns_domain_id" {
+variable "dynu_dns_domain" {
   type = string
-  description = "The domain id for dynu hostname you want to update"
+  description = "The hostname you want to update"
   default = ""
 }
 
