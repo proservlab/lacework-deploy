@@ -66,8 +66,8 @@ module "gcp-deployment" {
   target_infrastructure_config        = module.target-infrastructure-context.config
   target_attacksurface_config         = module.target-attacksurface-context.config
   target_attacksimulate_config        = module.target-attacksimulation-context.config
-  target_gcp_project                  = var.attacker_gcp_project
-  target_gcp_region                   = var.attacker_gcp_region
+  target_gcp_project                  = var.target_gcp_project
+  target_gcp_region                   = var.target_gcp_region
   target_kubeconfig                   = local.target_kubeconfig_path
   target_lacework_profile             = var.target_lacework_profile
   target_lacework_account_name        = var.target_lacework_account_name
