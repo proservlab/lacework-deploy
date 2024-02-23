@@ -26,9 +26,9 @@ locals {
       # deployment id
       deployment = var.deployment
 
-      # aws
-      aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-      aws_region  = var.attacker_aws_region
+      # gcp
+      gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      gcp_region  = var.attacker_gcp_region
 
       # dynu config
       dynu_api_key    = var.dynu_api_key
@@ -49,9 +49,9 @@ locals {
       # deployment id
       deployment = var.deployment
 
-      # aws
-      aws_profile = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-      aws_region  = var.target_aws_region
+      # gcp
+      gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      gcp_region  = var.target_gcp_region
 
       # dynu config
       dynu_api_key    = var.dynu_api_key
@@ -83,54 +83,14 @@ locals {
   attacker_infrastructure_override = {
     context = {
       lacework = {
-        aws_agentless = {
-          use_existing_vpc = length(flatten([
-            [
-              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
-            ],
-            [
-              for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
-            ],
-            ])) > 0 ? (
-            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
-            try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
-            ) : (
-            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
-            try(length(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
-              try(local.attacker_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
-              ) : (
-              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
-              false
-            )
-          )
-        }
+        
       }
     }
   }
   target_infrastructure_override = {
     context = {
       lacework = {
-        aws_agentless = {
-          use_existing_vpc = length(flatten([
-            [
-              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"
-            ],
-            [
-              for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"
-            ],
-            ])) > 0 ? (
-            # if vpcs will be created we can accept either true or false for use_existing_vpc from config
-            try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
-            ) : (
-            # if no vpcs will be created we should check to see if we have been passed a vpc id and allow true or false for use_existing_vpc from config
-            try(length(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["vpc_id"]), "false") != "false" ? (
-              try(local.target_infrastructure_temp_config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"], module.default-infrastructure-context.config["context"]["lacework"]["aws_agentless"]["use_existing_vpc"])
-              ) : (
-              # no vpc will be created and no vpc_id passed use_existing_vpc should be false
-              false
-            )
-          )
-        }
+        
       }
     }
   }
@@ -216,13 +176,13 @@ locals {
   target_attacksurface_temp_config   = jsondecode(local.target-attacksurface-config-file)
   attacker_attacksurface_override = {
     context = {
-      aws = {
-        ec2 = {
+      gcp = {
+        gce = {
           add_trusted_ingress = {
-            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
@@ -230,13 +190,13 @@ locals {
   }
   target_attacksurface_override = {
     context = {
-      aws = {
-        ec2 = {
+      gcp = {
+        gce = {
           add_trusted_ingress = {
-            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = length([for x in local.target_infrastructure_temp_config["context"]["aws"]["ec2"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["aws"]["ec2"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]) > 0 ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
@@ -296,11 +256,11 @@ locals {
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
-      # aws
-      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-      attacker_aws_region  = var.attacker_aws_region
-      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-      target_aws_region    = var.target_aws_region
+      # gcp
+      attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      attacker_gcp_region  = var.attacker_gcp_region
+      target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      target_gcp_region  = var.target_gcp_region
 
       # variables
       compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
@@ -325,11 +285,11 @@ locals {
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
-      # aws
-      attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
-      attacker_aws_region  = var.attacker_aws_region
-      target_aws_profile   = can(length(var.target_aws_profile)) ? var.target_aws_profile : ""
-      target_aws_region    = var.target_aws_region
+      # gcp
+      attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      attacker_gcp_region  = var.attacker_gcp_region
+      target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      target_gcp_region  = var.target_gcp_region
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
