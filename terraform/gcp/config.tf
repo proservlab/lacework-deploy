@@ -29,6 +29,8 @@ locals {
       # gcp
       gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       gcp_region  = var.attacker_gcp_region
+      gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
+      gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
 
       # dynu config
       dynu_api_key    = var.dynu_api_key
@@ -52,6 +54,8 @@ locals {
       # gcp
       gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       gcp_region  = var.target_gcp_region
+      gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+      gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # dynu config
       dynu_api_key    = var.dynu_api_key
@@ -259,8 +263,12 @@ locals {
       # gcp
       attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       attacker_gcp_region  = var.attacker_gcp_region
+      attacker_gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
+      attacker_gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
       target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region  = var.target_gcp_region
+      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+      target_gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # variables
       compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
@@ -288,8 +296,12 @@ locals {
       # gcp
       attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
       attacker_gcp_region  = var.attacker_gcp_region
+      attacker_gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
+      attacker_gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
       target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
       target_gcp_region  = var.target_gcp_region
+      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+      target_gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
