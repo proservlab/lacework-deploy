@@ -1,8 +1,3 @@
-locals{
-  default_kubeconfig_path = try(module.gke[0].kubeconfig_path, pathexpand("~/.kube/config"))
-  kubeconfig_path = try(module.gke[0].kubeconfig_path, local.default_kubeconfig_path)
-}
-
 data "local_file" "attacker_kubeconfig" {
   count = local.attacker_infrastructure_config.context.gcp.gke.enabled ? 1 : 0
   filename = pathexpand(module.attacker-gke[0].kubeconfig_path)
