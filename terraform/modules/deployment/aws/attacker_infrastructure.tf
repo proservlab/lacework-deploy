@@ -171,7 +171,7 @@ module "attacker-ec2" {
 
   providers = {
     aws      = aws.attacker
-    restapi  = restapi.attacker
+    restapi  = restapi.main
   }
 }
 

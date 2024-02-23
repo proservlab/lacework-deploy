@@ -171,7 +171,7 @@ module "target-ec2" {
 
   providers = {
     aws      = aws.target
-    restapi  = restapi.target
+    restapi  = restapi.main
   }
 }
 

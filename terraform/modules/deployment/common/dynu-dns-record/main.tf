@@ -20,17 +20,17 @@ locals {
   })
 }
 
-resource "null_resource" "log" {
-  triggers  =  { 
-    always_run = "${timestamp()}" 
-    "before" = "${local.data}"
-  }
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = "echo \"DNS Data: ${base64encode(local.data)}\""
-  }
-  depends_on = [ data.http.dynu_domain_id, data.http.dynu_records ]
-}
+# resource "null_resource" "log" {
+#   triggers  =  { 
+#     always_run = "${timestamp()}" 
+#     "before" = "${local.data}"
+#   }
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command = "echo \"DNS Data: ${base64encode(local.data)}\""
+#   }
+#   depends_on = [ data.http.dynu_domain_id, data.http.dynu_records ]
+# }
 
 data "http" "dynu_domain_id" {
   url = local.dynu_api
@@ -56,29 +56,29 @@ data "http" "dynu_domain_id" {
   }
 }
 
-data "http" "dynu_records" {
-  url = "${local.dynu_api}/${local.dynu_domain_id}/record"
-  method = "GET"
-  request_timeout_ms = 120000
+# data "http" "dynu_records" {
+#   url = "${local.dynu_api}/${local.dynu_domain_id}/record"
+#   method = "GET"
+#   request_timeout_ms = 120000
   
-  # Optional request headers
-  request_headers = {
-    API-Key = var.dynu_api_key
-    Accept = "application/json"
-    Content-Type = "application/json"
-  }
+#   # Optional request headers
+#   request_headers = {
+#     API-Key = var.dynu_api_key
+#     Accept = "application/json"
+#     Content-Type = "application/json"
+#   }
 
-  retry {
-    attempts = 3
-  }
+#   retry {
+#     attempts = 3
+#   }
 
-  lifecycle {
-    postcondition {
-      condition     = contains([200], self.status_code) && try(length(self.response_body)>0, false)
-      error_message = "Status code invalid"
-    }
-  }
-}
+#   lifecycle {
+#     postcondition {
+#       condition     = contains([200], self.status_code) && try(length(self.response_body)>0, false)
+#       error_message = "Status code invalid"
+#     }
+#   }
+# }
 
 resource "restapi_object" "record" {
   path          = "/dns/${local.dynu_domain_id}/record"

@@ -389,7 +389,7 @@ module "attacker-kubernetes-app" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -437,7 +437,7 @@ module "attacker-kubernetes-app-windows" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -486,7 +486,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -540,7 +540,7 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -589,7 +589,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -637,7 +637,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -683,7 +683,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -738,7 +738,7 @@ module "attacker-vulnerable-kubernetes-s3app" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
 
@@ -785,6 +785,6 @@ module "attacker-vulnerable-kubernetes-authapp" {
     aws         = aws.attacker
     kubernetes = kubernetes.attacker
     helm = helm.attacker
-    restapi = restapi.attacker
+    restapi  = restapi.main
   }
 }
