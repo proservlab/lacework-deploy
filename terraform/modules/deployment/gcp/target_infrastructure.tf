@@ -232,6 +232,7 @@ module "target-osconfig-deploy-lacework-agent" {
 
   providers = {
     google = google.target
+    lacework = lacework.attacker
   }
 }
 

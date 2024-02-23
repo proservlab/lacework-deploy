@@ -90,6 +90,7 @@ module "attacker-gce" {
   
   providers = {
     google = google.attacker
+    restapi = restapi.main
   }
 }
 
@@ -231,6 +232,7 @@ module "attacker-osconfig-deploy-lacework-agent" {
 
   providers = {
     google = google.attacker
+    lacework = lacework.attacker
   }
 }
 
