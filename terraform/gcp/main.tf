@@ -1,38 +1,4 @@
 ##################################################
-# DEFAULT
-##################################################
-
-# unique id used for deployment
-module "deployment" {
-  source = "../modules/context/deployment"
-}
-
-# defaults
-module "default-infrastructure-context" {
-  source = "../modules/context/infrastructure"
-
-  parent = [
-    module.deployment.id
-  ]
-}
-
-module "default-attacksurface-context" {
-  source = "../modules/context/attack/surface"
-
-  parent = [
-    module.deployment.id
-  ]
-}
-
-module "default-attacksimulation-context" {
-  source = "../modules/context/attack/simulate"
-
-  parent = [
-    module.deployment.id
-  ]
-}
-
-##################################################
 # KUBECONFIG STAGING
 ##################################################
 
@@ -70,7 +36,7 @@ resource "null_resource" "kubeconfig" {
 ##################################################
 
 # deploy infrastructure
-module "aws-deployment" {
+module "gcp-deployment" {
   source = "../modules/deployment/gcp"
   
   # dynu api key
