@@ -10,7 +10,7 @@ locals {
     [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
   ])
 
-  attacker_eks_public_ip = local.attacker_infrastructure_config.context.gcp.gke.enabled ? ["${module.attacker-eks[0].cluster_nat_public_ip}/32"] : []
+  attacker_gke_public_ip = local.attacker_infrastructure_config.context.gcp.gke.enabled ? ["${module.attacker-eks[0].cluster_nat_public_ip}/32"] : []
 }
 
 ##################################################
