@@ -11,6 +11,8 @@ locals {
   ])
 
   attacker_gke_public_ip = local.attacker_infrastructure_config.context.gcp.gke.enabled ? ["${module.attacker-eks[0].cluster_nat_public_ip}/32"] : []
+
+  attacker_compromised_credentials = try(module.attacker-iam[0].access_keys, {})
 }
 
 ##################################################
@@ -162,7 +164,7 @@ module "attacker-gcp-credentials" {
 
   tag = "osconfig_deploy_secret_gcp_credentials"
 
-  compromised_credentials = try(module.iam[0].access_keys, {})
+  compromised_credentials = local.target_compromised_credentials
   compromised_keys_user = local.attacker_attacksurface_config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 
   depends_on = [ 
