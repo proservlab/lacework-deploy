@@ -33,9 +33,8 @@ locals {
       # dynu config
       dynu_api_key    = var.attacker_dynu_api_key
       dynu_dns_domain = var.attacker_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # lacework
@@ -58,9 +57,8 @@ locals {
       # dynu config
       dynu_api_key    = var.target_dynu_api_key
       dynu_dns_domain = var.target_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # lacework
@@ -190,9 +188,8 @@ locals {
       # dynu config
       dynu_api_key    = var.attacker_dynu_api_key
       dynu_dns_domain = var.attacker_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # iam
@@ -209,9 +206,8 @@ locals {
       # dynu config
       dynu_api_key    = var.target_dynu_api_key
       dynu_dns_domain = var.target_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # iam
@@ -303,9 +299,8 @@ locals {
       # dynu config
       dynu_api_key    = var.attacker_dynu_api_key
       dynu_dns_domain = var.attacker_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # aws
@@ -334,9 +329,8 @@ locals {
       # dynu config
       dynu_api_key    = var.target_dynu_api_key
       dynu_dns_domain = var.target_dynu_dns_domain
-      attacker_dynu_api_key    = var.attacker_dynu_api_key
+      dynu_api_key    = var.dynu_api_key
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_api_key    = var.target_dynu_api_key
       target_dynu_dns_domain = var.target_dynu_dns_domain
 
       # aws
