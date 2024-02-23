@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/responder-reverse-shell-multistage"
+    source = "../../../../common/payloads/linux/modules/responder-reverse-shell-multistage"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment
@@ -25,7 +25,7 @@ module "payload" {
 #####################################################
 
 module "osconfig" {
-  source            = "../../../../../../common/gcp/osconfig/base"
+  source            = "../base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id

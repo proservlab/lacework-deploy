@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/deploy-ssh-keys"
+    source = "../../../../common/payloads/linux/modules/deploy-ssh-keys"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment
@@ -21,7 +21,7 @@ module "payload" {
 #####################################################
 
 module "osconfig-public" {
-  source            = "../../../../../../common/gcp/osconfig/base"
+  source            = "../base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id
@@ -35,7 +35,7 @@ module "osconfig-public" {
 #####################################################
 
 module "osconfig-private" {
-  source            = "../../../../../../common/gcp/osconfig/base"
+  source            = "../base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id

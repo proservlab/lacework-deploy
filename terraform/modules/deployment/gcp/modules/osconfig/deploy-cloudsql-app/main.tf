@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../../../common/any/payload/linux/modules/deploy-cloudsql-app"
+    source = "../../../../common/payloads/linux/modules/deploy-cloudsql-app"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment
@@ -26,7 +26,7 @@ module "payload" {
 #####################################################
 
 module "osconfig" {
-  source            = "../../../../../../common/gcp/osconfig/base"
+  source            = "../base"
   environment       = var.environment
   deployment        = var.deployment
   gcp_project_id    = var.gcp_project_id
