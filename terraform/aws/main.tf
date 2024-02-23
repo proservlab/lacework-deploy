@@ -39,6 +39,9 @@ resource "null_resource" "kubeconfig" {
 module "aws-deployment" {
   source = "../modules/deployment/aws"
   
+  # dynu api key
+  dynu_api_key                         = var.dynu_api_key
+
   # attacker
   attacker_infrastructure_config       = module.attacker-infrastructure-context.config
   attacker_attacksurface_config        = module.attacker-attacksurface-context.config
@@ -57,7 +60,6 @@ module "aws-deployment" {
   attacker_protonvpn_tier              = var.attacker_context_config_protonvpn_tier
   attacker_protonvpn_server            = var.attacker_context_config_protonvpn_server
   attacker_protonvpn_protocol          = var.attacker_context_config_protonvpn_protocol
-  attacker_dynu_api_key                = var.attacker_dynu_api_key
   attacker_dynu_dns_domain             = var.attacker_dynu_dns_domain
 
   # target
@@ -78,6 +80,5 @@ module "aws-deployment" {
   target_protonvpn_tier               = var.attacker_context_config_protonvpn_tier # currently only attacker has proton vpn config defined - ideally we deprecate this
   target_protonvpn_server             = var.attacker_context_config_protonvpn_server # currently only attacker has proton vpn config defined - ideally we deprecate this
   target_protonvpn_protocol           = var.attacker_context_config_protonvpn_protocol # currently only attacker has proton vpn config defined - ideally we deprecate this
-  target_dynu_api_key                 = var.target_dynu_api_key
   target_dynu_dns_domain              = var.target_dynu_dns_domain
 }
