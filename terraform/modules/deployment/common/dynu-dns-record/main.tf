@@ -2,7 +2,7 @@ locals {
   dynu_api = "https://api.dynu.com/v2/dns"
   dynu_domains_response = jsondecode(data.http.dynu_domain_id.response_body)
   dynu_domain_id = one([ for domain in local.dynu_domains_response["domains"]: domain.id if domain.name == var.dynu_dns_domain  ])
-  dynu_records_response  = jsondecode(data.http.dynu_records.response_body)
+  # dynu_records_response  = jsondecode(data.http.dynu_records.response_body)
   data = var.record.recordType == "CNAME" ? jsonencode({
     nodeName    = var.record.recordName
     recordType  = var.record.recordType
