@@ -95,5 +95,8 @@ resource "restapi_object" "record" {
     var.record.recordType
   ]
 
-  depends_on = [ data.http.dynu_domain_id, data.http.dynu_records ]
+  depends_on = [ 
+    data.http.dynu_domain_id, 
+    # data.http.dynu_records 
+  ]
 }
