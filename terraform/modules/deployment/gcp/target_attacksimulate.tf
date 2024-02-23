@@ -153,19 +153,6 @@ module "target-osconfig-drop-malware-eicar" {
 
 # simulation-attacker-exec-docker-composite-defense-evasion
 
-module "target-osconfig-execute-docker-composite-host-compromise" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-docker-composite-host-compromise"
-  environment   = local.target_attacksimulate_config.context.global.environment
-  deployment    = local.target_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
-  gcp_location = local.target_infrastructure_config.context.gcp.region
-
-  attack_delay = local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_composite_host_compromise.attack_delay
-
-  tag = "osconfig_exec_docker_host_compromise"
-}
-
 # simulation-attacker-exec-docker-composite-host-cryptomining
 
 module "target-osconfig-execute-docker-cpu-miner" {
@@ -187,22 +174,8 @@ module "target-osconfig-execute-docker-cpu-miner" {
 # execute-generate-aws-cli-traffic
 
 # execute-generate-gcp-cli-traffic
-module "target-osconfig-execute-generate-gcp-cli-traffic" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-generate-gcp-cli-traffic"
-  environment   = local.target_attacksimulate_config.context.global.environment
-  deployment    = local.target_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
-  gcp_location = local.target_infrastructure_config.context.gcp.region
 
-  tag                     = "osconfig_exec_generate_gcp_cli_traffic_attacker"
-
-  compromised_credentials = local.target_compromised_credentials
-  compromised_keys_user   = local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.compromised_keys_user
-  commands                = local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
-}
-
-module "target-osconfig-execute-generate-gcp-cli-traffic" {
+module "target-osconfig-execute-generate-gcp-cli-traffic-target" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/osconfig/execute-generate-gcp-cli-traffic"
   environment   = local.target_attacksimulate_config.context.global.environment
@@ -215,20 +188,6 @@ module "target-osconfig-execute-generate-gcp-cli-traffic" {
   compromised_credentials = local.target_compromised_credentials
   compromised_keys_user   = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.compromised_keys_user
   commands                = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.commands
-}
-
-module "target-osconfig-execute-generate-web-traffic" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-generate-web-traffic"
-  environment   = local.target_attacksimulate_config.context.global.environment
-  deployment    = local.target_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
-  gcp_location = local.target_infrastructure_config.context.gcp.region
-  
-  tag                     = "osconfig_exec_generate_web_traffic_attacker"
-
-  delay                   = local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.delay
-  urls                    = local.target_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.urls
 }
 
 module "target-osconfig-execute-generate-web-traffic" {

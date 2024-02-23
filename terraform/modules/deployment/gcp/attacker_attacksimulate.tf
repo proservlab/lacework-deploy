@@ -114,26 +114,6 @@ module "attacker-osconfig-execute-docker-nmap" {
   ])
 }
 
-module "attacker-osconfig-execute-docker-nmap-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.gcp.enabled == true && local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.docker_nmap.enabled == true) ? 1 : 0
-  source        = "./modules/osconfig/execute-docker-nmap"
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.attacker_infrastructure_config.context.gcp.project_id
-  gcp_location = local.attacker_infrastructure_config.context.gcp.region
-
-  tag = "osconfig_exec_docker_nmap_target"
-
-  use_tor = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.use_tor
-  ports = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.ports
-  targets = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
-    length(local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.targets) > 0 ? 
-      local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_nmap.targets : 
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
-  ])
-}
-
 # execute-generate-aws-cli-traffic
 
 # execute-generate-gcp-cli-traffic
@@ -152,21 +132,6 @@ module "attacker-osconfig-execute-generate-gcp-cli-traffic" {
   commands                = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
 }
 
-module "attacker-osconfig-execute-generate-gcp-cli-traffic-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.gcp.enabled == true && local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-generate-gcp-cli-traffic"
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.attacker_infrastructure_config.context.gcp.project_id
-  gcp_location = local.attacker_infrastructure_config.context.gcp.region
-
-  tag                     = "osconfig_exec_generate_gcp_cli_traffic_target"
-
-  compromised_credentials = local.attacker_compromised_credentials
-  compromised_keys_user   = local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.compromised_keys_user
-  commands                = local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.commands
-}
-
 module "attacker-osconfig-execute-generate-web-traffic" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.gcp.enabled == true && local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/osconfig/execute-generate-web-traffic"
@@ -179,20 +144,6 @@ module "attacker-osconfig-execute-generate-web-traffic" {
 
   delay                   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.delay
   urls                    = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.urls
-}
-
-module "attacker-osconfig-execute-generate-web-traffic-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.gcp.enabled == true && local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/osconfig/execute-generate-web-traffic"
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.attacker_infrastructure_config.context.gcp.project_id
-  gcp_location = local.attacker_infrastructure_config.context.gcp.region
-  
-  tag = "osconfig_exec_generate_web_traffic_target"
-
-  delay                   = local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_web_traffic.delay
-  urls                    = local.attacker_attacksimulate_config.context.gcp.osconfig.target.execute.generate_web_traffic.urls
 }
 
 module "attacker-osconfig-execute-exploit-npm-app" {
@@ -227,21 +178,6 @@ module "attacker-osconfig-listener-http-listener" {
   
   listen_ip     = "0.0.0.0"
   listen_port   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.listener.http.listen_port
-}
-
-module "attacker-osconfig-listener-port-forward" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.gcp.enabled == true && local.attacker_attacksimulate_config.context.gcp.osconfig.target.listener.port_forward.enabled == true) ? 1 : 0
-  source        = "./modules/osconfig/listener-port-forward"
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  gcp_project_id = local.attacker_infrastructure_config.context.gcp.project_id
-  gcp_location = local.attacker_infrastructure_config.context.gcp.region
-
-  tag = "osconfig_exec_port_forward"
-
-  port_forwards = local.attacker_attacksimulate_config.context.gcp.osconfig.target.listener.port_forward.port_forwards
-  host_ip       = local.attacker_port_forward[0]
-  host_port     = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
 }
 
 ##################################################

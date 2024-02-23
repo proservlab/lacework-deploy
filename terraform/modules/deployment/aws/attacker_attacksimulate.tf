@@ -206,7 +206,7 @@ module "attacker-simulation-attacker-exec-docker-composite-host-cryptomining" {
   }
 }
 
-module "attacker-ssm-execute-docker-hydra-external" {
+module "attacker-ssm-execute-docker-hydra" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"
   region        = local.attacker_infrastructure_config.context.aws.region
@@ -224,33 +224,6 @@ module "attacker-ssm-execute-docker-hydra-external" {
   targets = local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.scan_local_network == true &&  length(local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.targets) == 0 ? [] : flatten([
     length(local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.targets) > 0 ? 
       local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_hydra.targets : 
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
-  ])
-
-  providers = {
-    aws = aws.attacker
-  }
-}
-
-module "attacker-ssm-execute-docker-hydra-internal" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.enabled == true ) ? 1 : 0
-  source        = "./modules/ssm/execute-docker-hydra"
-  region        = local.attacker_infrastructure_config.context.aws.region
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  
-  tag                     = "ssm_exec_docker_hydra_target"
-  
-  use_tor = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.use_tor
-  custom_user_list = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.custom_user_list
-  custom_password_list = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.custom_password_list
-  user_list = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.user_list
-  password_list = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.password_list
-  ssh_user = local.target_ssh_user
-  targets = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.scan_local_network == true &&  length(local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.targets) == 0 ? [] : flatten([
-    length(local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.targets) > 0 ? 
-      local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.targets : 
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
@@ -283,7 +256,7 @@ module "attacker-ssm-execute-docker-exploit-log4j" {
   }
 }
 
-module "attacker-ssm-execute-docker-nmap-attacker" {
+module "attacker-ssm-execute-docker-nmap" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-nmap"
   region        = local.attacker_infrastructure_config.context.aws.region
@@ -297,29 +270,6 @@ module "attacker-ssm-execute-docker-nmap-attacker" {
   targets = local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.scan_local_network == true &&  length(local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.targets) == 0 ? [] : flatten([
     length(local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.targets) > 0 ? 
       local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.docker_nmap.targets : 
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
-      [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
-  ])
-
-  providers = {
-    aws = aws.attacker
-  }
-}
-
-module "attacker-ssm-execute-docker-nmap-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.enabled == true ) ? 1 : 0
-  source        = "./modules/ssm/execute-docker-nmap"
-  region        = local.attacker_infrastructure_config.context.aws.region
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-
-  tag                     = "ssm_exec_docker_nmap_target"
-
-  use_tor = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.use_tor
-  ports = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.ports
-  targets = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.scan_local_network == true &&  length(local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.targets) == 0 ? [] : flatten([
-    length(local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.targets) > 0 ? 
-      local.attacker_attacksimulate_config.context.aws.ssm.target.execute.docker_nmap.targets : 
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
@@ -348,24 +298,6 @@ module "attacker-ssm-execute-generate-aws-cli-traffic-attacker" {
   }
 }
 
-module "attacker-ssm-execute-generate-aws-cli-traffic-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_aws_cli_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/ssm/execute-generate-aws-cli-traffic"
-  region        = local.attacker_infrastructure_config.context.aws.region
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-
-  tag                     = "ssm_exec_generate_aws_cli_traffic_target"
-
-  compromised_credentials = local.target_compromised_credentials
-  compromised_keys_user   = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_aws_cli_traffic.compromised_keys_user
-  commands                = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_aws_cli_traffic.commands
-
-  providers = {
-    aws = aws.attacker
-  }
-}
-
 module "attacker-ssm-execute-generate-web-traffic-attacker" {
   count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.generate_web_traffic.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-generate-web-traffic"
@@ -377,23 +309,6 @@ module "attacker-ssm-execute-generate-web-traffic-attacker" {
 
   delay                   = local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.generate_web_traffic.delay
   urls                    = local.attacker_attacksimulate_config.context.aws.ssm.attacker.execute.generate_web_traffic.urls
-
-  providers = {
-    aws = aws.attacker
-  }
-}
-
-module "attacker-ssm-execute-generate-web-traffic-target" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_web_traffic.enabled == true ) ? 1 : 0
-  source        = "./modules/ssm/execute-generate-web-traffic"
-  region        = local.attacker_infrastructure_config.context.aws.region
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  
-  tag = "ssm_exec_generate_web_traffic_target"
-
-  delay                   = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_web_traffic.delay
-  urls                    = local.attacker_attacksimulate_config.context.aws.ssm.target.execute.generate_web_traffic.urls
 
   providers = {
     aws = aws.attacker
@@ -454,23 +369,6 @@ module "attacker-ssm-listener-http-listener" {
 
   listen_ip     = "0.0.0.0"
   listen_port   = local.attacker_attacksimulate_config.context.aws.ssm.attacker.listener.http.listen_port
-
-  providers = {
-    aws = aws.attacker
-  }
-}
-
-module "attacker-ssm-listener-port-forward" {
-  count = (local.attacker_attacksimulate_config.context.global.enable_all == true) || (local.attacker_attacksimulate_config.context.global.disable_all != true && local.attacker_attacksimulate_config.context.aws.enabled == true && local.attacker_attacksimulate_config.context.aws.ssm.target.listener.port_forward.enabled == true ) ? 1 : 0
-  source        = "./modules/ssm/listener-port-forward"
-  environment   = local.attacker_attacksimulate_config.context.global.environment
-  deployment    = local.attacker_attacksimulate_config.context.global.deployment
-  port_forwards = local.attacker_attacksimulate_config.context.aws.ssm.target.listener.port_forward.port_forwards
-  
-  tag = "osconfig_exec_port_forward"
-
-  host_ip       = try(length(local.attacker_port_forward)>0, false) ? local.attacker_port_forward[0] : null
-  host_port     = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.port_forward.listen_port
 
   providers = {
     aws = aws.attacker
