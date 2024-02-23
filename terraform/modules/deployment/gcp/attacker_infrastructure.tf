@@ -346,7 +346,7 @@ module "attacker-lacework-gcp-agentless" {
 
   providers = {
     google = google.attacker
-    lacework = google.attacker
+    lacework = lacework.attacker
   }
 }
 
