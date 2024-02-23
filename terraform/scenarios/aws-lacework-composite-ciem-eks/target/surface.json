@@ -108,7 +108,7 @@
           "privileged": false,
           "allow_privilege_escalation": false,
           "enable_dynu_dns": false,
-          "dynu_dns_domain": "${ dynu_dns_domain }"
+          "dynu_dns_domain": "${ target_dynu_dns_domain }"
         },
         "vulnerable" :  {
           "log4j_app" :  {
@@ -120,7 +120,7 @@
             "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "voteapp" :  {
             "enabled" :  false,
@@ -129,7 +129,7 @@
             "trust_workstation_source": true,
             "additional_trusted_sources": [],
             "enable_dynu_dns": false,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "rdsapp" :  {
             "enabled" :  false,
@@ -140,7 +140,7 @@
             "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "privileged_pod" :  {
             "enabled" :  false,
@@ -151,7 +151,7 @@
             "privileged": true,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "root_mount_fs_pod" :  {
             "enabled" :  false,
@@ -162,7 +162,7 @@
             "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": false,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "s3app" :  {
             "enabled" :  true,
@@ -174,7 +174,7 @@
             "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": true,
-            "dynu_dns_domain": "${ dynu_dns_domain }"
+            "dynu_dns_domain": "${ target_dynu_dns_domain }"
           },
           "authapp" :  {
             "enabled" :  true,
@@ -186,7 +186,7 @@
             "privileged": false,
             "allow_privilege_escalation": false,
             "enable_dynu_dns": true,
-            "dynu_dns_domain": "${ dynu_dns_domain }",
+            "dynu_dns_domain": "${ target_dynu_dns_domain }",
             "admin_password": "4920616d20616d617a696e672e2045766572796f6e65206b6e6f777320746869732e"
           }
         }

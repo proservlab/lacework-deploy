@@ -11,7 +11,7 @@
           "connect": {
             "reverse_shell": {
               "enabled": true,
-              "host_ip": "attacker-public-1-attacker-${ deployment }.${ dynu_dns_domain }"
+              "host_ip": "attacker-public-1-attacker-${ deployment }.${ attacker_dynu_dns_domain }"
             }
           }
         },

