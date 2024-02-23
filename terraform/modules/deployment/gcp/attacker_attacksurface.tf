@@ -286,7 +286,7 @@ module "attacker-vulnerable-cloudsql-app" {
 # example of pushing kubernetes deployment via terraform
 module "attacker-kubernetes-app" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.gcp.app.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/app"
+  source      = "./modules/kubernetes-app"
   environment = local.attacker_attacksurface_config.context.global.environment
   deployment  = local.attacker_attacksurface_config.context.global.deployment
 
@@ -302,42 +302,19 @@ module "attacker-kubernetes-app" {
 # Kubernetes GCP Vulnerable
 ##################################################
 
-# module "attacker-vulnerable-kubernetes-voteapp" {
-#   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
-#   source      = "../kubernetes/gcp/vulnerable/voteapp"
-#   environment                   = local.attacker_attacksurface_config.context.global.environment
-#   deployment                    = local.attacker_attacksurface_config.context.global.deployment
-#   region                        = local.attacker_attacksurface_config.context.aws.region
-#   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
-#   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+# vulnerable-kubernetes-cloudsqlapp
 
-#   vote_service_port             = local.attacker_attacksurface_config.context.kubernetes.vulnerable.voteapp.vote_service_port
-#   result_service_port           = local.attacker_attacksurface_config.context.kubernetes.vulnerable.voteapp.result_service_port
-#   trusted_attacker_source       = local.attacker_attacksurface_config.context.kubernetes.vulnerable.voteapp.trust_attacker_source ? flatten([
-#     [ for ip in data.aws_instances.public_attacker[0].public_ips: "${ip}/32" ],
-#     local.attacker_eks_public_ip
-#   ])  : []
-#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
-#   additional_trusted_sources    = local.attacker_attacksurface_config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
-
-    # providers = {
-    #   kubernetes = kubernetes.attacker
-    #   helm = helm.attacker
-    # }
-# }
-
-# vulnerable-kubernetes-rdsapp
-
+# log
 module "attacker-vulnerable-kubernetes-log4j-app" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/log4j-app"
+  source      = "./modules/kubernetes-log4j-app"
   environment                   = local.attacker_attacksurface_config.context.global.environment
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 
   service_port                  = local.attacker_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.service_port
   trusted_attacker_source       = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
-    [ for ip in local.attacker_public_ips: "${ip}/32" ],
-    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+    [ for ip in local.target_public_ips: "${ip}/32" ],
+    [ for ip in local.target_app_public_ips: "${ip}/32" ]
   ])  : []
   trusted_workstation_source    = [module.workstation-external-ip.cidr]
   additional_trusted_sources    = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
@@ -352,7 +329,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
 
 module "attacker-vulnerable-kubernetes-privileged-pod" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/privileged-pod"
+  source      = "./modules/kubernetes-privileged-pod"
   environment = local.attacker_attacksurface_config.context.global.environment
   deployment  = local.attacker_attacksurface_config.context.global.deployment
 
@@ -366,7 +343,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
 
 module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   count = (local.attacker_attacksurface_config.context.global.enable_all == true) || (local.attacker_attacksurface_config.context.global.disable_all != true && local.attacker_attacksurface_config.context.kubernetes.gcp.vulnerable.root_mount_fs_pod.enabled == true ) ? 1 : 0
-  source      = "../kubernetes/gcp/root-mount-fs-pod"
+  source      = "./modules/kubernetes-root-mount-fs-pod"
   environment = local.attacker_attacksurface_config.context.global.environment
   deployment  = local.attacker_attacksurface_config.context.global.deployment
 
