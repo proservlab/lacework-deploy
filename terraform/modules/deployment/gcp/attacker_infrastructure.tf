@@ -105,16 +105,16 @@ module "attacker-cloudsql" {
   environment                 = local.attacker_infrastructure_config.context.global.environment
   deployment                  = local.attacker_infrastructure_config.context.global.deployment
 
-  network                     = module.gce[0].public_app_network.self_link
-  subnetwork                  = module.gce[0].public_app_subnetwork.ip_cidr_range
+  network                     = module.attacker-gce[0].public_app_network.self_link
+  subnetwork                  = module.attacker-gce[0].public_app_subnetwork.ip_cidr_range
   enable_public_ip            = local.attacker_infrastructure_config.context.gcp.cloudsql.enable_public_ip
   require_ssl                 = local.attacker_infrastructure_config.context.gcp.cloudsql.require_ssl
   authorized_networks         = local.attacker_infrastructure_config.context.gcp.cloudsql.authorized_networks
   
-  public_service_account_email =  module.gce[0].public_service_account_email
-  public_app_service_account_email =  module.gce[0].public_app_service_account_email
-  private_service_account_email =  module.gce[0].private_service_account_email
-  private_app_service_account_email =  module.gce[0].private_app_service_account_email
+  public_service_account_email =  module.attacker-gce[0].public_service_account_email
+  public_app_service_account_email =  module.attacker-gce[0].public_app_service_account_email
+  private_service_account_email =  module.attacker-gce[0].private_service_account_email
+  private_app_service_account_email =  module.attacker-gce[0].private_app_service_account_email
 
   user_role_name             = local.attacker_infrastructure_config.context.gcp.cloudsql.user_role_name
   instance_type               = local.attacker_infrastructure_config.context.gcp.cloudsql.instance_type
@@ -377,7 +377,7 @@ module "attacker-lacework-daemonset" {
   }
 
   depends_on = [
-    module.gke
+    module.attacker-gke
   ]
 }
 
@@ -399,7 +399,7 @@ module "attacker-lacework-admission-controller" {
   }
 
   depends_on = [
-    module.gke
+    module.attacker-gke
   ]
 }
 
@@ -421,6 +421,6 @@ module "attacker-lacework-gke-audit" {
   }
 
   depends_on = [
-    module.gke
+    module.attacker-gke
   ]
 }

@@ -168,7 +168,7 @@ module "attacker-gcp-credentials" {
   compromised_keys_user = local.attacker_attacksurface_config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 
   depends_on = [ 
-    module.iam 
+    module.attacker-iam 
   ]
 
   providers = {

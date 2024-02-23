@@ -172,7 +172,7 @@ module "target-gcp-credentials" {
   compromised_keys_user = local.target_attacksurface_config.context.gcp.osconfig.gcp_credentials.compromised_keys_user
 
   depends_on = [ 
-    module.iam 
+    module.target-iam 
   ]
 
   providers = {
