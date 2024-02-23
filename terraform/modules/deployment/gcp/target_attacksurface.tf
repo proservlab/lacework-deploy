@@ -10,7 +10,7 @@ locals {
     [ for compute in local.target_instances: compute.instance if compute.instance.labels.role == "app" && compute.instance.labels.public == "true" ]
   ])
 
-  target_gke_public_ip = local.target_infrastructure_config.context.gcp.gke.enabled ? ["${module.target-eks[0].cluster_nat_public_ip}/32"] : []
+  target_gke_public_ip = local.target_infrastructure_config.context.gcp.gke.enabled ? ["${module.target-gke[0].cluster_nat_public_ip}/32"] : []
 
   target_compromised_credentials = try(module.target-iam[0].access_keys, {})
 }
@@ -63,8 +63,8 @@ module "target-gce-add-trusted-ingress" {
   source        = "./modules/gce-add-trusted-ingress"
   environment                   = local.target_attacksurface_config.context.global.environment
   deployment                    = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
   
   role                          = "default"
   network                       = try(module.target-gce[0].vpc.public_network.name, null)
@@ -92,8 +92,8 @@ module "target-gce-add-trusted-app-ingress" {
   source        = "./modules/gce-add-trusted-ingress"
   environment                   = local.target_attacksurface_config.context.global.environment
   deployment                    = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
   
   role                          = "app"
   network                       = try(module.target-gce[0].vpc.public_app_network.name, null)
@@ -125,8 +125,8 @@ module "target-ssh-keys" {
   source = "./modules/osconfig/deploy-ssh-keys"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   public_tag = "osconfig_deploy_secret_ssh_public"
   private_tag = "osconfig_deploy_secret_ssh_private"
@@ -145,8 +145,8 @@ module "target-ssh-user" {
   source = "./modules/osconfig/deploy-ssh-user"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_deploy_ssh_user"
 
@@ -163,8 +163,8 @@ module "target-gcp-credentials" {
   source = "./modules/osconfig/deploy-gcp-credentials"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_deploy_secret_gcp_credentials"
 
@@ -189,8 +189,8 @@ module "target-vulnerable-docker-log4j-app" {
   source = "./modules/osconfig/deploy-docker-log4j-app"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_deploy_docker_log4j_app"
 
@@ -206,8 +206,8 @@ module "target-vulnerable-log4j-app" {
   source = "./modules/osconfig/deploy-log4j-app"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
   
   tag = "osconfig_deploy_log4j_app"
 
@@ -223,8 +223,8 @@ module "target-vulnerable-npm-app" {
   source = "./modules/osconfig/deploy-npm-app"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_deploy_npm_app"
 
@@ -240,8 +240,8 @@ module "target-vulnerable-python3-twisted-app" {
   source = "./modules/osconfig/deploy-python3-twisted-app"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   listen_port = local.target_attacksurface_config.context.gcp.osconfig.vulnerable.python3_twisted_app.listen_port
 
@@ -257,8 +257,8 @@ module "target-vulnerable-cloudsql-app" {
   source = "./modules/osconfig/deploy-cloudsql-app"
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
-  gcp_project_id = local.default_infrastructure_config.context.gcp.project_id
-  gcp_location = local.default_infrastructure_config.context.gcp.region
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_deploy_cloudsql_app"
 
