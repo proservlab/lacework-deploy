@@ -1,48 +1,37 @@
-locals {
-  subscription = try(length(var.config.context.azure.subscription), "false") == "false" ? null : var.config.context.azure.subscription
-  tenant = try(length(var.config.context.azure.tenant), "false") == "false" ? null : var.config.context.azure.tenant
-  region = try(length(var.config.context.azure.region), "false") == "false" ? "West US 2" : var.config.context.azure.region
-
-  default_kubeconfig_path = try(module.aks[0].kubeconfig_path, pathexpand("~/.kube/config"))
-  kubeconfig_path = local.default_kubeconfig_path
+data "local_file" "attacker_kubeconfig" {
+  count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  filename = pathexpand(module.attacker-eks[0].kubeconfig_path)
 }
 
-provider "kubernetes" {
-  alias = "main"
-  config_path = local.default_kubeconfig_path
+data "local_file" "target_kubeconfig" {
+  count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  filename = pathexpand(module.target-eks[0].kubeconfig_path)
 }
+
 provider "kubernetes" {
   alias = "attacker"
-  config_path = var.attacker_kubeconfig
+  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
 }
 provider "kubernetes" {
   alias = "target"
-  config_path = var.target_kubeconfig
-}
-
-provider "helm" {
-  alias = "main"
-  kubernetes {
-    config_path = local.default_kubeconfig_path
-  }
+  config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
 }
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = var.attacker_kubeconfig
+    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
   }
 }
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = var.default_kubeconfig
+    config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
   }
 }
-
 provider "azurerm" {
   features {}
-  tenant_id = var.default_azure_tenant
-  subscription_id = var.default_azure_subscription
+  tenant_id = var.target_azure_tenant
+  subscription_id = var.target_azure_subscription
 }
 
 provider "azurerm" {
@@ -58,22 +47,32 @@ provider "azurerm" {
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
 }
-
 provider "lacework" {
-  profile    = var.default_lacework_profile
+  alias      = "attacker"
+  profile    = var.attacker_lacework_profile
+}
+provider "lacework" {
+  alias      = "target"
+  profile    = var.target_lacework_profile
 }
 
 provider "restapi" {
+  alias = "main"
   uri                  = "https://api.dynu.com/v2"
   write_returns_object = true
   debug                = true
+  id_attribute         = "id"
+  timeout              = 600
 
   headers = {
-    "API-Key" = try(var.config.context.dynu_dns.api_key, ""),
-    "Content-Type" = "application/json"
+    API-Key = var.dynu_api_key
+    Content-Type = "application/json"
+    accept = "application/json"
+    Cache-Control =  "no-cache, no-store"
+    User-Agent = "curl/8.4.0"
   }
 
   create_method  = "POST"
-  update_method  = "PUT"
+  update_method  = "POST"
   destroy_method = "DELETE"
 }
