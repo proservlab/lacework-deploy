@@ -141,8 +141,9 @@ resource "aws_subnet" "database" {
   }
 
   lifecycle {
-    prevent_destroy = true
-    ignore_changes = ["cidr_block","availability_zone"]
+    ignore_changes = [
+      all
+    ]
   }
 }
 
@@ -158,8 +159,9 @@ resource "aws_subnet" "database2" {
   }
 
   lifecycle {
-    prevent_destroy = true
-    ignore_changes = ["cidr_block","availability_zone"]
+    ignore_changes = [
+      all
+    ]
   }
 }
 
