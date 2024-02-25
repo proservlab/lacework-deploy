@@ -139,6 +139,11 @@ resource "aws_subnet" "database" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = ["cidr_block","availability_zone"]
+  }
 }
 
 resource "aws_subnet" "database2" {
@@ -150,6 +155,11 @@ resource "aws_subnet" "database2" {
     Name        = "${var.environment}-${element(local.availability_zones, 1)}-private-subnet"
     environment = var.environment
     deployment = var.deployment
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = ["cidr_block","availability_zone"]
   }
 }
 
