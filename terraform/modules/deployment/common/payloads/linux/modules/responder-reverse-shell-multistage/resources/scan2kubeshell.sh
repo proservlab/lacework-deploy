@@ -52,23 +52,36 @@ REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST
 REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT
 EOF
 
+#######################
+# kube cred setup
+#######################
+
 log "public ip: $(curl -s https://icanhazip.com)"
 
-log "listing home directory..."
-ls -ltra ~/ 2>&1 | tee -a $LOGFILE
+log "available clusters: $(kubectl config get-clusters)"
 
-log "checking mounted local kubeconfig..."
-if ! [ -f ~/.kube/config ]; then
-  log "kubeconfig not found: ~/.kube/config"
-  exit 1
-fi
+while ! [ -f ~/.kube/config ]; do
+    log "missing kube config: ~/.kube/config"
+    log "kube dir listing: $(ls -ltra ~/.kube)"
+    log "waiting for kube config..."
+    sleep 60
+done
 
-log "checking mounted credentials..."
-ls -ltra ~/ 2>&1 | tee -a $LOGFILE
-if ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; then
-  log "aws credentials not found: ~/.aws/config ~/.aws/credentials"
-  exit 1
-fi
+log "available profiles: $(aws configure list-profiles)"
+
+while ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; do
+    log "missing aws config: ~/.aws/config || ~/.aws/credentials"
+    log "aws dir listing: $(ls -ltra ~/.aws)"
+    log "waiting for kube config..."
+    sleep 60
+done
+
+log "Running: aws sts get-caller-identity --profile=$PROFILE"
+aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
+
+log "Getting current account number..."
+AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
+log "Account Number: $AWS_ACCOUNT_NUMBER"
 
 if ! command -v jq; then
   curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/local/bin/jq

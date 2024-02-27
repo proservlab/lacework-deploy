@@ -33,11 +33,16 @@ fi
 # aws cred setup
 #######################
 
-log "listing profiles..."
-aws configure list-profiles 2>&1 | tee -a $LOGFILE
+log "public ip: $(curl -s https://icanhazip.com)"
 
-log "checking for profile config..."
-aws configure list --profile=$PROFILE 2>&1 | tee -a $LOGFILE
+log "available profiles: $(aws configure list-profiles)"
+
+while ! aws configure list-profiles | grep $PROFILE; do
+    log "missing profile: $PROFILE"
+    log "aws dir listing: $(ls -ltra ~/.aws)"
+    log "waiting for profile..."
+    sleep 60
+done
 
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1

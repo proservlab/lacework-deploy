@@ -26,7 +26,27 @@ opts="--no-cli-pager"
 log "Downloading jq..."
 curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
 
+#######################
+# aws cred setup
+#######################
+
 log "public ip: $(curl -s https://icanhazip.com)"
+
+log "available profiles: $(aws configure list-profiles)"
+
+while ! aws configure list-profiles | grep $PROFILE; do
+    log "missing profile: $PROFILE"
+    log "aws dir listing: $(ls -ltra ~/.aws)"
+    log "waiting for profile..."
+    sleep 60
+done
+
+log "Running: aws sts get-caller-identity --profile=$PROFILE"
+aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
+
+log "Getting current account number..."
+AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
+log "Account Number: $AWS_ACCOUNT_NUMBER"
 
 #######################
 # cloud enumeration

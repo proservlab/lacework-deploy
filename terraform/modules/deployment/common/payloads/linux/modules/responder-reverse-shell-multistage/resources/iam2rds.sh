@@ -28,6 +28,15 @@ curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq
 
 log "public ip: $(curl -s https://icanhazip.com)"
 
+log "available profiles: $(aws configure list-profiles)"
+
+while ! aws configure list-profiles | grep $PROFILE; do
+    log "missing profile: $PROFILE"
+    log "aws dir listing: $(ls -ltra ~/.aws)"
+    log "waiting for profile..."
+    sleep 60
+done
+
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
 
