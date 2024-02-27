@@ -229,6 +229,19 @@ check_tf_apply(){
             infomsg "Checking for kubernetes readiness errors..."
             if grep "dial tcp \[\:\:1\]\:80\: connect\: connection refused" $LOGFILE; then
                 infomsg "Some kubernetes resources were not ready during deploy - a second apply is required..."
+                echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
+                (
+                    set -o pipefail
+                    terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
+                )
+                ERR=$?
+                infomsg "Terraform result: $ERR"
+                if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                    ERR=1
+                    errmsg "Terraform failed: ${ERR}"
+                    exit $ERR
+                fi
+                
                 infomsg "Running: terraform apply -input=false -no-color ${3}"
                 (
                     set -o pipefail
