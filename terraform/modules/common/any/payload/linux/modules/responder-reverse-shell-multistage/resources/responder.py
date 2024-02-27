@@ -202,15 +202,19 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         log(f"running {script} via torproxy tunnelled container...")
 
                         # assume credentials prep added creds to local home
+                        if "HOME" is os.environ:
+                            home = os.environ("HOME")
+                        else:
+                            home = "/root"
+                        log(f"home directory: {home}")
                         if csp == "aws":
-                            local_creds = os.path.expandvars("$HOME/.aws")
+                            local_creds = f"{home}/.aws"
                             container_creds = "/root/.aws"
                         elif csp == "gcp":
-                            local_creds = os.path.expandvars(
-                                "$HOME/.config/gcloud")
+                            local_creds = f"{home}/.config/gcloud"
                             container_creds = "/root/.config/gcloud"
 
-                        local_kube_creds = os.path.expandvars("$HOME/.kube")
+                        local_kube_creds = f"{home}/.kube"
                         container_kube_creds = "/root/.kube"
 
                         log(f"Starting tor tunneled docker...")
