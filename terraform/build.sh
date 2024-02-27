@@ -225,7 +225,21 @@ check_tf_apply(){
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
-            if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+
+            log "Checking for kubernetes readiness errors..."
+            if grep "dial tcp [::1]:80: connect: connection refused" $LOGFILE; then
+                log "Some kubernetes resources were not ready during deploy - a second apply is required..."
+                infomsg "Running: terraform apply -input=false -no-color ${3}"
+                (
+                    set -o pipefail
+                    terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 >> $LOGFILE
+                )
+                ERR=$?
+                if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                    errmsg "Terraform failed: ${ERR}"
+                    exit 1
+                fi
+            elif [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
                 errmsg "Terraform failed: ${ERR}"
                 exit 1
             fi
