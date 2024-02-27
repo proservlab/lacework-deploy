@@ -227,7 +227,7 @@ check_tf_apply(){
             infomsg "Terraform result: $ERR"
 
             infomsg "Checking for kubernetes readiness errors..."
-            if grep "dial tcp \[\:\:1\]\:80\: connect: connection refused" $LOGFILE; then
+            if grep "dial tcp \[\:\:1\]\:80\: connect\: connection refused" $LOGFILE; then
                 infomsg "Some kubernetes resources were not ready during deploy - a second apply is required..."
                 infomsg "Running: terraform apply -input=false -no-color ${3}"
                 (
