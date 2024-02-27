@@ -221,7 +221,7 @@ check_tf_apply(){
             infomsg "Running: terraform apply -input=false -no-color ${3}"
             (
                 set -o pipefail
-                terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 >> $LOGFILE
+                terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} >> $LOGFILE 2>&1
             )
             ERR=$?
             infomsg "Terraform result: $ERR"
@@ -232,7 +232,7 @@ check_tf_apply(){
                 infomsg "Running: terraform apply -input=false -no-color ${3}"
                 (
                     set -o pipefail
-                    terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 >> $LOGFILE
+                    terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} >> $LOGFILE 2>&1
                 )
                 ERR=$?
                 if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
@@ -452,7 +452,7 @@ elif [ "plan" = "${ACTION}" ]; then
     echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -483,7 +483,7 @@ elif [ "refresh" = "${ACTION}" ]; then
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
         set -o pipefail
-        terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform refresh ${BACKEND} ${VARS} -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -491,7 +491,7 @@ elif [ "apply" = "${ACTION}" ]; then
     echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -503,7 +503,7 @@ elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
         set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color 2>&1 >> $LOGFILE
+        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
@@ -536,7 +536,7 @@ elif [ "destroy" = "${ACTION}" ]; then
         echo "Running: terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
         (
             set -o pipefail 
-            terraform apply -parallelism=$PARALLELISM -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} 2>&1 >> $LOGFILE
+            terraform apply -parallelism=$PARALLELISM -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} >> $LOGFILE 2>&1
         )
         ERR=$?
         infomsg "Terraform result: $ERR"
