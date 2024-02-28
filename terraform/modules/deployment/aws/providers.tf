@@ -1,11 +1,85 @@
+resource "null_resource" "target_eks_context_switcher" {
+  count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                echo 'Applying Auth ConfigMap with kubectl...'
+                aws eks wait cluster-active --profile '${var.target_aws_profile}' --region=${var.target_aws_region} --name '${module.target-eks[0].cluster.name}'
+                if ! command -v yq; then
+                  curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+                  chmod +x /usr/local/bin/yq
+                fi
+                aws eks update-kubeconfig --profile '${var.target_aws_profile}' --name '${module.target-eks[0].cluster.name}' --region=${var.target_aws_region}
+                aws eks update-kubeconfig --profile '${var.target_aws_profile}' --name '${module.target-eks[0].cluster.name}' --region=${var.target_aws_region} --kubeconfig="${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.target_aws_profile}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.target_aws_region}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.target_aws_profile}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.target_aws_region}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+              EOT
+  }
+
+  depends_on = [ 
+    module.target-eks
+  ]
+}
+
+resource "null_resource" "attacker_eks_context_switcher" {
+  count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+                echo 'Applying Auth ConfigMap with kubectl...'
+                aws eks wait cluster-active --profile '${var.attacker_aws_profile}' --region=${var.attacker_aws_region} --name '${module.attacker-eks[0].cluster.name}'
+                if ! command -v yq; then
+                  curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+                  chmod +x /usr/local/bin/yq
+                fi
+                aws eks update-kubeconfig --profile '${var.attacker_aws_profile}' --name '${module.attacker-eks[0].cluster.name}' --region=${var.attacker_aws_region}
+                aws eks update-kubeconfig --profile '${var.attacker_aws_profile}' --name '${module.attacker-eks[0].cluster.name}' --region=${var.attacker_aws_region} --kubeconfig="${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+              EOT
+  }
+
+  depends_on = [ 
+    module.attacker-eks
+  ]
+}
+
 data "local_file" "attacker_kubeconfig" {
   count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
   filename = pathexpand(module.attacker-eks[0].kubeconfig_path)
+  depends_on = [
+    null_resource.attacker_eks_context_switcher
+    module.attacker-eks
+  ]
 }
 
 data "local_file" "target_kubeconfig" {
   count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
   filename = pathexpand(module.target-eks[0].kubeconfig_path)
+  depends_on = [
+    null_resource.target_eks_context_switcher
+    module.target-eks
+  ]
 }
 
 provider "kubernetes" {
