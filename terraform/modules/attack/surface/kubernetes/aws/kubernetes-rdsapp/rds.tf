@@ -175,37 +175,54 @@ resource "aws_db_subnet_group" "database" {
 
   tags = {
     Name = var.environment
+    environment = var.environment
+    deployment = var.deployment
+  }
+
+  lifecycle {
+    ignore_changes = [
+      all
+    ]
   }
 }
 
 resource "aws_security_group" "database" {
-  name = "${var.environment}-rdsapp-mysql-private-sg"
+  name = "rdsapp-mysql-private-sg-${var.environment}-${var.deployment}"
 
   description = "rdsapp security group"
   vpc_id      = data.aws_vpc.cluster.id
 
-  ingress {
-    from_port   = local.database_port
-    to_port     = local.database_port
-    protocol    = "tcp"
-    description = "rdsapp mysql"
-    security_groups = [data.aws_security_group.cluster.id]
-  }
-
-  # Allow outbound traffic to private subnets.
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    security_groups = [data.aws_security_group.cluster.id]
-  }
-
   depends_on = [
+    data.aws_vpc.database,
     aws_subnet.database,
     aws_subnet.database2,
     aws_db_subnet_group.database,
-    aws_security_group.database
   ]
+}
+
+resource "aws_security_group_rule" "db_egress_rules" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = data.aws_security_group.cluster.id
+
+  timeouts {
+    create = "10m"
+  }
+}
+
+resource "aws_security_group_rule" "db_ingress_rules" {
+  type              = "ingress"
+  from_port         = var.database_port
+  to_port           = var.database_port
+  protocol          = "tcp"
+  description       = "db mysql"
+  security_group_id = data.aws_security_group.cluster.id
+
+  timeouts {
+    create = "10m"
+  }
 }
 
 resource "aws_db_instance" "database" {

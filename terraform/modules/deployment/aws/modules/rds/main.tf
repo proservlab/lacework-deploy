@@ -83,11 +83,11 @@ resource "aws_route_table_association" "database2" {
 
 resource "aws_subnet" "database" {
   vpc_id                  = data.aws_vpc.database.id
-  cidr_block              = local.subnets_cidrs[0]
-  availability_zone       = local.availability_zones[0]
+  cidr_block              = element(local.subnets_cidrs, 0)
+  availability_zone       = element(local.availability_zones, 0)
 
   tags = {
-    Name        = "db-subnet-${var.environment}-${var.deployment}-${local.availability_zones[0]}"
+    Name        = "db-subnet-${var.environment}-${var.deployment}-${element(local.availability_zones, 0)}"
     environment = var.environment
     deployment = var.deployment
   }
@@ -97,17 +97,19 @@ resource "aws_subnet" "database" {
   ]
 
   lifecycle {
-      ignore_changes = [cidr_block]
+    ignore_changes = [
+      all
+    ]
   }
 }
 
 resource "aws_subnet" "database2" {
   vpc_id                  = data.aws_vpc.database.id
-  cidr_block              = local.subnets_cidrs[1]
-  availability_zone       = local.availability_zones[1]
+  cidr_block              = element(local.subnets_cidrs, 1)
+  availability_zone       = element(local.availability_zones, 1)
 
   tags = {
-    Name        = "db-subnet-${var.environment}-${var.deployment}-${local.availability_zones[1]}"
+    Name        = "db-subnet-${var.environment}-${var.deployment}-${element(local.availability_zones, 0)}"
     environment = var.environment
     deployment = var.deployment
   }
@@ -117,7 +119,9 @@ resource "aws_subnet" "database2" {
   ]
 
   lifecycle {
-      ignore_changes = [cidr_block]
+    ignore_changes = [
+      all
+    ]
   }
 }
 
@@ -131,6 +135,8 @@ resource "aws_db_subnet_group" "database" {
 
   tags = {
     Name = "db-subnet-group-${var.environment}-${var.deployment}"
+    environment = var.environment
+    deployment = var.deployment
   }
 
   depends_on = [ 
@@ -140,7 +146,9 @@ resource "aws_db_subnet_group" "database" {
   ]
 
   lifecycle {
-      ignore_changes = [subnet_ids]
+    ignore_changes = [
+      all
+    ]
   }
 }
 
@@ -149,22 +157,6 @@ resource "aws_security_group" "database" {
 
   description = "db security group"
   vpc_id      = data.aws_vpc.database.id
-  
-  ingress {
-    from_port   = var.database_port
-    to_port     = var.database_port
-    protocol    = "tcp"
-    description = "db mysql"
-    security_groups = [data.aws_security_group.trusted.id]
-  }
-
-  # Allow outbound traffic to private subnets.
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    security_groups = [data.aws_security_group.trusted.id]
-  }
 
   depends_on = [
     data.aws_vpc.database,
@@ -172,6 +164,31 @@ resource "aws_security_group" "database" {
     aws_subnet.database2,
     aws_db_subnet_group.database,
   ]
+}
+
+resource "aws_security_group_rule" "db_egress_rules" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = data.aws_security_group.trusted.id
+
+  timeouts {
+    create = "10m"
+  }
+}
+
+resource "aws_security_group_rule" "db_ingress_rules" {
+  type              = "ingress"
+  from_port         = var.database_port
+  to_port           = var.database_port
+  protocol          = "tcp"
+  description       = "db mysql"
+  security_group_id = data.aws_security_group.trusted.id
+
+  timeouts {
+    create = "10m"
+  }
 }
 
 resource "aws_db_instance" "database" {
