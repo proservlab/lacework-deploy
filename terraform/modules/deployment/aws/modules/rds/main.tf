@@ -64,7 +64,7 @@ resource "aws_route_table_association" "database" {
   ]
 
   lifecycle {
-      ignore_changes = [subnet_id]
+    ignore_changes = all
   }
 }
 
@@ -77,7 +77,7 @@ resource "aws_route_table_association" "database2" {
   ]
 
   lifecycle {
-      ignore_changes = [subnet_id]
+    ignore_changes = all
   }
 }
 
@@ -97,9 +97,7 @@ resource "aws_subnet" "database" {
   ]
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 
@@ -119,9 +117,7 @@ resource "aws_subnet" "database2" {
   ]
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 
@@ -146,9 +142,7 @@ resource "aws_db_subnet_group" "database" {
   ]
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 

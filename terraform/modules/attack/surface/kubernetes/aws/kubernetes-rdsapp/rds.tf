@@ -141,9 +141,7 @@ resource "aws_subnet" "database" {
   }
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 
@@ -159,9 +157,7 @@ resource "aws_subnet" "database2" {
   }
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 
@@ -180,9 +176,7 @@ resource "aws_db_subnet_group" "database" {
   }
 
   lifecycle {
-    ignore_changes = [
-      all
-    ]
+    ignore_changes = all
   }
 }
 
