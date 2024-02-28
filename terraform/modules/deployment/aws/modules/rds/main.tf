@@ -171,7 +171,8 @@ resource "aws_security_group_rule" "db_egress_rules" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = data.aws_security_group.trusted.id
+  security_group_id = aws_security_group.database.id
+  source_security_group_id = data.aws_security_group.trusted.id
 
   timeouts {
     create = "10m"
@@ -184,7 +185,8 @@ resource "aws_security_group_rule" "db_ingress_rules" {
   to_port           = var.database_port
   protocol          = "tcp"
   description       = "db mysql"
-  security_group_id = data.aws_security_group.trusted.id
+  security_group_id = aws_security_group.database.id
+  source_security_group_id = data.aws_security_group.trusted.id
 
   timeouts {
     create = "10m"
