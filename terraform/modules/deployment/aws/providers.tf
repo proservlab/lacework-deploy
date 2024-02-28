@@ -68,7 +68,7 @@ data "local_file" "attacker_kubeconfig" {
   count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
   filename = pathexpand(module.attacker-eks[0].kubeconfig_path)
   depends_on = [
-    null_resource.attacker_eks_context_switcher
+    null_resource.attacker_eks_context_switcher,
     module.attacker-eks
   ]
 }
@@ -77,7 +77,7 @@ data "local_file" "target_kubeconfig" {
   count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
   filename = pathexpand(module.target-eks[0].kubeconfig_path)
   depends_on = [
-    null_resource.target_eks_context_switcher
+    null_resource.target_eks_context_switcher,
     module.target-eks
   ]
 }
