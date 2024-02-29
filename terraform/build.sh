@@ -238,7 +238,7 @@ check_tf_apply(){
                 )
                 ERR=$?
                 infomsg "Terraform result: $ERR"
-                if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
                     ERR=1
                     errmsg "Terraform failed: ${ERR}"
                     exit $ERR
@@ -250,11 +250,11 @@ check_tf_apply(){
                     terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
                 )
                 ERR=$?
-                if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+                if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
                     errmsg "Terraform failed: ${ERR}"
                     exit 1
                 fi
-            elif [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
+            elif ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
                 errmsg "Terraform failed: ${ERR}"
                 exit 1
             fi
@@ -481,8 +481,7 @@ elif [ "plan" = "${ACTION}" ]; then
     )
     ERR=$?
     infomsg "Terraform result: $ERR"
-    if [ $ERR -ne 0 ] || grep "Error: " $LOGFILE; then
-        ERR=1
+    if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
         errmsg "Terraform failed: ${ERR}"
         exit $ERR
     fi
@@ -522,8 +521,13 @@ elif [ "apply" = "${ACTION}" ]; then
     infomsg "Terraform result: $ERR"
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
-    if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
-    check_tf_apply ${ERR} apply ${PLANFILE}
+    if [[ $CHANGE_COUNT -gt 0 ]] && [ $ERR -eq 2 ] && [ $ERR -eq  0 ]; then 
+        ERR=2
+        check_tf_apply ${ERR} apply ${PLANFILE}
+    elif ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
+        errmsg "Terraform failed: ${ERR}"
+        exit $ERR
+    fi
 elif [ "destroy" = "${ACTION}" ]; then
     echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
     (
@@ -537,7 +541,7 @@ elif [ "destroy" = "${ACTION}" ]; then
     if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
     
     # additional check because plan doesn't return 0 for -destory
-    if [ $ERR -eq 1 ] || grep "Error: " $LOGFILE; then
+    if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
         ERR=1
         errmsg "Terraform failed: ${ERR}"
         exit $ERR

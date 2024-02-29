@@ -27,16 +27,16 @@ locals {
       deployment = var.deployment
 
       # gcp
-      gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
-      gcp_region  = var.attacker_gcp_region
+      gcp_project          = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      gcp_region           = var.attacker_gcp_region
       gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
-      gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
+      gcp_lacework_region  = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # lacework
       lacework_profile      = var.attacker_lacework_profile
@@ -52,16 +52,16 @@ locals {
       deployment = var.deployment
 
       # gcp
-      gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
-      gcp_region  = var.target_gcp_region
+      gcp_project          = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      gcp_region           = var.target_gcp_region
       gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
-      gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
+      gcp_lacework_region  = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # lacework
       lacework_profile      = var.target_lacework_profile
@@ -87,14 +87,14 @@ locals {
   attacker_infrastructure_override = {
     context = {
       lacework = {
-        
+
       }
     }
   }
   target_infrastructure_override = {
     context = {
       lacework = {
-        
+
       }
     }
   }
@@ -148,10 +148,10 @@ locals {
       deployment = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -165,10 +165,10 @@ locals {
       deployment = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -207,7 +207,7 @@ locals {
     }
   }
 
-  infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
+  infrastructure_target_kubeconfig_path   = local.target_kubeconfig_path
   infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
 }
 
@@ -255,20 +255,20 @@ locals {
       deployment  = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # gcp
-      attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
-      attacker_gcp_region  = var.attacker_gcp_region
+      attacker_gcp_project          = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      attacker_gcp_region           = var.attacker_gcp_region
       attacker_gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
-      attacker_gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
-      target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
-      target_gcp_region  = var.target_gcp_region
-      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
-      target_gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
+      attacker_gcp_lacework_region  = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
+      target_gcp_project            = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      target_gcp_region             = var.target_gcp_region
+      target_gcp_lacework_project   = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+      target_gcp_lacework_region    = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # variables
       compromised_credentials                              = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
@@ -288,20 +288,20 @@ locals {
       deployment  = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # gcp
-      attacker_gcp_project = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
-      attacker_gcp_region  = var.attacker_gcp_region
+      attacker_gcp_project          = can(length(var.attacker_gcp_project)) ? var.attacker_gcp_project : ""
+      attacker_gcp_region           = var.attacker_gcp_region
       attacker_gcp_lacework_project = can(length(var.attacker_gcp_lacework_project)) ? var.attacker_gcp_lacework_project : ""
-      attacker_gcp_lacework_region = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
-      target_gcp_project = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
-      target_gcp_region  = var.target_gcp_region
-      target_gcp_lacework_project = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
-      target_gcp_lacework_region = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
+      attacker_gcp_lacework_region  = can(length(var.attacker_gcp_lacework_region)) ? var.attacker_gcp_lacework_region : ""
+      target_gcp_project            = can(length(var.target_gcp_project)) ? var.target_gcp_project : ""
+      target_gcp_region             = var.target_gcp_region
+      target_gcp_lacework_project   = can(length(var.target_gcp_lacework_project)) ? var.target_gcp_lacework_project : ""
+      target_gcp_lacework_region    = can(length(var.target_gcp_lacework_region)) ? var.target_gcp_lacework_region : ""
 
       # variables
       attacker_context_config_protonvpn_user               = var.attacker_context_config_protonvpn_user
