@@ -130,6 +130,25 @@ for i in "$@"; do
   esac
 done
 
+get_tfvar_value() {
+    local tfvars_file="$1"
+    local key="$2"
+    
+    if [ ! -f "$tfvars_file" ]; then
+        echo "Error: $tfvars_file not found"
+        return 1
+    fi
+
+    local value=$(grep -E "^$key\s*=" "$tfvars_file" | sed -E 's/^[^=]*= *["'\'']*//;s/["'\'']* *$//')
+
+    if [ -n "$value" ]; then
+        echo "$value"
+    else
+        echo "Key '$key' not found in $tfvars_file"
+        return 1
+    fi
+}
+
 # set current working directory to the script directory
 cd $SCRIPT_PATH
 
@@ -192,97 +211,6 @@ fi
 # force local back-end
 LOCAL_BACKEND="true"
 
-check_tf_apply(){
-    if [ ${1} -eq 0 ]; then
-        warnmsg "No changes, not applying"
-    elif [ ${1} -eq 1 ]; then
-        errmsg "Terraform plan failed"
-        exit 1
-    elif [ ${1} -eq 2 ]; then
-        if [ "apply" = "${2}" ]; then
-            infomsg "Changes required, applying"
-            if command_exists tf-summarize; then
-                infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-                (
-                    set -o pipefail
-                    terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-                )
-                ERR=$?
-            else
-                infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                (
-                    set -o pipefail
-                    terraform show -no-color ${PLANFILE} | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-                )
-                ERR=$?
-            fi
-            infomsg "Terraform summary result: $ERR"
-            
-            infomsg "Running: terraform apply -input=false -no-color ${3}"
-            (
-                set -o pipefail
-                terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
-            )
-            ERR=$?
-            infomsg "Terraform result: $ERR"
-
-            infomsg "Checking for kubernetes readiness errors..."
-            if grep "dial tcp \[\:\:1\]\:80\: connect\: connection refused" $LOGFILE; then
-                infomsg "Some kubernetes resources were not ready during deploy - a second apply is required..."
-                infomsg "Updating kubeconfig..."
-                stage_kubeconfig
-                echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-                (
-                    set -o pipefail
-                    terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
-                )
-                ERR=$?
-                infomsg "Terraform result: $ERR"
-                if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-                    ERR=1
-                    errmsg "Terraform failed: ${ERR}"
-                    exit $ERR
-                fi
-                
-                infomsg "Running: terraform apply -input=false -no-color ${3}"
-                (
-                    set -o pipefail
-                    terraform apply -parallelism=$PARALLELISM -input=false -no-color ${3} 2>&1 | tee -a $LOGFILE
-                )
-                ERR=$?
-                if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-                    errmsg "Terraform failed: ${ERR}"
-                    exit 1
-                fi
-            elif ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-                errmsg "Terraform failed: ${ERR}"
-                exit 1
-            fi
-        else
-            warnmsg "Plan only, not applying"
-        fi
-    fi
-}
-
-get_tfvar_value() {
-    local tfvars_file="$1"
-    local key="$2"
-    
-    if [ ! -f "$tfvars_file" ]; then
-        echo "Error: $tfvars_file not found"
-        return 1
-    fi
-
-    local value=$(grep -E "^$key\s*=" "$tfvars_file" | sed -E 's/^[^=]*= *["'\'']*//;s/["'\'']* *$//')
-
-    if [ -n "$value" ]; then
-        echo "$value"
-    else
-        echo "Key '$key' not found in $tfvars_file"
-        return 1
-    fi
-}
-
 # get the deployment unique id
 tfvars_file="$SCRIPT_PATH/env_vars/variables-${WORK}.tfvars"
 infomsg "Retrieving deployment id from: ${tfvars_file}"
@@ -307,8 +235,70 @@ echo "PLANFILE          = ${PLANFILE}"
 echo "PARALLELISM       = ${PARALLELISM}"
 echo "REFRESH_ON_PLAN   = ${NO_REFRESH_ON_PLAN}"
 
+if [ "${ACTION}" == "destroy" ]; then
+    TERRAFORM_DESTROY_ARGS="-destroy"
+else
+    TERRAFORM_DESTROY_ARGS=""
+fi
+TERRAFORM_PLAN_ARGS="${BACKEND} ${VARS} ${TERRAFORM_DESTROY_ARGS} -out ${PLANFILE} -detailed-exitcode -compact-warnings"
+TERRAFORM_COMMON_ARGS="-parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -input=false -no-color"
+TERRAFORM_APPLY_ARGS="-auto-approve ${TERRAFORM_DESTROY_ARGS} ${PLANFILE}"
+
 # change directory to provider directory
 cd $CSP
+
+run_terraform_plan() {
+    echo "Running: terraform plan ${TERRAFORM_COMMON_ARGS} ${TERRAFORM_PLAN_ARGS}"
+    (
+        set -o pipefail
+        terraform plan ${TERRAFORM_COMMON_ARGS} ${TERRAFORM_PLAN_ARGS} 2>&1 | tee -a $LOGFILE
+    )
+    return $?
+}
+
+run_terraform_apply() {
+    echo "Running: terraform apply -input=false -no-color ${APPLY_ARGS}"
+    (
+        set -o pipefail
+        terraform apply ${TERRAFORM_COMMON_ARGS} ${TERRAFORM_APPLY_ARGS}  2>&1 | tee -a $LOGFILE
+    )
+    return $?
+}
+
+run_terraform_show() {
+    if command_exists tf-summarize; then
+        infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
+        (
+            set -o pipefail
+            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
+        )
+        ERR=$?
+    else
+        infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+        (
+            set -o pipefail
+            terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
+        )
+        ERR=$?
+        infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
+    fi
+}
+
+check_for_errors() {
+    local ERR_CODE=$1
+    local ERROR_MSG=$2
+    if [ "${ACTION}" == "plan" ]; then
+        if ( [ $ERR_CODE -ne 2 ] && [ $ERR_CODE -ne 0 ] ) || grep "Error: " $LOGFILE; then
+            errmsg "$ERROR_MSG: ${ERR_CODE}"
+            exit $ERR_CODE
+        fi
+    else
+        if ( [ $ERR_CODE -ne 0 ] ) || grep "Error: " $LOGFILE; then
+            errmsg "$ERROR_MSG: ${ERR_CODE}"
+            exit $ERR_CODE
+        fi
+    fi
+}
 
 # check for sso logged out session
 check_session(){
@@ -357,13 +347,13 @@ TARGET_AWS_PROFILE=$TARGET_AWS_PROFILE
 TARGET_AWS_REGION=$TARGET_AWS_REGION
 TARGET_EKS_ENABLED=$TARGET_EKS_ENABLED
 EOF
+        if ([[ "$ATTACKER_EKS_ENABLED" == "true" ]] || [[ "$TARGET_EKS_ENABLED" == "true" ]]) && ! command -v yq; then 
+            curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+            chmod +x /usr/local/bin/yq
+            echo "Found yq: $(command -v yq)"
+        fi
         if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
             echo "EKS in attacker scenario enabled..."
-            if ! command -v yq; then
-                curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
-                chmod +x /usr/local/bin/yq
-            fi
-            echo "Found yq: $(command -v yq)"
             CLUSTERS=$(aws eks list-clusters --profile=$ATTACKER_AWS_PROFILE --region=$ATTACKER_AWS_REGION --output=json)
             for CLUSTER in $(echo $CLUSTERS| jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
                 echo "Found cluster: $CLUSTER"
@@ -390,11 +380,6 @@ EOF
         fi
         if [[ "$TARGET_EKS_ENABLED" == "true" ]]; then 
             echo "EKS in target scenario enabled..."
-            if ! command -v yq; then
-                curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
-                chmod +x /usr/local/bin/yq
-            fi
-            echo "Found yq: $(command -v yq)"
             CLUSTERS=$(aws eks list-clusters --profile=$TARGET_AWS_PROFILE --region=$TARGET_AWS_REGION)
             for CLUSTER in $(echo $CLUSTERS | jq -r --arg DEPLOYMENT "$DEPLOYMENT" '.clusters[] | select(endswith((["-",$DEPLOYMENT]|join(""))))'); do
                 echo "Found cluster: $CLUSTER"
@@ -453,57 +438,19 @@ else
 fi;
 
 if [ "show" = "${ACTION}" ]; then
-    echo "Running: terraform show"
-    if command_exists tf-summarize; then
-        infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-        (
-            set -o pipefail
-            terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-        )
-        ERR=$?
-    else
-        infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        (
-            set -o pipefail
-            terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        )
-        ERR=$?
-        infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-    fi
-    infomsg "Terraform show result: $ERR"
+    run_terraform_show
     CHANGE_COUNT=$(terraform show -json ${PLANFILE} | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
 elif [ "plan" = "${ACTION}" ]; then
-    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    (
-        set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
-    )
+    run_terraform_plan
     ERR=$?
-    infomsg "Terraform result: $ERR"
-    if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-        errmsg "Terraform failed: ${ERR}"
-        exit $ERR
-    fi
-    if command_exists tf-summarize; then
-        infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-        (
-            set -o pipefail
-            terraform show -json -no-color ${PLANFILE} | tf-summarize > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-        )
-        ERR=$?
-    else
-        infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        (
-            set -o pipefail
-            terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-        )
-        ERR=$?
-    fi
-    infomsg "Terraform summary result: $ERR"
+    infomsg "Terraform plan result: $ERR"
+    check_for_errors $ERR "Initial Terraform plan failed"
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
+    run_terraform_show
 elif [ "refresh" = "${ACTION}" ]; then
+    stage_kubeconfig
     echo "Running: terraform refresh ${BACKEND} ${VARS}"
     (
         set -o pipefail
@@ -512,64 +459,61 @@ elif [ "refresh" = "${ACTION}" ]; then
     ERR=$?
     infomsg "Terraform result: $ERR"
 elif [ "apply" = "${ACTION}" ]; then        
-    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${DESTROY} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    (
-        set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
-    )
+    run_terraform_plan
     ERR=$?
-    infomsg "Terraform result: $ERR"
+    infomsg "Terraform plan result: $ERR"
+    check_for_errors $ERR "Initial Terraform plan failed"
+
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
-    if [[ $CHANGE_COUNT -gt 0 ]] && [ $ERR -eq 2 ] && [ $ERR -eq  0 ]; then 
-        ERR=2
-        check_tf_apply ${ERR} apply ${PLANFILE}
-    elif ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-        errmsg "Terraform failed: ${ERR}"
-        exit $ERR
+
+    run_terraform_show
+    
+    if [ $ERR -eq 0 ] && [ $CHANGE_COUNT -eq 0 ]; then
+        warnmsg "no updates required"
+    else
+        # Run initial Terraform apply
+        run_terraform_apply
+        ERR=$?
+        infomsg "Terraform apply result: $ERR"
+
+        # Check for Kubernetes readiness errors
+        if [ $ERR -ne 0 ] && grep "dial tcp \[\:\:1\]\:80\: connect\: connection refused" $LOGFILE; then
+            infomsg "Some Kubernetes resources were not ready during deploy - a second apply is required..."
+            stage_kubeconfig
+
+            # Retry Terraform plan and apply
+            run_terraform_plan
+            ERR=$?
+            infomsg "Retried Terraform plan result: $ERR"
+            check_for_errors $ERR "Retried Terraform plan failed"
+            
+            run_terraform_apply
+            ERR=$?
+            check_for_errors $ERR "Retried Terraform apply failed"
+        else
+            check_for_errors $ERR "Terraform apply failed"
+        fi
     fi
 elif [ "destroy" = "${ACTION}" ]; then
-    echo "Running: terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode"
-    (
-        set -o pipefail
-        terraform plan -parallelism=${PARALLELISM} ${NO_REFRESH_ON_PLAN} -destroy ${BACKEND} ${VARS} -out ${PLANFILE} -detailed-exitcode -compact-warnings -input=false -no-color >> $LOGFILE 2>&1
-    )
+    run_terraform_plan
     ERR=$?
-    infomsg "Terraform result: $ERR"
+    infomsg "Terraform plan result: $ERR"
+    check_for_errors $ERR "Initial Terraform plan failed"
+
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
-    if [[ $CHANGE_COUNT -gt 0 ]] && [[ ERR -ne 1 ]]; then ERR=2; fi
+
+    run_terraform_show
     
-    # additional check because plan doesn't return 0 for -destory
-    if ( [ $ERR -ne 2 ] && [ $ERR -ne  0 ] ) || grep "Error: " $LOGFILE; then
-        ERR=1
-        errmsg "Terraform failed: ${ERR}"
-        exit $ERR
+    if [ $ERR -eq 0 ] && [ $CHANGE_COUNT -eq 0 ]; then
+        warnmsg "no updates required"
     else
-        if command_exists tf-summarize; then
-            infomsg "tf-summarize found creating: ${DEPLOYMENT}-plan.txt"
-            (
-                set -o pipefail
-                terraform show -json -no-color ${PLANFILE} | tf-summarize | tee "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-            )
-            ERR=$?
-        else
-            infomsg "tf-summarize not found using terraform show: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-            (
-                set -o pipefail
-                terraform show -no-color ${PLANFILE} > "${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt"
-            )
-            ERR=$?
-            infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
-        fi
-        echo "Running: terraform apply -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE}"
-        (
-            set -o pipefail 
-            terraform apply -parallelism=$PARALLELISM -destroy -compact-warnings -auto-approve -input=false -no-color ${PLANFILE} >> $LOGFILE 2>&1
-        )
+        # Run initial Terraform apply
+        run_terraform_apply
         ERR=$?
-        infomsg "Terraform result: $ERR"
-        exit $ERR
+        check_for_errors $ERR "Terraform destroy failed"
+        infomsg "Terraform destroy result: $ERR"
     fi
 fi
 
