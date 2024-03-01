@@ -180,8 +180,8 @@ for user in users:
         try:
             with pwncat.manager.Manager() as manager:
                 # Establish a pwncat session
-                manager.load_modules(Path.joinpath(
-                    Path.cwd(), Path("plugins")))
+                manager.load_modules(str(Path.joinpath(
+                    Path.cwd(), Path("plugins"))))
                 manager.config.set("verbose", True, glob=True)
                 print(
                     f"SSH password login attempt: {user}:{password}@{args.target_ip}:{args.target_port}")
@@ -215,8 +215,8 @@ for user in users:
                     try:
                         with pwncat.manager.Manager() as manager:
                             # Establish a pwncat session
-                            manager.load_modules(Path.joinpath(
-                                Path.cwd(), Path("plugins")))
+                            manager.load_modules(str(Path.joinpath(
+                                Path.cwd(), Path("plugins"))))
                             manager.config.set("verbose", True, glob=True)
                             print(
                                 f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
@@ -255,8 +255,8 @@ for user in users:
         try:
             with pwncat.manager.Manager() as manager:
                 # Establish a pwncat session
-                manager.load_modules(Path.joinpath(
-                    Path.cwd(), Path("plugins")))
+                manager.load_modules(str(Path.joinpath(
+                    Path.cwd(), Path("plugins"))))
                 manager.config.set("verbose", True, glob=True)
                 print(
                     f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
@@ -290,8 +290,8 @@ for user in users:
                     try:
                         with pwncat.manager.Manager() as manager:
                             # Establish a pwncat session
-                            manager.load_modules(Path.joinpath(
-                                Path.cwd(), Path("plugins")))
+                            manager.load_modules(str(Path.joinpath(
+                                Path.cwd(), Path("plugins"))))
                             manager.config.set("verbose", True, glob=True)
                             print(
                                 f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")

@@ -203,16 +203,16 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                         # assume credentials prep added creds to local home
                         if csp == "aws":
-                            local_creds = Path.joinpath(
-                                Path.home(), Path(".aws"))
+                            local_creds = str(Path.joinpath(
+                                Path.home(), Path(".aws")))
                             container_creds = "/root/.aws"
                         elif csp == "gcp":
-                            local_creds = Path.joinpath(
-                                Path.home(), Path(".config/gcloud"))
+                            local_creds = str(Path.joinpath(
+                                Path.home(), Path(".config/gcloud")))
                             container_creds = "/root/.config/gcloud"
 
-                        local_kube_creds = Path.joinpath(
-                            Path.home(), Path(".kube"))
+                        local_kube_creds = str(Path.joinpath(
+                            Path.home(), Path(".kube")))
                         container_kube_creds = "/root/.kube"
 
                         log(f"Starting tor tunneled docker...")

