@@ -3,11 +3,11 @@ locals {
     payload = <<-EOT
     PWNCAT_LOG="/tmp/pwncat_connector.log"
     PWNCAT_SESSION="pwncat_connector"
-    PWNCAT_SESSION_LOCK="pwncat_connector_session.lock"
-    if [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; then
-        log "Pwncat session lock /tmp/$PWNCAT_SESSION_LOCK exists and $PWNCAT_SESSION screen session running. Skipping setup."
+    PWNCAT_SESSION_LOCK="/tmp/pwncat_connector_session.lock"
+    if [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; then
+        log "Pwncat session lock $PWNCAT_SESSION_LOCK exists and $PWNCAT_SESSION screen session running. Skipping setup."
     else
-        rm -f "/tmp/$PWNCAT_SESSION_LOCK"
+        rm -f "$PWNCAT_SESSION_LOCK"
         log "Session lock doesn't exist and screen session not runing. Continuing..."
         screen -S $PWNCAT_SESSION -X quit
         screen -wipe
@@ -45,7 +45,7 @@ locals {
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."
             sleep 1800
             log "sleep complete - checking for running sessions..."
-            while [ -e "/tmp/$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; do
+            while [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; do
                 log "pwncat session still running - waiting before restart..."
                 sleep 600
             done

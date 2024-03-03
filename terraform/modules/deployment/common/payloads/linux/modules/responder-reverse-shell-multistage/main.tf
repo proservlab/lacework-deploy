@@ -5,8 +5,8 @@ locals {
     payload = <<-EOT
     PWNCAT_LOG="/tmp/pwncat_connector.log"
     PWNCAT_SESSION="pwncat"
-    PWNCAT_SESSION_LOCK="pwncat_session.lock"
-    if [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "pwncat"; then
+    PWNCAT_SESSION_LOCK="/tmp/pwncat_session.lock"
+    if [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; then
         log "Pwncat session lock $PWNCAT_SESSION_LOCK exists and pwncat screen session running. Skipping setup."
     else
         rm -f "$PWNCAT_SESSION_LOCK"
