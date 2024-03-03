@@ -3,7 +3,7 @@ locals {
     listen_ip = var.inputs["listen_ip"]
     attack_dir = "/pwncat"
     payload = <<-EOT
-    PWNCAT_LOG="/tmp/pwncat_connector.log"
+    PWNCAT_LOG="/tmp/pwncat.log"
     PWNCAT_SESSION="pwncat"
     PWNCAT_SESSION_LOCK="/tmp/pwncat_session.lock"
     if [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; then
