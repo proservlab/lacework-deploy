@@ -123,6 +123,10 @@ module "target-cloudsql" {
   providers = {
     google = google.target
   }
+
+  depends_on = [
+    module.target-gce
+  ]
 }
 
 ##################################################
@@ -176,6 +180,10 @@ module "target-gke" {
   providers = {
     google = google.target
   }
+
+  depends_on = [
+    module.target-gce
+  ]
 }
 
 ##################################################

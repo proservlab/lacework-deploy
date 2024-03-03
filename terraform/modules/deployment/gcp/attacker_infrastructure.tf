@@ -123,6 +123,10 @@ module "attacker-cloudsql" {
   providers = {
     google = google.attacker
   }
+
+  depends_on = [
+    module.attacker-gce
+  ]
 }
 
 ##################################################
@@ -176,6 +180,10 @@ module "attacker-gke" {
   providers = {
     google = google.attacker
   }
+
+  depends_on = [
+    module.attacker-gce
+  ]
 }
 
 ##################################################
