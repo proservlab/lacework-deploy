@@ -3,13 +3,16 @@ locals {
     listen_ip = var.inputs["listen_ip"]
     attack_dir = "/pwncat"
     payload = <<-EOT
-    if [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; then
-        log "Pwncat session lock /tmp/pwncat_session.lock exists and pwncat screen session running. Skipping setup."
+    PWNCAT_LOG="/tmp/pwncat_connector.log"
+    PWNCAT_SESSION="pwncat"
+    PWNCAT_SESSION_LOCK="pwncat_session.lock"
+    if [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "pwncat"; then
+        log "Pwncat session lock $PWNCAT_SESSION_LOCK exists and pwncat screen session running. Skipping setup."
     else
-        rm -f "/tmp/pwncat_session.lock"
+        rm -f "$PWNCAT_SESSION_LOCK"
         log "Session lock doesn't exist and screen session not runing. Continuing..."
         log "setting up reverse shell listener: ${local.listen_ip}:${local.listen_port}"
-        screen -S pwncat -X quit
+        screen -S $PWNCAT_SESSION -X quit
         screen -wipe
         log "cleaning app directory"
         rm -rf ${local.attack_dir}
@@ -45,14 +48,13 @@ locals {
         fi
         START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         while true; do
-            PWNCAT_LOG="/tmp/pwncat.log"
             for i in `seq $((MAXLOG-1)) -1 1`; do mv "$PWNCAT_LOG."{$i,$((i+1))} 2>/dev/null || true; done
             mv $PWNCAT_LOG "$PWNCAT_LOG.1" 2>/dev/null || true
             log "starting background process via screen..."
-            screen -S pwncat -X quit
+            screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S pwncat -m python3.9 listener.py --port ${local.listen_port}" >/dev/null 2>&1 &
-            screen -S pwncat -X colon "logfile flush 0^M"
+            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 listener.py --port ${local.listen_port}"
+            screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
             log "Checking for listener..."
             TIMEOUT=1800
             START_TIME=$(date +%s)
@@ -82,7 +84,7 @@ locals {
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."
             sleep 1800
             log "sleep complete - checking for running sessions..."
-            while [ -e "/tmp/pwncat_session.lock" ]  && screen -ls | grep -q "pwncat"; do
+            while [ -e "$PWNCAT_SESSION_LOCK" ]  && screen -ls | grep -q "$PWNCAT_SESSION"; do
                 log "pwncat session still running - waiting before restart..."
                 sleep 600
             done

