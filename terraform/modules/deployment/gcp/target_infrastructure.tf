@@ -340,7 +340,7 @@ module "target-lacework-gcp-audit-config" {
 
   providers = {
     google = google.target
-    lacework = google.target
+    lacework = lacework.target
   }
 }
 
@@ -354,7 +354,7 @@ module "target-lacework-gcp-agentless" {
 
   providers = {
     google = google.target
-    lacework = google.target
+    lacework = lacework.target
   }
 }
 

@@ -92,6 +92,10 @@ module "attacker-osconfig-execute-docker-exploit-log4j" {
   payload = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.docker_exploit_log4j_app.payload
 
   tag = "osconfig_exec_docker_exploit_log4j_app"
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 module "attacker-osconfig-execute-docker-nmap" {
@@ -112,6 +116,10 @@ module "attacker-osconfig-execute-docker-nmap" {
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "default" && compute.instance.tags.public == "true" ],
       [ for compute in local.target_instances: compute.instance.public_ip if compute.instance.tags.role == "app" && compute.instance.tags.public == "true" ]
   ])
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 # execute-generate-aws-cli-traffic
@@ -130,6 +138,10 @@ module "attacker-osconfig-execute-generate-gcp-cli-traffic" {
   compromised_credentials = local.target_compromised_credentials
   compromised_keys_user   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.compromised_keys_user
   commands                = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_gcp_cli_traffic.commands
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 module "attacker-osconfig-execute-generate-web-traffic" {
@@ -144,6 +156,10 @@ module "attacker-osconfig-execute-generate-web-traffic" {
 
   delay                   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.delay
   urls                    = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.generate_web_traffic.urls
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 module "attacker-osconfig-execute-exploit-npm-app" {
@@ -160,6 +176,10 @@ module "attacker-osconfig-execute-exploit-npm-app" {
   target_port = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.exploit_npm_app.target_port
   payload = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.exploit_npm_app.payload
   attack_delay = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.execute.exploit_npm_app.attack_delay
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 ##################################################
@@ -178,6 +198,10 @@ module "attacker-osconfig-listener-http-listener" {
   
   listen_ip     = "0.0.0.0"
   listen_port   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.listener.http.listen_port
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 ##################################################
@@ -195,6 +219,10 @@ module "attacker-osconfig-responder-port-forward" {
   tag = "osconfig_exec_responder_port_forward"
 
   listen_port   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.port_forward.listen_port
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 module "attacker-osconfig-responder-reverse-shell" {
@@ -210,6 +238,10 @@ module "attacker-osconfig-responder-reverse-shell" {
   listen_ip     = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port
   payload       = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell.payload
+
+  providers = {
+    google = google.attacker
+  }
 }
 
 module "attacker-osconfig-responder-reverse-shell-multistage" {
@@ -232,4 +264,8 @@ module "attacker-osconfig-responder-reverse-shell-multistage" {
   
   # if reverse_shell_host not provided in config use the public ip
   reverse_shell_host = try(length(local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.reverse_shell_host), "false") != "false" ? local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.reverse_shell_host : local.attacker_reverse_shell_multistage[0]
+
+  providers = {
+    google = google.attacker
+  }
 }

@@ -68,6 +68,10 @@ module "target-osconfig-connect-badip" {
   iplist_url    = local.target_attacksimulate_config.context.gcp.osconfig.target.connect.badip.iplist_url
 
   tag = "osconfig_connect_bad_ip"
+
+  providers = {
+    google = google.target
+  }
 }
 
 module "target-osconfig-connect-codecov" {
@@ -83,6 +87,10 @@ module "target-osconfig-connect-codecov" {
   host_port     = coalesce(local.target_attacksimulate_config.context.gcp.osconfig.target.connect.codecov.host_port, local.target_attacksimulate_config.context.gcp.osconfig.attacker.listener.http.listen_port)
 
   tag = "osconfig_connect_codecov"
+
+  providers = {
+    google = google.target
+  }
 }
 
 module "target-osconfig-connect-nmap-port-scan" {
@@ -99,6 +107,10 @@ module "target-osconfig-connect-nmap-port-scan" {
   nmap_scan_ports = local.target_attacksimulate_config.context.gcp.osconfig.target.connect.nmap_port_scan.nmap_scan_ports
 
   tag = "osconfig_connect_enumerate_host"
+
+  providers = {
+    google = google.target
+  }
 }
 
 module "target-osconfig-connect-oast-host" {
@@ -110,6 +122,10 @@ module "target-osconfig-connect-oast-host" {
   gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_connect_oast_host"
+
+  providers = {
+    google = google.target
+  }
 }
 
 module "target-osconfig-connect-reverse-shell" {
@@ -124,6 +140,10 @@ module "target-osconfig-connect-reverse-shell" {
   host_port     = coalesce(local.target_attacksimulate_config.context.gcp.osconfig.target.connect.reverse_shell.host_port, local.target_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell.listen_port)
 
   tag = "osconfig_exec_reverse_shell"
+
+  providers = {
+    google = google.target
+  }
 }
 
 ##################################################
@@ -141,6 +161,10 @@ module "target-osconfig-drop-malware-eicar" {
   eicar_path    = local.target_attacksimulate_config.context.gcp.osconfig.target.drop.malware.eicar.eicar_path
 
   tag = "osconfig_deploy_malware_eicar"
+
+  providers = {
+    google = google.target
+  }
 }
 
 ##################################################
@@ -169,6 +193,10 @@ module "target-osconfig-execute-docker-cpu-miner" {
   minergate_name = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_name
 
   tag = "osconfig_exec_docker_cpuminer"
+
+  providers = {
+    google = google.target
+  }
 }
 
 # execute-generate-aws-cli-traffic
@@ -183,11 +211,15 @@ module "target-osconfig-execute-generate-gcp-cli-traffic-target" {
   gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
   gcp_location = local.target_infrastructure_config.context.gcp.region
 
-  tag                     = "osconfig_exec_generate_gcp_cli_traffic_target"
-
   compromised_credentials = local.target_compromised_credentials
   compromised_keys_user   = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.compromised_keys_user
   commands                = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_gcp_cli_traffic.commands
+
+  tag                     = "osconfig_exec_generate_gcp_cli_traffic_target"
+
+  providers = {
+    google = google.target
+  }
 }
 
 module "target-osconfig-execute-generate-web-traffic" {
@@ -197,11 +229,15 @@ module "target-osconfig-execute-generate-web-traffic" {
   deployment    = local.target_attacksimulate_config.context.global.deployment
   gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
   gcp_location = local.target_infrastructure_config.context.gcp.region
-  
-  tag = "osconfig_exec_generate_web_traffic_target"
 
   delay                   = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_web_traffic.delay
   urls                    = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.generate_web_traffic.urls
+
+  tag = "osconfig_exec_generate_web_traffic_target"
+
+  providers = {
+    google = google.target
+  }
 }
 
 ##################################################

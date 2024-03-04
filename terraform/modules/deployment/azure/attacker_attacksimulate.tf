@@ -89,4 +89,8 @@ module "attacker-runbook-responder-reverse-shell" {
   listen_ip     = local.attacker_attacksimulate_config.context.azure.runbook.attacker.responder.reverse_shell.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.azure.runbook.attacker.responder.reverse_shell.listen_port
   payload       = local.attacker_attacksimulate_config.context.azure.runbook.attacker.responder.reverse_shell.payload
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }

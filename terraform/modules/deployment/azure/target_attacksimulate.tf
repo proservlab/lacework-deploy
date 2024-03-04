@@ -68,6 +68,10 @@ module "target-runbook-connect-reverse-shell" {
 
   host_ip       = coalesce(local.target_attacksimulate_config.context.azure.runbook.target.connect.reverse_shell.host_ip, try(local.target_reverse_shell.public_ip_address, "127.0.0.1"))
   host_port     = coalesce(local.target_attacksimulate_config.context.azure.runbook.target.connect.reverse_shell.host_port, local.target_attacksimulate_config.context.azure.runbook.target.responder.reverse_shell.listen_port)
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -90,6 +94,10 @@ module "target-runbook-exec-touch-file" {
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
   tag             = "runbook_exec_touch_file"
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################

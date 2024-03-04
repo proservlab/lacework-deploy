@@ -340,7 +340,7 @@ module "attacker-lacework-gcp-audit-config" {
 
   providers = {
     google = google.attacker
-    lacework = google.attacker
+    lacework = lacework.attacker
   }
 }
 
