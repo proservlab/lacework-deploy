@@ -299,7 +299,6 @@ module "attacker-attacker-kubernetes-reloader" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
-    restapi       = restapi.main
   }
 }
 

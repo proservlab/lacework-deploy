@@ -252,7 +252,6 @@ module "target-target-kubernetes-reloader" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
-    restapi       = restapi.main
   }
 }
 
