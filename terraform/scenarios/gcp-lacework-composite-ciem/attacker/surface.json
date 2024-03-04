@@ -16,6 +16,17 @@
             "from_port" :  0,
             "to_port" :  65535
           }
+        },
+        "add_app_trusted_ingress" :  {
+          "enabled"                     :  true,
+          "trust_workstation_source"    :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
+          }
         }
       }
     }
