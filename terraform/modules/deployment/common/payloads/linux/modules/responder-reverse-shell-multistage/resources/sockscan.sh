@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # attacker
-sudo apt-get update && apt-get install -y proxychains
-sudo adduser socksuser
-sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f ~/.ssh/socksuser_key"
-sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> ~/.ssh/authorized_keys"
-sudo -H -u socksuser /bin/bash -c "chmod 600 ~/.ssh/authorized_keys"
+apt-get update && apt-get install -y proxychains
+adduser --gecos "" --disabled-password "socksuser" || echo "socksuser user already exists"
+mkdir -p /home/socksuser/.ssh 2>&1 | tee -a $LOGFILE
+ssh-keygen -t rsa -N '' -b 4096 -f /home/socksuser/.ssh/socksuser_key 2>&1 | tee -a $LOGFILE
+cat /home/socksuser/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys 2>&1 | tee -a $LOGFILE
+chown -R socksuser:socksuser /home/socksuser
+chmod 600 /home/socksuser/.ssh/authorized_keys 2>&1 | tee -a $LOGFILE
 
 # target
 KEY="${ YOUR SSH KEY HERE INSIDE }"

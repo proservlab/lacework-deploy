@@ -36,14 +36,15 @@ locals {
         python3.9 -m pip install -U pwncat-cs >> $LOGFILE 2>&1
         log "wait before using module..."
         sleep 5
-        if ! ls /home/socksuser/.ssh/socksuser_key > /dev/null; then
+        if ! [ -e /home/socksuser/.ssh/socksuser_key ]; then
             log "adding tunneled port scanning user - socksuser..."
-            adduser socksuser >> $LOGFILE 2>&1
+            adduser --gecos "" --disabled-password "socksuser" || log "socksuser user already exists"
             log "adding ssh keys for socks user..."
-            sudo -H -u socksuser /bin/bash -c "mkdir -p /home/socksuser/.ssh" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "ssh-keygen -t rsa -b 4096 -f /home/socksuser/.ssh/socksuser_key" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "cat ~/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
-            sudo -H -u socksuser /bin/bash -c "chmod 600 /home/socksuser/.ssh/authorized_keys" >> $LOGFILE 2>&1
+            mkdir -p /home/socksuser/.ssh 2>&1 | tee -a $LOGFILE
+            ssh-keygen -t rsa -N '' -b 4096 -f /home/socksuser/.ssh/socksuser_key 2>&1 | tee -a $LOGFILE
+            cat /home/socksuser/.ssh/socksuser_key.pub >> /home/socksuser/.ssh/authorized_keys 2>&1 | tee -a $LOGFILE
+            chown -R socksuser:socksuser /home/socksuser
+            chmod 600 /home/socksuser/.ssh/authorized_keys 2>&1 | tee -a $LOGFILE
             log "socksuser setup complete..."
         fi
         START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
