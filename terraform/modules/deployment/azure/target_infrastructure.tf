@@ -34,6 +34,10 @@ module "target-automation-account" {
     module.target-compute,
     module.target-resource-group
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -46,6 +50,10 @@ module "target-resource-group" {
   environment  = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
   region       = local.target_infrastructure_config.context.azure.region
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-resource-group-app" {
@@ -54,6 +62,10 @@ module "target-resource-group-app" {
   environment  = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
   region       = local.target_infrastructure_config.context.azure.region
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -101,6 +113,10 @@ module "target-compute" {
     module.target-resource-group,
     module.target-resource-group-app
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -127,6 +143,10 @@ module "target-azuresql" {
   # authorized_ip_ranges                = [module.target-workstation-external-ip.cidr]
 
   depends_on = [ module.target-compute ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -156,6 +176,10 @@ module "target-azurestorage" {
   ])
 
   depends_on = [ module.target-compute ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -174,6 +198,10 @@ module "target-aks" {
   authorized_ip_ranges                = [
     module.workstation-external-ip.cidr
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 ##################################################
@@ -199,6 +227,11 @@ module "target-runbook-deploy-lacework" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+    lacework = lacework.target
+  }
 }
 
 module "target-runbook-deploy-lacework-syscall-config" {
@@ -219,6 +252,10 @@ module "target-runbook-deploy-lacework-syscall-config" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-deploy-lacework-code-aware-agent" {
@@ -237,6 +274,10 @@ module "target-runbook-deploy-lacework-code-aware-agent" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-deploy-docker" {
@@ -257,6 +298,10 @@ module "target-runbook-deploy-docker" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-deploy-git" {
@@ -275,6 +320,10 @@ module "target-runbook-deploy-git" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-azure-cli" {
@@ -293,6 +342,10 @@ module "target-runbook-azure-cli" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-lacework-cli" {
@@ -311,6 +364,10 @@ module "target-runbook-lacework-cli" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 module "target-runbook-kubectl-cli" {
@@ -329,6 +386,10 @@ module "target-runbook-kubectl-cli" {
     module.target-compute,
     module.target-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.target
+  }
 }
 
 
@@ -369,6 +430,11 @@ module "target-lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
+
+  providers = {
+    azurerm = azurerm.target
+    lacework = lacework.target
+  }
 }
 
 # lacework agentless scanning
@@ -401,8 +467,9 @@ module "target-lacework-daemonset" {
   syscall_config =  file(local.target_infrastructure_config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
+    kubernetes = kubernetes.target
+    helm = helm.target
+    lacework = lacework.target
   }
 
   depends_on = [
@@ -421,8 +488,9 @@ module "target-lacework-admission-controller" {
   lacework_proxy_token  = local.target_infrastructure_config.context.lacework.agent.kubernetes.proxy_scanner.token
 
   providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
+    kubernetes = kubernetes.target
+    helm = helm.target
+    lacework = lacework.target
   }
 
   depends_on = [

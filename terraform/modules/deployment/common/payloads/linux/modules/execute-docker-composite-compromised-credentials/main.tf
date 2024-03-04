@@ -35,7 +35,7 @@ locals {
     EOT
 
     protonvpn       = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
                                     protonvpn_password = var.inputs["protonvpn_password"]
@@ -46,7 +46,7 @@ locals {
                                 }
                             ))
     protonvpn-paid       = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
                                     protonvpn_password = var.inputs["protonvpn_password"]
@@ -57,7 +57,7 @@ locals {
                                 }
                             ))
     protonvpn-baseline  = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
                                     protonvpn_password = var.inputs["protonvpn_password"]
@@ -68,7 +68,7 @@ locals {
                                 }
                             ))
     auto-free   = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/auto-free.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/auto-free.sh.tpl",
                                 {
                                     compromised_keys_user = var.inputs["compromised_keys_user"]
                                     script = local.script
@@ -78,7 +78,7 @@ locals {
                                 }
                             ))
     auto-paid   = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/auto-paid.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/auto-paid.sh.tpl",
                                 {
                                     compromised_keys_user = var.inputs["compromised_keys_user"]
                                     script = local.script
@@ -88,31 +88,31 @@ locals {
                                 }
                             ))
     baseline    = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/baseline.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/baseline.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
                             ))
     discovery   = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/discovery.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/discovery.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
                             ))
     evasion     = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/evasion.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/evasion.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
                             ))
     cloudransom = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/cloudransom.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/cloudransom.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
                             ))
     cloudcrypto = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/cloudcrypto.tf.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/cloudcrypto.tf.tpl",
                                 {
                                     name = "crypto-gpu-miner-${var.inputs["environment"]}-${var.inputs["deployment"]}"
                                     instances = 12
@@ -121,7 +121,7 @@ locals {
                                 }
                             ))
     hostcrypto  = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/hostcrypto.tf.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/hostcrypto.tf.tpl",
                                 {
                                     name = "host-cpu-miner-${var.inputs["environment"]}-${var.inputs["deployment"]}"
                                     region = var.inputs["region"]
@@ -132,19 +132,19 @@ locals {
                             ))
     
     terraform  = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/terraform.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/terraform.sh.tpl",
                                 {
                                 }
                             ))
     
     start       = base64encode(templatefile(
-                                "${path.root}/modules/common/any/payload/linux/modules/resources/start.sh.tpl",
+                                "${path.root}/modules/deployment/common/any/payload/linux/modules/resources/start.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
                             ))
 
-    base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = templatefile("${path.root}/modules/deployment/common/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT

@@ -34,6 +34,10 @@ module "attacker-automation-account" {
     module.attacker-compute,
     module.attacker-resource-group
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 ##################################################
@@ -46,6 +50,10 @@ module "attacker-resource-group" {
   environment  = local.attacker_infrastructure_config.context.global.environment
   deployment   = local.attacker_infrastructure_config.context.global.deployment
   region       = local.attacker_infrastructure_config.context.azure.region
+  
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-resource-group-app" {
@@ -54,6 +62,10 @@ module "attacker-resource-group-app" {
   environment  = local.attacker_infrastructure_config.context.global.environment
   deployment   = local.attacker_infrastructure_config.context.global.deployment
   region       = local.attacker_infrastructure_config.context.azure.region
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 ##################################################
@@ -101,6 +113,10 @@ module "attacker-compute" {
     module.attacker-resource-group,
     module.attacker-resource-group-app
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 ##################################################
@@ -127,6 +143,10 @@ module "attacker-azuresql" {
   # authorized_ip_ranges                = [module.attacker-workstation-external-ip.cidr]
 
   depends_on = [ module.attacker-compute ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 ##################################################
@@ -156,6 +176,10 @@ module "attacker-azurestorage" {
   ])
 
   depends_on = [ module.attacker-compute ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 ##################################################
@@ -199,6 +223,11 @@ module "attacker-runbook-deploy-lacework" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+    lacework = lacework.attacker
+  }
 }
 
 module "attacker-runbook-deploy-lacework-syscall-config" {
@@ -219,6 +248,10 @@ module "attacker-runbook-deploy-lacework-syscall-config" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-deploy-lacework-code-aware-agent" {
@@ -237,6 +270,10 @@ module "attacker-runbook-deploy-lacework-code-aware-agent" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-deploy-docker" {
@@ -257,6 +294,10 @@ module "attacker-runbook-deploy-docker" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-deploy-git" {
@@ -275,6 +316,10 @@ module "attacker-runbook-deploy-git" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-azure-cli" {
@@ -293,6 +338,10 @@ module "attacker-runbook-azure-cli" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-lacework-cli" {
@@ -311,6 +360,10 @@ module "attacker-runbook-lacework-cli" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 module "attacker-runbook-kubectl-cli" {
@@ -329,6 +382,10 @@ module "attacker-runbook-kubectl-cli" {
     module.attacker-compute,
     module.attacker-automation-account
   ]
+
+  providers = {
+    azurerm = azurerm.attacker
+  }
 }
 
 
@@ -369,6 +426,11 @@ module "attacker-lacework-audit-config" {
   source      = "./modules/audit-config"
   environment = local.attacker_infrastructure_config.context.global.environment
   deployment   = local.attacker_infrastructure_config.context.global.deployment
+
+  providers = {
+    azurerm = azurerm.attacker
+    lacework = lacework.attacker
+  }
 }
 
 # lacework agentless scanning
@@ -401,8 +463,9 @@ module "attacker-lacework-daemonset" {
   syscall_config =  file(local.attacker_infrastructure_config.context.lacework.agent.kubernetes.daemonset.syscall_config_path)
 
   providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+    lacework = lacework.attacker
   }
 
   depends_on = [
@@ -421,8 +484,9 @@ module "attacker-lacework-admission-controller" {
   lacework_proxy_token  = local.attacker_infrastructure_config.context.lacework.agent.kubernetes.proxy_scanner.token
 
   providers = {
-    kubernetes = kubernetes.main
-    helm = helm.main
+    kubernetes = kubernetes.attacker
+    helm = helm.attacker
+    lacework  = lacework.attacker
   }
 
   depends_on = [

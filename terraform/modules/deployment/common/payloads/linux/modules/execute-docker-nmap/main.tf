@@ -53,7 +53,7 @@ locals {
     log "Done."
     EOT
 
-    base64_payload = templatefile("${path.root}/modules/common/any/payload/linux/delayed_start.sh", { config = {
+    base64_payload = templatefile("${path.root}/modules/deployment/common/payload/linux/delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
