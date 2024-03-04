@@ -28,7 +28,7 @@ locals {
     log "public key: $(ls -l ${local.ssh_public_key_path})"
     log "done"
     EOT
-    base64_payload_public = templatefile("${path.root}/modules/deployment/common/payload/linux/delayed_start.sh", { config = {
+    base64_payload_public = templatefile("../../linux/delayed_start.sh", { config = {
         script_name = var.inputs["public_tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
@@ -53,7 +53,7 @@ locals {
     log "private key: $(ls -l ${local.ssh_private_key_path})"
     log "done"
     EOT
-    base64_payload_private = templatefile("${path.root}/modules/deployment/common/payload/linux/delayed_start.sh", { config = {
+    base64_payload_private = templatefile("../../linux/delayed_start.sh", { config = {
         script_name = var.inputs["private_tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
