@@ -48,25 +48,28 @@ module "attacker-compute-add-trusted-ingress" {
 
   trusted_attacker_source       = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
     # local.attacker_eks_public_ip
   ])  : []
   trusted_target_source         = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = length(local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.additional_trusted_sources) > 0 ? local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.additional_trusted_sources : []
   trusted_tcp_ports             = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
 
-  depends_on = [
-      module.attacker-compute
-  ]
-
   providers = {
     azure         = azure.attacker
   }
+
+  depends_on = [
+      module.attacker-compute,
+      module.target-compute,
+      module.attacker-aks,
+      module.target-aks
+  ]
 }
 
 module "attacker-compute-add-app-trusted-ingress" {
@@ -85,21 +88,24 @@ module "attacker-compute-add-app-trusted-ingress" {
     # local.attacker_aks_public_ip
   ])  : []
   trusted_target_source         = local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_target_source ? flatten([
-    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_aks_public_ip
   ]) : []
   trusted_workstation_source    = local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = length(local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources) > 0 ? local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources : []
   trusted_tcp_ports             = local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_tcp_ports
 
-  depends_on = [
-      module.attacker-compute
-  ]
-
   providers = {
     azure         = azure.attacker
   }
+
+  depends_on = [
+      module.attacker-compute,
+      module.target-compute,
+      module.attacker-aks,
+      module.target-aks
+  ]
 }
 
 

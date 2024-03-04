@@ -83,6 +83,13 @@ module "attacker-gce-add-trusted-ingress" {
   providers = {
     google = google.attacker
   }
+
+  depends_on = [
+    module.attacker-gce,
+    module.target-gce,
+    module.attacker-gke,
+    module.target-gke
+  ]
 }
 
 module "attacker-gce-add-trusted-app-ingress" {
@@ -110,6 +117,13 @@ module "attacker-gce-add-trusted-app-ingress" {
   providers = {
     google = google.attacker
   }
+
+  depends_on = [
+    module.attacker-gce,
+    module.target-gce,
+    module.attacker-gke,
+    module.target-gke
+  ]
 }
 
 ##################################################

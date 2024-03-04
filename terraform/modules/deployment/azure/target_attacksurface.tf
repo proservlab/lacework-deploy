@@ -46,27 +46,30 @@ module "target-compute-add-trusted-ingress" {
   resource_group                = local.target_automation_account[0].resource_group
   security_group                = local.target_public_app_security_group.name
 
-  trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_eks_public_ip
   ])  : []
   trusted_target_source         = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = length(local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.additional_trusted_sources) > 0 ? local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.additional_trusted_sources : []
   trusted_tcp_ports             = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
 
-  depends_on = [
-    module.target-compute
-  ]
-
   providers = {
     azure         = azure.target
   }
+
+  depends_on = [
+      module.attacker-compute,
+      module.target-compute,
+      module.attacker-aks,
+      module.target-aks
+  ]
 }
 
 module "target-compute-add-app-trusted-ingress" {
@@ -79,13 +82,13 @@ module "target-compute-add-app-trusted-ingress" {
   resource_group                = local.target_automation_account[0].resource_group
   security_group                = local.target_public_app_security_group.name
 
-  trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_target_source ? flatten([
+  trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
-    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_aks_public_ip
   ])  : []
   trusted_target_source         = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_target_source ? flatten([
-    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_aks_public_ip
   ]) : []
@@ -93,13 +96,16 @@ module "target-compute-add-app-trusted-ingress" {
   additional_trusted_sources    = length(local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources) > 0 ? local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources : []
   trusted_tcp_ports             = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_tcp_ports
 
-  depends_on = [
-    module.target-compute
-  ]
-
   providers = {
     azure         = azure.target
   }
+
+  depends_on = [
+      module.attacker-compute,
+      module.target-compute,
+      module.attacker-aks,
+      module.target-aks
+  ]
 }
 
 
