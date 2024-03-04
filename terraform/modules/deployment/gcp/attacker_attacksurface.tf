@@ -297,7 +297,6 @@ module "attacker-attacker-kubernetes-reloader" {
   ]
 
   providers = {
-    google        = google.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -345,7 +344,6 @@ module "attacker-kubernetes-app" {
   ]
 
   providers = {
-    google        = google.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -414,7 +412,6 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   ]
 
   providers = {
-    google        = google.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -460,7 +457,6 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   ]
 
   providers = {
-    google        = google.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -507,7 +503,6 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 
   providers = {
-    google        = google.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }

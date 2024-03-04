@@ -250,7 +250,6 @@ module "target-target-kubernetes-reloader" {
   ]
 
   providers = {
-    azure         = azure.target
     kubernetes    = kubernetes.target
     helm          = helm.target
   }
@@ -298,7 +297,6 @@ module "target-kubernetes-app" {
   ]
 
   providers = {
-    azure         = azure.target
     kubernetes    = kubernetes.target
     helm          = helm.target
   }
@@ -367,7 +365,6 @@ module "target-vulnerable-kubernetes-log4j-app" {
   ]
 
   providers = {
-    azure         = azure.target
     kubernetes    = kubernetes.target
     helm          = helm.target
   }
@@ -413,7 +410,6 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   ]
 
   providers = {
-    azure         = azure.target
     kubernetes    = kubernetes.target
     helm          = helm.target
   }
@@ -460,7 +456,6 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 
   providers = {
-    azure         = azure.target
     kubernetes    = kubernetes.target
     helm          = helm.target
   }

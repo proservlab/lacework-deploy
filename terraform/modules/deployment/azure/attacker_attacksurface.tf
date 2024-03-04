@@ -250,7 +250,6 @@ module "attacker-attacker-kubernetes-reloader" {
   ]
 
   providers = {
-    azure         = azure.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -298,7 +297,6 @@ module "attacker-kubernetes-app" {
   ]
 
   providers = {
-    azure         = azure.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -367,7 +365,6 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   ]
 
   providers = {
-    azure         = azure.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -413,7 +410,6 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   ]
 
   providers = {
-    azure         = azure.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
@@ -460,7 +456,6 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   ]
 
   providers = {
-    azure         = azure.attacker
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
   }
