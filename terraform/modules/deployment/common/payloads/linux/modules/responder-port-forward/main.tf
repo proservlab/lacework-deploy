@@ -26,7 +26,7 @@ locals {
     done
     EOT
 
-    base64_payload = templatefile("../../delayed_start.sh", { config = {
+    base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
