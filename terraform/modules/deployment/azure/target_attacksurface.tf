@@ -252,6 +252,7 @@ module "target-target-kubernetes-reloader" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
+    restapi       = restapi.main
   }
 }
 
@@ -299,6 +300,7 @@ module "target-kubernetes-app" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
+    restapi       = restapi.main
   }
 }
 
@@ -367,6 +369,7 @@ module "target-vulnerable-kubernetes-log4j-app" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
+    restapi       = restapi.main
   }
 }
 
@@ -412,6 +415,7 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
+    restapi       = restapi.main
   }
 }
 
@@ -458,5 +462,6 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   providers = {
     kubernetes    = kubernetes.target
     helm          = helm.target
+    restapi       = restapi.main
   }
 }

@@ -252,6 +252,7 @@ module "attacker-attacker-kubernetes-reloader" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
+    restapi       = restapi.main
   }
 }
 
@@ -299,6 +300,7 @@ module "attacker-kubernetes-app" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
+    restapi       = restapi.main
   }
 }
 
@@ -367,6 +369,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
+    restapi       = restapi.main
   }
 }
 
@@ -412,6 +415,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
+    restapi       = restapi.main
   }
 }
 
@@ -458,5 +462,6 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   providers = {
     kubernetes    = kubernetes.attacker
     helm          = helm.attacker
+    restapi       = restapi.main
   }
 }
