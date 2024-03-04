@@ -18,8 +18,10 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 # Determine Package Manager
 if command -v apt-get &>/dev/null; then
     PACKAGE_MANAGER="apt-get"
+    RETRY="-o Acquire::Retries=10"
 elif command -v yum &>/dev/null; then
     PACKAGE_MANAGER="yum"
+    RETRY="--setopt=retries=10"
 else
     log "Neither apt-get nor yum found. Exiting..."
     exit 1
@@ -41,10 +43,10 @@ done
 log "Starting..."
 %{ if enable_secondary_volume == true }
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-    sudo $PACKAGE_MANAGER update -y >> $LOGFILE 2>&1
-    sudo $PACKAGE_MANAGER install xfsprogs gzip -y >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER $RETRY update -y >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER $RETRY install xfsprogs procps gzip -y >> $LOGFILE 2>&1
 else
-    sudo $PACKAGE_MANAGER install -y xfsprogs gzip >> $LOGFILE 2>&1
+    sudo $PACKAGE_MANAGER $RETRY install -y xfsprogs procps gzip >> $LOGFILE 2>&1
 fi
 
 SECONDARY_DISK="${secondary_disk}"

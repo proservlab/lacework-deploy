@@ -23,9 +23,17 @@ function log {
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
     echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
 }
+
+# in some cases we'll have multiple executions as the same time - try to randomize start time
+RAND_WAIT=$(($RANDOM%(300-30+1)+30))
+log "waiting $RAND_WAIT seconds before starting..."
+sleep $RAND_WAIT
+
 if command -v yum && ! command -v ps; then
-    yum update -y && yum install -y procps
+    RETRY="--setopt=retries=10"
+    yum update $RETRY -y && yum $RETRY install -y procps
 fi
+
 CURRENT_PROCESS=$(echo $$)
 PROCESSES=$(pgrep -f "\| tee /tmp/payload_$SCRIPTNAME \| base64 -d \| gunzip")
 PROCESS_NAMES=$(echo -n $PROCESSES | xargs --no-run-if-empty ps fp)
@@ -61,9 +69,11 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 if command -v apt-get &>/dev/null; then
     export PACKAGE_MANAGER="apt-get"
     PACKAGES="${config["apt_packages"]}"
+    RETRY="-o Acquire::Retries=10"
 elif command -v yum &>/dev/null; then
     export PACKAGE_MANAGER="yum"
     PACKAGES="${config["yum_packages"]}"
+    RETRY="--setopt=retries=10"
 else
     log "Neither apt-get nor yum found. Exiting..."
     exit 1
@@ -83,9 +93,11 @@ check_package_manager() {
     fi
 }
 
+# if package manager is busy wait some random amount of time - again to create more randomness
 while check_package_manager; do
-    log "Waiting for $PACKAGE_MANAGER to be available..."
-    sleep 10
+    RAND_WAIT=$(($RANDOM%(300-30+1)+30))
+    log "Waiting for $PACKAGE_MANAGER to be available - sleeping $RAND_WAIT"
+    sleep $RAND_WAIT
 done
 
 # export log function
@@ -102,7 +114,7 @@ ${config["yum_pre_tasks"]}
 log "Done yum pre-task";
 fi
 if [ "" != "$PACKAGES" ]; then
-    /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
+    /bin/bash -c "$PACKAGE_MANAGER $RETRY update && $PACKAGE_MANAGER $RETRY install -y $PACKAGES" >> $LOGFILE 2>&1
     if [ $? -ne 0 ]; then
         log "Failed to install some_package using $PACKAGE_MANAGER"
         exit 1
