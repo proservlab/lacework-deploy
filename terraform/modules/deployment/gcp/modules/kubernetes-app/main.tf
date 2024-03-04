@@ -1,76 +1,38 @@
-
 ##################################################
 # LOCALS
 ##################################################
 
-# manage the app deployment to this cluster in separate project - things that could be applied here are:
-# - token hardening
-# - default namespaces
-# - default app deployment daemonsets
-
-resource "kubernetes_namespace" "namespace" {
-  metadata {
-    name = var.environment
-  }
+locals {
+    app_name = var.app
+    app_namespace = var.app_namespace
 }
 
-resource "kubernetes_deployment" "app" {
-  metadata {
-    name = "terraform-example-app"
-    labels = {
-      app = "example-app"
-    }
-    namespace = var.environment
+module "deployment" {
+  source        = "../../../common/terraform-kubernetes-deployment-master"
+  namespace     = local.app_namespace
+  image         = var.image
+  name          = local.app_name
+  command       = var.command
+  args          = var.args
+  internal_port = [{
+    name = "container"
+    internal_port = var.container_port
+  }]
+  security_context_container = [{
+      allow_privilege_escalation = var.allow_privilege_escalation
+      privileged = var.privileged
+  }]
+  custom_labels = {
+    app = local.app_name
   }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "${var.environment}-app"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "${var.environment}-app"
-        }
-      }
-
-      spec {
-        container {
-          image = "nginx:latest"
-          name  = "nginx"
-
-          # resources {
-          #   limits = {
-          #     cpu    = "0.5"
-          #     memory = "512Mi"
-          #   }
-          #   requests = {
-          #     cpu    = "250m"
-          #     memory = "50Mi"
-          #   }
-          # }
-
-          # liveness_probe {
-          #   http_get {
-          #     path = "/nginx_status"
-          #     port = 80
-
-          #     http_header {
-          #       name  = "X-Custom-Header"
-          #       value = "Awesome"
-          #     }
-          #   }
-
-          #   initial_delay_seconds = 3
-          #   period_seconds        = 3
-          # }
-        }
-      }
-    }
+  template_annotations = {
+    app = local.app_name
   }
+  replicas      = 1
+  termination_grace_period_seconds = 0
+
+  depends_on = [
+    kubernetes_namespace.this
+  ]
 }
+

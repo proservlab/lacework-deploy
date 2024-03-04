@@ -289,6 +289,24 @@ module "target-vulnerable-cloudsql-app" {
 # Kubernetes General
 ##################################################
 
+module "target-target-kubernetes-reloader" {
+  count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.gcp.reloader.enabled == true ) ? 1 : 0
+  source      = "../common/kubernetes-reloader"
+  environment                   = local.target_attacksurface_config.context.global.environment
+  deployment                    = local.target_attacksurface_config.context.global.deployment
+
+  depends_on = [
+    module.target-gke,
+    module.target-iam,
+  ]
+
+  providers = {
+    google        = google.target
+    kubernetes    = kubernetes.target
+    helm          = helm.target
+  }
+}
+
 # example of pushing kubernetes deployment via terraform
 module "target-kubernetes-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.gcp.app.enabled == true ) ? 1 : 0
@@ -296,39 +314,113 @@ module "target-kubernetes-app" {
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
 
+  container_port                = 80 
+  service_port                  = local.target_attacksurface_config.context.kubernetes.gcp.app.service_port
+  trusted_attacker_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_attacker_source
+  trusted_attacker_source       = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip,
+  ])  : []
+  trusted_target_source_enabled  = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_target_source
+  trusted_target_source         = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip
+  ]) : []
+  trusted_workstation_source_enabled    = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_workstation_source
+  trusted_workstation_source    = local.target_attacksurface_config.context.kubernetes.gcp.app.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.gcp.app.additional_trusted_sources) > 0 ? true: false
+  additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.gcp.app.additional_trusted_sources
+
+  image                         = local.target_attacksurface_config.context.kubernetes.gcp.app.image
+  command                       = local.target_attacksurface_config.context.kubernetes.gcp.app.command
+  args                          = local.target_attacksurface_config.context.kubernetes.gcp.app.args
+  privileged                    = local.target_attacksurface_config.context.kubernetes.gcp.app.privileged
+  allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.gcp.app.allow_allow_privilege_escalation
+
+  dynu_api_key    = local.target_infrastructure_config.context.dynu_dns.api_key
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.gcp.app
+
+  depends_on = [
+    module.target-gke,
+    module.target-iam,
+  ]
+
   providers = {
-    kubernetes = kubernetes.target
-    helm = helm.target
-    google = google.target
-    restapi = restapi.main
+    google        = google.target
+    kubernetes    = kubernetes.target
+    helm          = helm.target
   }
 }
 
 ##################################################
-# Kubernetes GCP Vulnerable
+# Kubernetes gcp Vulnerable
 ##################################################
 
-# vulnerable-kubernetes-cloudsqlapp
+# module "target-vulnerable-kubernetes-voteapp" {
+#   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.vulnerable.voteapp.enabled == true) ? 1 : 0
+#   source      = "../kubernetes/gcp/vulnerable/voteapp"
+#   environment                   = local.target_attacksurface_config.context.global.environment
+#   deployment                    = local.target_attacksurface_config.context.global.deployment
+#   region                        = local.target_attacksurface_config.context.aws.region
+#   cluster_vpc_id                = var.infrastructure.deployed_state.target.context.aws.eks[0].cluster_vpc_id
+#   secret_credentials            = try(module.iam[0].access_keys["clue.burnetes@interlacelabs"].rendered,"")
+
+#   vote_service_port             = local.target_attacksurface_config.context.kubernetes.vulnerable.voteapp.vote_service_port
+#   result_service_port           = local.target_attacksurface_config.context.kubernetes.vulnerable.voteapp.result_service_port
+#   trusted_target_source       = local.target_attacksurface_config.context.kubernetes.vulnerable.voteapp.trust_target_source ? flatten([
+#     [ for ip in data.aws_instances.public_target[0].public_ips: "${ip}/32" ],
+#     local.target_eks_public_ip
+#   ])  : []
+#   trusted_workstation_source    = [module.workstation-external-ip.cidr]
+#   additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.vulnerable.voteapp.additional_trusted_sources
+
+    # providers = {
+    #   kubernetes = kubernetes.main
+    #   helm = helm.main
+    # }
+# }
 
 module "target-vulnerable-kubernetes-log4j-app" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.enabled == true ) ? 1 : 0
-  source      = "./modules/kubernetes-log4j-app"
+  source                        = "./modules/kubernetes-log4j-app"
   environment                   = local.target_attacksurface_config.context.global.environment
   deployment                    = local.target_attacksurface_config.context.global.deployment
 
+  container_port                = 8080 
   service_port                  = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.service_port
-  trusted_attacker_source       = local.target_attacksurface_config.context.gcp.gce.add_trusted_ingress.trust_target_source ? flatten([
-    [ for ip in local.attacker_public_ips: "${ip}/32" ],
-    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+  trusted_attacker_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_attacker_source
+  trusted_attacker_source       = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip
   ])  : []
-  trusted_workstation_source    = [module.workstation-external-ip.cidr]
-  additional_trusted_sources    = local.target_attacksurface_config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
+  trusted_target_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_target_source
+  trusted_target_source         = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip
+  ]) : []
+  trusted_workstation_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_workstation_source
+  trusted_workstation_source    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
+  additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.additional_trusted_sources) > 0 ? true : false
+  additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.additional_trusted_sources
+
+  dynu_api_key    = local.target_infrastructure_config.context.dynu_dns.api_key
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.log4j_app.enable_dynu_dns
+
+  depends_on = [
+    module.target-gke,
+    module.target-iam,
+  ]
 
   providers = {
-    kubernetes = kubernetes.target
-    helm = helm.target
-    google = google.target
-    restapi = restapi.main
+    google        = google.target
+    kubernetes    = kubernetes.target
+    helm          = helm.target
   }
 }
 
@@ -338,11 +430,43 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
 
+  service_port                  = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.service_port
+  trusted_attacker_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_attacker_source
+  trusted_attacker_source       = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip,
+  ])  : []
+  trusted_target_source_enabled  = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_target_source
+  trusted_target_source         = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip
+  ]) : []
+  trusted_workstation_source_enabled    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_workstation_source
+  trusted_workstation_source    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.additional_trusted_sources) > 0 ? true: false
+  additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.additional_trusted_sources
+
+  image                         = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.image
+  command                       = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.command
+  args                          = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.args
+  privileged                    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.privileged
+  allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.allow_allow_privilege_escalation
+
+  dynu_api_key    = local.target_infrastructure_config.context.dynu_dns.api_key
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod
+
+  depends_on = [
+    module.target-gke,
+    module.target-iam,
+  ]
+
   providers = {
-    kubernetes = kubernetes.target
-    helm = helm.target
-    google = google.target
-    restapi = restapi.main
+    google        = google.target
+    kubernetes    = kubernetes.target
+    helm          = helm.target
   }
 }
 
@@ -352,10 +476,43 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   environment = local.target_attacksurface_config.context.global.environment
   deployment  = local.target_attacksurface_config.context.global.deployment
 
+  container_port                = 80 
+  service_port                  = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.service_port
+  trusted_attacker_source_enabled = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_attacker_source
+  trusted_attacker_source       = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_attacker_source ? flatten([
+    [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip,
+  ])  : []
+  trusted_target_source_enabled  = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_target_source
+  trusted_target_source         = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_target_source ? flatten([
+    [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
+    [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
+    # local.target_aks_public_ip
+  ]) : []
+  trusted_workstation_source_enabled    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_workstation_source
+  trusted_workstation_source    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
+  additional_trusted_sources_enabled = length(local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.additional_trusted_sources) > 0 ? true: false
+  additional_trusted_sources    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.additional_trusted_sources
+
+  image                         = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.image
+  command                       = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.command
+  args                          = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.args
+  privileged                    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.privileged
+  allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod.allow_allow_privilege_escalation
+
+  dynu_api_key    = local.target_infrastructure_config.context.dynu_dns.api_key
+  dynu_dns_domain = local.target_infrastructure_config.context.dynu_dns.dns_domain
+  enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.gcp.vulnerable.privileged_pod
+
+  depends_on = [
+    module.target-gke,
+    module.target-iam,
+  ]
+
   providers = {
-    kubernetes = kubernetes.target
-    helm = helm.target
-    google = google.target
-    restapi = restapi.main
+    google        = google.target
+    kubernetes    = kubernetes.target
+    helm          = helm.target
   }
 }

@@ -4,13 +4,13 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = ">= 2.7.1"
     }
-    lacework = {
-      source  = "lacework/lacework"
-      version = "~> 1.6"
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.25"
     }
-    google = {
-      source = "hashicorp/google"
-      version = "~> 4.84"
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "~> 3.45"
     }
     helm = {
       source  = "hashicorp/helm"

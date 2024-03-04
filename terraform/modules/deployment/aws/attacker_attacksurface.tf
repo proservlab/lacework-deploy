@@ -359,8 +359,8 @@ module "attacker-kubernetes-app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
-  trusted_target_source_enabled  = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled  = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.app.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -407,8 +407,8 @@ module "attacker-kubernetes-app-windows" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -462,8 +462,8 @@ module "attacker-vulnerable-kubernetes-voteapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled  = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled  = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -513,8 +513,8 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -559,8 +559,8 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -607,8 +607,8 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -655,8 +655,8 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -711,8 +711,8 @@ module "attacker-vulnerable-kubernetes-s3app" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.vulnerable.s3app.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.vulnerable.s3app.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip
@@ -758,8 +758,8 @@ module "attacker-vulnerable-kubernetes-authapp" {
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
   ])  : []
-  trusted_target_source_enabled = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
-  trusted_target_source         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
+  trusted_target_source_enabled = local.attacker_attacksurface_config.context.context.vulnerable.authapp.trust_target_source
+  trusted_target_source         = local.attacker_attacksurface_config.context.context.vulnerable.authapp.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip

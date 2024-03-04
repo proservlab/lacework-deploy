@@ -11,6 +11,7 @@ output "instances" {
                 admin_user = instance.admin_username
                 role       = lookup(instance.tags,"role","default")
                 public     = lookup(instance.tags,"public","false")
+                tags       = instance.tags
             }],
             [for instance in azurerm_linux_virtual_machine.instances-app : {
                 name       = instance.name
@@ -18,6 +19,7 @@ output "instances" {
                 admin_user = instance.admin_username
                 role       = lookup(instance.tags,"role","app")
                 public     = lookup(instance.tags,"public","false")
+                tags       = instance.tags
             }]
     ])
 }

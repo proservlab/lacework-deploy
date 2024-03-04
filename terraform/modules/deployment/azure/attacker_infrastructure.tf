@@ -213,7 +213,7 @@ module "attacker-runbook-deploy-lacework-syscall-config" {
   
   tag             = "runbook_deploy_lacework_syscall"
 
-  syscall_config = var.default_lacework_sysconfig_path
+  syscall_config = var.attacker_lacework_sysconfig_path
   
   depends_on = [
     module.attacker-compute,
