@@ -21,7 +21,7 @@ resource "aws_instance" "instance" {
   user_data = null
   
   # build the bootrap commands from template and include additional user_data and user_data_base64 as required
-  user_data_base64 = base64encode(templatefile("${path.module}/../../boostrap.sh", {
+  user_data_base64 = base64encode(templatefile("${path.root}/modules/deployment/common/payload/linux/boostrap.sh", {
     enable_secondary_volume = var.enable_secondary_volume
     secondary_disk = local.secondary_disk
     enable_swap = var.enable_swap
