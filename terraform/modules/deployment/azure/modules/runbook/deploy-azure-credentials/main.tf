@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-azure-credentials"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-azure-credentials"
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment

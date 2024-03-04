@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/execute-docker-cpu-miner"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-docker-cpu-miner"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-python3-twisted-app"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-python3-twisted-app"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

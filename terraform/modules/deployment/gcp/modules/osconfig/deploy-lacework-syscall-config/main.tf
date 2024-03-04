@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-lacework-syscall-config"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-lacework-syscall-config"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

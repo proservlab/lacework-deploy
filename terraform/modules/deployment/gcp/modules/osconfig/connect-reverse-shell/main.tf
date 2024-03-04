@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/connect-reverse-shell"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-reverse-shell"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

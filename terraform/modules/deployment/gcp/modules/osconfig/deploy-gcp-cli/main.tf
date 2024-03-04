@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-gcp-cli"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-gcp-cli"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-protonvpn-docker"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-protonvpn-docker"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

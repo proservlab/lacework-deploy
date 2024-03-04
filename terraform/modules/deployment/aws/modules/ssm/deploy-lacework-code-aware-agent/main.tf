@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-lacework-code-aware-agent"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-lacework-code-aware-agent"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

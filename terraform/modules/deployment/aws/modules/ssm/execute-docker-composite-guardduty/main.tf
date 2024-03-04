@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/execute-docker-composite-guardduty"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-docker-composite-guardduty"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

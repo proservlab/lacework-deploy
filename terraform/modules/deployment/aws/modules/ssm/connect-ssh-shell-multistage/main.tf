@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/connect-ssh-shell-multistage"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-ssh-shell-multistage"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

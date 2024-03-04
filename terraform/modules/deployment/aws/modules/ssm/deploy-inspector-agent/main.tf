@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/deploy-inspector-agent"
+    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-inspector-agent"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
