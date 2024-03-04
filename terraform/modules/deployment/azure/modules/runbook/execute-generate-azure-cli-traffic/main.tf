@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-generate-azure-cli-traffic"
+    source = "../../../../common/payloads/linux/modules/execute-generate-azure-cli-traffic"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

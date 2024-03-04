@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-kubectl-cli"
+    source = "../../../../common/payloads/linux/modules/deploy-kubectl-cli"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

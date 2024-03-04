@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-docker-composite-defense-evasion"
+    source = "../../../../common/payloads/linux/modules/execute-docker-composite-defense-evasion"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

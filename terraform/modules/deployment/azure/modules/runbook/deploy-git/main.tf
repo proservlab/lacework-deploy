@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-git"
+    source = "../../../../common/payloads/linux/modules/deploy-git"
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment

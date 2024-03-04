@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/responder-reverse-shell-multistage"
+    source = "../../../../common/payloads/linux/modules/responder-reverse-shell-multistage"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

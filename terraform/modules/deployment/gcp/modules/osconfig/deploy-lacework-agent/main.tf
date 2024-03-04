@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-lacework-agent"
+    source = "../../../../common/payloads/linux/modules/deploy-lacework-agent"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

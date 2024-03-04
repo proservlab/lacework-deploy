@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-aws-credentials"
+    source = "../../../../common/payloads/linux/modules/deploy-aws-credentials"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

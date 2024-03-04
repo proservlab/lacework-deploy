@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-oast-host"
+    source = "../../../../common/payloads/linux/modules/connect-oast-host"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

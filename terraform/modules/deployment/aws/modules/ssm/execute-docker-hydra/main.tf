@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-docker-hydra"
+    source = "../../../../common/payloads/linux/modules/execute-docker-hydra"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

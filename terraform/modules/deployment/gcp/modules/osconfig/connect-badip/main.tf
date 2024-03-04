@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-badip"
+    source = "../../../../common/payloads/linux/modules/connect-badip"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

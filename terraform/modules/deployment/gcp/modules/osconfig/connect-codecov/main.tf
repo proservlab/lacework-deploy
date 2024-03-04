@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-codecov"
+    source = "../../../../common/payloads/linux/modules/connect-codecov"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

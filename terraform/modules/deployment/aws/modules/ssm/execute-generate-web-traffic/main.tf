@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-generate-web-traffic"
+    source = "../../../../common/payloads/linux/modules/execute-generate-web-traffic"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

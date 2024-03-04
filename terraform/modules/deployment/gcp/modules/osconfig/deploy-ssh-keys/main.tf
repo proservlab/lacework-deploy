@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-ssh-keys"
+    source = "../../../../common/payloads/linux/modules/deploy-ssh-keys"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

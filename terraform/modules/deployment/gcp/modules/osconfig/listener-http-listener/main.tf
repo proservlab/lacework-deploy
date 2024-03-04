@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/listener-http-listener"
+    source = "../../../../common/payloads/linux/modules/listener-http-listener"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/execute-docker-composite-host-cryptomining"
+    source = "../../../../common/payloads/linux/modules/execute-docker-composite-host-cryptomining"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment

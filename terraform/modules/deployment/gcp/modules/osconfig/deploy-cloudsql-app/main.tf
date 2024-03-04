@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/deploy-cloudsql-app"
+    source = "../../../../common/payloads/linux/modules/deploy-cloudsql-app"
     inputs = {
         environment       = var.environment
         deployment        = var.deployment

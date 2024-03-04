@@ -3,7 +3,7 @@
 ###########################
 
 module "payload" {
-    source = "${abspath(path.root)}/modules/deployment/common/payload/linux/modules/connect-nmap-port-scan"
+    source = "../../../../common/payloads/linux/modules/connect-nmap-port-scan"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
