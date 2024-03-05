@@ -206,7 +206,7 @@ module "attacker-aks" {
 
 module "attacker-runbook-deploy-lacework" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_lacework_agent.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-agent"
+  source          = "./modules/runbook/deploy-lacework-agent"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -232,7 +232,7 @@ module "attacker-runbook-deploy-lacework" {
 
 module "attacker-runbook-deploy-lacework-syscall-config" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_lacework_syscall_config.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-syscall-config"
+  source          = "./modules/runbook/deploy-lacework-syscall-config"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -256,7 +256,7 @@ module "attacker-runbook-deploy-lacework-syscall-config" {
 
 module "attacker-runbook-deploy-lacework-code-aware-agent" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_lacework_code_aware_agent.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-code-aware-agent"
+  source          = "./modules/runbook/deploy-lacework-code-aware-agent"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -278,7 +278,7 @@ module "attacker-runbook-deploy-lacework-code-aware-agent" {
 
 module "attacker-runbook-deploy-docker" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_docker.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-docker"
+  source          = "./modules/runbook/deploy-docker"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -302,7 +302,7 @@ module "attacker-runbook-deploy-docker" {
 
 module "attacker-runbook-deploy-git" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_git.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-git"
+  source          = "./modules/runbook/deploy-git"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -324,7 +324,7 @@ module "attacker-runbook-deploy-git" {
 
 module "attacker-runbook-azure-cli" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_azure_cli.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-azure-cli"
+  source          = "./modules/runbook/deploy-azure-cli"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -346,7 +346,7 @@ module "attacker-runbook-azure-cli" {
 
 module "attacker-runbook-lacework-cli" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_lacework_cli.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-lacework-cli"
+  source          = "./modules/runbook/deploy-lacework-cli"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
@@ -368,7 +368,7 @@ module "attacker-runbook-lacework-cli" {
 
 module "attacker-runbook-kubectl-cli" {
   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.runbook.deploy_kubectl_cli.enabled == true ) ? 1 : 0
-  source          = "../../attack/surface/azure/modules/runbook/deploy-kubectl-cli"
+  source          = "./modules/runbook/deploy-kubectl-cli"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region

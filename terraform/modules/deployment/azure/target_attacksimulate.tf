@@ -82,23 +82,23 @@ module "target-runbook-connect-reverse-shell" {
 # EXECUTE
 ##################################################
 
-module "target-runbook-exec-touch-file" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.azure.enabled == true && local.target_attacksimulate_config.context.azure.runbook.target.execute.touch_file.enabled == true ) ? 1 : 0
-  source          = "./modules/runbook/exec-touch-file"
-  environment     = local.target_attacksimulate_config.context.global.environment
-  deployment      = local.target_attacksimulate_config.context.global.deployment
-  region          = local.target_infrastructure_config.context.azure.region
+# module "target-runbook-exec-touch-file" {
+#   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.azure.enabled == true && local.target_attacksimulate_config.context.azure.runbook.target.execute.touch_file.enabled == true ) ? 1 : 0
+#   source          = "./modules/runbook/exec-touch-file"
+#   environment     = local.target_attacksimulate_config.context.global.environment
+#   deployment      = local.target_attacksimulate_config.context.global.deployment
+#   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group
-  automation_account = local.target_automation_account[0].automation_account_name
-  automation_princial_id = local.target_automation_account[0].automation_princial_id
+#   resource_group  = local.target_automation_account[0].resource_group
+#   automation_account = local.target_automation_account[0].automation_account_name
+#   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
-  tag             = "runbook_exec_touch_file"
+#   tag             = "runbook_exec_touch_file"
 
-  providers = {
-    azurerm = azurerm.target
-  }
-}
+#   providers = {
+#     azurerm = azurerm.target
+#   }
+# }
 
 ##################################################
 # LISTENER

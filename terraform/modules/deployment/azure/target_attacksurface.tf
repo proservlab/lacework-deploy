@@ -38,10 +38,9 @@ locals {
 # append ingress rules
 module "target-compute-add-trusted-ingress" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.enabled == true ) ? 1 : 0
-  source        = "./modules/compute/add-trusted-ingress"
+  source        = "./modules/compute-add-trusted-ingress"
   environment     = local.target_attacksurface_config.context.global.environment
   deployment      = local.target_attacksurface_config.context.global.deployment
-  region          = local.target_infrastructure_config.context.azure.region
 
   resource_group                = local.target_automation_account[0].resource_group
   security_group                = local.target_public_app_security_group.name
@@ -74,10 +73,9 @@ module "target-compute-add-trusted-ingress" {
 
 module "target-compute-add-app-trusted-ingress" {
   count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.enabled == true ) ? 1 : 0
-  source        = "./modules/compute/add-trusted-ingress"
+  source        = "./modules/compute-add-trusted-ingress"
   environment     = local.target_attacksurface_config.context.global.environment
   deployment      = local.target_attacksurface_config.context.global.deployment
-  region          = local.target_infrastructure_config.context.azure.region
 
   resource_group                = local.target_automation_account[0].resource_group
   security_group                = local.target_public_app_security_group.name
