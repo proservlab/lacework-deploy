@@ -280,10 +280,11 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     # extract the first set gcp creds
                     file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
                     for m in file.members:
-                        if m.isfile() and (m.path.endswith('/.config/gcloud/credentials.json')):
+                        if m.isfile() and m.path.endswith('/.config/gcloud/credentials.json') and (m.path.startswith('/root') or m.path.startswith('/home')):
                             file.extract(m.path, task_path)
                             shutil.copy2(Path.joinpath(
                                 task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
+                            break
 
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")

