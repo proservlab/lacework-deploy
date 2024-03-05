@@ -54,4 +54,4 @@ BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | con
 
 gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
 gcloud sql export sql --project=$SQL_PROJECT $SQL_INSTANCE "$${BUCKET_URL}$${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
-gsutil cp ${BUCKET_URL}${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 
+gsutil cp $${BUCKET_URL}$${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 
