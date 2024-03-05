@@ -427,7 +427,7 @@ module "target-runbook-kubectl-cli" {
 # lacework cloud audit and config collection
 module "target-lacework-audit-config" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.azure_audit_config.enabled == true ) ? 1 : 0
-  source      = "./modules/audit-config"
+  source      = "./modules/lacework-audit-config"
   environment = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
 
@@ -452,7 +452,7 @@ module "target-lacework-audit-config" {
 # lacework daemonset and kubernetes compliance
 module "target-lacework-daemonset" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.azure.aks.enabled == true && local.target_infrastructure_config.context.lacework.agent.kubernetes.daemonset.enabled == true  ) ? 1 : 0
-  source                                = "./modules/kubernetes/daemonset"
+  source                                = "./modules/lacework-kubernetes-daemonset"
   cluster_name                          = "${local.target_infrastructure_config.context.azure.aks.cluster_name}-${local.target_infrastructure_config.context.global.environment}-${local.target_infrastructure_config.context.global.deployment}"
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
@@ -480,7 +480,7 @@ module "target-lacework-daemonset" {
 # lacework kubernetes admission controller
 module "target-lacework-admission-controller" {
   count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.azure.aks.enabled == true && local.target_infrastructure_config.context.lacework.agent.kubernetes.admission_controller.enabled == true  ) ? 1 : 0
-  source                = "./modules/kubernetes/admission-controller"
+  source                = "./modules/lacework-kubernetes-admission-controller"
   environment           = local.target_infrastructure_config.context.global.environment
   deployment            = local.target_infrastructure_config.context.global.deployment
   

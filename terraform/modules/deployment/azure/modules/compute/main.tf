@@ -3,10 +3,6 @@ locals {
     resource_group_name = var.resource_group.name
 }
 
-module "workstation-external-ip" {
-  source       = "../../../general/workstation-external-ip"
-}
-
 resource "azurerm_virtual_network" "network" {
     name                = "public-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.public_network]
