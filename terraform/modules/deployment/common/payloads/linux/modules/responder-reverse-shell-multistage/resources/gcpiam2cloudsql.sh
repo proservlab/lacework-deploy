@@ -25,7 +25,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/credentials.json
 gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json | tee -a $LOGFILE
 PROJECT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $2 }' | sed 's/.iam.gserviceaccount.com//g')
 USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $1 }')
-DEPLOYMENT=$(echo $${USER##*-})
+DEPLOYMENT=$(echo ${USER##*-})
 cat <<EOF >> $LOGFILE
 PROJECT=$PROJECT
 USER=$USER
@@ -53,5 +53,5 @@ BUCKETS=$(gcloud storage buckets list --project=$SQL_PROJECT --format="json")
 BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
 
 gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
-gcloud sql export sql --project=$SQL_PROJECT $SQL_INSTANCE "$${BUCKET_URL}$${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
-gsutil cp $${BUCKET_URL}$${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 
+gcloud sql export sql --project=$SQL_PROJECT $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
+gsutil cp ${BUCKET_URL}${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 

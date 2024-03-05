@@ -144,13 +144,8 @@ locals {
                                 }
                             ))
                             
-    gcpiam2cloudsql = base64encode(templatefile(
+    gcpiam2cloudsql = base64encode(file(
                                 "${path.module}/resources/gcpiam2cloudsql.sh", 
-                                {
-                                    region = var.inputs["region"],
-                                    environment = var.inputs["environment"],
-                                    deployment = var.inputs["deployment"]
-                                }
                             ))
 
     scan2kubeshell = base64encode(file(
