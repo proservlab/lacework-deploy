@@ -325,6 +325,8 @@ for credential_type in ["password", "identity"]:
                             f"Maximum retries reached for {user} with {credential_type}.")
                 else:
                     # failed authentication - continue iterating username/credentials
+                    print(
+                        f"Failed {credential_type} authentication: {user} with {credential}")
                     break
             if success:
                 break  # Exit the credential loop if a successful connection was made
