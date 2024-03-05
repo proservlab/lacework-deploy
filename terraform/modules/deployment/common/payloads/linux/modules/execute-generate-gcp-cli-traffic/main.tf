@@ -1,7 +1,7 @@
 locals {
     tool = "gcloud"
     attack_dir = "/generate-gcp-cli-traffic"
-    gcp_creds = base64encode(try(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered, ""))
+    gcp_creds = try(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered, "")
     gcp_commands = join("\n", [ for command in var.inputs["commands"]: "${command}" ])
     payload = <<-EOT
     rm -rf ${local.attack_dir}
@@ -10,7 +10,7 @@ locals {
     log "Deploying gcp credentials..."
     mkdir -p ${local.attack_dir}/.config/gcloud
     if [  "${ local.gcp_creds == "" ? "false" : "true" }" == "true" ]; then
-      echo ${local.gcp_creds} | base64 -d > ${local.attack_dir}/.config/gcloud/credentials.json
+      echo ${base64gzip(local.gcp_creds)} | base64 -d | gunzip > ${local.attack_dir}/.config/gcloud/credentials.json
       gcloud auth activate-service-account --key-file=${local.attack_dir}/.config/gcloud/credentials.json
     fi
     log "Running gcp commands..."

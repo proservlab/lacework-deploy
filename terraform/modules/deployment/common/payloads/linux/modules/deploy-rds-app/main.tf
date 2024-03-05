@@ -12,14 +12,14 @@ locals {
     mkdir -p /${local.app_dirname}/templates
     cd /${local.app_dirname}
     
-    echo ${local.app} | base64 -d > app.py
-    echo ${local.requirements} | base64 -d > requirements.txt
-    echo ${local.test} | base64 -d > test.py
+    echo ${base64gzip(local.app)} | base64 -d | gunzip > app.py
+    echo ${base64gzip(local.requirements)} | base64 -d | gunzip > requirements.txt
+    echo ${base64gzip(local.test)} | base64 -d | gunzip > test.py
     curl -LOJ https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-    echo ${local.database} | base64 -d > bootstrap.sql
-    echo ${local.entrypoint} | base64 -d > entrypoint.sh
-    echo ${local.index} | base64 -d > templates/index.html
-    echo ${local.cast} | base64 -d > templates/cast.html
+    echo ${base64gzip(local.database)} | base64 -d | gunzip > bootstrap.sql
+    echo ${base64gzip(local.entrypoint)} | base64 -d | gunzip > entrypoint.sh
+    echo ${base64gzip(local.index)} | base64 -d | gunzip > templates/index.html
+    echo ${base64gzip(local.cast)} | base64 -d | gunzip > templates/cast.html
 
     log "updating entrypoing permissions"
     chmod 755 entrypoint.sh
@@ -69,42 +69,42 @@ locals {
         next_stage_payload = local.payload
     }})
 
-    app = base64encode(templatefile(
+    app = templatefile(
                             "${path.module}/resources/app.py.tpl",
                             {
                                 region = var.inputs["db_region"]
                             }
-                        ))
-    test = base64encode(templatefile(
+                        )
+    test = templatefile(
                           "${path.module}/resources/test.py.tpl",
                             {
                                 region = var.inputs["db_region"]
                             }
-                        ))
-    requirements = base64encode(templatefile(
+                        )
+    requirements = templatefile(
                           "${path.module}/resources/requirements.txt",
                           {}
-                        ))
-    database = base64encode(templatefile(
+                        )
+    database = templatefile(
                           "${path.module}/resources/bootstrap.sql.tpl",
                             {
                                 db_user = var.inputs["db_user"]
                                 db_name = var.inputs["db_name"]
                             }
-                        ))
-    entrypoint = base64encode(templatefile(
+                        )
+    entrypoint = templatefile(
                             "${path.module}/resources/entrypoint.sh.tpl",
                             {
                                  listen_port = var.inputs["listen_port"]
                                  app_path = local.app_path
                             }
-                        ))
-    index = base64encode(file(
+                        )
+    index = file(
                             "${path.module}/resources/index.html"
-                        ))
-    cast = base64encode(file(
+                        )
+    cast = file(
                             "${path.module}/resources/cast.html"
-                        ))
+                        )
 
     outputs = {
         base64_payload = base64gzip(local.base64_payload)

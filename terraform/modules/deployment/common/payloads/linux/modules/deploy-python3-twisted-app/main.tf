@@ -7,8 +7,8 @@ locals {
     if command -v $PACKAGE_MANAGER && $PACKAGE_MANAGER list | grep "python3-twisted" | grep "18.9.0-11ubuntu0.20.04"; then
         mkdir -p /vuln_python3_twisted_app
         cd /vuln_python3_twisted_app
-        echo ${local.app_py_base64} | base64 -d > app.py
-        echo ${local.requirements_base64} | base64 -d > requirements.txt
+        echo ${base64gzip(local.app_py)} | base64 -d | gunzip > app.py
+        echo ${base64gzip(local.requirements)} | base64 -d | gunzip > requirements.txt
         log "installing requirements..."
         python3 -m pip install -r requirements.txt >> $LOGFILE 2>&1
         log "requirements installed"
@@ -55,15 +55,15 @@ locals {
         next_stage_payload = local.payload
     }})
 
-    app_py_base64 = base64encode(templatefile(
+    app_py = templatefile(
                 "${path.module}/resources/app.py",
                 {
                     listen_port = var.inputs["listen_port"]
-                }))
-    requirements_base64 = base64encode(templatefile(
+                })
+    requirements = templatefile(
                 "${path.module}/resources/requirements.txt",
                 {
-                }))
+                })
 
     outputs = {
         base64_payload = base64gzip(local.base64_payload)

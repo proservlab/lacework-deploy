@@ -3,7 +3,7 @@ locals {
     lacework_install_path = "/var/lib/lacework"
     lacework_syscall_config_path = "${local.lacework_install_path}/config/syscall_config.yaml"
     syscall_config = file(var.inputs["syscall_config"])
-    base64_syscall_config = base64encode(local.syscall_config)
+    base64_syscall_config = local.syscall_config
     hash_syscall_config = sha256(local.syscall_config)
     payload = <<-EOT
     LACEWORK_INSTALL_PATH="${local.lacework_install_path}"
@@ -16,7 +16,7 @@ locals {
             log "Lacework syscall_config.yaml unchanged"; 
         else 
             log "Lacework syscall_config.yaml requires update"
-            echo -n "${local.base64_syscall_config}" | base64 -d > $LACEWORK_SYSCALL_CONFIG_PATH
+            echo -n "${base64gzip(local.base64_syscall_config)}" | base64 -d | gunzip > $LACEWORK_SYSCALL_CONFIG_PATH
         fi
         log "Lacework agent is installed, adding disable aggregation config..."
         file_path="/var/lib/lacework/config/config.json"

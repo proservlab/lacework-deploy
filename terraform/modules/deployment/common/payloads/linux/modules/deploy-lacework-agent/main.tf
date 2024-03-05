@@ -1,21 +1,12 @@
 locals {
     tool = "lacework"
-    setup_lacework_agent = base64encode(templatefile("${path.module}/resources/setup_lacework_agent.sh", {
-        LaceworkInstallPath="/var/lib/lacework"
-        LaceworkTempPath=var.inputs["lacework_agent_temp_path"]
-        Tags=jsonencode(var.inputs["lacework_agent_tags"])
-        Hash=""
-        Serverurl=var.inputs["lacework_server_url"]
-        Token=try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? var.inputs["lacework_agent_access_token"] : lacework_agent_access_token.agent[0].token
-    }))
-
     payload = <<-EOT
     log "Starting..."
     if [ -f /var/lib/lacework/config/config.json ] && pgrep datacollector > /dev/null; then
         log "lacework already installed - nothing to do"
     else
         log "lacework not installed - installing..."
-        echo '${(local.setup_lacework_agent)}' | base64 -d | /bin/bash -
+        echo '${base64gzip(local.setup_lacework_agent)}' | base64 -d | gunzip | /bin/bash -
     fi
     log "done."
     EOT
@@ -42,13 +33,22 @@ locals {
         next_stage_payload = local.payload
     }})
 
+    setup_lacework_agent = templatefile("${path.module}/resources/setup_lacework_agent.sh", {
+        LaceworkInstallPath="/var/lib/lacework"
+        LaceworkTempPath=var.inputs["lacework_agent_temp_path"]
+        Tags=jsonencode(var.inputs["lacework_agent_tags"])
+        Hash=""
+        Serverurl=var.inputs["lacework_server_url"]
+        Token=try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? var.inputs["lacework_agent_access_token"] : lacework_agent_access_token.agent[0].token
+    })
+
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_setup_lacework_agent.sh"
-                content = local.setup_lacework_agent
+                content = base64encode(local.setup_lacework_agent)
             }
         ]
     }

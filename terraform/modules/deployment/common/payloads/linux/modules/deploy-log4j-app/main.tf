@@ -11,9 +11,9 @@ locals {
     cd ${local.app_dir}
 
     log "creating local files..."
-    echo ${local.web} | base64 -d > web.py
-    echo ${local.ldap} | base64 -d > ldap.py
-    echo ${local.requirements} | base64 -d > requirements.txt
+    echo ${base64gzip(local.web)} | base64 -d | gunzip > web.py
+    echo ${base64gzip(local.ldap)} | base64 -d | gunzip  > ldap.py
+    echo ${base64gzip(local.requirements)} | base64 -d | gunzip > requirements.txt
 
     # install java 8u131
     log "checking for jdk1.8.0_131..."
@@ -113,16 +113,16 @@ locals {
         next_stage_payload = local.payload
     }})
 
-    web = base64encode(file(
+    web = file(
                             "${path.module}/resources/web.py",
-                        ))
+                        )
 
-    ldap = base64encode(file(
+    ldap = file(
                             "${path.module}/resources/ldap.py",
-                        ))
-    requirements = base64encode(file(
+                        )
+    requirements = file(
                             "${path.module}/resources/requirements.txt",
-                        ))
+                        )
     
     outputs = {
         base64_payload = base64gzip(local.base64_payload)

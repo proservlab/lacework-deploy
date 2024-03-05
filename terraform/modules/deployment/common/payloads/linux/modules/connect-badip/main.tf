@@ -1,10 +1,9 @@
 locals {
     iplist_url = var.inputs["iplist_url"]
-    iplist_base64 = base64encode(file("${path.module}/resources/threatdb.csv"))
     payload = <<-EOT
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
-        echo ${local.iplist_base64} | base64 -d > threatdb.csv
+        echo ${base64gzip(local.iplist_base64)} | base64 -d | gunzip > threatdb.csv
         log "enumerating bad ips in threatdb.csv"
         for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
         log 'waiting 30 minutes...';
@@ -18,6 +17,9 @@ locals {
         fi
     done
     EOT
+
+    iplist_base64 = file("${path.module}/resources/threatdb.csv")
+
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2

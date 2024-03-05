@@ -15,7 +15,7 @@ locals {
     cd /vuln_npm_app_target && \
     git clone ${local.repo} && \
     cd CVE-2021-21315-PoC && \
-    echo ${local.index_js_base64} | base64 -d > index.js
+    echo ${base64gzip(local.index_js_base64)} | base64 -d | gunzip > index.js
     npm install >> $LOGFILE 2>&1
 
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
@@ -55,11 +55,11 @@ locals {
         next_stage_payload = local.payload
     }})
 
-    index_js_base64 = base64encode(templatefile(
+    index_js_base64 = templatefile(
                 "${path.module}/resources/index.js",
                 {
                     listen_port = var.inputs["listen_port"]
-                }))
+                })
     
     outputs = {
         base64_payload = base64gzip(local.base64_payload)

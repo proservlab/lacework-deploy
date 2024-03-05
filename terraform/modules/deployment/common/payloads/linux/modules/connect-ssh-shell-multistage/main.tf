@@ -15,8 +15,8 @@ locals {
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
         cd ${local.attack_dir}
-        echo ${local.connector} | base64 -d > connector.py
-        echo ${local.scan} | base64 -d > scan.sh
+        echo ${base64gzip(local.connector)} | base64 -d | gunzip > connector.py
+        echo ${base64gzip(local.scan)} | base64 -d | gunzip > scan.sh
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -62,13 +62,13 @@ locals {
     log "done."
     EOT
 
-    connector        = base64encode(file(
+    connector        = file(
                                 "${path.module}/resources/connector.py", 
-                            ))
+                            )
     
-    scan            = base64encode(file(
+    scan            = file(
                                 "${path.module}/resources/scan.sh", 
-                            ))
+                            )
     
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -106,7 +106,7 @@ locals {
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_scan.sh"
-                content = local.scan
+                content = base64encode(local.scan)
             },
         ]
     }

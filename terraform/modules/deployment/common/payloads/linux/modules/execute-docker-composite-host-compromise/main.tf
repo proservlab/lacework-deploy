@@ -10,14 +10,14 @@ locals {
     log "creating app directory"
     mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
-    echo ${local.attack_script} | base64 -d > ${local.attack_script_name}
-    echo ${local.start_script} | base64 -d > ${local.start_script_name}
+    echo ${base64gzip(local.attack_script)} | base64 -d | gunzip > ${local.attack_script_name}
+    echo ${base64gzip(local.start_script)} | base64 -d | gunzip > ${local.start_script_name}
     log "starting background delayed script start..."
     /bin/bash ${local.start_script_name}
     log "done."
     EOT
     
-    attack_script              = base64encode(templatefile(
+    attack_script       = templatefile(
                                 "${path.module}/resources/${local.attack_script_name}",
                                 {
                                     # jndiexploit_url     = local.jndiexploit_url
@@ -32,8 +32,8 @@ locals {
                                     # base64_payload      = local.base64_log4shell_payload
                                     # reverse_shell_port  = var.inputs["reverse_shell_port"]
                                 }
-                        ))
-    start_script              = base64encode(templatefile(
+                        )
+    start_script        = templatefile(
                                 "${path.module}/resources/${local.start_script_name}",
                                 {
                                     lock_file = local.lock_file
@@ -41,7 +41,7 @@ locals {
                                     attack_dir = local.attack_dir
                                     attack_script = local.attack_script_name
                                 }
-                        ))
+                        )
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -76,11 +76,11 @@ locals {
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_attack_script.sh"
-                content = local.attack_script
+                content = base64encode(local.attack_script)
             },
             {
                 name = "${basename(abspath(path.module))}_start_script.sh"
-                content = local.start_script
+                content = base64encode(local.start_script)
             }
         ]
     }

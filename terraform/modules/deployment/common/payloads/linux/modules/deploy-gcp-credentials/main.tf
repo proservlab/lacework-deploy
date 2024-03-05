@@ -1,11 +1,11 @@
 locals {
     tool = "gcloud"
-    gcp_creds = base64encode(var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered)
+    gcp_creds = var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered
     payload = <<-EOT
     log "Deploying gcp credentials..."
     mkdir -p ~/.config/gcloud
     if [  "${ local.gcp_creds == "" ? "false" : "true" }" == "true" ]; then
-      echo ${local.gcp_creds} | base64 -d > ~/.config/gcloud/credentials.json
+      echo ${base64gzip(local.gcp_creds)} | base64 -d | gunzip > ~/.config/gcloud/credentials.json
       gcloud auth activate-service-account --key-file=/root/.config/gcloud/credentials.json
     fi
     log "Done."

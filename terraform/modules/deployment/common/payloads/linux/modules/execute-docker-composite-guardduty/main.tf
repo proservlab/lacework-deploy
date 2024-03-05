@@ -8,25 +8,25 @@ locals {
     log "creating app directory"
     mkdir -p ${local.attack_dir}
     cd ${local.attack_dir}
-    echo ${local.discovery} | base64 -d > ${local.attack_script}
-    echo ${local.start} | base64 -d > ${local.start_script}
+    echo ${base64gzip(local.discovery)} | base64 -d | gunzip > ${local.attack_script}
+    echo ${base64gzip(local.start)} | base64 -d | gunzip > ${local.start_script}
     log "starting script..."
     /bin/bash ${local.start_script}
     
     log "done."
     EOT
 
-    discovery       = base64encode(file(
+    discovery       = file(
                                 "${path.module}/resources/${local.attack_script}", 
-                            ))
-    start           = base64encode(templatefile(
+                            )
+    start           = templatefile(
                                 "${path.module}/resources/${local.start_script}",
                                 {
                                     attack_delay = var.inputs["attack_delay"]
                                     attack_dir = local.attack_dir
                                     attack_script = local.attack_script
                                 } 
-                            ))
+                            )
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -61,11 +61,11 @@ locals {
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_discovery.sh"
-                content = local.discovery
+                content = base64encode(local.discovery)
             },
             {
                 name = "${basename(abspath(path.module))}_start.sh"
-                content = local.start
+                content = base64encode(local.start)
             }
         ]
     }

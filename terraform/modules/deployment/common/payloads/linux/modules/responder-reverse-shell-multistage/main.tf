@@ -18,14 +18,14 @@ locals {
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
         cd ${local.attack_dir}
-        echo ${local.listener} | base64 -d > listener.py
-        echo ${local.responder} | base64 -d > plugins/responder.py
-        echo ${local.instance2rds} | base64 -d > resources/instance2rds.sh
-        echo ${local.iam2rds} | base64 -d > resources/iam2rds.sh
-        echo ${local.gcpiam2cloudsql} | base64 -d > resources/gcpiam2cloudsql.sh
-        echo ${local.scan2kubeshell} | base64 -d > resources/scan2kubeshell.sh
-        echo ${local.kube2s3} | base64 -d > resources/kube2s3.sh 
-        echo ${local.iam2enum} | base64 -d > resources/iam2enum.sh
+        echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py
+        echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py
+        echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh
+        echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh
+        echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh
+        echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh
+        echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh 
+        echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
@@ -102,10 +102,10 @@ locals {
     log "done."
     EOT
 
-    listener        = base64encode(file(
+    listener        = file(
                                 "${path.module}/resources/listener.py", 
-                            ))
-    responder       = base64encode(templatefile(
+                            )
+    responder       = templatefile(
                                 "${path.module}/resources/responder.py", 
                                 {
                                     default_payload = var.inputs["payload"],
@@ -114,17 +114,17 @@ locals {
                                     reverse_shell_host = var.inputs["reverse_shell_host"],
                                     reverse_shell_port = var.inputs["reverse_shell_port"],
                                 }
-                            ))
-    instance2rds    = base64encode(templatefile(
+                            )
+    instance2rds    = templatefile(
                                 "${path.module}/resources/instance2rds.sh", 
                                 {
                                     region = var.inputs["region"],
                                     environment = var.inputs["environment"],
                                     deployment = var.inputs["deployment"]
                                 }
-                            ))
+                            )
 
-    iam2rds         = base64encode(templatefile(
+    iam2rds         = templatefile(
                                 "${path.module}/resources/iam2rds.sh", 
                                 {
                                     region = var.inputs["region"],
@@ -133,28 +133,28 @@ locals {
                                     iam2rds_role_name = var.inputs["iam2rds_role_name"]
                                     iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
                                 }
-                            ))
+                            )
     
-    iam2enum = base64encode(templatefile(
+    iam2enum = templatefile(
                                 "${path.module}/resources/iam2enum.sh", 
                                 {
                                     region = var.inputs["region"],
                                     environment = var.inputs["environment"],
                                     deployment = var.inputs["deployment"]
                                 }
-                            ))
+                            )
                             
-    gcpiam2cloudsql = base64encode(file(
+    gcpiam2cloudsql = file(
                                 "${path.module}/resources/gcpiam2cloudsql.sh", 
-                            ))
+                            )
 
-    scan2kubeshell = base64encode(file(
+    scan2kubeshell = file(
                                 "${path.module}/resources/scan2kubeshell.sh"
-                            ))
+                            )
     
-    kube2s3 = base64encode(file(
+    kube2s3 = file(
                                 "${path.module}/resources/kube2s3.sh"
-                            ))
+                            )
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -192,27 +192,27 @@ locals {
         base64_uncompressed_payload_additional = [
             {
                 name = "${basename(abspath(path.module))}_instance2rds.sh"
-                content = local.instance2rds
+                content = base64encode(local.instance2rds)
             },
             {
                 name = "${basename(abspath(path.module))}_iam2rds.sh"
-                content = local.iam2rds
+                content = base64encode(local.iam2rds)
             },
             {
                 name = "${basename(abspath(path.module))}_scan2kubeshell.sh"
-                content = local.scan2kubeshell
+                content = base64encode(local.scan2kubeshell)
             },
             {
                 name = "${basename(abspath(path.module))}_kube2s3.sh"
-                content = local.kube2s3
+                content = base64encode(local.kube2s3)
             },
             {
                 name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
-                content = local.gcpiam2cloudsql
+                content = base64encode(local.gcpiam2cloudsql)
             },
             {
                 name = "${basename(abspath(path.module))}_iam2enum.sh"
-                content = local.iam2enum
+                content = base64encode(local.iam2enum)
             }
         ]
     }
