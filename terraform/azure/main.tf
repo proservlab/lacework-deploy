@@ -84,7 +84,7 @@ locals {
       # dynu config
       dynu_api_key    = var.attacker_dynu_api_key
       dynu_dns_domain = var.attacker_dynu_dns_domain
-      
+
       # lacework
       lacework_profile = var.lacework_profile
     }
