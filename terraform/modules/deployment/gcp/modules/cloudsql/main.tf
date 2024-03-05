@@ -157,7 +157,7 @@ resource "google_project_iam_member" "cloudsql_client" {
   member = "serviceAccount:${var.public_app_service_account_email}"
 
   condition {
-    title       = "client_cloudsql_${var.environment}-${var.deployment}*"
+    title       = "cloudsql_client_${var.environment}-${var.deployment}*"
     expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
@@ -169,7 +169,7 @@ resource "google_project_iam_member" "cloudsql_instanceUser" {
   member = "serviceAccount:${var.public_app_service_account_email}"
 
   condition {
-    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    title       = "cloudsql_instanceuser_${var.environment}-${var.deployment}*"
     expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
@@ -181,7 +181,7 @@ resource "google_project_iam_member" "cloudsql_backup" {
   member = "serviceAccount:${var.public_app_service_account_email}"
 
   condition {
-    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    title       = "cloudsql_editor_${var.environment}-${var.deployment}*"
     expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/${local.instance_name}\")" 
   }
 }
@@ -414,14 +414,14 @@ resource "google_storage_bucket" "this" {
   }
 }
 
-resource "google_project_iam_member" "db_bucket_list" {
+resource "google_project_iam_member" "db_bucket_owner" {
   project = var.gcp_project_id
-  role    = "roles/viewer"
+  role    = "roles/storage.objectAdmin"
 
   member = "serviceAccount:${var.public_app_service_account_email}"
 
   condition {
-    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    title       = "viewer_${var.environment}-${var.deployment}*"
     expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/db-backup-${var.environment}-${var.deployment}\")" 
   }
 }
