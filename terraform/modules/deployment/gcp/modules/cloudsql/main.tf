@@ -414,6 +414,18 @@ resource "google_storage_bucket" "this" {
   }
 }
 
+resource "google_project_iam_member" "db_bucket_list" {
+  project = var.gcp_project_id
+  role    = "roles/viewer"
+
+  member = "serviceAccount:${var.public_app_service_account_email}"
+
+  condition {
+    title       = "client_instanceuser_${var.environment}-${var.deployment}*"
+    expression  = "resource.name.startsWith(\"projects/${var.gcp_project_id}/instances/db-backup-${var.environment}-${var.deployment}\")" 
+  }
+}
+
 resource "google_storage_bucket_iam_member" "db_service_account-roles_storage-objectAdmin" {
   bucket = "${google_storage_bucket.this.name}"
   role   = "roles/storage.objectAdmin"

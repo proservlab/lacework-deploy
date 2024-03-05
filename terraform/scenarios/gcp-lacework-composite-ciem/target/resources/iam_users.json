@@ -2,9 +2,7 @@
   {
     "name"   :  "khon-traktour-${deployment}",
     "roles" :  [
-      "roles/viewer",
-      "roles/cloudsql.editor",
-      "roles/storage.objectAdmin"
+      "roles/viewer"
     ]
   }
 ]
