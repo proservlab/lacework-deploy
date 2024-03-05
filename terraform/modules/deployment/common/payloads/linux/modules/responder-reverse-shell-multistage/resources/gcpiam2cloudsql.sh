@@ -25,7 +25,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/credentials.json
 gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json | tee -a $LOGFILE
 PROJECT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $2 }' | sed 's/.iam.gserviceaccount.com//g')
 USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $1 }')
-DEPLOYMENT=$(echo ${USER##*-})
+DEPLOYMENT=$(echo $${USER##*-})
 cat <<EOF >> $LOGFILE
 PROJECT=$PROJECT
 USER=$USER
