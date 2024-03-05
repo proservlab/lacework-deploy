@@ -47,9 +47,11 @@ SQL_INSTANCE=$(echo $SQL_INSTANCES | jq -r --arg i $DEPLOYMENT '.[] | select(.na
 SQL_DETAILS=$(gcloud sql instances describe $SQL_INSTANCE --project=$PROJECT --format="json")
 SQL_PROJECT=$(echo $SQL_DETAILS | jq -r '.project')
 SQL_REGION=$(echo $SQL_DETAILS | jq -r '.region')
-BUCKETS=$(gcloud storage buckets list --project=$SQL_PROJECT --region=$SQL_REGION --format="json")
+gcloud config set project $SQL_PROJECT
+gcloud config set compute/region $SQL_REGION
+BUCKETS=$(gcloud storage buckets list --project=$SQL_PROJECT --format="json")
 BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
 
 gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
-gcloud sql export sql --project=$SQL_PROJECT --region=$SQL_REGION $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
+gcloud sql export sql --project=$SQL_PROJECT $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
 gsutil cp ${BUCKET_URL}${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 
