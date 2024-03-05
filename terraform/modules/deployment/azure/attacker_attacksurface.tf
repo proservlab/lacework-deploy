@@ -60,7 +60,7 @@ module "attacker-compute-add-trusted-ingress" {
   trusted_tcp_ports             = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trusted_tcp_ports
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 
   depends_on = [
@@ -95,7 +95,7 @@ module "attacker-compute-add-app-trusted-ingress" {
   trusted_tcp_ports             = local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_tcp_ports
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 
   depends_on = [
@@ -130,7 +130,7 @@ module "attacker-ssh-keys" {
   public_tag = "runbook_deploy_secret_ssh_public"
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
@@ -151,7 +151,7 @@ module "attacker-ssh-user" {
   password = local.attacker_attacksurface_config.context.azure.runbook.ssh_user.password
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
@@ -175,7 +175,7 @@ module "attacker-vulnerable-docker-log4j-app" {
   listen_port = local.attacker_attacksurface_config.context.azure.runbook.vulnerable.docker.log4j_app.listen_port
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
@@ -195,7 +195,7 @@ module "attacker-vulnerable-log4j-app" {
   listen_port = local.attacker_attacksurface_config.context.azure.runbook.vulnerable.npm_app.listen_port
 
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
@@ -214,7 +214,7 @@ module "attacker-vulnerable-npm-app" {
 
   listen_port = local.attacker_attacksurface_config.context.azure.runbook.vulnerable.npm_app.listen_port
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
@@ -234,7 +234,7 @@ module "attacker-vulnerable-python3-twisted-app" {
   listen_port = local.attacker_attacksurface_config.context.azure.runbook.vulnerable.python3_twisted_app.listen_port
   
   providers = {
-    azure         = azure.attacker
+    azurerm    = azurerm.attacker
   }
 }
 
