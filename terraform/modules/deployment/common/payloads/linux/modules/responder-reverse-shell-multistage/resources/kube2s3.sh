@@ -22,11 +22,6 @@ if [ -f $LOCAL_STORE ]; then
 fi
 mkdir -p $LOCAL_STORE
 
-# aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name x-account --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration 1500 > /tmp/temp_creds.txt
-# export AWS_ACCESS_KEY_ID="$(cat /tmp/temp_creds.txt | jq -r ".Credentials.AccessKeyId")"
-# export AWS_SECRET_ACCESS_KEY="$(cat /tmp/temp_creds.txt | jq -r ".Credentials.SecretAccessKey")"
-# export AWS_SESSION_TOKEN="$(cat /tmp^Cemp_creds.txt | jq -r ".Credentials.SessionToken")"
-
 log "check aws identity..."
 aws sts get-caller-identity 2>&1 | tee -a $LOGFILE
 
