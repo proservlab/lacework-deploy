@@ -748,13 +748,15 @@ function select_gcp_project {
 
 function select_azure_subscription {
     # Get the current tenant
-    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
-    
+    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv --all)
+    local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv --all)
+    local regions=($(az account list-locations --query "[].name" --output tsv))
+
     # iterate through the attack and target environments
     environments="attacker target"
     for environment in $environments; do
         infomsg "select the $environment azure subscription:"
-        local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
+        PS3="$environment subscription number: "
         local IFS=$'\n'
         select opt in $options; do
             if [[ -n "$opt" ]]; then
@@ -765,7 +767,6 @@ function select_azure_subscription {
         done
 
         infomsg "retrieving list of Azure regions..."
-        regions=($(az account list-locations --query "[].name" --output tsv))
         if [ ${#regions[@]} -eq 0 ]; then
             echo "no valid Azure regions found for subscription $subscription_id."
             return 1
@@ -797,47 +798,52 @@ function select_azure_subscription {
 
 function select_lacework_profile {
     # Get the current tenant
-    local attacker_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
-    if (( $(echo -n $attacker_options | wc -c) > 0 )); then
-        infomsg "lacework profiles found"
-    else
-        errmsg "no lacework profiles configured - please add a lacework api key"
-        exit 1
-    fi
+    if [ "$ATTACKER_LACEWORK_REQUIRED" == "true" ]; then
+        local attacker_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+        if (( $(echo -n $attacker_options | wc -c) > 0 )); then
+            infomsg "lacework profiles found"
+        else
+            errmsg "no lacework profiles configured - please add a lacework api key"
+            exit 1
+        fi
     
-    infomsg "select a attacker lacework profile:"
-    PS3="attacker profile number: "
-    local IFS=$'\n'
-    select opt in $attacker_options; do
-        if [[ -n "$opt" ]]; then
-            ATTACKER_LACEWORK_PROFILE=$opt
-            infomsg "selected $environment lacework profile: $ATTACKER_LACEWORK_PROFILE"
-            ATTACKER_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$ATTACKER_LACEWORK_PROFILE")
-            break;
-        fi
-    done
-    sleep 3
-    clear
-    local target_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
-    if (( $(echo -n $target_options | wc -c) > 0 )); then
-        infomsg "lacework profiles found"
-    else
-        errmsg "no lacework profiles configured - please add a lacework api key"
-        exit 1
+    
+        infomsg "select a attacker lacework profile:"
+        PS3="attacker profile number: "
+        local IFS=$'\n'
+        select opt in $attacker_options; do
+            if [[ -n "$opt" ]]; then
+                ATTACKER_LACEWORK_PROFILE=$opt
+                infomsg "selected $environment lacework profile: $ATTACKER_LACEWORK_PROFILE"
+                ATTACKER_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$ATTACKER_LACEWORK_PROFILE")
+                break;
+            fi
+        done
+        sleep 3
+        clear
     fi
-    infomsg "select a target lacework profile:"
-    PS3="target profile number: "
-    local IFS=$'\n'
-    select opt in $target_options; do
-        if [[ -n "$opt" ]]; then
-            LACEWORK_PROFILE=$opt
-            TARGET_LACEWORK_PROFILE=$opt
-            infomsg "selected $environment lacework profile: $TARGET_LACEWORK_PROFILE"
-            LACEWORK_ACCOUNT=$(lacework configure show account --profile="$LACEWORK_PROFILE")
-            TARGET_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$TARGET_LACEWORK_PROFILE")
-            break;
+    if [ "$TARGET_LACEWORK_REQUIRED" == "true" ]; then
+        local target_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+        if (( $(echo -n $target_options | wc -c) > 0 )); then
+            infomsg "lacework profiles found"
+        else
+            errmsg "no lacework profiles configured - please add a lacework api key"
+            exit 1
         fi
-    done
+        infomsg "select a target lacework profile:"
+        PS3="target profile number: "
+        local IFS=$'\n'
+        select opt in $target_options; do
+            if [[ -n "$opt" ]]; then
+                LACEWORK_PROFILE=$opt
+                TARGET_LACEWORK_PROFILE=$opt
+                infomsg "selected $environment lacework profile: $TARGET_LACEWORK_PROFILE"
+                LACEWORK_ACCOUNT=$(lacework configure show account --profile="$LACEWORK_PROFILE")
+                TARGET_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$TARGET_LACEWORK_PROFILE")
+                break;
+            fi
+        done
+    fi
 }
 
 function output_aws_config {
@@ -979,9 +985,11 @@ CSP=$(echo ${SCENARIO} | awk -F '-' '{ print $1 }')
 ATTACKER_DYNU_REQUIRED=$(jq -r 'try .context.dynu_dns.enabled catch false' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json 2>/dev/null)
 ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
 ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq )
+ATTACKER_LACEWORK_REQUIRED=$(jq -r '.context.lacework' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json 2>/dev/null | jq '.[]' 2>/dev/null | jq 'try .enabled catch false' 2>/dev/null | grep true | uniq  2>/dev/null)
 TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json 2>/dev/null)
 TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
 TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+TARGET_LACEWORK_REQUIRED=$(jq -r '.context.lacework' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json 2>/dev/null | jq '.[]' 2>/dev/null | jq 'try .enabled catch false' 2>/dev/null | grep true | uniq  2>/dev/null)
 
 ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
 TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq )
@@ -1050,7 +1058,11 @@ if check_file_exists "$CONFIG_FILE"; then
 
     # lacework selection 
     clear
-    select_lacework_profile
+    if [ "$ATTACKER_LACEWORK_REQUIRED" == "true" ] || [ "$TARGET_LACEWORK_REQUIRED" == "true" ]; then
+        infomsg "found enabled lacework components - profile config required..."
+        sleep 3
+        select_lacework_profile
+    fi
     
     # provider preflight
     clear
@@ -1096,6 +1108,8 @@ if check_file_exists "$CONFIG_FILE"; then
         check_azure_cli
         clear
         select_azure_subscription
+        
+        exit
         clear
         if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
             config_protonvpn
