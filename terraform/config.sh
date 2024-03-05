@@ -1108,8 +1108,6 @@ if check_file_exists "$CONFIG_FILE"; then
         check_azure_cli
         clear
         select_azure_subscription
-        
-        exit
         clear
         if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
             config_protonvpn
