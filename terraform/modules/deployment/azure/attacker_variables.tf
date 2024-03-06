@@ -24,7 +24,7 @@ variable "attacker_azure_tenant" {
 }
 variable "attacker_azure_region"{
   type = string
-  description = "azure profile"
+  description = "azure region"
 }
 variable "attacker_kubeconfig" {
   type = string

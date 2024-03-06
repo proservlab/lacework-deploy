@@ -24,7 +24,7 @@ variable "target_azure_tenant" {
 }
 variable "target_azure_region"{
   type = string
-  description = "azure profile"
+  description = "azure region"
 }
 variable "target_kubeconfig" {
   type = string
