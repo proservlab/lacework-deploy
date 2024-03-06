@@ -750,7 +750,7 @@ function select_azure_subscription {
     # Get the current tenant
     local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv --all)
     local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv --all)
-    local regions=($(az account list-locations --query "[].name" --output tsv))
+    local regions=($(az account list-locations --query "sort_by([].{name:name}, &name)" --output tsv))
 
     # iterate through the attack and target environments
     environments="attacker target"
@@ -784,11 +784,11 @@ function select_azure_subscription {
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AZURE_SUBSCRIPTION=$subscription_id
             ATTACKER_AZURE_TENANT=$tenant_id
-            ATTACKER_AZURE_LOCATION=$region
+            ATTACKER_AZURE_LOCATION=$(az account list-locations --query "[?name == '$region'].displayName" --output tsv)
         elif [ "$environment" == "target" ]; then
             TARGET_AZURE_SUBSCRIPTION=$subscription_id
             TARGET_AZURE_TENANT=$tenant_id
-            TARGET_AZURE_LOCATION=$region
+            TARGET_AZURE_LOCATION=$(az account list-locations --query "[?name == '$region'].displayName" --output tsv)
         fi;
     done;
 
@@ -1094,7 +1094,7 @@ if check_file_exists "$CONFIG_FILE"; then
             infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
@@ -1114,7 +1114,7 @@ if check_file_exists "$CONFIG_FILE"; then
             infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
@@ -1132,7 +1132,7 @@ if check_file_exists "$CONFIG_FILE"; then
             infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_azure_config
     fi
 
