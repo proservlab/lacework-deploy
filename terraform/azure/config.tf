@@ -27,7 +27,7 @@ locals {
       deployment = var.deployment
 
       # azure
-      azure_tenant      = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
       azure_subscription = var.attacker_azure_subscription
       azure_region       = var.attacker_azure_region
 
@@ -51,7 +51,7 @@ locals {
       deployment = var.deployment
 
       # azure
-      azure_tenant      = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      azure_tenant       = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
       azure_subscription = var.target_azure_subscription
       azure_region       = var.target_azure_region
 
@@ -257,10 +257,10 @@ locals {
       target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # azure
-      attacker_azure_tenant      = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      attacker_azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
       attacker_azure_subscription = var.attacker_azure_subscription
       attacker_azure_region       = var.attacker_azure_region
-      target_azure_tenant        = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      target_azure_tenant         = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
       target_azure_subscription   = var.target_azure_subscription
       target_azure_region         = var.target_azure_region
 
@@ -289,10 +289,10 @@ locals {
       target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # azure
-      attacker_azure_tenant      = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
+      attacker_azure_tenant       = can(length(var.attacker_azure_tenant)) ? var.attacker_azure_tenant : ""
       attacker_azure_subscription = var.attacker_azure_subscription
       attacker_azure_region       = var.attacker_azure_region
-      target_azure_tenant        = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
+      target_azure_tenant         = can(length(var.target_azure_tenant)) ? var.target_azure_tenant : ""
       target_azure_subscription   = var.target_azure_subscription
       target_azure_region         = var.target_azure_region
 
