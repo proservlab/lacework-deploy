@@ -165,7 +165,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
     location              = var.region
     resource_group_name   = var.resource_group.name
     network_interface_ids = [azurerm_network_interface.nic[each.key].id]
-    size                  = "Standard_DS1_v2"
+    size                  = each.value.instance_type
 
     os_disk {
         name              = "disk-${each.key}-${var.environment}-${var.deployment}"
@@ -174,10 +174,10 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
     source_image_reference {
-        publisher = data.azurerm_platform_image.ubuntu_image.publisher
-        offer     = data.azurerm_platform_image.ubuntu_image.offer
-        sku       = data.azurerm_platform_image.ubuntu_image.sku
-        version   = data.azurerm_platform_image.ubuntu_image.version
+        publisher = local.amis[each.value.ami_name].publisher
+        offer     = local.amis[each.value.ami_name].offer
+        sku       = local.amis[each.value.ami_name].sku
+        version   = local.amis[each.value.ami_name].version
     }
 
     computer_name  = "${each.key}-${var.environment}-${var.deployment}"

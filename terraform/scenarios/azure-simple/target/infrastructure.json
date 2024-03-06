@@ -26,7 +26,7 @@
             "name"                      : "target-public-1",
             "public"                    : true,
             "role"                      : "default",
-            "instance_type"             : "e2-micro",
+            "instance_type"             : "Standard_DS1_v21",
             "ami_name"                  : "ubuntu_focal",
             "tags": {
               "runbook_deploy_git"    : "true",

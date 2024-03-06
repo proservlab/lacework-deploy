@@ -5,15 +5,15 @@
 locals {
   attacker_infrastructure_config                = var.attacker_infrastructure_config
   attacker_kubeconfig                           = pathexpand("~/.kube/aws-attacker-${local.attacker_infrastructure_config.context.global.deployment}-kubeconfig")
-  attacker_cluster_name                         = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster.id : null
-  attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster.endpoint : null
-  attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster.certificate_authority[0].data : null
-  attacker_cluster_oidc_issuer                  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster.identity[0].oidc[0].issuer : null
-  attacker_cluster_security_group               = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster_sg_id : null
-  attacker_cluster_vpc_id                       = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster_vpc_id : null
-  attacker_cluster_vpc_subnet                   = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster_vpc_subnet : null
-  attacker_cluster_openid_connect_provider_arn  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster_openid_connect_provider.arn : null
-  attacker_cluster_openid_connect_provider_url  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-attacker-aks[0].cluster_openid_connect_provider.url : null
+  attacker_cluster_name                         = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.id : null
+  attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.endpoint : null
+  attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.certificate_authority[0].data : null
+  attacker_cluster_oidc_issuer                  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.identity[0].oidc[0].issuer : null
+  attacker_cluster_security_group               = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster_sg_id : null
+  attacker_cluster_vpc_id                       = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster_vpc_id : null
+  attacker_cluster_vpc_subnet                   = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster_vpc_subnet : null
+  attacker_cluster_openid_connect_provider_arn  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster_openid_connect_provider.arn : null
+  attacker_cluster_openid_connect_provider_url  = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster_openid_connect_provider.url : null
   attacker_tenant_id                            = var.attacker_azure_tenant
   attacker_subscription_id                      = var.attacker_azure_subscription
 }
@@ -170,7 +170,7 @@ module "attacker-azurestorage" {
   
   # add the local workstation and all public addresses for compute instances
   trusted_networks                    = flatten([
-    [ replace(module.attacker-workstation-external-ip.cidr,"/32","") ],
+    [ replace(module.workstation-external-ip.cidr,"/32","") ],
     [ for instance in try(module.attacker-compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "app" && instance.public == "true"],
     [ for instance in try(module.attacker-compute[0].instances, []): replace(instance.public_ip,"/32","") if instance.role == "default" && instance.public == "true"]
   ])

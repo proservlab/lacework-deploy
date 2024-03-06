@@ -166,7 +166,7 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     location              = var.region
     resource_group_name   = var.resource_app_group.name
     network_interface_ids = [azurerm_network_interface.nic-app[each.key].id]
-    size                  = "Standard_DS1_v2"
+    size                  = each.value.instance_type
 
     os_disk {
         name              = "disk-app-${each.key}-${var.environment}-${var.deployment}"
@@ -175,10 +175,10 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     }
 
     source_image_reference {
-        publisher = data.azurerm_platform_image[each.value["instance_type"]].publisher
-        offer     = data.azurerm_platform_image[each.value["instance_type"]].offer
-        sku       = data.azurerm_platform_image[each.value["instance_type"]].sku
-        version   = data.azurerm_platform_image[each.value["instance_type"]].version
+        publisher = local.amis[each.value.ami_name].publisher
+        offer     = local.amis[each.value.ami_name].offer
+        sku       = local.amis[each.value.ami_name].sku
+        version   = local.amis[each.value.ami_name].version
     }
 
     computer_name  = "${each.key}-app-${var.environment}-${var.deployment}"

@@ -32,6 +32,7 @@ provider "azurerm" {
   features {}
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
+  skip_provider_registration = true 
 }
 
 provider "azurerm" {
@@ -39,6 +40,7 @@ provider "azurerm" {
   features {}
   tenant_id = var.attacker_azure_tenant
   subscription_id = var.attacker_azure_subscription
+  skip_provider_registration = true 
 }
 
 provider "azurerm" {
@@ -46,6 +48,7 @@ provider "azurerm" {
   features {}
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
+  skip_provider_registration = true 
 }
 provider "lacework" {
   alias      = "attacker"

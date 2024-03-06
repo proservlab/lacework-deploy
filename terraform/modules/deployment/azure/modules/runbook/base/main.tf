@@ -36,7 +36,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
     log_progress            = "true"
     description             = "Attack simulation runbook"
     runbook_type            = "Script"
-    content                 = templatefile(pathexpand("${path.module}/runbooks/powershell/RunCommand.ps1"), {
+    content                 = templatefile("${path.module}/powershell/RunCommand.ps1", {
                                 subscription            = data.azurerm_subscription.current.subscription_id
                                 resource_group          = var.resource_group.name
                                 automation_account      = var.automation_princial_id
