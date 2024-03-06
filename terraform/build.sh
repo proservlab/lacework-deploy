@@ -287,6 +287,7 @@ run_terraform_show() {
 check_for_errors() {
     local ERR_CODE=$1
     local ERROR_MSG=$2
+    local ACTION=$3
     if [ "${ACTION}" == "plan" ]; then
         if ( [ $ERR_CODE -ne 2 ] && [ $ERR_CODE -ne 0 ] ) || grep "Error: " $LOGFILE; then
             errmsg "$ERROR_MSG: ${ERR_CODE}"
@@ -445,7 +446,7 @@ elif [ "plan" = "${ACTION}" ]; then
     run_terraform_plan
     ERR=$?
     infomsg "Terraform plan result: $ERR"
-    check_for_errors $ERR "Initial Terraform plan failed"
+    check_for_errors $ERR "Initial Terraform plan failed" $ACTION
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
     run_terraform_show
@@ -462,7 +463,7 @@ elif [ "apply" = "${ACTION}" ]; then
     run_terraform_plan
     ERR=$?
     infomsg "Terraform plan result: $ERR"
-    check_for_errors $ERR "Initial Terraform plan failed"
+    check_for_errors $ERR "Initial Terraform plan failed" "plan"
 
     CHANGE_COUNT=$(terraform show -json ${PLANFILE}  | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
@@ -486,13 +487,13 @@ elif [ "apply" = "${ACTION}" ]; then
             run_terraform_plan
             ERR=$?
             infomsg "Retried Terraform plan result: $ERR"
-            check_for_errors $ERR "Retried Terraform plan failed"
+            check_for_errors $ERR "Retried Terraform plan failed" "plan"
             
             run_terraform_apply
             ERR=$?
-            check_for_errors $ERR "Retried Terraform apply failed"
+            check_for_errors $ERR "Retried Terraform apply failed" "$ACTION"
         else
-            check_for_errors $ERR "Terraform apply failed"
+            check_for_errors $ERR "Terraform apply failed" "$ACTION"
         fi
     fi
 elif [ "destroy" = "${ACTION}" ]; then
