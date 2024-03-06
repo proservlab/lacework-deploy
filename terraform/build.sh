@@ -289,7 +289,7 @@ check_for_errors() {
     local ERR_CODE=$2
     local ERROR_MSG=$3
     
-    echo "ACTION: $LOCAL_ACTION"
+    
     if [ "${LOCAL_ACTION}" == "plan" ]; then
         if ( [ $ERR_CODE -ne 2 ] && [ $ERR_CODE -ne 0 ] ) || grep "Error: " $LOGFILE; then
             errmsg "$ERROR_MSG: ${ERR_CODE}"

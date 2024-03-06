@@ -3,7 +3,6 @@ data "azurerm_platform_image" "ubuntu_focal" {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-focal"
     sku       = "20_04-lts"
-    version   = "latest"
 }
 
 data "azurerm_platform_image" "debian_11" {
@@ -11,7 +10,6 @@ data "azurerm_platform_image" "debian_11" {
     publisher = "Debian"
     offer     = "debian-11"
     sku       = "11"
-    version   = "latest"
 }
 
 data "azurerm_platform_image" "centos8" {
@@ -19,7 +17,6 @@ data "azurerm_platform_image" "centos8" {
     publisher = "OpenLogic"
     offer     = "CentOS"
     sku       = "8_5-gen2"
-    version   = "latest"
 }
 
 data "azurerm_platform_image" "windowsserver_2019" {
@@ -27,11 +24,10 @@ data "azurerm_platform_image" "windowsserver_2019" {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
     sku       = "2019-Datacenter"
-    version   = "latest"
 }
 
 data "azurerm_platform_image" "rocky_linux_8" {
-    location = var.region
+    location  = var.region
     publisher = "erockyenterprisesoftwarefoundationinc1653071250513"
     offer     = "rockylinux"
     sku       = "free"
