@@ -9,9 +9,8 @@ variable "deployment" {
 }
 
 variable "region" {
-  description = "default azure region"
-  default     = "West US 2"
-  type        = string
+    type = string
+    description = "azure region"
 }
 
 variable "resource_group" {

@@ -373,6 +373,9 @@ variable "config" {
           enabled               = bool
           org_integration       = bool
         })
+        azure_agentless = object({
+          enabled               = bool
+        })
         alerts = object({
           enabled               = bool
           slack = object({
@@ -948,6 +951,9 @@ variable "config" {
         gcp_agentless = {
           enabled               = false
           org_integration       = false
+        }
+        azure_agentless = {
+          enabled               = false
         }
         alerts = {
           enabled               = false

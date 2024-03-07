@@ -434,12 +434,23 @@ module "attacker-lacework-audit-config" {
 }
 
 # lacework agentless scanning
-# module "attacker-lacework-agentless" {
-#   count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
-#   source      = "./modules/agentless"
-#   environment = local.attacker_infrastructure_config.context.global.environment
-#   deployment   = local.attacker_infrastructure_config.context.global.deployment
-# }
+module "attacker-lacework-agentless" {
+  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+  source      = "./modules/lacework-agentless"
+  environment = local.attacker_infrastructure_config.context.global.environment
+  deployment  = local.attacker_infrastructure_config.context.global.deployment
+  region      = local.attacker_infrastructure_config.context.azure.region
+
+  depends_on = [
+    module.attacker-lacework-audit-config,
+    module.attacker-ec2
+  ]
+
+  providers = {
+    lacework  = lacework.attacker
+    azurerm   = azurerm.attacker
+  }
+}
 
 ##################################################
 # AZURE AKS Lacework

@@ -60,8 +60,8 @@
       "azure_audit_config": {
         "enabled"    : true
       },
-      "custom_policy": {
-        "enabled" : false
+      "azure_agentless": {
+        "enabled"    : true
       },
       "agent": {
         "enabled" : true,
@@ -85,12 +85,6 @@
             "enabled" : false
           }
         }
-      },
-      "aws_agentless": {
-        "enabled" : false
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,

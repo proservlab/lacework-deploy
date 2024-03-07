@@ -9,7 +9,8 @@ variable "deployment" {
 }
 
 variable "region" {
-  type = string
+    type = string
+    description = "azure region"
 }
 
 variable "server_name" {

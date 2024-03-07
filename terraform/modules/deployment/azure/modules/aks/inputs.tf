@@ -18,6 +18,7 @@ variable "cluster_resource_group" {
 
 variable "region" {
     type = string
+    description = "azure region"
 }
 
 variable "authorized_ip_ranges" {

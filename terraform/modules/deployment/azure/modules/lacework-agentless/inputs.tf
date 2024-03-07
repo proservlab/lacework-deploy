@@ -12,8 +12,3 @@ variable "region" {
     type = string
     description = "azure region"
 }
-
-variable "name" {
-    type = string
-    description = "name of the resource group - environment and deployment will be appended"
-}
