@@ -250,7 +250,7 @@ module "attacker-attacker-kubernetes-reloader" {
 
   depends_on = [
     module.attacker-aks,
-    module.attacker-iam,
+    # module.attacker-iam,
   ]
 
   providers = {
@@ -297,7 +297,7 @@ module "attacker-kubernetes-app" {
 
   depends_on = [
     module.attacker-aks,
-    module.attacker-iam,
+    # module.attacker-iam,
   ]
 
   providers = {
@@ -366,7 +366,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
 
   depends_on = [
     module.attacker-aks,
-    module.attacker-iam,
+    # module.attacker-iam,
   ]
 
   providers = {
@@ -412,7 +412,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
 
   depends_on = [
     module.attacker-aks,
-    module.attacker-iam,
+    # module.attacker-iam,
   ]
 
   providers = {
@@ -459,7 +459,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
 
   depends_on = [
     module.attacker-aks,
-    module.attacker-iam,
+    # module.attacker-iam,
   ]
 
   providers = {

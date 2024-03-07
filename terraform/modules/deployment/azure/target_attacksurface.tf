@@ -250,7 +250,7 @@ module "target-target-kubernetes-reloader" {
 
   depends_on = [
     module.target-aks,
-    module.target-iam,
+    # module.target-iam,
   ]
 
   providers = {
@@ -297,7 +297,7 @@ module "target-kubernetes-app" {
 
   depends_on = [
     module.target-aks,
-    module.target-iam,
+    # module.target-iam,
   ]
 
   providers = {
@@ -366,7 +366,7 @@ module "target-vulnerable-kubernetes-log4j-app" {
 
   depends_on = [
     module.target-aks,
-    module.target-iam,
+    # module.target-iam,
   ]
 
   providers = {
@@ -412,7 +412,7 @@ module "target-vulnerable-kubernetes-privileged-pod" {
 
   depends_on = [
     module.target-aks,
-    module.target-iam,
+    # module.target-iam,
   ]
 
   providers = {
@@ -459,7 +459,7 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
 
   depends_on = [
     module.target-aks,
-    module.target-iam,
+    # module.target-iam,
   ]
 
   providers = {
