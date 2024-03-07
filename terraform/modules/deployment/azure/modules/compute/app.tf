@@ -198,5 +198,5 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 # resource "local_file" "ssh-key-app" {
 #     content  = tls_private_key.ssh-app.private_key_pem
 #     filename = local.ssh_key_path_app
-#     file_permission = "0400"
+#     file_permission = "0600"
 # }

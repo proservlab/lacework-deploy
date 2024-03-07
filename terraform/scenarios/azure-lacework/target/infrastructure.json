@@ -57,12 +57,6 @@
       "server_url"   : "${ lacework_server_url }",
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
-      "aws_audit_config": {
-        "enabled" : false
-      },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
       "azure_audit_config": {
         "enabled"    : true
       },
