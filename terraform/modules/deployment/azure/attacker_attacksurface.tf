@@ -43,7 +43,7 @@ module "attacker-compute-add-trusted-ingress" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
 
   resource_group                = local.attacker_automation_account[0].resource_group.name
-  security_group                = local.attacker_public_app_security_group.name
+  security_group                = local.attacker_public_security_group.name
 
   trusted_attacker_source       = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
