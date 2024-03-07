@@ -61,9 +61,6 @@
       "azure_agentless": {
         "enabled"    : true
       },
-      "custom_policy": {
-        "enabled"    : false
-      },
       "agent": {
         "enabled" : true,
 
