@@ -60,7 +60,7 @@ module "target-runbook-connect-reverse-shell" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group
+  resource_group  = local.target_automation_account[0].resource_group.name
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
@@ -89,7 +89,7 @@ module "target-runbook-connect-reverse-shell" {
 #   deployment      = local.target_attacksimulate_config.context.global.deployment
 #   region          = local.target_infrastructure_config.context.azure.region
   
-#   resource_group  = local.target_automation_account[0].resource_group
+#   resource_group  = local.target_automation_account[0].resource_group.name
 #   automation_account = local.target_automation_account[0].automation_account_name
 #   automation_princial_id = local.target_automation_account[0].automation_princial_id
 

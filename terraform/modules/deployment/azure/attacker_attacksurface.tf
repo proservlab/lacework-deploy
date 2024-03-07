@@ -42,7 +42,7 @@ module "attacker-compute-add-trusted-ingress" {
   environment     = local.attacker_attacksurface_config.context.global.environment
   deployment      = local.attacker_attacksurface_config.context.global.deployment
 
-  resource_group                = local.attacker_automation_account[0].resource_group
+  resource_group                = local.attacker_automation_account[0].resource_group.name
   security_group                = local.attacker_public_app_security_group.name
 
   trusted_attacker_source       = local.attacker_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
@@ -77,7 +77,7 @@ module "attacker-compute-add-app-trusted-ingress" {
   environment     = local.attacker_attacksurface_config.context.global.environment
   deployment      = local.attacker_attacksurface_config.context.global.deployment
 
-  resource_group                = local.attacker_automation_account[0].resource_group
+  resource_group                = local.attacker_automation_account[0].resource_group.name
   security_group                = local.attacker_public_app_security_group.name
 
   trusted_attacker_source       = local.attacker_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_attacker_source ? flatten([
@@ -118,7 +118,7 @@ module "attacker-ssh-keys" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -141,7 +141,7 @@ module "attacker-ssh-user" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -166,7 +166,7 @@ module "attacker-vulnerable-docker-log4j-app" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -186,7 +186,7 @@ module "attacker-vulnerable-log4j-app" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -206,7 +206,7 @@ module "attacker-vulnerable-npm-app" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -225,7 +225,7 @@ module "attacker-vulnerable-python3-twisted-app" {
   deployment      = local.attacker_attacksurface_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
 
-  resource_group  = local.attacker_automation_account[0].resource_group
+  resource_group  = local.attacker_automation_account[0].resource_group.name
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
