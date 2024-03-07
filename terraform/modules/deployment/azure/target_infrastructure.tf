@@ -447,7 +447,7 @@ module "target-lacework-agentless" {
 
   depends_on = [
     module.target-lacework-audit-config,
-    module.target-ec2
+    module.target-compute
   ]
 
   providers = {

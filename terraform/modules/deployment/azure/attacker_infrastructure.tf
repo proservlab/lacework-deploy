@@ -443,7 +443,7 @@ module "attacker-lacework-agentless" {
 
   depends_on = [
     module.attacker-lacework-audit-config,
-    module.attacker-ec2
+    module.attacker-compute
   ]
 
   providers = {

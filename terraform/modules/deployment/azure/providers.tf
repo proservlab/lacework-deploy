@@ -29,7 +29,16 @@ provider "helm" {
   }
 }
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      /* scanner creates disks in the resource group. In regular circumstance those disks are
+      cleaned up by the scanner. However, if `terraform destroy` is run before the scanner
+      can do cleanup, the destroy will fail, because those disks aren't managed by Terraform.
+      Hence we turn off the deletion prevention here.
+      */
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
   skip_provider_registration = true 
@@ -37,7 +46,16 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias = "attacker"
-  features {}
+  features {
+    resource_group {
+      /* scanner creates disks in the resource group. In regular circumstance those disks are
+      cleaned up by the scanner. However, if `terraform destroy` is run before the scanner
+      can do cleanup, the destroy will fail, because those disks aren't managed by Terraform.
+      Hence we turn off the deletion prevention here.
+      */
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   tenant_id = var.attacker_azure_tenant
   subscription_id = var.attacker_azure_subscription
   skip_provider_registration = true 
@@ -45,7 +63,16 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias = "target"
-  features {}
+  features {
+    resource_group {
+      /* scanner creates disks in the resource group. In regular circumstance those disks are
+      cleaned up by the scanner. However, if `terraform destroy` is run before the scanner
+      can do cleanup, the destroy will fail, because those disks aren't managed by Terraform.
+      Hence we turn off the deletion prevention here.
+      */
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   tenant_id = var.target_azure_tenant
   subscription_id = var.target_azure_subscription
   skip_provider_registration = true 
