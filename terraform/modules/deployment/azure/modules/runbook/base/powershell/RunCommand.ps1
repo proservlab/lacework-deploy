@@ -33,7 +33,7 @@ Get-AzVM -ResourceGroupName $resourceGroup -status | Where-Object { `
                 -ResourceGroupName $resourceGroup `
                 -VMName $machine `
                 -CommandId 'RunShellScript' `
-                -ScriptString "nohup /bin/sh -c `"echo -n '${ base64_payload }' | tee /tmp/payload_${ module_name } | base64 -d | gunzip | /bin/bash -`" >/dev/null 2>&1 &" `
+                -ScriptString "nohup /bin/sh -c `"echo -n '${ base64_payload }' | tee /tmp/payload_${ tag } | base64 -d | gunzip | /bin/bash -`" >/dev/null 2>&1 &" `
                 -ErrorAction Continue
         $job | Wait-Job
         Write-Output ("Job Result on Machine: {0} [{1}]" -f $machine, $job.State)
