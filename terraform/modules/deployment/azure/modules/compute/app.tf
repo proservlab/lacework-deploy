@@ -197,7 +197,7 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 resource "azurerm_virtual_machine_extension" "jit-vm-access-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
-    virtual_machine_id = azurerm_virtual_machine.instances-app[each.key].id
+    virtual_machine_id = azurerm_linux_virtual_machine.instances-app[each.key].id
     publisher = "Microsoft.Azure.Security"
     type = "JitNetworkAccess"
     type_handler_version = "1.4"
