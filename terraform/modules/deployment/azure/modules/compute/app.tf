@@ -194,6 +194,23 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
+resource "azurerm_virtual_machine_extension" "jit-vm-access-app" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
+    virtual_machine_id = azurerm_virtual_machine.instances-app[each.key].id
+    publisher = "Microsoft.Azure.Security"
+    type = "JitNetworkAccess"
+    type_handler_version = "1.4"
+    auto_upgrade_minor_version = true
+    settings = jsonencode({
+        "durationInSeconds" = 3600
+    })
+
+    depends_on = [ azurerm_linux_virtual_machine.instances-app ]
+
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+}
+
 # use the common default ssh key
 # resource "local_file" "ssh-key-app" {
 #     content  = tls_private_key.ssh-app.private_key_pem
