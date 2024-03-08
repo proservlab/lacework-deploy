@@ -54,7 +54,7 @@ locals {
             log "starting background process via screen..."
             screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 listener.py --port ${local.listen_port}"
+            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 listener.py --port=\"${var.inputs["reverse_shell_port"]}\" --host=\"${var.inputs["reverse_shell_host"]}\" --payload=\"${var.inputs["payload"]}\""
             screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
             log "Checking for listener..."
             TIMEOUT=1800
@@ -102,19 +102,8 @@ locals {
     log "done."
     EOT
 
-    listener        = file(
-                                "${path.module}/resources/listener.py", 
-                            )
-    responder       = templatefile(
-                                "${path.module}/resources/responder.py", 
-                                {
-                                    default_payload = var.inputs["payload"],
-                                    iam2rds_role_name = var.inputs["iam2rds_role_name"],
-                                    iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}",
-                                    reverse_shell_host = var.inputs["reverse_shell_host"],
-                                    reverse_shell_port = var.inputs["reverse_shell_port"],
-                                }
-                            )
+    listener        = file("${path.module}/resources/listener.py")
+    responder       = file("${path.module}/resources/responder.py")
     instance2rds    = templatefile(
                                 "${path.module}/resources/instance2rds.sh", 
                                 {
@@ -135,26 +124,13 @@ locals {
                                 }
                             )
     
-    iam2enum = templatefile(
-                                "${path.module}/resources/iam2enum.sh", 
-                                {
-                                    region = var.inputs["region"],
-                                    environment = var.inputs["environment"],
-                                    deployment = var.inputs["deployment"]
-                                }
-                            )
+    iam2enum = file("${path.module}/resources/iam2enum.sh")
                             
-    gcpiam2cloudsql = file(
-                                "${path.module}/resources/gcpiam2cloudsql.sh", 
-                            )
+    gcpiam2cloudsql = file("${path.module}/resources/gcpiam2cloudsql.sh")
 
-    scan2kubeshell = file(
-                                "${path.module}/resources/scan2kubeshell.sh"
-                            )
+    scan2kubeshell = file("${path.module}/resources/scan2kubeshell.sh")
     
-    kube2s3 = file(
-                                "${path.module}/resources/kube2s3.sh"
-                            )
+    kube2s3 = file("${path.module}/resources/kube2s3.sh")
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
