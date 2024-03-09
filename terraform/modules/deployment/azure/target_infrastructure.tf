@@ -120,6 +120,7 @@ module "target-compute" {
 
   providers = {
     azurerm = azurerm.target
+    restapi = restapi.main
   }
 }
 

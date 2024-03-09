@@ -120,6 +120,7 @@ module "attacker-compute" {
 
   providers = {
     azurerm = azurerm.attacker
+    restapi = restapi.main
   }
 }
 

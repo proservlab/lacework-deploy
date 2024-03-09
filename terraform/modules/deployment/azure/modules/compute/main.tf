@@ -194,7 +194,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
 }
 
 resource "azurerm_virtual_machine_extension" "jit-vm-access" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
     virtual_machine_id = azurerm_linux_virtual_machine.instances[each.key].id
     publisher = "Microsoft.Azure.Security"
@@ -243,6 +243,9 @@ locals {
     private_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "false" ]
 }
 
+################################
+# DYNU DNS - DEFAULT AND APP
+################################
 
 module "dns-records" {
     for_each              = { for instance in local.public_compute_instances: instance.name => instance }
