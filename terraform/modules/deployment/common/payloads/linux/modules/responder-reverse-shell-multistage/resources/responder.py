@@ -340,20 +340,20 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                     task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
                     else:
                         session.log(
-                            f"aws creds not found: /tmp/{hostname}_aws_creds.tgz")
+                            f"gcp creds not found: /tmp/{hostname}_gcp_creds.tgz")
 
                     payload = encode_base64(
                         f'aws configure list-profiles')
                     session.log(f"Running payload: {payload}")
                     result = subprocess.run(
-                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
+                        ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_checkprofiles | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
                     session.log(result)
 
                     payload = encode_base64(
                         f'aws configure list --profile=default')
                     session.log(f"Running payload: {payload}")
                     result = subprocess.run(
-                        ['/bin/bash', '-c', f'echo {payload.decode()} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
+                        ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_checkdefault | base64 -d | /bin/bash'], cwd=task_path, capture_output=True, text=True)
                     session.log(result)
                 elif csp == "gcp":
                     # create aws directory
