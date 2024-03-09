@@ -4,24 +4,7 @@ output "ssh_key_path" {
 
 output "instances" { 
     sensitive = false
-    value = flatten([
-            [for instance in azurerm_linux_virtual_machine.instances : {
-                name       = instance.name
-                public_ip  = instance.public_ip_address
-                admin_user = instance.admin_username
-                role       = lookup(instance.tags,"role","default")
-                public     = lookup(instance.tags,"public","false")
-                tags       = instance.tags
-            }],
-            [for instance in azurerm_linux_virtual_machine.instances-app : {
-                name       = instance.name
-                public_ip  = instance.public_ip_address
-                admin_user = instance.admin_username
-                role       = lookup(instance.tags,"role","app")
-                public     = lookup(instance.tags,"public","false")
-                tags       = instance.tags
-            }]
-    ])
+    value = local.instances
 }
 
 output "resource_group" { 

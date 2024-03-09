@@ -109,6 +109,10 @@ module "attacker-compute" {
   resource_group = module.attacker-resource-group.resource_group
   resource_app_group = module.attacker-resource-group-app.resource_group
 
+  enable_dynu_dns                     = local.attacker_infrastructure_config.context.dynu_dns.enabled
+  dynu_dns_domain                     = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_api_key                        = local.attacker_infrastructure_config.context.dynu_dns.api_key
+
   depends_on = [
     module.attacker-resource-group,
     module.attacker-resource-group-app

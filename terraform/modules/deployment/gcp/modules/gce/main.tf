@@ -150,16 +150,16 @@ locals {
 }
 
 module "dns-records" {
-  count               = length(local.public_compute_instances)
+  for_each              = { for instance in local.public_compute_instances: instance.name => instance }
   source              = "../../../common/dynu-dns-record"
   dynu_api_key        = var.dynu_api_key
   dynu_dns_domain     = var.dynu_dns_domain
   
   record        = {
         recordType     = "A"
-        recordName     = "${lookup(local.public_compute_instances[count.index].labels, "name", "unknown")}"
-        recordHostName = "${lookup(local.public_compute_instances[count.index].labels, "name", "unknown")}.${coalesce(var.dynu_dns_domain, "unknown")}"
-        recordValue    = local.public_compute_instances[count.index].network_interface[0].access_config[0].nat_ip
+        recordName     = "${lookup(each.value.labels, "name", "unknown")}"
+        recordHostName = "${lookup(each.value.labels, "name", "unknown")}.${coalesce(var.dynu_dns_domain, "unknown")}"
+        recordValue    = each.value.network_interface[0].access_config[0].nat_ip
       }
   
   depends_on = [ module.instances ]

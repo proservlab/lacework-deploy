@@ -215,3 +215,51 @@ resource "local_file" "ssh-key" {
     filename = local.ssh_key_path
     file_permission = "0600"
 }
+
+locals {
+    instances = flatten([
+            [for instance in azurerm_linux_virtual_machine.instances : {
+                name       = instance.name
+                public_ip  = instance.public_ip_address
+                admin_user = instance.admin_username
+                role       = lookup(instance.tags,"role","default")
+                public     = lookup(instance.tags,"public","false")
+                tags       = instance.tags
+            }],
+            [for instance in azurerm_linux_virtual_machine.instances-app : {
+                name       = instance.name
+                public_ip  = instance.public_ip_address
+                admin_user = instance.admin_username
+                role       = lookup(instance.tags,"role","app")
+                public     = lookup(instance.tags,"public","false")
+                tags       = instance.tags
+            }]
+    ])
+
+    public_compute_instances = var.enable_dynu_dns == true ? [ for compute in local.instances: compute.public_ip if compute.public == "true" ] : []
+    public_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "true" ]
+    public_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "true" ]
+    private_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "false" ]
+    private_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "false" ]
+}
+
+
+module "dns-records" {
+    for_each              = { for instance in local.public_compute_instances: instance.name => instance }
+    source              = "../../../common/dynu-dns-record"
+    dynu_api_key        = var.dynu_api_key
+    dynu_dns_domain     = var.dynu_dns_domain
+    
+    record        = {
+            recordType     = "A"
+            recordName     = "${each.key}"
+            recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
+            recordValue    = each.value.public_ip
+        }
+    
+    depends_on = [
+        azurerm_linux_virtual_machine.instances,
+        azurerm_linux_virtual_machine.instances-app 
+    ]
+}
+

@@ -229,3 +229,21 @@ variable "admin_user" {
   type = string
   default = "azureuser"
 }
+
+variable "enable_dynu_dns" {
+  type = bool
+  description = "dynu dns setup for instance"
+  default = false
+}
+
+variable "dynu_api_key" {
+  type = string
+  description = "The api key for dynu domain"
+  default = ""
+}
+
+variable "dynu_dns_domain" {
+  type = string
+  description = "The hostname you want to update"
+  default = ""
+}
