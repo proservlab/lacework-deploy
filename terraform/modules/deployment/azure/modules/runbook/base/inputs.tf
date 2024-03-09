@@ -15,7 +15,7 @@ variable "region" {
 
 variable "resource_group" {
   description = "resource group"
-  type = string
+  type = any
 }
 
 variable "automation_account" {

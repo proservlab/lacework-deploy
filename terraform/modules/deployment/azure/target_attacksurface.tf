@@ -118,7 +118,7 @@ module "target-ssh-keys" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -141,7 +141,7 @@ module "target-ssh-user" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -166,7 +166,7 @@ module "target-vulnerable-docker-log4j-app" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -186,7 +186,7 @@ module "target-vulnerable-log4j-app" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -206,7 +206,7 @@ module "target-vulnerable-npm-app" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -225,7 +225,7 @@ module "target-vulnerable-python3-twisted-app" {
   deployment      = local.target_attacksurface_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
 
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
