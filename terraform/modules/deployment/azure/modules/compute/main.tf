@@ -216,6 +216,10 @@ resource "local_file" "ssh-key" {
     file_permission = "0600"
 }
 
+########################################
+# INSTANCE SUMMARY
+########################################
+
 locals {
     instances = flatten([
             [for instance in azurerm_linux_virtual_machine.instances : {
@@ -236,7 +240,7 @@ locals {
             }]
     ])
 
-    public_compute_instances = var.enable_dynu_dns == true ? [ for compute in local.instances: compute.public_ip if compute.public == "true" ] : []
+    public_compute_instances = var.enable_dynu_dns == true ? [ for compute in local.instances: compute if compute.public == "true" ] : []
     public_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "true" ]
     public_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "true" ]
     private_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "false" ]
