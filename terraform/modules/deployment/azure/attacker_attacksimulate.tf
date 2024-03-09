@@ -34,10 +34,10 @@ locals {
 
   attacker_port_forward = [ 
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
-    if lookup(try(instance, {}), "public_ip", "false") != "false"  
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
       && lookup(instance.tags,"runbook_exec_responder_port_forward","false") == "true"
   ]
-  
+
   attacker_reverse_shell_multistage = [
     for instance in flatten([local.public_attacker_instances, local.public_attacker_app_instances]):  instance.public_ip
     if lookup(try(instance, {}), "public_ip", "false") != "false" 

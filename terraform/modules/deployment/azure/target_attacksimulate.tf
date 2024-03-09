@@ -8,40 +8,42 @@ locals {
 
 locals {
   # target scenario public ips
-  target_http_listener = [ 
-    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
-    if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"runbook_exec_responder_http_listener","false") == "true"
-  ]
-
-  target_reverse_shell = [ 
-    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
-    if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"runbook_exec_responder_reverse_shell","false") == "true"
-  ]
-
   target_vuln_npm_app = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
     if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"runbook_exec_exploit_npm_app","false") == "true"
+      && lookup(instance.tags,"runbook_deploy_npm_app","false") == "true"
+  ]
+
+  target_docker_log4shell = [ 
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"runbook_deploy_docker_log4j_app","false") == "true"
   ]
 
   target_log4shell = [ 
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
     if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"runbook_exec_docker_exploit_log4j_app","false") == "true"
+      && lookup(instance.tags,"runbook_deploy_log4j_app","false") == "true"
   ]
 
-  target_port_forward = [ 
-    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
-    if lookup(try(instance, {}), "public_ip", "false") != "false"  
-      && lookup(instance.tags,"runbook_exec_responder_port_forward","false") == "true"
-  ]
-  
-  target_reverse_shell_multistage = [
+  target_reverse_shell = [
     for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
     if lookup(try(instance, {}), "public_ip", "false") != "false" 
-      && lookup(instance.tags,"runbook_exec_reverse_shell_multistage_target","false") == "true"
+      && lookup(instance.tags,"runbook_exec_reverse_shell","false") == "true"
+    
+  ]
+
+  target_codecov = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"runbook_connect_codecov","false") == "true"
+    
+  ]
+
+  target_port_forward = [
+    for instance in flatten([local.public_target_instances, local.public_target_app_instances]):  instance.public_ip
+    if lookup(try(instance, {}), "public_ip", "false") != "false" 
+      && lookup(instance.tags,"runbook_exec_port_forward","false") == "true"
   ]
 }
 
