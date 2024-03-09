@@ -4,7 +4,7 @@
 
 locals {
   target_infrastructure_config                = var.target_infrastructure_config
-  target_kubeconfig                           = pathexpand("~/.kube/aws-target-${local.target_infrastructure_config.context.global.deployment}-kubeconfig")
+  target_kubeconfig                           = pathexpand("~/.kube/azure-target-${local.target_infrastructure_config.context.global.deployment}-kubeconfig")
   target_cluster_name                         = local.target_infrastructure_config.context.azure.aks.enabled ? module.target-aks[0].cluster.id : null
   target_cluster_endpoint                     = local.target_infrastructure_config.context.azure.aks.enabled ? module.target-aks[0].cluster.endpoint : null
   target_cluster_ca_cert                      = local.target_infrastructure_config.context.azure.aks.enabled ? module.target-aks[0].cluster.certificate_authority[0].data : null
@@ -444,7 +444,7 @@ module "target-lacework-audit-config" {
 
 # lacework agentless scanning
 module "target-lacework-agentless" {
-  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.azure_agentless.enabled == true ) ? 1 : 0
   source      = "./modules/lacework-agentless"
   environment = local.target_infrastructure_config.context.global.environment
   deployment  = local.target_infrastructure_config.context.global.deployment

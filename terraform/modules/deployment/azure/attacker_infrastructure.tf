@@ -4,7 +4,7 @@
 
 locals {
   attacker_infrastructure_config                = var.attacker_infrastructure_config
-  attacker_kubeconfig                           = pathexpand("~/.kube/aws-attacker-${local.attacker_infrastructure_config.context.global.deployment}-kubeconfig")
+  attacker_kubeconfig                           = pathexpand("~/.kube/azure-attacker-${local.attacker_infrastructure_config.context.global.deployment}-kubeconfig")
   attacker_cluster_name                         = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.id : null
   attacker_cluster_endpoint                     = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.endpoint : null
   attacker_cluster_ca_cert                      = local.attacker_infrastructure_config.context.azure.aks.enabled ? module.attacker-aks[0].cluster.certificate_authority[0].data : null
@@ -440,7 +440,7 @@ module "attacker-lacework-audit-config" {
 
 # lacework agentless scanning
 module "attacker-lacework-agentless" {
-  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.lacework.aws_agentless.enabled == true ) ? 1 : 0
+  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.lacework.azure_agentless.enabled == true ) ? 1 : 0
   source      = "./modules/lacework-agentless"
   environment = local.attacker_infrastructure_config.context.global.environment
   deployment  = local.attacker_infrastructure_config.context.global.deployment
