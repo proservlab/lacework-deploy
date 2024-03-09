@@ -269,30 +269,3 @@ module "target-runbook-execute-generate-web-traffic" {
 ##################################################
 
 # listener simulation is attacker side only
-
-##################################################
-# RESPONDER
-##################################################
-
-# responder simulation is attacker side only
-
-module "target-runbook-connect-reverse-shell" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.azure.enabled == true && local.target_attacksimulate_config.context.azure.runbook.target.connect.reverse_shell.enabled  == true ) ? 1 : 0
-  source          = "./modules/runbook/connect-reverse-shell"
-  environment     = local.target_attacksimulate_config.context.global.environment
-  deployment      = local.target_attacksimulate_config.context.global.deployment
-  region          = local.target_infrastructure_config.context.azure.region
-  
-  resource_group  = local.target_automation_account[0].resource_group.name
-  automation_account = local.target_automation_account[0].automation_account_name
-  automation_princial_id = local.target_automation_account[0].automation_princial_id
-  
-  tag             = "runbook_exec_reverse_shell_target"
-
-  host_ip       = coalesce(local.target_attacksimulate_config.context.azure.runbook.target.connect.reverse_shell.host_ip, try(local.target_reverse_shell.public_ip_address, "127.0.0.1"))
-  host_port     = coalesce(local.target_attacksimulate_config.context.azure.runbook.target.connect.reverse_shell.host_port, local.target_attacksimulate_config.context.azure.runbook.target.responder.reverse_shell.listen_port)
-
-  providers = {
-    azurerm = azurerm.target
-  }
-}
