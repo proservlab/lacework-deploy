@@ -62,7 +62,7 @@ module "target-runbook-connect-badip" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
@@ -83,7 +83,7 @@ module "target-runbook-connect-codecov" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
@@ -105,7 +105,7 @@ module "target-runbook-connect-nmap-port-scan" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
   
@@ -128,7 +128,7 @@ module "target-runbook-connect-oast-host" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -146,7 +146,7 @@ module "target-runbook-connect-reverse-shell" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -171,7 +171,7 @@ module "target-runbook-drop-malware-eicar" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -203,7 +203,7 @@ module "target-runbook-execute-docker-cpu-miner" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -230,7 +230,7 @@ module "target-runbook-execute-docker-cpu-miner" {
 #   deployment      = local.target_attacksimulate_config.context.global.deployment
 #   region          = local.target_infrastructure_config.context.azure.region
   
-#   resource_group  = local.target_automation_account[0].resource_group.name
+#   resource_group  = local.target_automation_account[0].resource_group
 #   automation_account = local.target_automation_account[0].automation_account_name
 #   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
@@ -252,7 +252,7 @@ module "target-runbook-execute-generate-web-traffic" {
   deployment      = local.target_attacksimulate_config.context.global.deployment
   region          = local.target_infrastructure_config.context.azure.region
   
-  resource_group  = local.target_automation_account[0].resource_group.name
+  resource_group  = local.target_automation_account[0].resource_group
   automation_account = local.target_automation_account[0].automation_account_name
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 

@@ -80,7 +80,7 @@ module "attacker-runbook-execute-docker-exploit-log4j" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -105,7 +105,7 @@ module "attacker-runbook-execute-docker-nmap" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -137,7 +137,7 @@ module "attacker-runbook-execute-docker-nmap" {
 #   deployment      = local.attacker_attacksimulate_config.context.global.deployment
 #   region          = local.attacker_infrastructure_config.context.azure.region
   
-#   resource_group  = local.attacker_automation_account[0].resource_group.name
+#   resource_group  = local.attacker_automation_account[0].resource_group
 #   automation_account = local.attacker_automation_account[0].automation_account_name
 #   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -159,7 +159,7 @@ module "attacker-runbook-execute-generate-web-traffic" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
   
@@ -180,7 +180,7 @@ module "attacker-runbook-execute-exploit-npm-app" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -207,7 +207,7 @@ module "attacker-runbook-listener-http-listener" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
   
@@ -232,7 +232,7 @@ module "attacker-runbook-responder-port-forward" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -252,7 +252,7 @@ module "attacker-runbook-responder-reverse-shell" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -274,7 +274,7 @@ module "attacker-runbook-responder-reverse-shell-multistage" {
   deployment      = local.attacker_attacksimulate_config.context.global.deployment
   region          = local.attacker_infrastructure_config.context.azure.region
   
-  resource_group  = local.attacker_automation_account[0].resource_group.name
+  resource_group  = local.attacker_automation_account[0].resource_group
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
@@ -303,7 +303,7 @@ module "attacker-runbook-responder-reverse-shell-multistage" {
 #   deployment      = local.attacker_attacksimulate_config.context.global.deployment
 #   region          = local.attacker_infrastructure_config.context.azure.region
   
-#   resource_group  = local.attacker_automation_account[0].resource_group.name
+#   resource_group  = local.attacker_automation_account[0].resource_group
 #   automation_account = local.attacker_automation_account[0].automation_account_name
 #   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
