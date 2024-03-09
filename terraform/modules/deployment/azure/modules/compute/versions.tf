@@ -8,5 +8,9 @@ terraform {
       source = "hashicorp/azurerm"
       version = "~> 3.45"
     }
+    restapi = {
+      source = "Mastercard/restapi"
+      version = "1.18.2"
+    }
   }
 }
