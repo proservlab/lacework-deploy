@@ -29,7 +29,7 @@
                         "instance_type"             : "Standard_DS1_v2",
                         "ami_name"                  : "ubuntu_focal",
                         "tags": {
-                            "runbook_deploy_azure_cli"                                : "true",
+                            "runbook_deploy_azure_cli"                              : "true",
                             "runbook_deploy_docker"                                 : "true",
                             "runbook_exec_docker_exploit_log4j_app"                 : "true",
                             "runbook_exec_reverse_shell_multistage_attacker"        : "true"
