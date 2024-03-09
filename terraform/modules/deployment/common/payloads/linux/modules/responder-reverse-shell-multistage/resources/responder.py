@@ -331,7 +331,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         aws_dir.mkdir(parents=True)
 
                     # extract the first set aws creds
-                    if Path(f'/tmp/{hostname}_gcp_creds.tgz').exists():
+                    if Path(f'/tmp/{hostname}_aws_creds.tgz').exists():
                         file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
                         for m in file.members:
                             if m.isfile() and (m.path.endswith('/.aws/credentials') or m.path.endswith('/.aws/config')):
@@ -340,7 +340,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                     task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
                     else:
                         session.log(
-                            f"gcp creds not found: /tmp/{hostname}_gcp_creds.tgz")
+                            f"aws creds not found: /tmp/{hostname}_aws_creds.tgz")
 
                     payload = encode_base64(
                         f'aws configure list-profiles')
