@@ -28,7 +28,7 @@ resource "random_string" "this" {
 }
 
 resource "azurerm_automation_runbook" "demo_rb" {
-    name                    = "${var.tag}-${var.environment}-${var.deployment}-${random_string.this.id}"
+    name                    = local.resource_name
     location                = var.resource_group.location
     resource_group_name     = var.resource_group.name
     automation_account_name = var.automation_account
@@ -47,7 +47,7 @@ resource "azurerm_automation_runbook" "demo_rb" {
 }
 
 resource "azurerm_automation_schedule" "hourly" {
-  name                    = "${var.tag}-schedule-${var.environment}-${var.deployment}_${random_string.this.id}"
+  name                    = local.resource_name
   resource_group_name     = var.resource_group.name
   automation_account_name = var.automation_account
   frequency               = "Hour"
