@@ -415,7 +415,8 @@ resource "azurerm_role_assignment" "scanner" {
 }
 
 resource "azurerm_role_assignment" "orchestrate" {
-  for_each = var.global ? toset(local.included_subscriptions_list) : []
+  # for_each = var.global ? toset(local.included_subscriptions_list) : []
+  for_each = var.subscriptions_list
   depends_on = [
     azurerm_role_definition.agentless_monitored_subscription[0],
     azurerm_user_assigned_identity.sidekick,

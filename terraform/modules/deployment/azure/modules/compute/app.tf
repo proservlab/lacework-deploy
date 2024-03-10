@@ -200,7 +200,7 @@ resource "azurerm_virtual_machine_extension" "jit-vm-access-app" {
     virtual_machine_id = azurerm_linux_virtual_machine.instances-app[each.key].id
     publisher = "Microsoft.Azure.Security"
     type = "JitNetworkAccess"
-    type_handler_version = "2.0"
+    type_handler_version = "1.4"
     auto_upgrade_minor_version = true
     settings = jsonencode({
         "durationInSeconds" = 3600

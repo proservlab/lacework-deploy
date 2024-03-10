@@ -90,7 +90,7 @@ module "target-compute-add-app-trusted-ingress" {
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     # local.target_aks_public_ip
   ]) : []
-  trusted_workstation_source    = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_workstation_source ? [module.workstation-external-ip.cidr] : []
+  trusted_workstation_source    = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
   additional_trusted_sources    = length(local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources) > 0 ? local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.additional_trusted_sources : []
   trusted_tcp_ports             = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trusted_tcp_ports
 
