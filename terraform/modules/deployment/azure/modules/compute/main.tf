@@ -197,7 +197,7 @@ resource "azurerm_virtual_machine_extension" "jit-vm-access" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
     virtual_machine_id = azurerm_linux_virtual_machine.instances[each.key].id
-    publisher = "Microsoft.Azure.Security"
+    publisher = "Microsoft.Security"
     type = "JitNetworkAccess"
     type_handler_version = "1.4"
     auto_upgrade_minor_version = true
