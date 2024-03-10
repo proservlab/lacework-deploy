@@ -193,22 +193,22 @@ resource "azurerm_linux_virtual_machine" "instances" {
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
-resource "azurerm_virtual_machine_extension" "jit-vm-access" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
-    virtual_machine_id = azurerm_linux_virtual_machine.instances[each.key].id
-    publisher = "Microsoft.Security"
-    type = "JitNetworkAccess"
-    type_handler_version = "1.4"
-    auto_upgrade_minor_version = true
-    settings = jsonencode({
-        "durationInSeconds" = 3600
-    })
+# resource "azurerm_virtual_machine_extension" "jit-vm-access" {
+#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+#     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
+#     virtual_machine_id = azurerm_linux_virtual_machine.instances[each.key].id
+#     publisher = "Microsoft.Azure.Security"
+#     type = "JitNetworkAccess"
+#     type_handler_version = "1.4"
+#     auto_upgrade_minor_version = true
+#     settings = jsonencode({
+#         "durationInSeconds" = 3600
+#     })
 
-    depends_on = [ azurerm_linux_virtual_machine.instances ]
+#     depends_on = [ azurerm_linux_virtual_machine.instances ]
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-}
+#     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+# }
 
 resource "local_file" "ssh-key" {
     content  = tls_private_key.ssh.private_key_pem
