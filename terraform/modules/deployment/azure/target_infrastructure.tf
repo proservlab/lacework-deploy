@@ -109,9 +109,9 @@ module "target-compute" {
   resource_group = module.target-resource-group.resource_group
   resource_app_group = module.target-resource-group-app.resource_group
 
-  enable_dynu_dns                     = local.attacker_infrastructure_config.context.dynu_dns.enabled
-  dynu_dns_domain                     = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
-  dynu_api_key                        = local.attacker_infrastructure_config.context.dynu_dns.api_key
+  enable_dynu_dns                     = local.target_infrastructure_config.context.dynu_dns.enabled
+  dynu_dns_domain                     = local.target_infrastructure_config.context.dynu_dns.dns_domain
+  dynu_api_key                        = local.target_infrastructure_config.context.dynu_dns.api_key
 
   depends_on = [
     module.target-resource-group,
