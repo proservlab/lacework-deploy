@@ -1,33 +1,75 @@
 etype.exec:
-    group-by:
-        - ts
+  group-by:
+    - none
 etype.initmod:
 etype.finitmod:
-etype.exit:
 etype.file:
-    send-if-matches:
-        ubuntu-authorized-keys:
-            watchpath: /home/*/.ssh/authorized_keys
-            watchfor: create, modify
-        root-authorized-keys:
-            watchpath: /root/.ssh/authorized_keys
-            watchfor: create, modify
-        cronfiles:
-            watchpath: /etc/cron*
-            depth: 2
-        systemd:
-            watchpath: /etc/systemd/*
-            depth: 2
-        boot-initd:
-            watchpath: /etc/init.d/*
-            depth: 2
-        boot-rc:
-            watchpath: /etc/rc*
-            depth: 2
-        shadow-file:
-            watchpath: /etc/shadow*
-        watchlacework:
-            watchpath: /var/lib/lacework
-            depth: 2
-        watchpasswd:
-            watchpath: /etc/passwd
+  send-if-matches:
+    user-authorized-keys:
+      watchpath: /home/*/.ssh/authorized_keys
+      watchfor: create, modify
+    root-authorized-keys:
+      watchpath: /root/.ssh/authorized_keys
+      watchfor: create, modify
+    cronfiles:
+      watchpath: /etc/cron*
+      depth: 2
+    systemd:
+      watchpath: /etc/systemd/*
+      depth: 2
+    boot-initd:
+      watchpath: /etc/init.d/*
+      depth: 2
+    boot-rc:
+      watchpath: /etc/rc*
+      depth: 2
+    shadow-file:
+      watchpath: /etc/shadow*
+    watchlacework:
+      watchpath: /var/lib/lacework
+      depth: 2
+    watchpasswd:
+      watchpath: /etc/passwd
+    watchsshconfig:
+      watchpath: /etc/ssh/sshd_config
+      watchfor: create, modify
+    watch-k8s-config1:
+      watchpath: /home/*/.kube/config
+    watch-k8s-config2:
+      watchpath: /etc/kubernetes
+      depth: 3
+    watch-k8s-config3:
+      watchpath: /var/lib/kubelet
+      depth: 2
+    watch-k8s-static-pods:
+      watchpath: /etc/kubernetes/manifests
+    watch-tmp:
+      watchpath: /tmp
+      depth: 3
+    watch-etc-root:
+      watchpath: /etc
+      depth: 3
+    watch-bin:
+      watchpath: /bin
+      depth: 3
+    watch-sbin:
+      watchpath: /sbin
+      depth: 3
+    watch-user-bin:
+      watchpath: /usr/bin
+      depth: 3
+    watch-user-sbin:
+      watchpath: /usr/sbin
+      depth: 3
+    watch-var-log:
+      watchpath: /var/log
+      depth: 3
+    watch-aws-cli-config:
+      watchpath: /home/*/.aws
+      depth: 3
+    watch-gcp-cli-config:
+      watchpath: /home/*/.config/gcloud
+      depth: 3
+    watch-azure-cli-config:
+      watchpath: /home/*/.azure
+      depth: 3
