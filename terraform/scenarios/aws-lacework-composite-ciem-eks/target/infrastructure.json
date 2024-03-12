@@ -92,7 +92,7 @@
         "enabled" : true
       },
       "custom_policy": {
-        "enabled" : false
+        "enabled" : true
       },
       "agent": {
         "enabled" : true,

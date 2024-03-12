@@ -116,6 +116,36 @@ module "target-lacework-agentless" {
   }
 }
 
+module "target-lacework-custom-policy" {
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.custom_policy.enabled == true ) ? 1 : 0
+  source       = "../common/lacework-custom-policy"
+  environment = local.target_infrastructure_config.context.global.environment
+  deployment   = local.target_infrastructure_config.context.global.deployment
+
+  providers = {
+    lacework = lacework.target
+  }
+}
+
+module "target-lacework-alerts" {
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.alerts.enabled == true ) ? 1 : 0
+  source       = "../common/lacework-alerts"
+  environment = local.target_infrastructure_config.context.global.environment
+  deployment   = local.target_infrastructure_config.context.global.deployment
+
+  enable_slack_alerts = local.target_infrastructure_config.context.lacework.alerts.slack.enabled
+  slack_token = local.target_infrastructure_config.context.lacework.alerts.api_token
+  enable_jira_cloud_alerts = local.target_infrastructure_config.context.lacework.alerts.jira.enabled
+  jira_cloud_url = local.target_infrastructure_config.context.lacework.alerts.jira.cloud_url
+  jira_cloud_project_key = local.target_infrastructure_config.context.lacework.alerts.jira.cloud_project_key
+  jira_cloud_issue_type = local.target_infrastructure_config.context.lacework.alerts.jira.cloud_issue_type
+  jira_cloud_username = local.target_infrastructure_config.context.lacework.alerts.jira.cloud_username
+
+  providers = {
+    lacework = lacework.target
+  }
+}
+
 
 ##################################################
 # AWS EC2

@@ -93,6 +93,9 @@
         "enabled" : true,
         "use_existing_vpc" : true
       },
+      "custom_policy": {
+        "enabled" : true
+      },
       "alerts": {
         "enabled" : false,
         "slack": {

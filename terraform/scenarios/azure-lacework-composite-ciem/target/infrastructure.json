@@ -102,13 +102,16 @@
           "compliance": {
             "enabled" : false
           },
-          "eks_audit_logs": {
+          "aks_audit_logs": {
             "enabled" : false
           },
           "admission_controller": {
             "enabled" : false
           }
         }
+      },
+      "custom_policy": {
+        "enabled" : true
       },
       "alerts": {
         "enabled" : false,

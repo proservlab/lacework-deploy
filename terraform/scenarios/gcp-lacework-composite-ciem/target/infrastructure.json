@@ -97,6 +97,9 @@
       "gcp_agentless": {
         "enabled" : true
       },
+      "custom_policy": {
+        "enabled" : true
+      },
       "alerts": {
         "enabled" : false,
         "slack": {
