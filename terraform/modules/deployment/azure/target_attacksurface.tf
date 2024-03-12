@@ -77,7 +77,7 @@ module "target-compute-add-app-trusted-ingress" {
   environment     = local.target_attacksurface_config.context.global.environment
   deployment      = local.target_attacksurface_config.context.global.deployment
 
-  resource_group                = local.target_automation_account[0].resource_group.name
+  resource_group                = module.target-compute[0].resource_app_group.name
   security_group                = local.target_public_app_security_group.name
 
   trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_attacker_source ? flatten([
