@@ -1,18 +1,47 @@
+# resource "lacework_query" "t1552-001" {
+#     query_id = "TF_CUSTOM_CONTAINER_MOUNT_NODE_FILESYSTEM"
+#     query    = <<-EOT
+#     {
+#         source {
+#             LW_HA_SYSCALLS_FILE
+#         }
+#         filter {
+#             TARGET_OP in ('create', 'modify') and TARGET_PATH like any('%/.aws/credentials%', '%/.aws/config%', '%/.config/gcloud/%.json%')
+#         }
+#         return distinct {
+#             RECORD_CREATED_TIME,
+#             MID,
+#             TARGET_OP,
+#             TARGET_PATH
+#         }
+#     }
+#     EOT
+# }
+
 resource "lacework_query" "t1552-001" {
     query_id = "TF_CUSTOM_CONTAINER_MOUNT_NODE_FILESYSTEM"
     query    = <<-EOT
     {
-        source {
-            LW_HA_SYSCALLS_FILE
+        source { 
+            LW_HA_FILE_CHANGES FC
         }
-        filter {
-            TARGET_OP in ('create', 'modify') and TARGET_PATH like any('%/.aws/credentials%', '%/.aws/config%', '%/.config/gcloud/%.json%')
+        filter { 
+            FC.ACTIVITY like any('New', 'Changed')
+            AND FC.PATH like any('%/.aws/credentials%', '%/.aws/config%', '%/.config/gcloud/*.json')
+            AND (
+                diff_minutes(FC.LAST_MODIFIED_TIME, current_timestamp_sec()::timestamp) <= 60
+                OR diff_minutes(FC.LAST_MODIFIED_TIME, current_timestamp_sec()::timestamp) <= 60
+            )
         }
         return distinct {
-            RECORD_CREATED_TIME,
-            MID,
-            TARGET_OP,
-            TARGET_PATH
+            FC.ACTIVITY_START_TIME as ACTIVITY_START_TIME,
+            FC.ACTIVITY_END_TIME as ACTIVITY_END_TIME,
+            FC.MID as MID,
+            FC.PATH as PATH,
+            FC.ACTIVITY as ACTIVITY,
+            FC.FILEDATA_HASH as FILEDATA_HASH,
+            FC.LAST_MODIFIED_TIME as LAST_MODIFIED_TIME,
+            FC.SIZE as SIZE
         }
     }
     EOT
@@ -31,7 +60,7 @@ resource "lacework_policy" "t1552-001" {
 
   alerting {
     enabled = true
-    profile = "LW_HA_SYSCALLS_FILE_DEFAULT_PROFILE.Violation"
+    profile = "LW_HA_FILE_CHANGES_DEFAULT_PROFILE.HA_File_Changes_NewViolation"
   }
 }
     
