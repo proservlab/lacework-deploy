@@ -56,17 +56,17 @@ module "target-resource-group" {
   }
 }
 
-module "target-resource-group-app" {
-  source = "./modules/resource-group"
-  name = "resource-group-app"
-  environment  = local.target_infrastructure_config.context.global.environment
-  deployment   = local.target_infrastructure_config.context.global.deployment
-  region       = local.target_infrastructure_config.context.azure.region
+# module "target-resource-group-app" {
+#   source = "./modules/resource-group"
+#   name = "resource-group-app"
+#   environment  = local.target_infrastructure_config.context.global.environment
+#   deployment   = local.target_infrastructure_config.context.global.deployment
+#   region       = local.target_infrastructure_config.context.azure.region
 
-  providers = {
-    azurerm = azurerm.target
-  }
-}
+#   providers = {
+#     azurerm = azurerm.target
+#   }
+# }
 
 ##################################################
 # AZURE COMPUTE

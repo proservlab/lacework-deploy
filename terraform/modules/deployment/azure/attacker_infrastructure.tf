@@ -56,17 +56,17 @@ module "attacker-resource-group" {
   }
 }
 
-module "attacker-resource-group-app" {
-  source = "./modules/resource-group"
-  name = "resource-group-app"
-  environment  = local.attacker_infrastructure_config.context.global.environment
-  deployment   = local.attacker_infrastructure_config.context.global.deployment
-  region       = local.attacker_infrastructure_config.context.azure.region
+# module "attacker-resource-group-app" {
+#   source = "./modules/resource-group"
+#   name = "resource-group-app"
+#   environment  = local.attacker_infrastructure_config.context.global.environment
+#   deployment   = local.attacker_infrastructure_config.context.global.deployment
+#   region       = local.attacker_infrastructure_config.context.azure.region
 
-  providers = {
-    azurerm = azurerm.attacker
-  }
-}
+#   providers = {
+#     azurerm = azurerm.attacker
+#   }
+# }
 
 ##################################################
 # AZURE COMPUTE
@@ -107,15 +107,14 @@ module "attacker-compute" {
   private_app_nat_subnet = local.attacker_infrastructure_config.context.azure.compute.private_app_nat_subnet
 
   resource_group = module.attacker-resource-group.resource_group
-  resource_app_group = module.attacker-resource-group-app.resource_group
+  resource_app_group = module.attacker-resource-group.resource_group
 
   enable_dynu_dns                     = local.attacker_infrastructure_config.context.dynu_dns.enabled
   dynu_dns_domain                     = local.attacker_infrastructure_config.context.dynu_dns.dns_domain
   dynu_api_key                        = local.attacker_infrastructure_config.context.dynu_dns.api_key
 
   depends_on = [
-    module.attacker-resource-group,
-    module.attacker-resource-group-app
+    module.attacker-resource-group
   ]
 
   providers = {
@@ -136,7 +135,7 @@ module "attacker-azuresql" {
   region                              = local.attacker_infrastructure_config.context.azure.region
   server_name                         = local.attacker_infrastructure_config.context.azure.azuresql.server_name
   db_name                             = local.attacker_infrastructure_config.context.azure.azuresql.db_name
-  db_resource_group_name              = module.attacker-resource-group-app.resource_group.name
+  db_resource_group_name              = module.attacker-resource-group.resource_group.name
   db_virtual_network_name             = module.attacker-compute[0].public_app_virtual_network.name
   db_virtual_network_id               = module.attacker-compute[0].public_app_virtual_network.id
   db_subnet_network                   = [cidrsubnet(local.attacker_infrastructure_config.context.azure.compute.public_app_network,8,200)]
@@ -164,7 +163,7 @@ module "attacker-azurestorage" {
   environment                         = local.attacker_infrastructure_config.context.global.environment
   deployment                          = local.attacker_infrastructure_config.context.global.deployment
   region                              = local.attacker_infrastructure_config.context.azure.region
-  storage_resource_group_name         = module.attacker-resource-group-app.resource_group.name
+  storage_resource_group_name         = module.attacker-resource-group.resource_group.name
   storage_virtual_network_name        = module.attacker-compute[0].public_app_virtual_network.name
   storage_virtual_network_id          = module.attacker-compute[0].public_app_virtual_network.id
   storage_subnet_network              = [cidrsubnet(local.attacker_infrastructure_config.context.azure.compute.public_app_network,8,201)]
