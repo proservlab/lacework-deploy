@@ -68,7 +68,7 @@ locals {
 
     # copy java jar
     log "Copying java jar.."
-    cp build/libs/*.jar ${local.app_dir}/spring-boot-application.jar >> $LOGFILE 2>&1
+    cp build/libs/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar >> $LOGFILE 2>&1
     
     # change to app root dir
     cd ${local.app_dir}
@@ -76,12 +76,12 @@ locals {
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "starting app"
-        if pgrep -f "spring-boot-application.jar"; then
-            kill -9 $(pgrep -f "spring-boot-application.jar")
+        if pgrep -f "log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar"; then
+            kill -9 $(pgrep -f "log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar")
         fi
         screen -S vuln_log4j_app_target -X quit
         screen -wipe
-        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/spring-boot-application.jar --server.port=${var.inputs["listen_port"]}
+        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar --server.port=${var.inputs["listen_port"]}
         screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
         sleep 30
         log "check app url..."
@@ -93,7 +93,8 @@ locals {
         sleep 1800
         CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
         if [ "$CHECK_HASH" != "$START_HASH" ]; then
-            log "payload update detected - exiting loop"
+            log "payload update detected - exiting loop and forcing payload download"
+            rm -f /tmp/payload_$SCRIPTNAME
             break
         else
             log "restarting loop..."
