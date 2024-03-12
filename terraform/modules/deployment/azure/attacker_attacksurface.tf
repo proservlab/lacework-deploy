@@ -190,7 +190,7 @@ module "attacker-vulnerable-log4j-app" {
   automation_account = local.attacker_automation_account[0].automation_account_name
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
-  tag = "runbook_deploy_docker_log4j_app"
+  tag = "runbook_deploy_log4j_app"
 
   listen_port = local.attacker_attacksurface_config.context.azure.runbook.vulnerable.npm_app.listen_port
 
