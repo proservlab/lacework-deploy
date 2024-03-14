@@ -19,7 +19,7 @@
 # }
 
 resource "lacework_query" "t1552-001" {
-    query_id = "TF_CUSTOM_CONTAINER_MOUNT_NODE_FILESYSTEM"
+    query_id = "TF_T1552_001_CLOUD_CREDENTIAL_ACCESS"
     query    = <<-EOT
     {
         source { 
