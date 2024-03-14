@@ -193,8 +193,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 for file in files:
                     copy_file(
                         session, source_file=file, dest_file=f'/tmp/{hostname}_{os.path.basename(file)}', direction='remote_to_local')
-                    if session.platform.Path(file).exists():
-                        session.platform.Path(file).unlink()
+                    session.platform.Path(file).unlink(True)
 
             def credentialed_access_tor(csp, jobname, cwd, script, args=""):
                 # start torproxy docker
@@ -313,8 +312,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log(result)
 
                 # remove temporary archive from target
-                if session.platform.Path('/tmp/sockskey').exists():
-                    session.platform.unlink('/tmp/sockskey')
+                session.platform.Path('/tmp/sockskey').unlink(True)
 
             def prep_local_env(task_name, csp=None):
                 # create work directory
@@ -478,8 +476,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 for file in files:
                     copy_file(session, source_file=file,
                               dest_file=f'/tmp/{os.path.basename(file)}', direction='remote_to_local')
-                    if session.platform.Path(file).exists():
-                        session.platform.Path(file).unlink()
+                    session.platform.Path(file).unlink(True)
                 session.log("done")
 
                 # extract kube s3 prod files
@@ -494,12 +491,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log(result)
 
             session.log("Removing sesssion lock...")
-            if session_lock.exists():
-                session_lock.unlink()
+            session_lock.unlink(True)
 
             session.log("Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
         finally:
-            if session_lock.exists():
-                session_lock.unlink()
+            session_lock.unlink(True)
