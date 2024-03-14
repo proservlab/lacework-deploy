@@ -494,10 +494,12 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log(result)
 
             session.log("Removing sesssion lock...")
-            session_lock.unlink()
+            if session_lock.exists():
+                session_lock.unlink()
 
             session.log("Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
         finally:
-            session_lock.unlink()
+            if session_lock.exists():
+                session_lock.unlink()
