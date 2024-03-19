@@ -308,6 +308,7 @@ module "target-eks-auth" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]                  
 
   providers = {
@@ -330,6 +331,7 @@ module "target-kubernetes-reloader" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -380,6 +382,7 @@ module "target-kubernetes-app" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -428,6 +431,7 @@ module "target-kubernetes-app-windows" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ] 
 
   providers = {
@@ -477,6 +481,7 @@ module "target-vulnerable-kubernetes-voteapp" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -531,6 +536,7 @@ module "target-vulnerable-kubernetes-rdsapp" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -580,6 +586,7 @@ module "target-vulnerable-kubernetes-log4j-app" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -629,6 +636,7 @@ module "target-vulnerable-kubernetes-privileged-pod" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -675,6 +683,7 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -730,6 +739,7 @@ module "target-vulnerable-kubernetes-s3app" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {
@@ -777,6 +787,7 @@ module "target-vulnerable-kubernetes-authapp" {
   depends_on = [
     module.target-eks,
     module.target-iam,
+    data.local_file.target_kubeconfig,
   ]
 
   providers = {

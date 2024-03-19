@@ -311,6 +311,7 @@ module "attacker-eks-auth" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -333,6 +334,7 @@ module "attacker-kubernetes-reloader" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -383,6 +385,7 @@ module "attacker-kubernetes-app" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -431,6 +434,7 @@ module "attacker-kubernetes-app-windows" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ] 
 
   providers = {
@@ -480,6 +484,7 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -534,6 +539,7 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -583,6 +589,7 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -631,6 +638,7 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -677,6 +685,7 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -732,6 +741,7 @@ module "attacker-vulnerable-kubernetes-s3app" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -779,6 +789,7 @@ module "attacker-vulnerable-kubernetes-authapp" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
+    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {

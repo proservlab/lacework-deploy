@@ -269,6 +269,7 @@ module "attacker-eks-autoscaler" {
   depends_on = [
     module.attacker-eks,
     module.attacker-eks-windows,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -294,6 +295,7 @@ module "attacker-eks-windows-configmap" {
   depends_on = [
     module.attacker-eks,
     module.attacker-eks-windows,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -318,6 +320,7 @@ module "attacker-eks-calico" {
     module.attacker-eks,
     module.attacker-eks-windows,
     module.attacker-eks-autoscaler,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -352,6 +355,7 @@ module "attacker-lacework-daemonset" {
     module.attacker-eks,
     module.attacker-eks-windows,
     module.attacker-eks-autoscaler,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -381,6 +385,7 @@ module "attacker-lacework-daemonset-windows" {
     module.attacker-eks,
     module.attacker-eks-windows,
     module.attacker-eks-autoscaler,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -405,6 +410,7 @@ module "attacker-lacework-admission-controller" {
     module.attacker-eks,
     module.attacker-eks-windows,
     module.attacker-eks-autoscaler,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 
@@ -426,6 +432,7 @@ module "attacker-lacework-eks-audit" {
     module.attacker-eks,
     module.attacker-eks-windows,
     module.attacker-eks-autoscaler,
+    data.local_file.attacker_kubeconfig,
   ]
 }
 

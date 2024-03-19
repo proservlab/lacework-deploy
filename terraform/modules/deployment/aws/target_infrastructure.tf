@@ -269,6 +269,7 @@ module "target-eks-autoscaler" {
   depends_on = [
     module.target-eks,
     module.target-eks-windows,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -294,6 +295,7 @@ module "target-eks-windows-configmap" {
   depends_on = [
     module.target-eks,
     module.target-eks-windows,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -318,6 +320,7 @@ module "target-eks-calico" {
     module.target-eks,
     module.target-eks-windows,
     module.target-eks-autoscaler,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -352,6 +355,7 @@ module "target-lacework-daemonset" {
     module.target-eks,
     module.target-eks-windows,
     module.target-eks-autoscaler,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -381,6 +385,7 @@ module "target-lacework-daemonset-windows" {
     module.target-eks,
     module.target-eks-windows,
     module.target-eks-autoscaler,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -405,6 +410,7 @@ module "target-lacework-admission-controller" {
     module.target-eks,
     module.target-eks-windows,
     module.target-eks-autoscaler,
+    data.local_file.target_kubeconfig,
   ]
 }
 
@@ -426,6 +432,7 @@ module "target-lacework-eks-audit" {
     module.target-eks,
     module.target-eks-windows,
     module.target-eks-autoscaler,
+    data.local_file.target_kubeconfig,
   ]
 }
 
