@@ -68,7 +68,7 @@
       "rds": {
         "enabled"                        : true,
         "user_role_name"                 : "rds_user_access_role_ciemdemo",
-        "instance_type"                  : "db.t3.medium"
+        "instance_type"                  : "db.t3.small"
       },
       "ssm": {
         "enabled"                           : true,

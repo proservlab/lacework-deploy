@@ -793,7 +793,7 @@ variable "config" {
         rds = {
           enabled                       = false
           user_role_name                = "rds_user_access_role"
-          instance_type                 = "db.t3.micro"
+          instance_type                 = "db.t3.small"
           instance_name                 = "ec2rds"
         }
         inspector = {

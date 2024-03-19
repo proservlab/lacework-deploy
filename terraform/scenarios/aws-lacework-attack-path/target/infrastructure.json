@@ -77,7 +77,7 @@
       "rds": {
         "enabled"                        : true,
         "user_role_name"                 : "rds_user_access_role_apademo",
-        "instance_type"                  : "db.t3.micro"
+        "instance_type"                  : "db.t3.small"
       },
       "ssm": {
         "enabled"                        : true,
