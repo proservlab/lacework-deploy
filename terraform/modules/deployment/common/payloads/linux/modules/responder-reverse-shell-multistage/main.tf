@@ -67,8 +67,7 @@ locals {
                     while ! nc -z -w 5 -vv 127.0.0.1 ${local.listen_port} > /dev/null; do
                         log "failed check - waiting for pwncat port response";
                         sleep 30;
-                        CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
-                        if [ "$CHECK_HASH" != "$START_HASH" ]; then
+                        if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
                             log "payload update detected - exiting loop and forcing payload download"
                             rm -f /tmp/payload_$SCRIPTNAME
                             break 3
@@ -91,8 +90,7 @@ locals {
                 sleep 600
             done
             log "no pwncat sessions found - continuing..."
-            CHECK_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
-            if [ "$CHECK_HASH" != "$START_HASH" ]; then
+            if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
                 log "payload update detected - exiting loop and forcing payload download"
                 rm -f /tmp/payload_$SCRIPTNAME
                 break

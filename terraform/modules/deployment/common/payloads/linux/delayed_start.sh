@@ -93,6 +93,19 @@ check_package_manager() {
     fi
 }
 
+check_payload_update() {
+    local payload_path=$1  # First argument passed to the function
+    local start_hash=$2
+    local check_hash=$(sha256sum --text "$payload_path" | awk '{ print $1 }')
+    if [ "$check_hash" != "$start_hash" ]; then
+        log "payload update detected..."
+        return 1  # Return 1 if payload update is detected
+    else
+        log "no payload update..."
+        return 0  # Return 0 if no update is detected
+    fi
+}
+
 # if package manager is busy wait some random amount of time - again to create more randomness
 while check_package_manager; do
     RAND_WAIT=$(($RANDOM%(300-30+1)+30))
@@ -100,8 +113,8 @@ while check_package_manager; do
     sleep $RAND_WAIT
 done
 
-# export log function
-export -f log
+# export functions for child script usage
+export -f log check_payload_update
 
 # Conditional Commands based on package manager
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
