@@ -95,4 +95,11 @@ module "instances" {
       each.value.tags,
     )
   )
+
+  depends_on = [ 
+    module.vpc,
+    module.amis,
+    module.ssm_app_profile,
+    module.ssm_profile
+  ]
 }
