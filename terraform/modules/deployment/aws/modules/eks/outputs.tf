@@ -3,7 +3,7 @@
 #
 
 output "kubeconfig_path" {
-  value = module.eks-kubeconfig.kubeconfig_path
+  value = data.local_file.kubeconfig_path
 }
 
 output "cluster" {

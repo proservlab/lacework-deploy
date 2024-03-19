@@ -19,10 +19,10 @@ resource "null_resource" "target_eks_context_switcher" {
                 yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.target_aws_profile}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
                 yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
                 yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.target_aws_region}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.target_aws_profile}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.target_aws_region}"' -i "${pathexpand(module.target-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.target-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand("~/.kube/config")}"
               EOT
   }
 
@@ -52,10 +52,10 @@ resource "null_resource" "attacker_eks_context_switcher" {
                 yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
                 yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
                 yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
-                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand(module.attacker-eks[0].kubeconfig_path)}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].name) = "AWS_PROFILE"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[0].value) = "${var.attacker_aws_profile}"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].name) = "AWS_REGION"' -i "${pathexpand("~/.kube/config")}"
+                yq -i -r '(.users[] | select(.name == "${module.attacker-eks[0].cluster.arn}")|.user.exec.env[1].value) = "${var.attacker_aws_region}"' -i "${pathexpand("~/.kube/config")}"
               EOT
   }
 
