@@ -193,7 +193,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 for file in files:
                     copy_file(
                         session, source_file=file, dest_file=f'/tmp/{hostname}_{os.path.basename(file)}', direction='remote_to_local')
-                    session.platform.Path(file).unlink(True)
+                    if session.platform.Path(file).exists():
+                        session.platform.Path(file).unlink()
 
             def credentialed_access_tor(csp, jobname, cwd, script, args=""):
                 # start torproxy docker
@@ -312,7 +313,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log(result)
 
                 # remove temporary archive from target
-                session.platform.Path('/tmp/sockskey').unlink(True)
+                if session.platform.Path('/tmp/sockskey').exists():
+                    session.platform.Path('/tmp/sockskey').unlink()
 
             def prep_local_env(task_name, csp=None):
                 # create work directory
@@ -476,7 +478,8 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 for file in files:
                     copy_file(session, source_file=file,
                               dest_file=f'/tmp/{os.path.basename(file)}', direction='remote_to_local')
-                    session.platform.Path(file).unlink(True)
+                    if session.platform.Path(file).exists():
+                        session.platform.Path(file).unlink()
                 session.log("done")
 
                 # extract kube s3 prod files
@@ -491,10 +494,12 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log(result)
 
             session.log("Removing sesssion lock...")
-            session_lock.unlink(True)
+            if session_lock.exists():
+                session_lock.unlink()
 
             session.log("Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
         finally:
-            session_lock.unlink(True)
+            if session_lock.exists():
+                session_lock.unlink()
