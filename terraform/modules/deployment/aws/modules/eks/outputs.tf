@@ -3,7 +3,7 @@
 #
 
 output "kubeconfig_path" {
-  value = data.local_file.kubeconfig_path
+  value = data.local_file.kubeconfig_path.filename
 }
 
 output "cluster" {
