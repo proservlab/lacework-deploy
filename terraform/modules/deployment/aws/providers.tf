@@ -86,7 +86,7 @@ provider "kubernetes" {
   alias = "attacker"
   host = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
   cluster_ca_certificate = local.attacker_infrastructure_config.context.aws.eks.enabled ? base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data) : null
-  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : data.local_file.attacker_kubeconfig[0].filename
+  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : local.attacker_kubeconfig
   dynamic "exec" {
     for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
     content {
@@ -123,7 +123,7 @@ provider "helm" {
   kubernetes {
     host = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
     cluster_ca_certificate = local.attacker_infrastructure_config.context.aws.eks.enabled ? base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data) : null
-    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : data.local_file.attacker_kubeconfig[0].filename
+    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : local.attacker_kubeconfig
     dynamic "exec" {
       for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
       content {
