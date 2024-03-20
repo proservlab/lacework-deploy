@@ -192,7 +192,7 @@ module "target-vulnerable-log4j-app" {
 
   tag = "runbook_deploy_log4j_app"
 
-  listen_port = local.target_attacksurface_config.context.azure.runbook.vulnerable.npm_app.listen_port
+  listen_port = local.target_attacksurface_config.context.azure.runbook.vulnerable.log4j_app.listen_port
 
   providers = {
     azurerm    = azurerm.target
