@@ -84,12 +84,16 @@ data "local_file" "target_kubeconfig" {
 
 provider "kubernetes" {
   alias = "attacker"
-  host = module.attacker-eks[0].cluster.endpoint
-  cluster_ca_certificate = base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
-    command = "aws"
+  host = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
+  cluster_ca_certificate = local.attacker_infrastructure_config.context.aws.eks.enabled ? base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data) : null
+  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : data.local_file.attacker_kubeconfig[0].filename
+  dynamic "exec" {
+    for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
+    content {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
+      command = "aws"
+    }
   }
 }
 
@@ -117,12 +121,16 @@ provider "kubernetes" {
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    host = module.attacker-eks[0].cluster.endpoint
-    cluster_ca_certificate = base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
-      command = "aws"
+    host = local.attacker_infrastructure_config.context.aws.eks.enabled ? module.attacker-eks[0].cluster.endpoint : null
+    cluster_ca_certificate = local.attacker_infrastructure_config.context.aws.eks.enabled ? base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data) : null
+    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? null : data.local_file.attacker_kubeconfig[0].filename
+    dynamic "exec" {
+      for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
+      content {
+        api_version = "client.authentication.k8s.io/v1beta1"
+        args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
+        command = "aws"
+      }
     }
   }
 }
