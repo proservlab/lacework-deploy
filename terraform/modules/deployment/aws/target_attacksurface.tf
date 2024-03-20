@@ -308,7 +308,6 @@ module "target-eks-auth" {
   depends_on = [
     module.target-eks,
     module.target-iam,
-    data.local_file.target_kubeconfig,
   ]                  
 
   providers = {
@@ -329,7 +328,8 @@ module "target-kubernetes-reloader" {
   deployment                    = local.target_attacksurface_config.context.global.deployment
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -378,7 +378,8 @@ module "target-kubernetes-app" {
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.app
   
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -425,7 +426,8 @@ module "target-kubernetes-app-windows" {
   allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
   
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ] 
 
   providers = {
@@ -473,7 +475,8 @@ module "target-vulnerable-kubernetes-voteapp" {
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -526,7 +529,8 @@ module "target-vulnerable-kubernetes-rdsapp" {
   allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -574,7 +578,8 @@ module "target-vulnerable-kubernetes-log4j-app" {
   allow_privilege_escalation    = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -622,7 +627,8 @@ module "target-vulnerable-kubernetes-privileged-pod" {
 
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -667,7 +673,8 @@ module "target-vulnerable-kubernetes-root-mount-fs-pod" {
   args                          = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
   
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -721,7 +728,8 @@ module "target-vulnerable-kubernetes-s3app" {
   admin_password = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.admin_password
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {
@@ -767,7 +775,8 @@ module "target-vulnerable-kubernetes-authapp" {
   enable_dynu_dns = local.target_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
 
   depends_on = [
-    module.target-eks-auth
+    module.target-eks,
+    module.target-iam,
   ]
 
   providers = {

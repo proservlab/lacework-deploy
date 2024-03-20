@@ -311,7 +311,6 @@ module "attacker-eks-auth" {
   depends_on = [
     module.attacker-eks,
     module.attacker-iam,
-    data.local_file.attacker_kubeconfig,
   ]
 
   providers = {
@@ -332,7 +331,8 @@ module "attacker-kubernetes-reloader" {
   deployment                    = local.attacker_attacksurface_config.context.global.deployment
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -381,7 +381,8 @@ module "attacker-kubernetes-app" {
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.app
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -428,7 +429,8 @@ module "attacker-kubernetes-app-windows" {
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.app-windows.allow_allow_privilege_escalation
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ] 
 
   providers = {
@@ -476,7 +478,8 @@ module "attacker-vulnerable-kubernetes-voteapp" {
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.voteapp.enable_dynu_dns
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam, 
   ]
 
   providers = {
@@ -529,7 +532,8 @@ module "attacker-vulnerable-kubernetes-rdsapp" {
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.rdsapp.allow_allow_privilege_escalation
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -577,7 +581,8 @@ module "attacker-vulnerable-kubernetes-log4j-app" {
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.log4j_app.allow_allow_privilege_escalation
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,    
   ]
 
   providers = {
@@ -624,7 +629,8 @@ module "attacker-vulnerable-kubernetes-privileged-pod" {
   allow_privilege_escalation    = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.privileged_pod.allow_allow_privilege_escalation
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -669,7 +675,8 @@ module "attacker-vulnerable-kubernetes-root-mount-fs-pod" {
   args                          = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.root_mount_fs_pod.args
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -723,7 +730,8 @@ module "attacker-vulnerable-kubernetes-s3app" {
   admin_password = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.s3app.admin_password
 
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
@@ -769,7 +777,8 @@ module "attacker-vulnerable-kubernetes-authapp" {
   enable_dynu_dns = local.attacker_attacksurface_config.context.kubernetes.aws.vulnerable.authapp.enable_dynu_dns
   
   depends_on = [
-    module.attacker-eks-auth
+    module.attacker-eks,
+    module.attacker-iam,
   ]
 
   providers = {
