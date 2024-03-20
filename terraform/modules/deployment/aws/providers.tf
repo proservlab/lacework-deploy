@@ -84,11 +84,11 @@ data "local_file" "target_kubeconfig" {
 
 provider "kubernetes" {
   alias = "attacker"
-  host = module.attacker-eks.cluster.endpoint
-  cluster_ca_certificate = base64decode(module.attacker-eks.cluster.certificate_authority[0].data)
+  host = module.attacker-eks[0].cluster.endpoint
+  cluster_ca_certificate = base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks.cluster.id]
+    args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
     command = "aws"
   }
 }
@@ -100,11 +100,11 @@ provider "kubernetes" {
 
 provider "kubernetes" {
   alias = "target"
-  host = module.target-eks.cluster.endpoint
-  cluster_ca_certificate = base64decode(module.target-eks.cluster.certificate_authority[0].data)
+  host = module.target-eks[0].cluster.endpoint
+  cluster_ca_certificate = base64decode(module.target-eks[0].cluster.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks.cluster.id]
+    args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks[0].cluster.id]
     command = "aws"
   }
 }
@@ -117,11 +117,11 @@ provider "kubernetes" {
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    host = module.attacker-eks.cluster.endpoint
-    cluster_ca_certificate = base64decode(module.attacker-eks.cluster.certificate_authority[0].data)
+    host = module.attacker-eks[0].cluster.endpoint
+    cluster_ca_certificate = base64decode(module.attacker-eks[0].cluster.certificate_authority[0].data)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks.cluster.id]
+      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
       command = "aws"
     }
   }
@@ -137,11 +137,11 @@ provider "helm" {
 provider "helm" {
   alias = "target"
   kubernetes {
-    host = module.target-eks.cluster.endpoint
-    cluster_ca_certificate = base64decode(module.target-eks.cluster.certificate_authority[0].data)
+    host = module.target-eks[0].cluster.endpoint
+    cluster_ca_certificate = base64decode(module.target-eks[0].cluster.certificate_authority[0].data)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks.cluster.id]
+      args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks[0].cluster.id]
       command = "aws"
     }
   }
