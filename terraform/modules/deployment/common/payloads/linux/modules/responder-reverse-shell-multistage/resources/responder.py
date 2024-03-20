@@ -463,7 +463,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
                 shutil.copy2(task_script, task_path)
 
-                with open(Path.joinpath(task_path, Path(f"{task_name}.sh")), 'rb') as f:
+                with open(Path.joinpath(task_path, Path(f"{task_name}.sh")), 'r') as f:
                     payload = f.read()
 
                 session.log("running scan payload...")
