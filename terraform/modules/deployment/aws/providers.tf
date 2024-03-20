@@ -73,11 +73,6 @@ data "local_file" "attacker_kubeconfig" {
   ]
 }
 
-# data "aws_eks_cluster_auth" "target" {
-#   count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
-#   name = module.target-eks[0].cluster.id
-# }
-
 data "local_file" "target_kubeconfig" {
   count = local.target_infrastructure_config.context.aws.eks.enabled ? 1 : 0
   filename = pathexpand(module.target-eks[0].kubeconfig_path)
@@ -86,11 +81,6 @@ data "local_file" "target_kubeconfig" {
     module.target-eks
   ]
 }
-
-# data "aws_eks_cluster_auth" "attacker" {
-#   count = local.attacker_infrastructure_config.context.aws.eks.enabled ? 1 : 0
-#   name = module.attacker-eks[0].cluster.id
-# }
 
 provider "kubernetes" {
   alias = "attacker"
@@ -107,11 +97,6 @@ provider "kubernetes" {
   }
 }
 
-# provider "kubernetes" {
-#   alias = "attacker"
-#   config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
-# }
-
 provider "kubernetes" {
   alias = "target"
   host = local.target_infrastructure_config.context.aws.eks.enabled ? module.target-eks[0].cluster.endpoint : null
@@ -126,11 +111,6 @@ provider "kubernetes" {
     }
   }
 }
-
-# provider "kubernetes" {
-#   alias = "target"
-#   config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
-# }
 
 provider "helm" {
   alias = "attacker"
@@ -149,13 +129,6 @@ provider "helm" {
   }
 }
 
-# provider "helm" {
-#   alias = "attacker"
-#   kubernetes {
-#     config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
-#   }
-# }
-
 provider "helm" {
   alias = "target"
   kubernetes {
@@ -172,13 +145,6 @@ provider "helm" {
     }
   }
 }
-
-# provider "helm" {
-#   alias = "target"
-#   kubernetes {
-#     config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
-#   }
-# }
 
 provider "aws" { 
   profile = var.target_aws_profile
