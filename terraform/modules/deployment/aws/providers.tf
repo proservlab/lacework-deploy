@@ -84,42 +84,98 @@ data "local_file" "target_kubeconfig" {
 
 provider "kubernetes" {
   alias = "attacker"
-  config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
+  host = module.attacker-eks.cluster.endpoint
+  cluster_ca_certificate = base64decode(module.attacker-eks.cluster.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks.cluster.id]
+    command = "aws"
+  }
 }
+
+# provider "kubernetes" {
+#   alias = "attacker"
+#   config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
+# }
+
 provider "kubernetes" {
   alias = "target"
-  config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
+  host = module.target-eks.cluster.endpoint
+  cluster_ca_certificate = base64decode(module.target-eks.cluster.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks.cluster.id]
+    command = "aws"
+  }
 }
+
+# provider "kubernetes" {
+#   alias = "target"
+#   config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
+# }
+
 provider "helm" {
   alias = "attacker"
   kubernetes {
-    config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
+    host = module.attacker-eks.cluster.endpoint
+    cluster_ca_certificate = base64decode(module.attacker-eks.cluster.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks.cluster.id]
+      command = "aws"
+    }
   }
 }
+
+# provider "helm" {
+#   alias = "attacker"
+#   kubernetes {
+#     config_path = local.attacker_infrastructure_config.context.aws.eks.enabled ? data.local_file.attacker_kubeconfig[0].filename : local.attacker_kubeconfig
+#   }
+# }
+
 provider "helm" {
   alias = "target"
   kubernetes {
-    config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
+    host = module.target-eks.cluster.endpoint
+    cluster_ca_certificate = base64decode(module.target-eks.cluster.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks.cluster.id]
+      command = "aws"
+    }
   }
 }
+
+# provider "helm" {
+#   alias = "target"
+#   kubernetes {
+#     config_path = local.target_infrastructure_config.context.aws.eks.enabled ? data.local_file.target_kubeconfig[0].filename : local.target_kubeconfig
+#   }
+# }
+
 provider "aws" { 
   profile = var.target_aws_profile
   region = var.target_aws_region
 }
+
 provider "aws" {
   alias = "attacker"
   profile = var.attacker_aws_profile
   region = var.attacker_aws_region
 }
+
 provider "aws" {
   alias = "target"
   profile = var.target_aws_profile
   region = var.target_aws_region
 }
+
 provider "lacework" {
   alias      = "attacker"
   profile    = var.attacker_lacework_profile
 }
+
 provider "lacework" {
   alias      = "target"
   profile    = var.target_lacework_profile
