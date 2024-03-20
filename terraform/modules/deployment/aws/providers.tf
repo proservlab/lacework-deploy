@@ -91,7 +91,7 @@ provider "kubernetes" {
     for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
     content {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
+      args = ["--profile", var.attacker_aws_profile,"eks", "get-token", "--cluster-name", module.attacker-eks[0].cluster.id, "--region", var.attacker_aws_region]
       command = "aws"
     }
   }
@@ -108,7 +108,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.target-eks[0].cluster.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks[0].cluster.id]
+    args = ["--profile", var.target_aws_profile,"eks", "get-token", "--cluster-name", module.target-eks[0].cluster.id, "--region", var.target_aws_region]
     command = "aws"
   }
 }
@@ -128,7 +128,7 @@ provider "helm" {
       for_each = local.attacker_infrastructure_config.context.aws.eks.enabled ? [1]: []
       content {
         api_version = "client.authentication.k8s.io/v1beta1"
-        args = ["eks", "get-token", "--profile", var.attacker_aws_profile, "--cluster-name", module.attacker-eks[0].cluster.id]
+        args = ["--profile", var.attacker_aws_profile,"eks", "get-token", "--cluster-name", module.attacker-eks[0].cluster.id, "--region", var.attacker_aws_region]
         command = "aws"
       }
     }
@@ -149,7 +149,7 @@ provider "helm" {
     cluster_ca_certificate = base64decode(module.target-eks[0].cluster.certificate_authority[0].data)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args = ["eks", "get-token", "--profile", var.target_aws_profile, "--cluster-name", module.target-eks[0].cluster.id]
+      args = ["--profile", var.target_aws_profile,"eks", "get-token", "--cluster-name", module.target-eks[0].cluster.id, "--region", var.target_aws_region]
       command = "aws"
     }
   }
