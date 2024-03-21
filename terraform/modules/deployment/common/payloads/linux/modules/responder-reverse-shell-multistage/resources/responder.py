@@ -338,9 +338,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 session.log(
                                     f"extracting: {m.path} => {task_path}")
                                 file.extract(m, task_path)
-                                src_file = Path.joinpath(task_path, m.path)
+                                src_file = Path.joinpath(
+                                    task_path, Path(m.path))
                                 dst_file = Path.joinpath(
-                                    aws_dir, os.path.basename(m.path))
+                                    aws_dir, Path(os.path.basename(m.path)))
                                 session.log(
                                     f"copying: {src_file} => {dst_file}")
                                 shutil.copy2(src_file, dst_file)
@@ -378,9 +379,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 session.log(
                                     f"extracting: {m.path} => {task_path}")
                                 file.extract(m, task_path)
-                                src_file = Path.joinpath(task_path, m.path)
+                                src_file = Path.joinpath(
+                                    task_path, Path(m.path))
                                 dst_file = Path.joinpath(
-                                    gcp_dir, os.path.basename(m.path))
+                                    gcp_dir, Path(os.path.basename(m.path)))
                                 session.log(
                                     f"copying: {src_file} => {dst_file}")
                                 shutil.copy2(src_file, dst_file)
@@ -408,9 +410,9 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         if m.isfile() and (m.path.endswith('/.kube/config')):
                             session.log(f"extracting: {m.path} => {task_path}")
                             file.extract(m, task_path)
-                            src_file = Path.joinpath(task_path, m.path)
+                            src_file = Path.joinpath(task_path, Path(m.path))
                             dst_file = Path.joinpath(
-                                kube_dir, os.path.basename(m.path))
+                                kube_dir, Path(os.path.basename(m.path)))
                             session.log(f"copying: {src_file} => {dst_file}")
                             shutil.copy2(src_file, dst_file)
                             break
@@ -507,9 +509,9 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         if m.isfile():
                             session.log(f"extracting: {m.path} => {task_path}")
                             file.extract(m, task_path)
-                            src_file = Path.joinpath(task_path, m.path)
+                            src_file = Path.joinpath(task_path, Path(m.path))
                             dst_file = Path.joinpath(
-                                "/tmp", os.path.basename(m.path))
+                                "/tmp", Path(os.path.basename(m.path)))
                             session.log(f"copying: {src_file} => {dst_file}")
                             shutil.copy2(src_file, dst_file)
                             break
