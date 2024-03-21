@@ -514,7 +514,6 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 "/tmp", Path(os.path.basename(m.path)))
                             session.log(f"copying: {src_file} => {dst_file}")
                             shutil.copy2(src_file, dst_file)
-                            break
                 else:
                     session.log(
                         f"kube tar not found: /tmp/{os.path.basename(files[0])}")
