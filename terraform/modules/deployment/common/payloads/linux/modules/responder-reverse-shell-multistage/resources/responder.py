@@ -473,6 +473,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_awscreds")
             elif task_name == "kube2s3":
+                tmp_dir = Path("/tmp")
                 # create work directory
                 task_path = Path(f"/{task_name}")
                 if task_path.exists() and task_path.is_dir():
@@ -511,7 +512,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                             file.extract(m, task_path)
                             src_file = Path.joinpath(task_path, Path(m.path))
                             dst_file = Path.joinpath(
-                                "/tmp", Path(os.path.basename(m.path)))
+                                tmp_dir, Path(os.path.basename(m.path)))
                             session.log(f"copying: {src_file} => {dst_file}")
                             shutil.copy2(src_file, dst_file)
                 else:
