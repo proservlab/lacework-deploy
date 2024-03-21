@@ -10,14 +10,6 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 log "Downloading jq..."
 if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi
 
-log "checking for socks5 TORPROXY env var..."
-if ! [ -z $TORPROXY ]; then
-    log "setting proxy for kubectl: HTTPS_PROXY=socks5://${TORPROXY}:9050"
-    export HTTPS_PROXY=socks5://${TORPROXY}:9050
-else
-    log "no TORPROXY found skipping proxy env variable setup..."
-fi
-
 log "public ip: $(curl -s https://icanhazip.com)"
 
 # gcp cred setup
