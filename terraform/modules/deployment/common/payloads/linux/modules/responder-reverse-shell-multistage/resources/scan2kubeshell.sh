@@ -56,7 +56,23 @@ EOF
 # kube cred setup
 #######################
 
+# required for kubectl call tunneling
+if ! [ -z $TORPROXY ]; then
+  log "TORPROXY set adding ALL_PROXY HTTPS_PROXY HTTP_PROXY for kubectl tunneling..."
+  export ALL_PROXY=socks5://torproxy:9050
+  export HTTPS_PROXY=socks5://torproxy:9050
+  export HTTP_PROXY=socks5://torproxy:9050
+fi
+
 log "public ip: $(curl -s https://icanhazip.com)"
+
+if ! command -v jq; then
+  while ! curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64; do
+    log "failed to downlaod jq - retrying..."
+    sleep 30
+  done
+  chmod 755 /usr/local/bin/jq
+fi
 
 log "available clusters: $(kubectl config get-clusters)"
 
@@ -82,10 +98,6 @@ aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
 log "Getting current account number..."
 AWS_ACCOUNT_NUMBER=$(aws sts get-caller-identity --profile=$PROFILE $opts | jq -r '.Account')
 log "Account Number: $AWS_ACCOUNT_NUMBER"
-
-if ! command -v jq; then
-  curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/local/bin/jq
-fi
 
 log "starting get enumeration..."
 entities=("pods" "namespaces" "cronjobs" "secrets" "configmaps" "deployments" "services" "roles" "clusterroles" "rolebindings" "clusterrolebindings")
