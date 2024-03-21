@@ -11,14 +11,6 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
 log "starting..."
 
-log "checking for socks5 TORPROXY env var..."
-if ! [ -z $TORPROXY ]; then
-    log "setting proxy for kubectl: HTTPS_PROXY=socks5://${TORPROXY}:9050"
-    export HTTPS_PROXY=socks5://${TORPROXY}:9050
-else
-    log "no TORPROXY found skipping proxy env variable setup..."
-fi
-
 log "public ip: $(curl -s https://icanhazip.com)"
 
 log "bucket name from env: $BUCKET_NAME"
