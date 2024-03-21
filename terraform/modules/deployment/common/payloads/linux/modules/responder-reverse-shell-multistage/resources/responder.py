@@ -337,8 +337,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                             if m.isfile() and (m.path.endswith('/.aws/credentials') or m.path.endswith('/.aws/config')):
                                 session.log(f"extracting: {m.path} => {task_path}")
                                 file.extract(m, task_path)
-                                session.log(f"copying: {Path.joinpath(
-                                task_path, m.path)} => {Path.joinpath(aws_dir, os.path.basename(m.path))}")
+                                session.log(f"copying: {Path.joinpath(task_path, m.path)} => {Path.joinpath(aws_dir, os.path.basename(m.path))}")
                                 shutil.copy2(Path.joinpath(
                                     task_path, m.path), Path.joinpath(aws_dir, os.path.basename(m.path)))
                                 break
@@ -374,8 +373,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                             if m.isfile() and m.path.endswith('/.config/gcloud/credentials.json') and (m.path.startswith('root') or m.path.startswith('home')):
                                 session.log(f"extracting: {m.path} => {task_path}")
                                 file.extract(m, task_path)
-                                session.log(f"copying: {Path.joinpath(
-                                task_path, m.path)} => {Path.joinpath(gcp_dir, os.path.basename(m.path))}")
+                                session.log(f"copying: {Path.joinpath(task_path, m.path)} => {Path.joinpath(gcp_dir, os.path.basename(m.path))}")
                                 shutil.copy2(Path.joinpath(
                                     task_path, m.path), Path.joinpath(gcp_dir, os.path.basename(m.path)))
                                 break
@@ -402,8 +400,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         if m.isfile() and (m.path.endswith('/.kube/config')):
                             session.log(f"extracting: {m.path} => {task_path}")
                             file.extract(m, task_path)
-                            session.log(f"copying: {Path.joinpath(
-                            task_path, m.path)} => {Path.joinpath(kube_dir, os.path.basename(m.path))}")
+                            session.log(f"copying: {Path.joinpath(task_path, m.path)} => {Path.joinpath(kube_dir, os.path.basename(m.path))}")
                             shutil.copy2(Path.joinpath(
                                 task_path, m.path), Path.joinpath(kube_dir, os.path.basename(m.path)))
                             break
@@ -500,8 +497,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         if m.isfile():
                             session.log(f"extracting: {m.path} => {task_path}")
                             file.extract(m, task_path)
-                            session.log(f"copying: {Path.joinpath(
-                                task_path, m.path)} => {Path.joinpath("/tmp", os.path.basename(m.path))}")
+                            session.log(f"copying: {Path.joinpath(task_path, m.path)} => {Path.joinpath("/tmp", os.path.basename(m.path))}")
                             shutil.copy2(Path.joinpath(
                                 task_path, m.path), Path.joinpath("/tmp", os.path.basename(m.path)))
                             break
