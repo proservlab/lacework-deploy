@@ -85,7 +85,8 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : true,
+        "enable_cloudtrail_s3_management_events" : true
       },
       "agent": {
         "enabled" : true
