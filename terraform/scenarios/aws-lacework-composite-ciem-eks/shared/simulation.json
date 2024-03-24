@@ -12,7 +12,7 @@
             "ssh_shell_multistage" : {
               "enabled": true,
               "user_list": "/tmp/hydra-users.txt",
-              "password_list": "/tmp/hydra-password.txt",
+              "password_list": "/tmp/hydra-passwords.txt",
               "attack_delay": 50400,
               "task": "scan2kubeshell",
               "target_ip": "jumphost-target-${ deployment }.${ target_dynu_dns_domain }",
