@@ -1,38 +1,7 @@
-# output "id" {
-#     value = module.id.id
-# }
+output "attacker-ec2" {
+    value = try(module.attacker-ec2[0].instances,{})
+}
 
-# output "config" {
-#     value = {
-#         context = {
-#             workstation = {
-#                 ip = module.workstation-external-ip.cidr
-#             }
-#             azure = {
-#                 compute                       = module.compute
-#                 aks                           = module.aks
-#                 automation_account            = module.automation-account
-#             }
-#         }
-#     }
-# }
-
-# output "workstation_ip" {
-#     value = module.workstation-external-ip.cidr
-# }
-
-# output "infrastructure-config" {
-#     value = var.config
-# }
-
-# output "resource_group" {
-#     value = module.resource-group
-# }
-
-# output "ssh_key_path" {
-#     value = length(module.compute) > 0 ? module.compute[0].ssh_key_path : null
-# }
-
-# output "instances" {
-#     value = length(module.compute) > 0 ? module.compute[0].instances : null
-# }
+output "target-ec2" {
+    value = try(module.target-ec2[0].instances,{})
+}
