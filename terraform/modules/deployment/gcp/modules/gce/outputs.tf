@@ -6,6 +6,11 @@ output "instances" {
     sensitive = false
     value = module.instances
 }
+
+output "dns-records" {
+    value = module.dns-records
+}
+
 output "public_network" {
     value = module.vpc.public_network
 }

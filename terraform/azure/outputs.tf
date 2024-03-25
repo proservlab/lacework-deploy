@@ -1,17 +1,23 @@
-# output "target_ssh_key" {
-#   value = module.target-azure-infrastructure.ssh_key_path
-# }
+output "attacker-instances" {
+  value = module.azure-deployment.attacker-instances
+}
 
-# output "attacker_ssh_key" {
-#   value = module.attacker-azure-infrastructure.ssh_key_path
-# }
+output "attacker-dns-records" {
+  value = module.azure-deployment.attacker-dns-records
+}
 
-# output "target-azure-instances" {
-#   sensitive = false
-#   value     = module.target-azure-infrastructure.instances
-# }
+output "target-instances" {
+  value = module.azure-deployment.target-instances
+}
 
-# output "attacker-azure-instances" {
-#   sensitive = false
-#   value     = module.attacker-azure-infrastructure.instances
-# }
+output "target-dns-records" {
+  value = module.azure-deployment.target-dns-records
+}
+
+output "attacker-k8s-services" {
+  value = module.azure-deployment.attacker-k8s-service
+}
+
+output "target-k8s-services" {
+  value = module.azure-deployment.target-k8s-service
+}

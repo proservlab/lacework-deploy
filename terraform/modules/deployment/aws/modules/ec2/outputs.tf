@@ -1,5 +1,11 @@
+
+
 output "instances" {
     value = module.instances
+}
+
+output "dns-records" {
+    value = module.dns-records
 }
 
 output "public_network" {

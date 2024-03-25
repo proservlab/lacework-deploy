@@ -7,6 +7,11 @@ output "instances" {
     value = local.instances
 }
 
+output "dns-records" { 
+    sensitive = false
+    value = module.dns-records
+}
+
 output "resource_group" { 
     value = var.resource_group 
 }
