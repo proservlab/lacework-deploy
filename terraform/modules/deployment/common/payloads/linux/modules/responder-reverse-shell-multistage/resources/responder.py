@@ -345,7 +345,6 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 session.log(
                                     f"copying: {src_file} => {dst_file}")
                                 shutil.copy2(src_file, dst_file)
-                                break
                     else:
                         session.log(
                             f"aws creds not found: /tmp/{hostname}_aws_creds.tgz")

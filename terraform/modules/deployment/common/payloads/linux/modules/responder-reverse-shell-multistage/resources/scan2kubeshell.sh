@@ -74,24 +74,31 @@ if ! command -v jq; then
   chmod 755 /usr/local/bin/jq
 fi
 
-log "available clusters: $(kubectl_proxy config get-clusters)"
+while ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; do
+    log "missing aws config: ~/.aws/config || ~/.aws/credentials"
+    log "aws dir listing: $(ls -ltra ~/.aws)"
+    log "waiting for aws config and credentials..."
+    sleep 60
+done
+log "available profiles: $(aws configure list-profiles)"
 
 while ! [ -f ~/.kube/config ]; do
     log "missing kube config: ~/.kube/config"
     log "kube dir listing: $(ls -ltra ~/.kube)"
-    log "waiting for kube config..."
+    log "attempting to request kube config with current credentials..."
+    aws eks update-kubeconfig --name="$(aws eks list-clusters --no-cli-pager | jq -r '.clusters[0]')" --no-cli-pager >> $LOGFILE 2>&1
+    ERR=$?
+    log "result: $ERR"
+    if [ $ERR -eq 0 ]; then
+      log "kube credential request successful..."
+    else 
+      log "waiting for kube config..."
+    fi
     sleep 60
 done
+log "available clusters: $(kubectl_proxy config get-clusters)"
 
-log "available profiles: $(aws configure list-profiles)"
-
-while ! [ -f ~/.aws/config ] || ! [ -f ~/.aws/credentials ]; do
-    log "missing aws config: ~/.aws/config || ~/.aws/credentials"
-    log "aws dir listing: $(ls -ltra ~/.aws)"
-    log "waiting for kube config..."
-    sleep 60
-done
-
+export AWS_PAGER=""
 PROFILE=default
 log "Running: aws sts get-caller-identity --profile=$PROFILE"
 aws sts get-caller-identity --profile=$PROFILE $opts >> $LOGFILE 2>&1
