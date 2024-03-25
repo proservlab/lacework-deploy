@@ -17,13 +17,13 @@
                 "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",
                 "PROFILE=aws-traffic",
                 "log \"User: $(aws sts get-caller-identity --profile=$PROFILE --no-cli-pager)\"",
-                "aws eks update-kubeconfig --name=\"$(aws eks list-clusters --no-cli-pager| jq -r '.clusters[0]')\" --no-cli-pager",
+                "aws eks update-kubeconfig --name=\"$(aws eks list-clusters --no-cli-pager| jq -r '.clusters[0]')\" --no-cli-pager | tee -a $LOGFILE",
                 "while ! command -v kubectl; do",
                 "log \"waiting for kubectl...\"",
                 "sleep 30",
                 "done",
-                "kubectl get pods -A",
-                "kubectl get deployments -A"
+                "kubectl get pods -A | tee -a $LOGFILE",
+                "kubectl get deployments -A | tee -a $LOGFILE"
               ]
             }
           }
