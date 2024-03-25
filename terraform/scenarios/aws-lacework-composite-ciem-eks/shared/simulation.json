@@ -7,6 +7,27 @@
     "aws" :  {
       "enabled" : true,
       "ssm" :  {
+        "target": {
+          "execute": {
+            "generate_aws_cli_traffic": {
+              "enabled": true,
+              "compromised_keys_user" : "clue.burnetes@interlacelabs",
+              "profile" : "aws-traffic",
+              "commands": [
+                "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",
+                "PROFILE=aws-traffic",
+                "log \"User: $(aws sts get-caller-identity --profile=$PROFILE)\"",
+                "aws eks update-kubeconfig --name=\"$(aws eks list-clusters | jq -r '.clusters[0]')\"",
+                "while ! command -v kubectl; do",
+                "log \"waiting for kubectl...\"",
+                "sleep 30",
+                "done",
+                "kubectl get pods -A",
+                "kubectl get deployments -A"
+              ]
+            }
+          }
+        },
         "attacker": {
           "connect": {
             "ssh_shell_multistage" : {
