@@ -1,7 +1,7 @@
-output "attacker-ec2" {
-    value = try(module.attacker-ec2[0].instances,{})
+output "attacker-gce" {
+    value = try(module.attacker-gce[0].instances,{})
 }
 
-output "target-ec2" {
-    value = try(module.target-ec2[0].instances,{})
+output "target-gce" {
+    value = try(module.target-gce[0].instances,{})
 }

@@ -226,6 +226,7 @@ locals {
                 name       = instance.name
                 public_ip  = instance.public_ip_address
                 admin_user = instance.admin_username
+                ssh_key_path = local.ssh_key_path
                 role       = lookup(instance.tags,"role","default")
                 public     = lookup(instance.tags,"public","false")
                 tags       = instance.tags
@@ -234,6 +235,7 @@ locals {
                 name       = instance.name
                 public_ip  = instance.public_ip_address
                 admin_user = instance.admin_username
+                ssh_key_path = local.ssh_key_path
                 role       = lookup(instance.tags,"role","app")
                 public     = lookup(instance.tags,"public","false")
                 tags       = instance.tags
