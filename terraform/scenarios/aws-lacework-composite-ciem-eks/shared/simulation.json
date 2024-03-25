@@ -11,7 +11,7 @@
           "execute": {
             "generate_aws_cli_traffic": {
               "enabled": true,
-              "compromised_keys_user" : "clue.burnetes@interlacelabs",
+              "compromised_keys_user" : "clue.burnetes-${deployment}@interlacelabs",
               "profile" : "aws-traffic",
               "commands": [
                 "if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/bin/jq; fi",

@@ -65,7 +65,7 @@
             "enabled" : true
           },
           "eks_audit_logs": {
-            "enabled" : false
+            "enabled" : true
           },
           "admission_controller": {
             "enabled" : true
@@ -92,7 +92,7 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
+      "enabled"                        : false
     } 
   }
 }

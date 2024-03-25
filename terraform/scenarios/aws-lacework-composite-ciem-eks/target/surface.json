@@ -26,7 +26,7 @@
       "ssm" :  {
         "aws_credentials" :  {
           "enabled" :  true,
-          "compromised_keys_user" : "clue.burnetes@interlacelabs"
+          "compromised_keys_user" : "clue.burnetes-${deployment}@interlacelabs"
         },
         "ssh_keys" :  {
           "enabled" :  true,
@@ -52,7 +52,7 @@
         "custom_cluster_roles": [{
           "name": "custom-role-1",
           "enabled": true,
-          "iam_user_names": [ "clue.burnetes@interlacelabs" ],
+          "iam_user_names": [ "clue.burnetes-${deployment}@interlacelabs" ],
           "rules": [
           {
             "api_groups": ["*"],
