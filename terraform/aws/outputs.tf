@@ -8,7 +8,7 @@ locals {
         tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
         profile    = var.attacker_aws_profile
         region     = var.attacker_aws_region
-        dynu_dns_name = try(module.aws-deployment.attacker-dns-records[compute.instance.tags["Name"]], null)
+        dynu_dns_name = try(module.aws-deployment.attacker-dns-records[compute.instance.tags["Name"]].dynu_dns_record.hostname, null)
       }
     ])
 
@@ -21,7 +21,7 @@ locals {
         tags       = { for k, v in compute.instance.tags : k => v if v != "false" }
         profile    = var.target_aws_profile
         region     = var.target_aws_region
-        dynu_dns_name = try(module.aws-deployment.target-dns-records[compute.instance.tags["Name"]], null)
+        dynu_dns_name = try(module.aws-deployment.target-dns-records[compute.instance.tags["Name"]].dynu_dns_record.hostname, null)
       }
     ])
 }

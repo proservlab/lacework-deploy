@@ -8,7 +8,7 @@ locals {
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
         project_id = var.attacker_gcp_project
         region     = var.attacker_gcp_region
-        dynu_dns_name = try(module.gcp-deployment.attacker-dns-records[compute.instance.labels.name], null)
+        dynu_dns_name = try(module.gcp-deployment.attacker-dns-records[compute.instance.labels.name].dynu_dns_record.hostname, null)
       }
     ])
 
@@ -21,13 +21,17 @@ locals {
         labels     = { for k, v in compute.instance.labels : k => v if v != "false" }
         project_id = var.target_gcp_project
         region     = var.target_gcp_region
-        dynu_dns_name = try(module.gcp-deployment.target-dns-records[compute.instance.labels.name], null)
+        dynu_dns_name = try(module.gcp-deployment.target-dns-records[compute.instance.labels.name].dynu_dns_record.hostname, null)
       }
     ])
 }
 
 output "attacker-gcp-instances" {
     value = local.attacker-gcp-instances
+}
+
+output "target-gcp-instances" {
+    value = local.target-gcp-instances
 }
 
 output "attacker-gcp-k8s-services" {

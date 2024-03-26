@@ -12,7 +12,7 @@ locals {
       tenant        = var.attacker_azure_tenant
       subscription  = var.attacker_azure_subscription
       region        = var.attacker_azure_region
-      dynu_dns_name = try(module.azure-deployment.attacker-dns-records[compute.name], null)
+      dynu_dns_name = try(module.azure-deployment.attacker-dns-records[compute.name].dynu_dns_record.hostname, null)
     }
   ]
 
@@ -29,7 +29,7 @@ locals {
       tenant        = var.target_azure_tenant
       subscription  = var.target_azure_subscription
       region        = var.target_azure_region
-      dynu_dns_name = try(module.azure-deployment.target-dns-records[compute.name], null)
+      dynu_dns_name = try(module.azure-deployment.target-dns-records[compute.name].dynu_dns_record.hostname, null)
     }
   ]
 }
