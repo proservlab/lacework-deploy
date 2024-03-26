@@ -34,6 +34,14 @@ locals {
   ]
 }
 
+output "attacker-azure-instances" {
+  value = local.attacker-azure-instances
+}
+
+output "target-azure-instances" {
+  value = local.target-azure-instances
+}
+
 output "attacker-azure-k8s-services" {
   value = module.azure-deployment.attacker-k8s-services
 }
