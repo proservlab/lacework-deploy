@@ -10,6 +10,13 @@ resource "azuread_application" "this" {
 }
 
 
+data "azuread_application_published_app_ids" "well_known" {}
+
+resource "azuread_service_principal" "msgraph" {
+  client_id = data.azuread_application_published_app_ids.well_known.result.MicrosoftGraph
+  use_existing   = true
+}
+
 resource "azuread_service_principal" "this" {
   for_each                    = { for i in var.users : i.name => i }
   client_id                    = azuread_application.this[each.key].client_id
