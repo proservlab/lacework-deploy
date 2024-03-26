@@ -31,10 +31,10 @@ locals {
       aws_region  = var.attacker_aws_region
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # lacework
       lacework_profile      = var.attacker_lacework_profile
@@ -54,10 +54,10 @@ locals {
       aws_region  = var.target_aws_region
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # lacework
       lacework_profile      = var.target_lacework_profile
@@ -184,10 +184,10 @@ locals {
       deployment = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -201,10 +201,10 @@ locals {
       deployment = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
@@ -243,7 +243,7 @@ locals {
     }
   }
 
-  infrastructure_target_kubeconfig_path = local.target_kubeconfig_path
+  infrastructure_target_kubeconfig_path   = local.target_kubeconfig_path
   infrastructure_attacker_kubeconfig_path = local.attacker_kubeconfig_path
 }
 
@@ -291,10 +291,10 @@ locals {
       deployment  = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.attacker_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.attacker_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # aws
       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""
@@ -320,10 +320,10 @@ locals {
       deployment  = var.deployment
 
       # dynu config
-      dynu_api_key    = var.dynu_api_key
-      dynu_dns_domain = var.target_dynu_dns_domain
+      dynu_api_key             = var.dynu_api_key
+      dynu_dns_domain          = var.target_dynu_dns_domain
       attacker_dynu_dns_domain = var.attacker_dynu_dns_domain
-      target_dynu_dns_domain = var.target_dynu_dns_domain
+      target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # aws
       attacker_aws_profile = can(length(var.attacker_aws_profile)) ? var.attacker_aws_profile : ""

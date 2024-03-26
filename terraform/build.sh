@@ -173,7 +173,7 @@ fi
 if [ -z ${ACTION} ]; then
     errmsg "Required option not set: --action"
     help
-elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ] && [ "${ACTION}" != "show" ]; then
+elif [ "${ACTION}" != "destroy" ] && [ "${ACTION}" != "apply" ] && [ "${ACTION}" != "plan" ] && [ "${ACTION}" != "refresh" ] && [ "${ACTION}" != "show" ] && [ "${ACTION}" != "output" ]; then
     errmsg "Invalid action: --action should be one of show, plan, apply, refresh or destroy"
     help
 fi
@@ -282,6 +282,15 @@ run_terraform_show() {
         ERR=$?
         infomsg "See log for plan details: ${SCRIPT_PATH}/${DEPLOYMENT}-plan.txt" 
     fi
+}
+
+run_terraform_output() {
+    echo "Running: terraform output -no-color"
+    (
+        set -o pipefail
+        terraform output -no-color 2>&1 | tee -a $LOGFILE
+    )
+    return $?
 }
 
 check_for_errors() {
@@ -444,6 +453,8 @@ if [ "show" = "${ACTION}" ]; then
     run_terraform_show
     CHANGE_COUNT=$(terraform show -json ${PLANFILE} | jq -r '[.resource_changes[].change.actions | map(select(test("^no-op")|not)) | .[]]|length' || echo 0)
     infomsg "Resource updates: $CHANGE_COUNT"
+elif [ "output" = "${ACTION}" ]; then
+    run_terraform_output
 elif [ "plan" = "${ACTION}" ]; then
     run_terraform_plan
     ERR=$?
