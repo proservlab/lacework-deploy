@@ -6,7 +6,7 @@ locals {
     mkdir -p ~/.config/gcloud
     if [  "${ local.gcp_creds == "" ? "false" : "true" }" == "true" ]; then
       echo ${base64gzip(local.gcp_creds)} | base64 -d | gunzip > ~/.config/gcloud/credentials.json
-      gcloud auth activate-service-account --key-file=/root/.config/gcloud/credentials.json
+      gcloud auth activate-service-account --key-file=~/.config/gcloud/credentials.json
     fi
     log "Done."
     EOT

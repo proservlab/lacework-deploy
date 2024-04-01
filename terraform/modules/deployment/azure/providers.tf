@@ -61,6 +61,17 @@ provider "azurerm" {
   skip_provider_registration = true 
 }
 
+provider "azuread" {
+  alias = "attacker"
+  tenant_id = var.attacker_azure_tenant
+}
+
+provider "azapi" {
+  alias = "attacker"
+  tenant_id = var.attacker_azure_tenant
+  subscription_id = var.attacker_azure_subscription
+}
+
 provider "azurerm" {
   alias = "target"
   features {
@@ -77,6 +88,18 @@ provider "azurerm" {
   subscription_id = var.target_azure_subscription
   skip_provider_registration = true 
 }
+
+provider "azuread" {
+  alias = "target"
+  tenant_id = var.target_azure_tenant
+}
+
+provider "azapi" {
+  alias = "target"
+  tenant_id = var.target_azure_tenant
+  subscription_id = var.target_azure_subscription
+}
+
 provider "lacework" {
   alias      = "attacker"
   profile    = var.attacker_lacework_profile

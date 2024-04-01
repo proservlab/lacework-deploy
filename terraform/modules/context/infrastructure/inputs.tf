@@ -54,6 +54,7 @@ variable "config" {
           server_name           = string
           db_name               = string
           public_network_access_enabled = bool
+          service_principal_name = string
         })
         azurestorage = object({
           enabled               = bool
@@ -512,11 +513,12 @@ variable "config" {
         }
         azuresql = {
           enabled               = false
-          instance_type         = "postgres"
-          sku_name              = "GP_Gen5_2"
+          instance_type         = "mysql"
+          sku_name              = "GP_Standard_D2ds_v4"
           server_name           = "azuresql"
           db_name               = "db"
           public_network_access_enabled = false
+          service_principal_name = null
         }
         runbook = {
           enabled               = false

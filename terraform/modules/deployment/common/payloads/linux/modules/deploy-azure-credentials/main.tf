@@ -1,10 +1,18 @@
 locals {
-    tool = "aws"
-    aws_creds = join("\n", [ for u,k in var.inputs["compromised_credentials"]: "${k.rendered}" ])
+    tool = "az"
+    azure_creds = var.inputs["compromised_credentials"][var.inputs["compromised_keys_user"]].rendered
+    # AZURE_CLIENT_ID: The Application (client) ID of the service principal.
+    # AZURE_CLIENT_SECRET: The client secret for the service principal.
+    # AZURE_TENANT_ID: The Tenant ID associated with your Azure subscription.
+    # AZURE_SUBSCRIPTION_ID: Your Azure Subscription ID.
     payload = <<-EOT
-    log "Setting up aws cred environment variables..."
-    ${local.aws_creds}
-    NOT YET IMPLEMENTED
+    log "Deploying azure credentials..."
+    mkdir -p ~/.azure
+    if [  "${ local.azure_creds == "" ? "false" : "true" }" == "true" ]; then
+      echo ${base64gzip(local.azure_creds)} | base64 -d | gunzip > ~/.azure/credentials.json
+      export AZURE_AUTH_LOCATION=~/.azure/credentials.json
+    fi
+    log "Done."
     EOT
     
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {

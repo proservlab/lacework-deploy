@@ -17,6 +17,11 @@ variable "config" {
         enable_all                = bool
       })
       azure = object({
+        iam = object({
+          enabled                 = bool
+          user_policies_path      = string
+          users_path              = string
+        })
         compute = object({
           add_trusted_ingress = object({
             enabled                     = bool
@@ -536,6 +541,11 @@ variable "config" {
         enable_all                = false
       }
       azure = {
+        iam = {
+          enabled                       = false
+          user_policies_path            = null
+          users_path                    = null
+        }
         compute = {
           add_trusted_ingress = {
             enabled                     = false

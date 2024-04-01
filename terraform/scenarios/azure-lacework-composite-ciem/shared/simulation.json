@@ -18,10 +18,11 @@
             },
             "generate_azure_cli_traffic": {
               "enabled": true,
-              "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs",
+              "compromised_keys_user" : "khon-traktour-${deployment}",
               "profile" : "azure-traffic",
               "commands": [
-                
+                "az mysql flexible-server list -o table",
+                "az keyvault list -o table"
               ]
             }
           }

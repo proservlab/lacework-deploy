@@ -1,58 +1,58 @@
 {
-    "context" :  {
-      "global": {
-        "environment"          : "target",
-        "deployment"           : "${ deployment }"
+  "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "azure" :  {
+      "iam" :  {
+        "enabled" :  true,
+        "user_policies_path" :  "${ iam_power_user_policy_path }",
+        "users_path" :  "${ iam_users_path }"
       },
-      "azure" :  {
-        "iam" :  {
-          "enabled" :  true,
-          "user_policies_path" :  "${ iam_power_user_policy_path }",
-          "users_path" :  "${ iam_users_path }"
-        },
-        "compute" :  {
-          "add_trusted_ingress" :  {
-            "enabled"                     :  true,
-            "trust_workstation_source"    :  true,
-            "trust_attacker_source"       :  true,
-            "trust_target_source"         :  true,
-            "additional_trusted_sources"  :  [],
-            "trusted_tcp_ports"           :  {
-              "from_port" :  0,
-              "to_port" :  65535
-            }
-          },
-          "add_app_trusted_ingress" :  {
-            "enabled"                     :  true,
-            "trust_workstation_source"    :  true,
-            "trust_attacker_source"       :  true,
-            "trust_target_source"         :  true,
-            "additional_trusted_sources"  :  [],
-            "trusted_tcp_ports"           :  {
-              "from_port" :  0,
-              "to_port" :  65535
-            }
+      "compute" :  {
+        "add_trusted_ingress" :  {
+          "enabled"                     :  true,
+          "trust_workstation_source"    :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
           }
         },
-        "runbook" :  {
-          "azure_credentials" :  {
-            "enabled" :  true,
-            "compromised_keys_user" : "khon.traktour-${deployment}@interlacelabs"
+        "add_app_trusted_ingress" :  {
+          "enabled"                     :  true,
+          "trust_workstation_source"    :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
+          "additional_trusted_sources"  :  [],
+          "trusted_tcp_ports"           :  {
+            "from_port" :  0,
+            "to_port" :  65535
+          }
+        }
+      },
+      "runbook" :  {
+        "azure_credentials" :  {
+          "enabled" :  true,
+          "compromised_keys_user" : "khon-traktour-${deployment}"
+        },
+        "ssh_keys" :  {
+          "enabled" :  true
+        },
+        "vulnerable" : {
+          "log4j_app" : {
+            "enabled"                 : true,
+            "listen_port"             : 8080
           },
-          "ssh_keys" :  {
-            "enabled" :  true
-          },
-          "vulnerable" : {
-            "log4j_app" : {
-              "enabled"                 : true,
-              "listen_port"             : 8080
-            },
-            "azuresql_app" : {
-              "enabled"                 : true,
-              "listen_port"             : 8091
-            }
+          "azuresql_app" : {
+            "enabled"                 : true,
+            "listen_port"             : 8091
           }
         }
       }
     }
   }
+}

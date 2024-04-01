@@ -64,9 +64,13 @@
           }
         ]
       },
-      "aks": {
-        "enabled"                         : false,
-        "cluster_name"                    : "target-cluster"
+      "azuresql": {
+        "enabled"                         : true,
+        "instance_type"                   : "mysql",
+        "server_name"                     : "azuresql",
+        "db_name"                         : "db",
+        "public_network_access_enabled"   : false,
+        "service_principal_name"          : "khon-traktour-${deployment}"
       },
       "runbook": {
         "enabled"                        : true,

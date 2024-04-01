@@ -28,7 +28,8 @@ locals {
   ])
 
   # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
-  # target_aks_public_ip = try(["${local.target_infrastructure_deployed.context.azure.aks[0].cluster_nat_public_ip}/32"],[])
+
+  target_compromised_credentials = try(module.target-iam[0].access_keys, {})
 }
 
 ##################################################
@@ -106,6 +107,33 @@ module "target-compute-add-app-trusted-ingress" {
   ]
 }
 
+##################################################
+# AZURE IAM
+##################################################
+
+# create iam users
+module "target-iam" {
+  count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.azure.iam.enabled == true ) ? 1 : 0
+  source      = "./modules/iam"
+  environment     = local.target_attacksurface_config.context.global.environment
+  deployment      = local.target_attacksurface_config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+
+  user_policies     = jsondecode(templatefile(local.target_attacksurface_config.context.azure.iam.user_policies_path, { environment = local.target_attacksurface_config.context.global.environment, deployment = local.target_attacksurface_config.context.global.deployment }))
+  users             = jsondecode(templatefile(local.target_attacksurface_config.context.azure.iam.users_path, { environment = local.target_attacksurface_config.context.global.environment, deployment = local.target_attacksurface_config.context.global.deployment }))
+
+  providers = {
+    azuread    = azuread.target
+    azurerm    = azurerm.target
+  }
+
+  depends_on = [
+      module.target-compute,
+      module.attacker-compute,
+      module.attacker-aks,
+      module.target-aks
+  ]
+}
 
 ##################################################
 # AZURE RUNBOOK
@@ -149,6 +177,32 @@ module "target-ssh-user" {
 
   username = local.target_attacksurface_config.context.azure.runbook.ssh_user.username
   password = local.target_attacksurface_config.context.azure.runbook.ssh_user.password
+
+  providers = {
+    azurerm    = azurerm.target
+  }
+}
+
+module "target-azure-credentials" {
+  count = (local.target_attacksurface_config.context.global.enable_all == true) || (local.target_attacksurface_config.context.global.disable_all != true && local.target_attacksurface_config.context.azure.runbook.azure_credentials.enabled == true ) ? 1 : 0
+  source = "./modules/runbook/deploy-azure-credentials"
+  environment     = local.target_attacksurface_config.context.global.environment
+  deployment      = local.target_attacksurface_config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
+  tag = "runbook_deploy_secret_azure_credentials"
+
+  compromised_credentials = local.target_compromised_credentials
+  compromised_keys_user = local.target_attacksurface_config.context.azure.runbook.azure_credentials.compromised_keys_user
+
+  depends_on = [ 
+    module.target-iam,
+    module.attacker-iam 
+  ]
 
   providers = {
     azurerm    = azurerm.target

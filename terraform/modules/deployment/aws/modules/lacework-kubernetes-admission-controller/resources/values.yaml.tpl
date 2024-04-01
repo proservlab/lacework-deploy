@@ -10,17 +10,19 @@ proxy-scanner:
       - domain: index.docker.io
         name: docker_public
         ssl: true
-        auto_poll: false
+        auto_poll: true
         is_public: true
         disable_non_os_package_scanning: false
+        poll_frequency_minutes: 20
         go_binary_scanning:
           enable: true
-      - auto_poll: false
+      - auto_poll: true
         disable_non_os_package_scanning: false
         domain: ghcr.io
         is_public: true
         name: github_public
         notification_type: ghcr
         ssl: true
+        poll_frequency_minutes: 20
         go_binary_scanning:
           enable: true 

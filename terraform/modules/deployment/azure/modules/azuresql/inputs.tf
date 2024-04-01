@@ -18,6 +18,16 @@ variable "server_name" {
   default = "azuresql"
 }
 
+variable "add_service_principal_access" {
+  type = bool
+  default = false
+}
+
+variable "service_principal_display_name" {
+  type = string
+  default = null
+}
+
 variable "db_name" {
   type = string
   default = "dev"
@@ -60,7 +70,7 @@ variable "instance_type" {
 }
 
 variable "sku_name" {
-  default = "GP_Gen5_2"
+  default = "GP_Standard_D2ds_v4"
 }
 
 variable "root_db_username" {
@@ -69,5 +79,21 @@ variable "root_db_username" {
 
 variable "root_db_password" {
   default = null
+}
+
+variable "mysql_authorized_ip_ranges" {
+  type = list(object({
+    start_ip_address = string
+    end_ip_address = string
+  }))
+  default = []
+}
+
+variable "postgres_authorized_ip_ranges" {
+  type = list(object({
+    start_ip_address = string
+    end_ip_address = string
+  }))
+  default = []
 }
 

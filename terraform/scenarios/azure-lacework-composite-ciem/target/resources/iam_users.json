@@ -1,1 +1,8 @@
-[]
+[
+    {
+      "name"   :  "khon-traktour-${deployment}",
+      "roles" :  [
+        "Reader"
+      ]
+    }
+  ]

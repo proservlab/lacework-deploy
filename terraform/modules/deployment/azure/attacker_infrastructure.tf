@@ -144,9 +144,39 @@ module "attacker-azuresql" {
   sku_name                            = local.attacker_infrastructure_config.context.azure.azuresql.sku_name
   public_network_access_enabled       = local.attacker_infrastructure_config.context.azure.azuresql.public_network_access_enabled
 
-  # authorized_ip_ranges                = [module.attacker-workstation-external-ip.cidr]
+  add_service_principal_access        = try(length(local.attacker_infrastructure_config.context.azure.azuresql.service_principal_name), "false") != "false" ? true : false
+  service_principal_display_name      = try(length(local.attacker_infrastructure_config.context.azure.azuresql.service_principal_name), "false") != "false" ?  module.attacker-iam[0].service_principal_ids[local.attacker_infrastructure_config.context.azure.azuresql.service_principal_name].display_name : null
 
-  depends_on = [ module.attacker-compute ]
+  mysql_authorized_ip_ranges          = local.attacker_infrastructure_config.context.azure.azuresql.instance_type == "mysql" ?[ for ip in flatten([
+    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_target_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}" ],
+    [module.workstation-external-ip.ip]
+  ]) :  {
+          start_ip_address = ip
+          end_ip_address = ip
+        }
+  ] : []
+
+  postgres_authorized_ip_ranges         = local.attacker_infrastructure_config.context.azure.azuresql.instance_type == "postgres" ?[ for ip in flatten([
+    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_target_instances, []): "${compute.public_ip}" ],
+    [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}" ],
+    [module.workstation-external-ip.ip]
+  ]) :  {
+          start_ip_address = ip
+          end_ip_address = ip
+        }
+  ] : []
+
+  depends_on = [ 
+    module.attacker-compute,
+    module.target-compute,
+    module.target-iam,
+    module.attacker-iam
+  ]
 
   providers = {
     azurerm = azurerm.attacker
@@ -453,6 +483,7 @@ module "attacker-lacework-agentless" {
   providers = {
     lacework  = lacework.attacker
     azurerm   = azurerm.attacker
+    azapi     = azapi.attacker
   }
 }
 

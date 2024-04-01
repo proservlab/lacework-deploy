@@ -12,4 +12,5 @@ data "http" "workstation-external-ip" {
 
 locals {
   workstation-external-cidr = "${chomp(data.http.workstation-external-ip.response_body)}/32"
+  workstation-external = "${chomp(data.http.workstation-external-ip.response_body)}"
 }
