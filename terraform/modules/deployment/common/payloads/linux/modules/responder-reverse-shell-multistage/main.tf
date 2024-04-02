@@ -22,6 +22,7 @@ locals {
         echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py
         echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh
         echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh
+        echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > azureiam2azuresql.sh
         echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh
         echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh
         echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh 
@@ -126,6 +127,8 @@ locals {
     
     iam2enum = file("${path.module}/resources/iam2enum.sh")
                             
+    azureiam2azuresql = file("${path.module}/resources/azureiam2azuresql.sh")                            
+    
     gcpiam2cloudsql = file("${path.module}/resources/gcpiam2cloudsql.sh")
 
     scan2kubeshell = file("${path.module}/resources/scan2kubeshell.sh")
