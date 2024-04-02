@@ -139,7 +139,7 @@
       }
     },
     "dynu_dns" : {
-      "enabled"                        : true,
+      "enabled"                           : true,
       "api_key"                           : "${ dynu_api_key }",
       "dns_domain"                        : "${ target_dynu_dns_domain }"
     }
