@@ -12,7 +12,7 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
-        if ! command ${local.tool}; then
+        if command ${local.tool}; then
             log "${local.tool} found installation not required"
             exit 0
         fi
@@ -20,7 +20,7 @@ locals {
         apt_packages = "jq"
         apt_post_tasks = ""
         yum_pre_tasks = <<-EOT
-        if ! command ${local.tool}; then
+        if command ${local.tool}; then
             log "${local.tool} found installation not required"
             exit 0
         fi
