@@ -408,7 +408,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     if Path(f'/tmp/{hostname}_azure_creds.tgz').exists():
                         file = tarfile.open(f'/tmp/{hostname}_azure_creds.tgz')
                         for m in file.getmembers():
-                            if m.isfile() and (m.path.endswith('/.azure/credentials.json')):
+                            if m.isfile() and (m.path.endswith('/.azure/my.azureauth')):
                                 session.log(
                                     f"extracting: {m.path} => {task_path}")
                                 file.extract(m, task_path)

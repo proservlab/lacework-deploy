@@ -9,8 +9,8 @@ locals {
     log "Deploying azure credentials..."
     mkdir -p ~/.azure
     if [  "${ local.azure_creds == "" ? "false" : "true" }" == "true" ]; then
-      echo ${base64gzip(local.azure_creds)} | base64 -d | gunzip > ~/.azure/credentials.json
-      export AZURE_AUTH_LOCATION=~/.azure/credentials.json
+      echo ${base64gzip(local.azure_creds)} | base64 -d | gunzip > ~/.azure/my.azureauth
+      export AZURE_AUTH_LOCATION=~/.azure/my.azureauth
     fi
     log "Done."
     EOT
