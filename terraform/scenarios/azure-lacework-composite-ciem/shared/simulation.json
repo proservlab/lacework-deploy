@@ -21,8 +21,15 @@
               "compromised_keys_user" : "khon-traktour-${deployment}",
               "profile" : "azure-traffic",
               "commands": [
-                "az mysql flexible-server list -o table",
-                "az keyvault list -o table"
+                "while ! command -v az; do echo 'waiting for az'; sleep 30; done",
+                "while ! [ -f ~/.azure/my.azureauth ] ; do echo 'waiting for az creds'; sleep 30; done",
+                "export AZURE_CLIENT_ID=$(jq -r '.clientId' ~/.azure/my.azureauth)",
+                "export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' ~/.azure/my.azureauth)",
+                "export AZURE_TENANT_ID=$(jq -r '.tenantId' ~/.azure/my.azureauth)",
+                "export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' ~/.azure/my.azureauth)",
+                "az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID",
+                "az mysql flexible-server list",
+                "az keyvault list"
               ]
             }
           }
