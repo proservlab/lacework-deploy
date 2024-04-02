@@ -30,6 +30,7 @@
             "ami_name"                  : "ubuntu_focal",
             "tags": {
               "runbook_deploy_git"     : "true",
+              "runbook_deploy_azure_cli" : "true",
               "runbook_deploy_docker"  : "true",
               "runbook_deploy_lacework": "true",
               "runbook_deploy_lacework_syscall": "true",
@@ -50,7 +51,6 @@
             "ami_name"                  : "ubuntu_focal",
             "tags": {
               "runbook_deploy_git"                                : "true",
-              "runbook_deploy_azure_cli"                          : "true",
               "runbook_deploy_docker"                             : "true",
               "runbook_deploy_lacework"                           : "true",
               "runbook_deploy_lacework_syscall"                   : "true",
