@@ -6,7 +6,7 @@ data "azurerm_client_config" "current" {}
 data "azurerm_subscription" "current" {}
 
 data "azuread_service_principal" "this" {
-  count = try(length(var.service_principal_display_name), "false") != "false" ? 1 : 0
+  count = var.add_service_principal_access ? 1 : 0
   display_name = var.service_principal_display_name
 }
 
@@ -62,7 +62,7 @@ resource "azurerm_key_vault_access_policy" "current" {
 }
 
 resource "azurerm_key_vault_access_policy" "this" {
-  count = try(length(var.service_principal_display_name), "false") != "false" ? 1 : 0
+  count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
   object_id    = data.azuread_service_principal.this[0].id
