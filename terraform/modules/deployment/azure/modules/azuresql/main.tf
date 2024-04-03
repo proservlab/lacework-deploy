@@ -24,7 +24,7 @@ resource "random_string" "root_db_password" {
 
 
 resource "azurerm_key_vault" "this" {
-  name                        = "db-vault-${var.environment}-${var.deployment}"
+  name                        = "db-kv-${var.environment}-${var.deployment}"
   location                    = var.region
   resource_group_name         = var.db_resource_group_name
   tenant_id                   = data.azurerm_subscription.current.tenant_id
