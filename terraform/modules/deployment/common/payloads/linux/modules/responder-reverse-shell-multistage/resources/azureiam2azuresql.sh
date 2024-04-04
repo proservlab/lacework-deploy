@@ -22,7 +22,7 @@ export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' ~/.azure/my.azureauth)
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 # cloud enumeration
-scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --project-id=$PROJECT --no-browser 2>&1 | tee -a $LOGFILE 
+scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE 
 
 # sql access - export and exfil
 # get parameter store credentials
