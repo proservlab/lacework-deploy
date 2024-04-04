@@ -5,7 +5,9 @@ module "lacework_ecr" {
 #   lacework_integration_name = "custom integration name"
   non_os_package_support    = true
   tags = {
-    env = var.environment
+    environment = var.environment
+    deployment = var.deployment
+
   }
 
 #   limit_by_tags         = ["example*"]
