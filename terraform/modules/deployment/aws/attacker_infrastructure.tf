@@ -146,6 +146,18 @@ module "attacker-lacework-alerts" {
   }
 }
 
+module "attacker-lacework-ecr" {
+  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.lacework.aws_ecr.enabled == true  ) ? 1 : 0
+  source                                = "./modules/lacework-ecr"
+  environment                           = local.attacker_infrastructure_config.context.global.environment
+  deployment                            = local.attacker_infrastructure_config.context.global.deployment
+
+  providers = {
+    aws = aws.attacker
+    lacework = lacework.attacker
+  }
+}
+
 
 ##################################################
 # AWS EC2

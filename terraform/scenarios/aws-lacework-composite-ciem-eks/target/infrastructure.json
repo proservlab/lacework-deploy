@@ -93,6 +93,9 @@
         "enabled" : true,
         "enable_cloudtrail_s3_management_events" : true
       },
+      "aws_ecr": {
+        "enabled" : true
+      },
       "custom_policy": {
         "enabled" : true
       },

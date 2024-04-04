@@ -325,6 +325,9 @@ variable "config" {
         custom_policy = object({
           enabled               = bool
         })
+        aws_ecr                 = object({
+          enabled               = bool
+        })
         
         agent = object({
           enabled               = bool
@@ -903,6 +906,9 @@ variable "config" {
           enabled               = false
         }
         custom_policy = {
+          enabled               = false
+        }
+        aws_ecr                     = {
           enabled               = false
         }
         agent = {

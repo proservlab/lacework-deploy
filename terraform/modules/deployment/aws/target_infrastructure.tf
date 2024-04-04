@@ -146,6 +146,18 @@ module "target-lacework-alerts" {
   }
 }
 
+module "target-lacework-ecr" {
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.aws_ecr.enabled == true  ) ? 1 : 0
+  source                                = "./modules/lacework-ecr"
+  environment                           = local.target_infrastructure_config.context.global.environment
+  deployment                            = local.target_infrastructure_config.context.global.deployment
+
+  providers = {
+    aws = aws.target
+    lacework = lacework.target
+  }
+}
+
 
 ##################################################
 # AWS EC2
