@@ -5,7 +5,7 @@ variable "inputs" {
                 tag = string
                 timeout = optional(string)
                 cron = optional(string)
-                retry_delay = number
+                retry_delay_secs = number
         })
         description = "inherit variables from the parent"
 }
