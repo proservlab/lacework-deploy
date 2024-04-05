@@ -6,8 +6,8 @@ locals {
         OAST_URL="https://$(cat /dev/urandom | tr -dc '[:lower:]' | fold -w $${1:-16} | head -n 1).${local.oast_domain}"
         log "http request: $OAST_URL"
         curl -s "$OAST_URL" >> $LOGFILE 2>&1
-        log 'waiting 30 minutes...';
-        sleep 1800
+        log 'waiting ${var.inputs["retry_delay_secs"]} seconds...';
+        sleep ${var.inputs["retry_delay_secs"]}
         if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
             log "payload update detected - exiting loop and forcing payload download"
             rm -f /tmp/payload_$SCRIPTNAME

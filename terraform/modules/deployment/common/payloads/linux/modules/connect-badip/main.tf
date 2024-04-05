@@ -6,8 +6,8 @@ locals {
         echo ${base64gzip(local.iplist_base64)} | base64 -d | gunzip > threatdb.csv
         log "enumerating bad ips in threatdb.csv"
         for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
-        log 'waiting 30 minutes...';
-        sleep 1800
+        log 'waiting ${var.inputs["retry_delay_secs"]} seconds...';
+        sleep ${var.inputs["retry_delay_secs"]}
         if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
             log "payload update detected - exiting loop and forcing payload download"
             rm -f /tmp/payload_$SCRIPTNAME
