@@ -5,6 +5,7 @@
       "deployment"           : "${ deployment }"
     },
     "aws": {
+      "enabled" : true,
       "ssm": {
         "target": {
           "connect": {
