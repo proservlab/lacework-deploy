@@ -60,6 +60,8 @@ module "target-ssm-connect-badip" {
   # list of bad ip to select from - only a single random will be used
   iplist_url    = local.target_attacksimulate_config.context.aws.ssm.target.connect.badip.iplist_url
 
+  retry_delay_secs = local.target_attacksimulate_config.context.aws.ssm.target.connect.badip.retry_delay_secs
+
   providers = {
     aws = aws.target
   }
@@ -101,6 +103,8 @@ module "target-ssm-connect-oast-host" {
   deployment    = local.target_attacksimulate_config.context.global.deployment
 
   tag = "ssm_connect_oast_host"
+
+  retry_delay_secs = local.target_attacksimulate_config.context.aws.ssm.target.connect.oast.retry_delay_secs
 
   providers = {
     aws = aws.target

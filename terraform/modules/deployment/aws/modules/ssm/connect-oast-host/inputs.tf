@@ -22,3 +22,9 @@ variable "cron" {
   type = string
   default = "cron(0/30 * * * ? *)"
 }
+
+variable "retry_delay_secs" {
+  type = number
+  description = "number of seconds before retrying the connection"
+  default = 1800
+}

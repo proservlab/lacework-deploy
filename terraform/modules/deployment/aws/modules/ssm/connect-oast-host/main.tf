@@ -8,7 +8,8 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-            }
+        retry_delay_secs = var.retry_delay_secs
+    }
 }
 
 ###########################

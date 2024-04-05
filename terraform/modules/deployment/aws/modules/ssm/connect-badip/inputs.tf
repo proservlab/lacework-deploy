@@ -28,3 +28,9 @@ variable "iplist_url" {
   description = "url to obtain a list of bad ips"
   default = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
 }
+
+variable "retry_delay_secs" {
+  type = number
+  description = "number of seconds before retrying the connection"
+  default = 1800
+}

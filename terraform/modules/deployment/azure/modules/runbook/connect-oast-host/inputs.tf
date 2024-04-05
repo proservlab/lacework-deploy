@@ -33,3 +33,9 @@ variable "tag" {
     description = "tag associated with this runbook"
     default = "runbook_connect_oast_host"
 }
+
+variable "retry_delay_secs" {
+  type = number
+  description = "number of seconds before retrying the connection"
+  default = 1800
+}

@@ -25,3 +25,9 @@ variable "timeout" {
     type = string
     default = "600s"
 }
+
+variable "retry_delay_secs" {
+  type = number
+  description = "number of seconds before retrying the connection"
+  default = 1800
+}

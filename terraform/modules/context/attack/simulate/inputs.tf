@@ -32,6 +32,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -40,6 +41,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -319,6 +321,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -327,6 +330,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -606,6 +610,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -614,6 +619,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -902,6 +908,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -910,6 +917,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false
@@ -1189,6 +1197,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -1197,6 +1206,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false
@@ -1476,6 +1486,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -1484,6 +1495,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false

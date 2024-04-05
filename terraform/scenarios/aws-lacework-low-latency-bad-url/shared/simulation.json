@@ -9,11 +9,13 @@
         "target": {
           "connect": {
             "oast": {
-              "enabled": true
+              "enabled": true,
+              "retry_delay_secs": 86400
             },
             "badip": {
               "enabled": false,
-              "iplist_url": "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+              "iplist_url": "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset",
+              "retry_delay_secs": 86400
             }
           }
         }

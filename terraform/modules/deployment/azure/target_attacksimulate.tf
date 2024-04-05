@@ -69,6 +69,8 @@ module "target-runbook-connect-badip" {
   # list of bad ip to select from - only a single random will be used
   iplist_url    = local.target_attacksimulate_config.context.azure.runbook.target.connect.badip.iplist_url
 
+  retry_delay_secs    = local.target_attacksimulate_config.context.azure.runbook.target.connect.badip.retry_delay_secs
+
   tag = "runbook_connect_bad_ip"
 
   providers = {
@@ -133,6 +135,8 @@ module "target-runbook-connect-oast-host" {
   automation_princial_id = local.target_automation_account[0].automation_princial_id
 
   tag = "runbook_connect_oast_host"
+
+  retry_delay_secs    = local.target_attacksimulate_config.context.azure.runbook.target.connect.oast.retry_delay_secs
 
   providers = {
     azurerm = azurerm.target

@@ -67,6 +67,8 @@ module "target-osconfig-connect-badip" {
   # list of bad ip to select from - only a single random will be used
   iplist_url    = local.target_attacksimulate_config.context.gcp.osconfig.target.connect.badip.iplist_url
 
+  retry_delay_secs    = local.target_attacksimulate_config.context.gcp.osconfig.target.connect.badip.retry_delay_secs
+
   tag = "osconfig_connect_bad_ip"
 
   providers = {
@@ -122,6 +124,8 @@ module "target-osconfig-connect-oast-host" {
   gcp_location = local.target_infrastructure_config.context.gcp.region
 
   tag = "osconfig_connect_oast_host"
+
+  retry_delay_secs    = local.target_attacksimulate_config.context.gcp.osconfig.target.connect.oast.retry_delay_secs
 
   providers = {
     google = google.target

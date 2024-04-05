@@ -9,6 +9,7 @@ module "payload" {
         deployment      = var.deployment
         tag             = var.tag
         iplist_url      = var.iplist_url
+        retry_delay_secs = var.retry_delay_secs
     }
 }
 
