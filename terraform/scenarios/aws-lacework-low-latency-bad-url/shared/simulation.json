@@ -1,0 +1,23 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "${ environment }",
+      "deployment"           : "${ deployment }"
+    },
+    "aws": {
+      "ssm": {
+        "target": {
+          "connect": {
+            "oast": {
+              "enabled": true
+            },
+            "badip": {
+              "enabled": false,
+              "iplist_url": "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+            }
+          }
+        }
+      }
+    }
+  }
+}
