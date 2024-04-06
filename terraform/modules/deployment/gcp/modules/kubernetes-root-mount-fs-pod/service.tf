@@ -18,6 +18,12 @@ resource "kubernetes_service_v1" "this" {
             target_port = 8080
         }
 
+        port {
+            name = "${local.app_name}-internet-exposed-service"
+            port        = 22
+            target_port = 22
+        }
+
         type = "LoadBalancer"
 
         load_balancer_source_ranges = sort(flatten([

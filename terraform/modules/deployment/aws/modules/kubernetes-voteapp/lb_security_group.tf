@@ -162,3 +162,17 @@ resource "aws_security_group_rule" "additional_sources_ingress_rules_vote_port" 
     create = "10m"
   }
 }
+
+resource "aws_security_group_rule" "internet_exposed" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = "0.0.0.0/0"
+  description       = "Allow all tcp inbound from workstation, attacker and target public ips"
+  security_group_id = aws_security_group.this.id
+
+  timeouts {
+    create = "10m"
+  }
+}
