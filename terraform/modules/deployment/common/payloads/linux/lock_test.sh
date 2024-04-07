@@ -60,21 +60,16 @@ fi
 # Wait for Package Manager
 check_package_manager() {
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-        # Using regex to match specific apt operations
-        pgrep -f "apt-get (install|update|remove|upgrade)" || \
-        pgrep -f "aptitude (install|update|remove|upgrade)" || \
-        pgrep -f "dpkg (install|configure)"
+        # Return 0 (false) if a package manager process is found, indicating it's busy
+        ! pgrep -f "apt-get (install|update|remove|upgrade)" && \
+        ! pgrep -f "aptitude (install|update|remove|upgrade)" && \
+        ! pgrep -f "dpkg (install|configure)"
     else
-        # Check for yum or rpm processes with specific operations
-        pgrep -f "yum (install|update|remove|upgrade)" || \
-        pgrep -f "rpm (install|update|remove|upgrade)"
+        # Similar logic for yum/rpm
+        ! pgrep -f "yum (install|update|remove|upgrade)" && \
+        ! pgrep -f "rpm (install|update|remove|upgrade)"
     fi
 }
-
-while check_package_manager; do
-    log "Waiting for $PACKAGE_MANAGER to be available..."
-    sleep 10
-done
 
 # export log function
 export -f log
@@ -90,11 +85,19 @@ log "Starting yum pre-task";
 log "Done yum pre-task";
 fi
 if [ "" != "$PACKAGES" ]; then
-    /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
-    if [ $? -ne 0 ]; then
-        log "Failed to install some_package using $PACKAGE_MANAGER"
-        exit 1
-    fi
+    while true; do
+        /bin/bash -c "$PACKAGE_MANAGER update && $PACKAGE_MANAGER install -y $PACKAGES" >> $LOGFILE 2>&1
+        if [ $? -ne 0 ]; then
+            log "Failed to install some_package using $PACKAGE_MANAGER - retry required"
+            while ! check_package_manager; do
+                RAND_WAIT=$(($RANDOM%(300-30+1)+30))
+                log "Waiting for $PACKAGE_MANAGER to be available - sleeping $RAND_WAIT"
+                sleep $RAND_WAIT
+            done
+        else
+            break
+        fi
+    done
 fi
 if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 log "Starting apt post-task";
