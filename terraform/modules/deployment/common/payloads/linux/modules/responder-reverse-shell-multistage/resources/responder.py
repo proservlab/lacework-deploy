@@ -231,8 +231,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     raise Exception(f'Unknown csp used {csp}')
 
                 if task_name == "scan2kubeshell":
-                    container = f'ghcr.io/credibleforce/proxychains-aws-cli:main'
-                    container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
+                    container = f'ghcr.io/credibleforce/proxychains-{csp}-cli:main'
                 else:
                     container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
