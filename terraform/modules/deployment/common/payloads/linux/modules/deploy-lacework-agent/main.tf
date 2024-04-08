@@ -14,7 +14,7 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = <<-EOT
-        if [ -f /var/lib/lacework/config/config.json ]; then
+        if [ -f /var/lib/lacework/config/config.json ] && pgrep datacollector > /dev/null; then
             log "${local.tool} found - no installation required"; 
             exit 0; 
         fi
@@ -22,7 +22,7 @@ locals {
         apt_packages = ""
         apt_post_tasks = ""
         yum_pre_tasks =  <<-EOT
-        if [ -f /var/lib/lacework/config/config.json ]; then
+        if [ -f /var/lib/lacework/config/config.json ] && pgrep datacollector > /dev/null; then
             log "${local.tool} found - no installation required"; 
             exit 0; 
         fi
