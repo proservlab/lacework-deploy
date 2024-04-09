@@ -53,7 +53,9 @@
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
         "enabled" : true,
-        "enable_cloudtrail_s3_management_events" : true
+        "enable_cloudtrail_s3_management_events" : true,
+        "cloudtrail_name": "lacework-cloudtrail-${ deployment }",
+        "s3_notification_type": "SNS"
       },
       "custom_policy": {
         "enabled" : false
