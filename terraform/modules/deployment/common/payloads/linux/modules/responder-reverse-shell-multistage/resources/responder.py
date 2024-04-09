@@ -511,7 +511,7 @@ echo $BUCKET_URL
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_bucket_url")
                 session.log(result)
-                bucket_url = str(result.stdout).strip()
+                bucket_url = bytes(result.stdout).decode().strip()
                 session.log("running credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
@@ -553,7 +553,8 @@ echo $BUCKET_URL
                     args=""
                 )
                 session.log("iam2enum enumeration complete")
-                session.log("running scan2kubeshell credentialed_access_tor...")
+                session.log(
+                    "running scan2kubeshell credentialed_access_tor...")
                 credentialed_access_tor(
                     csp=csp,
                     jobname=task_name,

