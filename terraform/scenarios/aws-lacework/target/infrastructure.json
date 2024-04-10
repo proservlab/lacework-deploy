@@ -22,22 +22,7 @@
         "public_ingress_rules"          : [],
         "instances": [
           {
-            "name"                      : "target-public-1",
-            "public"                    : true,
-            "role"                      : "default",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags": {
-              "ssm_deploy_lacework": "true",
-              "ssm_deploy_lacework_syscall": "true",
-              "ssm_deploy_lacework_code_aware_agent" : "true"
-            },
-            "user_data"        : null,
-            "user_data_base64" : null,
-            "enable_swap"      : true
-          },
-          {
-            "name"                      : "target-public-2",
+            "name"                      : "lacework-public-1",
             "public"                    : true,
             "role"                      : "default",
             "instance_type"             : "t2.micro",
@@ -73,41 +58,12 @@
         "cloudtrail_name": "lacework-cloudtrail-${ deployment }",
         "s3_notification_type": "SNS"
       },
-      "gcp_audit_config": {
-        "enabled"    : false
-      },
-      "custom_policy": {
-        "enabled" : false
-      },
       "agent": {
-        "enabled" : true,
-
-        "kubernetes": {
-          "enabled" : false,
-          "proxy_scanner": {
-            "enabled" : false
-          },
-          "daemonset": {
-            "enabled"        : false,
-            "syscall_config_path" : "${ syscall_config_path }"
-          },
-          "compliance": {
-            "enabled" : false
-          },
-          "eks_audit_logs": {
-            "enabled" : false
-          },
-          "admission_controller": {
-            "enabled" : false
-          }
-        }
+        "enabled" : true
       },
       "aws_agentless": {
         "enabled" : true,
         "use_existing_vpc" : true
-      },
-      "gcp_agentless": {
-        "enabled" : false
       },
       "alerts": {
         "enabled" : false,
