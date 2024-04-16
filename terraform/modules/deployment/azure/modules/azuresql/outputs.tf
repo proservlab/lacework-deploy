@@ -1,9 +1,9 @@
 output "sql_server" {
-  value = var.instance_type == "postgres" ? azurerm_postgresql_server.this[0] : azurerm_mysql_server.this[0]
+  value = var.instance_type == "postgres" ? azurerm_postgresql_flexible_server.this[0] : azurerm_mysql_flexible_database.this[0]
 }
 
 output "sql_database" {
-  value = var.instance_type == "postgres" ? azurerm_postgresql_database.this[0] : azurerm_mysql_database.this[0]
+  value = var.instance_type == "postgres" ? azurerm_postgresql_flexible_server_database.this[0] : azurerm_mysql_flexible_database.this[0]
 }
 
 output "sql_port" {
