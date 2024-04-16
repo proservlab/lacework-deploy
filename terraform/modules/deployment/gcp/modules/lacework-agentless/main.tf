@@ -2,9 +2,9 @@ data "google_project" "project" {}
 
 # integration
 module "lacework_gcp_agentless_scanning_org_multi_region" {
-  source = "./terraform-gcp-agentless-scanning"
-  # source  = "lacework/agentless-scanning/gcp"
-  # version = "0.3.7"
+  # source = "./terraform-gcp-agentless-scanning"
+  source  = "lacework/agentless-scanning/gcp"
+  version = "0.3.7"
 
   project_filter_list = var.org_integration == true ? [] : [ data.google_project.project.project_id ]
 
