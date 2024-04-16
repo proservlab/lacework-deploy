@@ -4,8 +4,8 @@
 
 locals {
   default_kubeconfig_path  = pathexpand("~/.kube/config")
-  attacker_kubeconfig_path = pathexpand("~/.kube/aws-attacker-${var.deployment}-kubeconfig")
-  target_kubeconfig_path   = pathexpand("~/.kube/aws-target-${var.deployment}-kubeconfig")
+  attacker_kubeconfig_path = pathexpand("~/.kube/azure-attacker-${var.deployment}-kubeconfig")
+  target_kubeconfig_path   = pathexpand("~/.kube/azure-target-${var.deployment}-kubeconfig")
 
   kubeconfigs = [
     local.default_kubeconfig_path,
