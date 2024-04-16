@@ -16,28 +16,28 @@ output "target-dns-records" {
 
 output "attacker-k8s-services" {
     value = flatten([
-        try(module.attacker-vulnerable-kubernetes-authapp[0].services,[]),
-        try(module.attacker-vulnerable-kubernetes-s3app[0].services,[]),
+        # try(module.attacker-vulnerable-kubernetes-authapp[0].services,[]),
+        # try(module.attacker-vulnerable-kubernetes-s3app[0].services,[]),
         try(module.attacker-vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
         try(module.attacker-vulnerable-kubernetes-privileged-pod[0].services,[]),
         try(module.attacker-vulnerable-kubernetes-log4j-app[0].services,[]),
-        try(module.attacker-vulnerable-kubernetes-rdsapp[0].services,[]),
-        try(module.attacker-vulnerable-kubernetes-voteapp[0].services,[]),
+        # try(module.attacker-vulnerable-kubernetes-rdsapp[0].services,[]),
+        # try(module.attacker-vulnerable-kubernetes-voteapp[0].services,[]),
         try(module.attacker-kubernetes-app[0].services,[]),
-        try(module.attacker-kubernetes-app-windows[0].services,[]),
+        # try(module.attacker-kubernetes-app-windows[0].services,[]),
     ])
 }
 
 output "target-k8s-services" {
     value = flatten([
-        try(module.target-vulnerable-kubernetes-authapp[0].services,[]),
-        try(module.target-vulnerable-kubernetes-s3app[0].services,[]),
+        # try(module.target-vulnerable-kubernetes-authapp[0].services,[]),
+        # try(module.target-vulnerable-kubernetes-s3app[0].services,[]),
         try(module.target-vulnerable-kubernetes-root-mount-fs-pod[0].services,[]),
         try(module.target-vulnerable-kubernetes-privileged-pod[0].services,[]),
         try(module.target-vulnerable-kubernetes-log4j-app[0].services,[]),
-        try(module.target-vulnerable-kubernetes-rdsapp[0].services,[]),
-        try(module.target-vulnerable-kubernetes-voteapp[0].services,[]),
+        # try(module.target-vulnerable-kubernetes-rdsapp[0].services,[]),
+        # try(module.target-vulnerable-kubernetes-voteapp[0].services,[]),
         try(module.target-kubernetes-app[0].services,[]),
-        try(module.target-kubernetes-app-windows[0].services,[]),
+        # try(module.target-kubernetes-app-windows[0].services,[]),
     ])
 }
