@@ -9,7 +9,7 @@ import subprocess
 import shutil
 import tarfile
 import base64
-from datetime import datetime, UTC
+from datetime import datetime
 
 
 class Module(BaseModule):
@@ -633,7 +633,7 @@ echo $BUCKET_URL
         pwncat_log = Path("/tmp/pwncat.log")
         if pwncat_log.exists():
             dest_log = Path(
-                f"/tmp/{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}_pwncat.log")
+                f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_pwncat.log")
             session.log(
                 f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
             pwncat_log.rename(dest_log)
