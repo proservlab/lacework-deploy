@@ -9,6 +9,7 @@ import subprocess
 import shutil
 import tarfile
 import base64
+from datetime import datetime, UTC
 
 
 class Module(BaseModule):
@@ -626,6 +627,16 @@ echo $BUCKET_URL
             session.log("Done.")
         except Exception as e:
             session.log(f'Error executing bash script: {e}')
-        finally:
-            if session_lock.exists():
-                session_lock.unlink()
+            pass
+
+        session.log("Backup pwncat.log...")
+        pwncat_log = Path("/tmp/pwncat.log")
+        if pwncat_log.exists():
+            dest_log = Path(
+                f"/tmp/{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}_pwncat.log")
+            session.log(
+                f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+            pwncat_log.rename(dest_log)
+
+        if session_lock.exists():
+            session_lock.unlink()
