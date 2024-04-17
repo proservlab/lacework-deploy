@@ -3,6 +3,7 @@ data "azurerm_subscription" "current" {
 
 module "lacework_azure_agentless_scanning_subscription" {
   source = "./terraform-azure-agentless-scanning"
+  version = "1.1.0"
 
   integration_level              = "SUBSCRIPTION"
   global                         = true
