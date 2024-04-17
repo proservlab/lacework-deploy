@@ -16,4 +16,5 @@ module "lacework_gcp_agentless_scanning_org_multi_region" {
   global                    = true
   regional                  = true
   lacework_integration_name = "agentless_from_terraform"
+  # execute_job_at_deployment = true
 }
