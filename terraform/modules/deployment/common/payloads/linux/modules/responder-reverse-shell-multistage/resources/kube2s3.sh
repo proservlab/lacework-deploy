@@ -29,7 +29,7 @@ log "check aws identity..."
 aws sts get-caller-identity 2>&1 | tee -a $LOGFILE
 
 # aws enum via metadata
-echo "starting aws metadat enumeration..." | tee -a $LOGFILE
+echo "starting aws metadata enumeration..." | tee -a $LOGFILE
 curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials | tee -a $LOGFILE
 curl -s http://169.254.169.254/latest/meta-data/ | tee -a $LOGFILE
 curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/PhotonInstance | tee -a $LOGFILE
