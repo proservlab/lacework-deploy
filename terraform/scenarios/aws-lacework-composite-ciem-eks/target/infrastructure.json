@@ -42,27 +42,6 @@
             "enable_swap"               : true
           },
           {
-            "name"                      : "kubeadmin",
-            "public"                    : true,
-            "role"                      : "app",
-            "instance_type"             : "t2.micro",
-            "ami_name"                  : "ubuntu_focal",
-            "tags"                      : {
-                "owner"                                     : "lacework",
-                "ssm_deploy_lacework"                       : "true",
-                "ssm_deploy_lacework_syscall"               : "true",
-                "ssm_deploy_lacework_code_aware_agent"      : "true",
-                "ssm_deploy_aws_cli"                        : "true",
-                "ssm_deploy_kubectl_cli"                    : "true",
-                "ssm_deploy_secret_aws_credentials"         : "true",
-                "ssm_deploy_secret_ssh_public"              : "true",
-                "ssm_exec_generate_aws_cli_traffic_target"  : "true"
-            },
-            "user_data"                 : null,
-            "user_data_base64"          : null,
-            "enable_swap"      : true
-          },
-          {
             "name"                      : "kubeadmin-private",
             "public"                    : false,
             "role"                      : "app",
