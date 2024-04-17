@@ -151,7 +151,8 @@ resource "aws_security_group_rule" "private_to_public" {
 
   depends_on = [ 
     module.public,
-    module.private
+    module.private,
+    aws_vpc_peering_connection.peer-public-private
   ]
 }
 
@@ -166,7 +167,8 @@ resource "aws_security_group_rule" "public_to_private" {
 
   depends_on = [ 
     module.public,
-    module.private
+    module.private,
+    aws_vpc_peering_connection.peer-public-private
   ]
 }
 
@@ -257,7 +259,8 @@ resource "aws_security_group_rule" "private_to_public_app" {
 
   depends_on = [ 
     module.public-app,
-    module.private-app
+    module.private-app,
+    aws_vpc_peering_connection.peer-public-private-app
   ]
 }
 
@@ -272,6 +275,7 @@ resource "aws_security_group_rule" "public_to_private_app" {
 
   depends_on = [ 
     module.public-app,
-    module.private-app
+    module.private-app,
+    aws_vpc_peering_connection.peer-public-private-app
   ]
 }
