@@ -40,7 +40,11 @@ Output a json list of instance id, state, privateip, publicip and tags for all s
 
 ## Connect to Shell on SSM Managed Instance
 
-` aws ssm start-session  --target "<INSTANCE_ID>" --profile=<target|attacker>`
+` aws ssm start-session  --target "<INSTANCE_ID>" --profile=<aws profile name>`
+
+## Port forwarding through SSM Managed Instance
+
+`aws ssm start-session --target <INSTANCE_ID> --document-name AWS-StartPortForwardingSessionToRemoteHost --profile=<aws config profile name> --parameters '{"portNumber":["8000"],"localPortNumber":["8000"],"host":["hostname.example.com"]}'`
 
 # OSConfig Access
 
