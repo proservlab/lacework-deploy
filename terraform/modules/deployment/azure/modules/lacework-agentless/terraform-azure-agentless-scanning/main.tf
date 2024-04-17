@@ -1,23 +1,23 @@
-# provider "azurerm" {
-#   features {
-#     resource_group {
-#       /* scanner creates disks in the resource group. In regular circumstance those disks are
-#       cleaned up by the scanner. However, if `terraform destroy` is run before the scanner
-#       can do cleanup, the destroy will fail, because those disks aren't managed by Terraform.
-#       Hence we turn off the deletion prevention here.
-#       */
-#       prevent_deletion_if_contains_resources = false
-#     }
-#   }
-#   /* use the current resource manager subscription if it's not provided, otherwise  
-#   extract the subscription id if it's in the fully qualified form ("/subscriptions/xxx"),
-#   otherwise just use the subscription id as it is. 
-#   */
-#   subscription_id = var.scanning_subscription_id == "" ? null : try(
-#     regex("^/subscriptions/([A-Za-z0-9-_]+)$", var.scanning_subscription_id)[0],
-#     var.scanning_subscription_id
-#   )
-# }
+#provider "azurerm" {
+#  features {
+#    resource_group {
+#      /* scanner creates disks in the resource group. In regular circumstance those disks are
+#      cleaned up by the scanner. However, if `terraform destroy` is run before the scanner
+#      can do cleanup, the destroy will fail, because those disks aren't managed by Terraform.
+#      Hence we turn off the deletion prevention here.
+#      */
+#      prevent_deletion_if_contains_resources = false
+#    }
+#  }
+#  /* use the current resource manager subscription if it's not provided, otherwise  
+#  extract the subscription id if it's in the fully qualified form ("/subscriptions/xxx"),
+#  otherwise just use the subscription id as it is. 
+#  */
+#  subscription_id = var.scanning_subscription_id == "" ? null : try(
+#    regex("^/subscriptions/([A-Za-z0-9-_]+)$", var.scanning_subscription_id)[0],
+#    var.scanning_subscription_id
+#  )
+#}
 
 data "lacework_user_profile" "current" {
 }
@@ -102,7 +102,8 @@ locals {
     AZURE_KEY_VAULT_SECRET_NAME       = local.key_vault_secret_name
     AZURE_KEY_VAULT_URI               = local.key_vault_uri
   }
-  environment_variables_as_list = [for key, val in local.environment_variables : { name = key, value = val }]
+  environment_variables_as_list =  concat([for key, val in local.environment_variables : { name = key, value = val }],
+   [for obj in var.additional_environment_variables : { name = obj["name"], value = obj["value"] }])
 
   key_vault_id = var.global ? azurerm_key_vault.lw_orchestrate[0].id : (
     length(var.global_module_reference.key_vault_id) > 0 ? var.global_module_reference.key_vault_id : var.key_vault_id
@@ -129,32 +130,10 @@ locals {
   version_file   = "${abspath(path.module)}/VERSION"
   module_name    = "terraform-azure-agentless-scanning"
   module_version = fileexists(local.version_file) ? file(local.version_file) : ""
+
+  scanning_rg_id = var.global ? "" : var.global_module_reference.scanning_resource_group_id
 }
 
-/* When we are doing a non-global/regional deployment, we expect some global resources 
-to have been created. One way to check that is to ensure we can reference them via
-the global_module_reference attribute.
-TODO: Unfortunately this wouldn't work because the `check` predicate is only supported after 
-TF 1.5 but we need to be backward compatible. We should uncomment this once Terraform major 
-version is upgraded.
-*/
-/* check "check_global_resource_condition" {
-  assert {
-    condition = var.global || (
-      length(var.global_module_reference.storage_account_id) > 0 &&
-      length(var.global_module_reference.scanning_subscription_role_definition_id) > 0 &&
-      length(var.global_module_reference.monitored_subscription_role_definition_id) > 0 &&
-      length(var.global_module_reference.blob_container_name) > 0 &&
-      length(var.global_module_reference.key_vault_id) > 0 &&
-      length(var.global_module_reference.sidekick_principal_id) > 0 &&
-      length(var.global_module_reference.sidekick_client_id) > 0 &&
-      length(var.global_module_reference.key_vault_secret_name) > 0 &&
-      length(var.global_module_reference.key_vault_uri) > 0
-    )
-    error_message = "Some resources have not been referenced correctly during a non-global deployment"
-  }
-}
- */
 resource "random_id" "uniq" {
   byte_length = 2
 }
@@ -168,6 +147,11 @@ resource "azurerm_resource_group" "scanning_rg" {
 
 data "azurerm_resource_group" "scanning_rg" {
   count = var.global ? 0 : 1
+  depends_on = [
+    # This is here to enforce that non-global modules are created after the global module
+    # We can't do a normal `depends_on` because it wouldn't account for dependencies between modules
+    local.scanning_rg_id
+  ]
 
   name = local.scanning_resource_group_name
 }
@@ -415,8 +399,7 @@ resource "azurerm_role_assignment" "scanner" {
 }
 
 resource "azurerm_role_assignment" "orchestrate" {
-  # for_each = var.global ? toset(local.included_subscriptions_list) : []
-  for_each = var.subscriptions_list
+  for_each = var.global ? toset(local.included_subscriptions_list) : []
   depends_on = [
     azurerm_role_definition.agentless_monitored_subscription[0],
     azurerm_user_assigned_identity.sidekick,
@@ -539,6 +522,21 @@ resource "azapi_resource" "container_app_job_agentless" {
       }
     }
   })
+}
+
+# Trigger execution, if requested
+resource "terraform_data" "job_execution_now" {
+  count = var.execute_now && var.regional ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "az containerapp job start --name ${azapi_resource.container_app_job_agentless[0].name} --resource-group ${local.scanning_resource_group_name}"
+  }
+
+  triggers_replace = {
+    always_run = timestamp()
+  }
+
+  depends_on = [azapi_resource.container_app_job_agentless]
 }
 
 data "lacework_metric_module" "lwmetrics" {

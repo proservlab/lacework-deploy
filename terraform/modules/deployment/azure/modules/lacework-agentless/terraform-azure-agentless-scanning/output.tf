@@ -34,6 +34,11 @@ output "scanning_resource_group_name" {
   description = "Name of the resource group hosting the scanner"
 }
 
+output "scanning_resource_group_id" {
+  value       = var.global ? azurerm_resource_group.scanning_rg[0].id : data.azurerm_resource_group.scanning_rg[0].id
+  description = "Id of the resource group hosting the scanner"
+}
+
 output "storage_account_name" {
   value       = local.storage_account_name
   description = "The blob storage account for Agentless Workload Scanning data."

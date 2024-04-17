@@ -35,7 +35,7 @@ variable "suffix" {
   default     = ""
 
   validation {
-    condition     = length(var.suffix) == 0 || length(var.suffix) > 4
+    condition     = length(var.suffix) == 0 || length(var.suffix) >= 4
     error_message = "If the suffix value is set then it must be at least 4 characters long."
   }
 }
@@ -254,6 +254,11 @@ variable "enable_storage_infrastructure_encryption" {
   default     = false
 }
 
+variable "execute_now" { 
+  type = bool
+  description = "execute newly created job(s) immediately after deployment"
+  default = true
+}
 /* **************** End Storage Section **************** */
 
 variable "filter_query_text" {
@@ -265,6 +270,7 @@ variable "filter_query_text" {
 variable "global_module_reference" {
   type = object({
     scanning_resource_group_name              = string
+    scanning_resource_group_id                = string
     key_vault_id                              = string
     key_vault_uri                             = string
     key_vault_secret_name                     = string
@@ -284,6 +290,7 @@ variable "global_module_reference" {
   })
   default = {
     scanning_resource_group_name              = ""
+    scanning_resource_group_id                = ""
     key_vault_id                              = ""
     key_vault_uri                             = ""
     key_vault_secret_name                     = ""
@@ -302,4 +309,13 @@ variable "global_module_reference" {
     subscriptions_list                        = []
   }
   description = "A reference to the global lacework_azure_agentless_scanning module for this account."
+}
+
+variable "additional_environment_variables" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
+  description = "Optional list of additional environment variables passed to the task."
 }

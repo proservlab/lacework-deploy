@@ -1,3 +1,31 @@
+# v1.1.1
+
+## Bug Fixes
+* fix: dependency on global resource group creation   (#29) (Ao Zhang)([c67c592](https://github.com/lacework/terraform-azure-agentless-scanning/commit/c67c5923a416bb4c80f5f5a1467f2153d0dd14a5))
+## Other Changes
+* ci: version bump to v1.1.1-dev (Lacework)([23d38c1](https://github.com/lacework/terraform-azure-agentless-scanning/commit/23d38c112b83816bf899582f616d8afda177c560))
+---
+# v1.1.0
+
+## Features
+* feat: run jobs immediately after creation (#27) (Ao Zhang)([44c87ba](https://github.com/lacework/terraform-azure-agentless-scanning/commit/44c87ba08365feeae614a783ad91a44d7b224410))
+## Other Changes
+* ci: update terraform versions used for tests (Timothy MacDonald)([5779a25](https://github.com/lacework/terraform-azure-agentless-scanning/commit/5779a25b7a4d5d749ec4cf3923ea7aee415b5a73))
+* ci: update job name in test compat workflow (Timothy MacDonald)([e96d165](https://github.com/lacework/terraform-azure-agentless-scanning/commit/e96d1652407618a5f8adcbe9cc4e0de3d1c56935))
+* ci: migrate from codefresh to github actions (Timothy MacDonald)([4296456](https://github.com/lacework/terraform-azure-agentless-scanning/commit/429645607069e49636666969dc64d8386450a67c))
+* ci: version bump to v1.0.1-dev (Lacework)([9b51200](https://github.com/lacework/terraform-azure-agentless-scanning/commit/9b51200fbb002f5cda49a70c3b2c0b2c9b065792))
+---
+# v1.0.0
+
+## 💥 Breaking Changes
+* feat: bump tf requirement to 1.5 (#21) (Ao Zhang)([4c44fe8](https://github.com/lacework/terraform-azure-agentless-scanning/commit/4c44fe85e043c11f8d4fada33ce0f1bf0b0d75ee))
+
+## Features
+* feat: pass environment variables to cloud task via provider (Max Fechner)([29c3da9](https://github.com/lacework/terraform-azure-agentless-scanning/commit/29c3da96c5f2831a85b13dac6a2bee60c786b195))
+* feat: add checks (#21) (Ao Zhang)([4c44fe8](https://github.com/lacework/terraform-azure-agentless-scanning/commit/4c44fe85e043c11f8d4fada33ce0f1bf0b0d75ee))
+## Other Changes
+* ci: version bump to v1.0.0 (Lacework)([f703714](https://github.com/lacework/terraform-azure-agentless-scanning/commit/f7037143bb5f176ad2a056abbd3d850c2a1f23bb))
+---
 # v0.2.1
 
 ## Bug Fixes

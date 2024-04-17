@@ -1,7 +1,7 @@
 # Release Notes
-Another day, another release. These are the release notes for the version `v0.2.1`.
+Another day, another release. These are the release notes for the version `v1.1.1`.
 
 ## Bug Fixes
-* fix: perms to support enumeration across accts (Ao Zhang)([653c6e9](https://github.com/lacework/terraform-azure-agentless-scanning/commit/653c6e9b2af03c488b489e7964064af01e898385))
+* fix: dependency on global resource group creation   (#29) (Ao Zhang)([c67c592](https://github.com/lacework/terraform-azure-agentless-scanning/commit/c67c5923a416bb4c80f5f5a1467f2153d0dd14a5))
 ## Other Changes
-* ci: version bump to v0.2.1-dev (Lacework)([546087e](https://github.com/lacework/terraform-azure-agentless-scanning/commit/546087eda16ed2244017025a5c2e6d80d5ef3d86))
+* ci: version bump to v1.1.1-dev (Lacework)([23d38c1](https://github.com/lacework/terraform-azure-agentless-scanning/commit/23d38c112b83816bf899582f616d8afda177c560))
