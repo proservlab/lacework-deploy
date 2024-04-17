@@ -116,14 +116,19 @@ def execute(session: pwncat.manager.Session, task):
             session.log(result)
 
             files = ["/tmp/scan.json", "/tmp/hydra-targets.txt",
-                     "/tmp/hydra.txt", "/tmp/hydra-found.txt"]
+                     "/tmp/sshgobrute.txt", "/tmp/sshgobrute-found.txt"]
             file_list = ", ".join(files)
             session.log(
                 f"copying scan results: {file_list}...")
             for file in files:
-                with session.platform.open(file, 'rb') as f1:
-                    with open(f'/tmp/{args.target_ip}_{os.path.basename(file)}', 'wb') as f2:
-                        f2.write(f1.read())
+                if session.platform.Path(file).exists():
+                    session.log(
+                        f"copying from remote: {file} => /tmp/{args.target_ip}_{os.path.basename(file)}")
+                    with session.platform.open(file, 'rb') as f1:
+                        with open(f'/tmp/{args.target_ip}_{os.path.basename(file)}', 'wb') as f2:
+                            f2.write(f1.read())
+                else:
+                    session.log(f"remote file not found: {file}")
 
             session.log(
                 f"reading local /tmp/{args.target_ip}_hydra-targets.txt...")
