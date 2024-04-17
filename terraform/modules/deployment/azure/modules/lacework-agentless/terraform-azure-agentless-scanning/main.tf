@@ -525,19 +525,19 @@ resource "azapi_resource" "container_app_job_agentless" {
 }
 
 # Trigger execution, if requested
-resource "terraform_data" "job_execution_now" {
-  count = var.execute_now && var.regional ? 1 : 0
+# resource "terraform_data" "job_execution_now" {
+#   count = var.execute_now && var.regional ? 1 : 0
 
-  provisioner "local-exec" {
-    command = "az containerapp job start --name ${azapi_resource.container_app_job_agentless[0].name} --resource-group ${local.scanning_resource_group_name}"
-  }
+#   provisioner "local-exec" {
+#     command = "az containerapp job start --name ${azapi_resource.container_app_job_agentless[0].name} --resource-group ${local.scanning_resource_group_name}"
+#   }
 
-  triggers_replace = {
-    always_run = timestamp()
-  }
+#   triggers_replace = {
+#     always_run = timestamp()
+#   }
 
-  depends_on = [azapi_resource.container_app_job_agentless]
-}
+#   depends_on = [azapi_resource.container_app_job_agentless]
+# }
 
 data "lacework_metric_module" "lwmetrics" {
   name    = local.module_name
