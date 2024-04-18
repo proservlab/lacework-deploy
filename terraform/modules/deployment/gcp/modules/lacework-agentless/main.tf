@@ -2,9 +2,9 @@ data "google_project" "project" {}
 
 # integration
 module "lacework_gcp_agentless_scanning_org_multi_region" {
-  source = "./terraform-gcp-agentless-scanning"
-  # source  = "lacework/agentless-scanning/gcp"
-  # version = "0.3.7"
+  # source = "./terraform-gcp-agentless-scanning"
+  source  = "lacework/agentless-scanning/gcp"
+  version = "0.3.9"
 
   project_filter_list = var.org_integration == true ? [] : [ data.google_project.project.project_id ]
 
@@ -16,5 +16,5 @@ module "lacework_gcp_agentless_scanning_org_multi_region" {
   global                    = true
   regional                  = true
   lacework_integration_name = "agentless_from_terraform"
-  execute_job_at_deployment = true
+  execute_job_at_deployment = false
 }
