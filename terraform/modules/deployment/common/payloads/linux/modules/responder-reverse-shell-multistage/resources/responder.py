@@ -603,7 +603,7 @@ echo $BUCKET_URL
                     session=session, payload=payload, log_name="payload_kube2s3")
                 session.log(result)
 
-                files = ["/tmp/kube_bucket.tgz"]
+                files = ["/tmp/kube_bucket.tgz", "/tmp/kube2s3.log"]
                 file_list = ", ".join(files)
                 session.log(
                     f"copying scan results: {file_list}...")
