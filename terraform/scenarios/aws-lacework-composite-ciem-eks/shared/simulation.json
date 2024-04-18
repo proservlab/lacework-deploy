@@ -34,7 +34,7 @@
               "enabled": true,
               "user_list": "/tmp/hydra-users.txt",
               "password_list": "/tmp/hydra-passwords.txt",
-              "attack_delay": 50400,
+              "attack_delay": 30,
               "task": "scan2kubeshell",
               "target_ip": "jumphost-target-${ deployment }.${ target_dynu_dns_domain }",
               "reverse_shell_host": "shell-attacker-${ deployment }.${ attacker_dynu_dns_domain }",
