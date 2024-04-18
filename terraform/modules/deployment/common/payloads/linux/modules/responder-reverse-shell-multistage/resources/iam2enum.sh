@@ -10,7 +10,39 @@ MAXLOG=2
 for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{$i,$((i+1))} 2>/dev/null || true; done
 mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 
-PROFILE="default"
+help(){
+cat <<EOH
+usage: $SCRIPTNAME [-h] [--bucket-url=BUCKET_URL]
+
+-h                      print this message and exit
+--profile               the aws profile to use (default: default)
+EOH
+    exit 1
+}
+
+for i in "$@"; do
+  case $i in
+    -h|--help)
+        HELP="${i#*=}"
+        shift # past argument=value
+        help
+        ;;
+    -p=*|--profile=*)
+        PROFILE="${i#*=}"
+        shift # past argument=value
+        ;;
+    *)
+      # unknown option
+      ;;
+  esac
+done
+
+if [ -z $PROFILE ]; then
+    log "profile not set using default: default"
+    PROFILE="default"
+    help
+fi
+
 opts="--no-cli-pager"
 
 if ! command -v jq; then
