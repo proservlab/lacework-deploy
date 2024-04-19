@@ -544,6 +544,7 @@ echo $BUCKET_URL
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_awscreds")
             elif task_name == "kube2s3":
+                csp = "aws"
                 # context here is we're inside pod that has access to s3
                 enum_exfil_prep_creds(csp, task_name)
                 session.log("running iam2enum enumeration...")
