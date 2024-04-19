@@ -226,6 +226,39 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     if session.platform.Path(file).exists():
                         session.platform.Path(file).unlink()
 
+            def retry_command(command, max_attempts=5, sleep=10):
+                return f"""
+# Max number of attempts to start the Docker container
+max_attempts={max_attempts}
+attempt=0
+
+while true; do
+    # Increment the attempt counter
+    ((attempt++))
+    echo "Attempt $attempt of $max_attempts"
+
+    # Try command
+    {command}
+
+    # Check if the command was successful
+    if [[ $? -eq 0 ]]; then
+        echo "Command executed successfully."
+        break
+    else
+        echo "Failed to execute command. Retrying..."
+    fi
+
+    # Check if maximum attempts have been reached
+    if [[ $attempt -eq $max_attempts ]]; then
+        echo "Maximum attempts reached, failing now."
+        exit 1
+    fi
+
+    # Wait for a little while before retrying
+    sleep {sleep}
+done
+"""
+
             def credentialed_access_tor(csp, jobname, cwd, script, args=""):
                 # start torproxy docker
                 if not csp in ["aws", "gcp", "azure"]:
@@ -237,38 +270,9 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                     container = f'ghcr.io/credibleforce/proxychains-scoutsuite-{csp}:main'
                 try:
                     payload = encode_base64(
-                        """
+                        f"""
 docker stop torproxy || true; docker rm torproxy || true; 
-# Max number of attempts to start the Docker container
-max_attempts=5
-attempt=0
-
-while true; do
-    # Increment the attempt counter
-    ((attempt++))
-
-    echo "Attempt $attempt of $max_attempts"
-
-    # Try to start the Docker container
-    docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy
-
-    # Check if the Docker command was successful
-    if [[ $? -eq 0 ]]; then
-        echo "Docker container started successfully."
-        break
-    else
-        echo "Failed to start Docker container. Retrying..."
-    fi
-
-    # Check if maximum attempts have been reached
-    if [[ $attempt -eq $max_attempts ]]; then
-        echo "Maximum attempts reached, failing now."
-        exit 1
-    fi
-
-    # Wait for a little while before retrying
-    sleep 10
-done
+{retry_command(command="docker run -d --rm --name torproxy -p 9050:9050 dperson/torproxy")}
 """)
                     session.log(f"Running payload: {payload}")
                     result = subprocess.run(
@@ -306,35 +310,7 @@ done
                             f"""
 docker rm --force proxychains-{jobname}-{csp} || true;
 export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{{{.IPAddress}}}}{{{{end}}}}\' torproxy)"; 
-# Max number of attempts to start the Docker container
-max_attempts=5
-attempt=0
-
-while true; do
-    # Increment the attempt counter
-    ((attempt++))
-    echo "Attempt $attempt of $max_attempts"
-
-    # Try to start the Docker container
-    docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}
-
-    # Check if the Docker command was successful
-    if [[ $? -eq 0 ]]; then
-        echo "Docker container started successfully."
-        break
-    else
-        echo "Failed to start Docker container. Retrying..."
-    fi
-
-    # Check if maximum attempts have been reached
-    if [[ $attempt -eq $max_attempts ]]; then
-        echo "Maximum attempts reached, failing now."
-        exit 1
-    fi
-
-    # Wait for a little while before retrying
-    sleep 10
-done
+{retry_command(command=f'docker run --rm --name=proxychains-{jobname}-{csp} --link torproxy:torproxy -e TORPROXY=$TORPROXY -v "/tmp":"/tmp" -v "{local_creds}":"{container_creds}" -v "{local_kube_creds}":"{container_kube_creds}" -v "{cwd}":"/{jobname}" {container} /bin/bash /{jobname}/{script} {args}')}
 """)
                         session.log(f"Running payload: {payload}")
                         result = subprocess.run(
