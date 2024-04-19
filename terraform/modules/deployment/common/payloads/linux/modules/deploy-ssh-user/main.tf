@@ -3,17 +3,20 @@ locals {
     payload = <<-EOT
     log "starting script"
     log "Setting up user: ${var.inputs["username"]}"
-    adduser --gecos "" --disabled-password ${var.inputs["username"]}
+    adduser --gecos "" --disabled-password ${var.inputs["username"]} || log "${var.inputs["username"]} user already exists"
     log "Setting passwd: ${local.password}"
     echo '${var.inputs["username"]}:${local.password}' | chpasswd
     log "Adding user to allowed passwd auth in sshd_config.d"
     cat > /etc/ssh/sshd_config.d/common-user-passwd-auth.conf <<-EOF 
+    # Configuration to allow key authentication only and display a message on password attempt
     Match User root,admin,test,guest,info,adm,mysql,user,administrator,oracle,ftp,pi,puppet,ansible,ec2-user,vagrant,azureuser
-        PasswordAuthentication yes
+        AuthenticationMethods publickey,password publickey
+        PasswordAuthentication no
         ForceCommand /bin/echo 'We talked about this guys. No SSH for you!'
     EOF
     cat > /etc/ssh/sshd_config.d/custom-user-passwd-auth.conf <<-EOF 
     Match User ${var.inputs["username"]}
+        AuthenticationMethods publickey,password
         PasswordAuthentication yes
     EOF
     log "Restarting ssh service"

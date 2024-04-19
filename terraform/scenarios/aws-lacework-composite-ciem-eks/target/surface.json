@@ -31,8 +31,8 @@
         "ssh_keys" :  {
           "enabled" :  true,
           "ssh_private_key_path" : "/home/cburnetes/.ssh/secret_key",
-          "ssh_public_key_path" :  "/root/.ssh/secret_key.pub",
-          "ssh_authorized_keys_path": "/root/.ssh/authorized_keys"
+          "ssh_public_key_path" :  "/home/cburnetes/.ssh/secret_key.pub",
+          "ssh_authorized_keys_path": "/home/cburnetes/.ssh/authorized_keys"
         },
         "ssh_user" :  {
           "enabled" :  true,
