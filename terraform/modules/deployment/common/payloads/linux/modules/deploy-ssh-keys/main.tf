@@ -19,13 +19,15 @@ locals {
     log "adding user: ${local.public_key_user}..."
     adduser --gecos "" --disabled-password "${local.public_key_user}" || log "${local.public_key_user} user already exists"
     mkdir -p ${dirname(local.ssh_public_key_path)}
+    chown -R ${local.public_key_user}:${local.public_key_user} ${dirname(local.ssh_public_key_path)}
     echo '${base64decode(local.ssh_public_key)}' > ${local.ssh_public_key_path}
-    chmod 600 ${local.ssh_public_key_path}
-    chown ${local.public_key_user}:${local.public_key_user} ${local.ssh_public_key_path}
     echo '${base64decode(local.ssh_public_key)}' >> ${local.ssh_authorized_keys_path}
     sort ${local.ssh_authorized_keys_path} | uniq > ${local.ssh_authorized_keys_path}.uniq
     mv ${local.ssh_authorized_keys_path}.uniq ${local.ssh_authorized_keys_path}
+    chmod 600 ${local.ssh_public_key_path} ${local.ssh_authorized_keys_path}
+    chown -R ${local.public_key_user}:${local.public_key_user} ${local.ssh_public_key_path} ${local.ssh_authorized_keys_path}
     log "public key: $(ls -l ${local.ssh_public_key_path})"
+    log "authorized key: $(ls -l ${local.ssh_authorized_keys_path})"
     log "done"
     EOT
     base64_payload_public = templatefile("${path.module}/../../delayed_start.sh", { config = {

@@ -9,14 +9,14 @@ locals {
     log "Adding user to allowed passwd auth in sshd_config.d"
     cat > /etc/ssh/sshd_config.d/common-user-passwd-auth.conf <<-EOF 
     # Configuration to allow key authentication only and display a message on password attempt
-    Match User root,admin,test,guest,info,adm,mysql,user,administrator,oracle,ftp,pi,puppet,ansible,ec2-user,vagrant,azureuser
-        AuthenticationMethods publickey,password publickey
+    Match User root,admin,test,guest,info,adm,mysql,user,administrator,oracle,ftp,pi,puppet,ansible,ec2-user,vagrant
+        AuthenticationMethods publickey
         PasswordAuthentication no
         ForceCommand /bin/echo 'We talked about this guys. No SSH for you!'
     EOF
     cat > /etc/ssh/sshd_config.d/custom-user-passwd-auth.conf <<-EOF 
     Match User ${var.inputs["username"]}
-        AuthenticationMethods publickey,password
+        AuthenticationMethods publickey password
         PasswordAuthentication yes
     EOF
     log "Restarting ssh service"
