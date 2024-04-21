@@ -22,10 +22,18 @@ output "private_subnetwork" {
   value = var.enable_private_vpc == true && can(module.private[0].subnetwork)  ? module.private[0].subnetwork : null
 }
 
+output private_nat_gw {
+  value = var.enable_private_vpc == true && can(module.private[0].private_nat_gw) ? module.private[0].private_nat_gw : null
+}
+
 output "private_app_network" {
-  value = var.enable_private_vpc == true && can(module.private-app[0].network) ? module.private-app[0].network : null
+  value = var.enable_private_app_vpc == true && can(module.private-app[0].network) ? module.private-app[0].network : null
 }
 
 output "private_app_subnetwork" {
-  value = var.enable_private_vpc == true && can(module.private-app[0].subnetwork) ? module.private-app[0].subnetwork : null
+  value = var.enable_private_app_vpc == true && can(module.private-app[0].subnetwork) ? module.private-app[0].subnetwork : null
+}
+
+output private_app_nat_gw {
+  value = var.enable_private_app_vpc == true && can(module.private-app[0].private_nat_gw) ? module.private-app[0].private_nat_gw : null
 }

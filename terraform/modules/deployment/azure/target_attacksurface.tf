@@ -5,10 +5,13 @@ locals {
   target_resource_group = try(module.target-compute[0].resource_group, null)
   target_public_security_group = try(module.target-compute[0].public_security_group, null)
   target_private_security_group = try(module.target-compute[0].private_security_group, null)
+  target_private_nat_gw_ip = try(["${module.target-compute[0].private_nat_gw.address}/32"], [])
 
   target_resource_app_group = try(module.target-compute[0].resource_app_group, null)
   target_public_app_security_group = try(module.target-compute[0].public_app_security_group, null)
   target_private_app_security_group = try(module.target-compute[0].private_app_security_group, null)
+  target_private_app_nat_gw_ip = try(["${module.target-compute[0].private_app_nat_gw.address}/32"], [])
+
   target_instances = try(module.target-compute[0].instances, [])
 
   target_db_host = try(module.target-azuresql[0].sql_server.fqdn, null)
@@ -49,11 +52,13 @@ module "target-compute-add-trusted-ingress" {
   trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
     [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
+    local.attacker_private_nat_gw_ip
     # local.target_eks_public_ip
   ])  : []
   trusted_target_source         = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
+    local.target_private_nat_gw_ip
     # local.target_eks_public_ip
   ]) : []
   trusted_workstation_source    = local.target_attacksurface_config.context.azure.compute.add_trusted_ingress.trust_workstation_source ? [module.workstation-external-ip.cidr] : []
@@ -84,11 +89,13 @@ module "target-compute-add-app-trusted-ingress" {
   trusted_attacker_source       = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
     [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
+    local.attacker_private_app_nat_gw_ip
     # local.target_aks_public_ip
   ])  : []
   trusted_target_source         = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_target_source ? flatten([
     [ for compute in try(local.public_target_instances, []): "${compute.public_ip}/32" ],
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
+    local.target_private_app_nat_gw_ip
     # local.target_aks_public_ip
   ]) : []
   trusted_workstation_source    = local.target_attacksurface_config.context.azure.compute.add_app_trusted_ingress.trust_workstation_source ? [module.workstation-external-ip.cidr] : []

@@ -24,6 +24,13 @@ resource "azurerm_subnet" "subnet" {
     address_prefixes       = [var.public_subnet]
 }
 
+resource "azurerm_subnet" "subnet-private" {
+    name                 = "private-subnet-${var.environment}-${var.deployment}"
+    resource_group_name  = var.resource_group.name
+    virtual_network_name = azurerm_virtual_network.network-private.name
+    address_prefixes       = [var.private_subnet]
+}
+
 resource "azurerm_virtual_network" "network-private" {
     name                = "private-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.private_network]
@@ -38,11 +45,41 @@ resource "azurerm_virtual_network" "network-private" {
     }
 }
 
-resource "azurerm_subnet" "subnet-private" {
-    name                 = "private-subnet-${var.environment}-${var.deployment}"
-    resource_group_name  = var.resource_group.name
-    virtual_network_name = azurerm_virtual_network.network-private.name
-    address_prefixes       = [var.private_subnet]
+resource "azurerm_public_ip" "private_nat_gw" {
+    name                  = "private-ip-${var.environment}-${var.deployment}"
+    location              = var.region
+    resource_group_name   = var.resource_group.name
+    allocation_method     = "Dynamic"
+
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        public      = "false"
+        role        = "default"
+    }
+}
+
+resource "azurerm_virtual_network_gateway" "private_nat_gw" {
+    name                = "private-natgw-${var.environment}-${var.deployment}"
+    location            = var.region
+    resource_group_name = var.resource_group.name
+
+    type     = "Vpn"
+    vpn_type = "RouteBased"
+    sku      = "Basic"
+
+    ip_configuration {
+        public_ip_address_id          = azurerm_public_ip.private_nat_gw.id
+        private_ip_address_allocation = "Dynamic"
+        subnet_id                     = azurerm_subnet.private-subnet.id
+    }
+
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        public      = "true"
+        role        = "default"
+    }
 }
 
 resource "azurerm_public_ip" "ip" {

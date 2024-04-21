@@ -24,6 +24,13 @@ resource "azurerm_subnet" "subnet-app" {
     address_prefixes       = [var.public_app_subnet]
 }
 
+resource "azurerm_subnet" "subnet-app-private" {
+    name                 = "private-app-subnet-${var.environment}-${var.deployment}"
+    resource_group_name  = var.resource_app_group.name
+    virtual_network_name = azurerm_virtual_network.network-app-private.name
+    address_prefixes       = [var.private_app_subnet]
+}
+
 resource "azurerm_virtual_network" "network-app-private" {
     name                = "private-app-vnet-${var.environment}-${var.deployment}"
     address_space       = [var.private_app_network]
@@ -38,11 +45,41 @@ resource "azurerm_virtual_network" "network-app-private" {
     }
 }
 
-resource "azurerm_subnet" "subnet-app-private" {
-    name                 = "private-app-subnet-${var.environment}-${var.deployment}"
-    resource_group_name  = var.resource_app_group.name
-    virtual_network_name = azurerm_virtual_network.network-app-private.name
-    address_prefixes       = [var.private_app_subnet]
+resource "azurerm_public_ip" "private_app_nat_gw" {
+    name                  = "private-app-ip-${var.environment}-${var.deployment}"
+    location              = var.region
+    resource_group_name   = var.resource_app_group.name
+    allocation_method     = "Dynamic"
+
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        public      = "false"
+        role        = "app"
+    }
+}
+
+resource "azurerm_virtual_network_gateway" "private_app_nat_gw" {
+    name                = "private-app-natgw-${var.environment}-${var.deployment}"
+    location            = var.region
+    resource_group_name = var.resource_app_group.name
+
+    type     = "Vpn"
+    vpn_type = "RouteBased"
+    sku      = "Basic"
+
+    ip_configuration {
+        public_ip_address_id          = azurerm_public_ip.private_app_nat_gw.id
+        private_ip_address_allocation = "Dynamic"
+        subnet_id                     = azurerm_subnet.subnet-app-private.id
+    }
+
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        public      = "true"
+        role        = "app"
+    }
 }
 
 resource "azurerm_public_ip" "ip-app" {

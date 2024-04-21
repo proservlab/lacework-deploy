@@ -1,6 +1,8 @@
 locals {
   attacker_attacksurface_config = var.attacker_attacksurface_config
   attacker_instances = try(module.attacker-gce[0].instances, [])
+  attacker_private_nat_gw_ip = try(["${module.attacker-gce[0].private_nat_gw_ip.address}/32"], [])
+  attacker_private_app_nat_gw_ip = try(["${module.attacker-gce[0].private_app_nat_gw_ip.address}/32"], [])
 
   public_attacker_instances = flatten([
     [ for compute in local.attacker_instances: compute.instance if compute.instance.labels.role == "default" && compute.instance.labels.public == "true" ]
@@ -70,11 +72,13 @@ module "attacker-gce-add-trusted-ingress" {
   network                       = try(module.attacker-gce[0].vpc.public_network.name, null)
   trusted_attacker_source       = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
-    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ],
+    local.attacker_private_nat_gw_ip
   ])  : []
   trusted_target_source         = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.trust_target_source ? flatten([
     [ for ip in local.target_public_ips: "${ip}/32" ],
-    [ for ip in local.target_app_public_ips: "${ip}/32" ]
+    [ for ip in local.target_app_public_ips: "${ip}/32" ],
+    local.target_private_nat_gw_ip
   ]) : []
   trusted_workstation_source    = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.attacker_attacksurface_config.context.gcp.gce.add_trusted_ingress.additional_trusted_sources
@@ -104,11 +108,13 @@ module "attacker-gce-add-trusted-app-ingress" {
   network                       = try(module.attacker-gce[0].vpc.public_app_network.name, null)
   trusted_attacker_source       = local.attacker_attacksurface_config.context.gcp.gce.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for ip in local.attacker_public_ips: "${ip}/32" ],
-    [ for ip in local.attacker_app_public_ips: "${ip}/32" ]
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ],
+    local.attacker_private_app_nat_gw_ip
   ])  : []
   trusted_target_source         = local.attacker_attacksurface_config.context.gcp.gce.add_app_trusted_ingress.trust_target_source ? flatten([
     [ for ip in local.target_public_ips: "${ip}/32" ],
-    [ for ip in local.target_app_public_ips: "${ip}/32" ]
+    [ for ip in local.target_app_public_ips: "${ip}/32" ],
+    local.target_private_app_nat_gw_ip
   ]) : []
   trusted_workstation_source    = local.attacker_attacksurface_config.context.gcp.gce.add_app_trusted_ingress.trust_workstation_source ? [ module.workstation-external-ip.cidr ] : []
   additional_trusted_sources    = local.attacker_attacksurface_config.context.gcp.gce.add_app_trusted_ingress.additional_trusted_sources

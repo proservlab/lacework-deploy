@@ -35,12 +35,20 @@ output "private_subnetwork" {
     value = module.vpc.private_subnetwork
 }
 
+output "private_nat_gw" {
+    value = module.vpc.private_nat_gw
+}
+
 output "private_app_network" {
     value = module.vpc.private_app_network
 }
 
 output "private_app_subnetwork" {
     value = module.vpc.private_app_subnetwork
+}
+
+output "private_app_nat_gw" {
+    value = module.vpc.private_app_nat_gw
 }
 
 output "public_service_account_email" {
