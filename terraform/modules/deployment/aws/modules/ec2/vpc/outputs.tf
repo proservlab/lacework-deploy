@@ -42,6 +42,10 @@ output "private_sg" {
   value = var.enable_private_vpc == true ? module.private[0].sg : null
 }
 
+output "private_nat_gw" {
+  value = var.enable_private_vpc == true ? module.private[0].nat_gateway : null
+}
+
 output "private_app_vpc" {
   value = var.enable_private_app_vpc == true ? module.private-app[0].vpc : null
 }
@@ -52,4 +56,8 @@ output "private_app_subnet" {
 
 output "private_app_sg" {
   value = var.enable_private_app_vpc == true ? module.private-app[0].sg : null
+}
+
+output "private_app_nat_gw" {
+  value = var.enable_private_app_vpc == true ? module.private-app[0].nat_gateway : null
 }

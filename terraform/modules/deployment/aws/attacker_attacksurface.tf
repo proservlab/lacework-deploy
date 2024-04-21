@@ -4,6 +4,8 @@ locals {
   attacker_eks_public_ip = try(["${module.attacker-eks[0].cluster_nat_public_ip}/32"],[])
   attacker_public_sg = try(module.attacker-ec2[0].public_sg.id, null)
   attacker_public_app_sg = try(module.attacker-ec2[0].public_app_sg.id, null)
+  attacker_private_nat_gw_ip = try([module.attacker-ec2[0].private_nat_gw.address, null])
+  attacker_private_app_nat_gw_ip = try([module.attacker-ec2[0].private_app_nat_gw.address, null])
   attacker_db_host = try(module.attacker-rds[0].db_host, null)
   attacker_db_name = try(module.attacker-rds[0].db_name, null)
   attacker_db_user = try(module.attacker-rds[0].db_user, null)
@@ -78,13 +80,15 @@ module "attacker-ec2-add-trusted-ingress" {
   trusted_attacker_source               = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
-    local.attacker_eks_public_ip
+    local.attacker_eks_public_ip,
+    local.attacker_private_nat_gw_ip
   ])  : []
   trusted_target_source_enabled         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source                 = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
-    local.target_eks_public_ip
+    local.target_eks_public_ip,
+    local.target_private_nat_gw_ip
   ]) : []
   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
   trusted_workstation_source            = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
@@ -115,13 +119,15 @@ module "attacker-ec2-add-trusted-ingress-app" {
   trusted_attacker_source               = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_attacker_source ? flatten([
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
-    local.attacker_eks_public_ip
+    local.attacker_eks_public_ip,
+    local.attacker_private_app_nat_gw_ip
   ])  : []
   trusted_target_source_enabled         = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_target_source
   trusted_target_source                 = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
-    local.target_eks_public_ip
+    local.target_eks_public_ip,
+    local.target_private_app_nat_gw_ip
   ]) : []
   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
   trusted_workstation_source            = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []

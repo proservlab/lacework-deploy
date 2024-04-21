@@ -14,3 +14,7 @@ output "sg" {
 output "route_table" {
   value = aws_route_table.private
 }
+
+output "nat_gateway" {
+  value = aws_eip.nat_gateway.address
+}
