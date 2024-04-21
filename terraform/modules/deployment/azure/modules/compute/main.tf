@@ -71,7 +71,7 @@ resource "azurerm_virtual_network_gateway" "private_nat_gw" {
     ip_configuration {
         public_ip_address_id          = azurerm_public_ip.private_nat_gw.id
         private_ip_address_allocation = "Dynamic"
-        subnet_id                     = azurerm_subnet.private-subnet.id
+        subnet_id                     = azurerm_subnet.subnet-private.id
     }
 
     tags = {
