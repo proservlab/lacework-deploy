@@ -81,14 +81,16 @@ module "attacker-ec2-add-trusted-ingress" {
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
-    local.attacker_private_nat_gw_ip
+    local.attacker_private_nat_gw_ip,
+    local.attacker_private_app_nat_gw_ip
   ])  : []
   trusted_target_source_enabled         = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source
   trusted_target_source                 = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_target_source ? flatten([
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip,
-    local.target_private_nat_gw_ip
+    local.target_private_nat_gw_ip,
+    local.target_private_app_nat_gw_ip
   ]) : []
   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source
   trusted_workstation_source            = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source == true ? [module.workstation-external-ip.cidr] : []
@@ -120,6 +122,7 @@ module "attacker-ec2-add-trusted-ingress-app" {
     [ for compute in local.public_attacker_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_attacker_app_instances: "${compute.public_ip}/32" ],
     local.attacker_eks_public_ip,
+    local.attacker_private_nat_gw_ip,
     local.attacker_private_app_nat_gw_ip
   ])  : []
   trusted_target_source_enabled         = local.attacker_attacksurface_config.context.aws.ec2.add_app_trusted_ingress.trust_target_source
@@ -127,6 +130,7 @@ module "attacker-ec2-add-trusted-ingress-app" {
     [ for compute in local.public_target_instances: "${compute.public_ip}/32" ],
     [ for compute in local.public_target_app_instances: "${compute.public_ip}/32" ],
     local.target_eks_public_ip,
+    local.target_private_nat_gw_ip,
     local.target_private_app_nat_gw_ip
   ]) : []
   trusted_workstation_source_enabled    = local.attacker_attacksurface_config.context.aws.ec2.add_trusted_ingress.trust_workstation_source

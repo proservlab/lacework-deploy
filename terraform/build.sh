@@ -360,9 +360,17 @@ TARGET_AWS_REGION=$TARGET_AWS_REGION
 TARGET_EKS_ENABLED=$TARGET_EKS_ENABLED
 EOF
         if ([[ "$ATTACKER_EKS_ENABLED" == "true" ]] || [[ "$TARGET_EKS_ENABLED" == "true" ]]) && ! command -v yq; then 
-            curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
-            chmod +x /usr/local/bin/yq
-            echo "Found yq: $(command -v yq)"
+            if [[ $(uname -s) == "Linux" ]]; then
+                infomsg "installing jq for linux..."
+                curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq &&\
+                chmod +x /usr/local/bin/yq
+                echo "Found yq: $(command -v yq)"
+            elif [[ $(uname -s) == "Darwin" ]]; then
+                infomsg "installing jq for mac..."
+                curl -LJ https://github.com/mikefarah/yq/releases/latest/download/yq_darwin_amd64 -o /usr/local/bin/yq &&\
+                chmod +x /usr/local/bin/yq
+                echo "Found yq: $(command -v yq)"
+            fi
         fi
         if [[ "$ATTACKER_EKS_ENABLED" == "true" ]]; then 
             echo "EKS in attacker scenario enabled..."

@@ -41,3 +41,19 @@ output "target-k8s-services" {
         try(module.target-kubernetes-app-windows[0].services,[]),
     ])
 }
+
+output "attacker_private_nat_gw_ip" {
+    value = local.attacker_private_nat_gw_ip
+}
+
+output "attacker_private_app_nat_gw_ip" {
+    value = local.attacker_private_app_nat_gw_ip
+}
+
+output "target_private_nat_gw_ip" {
+    value = local.target_private_nat_gw_ip
+}
+
+output "target_private_app_nat_gw_ip" {
+    value = local.target_private_app_nat_gw_ip
+}

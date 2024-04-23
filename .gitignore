@@ -256,3 +256,12 @@ cython_debug/
 **/__pycache__
 
 *plan.txt
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/attacker/infrastructure.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/attacker/surface.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/attacker/resources/syscall_config.yaml
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/shared/simulation.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/target/infrastructure.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/target/surface.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/target/resources/iam_user_policies.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/target/resources/iam_users.json
+terraform/scenarios/aws-lacework-composite-ciem-eks-20240412122845/target/resources/syscall_config.yaml

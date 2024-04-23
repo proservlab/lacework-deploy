@@ -43,3 +43,19 @@ output "attacker-aws-k8s-services" {
 output "target-aws-k8s-services" {
   value = module.aws-deployment.target-k8s-services
 }
+
+output "attacker_private_nat_gw_ip" {
+  value = module.aws-deployment.attacker_private_nat_gw_ip
+}
+
+output "attacker_private_app_nat_gw_ip" {
+  value = module.aws-deployment.attacker_private_app_nat_gw_ip
+}
+
+output "target_private_nat_gw_ip" {
+  value = module.aws-deployment.target_private_nat_gw_ip
+}
+
+output "target_private_app_nat_gw_ip" {
+  value = module.aws-deployment.target_private_app_nat_gw_ip
+}
