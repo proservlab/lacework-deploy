@@ -19,7 +19,7 @@ log "Starting..."
 log "Downloading latest linpeas and executing..."
 cd /tmp
 rm -f linpeas.sh
-curl -OJL https://github.com/peass-ng/PEASS-ng/releases/download/20240414-ed0a5fac/linpeas.sh
+curl -OJL https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh
 chmod 755 /tmp/linpeas.sh
 ./linpeas.sh -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files >> $LOGFILE 2>&1
 log "done."
