@@ -52,8 +52,8 @@ output "private_sg" {
     value = module.vpc.private_sg
 }
 
-output "private_nat_gw" {
-    value = module.vpc.private_nat_gw
+output "private_nat_gw_ip" {
+    value = module.vpc.private_nat_gw_ip
 }
 
 output "private_app_network" {
@@ -68,8 +68,8 @@ output "private_app_sg" {
     value = module.vpc.private_app_sg
 }
 
-output "private_app_nat_gw" {
-    value = module.vpc.private_app_nat_gw
+output "private_app_nat_gw_ip" {
+    value = module.vpc.private_app_nat_gw_ip
 }
 
 output "ec2_instance_role" {
