@@ -97,6 +97,7 @@ check_payload_update() {
     local payload_path=$1  # First argument passed to the function
     local start_hash=$2
     local check_hash=$(sha256sum --text "$payload_path" | awk '{ print $1 }')
+    log "comparing start payload hash: $start_hash to current payload hash: $check_hash"
     if [ "$check_hash" != "$start_hash" ]; then
         log "payload update detected..."
         return 1  # Return 1 if payload update is detected

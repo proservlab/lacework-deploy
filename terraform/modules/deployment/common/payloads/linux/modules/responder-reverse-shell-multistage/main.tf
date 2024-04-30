@@ -66,7 +66,7 @@ locals {
                 if grep "listener created" $PWNCAT_LOG; then
                     log "Found listener created log in $PWNCAT_LOG - checking for port response"
                     while ! nc -z -w 5 -vv 127.0.0.1 ${local.listen_port} > /dev/null; do
-                        log "failed check - waiting for pwncat port response";
+                        log "failed check - waiting for pwncat port response: 127.0.0.1:${local.listen_port}";
                         sleep 30;
                         if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
                             log "payload update detected - exiting loop and forcing payload download"
