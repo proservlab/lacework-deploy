@@ -144,6 +144,7 @@ def execute(session: pwncat.manager.Session, task):
             # build a payload that attempts reconnect if pid returns non-zero
             max_attempts = 10
             sleep = 30
+            max_wait = 3600
             connect_payload = base64.b64encode(f"""
 SCRIPTNAME=pwncat_reconnect
 LOGFILE=/tmp/$SCRIPTNAME.log
@@ -157,6 +158,7 @@ mv $LOGFILE "$LOGFILE.1" 2>/dev/null || true
 # Max number of attempts to start the Docker container
 max_attempts={max_attempts}
 attempt=0
+MAX_WAIT={max_wait}
 
 while true; do
     # Increment the attempt counter
@@ -173,9 +175,19 @@ while true; do
     PID=$!
 
     # Monitoring loop to check if the process is still running
+    START_TIME=$(date +%s)
     while kill -0 $PID 2>/dev/null; do
-        log "Process $PID is still running..."
-        sleep 10
+        NOW=$(date +%s)
+        ELAPSED=$(( NOW - START_TIME ))
+
+        if [[ $ELAPSED -ge $MAX_WAIT ]]; then
+            log "process wait timeout reached: $MAX_WAIT seconds"
+            kill -9 $PID
+            exit 1
+        else
+            log "Process $PID is still running..."
+            sleep 10
+        fi
     done
 
     # Wait for the process to finish and capture its exit status
