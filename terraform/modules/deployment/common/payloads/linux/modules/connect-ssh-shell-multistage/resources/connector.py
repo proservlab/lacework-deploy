@@ -142,7 +142,7 @@ def execute(session: pwncat.manager.Session, task):
             # and enumerate? but for now we will have to _cheat_ a little
 
             # build a payload that attempts reconnect if pid returns non-zero
-            max_attempts = 9999
+            max_attempts = 10
             sleep = 30
             connect_payload = base64.b64encode(f"""
 SCRIPTNAME=pwncat_reconnect
@@ -187,7 +187,8 @@ while true; do
         log "Process $PID has completed successfully."
         break
     else
-        log "Process $PID has finished with an error."
+        log "Process $PID has finished with an error: $EXIT_STATUS"
+        exit $EXIT_STATUS
     fi
 
     # Check if maximum attempts have been reached
