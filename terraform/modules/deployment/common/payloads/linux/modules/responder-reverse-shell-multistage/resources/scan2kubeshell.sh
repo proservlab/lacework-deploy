@@ -86,7 +86,7 @@ while ! [ -f ~/.kube/config ]; do
     log "missing kube config: ~/.kube/config"
     log "kube dir listing: $(ls -ltra ~/.kube)"
     log "attempting to request kube config with current credentials..."
-    aws eks update-kubeconfig --name="$(aws eks list-clusters --no-cli-pager | jq -r '.clusters[0]')" --no-cli-pager >> $LOGFILE 2>&1
+    aws eks update-kubeconfig --name="$(aws eks list-clusters --output text | head -1 | cut -f2)" | tee -a $LOGFILE
     ERR=$?
     log "result: $ERR"
     if [ $ERR -eq 0 ]; then
@@ -96,6 +96,9 @@ while ! [ -f ~/.kube/config ]; do
     fi
     sleep 60
 done
+
+# update kubeconfig regardless
+aws eks update-kubeconfig --name="$(aws eks list-clusters --output text | head -1 | cut -f2)"
 log "available clusters: $(kubectl_proxy config get-clusters)"
 
 export AWS_PAGER=""
