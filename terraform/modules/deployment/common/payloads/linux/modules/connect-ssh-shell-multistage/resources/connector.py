@@ -427,8 +427,12 @@ if pwncat_log.exists():
     dest_log = Path(
         f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_pwncat_connector.log")
     print(
-        f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
-    pwncat_log.rename(dest_log)
+        f"Copying successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+    session.log(
+        f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+    pwncat_log.read_bytes()
+    dest_log.write_bytes()
+
 
 if session_lock.exists():
     session_lock.unlink()

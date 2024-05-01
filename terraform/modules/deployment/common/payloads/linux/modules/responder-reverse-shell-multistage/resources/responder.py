@@ -738,8 +738,9 @@ echo $BUCKET_URL
             dest_log = Path(
                 f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{task_name}_pwncat.log")
             session.log(
-                f"Moving successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
-            pwncat_log.rename(dest_log)
+                f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+            pwncat_log.read_bytes()
+            dest_log.write_bytes()
 
         if session_lock.exists():
             session_lock.unlink()
