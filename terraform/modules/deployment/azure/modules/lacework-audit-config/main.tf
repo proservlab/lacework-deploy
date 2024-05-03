@@ -3,12 +3,12 @@ data "azurerm_subscription" "current" {
 
 module "az_ad_application" {
   source  = "lacework/ad-application/azure"
-  version = "1.3.0"
+  version = "~> 1.3.0"
 }
 
 module "az_config" {
   source  = "lacework/config/azure"
-  version = "2.0.2"
+  version = "~> 2.0.2"
 
   use_existing_ad_application = true
   subscription_ids = [
@@ -22,7 +22,7 @@ module "az_config" {
 
 module "activity-log" {
   source  = "lacework/activity-log/azure"
-  version = "2.2.3"
+  version = "~> 2.2.3"
 
   use_existing_ad_application = true
   
