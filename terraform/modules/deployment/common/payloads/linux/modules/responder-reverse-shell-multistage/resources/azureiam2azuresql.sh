@@ -28,3 +28,6 @@ scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-re
 # get parameter store credentials
 # auth to mysql and trigger backup? or can we use az cli?
 # depending on destintation we maybe need to get the output from a storage account and then copy locally
+
+az mysql flexible-server list
+az keyvault list
