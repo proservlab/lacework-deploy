@@ -25,7 +25,8 @@ resource "azurerm_subnet" "subnet-app" {
 }
 
 resource "azurerm_subnet" "subnet-app-private" {
-    name                 = "private-app-subnet-${var.environment}-${var.deployment}"
+    # name                 = "private-app-subnet-${var.environment}-${var.deployment}"
+    name                 = "GatewaySubnet"
     resource_group_name  = var.resource_app_group.name
     virtual_network_name = azurerm_virtual_network.network-app-private.name
     address_prefixes       = [var.private_app_subnet]

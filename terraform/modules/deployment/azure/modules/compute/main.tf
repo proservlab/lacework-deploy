@@ -25,7 +25,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_subnet" "subnet-private" {
-    name                 = "private-subnet-${var.environment}-${var.deployment}"
+    name                 = "GatewaySubnet"
     resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network-private.name
     address_prefixes       = [var.private_subnet]
