@@ -136,10 +136,18 @@ configure_aws() {
     local region=$5
 
     mkdir -p ~/.aws
-    aws configure set aws_access_key_id "$access_key" --profile=$profile
-    aws configure set aws_secret_access_key "$secret_key" --profile=$profile
-    aws configure set aws_session_token "$session_token" --profile=$profile
-    aws configure set region "$region" --profile=$profile
+    if [ ! -z "$access_key" ]; then
+        aws configure set aws_access_key_id "$access_key" --profile=$profile
+    fi
+    if [ ! -z "$secret_key" ]; then
+        aws configure set aws_secret_access_key "$secret_key" --profile=$profile
+    fi
+    if [ ! -z "$session_token" ]; then
+        aws configure set aws_session_token "$session_token" --profile=$profile
+    fi
+    if [ ! -z "$region" ]; then
+        aws configure set region "$region" --profile=$profile
+    fi
 }
 
 # Retrieve and configure current user credentials using AWS CLI
