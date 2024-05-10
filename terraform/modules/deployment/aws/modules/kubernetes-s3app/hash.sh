@@ -13,11 +13,7 @@ set -e
 
 source_path=${1:-.}
 
-if ! command -v md5sum >/dev/null; then
-    if command -v md5 >/dev/null; then
-        alias md5sum='md5 -r'
-    fi
-fi
+MD5_COMMAND=$( if ! command -v md5sum >/dev/null; then echo "md5 -r"; else echo "md5sum"; fi )
 
 # Hash all source files of the Docker image
 # Exclude Python cache files, dot files
@@ -25,9 +21,9 @@ file_hashes="$(
     cd "$source_path" \
     && find . -type f -not -name '*.pyc' -not -path './.**' \
     | sort \
-    | xargs md5sum
+    | xargs $MD5_COMMAND
 )"
 
-hash="$(echo "$file_hashes" | md5sum  | cut -d' ' -f1)"
+hash="$(echo "$file_hashes" | $MD5_COMMAND | cut -d' ' -f1)"
 
 echo '{ "hash": "'"$hash"'" }'
