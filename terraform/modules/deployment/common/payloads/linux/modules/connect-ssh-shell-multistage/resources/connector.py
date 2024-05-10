@@ -430,8 +430,8 @@ if pwncat_log.exists():
         f"Copying successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
     session.log(
         f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
-    pwncat_log.read_bytes()
-    dest_log.write_bytes()
+    source = pwncat_log.read_bytes()
+    dest_log.write_bytes(source)
 
 
 if session_lock.exists():
