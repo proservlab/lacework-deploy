@@ -127,6 +127,10 @@ class Module(BaseModule):
 # disable pager
 export AWS_PAGER=""
 
+if ! command -v jq; then
+  curl -LJ -o /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64 && chmod 755 /usr/local/bin/jq
+fi
+
 # Helper function to update AWS configuration and credentials files
 configure_aws() {
     local profile=$1
@@ -186,30 +190,28 @@ configure_instance_profile() {
 
 # Retrieve and configure container/web identity credentials using environment variables
 configure_container_identity() {
-    if command -v aws &> /dev/null; then
-        # Export credentials using aws configure export-credentials
-        local creds=$(aws configure export-credentials --format env-no-export)
+    # Check if running in a container environment with web identity tokens
+    if [ -n "$AWS_WEB_IDENTITY_TOKEN_FILE" ]; then
+        if command -v aws &> /dev/null; then
+            # Export credentials using aws configure export-credentials
+            local creds=$(aws configure export-credentials --format env-no-export)
 
-        # Parse the credentials
-        local access_key=$(echo "$creds" | grep 'AWS_ACCESS_KEY_ID' | cut -d '=' -f 2)
-        local secret_key=$(echo "$creds" | grep 'AWS_SECRET_ACCESS_KEY' | cut -d '=' -f 2)
-        local session_token=$(echo "$creds" | grep 'AWS_SESSION_TOKEN' | cut -d '=' -f 2)
-        local region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+            # Parse the credentials
+            local access_key=$(echo "$creds" | grep 'AWS_ACCESS_KEY_ID' | cut -d '=' -f 2)
+            local secret_key=$(echo "$creds" | grep 'AWS_SECRET_ACCESS_KEY' | cut -d '=' -f 2)
+            local session_token=$(echo "$creds" | grep 'AWS_SESSION_TOKEN' | cut -d '=' -f 2)
+            local region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 
-        # Use the helper function to configure the 'default' profile
-        configure_aws container "$access_key" "$secret_key" "$session_token" "$region"
-    else
-        local temp_role=$(aws sts assume-role-with-web-identity \
-            --role-arn $AWS_ROLE_ARN \
-            --role-session-name "example-session" \
-            --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
-            --duration-seconds 3600)
-        local access_key=$(echo $temp_role | jq -r '.Credentials.AccessKeyId')
-        local secret_key=$(echo $temp_role | jq -r '.Credentials.SecretAccessKey')
-        local session_token=$(echo $temp_role | jq -r '.Credentials.SessionToken')
-        local region=$(aws configure get region)  # Assuming same region as CLI or default
+            # Use the helper function to configure the 'container' profile
+            configure_aws container "$access_key" "$secret_key" "$session_token" "$region"
 
-        configure_aws container $access_key $secret_key $session_token $region
+            # Optional: keep the older logic as a comment for future reference
+            # local temp_role=$(aws sts assume-role-with-web-identity \
+            #     --role-arn $AWS_ROLE_ARN \
+            #     --role-session-name "example-session" \
+            #     --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE \
+            #     --duration-seconds 3600)
+        fi
     fi
 }
 
