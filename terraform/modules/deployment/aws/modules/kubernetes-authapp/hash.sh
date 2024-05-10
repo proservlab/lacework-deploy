@@ -13,6 +13,12 @@ set -e
 
 source_path=${1:-.}
 
+if ! command -v md5sum >/dev/null; then
+    if command -v md5 >/dev/null; then
+        alias md5sum='md5 -r'
+    fi
+fi
+
 # Hash all source files of the Docker image
 # Exclude Python cache files, dot files
 file_hashes="$(

@@ -332,14 +332,6 @@ variable "config" {
         agent = object({
           enabled               = bool
           token                 = string
-          host = object({
-            ssm = object({
-              enabled         = bool
-            })
-            osconfig = object({
-              enabled         = bool
-            })
-          })
           kubernetes = object({
             proxy_scanner = object({
               token           = string
@@ -914,14 +906,6 @@ variable "config" {
         agent = {
           enabled               = false
           token                 = null
-          host = {
-            ssm = {
-              enabled           = false
-            }
-            osconfig = {
-              enabled           = false
-            }
-          }
           kubernetes = {
             enabled             = false
             proxy_scanner = {
