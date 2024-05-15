@@ -108,7 +108,7 @@ graph TD
   classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
   
   %% Apply Rounded Corner Class
-  class aws,attacker,exfil_kube,exfil_aws,privilege_escalate,local_enum_2,private_key,network_discovery,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
+  class aws,attacker,dev-target-1,EKS_Instances_target,exfil_kube,exfil_aws,privilege_escalate,local_enum_2,private_key,network_discovery,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
 ```
 
 ## Walkthrough
