@@ -54,12 +54,12 @@ graph TD
         %% subgraph prod-bucket-1["prod-bucket-1"]
             
         %% end
-        subgraph db-bucket-1["db-ec2-backup"]
+        subgraph db-bucket-1["db-compute-backup"]
             
         end
       end
       subgraph cloudsql_Instances_target["cloudsql Instaces"]
-        subgraph dev-db-1["ec2cloudsql"]
+        subgraph dev-db-1["computecloudsql"]
             
         end
       end
@@ -117,7 +117,7 @@ You’ll see some of the innovations released in the last year including:
 
 We’ve got a lot to cover, let’s get started.
 
-In our scenario, we have a fictitious company, Interlace Labs. Interlace Labs recently brought onboard a new contractor to assist with the development efforts for a groundbreaking project. The contractor, tasked with delivering a key demo later in the week, was given access to an EC2 instance and an cloudsql (Relational Database Service) database. After several hours of work, he had a running application and, satisfied with his day's work, he logged out of the EC2 instance. 
+In our scenario, we have a fictitious company, Interlace Labs. Interlace Labs recently brought onboard a new contractor to assist with the development efforts for a groundbreaking project. The contractor, tasked with delivering a key demo later in the week, was given access to an compute instance and an cloudsql (Relational Database Service) database. After several hours of work, he had a running application and, satisfied with his day's work, he logged out of the compute instance. 
 
 However, a few hours later, the security team at Interlace Labs receives multiple high and critical event notifications from Lacework, indicating suspicious activity within their cloud account. We can see these here in the Alerts Dashboard.
 
@@ -225,7 +225,7 @@ We’ll start here in the Lacework Attack Path Dashboard.  In the attack path da
 
 > next tab
 
-Opening the path for the EC2 instance we can see both the **path from the internet exposed vulnerable host** to our **cloudsql instance as well access from that same host an CloudStorage Bucket**.
+Opening the path for the compute instance we can see both the **path from the internet exposed vulnerable host** to our **cloudsql instance as well access from that same host an CloudStorage Bucket**.
 
 Lacework is continuing to build on these attack path visualizations as part of our new Security Graph and Query Builder Features. **Let’s take a look at our high-risk host here in the Security Graph**. 
 
