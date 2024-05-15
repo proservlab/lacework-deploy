@@ -2,7 +2,9 @@
 
 ## Description
 
-This scenario covers the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day). At a high-level:
+This scenario covers the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day) and in this [Product Demo Video](https://vimeo.com/manage/videos/923893706/6d0c7ac128). 
+
+At a high-level:
 
 * A vulnerable application (log4j vulnerability) is accidentally exposed to the internet. 
 * Attackers leverage this exposed instance as a foot hold to establish a reverse shell. 
