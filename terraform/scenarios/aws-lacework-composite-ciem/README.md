@@ -1,4 +1,3 @@
-```mermaid
 graph TD
   %% Root Node
   subgraph aws["AWS"]
@@ -10,7 +9,7 @@ graph TD
       %% Attacker Public Instances
       subgraph Public_Instances_attacker["Public VPC"]
         subgraph public-attacker-1["public-attacker-1"]
-          pwncat_public-attacker-1(reverse shell handler<br/>Port: 4444)
+          pwncat_public-attacker-1(reverse shell handler<br/>Port: 4444,1389,8080)
           exploit.bin_public-attacker-1(log4j exploit<br/>Port: None)
         end
       end
@@ -24,9 +23,9 @@ graph TD
 
       %% Target Public Instances
       subgraph Public_Instances_target["Public VPC"]
-        subgraph public-target-1["public-target-1"]
+        subgraph public-target-1["developer"]
             nginx_public-target-1(log4j app<br/>Port: 80)
-            ssh_public-target-1(/bin/bash<br/>Port: None)
+            reverse_shell-target-1(/bin/bash<br/>Port: None)
         end
       end
     %%   subgraph Private_Instances_target["Private VPC"]
@@ -64,10 +63,10 @@ graph TD
   %% Example Attack Flow
   exploit.bin_public-attacker-1 -->|"1. Exploit log4j"| nginx_public-target-1
   nginx_public-target-1 -->|"2. Establish C2 TASK=iam2rds"| pwncat_public-attacker-1
-  pwncat_public-attacker-1 -->|"3. Reverse Shell "| ssh_public-target-1
+  pwncat_public-attacker-1 -->|"3. Reverse Shell "| reverse_shell-target-1
 
   %% Local Enumeration and Credential Discovery
-  ssh_public-target-1 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
+  reverse_shell-target-1 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
   local_enum -->|"5. Credential Exfiltration"| cred_discovery["AWS Credential Discovery"]
 
   %% Cloud Enumeration with ScoutSuite
@@ -92,6 +91,4 @@ graph TD
   classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
   
   %% Apply Rounded Corner Class
-  class aws,attacker,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
-
-```
+  class aws,attacker,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
