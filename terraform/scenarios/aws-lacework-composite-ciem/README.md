@@ -172,7 +172,6 @@ From this one composite alert the incident response team were able to determine 
 
 Actions for the incident response team are clear - quarantine the host, take a forensic snapshot and leave the machine in a stopped state until further investigation can be completed.
 
-
 _Potentially Compromised AWS Keys_
 
 > next tab
@@ -197,9 +196,28 @@ Given the timeframe of the host compromise and the credentials compromise alerts
 
 > next tab
 
-To confirm this they **open cloudtrail for the khon.traktour user** and **filter using the public ip address 54.156.61.240** of the compromised host. This **confirms that the compromised credentials and host are indeed linked**. 
+To confirm this they **open cloudtrail for the khon.traktour user** and **filter using the public ip address 54.156.61.240** of the compromised host. This **confirms that the compromised credentials and host are indeed linked**.  
 
-The team now moves to contain the attacker activities by revoking session credentials, adding explicit deny policy to the rds role and rotating credentials. 
+_GenAI Investigation and Response_
+
+The team decides it’s time to take action knowing the scope and potential impact of the attacker's activities.  
+
+> next tab
+From the composite alert the team opens up the Lacework Alert Assistant context panel. Where they can use the alert assistant to help them understand any aspects of this particular alert. Or ask for additional guidance on remediation.
+
+The team knows they need to take immediate action, although they have some processes in place they’ve never experienced an incident of this magnitude in their environment before. So they leverage the Alert Assistant to help with best practices for remediating compromised credentials in an AWS environment. 
+
+We can see the question here at the top and assistant’s guidance here, including identify resource, invalidate credentials, delete unauthorized resource and continue to monitor.
+
+There’s also some back and forth where the team is working through additional understanding of how the alert assistant might help them, including some guidance on remediating using the aws-cli.
+
+After receiving the input from the Alert Assistant the team now moves to contain the attacker activities by revoking session credentials, adding explicit deny policy to the rds role and rotating credentials. 
+
+```
+We believe the aws credentials associated with this alert have been compromised. As a Security Analyst what steps should we take to revoke access for this AWS Role and the user who assumed this role?
+```
+
+For the team at Interlabs knowing they can securely communicate their concerns, without exposing sensitive information to a third party chatbot, means they can more effectively leverage the power of GenAI in their remediation efforts. Lacework Alert Assistant is like adding another security analyst to the team when that additional help is needed most.
 
 Up next we’ll see **how the Interlace Labs team could have identified the risks presented** by the **host** and **credentials** **before they were compromised**. But let’s pause here for questions.
 
