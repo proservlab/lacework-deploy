@@ -1,3 +1,4 @@
+```mermaid
 graph TD
   %% Root Node
   subgraph aws["AWS"]
@@ -92,3 +93,4 @@ graph TD
   
   %% Apply Rounded Corner Class
   class aws,attacker,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
+```
