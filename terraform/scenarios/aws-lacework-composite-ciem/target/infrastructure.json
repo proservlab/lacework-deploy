@@ -14,10 +14,10 @@
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
-        "private_subnet"                : "172.16.100.0/24",
+        "private_subnet"                : "172.16.0.0/24",
         "private_nat_subnet"            : "172.16.10.0/24",
         "private_app_network"           : "172.17.0.0/16",
-        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_subnet"            : "172.17.0.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
           {
@@ -27,16 +27,16 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags"                      : {
-                "owner"                                     : "lacework",
-                "ssm_deploy_lacework"                       : "true",
-                "ssm_deploy_lacework_syscall"               : "true",
-                "ssm_deploy_lacework_code_aware_agent"      : "true",
-                "ssm_deploy_aws_cli"                        : "true",
-                "ssm_deploy_docker"                         : "true",
-                "ssm_exec_vuln_log4j_app_target"            : "true",
-                "ssm_deploy_secret_ssh_private"             : "true",
-                "ssm_deploy_secret_aws_creds"               : "true",
-                "ssm_exec_generate_aws_cli_traffic_target"  : "true"
+              "owner"                                     : "lacework",
+              "ssm_deploy_lacework"                       : "true",
+              "ssm_deploy_lacework_syscall"               : "true",
+              "ssm_deploy_lacework_code_aware_agent"      : "true",
+              "ssm_deploy_aws_cli"                        : "true",
+              "ssm_deploy_docker"                         : "true",
+              "ssm_deploy_log4j_app"                      : "true",
+              "ssm_deploy_secret_ssh_private"             : "true",
+              "ssm_deploy_secret_aws_credentials"         : "true",
+              "ssm_exec_generate_aws_cli_traffic_target"  : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,
@@ -49,15 +49,15 @@
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags"                      : {
-                "owner"                                         : "lacework",
-                "ssm_deploy_aws_cli"                            : "true",
-                "ssm_deploy_docker"                             : "true",
-                "ssm_deploy_lacework"                           : "true",
-                "ssm_deploy_lacework_syscall"                   : "true",
-                "ssm_deploy_lacework_code_aware_agent"          : "true",
-                "ssm_exec_vuln_rdsapp_target"                   : "true",
-                "ssm_deploy_secret_ssh_public"                  : "true",
-                "ssm_exec_generate_web_traffic_target"          : "true"
+              "owner"                                         : "lacework",
+              "ssm_deploy_aws_cli"                            : "true",
+              "ssm_deploy_docker"                             : "true",
+              "ssm_deploy_lacework"                           : "true",
+              "ssm_deploy_lacework_syscall"                   : "true",
+              "ssm_deploy_lacework_code_aware_agent"          : "true",
+              "ssm_deploy_rds_app"                            : "true",
+              "ssm_deploy_secret_ssh_public"                  : "true",
+              "ssm_exec_generate_web_traffic_target"          : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,
@@ -68,16 +68,16 @@
       "rds": {
         "enabled"                        : true,
         "user_role_name"                 : "rds_user_access_role_ciemdemo",
-        "instance_type"                  : "db.t3.medium"
+        "instance_type"                  : "db.t3.small"
       },
       "ssm": {
         "enabled"                           : true,
-        "deploy_git"                        : true,
-        "deploy_docker"                     : true,
-        "deploy_lacework_agent"             : true,
-        "deploy_lacework_syscall_config"    : true,
-        "deploy_lacework_code_aware_agent"  : true,
-        "deploy_aws_cli"                    : true
+        "deploy_git"                        : { "enabled" : true },
+        "deploy_docker"                     : { "enabled" : true },
+        "deploy_lacework_agent"             : { "enabled" : true },
+        "deploy_lacework_syscall_config"    : { "enabled" : true },
+        "deploy_lacework_code_aware_agent"  : { "enabled" : true },
+        "deploy_aws_cli"                    : { "enabled" : true }
       }
     },
     "lacework": {
@@ -85,7 +85,10 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : true,
+        "enable_cloudtrail_s3_management_events" : true,
+        "cloudtrail_name": "lacework-cloudtrail-${ deployment }",
+        "s3_notification_type": "SNS"
       },
       "agent": {
         "enabled" : true
@@ -93,6 +96,9 @@
       "aws_agentless": {
         "enabled" : true,
         "use_existing_vpc" : true
+      },
+      "custom_policy": {
+        "enabled" : true
       },
       "alerts": {
         "enabled" : false,

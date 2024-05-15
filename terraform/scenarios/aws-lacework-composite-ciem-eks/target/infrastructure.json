@@ -9,36 +9,80 @@
       "profile_name"  : "${ aws_profile }",
       
       "ec2": {
-        "enabled"                       : false,
+        "enabled"                       : true,
         "public_network"                : "172.18.0.0/16",
         "public_subnet"                 : "172.18.0.0/24",
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
-        "private_subnet"                : "172.16.100.0/24",
+        "private_subnet"                : "172.16.0.0/24",
         "private_nat_subnet"            : "172.16.10.0/24",
         "private_app_network"           : "172.17.0.0/16",
-        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_subnet"            : "172.17.0.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "public_ingress_rules"          : [],
         "instances": [
+          {
+            "name"                      : "jumphost",
+            "public"                    : true,
+            "role"                      : "app",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags"                      : {
+                "owner"                                     : "lacework",
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_deploy_secret_ssh_private"             : "true",
+                "ssm_deploy_ssh_user"                       : "true"
+
+            },
+            "user_data"                 : null,
+            "user_data_base64"          : null,
+            "enable_swap"               : true
+          },
+          {
+            "name"                      : "kubeadmin-private",
+            "public"                    : false,
+            "role"                      : "app",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "ubuntu_focal",
+            "tags"                      : {
+                "owner"                                     : "lacework",
+                "ssm_deploy_lacework"                       : "true",
+                "ssm_deploy_lacework_syscall"               : "true",
+                "ssm_deploy_lacework_code_aware_agent"      : "true",
+                "ssm_deploy_aws_cli"                        : "true",
+                "ssm_deploy_docker"                         : "true",
+                "ssm_deploy_kubectl_cli"                    : "true",
+                "ssm_deploy_secret_aws_credentials"         : "true",
+                "ssm_deploy_secret_ssh_public"              : "true",
+                "ssm_exec_generate_aws_cli_traffic_target"  : "true",
+                "ssm_deploy_ssh_user"                       : "true"
+            },
+            "user_data"                 : null,
+            "user_data_base64"          : null,
+            "enable_swap"      : true
+          }
         ]
       },
       "eks": {
         "enabled"      : true,
-        "cluster_name" : "target-cluster"
+        "cluster_name" : "dev"
       },
       "rds": {
         "enabled"      : false
       },
       "ssm": {
-        "enabled"                        : false,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_inspector_agent"         : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false,
-        "deploy_lacework_code_aware_agent" : false
+        "enabled"                        : true,
+        "deploy_git"                     : { "enabled" : true },
+        "deploy_docker"                  : { "enabled" : true, "docker_users" : [ "cburnetes" ] },
+        "deploy_inspector_agent"         : { "enabled" : false },
+        "deploy_lacework_agent"          : { "enabled" : true },
+        "deploy_lacework_syscall_config" : { "enabled" : true },
+        "deploy_lacework_code_aware_agent" : { "enabled" : true },
+        "deploy_kubectl_cli"             : { "enabled" : true },
+        "deploy_aws_cli"                 : { "enabled" : true }
       }
     },
     "lacework": {
@@ -46,10 +90,16 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
+        "enabled" : true,
+        "enable_cloudtrail_s3_management_events" : true,
+        "cloudtrail_name": "lacework-cloudtrail-${ deployment }",
+        "s3_notification_type": "SNS"
+      },
+      "aws_ecr": {
         "enabled" : true
       },
       "custom_policy": {
-        "enabled" : false
+        "enabled" : true
       },
       "agent": {
         "enabled" : true,
@@ -94,7 +144,9 @@
       }
     },
     "dynu_dns" : {
-        "enabled"                        : false
-    } 
+      "enabled"                           : true,
+      "api_key"                           : "${ dynu_api_key }",
+      "dns_domain"                        : "${ target_dynu_dns_domain }"
+    }
   }
 }

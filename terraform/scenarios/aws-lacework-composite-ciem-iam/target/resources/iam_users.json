@@ -1,7 +1,0 @@
-[
-    {
-      "name"   :  "khon.traktour@interlacelabs",
-      "policy" :  "ReadOnlyAccess",
-      "role"   :  "rds_user_access_role_ciemdemo"
-    }
-]

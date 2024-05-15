@@ -199,7 +199,7 @@ variable "target_lacework_account_name" {
 variable "target_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://agent.lacework.net"
+  default     = null
 }
 
 variable "target_lacework_agent_access_token" {
@@ -229,7 +229,7 @@ variable "attacker_lacework_account_name" {
 variable "attacker_lacework_server_url" {
   type        = string
   description = "lacework server url"
-  default     = "https://agent.lacework.net"
+  default     = null
 }
 
 variable "attacker_lacework_agent_access_token" {
@@ -314,12 +314,6 @@ variable "attacker_context_config_protonvpn_user" {
   default     = ""
 }
 
-variable "attacker_context_config_protonvpn_privatekey" {
-  type        = string
-  description = "protonvpn privatekey"
-  default     = ""
-}
-
 variable "attacker_context_config_protonvpn_password" {
   type        = string
   description = "protonvpn password"
@@ -344,6 +338,12 @@ variable "attacker_context_config_protonvpn_protocol" {
   default     = "udp"
 }
 
+variable "attacker_context_config_protonvpn_privatekey" {
+  type        = string
+  description = "protonvpn privatekey"
+  default     = ""
+}
+
 variable "attacker_context_cloud_cryptomining_ethermine_wallet" {
   type        = string
   description = "cloud cryptomining ethermine wallet"
@@ -366,17 +366,20 @@ variable "attacker_context_host_cryptomining_nicehash_user" {
 # DYNU
 ##################################################
 
-##################################################
-# DYNU
-##################################################
-
 # dns hostname provisioning api key
 variable "dynu_api_key" {
-  type    = string
-  default = ""
+  type        = string
+  description = "dynu api key - used for attacker and target domain config"
+  default     = ""
 }
 
-variable "dynu_dns_domain" {
+
+variable "attacker_dynu_dns_domain" {
   type    = string
-  default = ""
+  default = "attacker dynu dns name - needs to be accessible via api"
+}
+
+variable "target_dynu_dns_domain" {
+  type    = string
+  default = "target dynu dns name - needs to be accessible via api"
 }

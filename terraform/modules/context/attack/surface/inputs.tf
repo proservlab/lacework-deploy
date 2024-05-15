@@ -17,10 +17,15 @@ variable "config" {
         enable_all                = bool
       })
       azure = object({
+        iam = object({
+          enabled                 = bool
+          user_policies_path      = string
+          users_path              = string
+        })
         compute = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -31,7 +36,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -42,9 +47,15 @@ variable "config" {
           })
         })
         runbook = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j_app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -70,7 +81,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           azure_credentials = object({ 
@@ -88,7 +99,7 @@ variable "config" {
         gce = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -99,7 +110,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -110,9 +121,15 @@ variable "config" {
           })
         })
         osconfig = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j_app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -129,6 +146,10 @@ variable "config" {
               enabled                   = bool
               listen_port               = number
             })
+            cloudsql_app = object({
+              enabled                   = bool
+              listen_port               = number
+            })
           })
           ssh_keys = object({ 
             enabled                     = bool
@@ -138,7 +159,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           gcp_credentials = object({ 
@@ -156,7 +177,7 @@ variable "config" {
         ec2 = object({
           add_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -167,7 +188,7 @@ variable "config" {
           })
           add_app_trusted_ingress = object({
             enabled                     = bool
-            trust_workstation           = bool
+            trust_workstation_source    = bool
             trust_attacker_source       = bool
             trust_target_source         = bool
             additional_trusted_sources  = list(string)
@@ -186,11 +207,28 @@ variable "config" {
             enabled = bool
             iam_user_names =  list(string)
           })
+          custom_cluster_roles = list(object({
+            enabled = bool
+            name = string
+            iam_user_names = list(string)
+            rules = list(object({
+              api_groups = list(string)
+              resources = list(string)
+              verbs = list(string)
+              resource_names = list(string)
+            }))
+          }))
         })
         ssm = object({
+          deploy = object({
+            docker = object({
+              enabled = bool
+              docker_users = list(string)
+            }) 
+          })
           vulnerable = object({
             docker = object({
-              log4shellapp = object({
+              log4j_app = object({
                 enabled                   = bool
                 listen_port               = number
               })
@@ -220,7 +258,7 @@ variable "config" {
           })
           ssh_user = object({ 
             enabled                     = bool
-            username                        = string
+            username                    = string
             password                    = string
           })
           aws_credentials = object({ 
@@ -231,31 +269,62 @@ variable "config" {
       })
       kubernetes = object({
         aws = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
-            enabled                       = bool
+            enabled                     = bool
+            service_port                = number
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            trust_workstation_source    = bool
+            additional_trusted_sources  = list(string)
+            image                       = string
+            command                     = list(string)
+            args                        = list(string)
+            privileged                  = bool
+            allow_privilege_escalation  = bool
+            enable_dynu_dns             = bool
+            dynu_dns_domain             = string
           })
           app-windows = object({
-            enabled                       = bool
-          })
-          psp = object({
-            enabled                       = bool
+            enabled                     = bool
+            service_port                = number
+            trust_attacker_source       = bool
+            trust_target_source         = bool
+            trust_workstation_source    = bool
+            additional_trusted_sources  = list(string)
+            image                       = string
+            command                     = list(string)
+            args                        = list(string)
+            privileged                  = bool
+            allow_privilege_escalation  = bool
+            enable_dynu_dns             = bool
+            dynu_dns_domain             = string
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j_app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             voteapp = object({
               enabled                     = bool
               vote_service_port           = number
               result_service_port         = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
             })
@@ -263,25 +332,79 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             privileged_pod = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
+            })
+            s3app = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              admin_password              = string
+              user_password               = string
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
+            })
+            authapp = object({
+              enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              admin_password              = string
+              user_password               = string
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
         gcp = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
             enabled                       = bool
           })
@@ -289,7 +412,7 @@ variable "config" {
             enabled                       = bool
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j_app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -298,6 +421,8 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
             })
             voteapp = object({
               enabled                     = bool
@@ -311,18 +436,39 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
         azure = object({
+          reloader = object({
+            enabled                     = bool
+            ignore_namespaces           = list(string)
+          })
           app = object({
             enabled                       = bool
           })
@@ -330,7 +476,7 @@ variable "config" {
             enabled                       = bool
           })
           vulnerable = object({
-            log4shellapp = object({
+            log4j_app = object({
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
@@ -339,6 +485,8 @@ variable "config" {
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
             })
             voteapp = object({
               enabled                     = bool
@@ -352,14 +500,31 @@ variable "config" {
               enabled                     = bool
               service_port                = number
               trust_attacker_source       = bool
+              trust_target_source         = bool
               trust_workstation_source    = bool
               additional_trusted_sources  = list(string)
               image                       = string
               command                     = list(string)
               args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
             root_mount_fs_pod = object({
               enabled                     = bool
+              service_port                = number
+              trust_attacker_source       = bool
+              trust_target_source         = bool
+              trust_workstation_source    = bool
+              additional_trusted_sources  = list(string)
+              image                       = string
+              command                     = list(string)
+              args                        = list(string)
+              privileged                  = bool
+              allow_privilege_escalation  = bool
+              enable_dynu_dns             = bool
+              dynu_dns_domain             = string
             })
           })
         })
@@ -376,10 +541,15 @@ variable "config" {
         enable_all                = false
       }
       azure = {
+        iam = {
+          enabled                       = false
+          user_policies_path            = null
+          users_path                    = null
+        }
         compute = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -390,7 +560,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -401,9 +571,15 @@ variable "config" {
           }
         }
         runbook = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -423,13 +599,13 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           }
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           }
           azure_credentials = {
@@ -447,7 +623,7 @@ variable "config" {
         gce = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -458,7 +634,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -469,9 +645,15 @@ variable "config" {
           }
         }
         osconfig = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -488,16 +670,20 @@ variable "config" {
               enabled                   = false
               listen_port               = 8090
             }
+            cloudsql_app        = {
+              enabled                   = false
+              listen_port               = 8091
+            }
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           },
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           },
           gcp_credentials = {
@@ -515,7 +701,7 @@ variable "config" {
         ec2 = {
           add_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -526,7 +712,7 @@ variable "config" {
           },
           add_app_trusted_ingress = {
             enabled                     = false
-            trust_workstation           = false
+            trust_workstation_source    = false
             trust_attacker_source       = false
             trust_target_source         = false
             additional_trusted_sources  = []
@@ -545,11 +731,18 @@ variable "config" {
             enabled = false
             iam_user_names =  []
           }
+          custom_cluster_roles = []
         }
         ssm = {
+          deploy = {
+            docker = {
+              enabled = false
+              docker_users = []
+            } 
+          }
           vulnerable = {
             docker = {
-              log4shellapp = {
+              log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
               }
@@ -573,13 +766,13 @@ variable "config" {
           }
           ssh_keys = {
             enabled                     = false
-            ssh_private_key_path        = "/home/ubuntu/.ssh/secret_key"
-            ssh_public_key_path         = "/home/ubuntu/.ssh/secret_key.pub"
-            ssh_authorized_keys_path    = "/home/ubuntu/.ssh/authorized_keys"
+            ssh_private_key_path        = "/home/sshuser/.ssh/secret_key"
+            ssh_public_key_path         = "/home/sshuser/.ssh/secret_key.pub"
+            ssh_authorized_keys_path    = "/home/sshuser/.ssh/authorized_keys"
           },
           ssh_user = {
             enabled                     = false
-            username                        = "lou.caloozer"
+            username                    = "lou.caloozer"
             password                    = null
           },
           aws_credentials = { 
@@ -590,6 +783,10 @@ variable "config" {
       }
       kubernetes = {
         gcp = {
+          reloader = {
+            enabled                       = false
+            ignore_namespaces             = []
+          }
           app = {
             enabled                       = false
           }
@@ -597,7 +794,7 @@ variable "config" {
             enabled                       = false
           }
           vulnerable = {
-            log4shellapp = {
+            log4j_app = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
@@ -606,6 +803,8 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
             }
             voteapp = {
               enabled                     = false
@@ -618,71 +817,177 @@ variable "config" {
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }
         aws = {
+          reloader = {
+            enabled                     = false
+            ignore_namespaces           = []
+          }
           app = {
-            enabled                       = false
+            enabled                     = false
+            service_port                = 8000
+            trust_attacker_source       = false
+            trust_target_source         = false
+            trust_workstation_source    = false
+            additional_trusted_sources  = []
+            image                       = "nginx:latest"
+            command                     = ["tail"]
+            args                        = ["-f", "/dev/null"]
+            privileged                  = false
+            allow_privilege_escalation  = false
+            enable_dynu_dns             = false
+            dynu_dns_domain             = null
           }
           app-windows = {
-            enabled                       = false
-          }
-          psp = {
-            enabled                       = false
+            enabled                     = false
+            service_port                = 8000
+            trust_attacker_source       = false
+            trust_target_source         = false
+            trust_workstation_source    = false
+            additional_trusted_sources  = []
+            image                       = "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022"
+            command                     = [
+                "powershell.exe",
+                "-command",
+                "Add-WindowsFeature Web-Server; Invoke-WebRequest -UseBasicParsing -Uri 'https://dotnetbinaries.blob.core.windows.net/servicemonitor/2.0.1.6/ServiceMonitor.exe' -OutFile 'C:\\ServiceMonitor.exe'; echo '<html><body><br/><br/><H1>Our first pods running on Windows managed node groups! Powered by Windows Server LTSC 2022.<H1></body><html>' > C:\\inetpub\\wwwroot\\iisstart.htm; C:\\ServiceMonitor.exe 'w3svc'; "
+            ]
+            args                        = []
+            privileged                  = false
+            allow_privilege_escalation  = false
+            enable_dynu_dns             = false
+            dynu_dns_domain             = null
           }
           vulnerable = {
-            log4shellapp = {
+            log4j_app = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             voteapp = {
               enabled                     = false
               vote_service_port           = 8001
               result_service_port         = 8002
-              trust_attacker_source       = true
-              trust_workstation_source    = true
-              additional_trusted_sources = []
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
             }
 
             rdsapp = {
               enabled                     = false
               service_port                = 8000
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
+            }
+            s3app = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              privileged                  = false
+              allow_privilege_escalation  = false
+              admin_password              = null
+              user_password               = null
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
+            }
+            authapp = {
+              enabled                     = false
+              service_port                = 8000
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              privileged                  = false
+              allow_privilege_escalation  = false
+              admin_password              = null
+              user_password               = null
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }
         azure = {
+          reloader = {
+            enabled                       = false
+            ignore_namespaces             = []
+          }
           app = {
             enabled                       = false
           }
@@ -690,7 +995,7 @@ variable "config" {
             enabled                       = false
           }
           vulnerable = {
-            log4shellapp = {
+            log4j_app = {
               enabled                     = false
               service_port                = 8000
               trust_attacker_source       = true
@@ -699,6 +1004,8 @@ variable "config" {
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
             }
             voteapp = {
               enabled                     = false
@@ -711,15 +1018,32 @@ variable "config" {
             privileged_pod = {
               enabled                     = false
               service_port                = 8003
-              trust_attacker_source       = true
-              trust_workstation_source    = true
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
               additional_trusted_sources  = []
               image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
               command                     = ["java"]
               args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = true
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
             root_mount_fs_pod = {
-              enabled = false
+              enabled                     = false
+              service_port                = 8004
+              trust_attacker_source       = false
+              trust_target_source         = false
+              trust_workstation_source    = false
+              additional_trusted_sources  = []
+              image                       = "ghcr.io/christophetd/log4shell-vulnerable-app@sha256:6f88430688108e512f7405ac3c73d47f5c370780b94182854ea2cddc6bd59929"
+              command                     = ["java"]
+              args                        = ["-jar", "/app/spring-boot-application.jar"]
+              privileged                  = false
+              allow_privilege_escalation  = false
+              enable_dynu_dns             = false
+              dynu_dns_domain             = null
             }
           }
         }

@@ -17,10 +17,10 @@
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
-        "private_subnet"                : "172.16.100.0/24",
+        "private_subnet"                : "172.16.0.0/24",
         "private_nat_subnet"            : "172.16.10.0/24",
         "private_app_network"           : "172.17.0.0/16",
-        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_subnet"            : "172.17.0.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
           {
@@ -45,11 +45,11 @@
       },
       "osconfig": {
         "enabled"                        : true,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_lacework_agent"          : true,
-        "deploy_lacework_syscall_config" : true,
-        "deploy_lacework_code_aware_agent" : true
+        "deploy_git"                     : { "enabled" : false },
+        "deploy_docker"                  : { "enabled" : false },
+        "deploy_lacework_agent"          : { "enabled" : true },
+        "deploy_lacework_syscall_config" : { "enabled" : true },
+        "deploy_lacework_code_aware_agent" : { "enabled" : true }
       }
     },
     "lacework": {

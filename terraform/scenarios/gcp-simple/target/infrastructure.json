@@ -17,10 +17,10 @@
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
-        "private_subnet"                : "172.16.100.0/24",
+        "private_subnet"                : "172.16.0.0/24",
         "private_nat_subnet"            : "172.16.10.0/24",
         "private_app_network"           : "172.17.0.0/16",
-        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_subnet"            : "172.17.0.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "public_ingress_rules"          : [],
         "instances": [
@@ -44,10 +44,10 @@
       },
       "osconfig": {
         "enabled"                        : false,
-        "deploy_git"                     : false,
-        "deploy_docker"                  : false,
-        "deploy_lacework_agent"          : false,
-        "deploy_lacework_syscall_config" : false
+        "deploy_git"                     : { "enabled" : false },
+        "deploy_docker"                  : { "enabled" : false },
+        "deploy_lacework_agent"          : { "enabled" : false },
+        "deploy_lacework_syscall_config" : { "enabled" : false }
       }
     },
     "lacework": {
@@ -112,7 +112,7 @@
     "dynu_dns" : {
       "enabled"                        : false,
       "api_token"                      : "${ dynu_api_key }",
-      "dns_domain"                     : "${ dynu_dns_domain }"
+      "dns_domain"                     : "${ target_dynu_dns_domain }"
     }
   }
 }

@@ -14,10 +14,10 @@
         "public_app_network"            : "172.19.0.0/16",
         "public_app_subnet"             : "172.19.0.0/24",
         "private_network"               : "172.16.0.0/16",
-        "private_subnet"                : "172.16.100.0/24",
+        "private_subnet"                : "172.16.0.0/24",
         "private_nat_subnet"            : "172.16.10.0/24",
         "private_app_network"           : "172.17.0.0/16",
-        "private_app_subnet"            : "172.17.100.0/24",
+        "private_app_subnet"            : "172.17.0.0/24",
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "public_ingress_rules"          : [
           {
@@ -132,7 +132,7 @@
               "ssm_deploy_lacework_syscall"           : "true",
               "ssm_deploy_lacework_code_aware_agent"  : "true",
               "ssm_deploy_docker"                     : "true",
-              "ssm_exec_docker_nmap_internal"         : "true"
+              "ssm_exec_docker_nmap_target"           : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
@@ -157,12 +157,12 @@
       },
       "ssm": {
         "enabled"                           : true,
-        "deploy_git"                        : true,
-        "deploy_docker"                     : true,
-        "deploy_inspector_agent"            : false,
-        "deploy_lacework_agent"             : true,
-        "deploy_lacework_syscall_config"    : true,
-        "deploy_lacework_code_aware_agent"  : true
+        "deploy_git"                        : { "enabled" : true },
+        "deploy_docker"                     : { "enabled" : true },
+        "deploy_inspector_agent"            : { "enabled" : false },
+        "deploy_lacework_agent"             : { "enabled" : true },
+        "deploy_lacework_syscall_config"    : { "enabled" : true },
+        "deploy_lacework_code_aware_agent"  : { "enabled" : true }
       }
     },
     "lacework": {
@@ -170,7 +170,10 @@
       "account_name" : "${ lacework_account_name }",
       "profile_name" : "${ lacework_profile }",
       "aws_audit_config": {
-        "enabled" : true
+        "enabled" : true,
+        "enable_cloudtrail_s3_management_events" : true,
+        "cloudtrail_name": "lacework-cloudtrail-${ deployment }",
+        "s3_notification_type": "SNS"
       },
       "gcp_audit_config": {
         "enabled"    : false

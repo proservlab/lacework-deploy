@@ -373,7 +373,12 @@ variable "dynu_api_key" {
   default = ""
 }
 
-variable "dynu_dns_domain" {
+variable "attacker_dynu_dns_domain" {
+  type    = string
+  default = ""
+}
+
+variable "target_dynu_dns_domain" {
   type    = string
   default = ""
 }

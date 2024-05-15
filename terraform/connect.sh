@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SCRIPTNAME=$(basename $0)
 VERSION="1.0.0"
@@ -162,12 +162,12 @@ fi
 
 # check for sso logged out session
 if [[ "$PROVIDER" == "aws" ]]; then
-    session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
-    if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+    session_check=$(aws sts get-caller-identity "${SSO_PROFILE}" 2>&1)
+    if echo "$session_check" | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
         read -p "> aws sso session has expired - login now? (y/n): " login
         case "$login" in
             y|Y )
-                aws sso login ${SSO_PROFILE}
+                aws sso login "${SSO_PROFILE}"
                 ;;
             n|N )
                 errmsg "aws session expired - manual login required."

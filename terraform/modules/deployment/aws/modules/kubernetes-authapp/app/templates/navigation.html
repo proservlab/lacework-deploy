@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">InterlaceLabs</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% if url_for(request.endpoint) in [url_for('home')] %}active{% endif %}">
+                <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            </li>
+            {%- if current_user.is_authenticated -%}
+            {%- if current_user.role in ["admin","user"] -%}
+            <li class="nav-item {% if url_for(request.endpoint) in [url_for('products')] %}active{% endif %}">
+                <a class="nav-link" href="{{ url_for('products') }}">Products</a>
+            </li>
+            {%- endif -%}
+            {%- if current_user.role in ["admin"] -%}
+            <li class="nav-item {% if url_for(request.endpoint) in [url_for('users')] %}active{% endif %}">
+                <a class="nav-link" href="{{ url_for('users') }}">Users</a>
+            </li>
+            {%- endif -%}
+            {%- if current_user.role in ["admin"] -%}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('feature_status') }}">Debug</a>
+            </li>
+            {%- endif -%}
+            {%- endif -%}
+        </ul>
+        <ul class="navbar-nav mt-2 mt-md-0">
+            {%- if not current_user.is_authenticated -%}
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('logout') }}">Login</span></a>
+            </li>
+            {%- endif -%}
+            {%- if current_user.is_authenticated -%}
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+            {%- endif -%}
+        </ul>
+    </div>
+</nav>

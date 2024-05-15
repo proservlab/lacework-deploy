@@ -11,6 +11,11 @@ CONFIG_FILE=""
 # LACEWORK
 LACEWORK_PROFILE=""
 LACEWORK_ACCOUNT=""
+ATTACKER_LACEWORK_PROFILE=""
+ATTACKER_LACEWORK_ACCOUNT=""
+TARGET_LACEWORK_PROFILE=""
+TARGET_LACEWORK_ACCOUNT=""
+
 
 # AWS
 ATTACKER_AWS_PROJECT=""
@@ -40,8 +45,9 @@ ATTACKER_PROTONVPN_PASSWORD=""
 ATTACKER_PROTONVPN_PRIVATEKEY=""
 
 # DYNDNS API TOKEN
-DYNU_DNS_DOMAIN=""
 DYNU_DNS_API_TOKEN=""
+ATTACKER_DYNU_DNS_DOMAIN=""
+TARGET_DYNU_DNS_DOMAIN=""
 
 help(){
 cat <<EOH
@@ -114,16 +120,16 @@ function select_scenario {
 
     
     # Ask user to select AWS profile
-    infomsg "Select the scenario to configure:"
-    PS3="Scenario number: "
+    infomsg "select the scenario to configure:"
+    PS3="scenario number: "
     select scenario in $scenarios; do
         if [ -n "$scenario" ]; then
-            infomsg "Selected scenario: $scenario"
+            infomsg "selected scenario: $scenario"
             SCENARIO=$scenario
             CONFIG_FILE="env_vars/variables-$SCENARIO.tfvars"
             break
         else
-            errmsg "Invalid selection. Try again."
+            errmsg "invalid selection. Try again."
         fi
     done
 }
@@ -163,39 +169,39 @@ check_free_memory() {
 
         # Check if total memory is less than 4GB (4096MB)
         if [ "$total_memory" -lt "4096" ]; then
-            warnmsg "Total memory is less than 4GB." 
+            warnmsg "total memory is less than 4GB." 
             
             # Check if the swap file already exists
             if swapon --show | grep -q "^/swapfile"; then
-                infomsg "Swap file /swapfile already exists."
+                infomsg "swap file /swapfile already exists."
             else
-                read -p "> Do you want to create a swap file? (y/n): " response
+                read -p "> do you want to create a swap file? (y/n): " response
                 
                 # If user says 'yes', create a 4GB swap file
                 case "$response" in
                     y|Y )
-                        infomsg "Creating a 4GB swap file..."
+                        infomsg "creating a 4GB swap file..."
                         sudo fallocate -l 4G /swapfile
                         sudo chmod 600 /swapfile
                         sudo mkswap /swapfile
                         sudo swapon /swapfile
                         echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
-                        infomsg "Swap file created and activated."
+                        infomsg "swap file created and activated."
                         ;;
                     n|N )
-                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        warnmsg "no swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
                         ;;
                     * )
                         errmsg "invalid input. aws cli will not be installed"
-                        warnmsg "No swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
+                        warnmsg "no swap file created, minimal memory requirements not met. Terraform apply may fail or hang with less than 4GB RAM."
                         ;;
                 esac
             fi
         else
-            infomsg "Total memory is greater than or equal to 4GB. No need to create a swap file."
+            infomsg "total memory is greater than or equal to 4GB. No need to create a swap file."
         fi
     else
-        infomsg "Skipping free memory check."
+        infomsg "skipping free memory check."
     fi
     sleep 2
 }
@@ -207,7 +213,7 @@ check_jq() {
     else
         infomsg "jq is not installed."
         
-        read -p "> Would you like to install it? (y/n): " install_jq
+        read -p "> would you like to install it? (y/n): " install_jq
         case "$install_jq" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -222,7 +228,7 @@ check_jq() {
                     fi
                     brew install jq
                 else
-                    errmsg "Unsupported operating system. Please install aws-cli manually."
+                    errmsg "unsupported operating system. please install jq manually."
                     exit 1
                 fi
                 ;;
@@ -240,6 +246,91 @@ check_jq() {
     fi
 }
 
+# Check if yq is installed and install if not
+check_yq() {
+    if command_exists jq &> /dev/null; then
+        infomsg "yq installed."
+    else
+        infomsg "yq is not installed."
+        
+        read -p "> would you like to install it? (y/n): " install_yq
+        case "$install_yq" in
+            y|Y )
+                if [[ $(uname -s) == "Linux" ]]; then
+                    infomsg "installing jq for linux..."
+                    sudo apt-get update
+                    sudo apt-get install -y yq
+                elif [[ $(uname -s) == "Darwin" ]]; then
+                    infomsg "installing yq for mac..."
+                    if ! command_exists brew &> /dev/null; then
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
+                        exit 1
+                    fi
+                    brew install yq
+                else
+                    errmsg "unsupported operating system. please install yq manually."
+                    exit 1
+                fi
+                ;;
+            n|N )
+                errmsg "yq will not be installed."
+                errmsg "yq is required to proceed. please install it manually."
+                exit 1
+                ;;
+            * )
+                errmsg "invalid input. yq will not be installed"
+                errmsg "yq is required to proceed. please install it manually."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+check_docker() {
+    if command_exists docker &> /dev/null; then
+        infomsg "docker is installed."
+    else
+        infomsg "docker is not installed."
+
+        read -p "> would you like to install docker? (y/n): " install_docker
+        case "$install_docker" in
+            y|Y )
+                if [[ $(uname -s) == "Linux" ]]; then
+                    infomsg "installing docker for Linux..."
+                    # Installation steps can vary based on the Linux distribution
+                    # The following are general steps for Ubuntu/Debian
+                    sudo apt-get update
+                    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+                    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+                    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+                    sudo apt-get update
+                    sudo apt-get install -y docker-ce
+                elif [[ $(uname -s) == "Darwin" ]]; then
+                    infomsg "installing docker for Mac..."
+                    if ! command_exists brew &> /dev/null; then
+                        errmsg "brew is not installed. please install brew first: https://brew.sh/"
+                        exit 1
+                    fi
+                    brew install --cask docker
+                else
+                    errmsg "unsupported operating system. please install docker manually."
+                    exit 1
+                fi
+                ;;
+            n|N )
+                errmsg "docker will not be installed."
+                errmsg "docker is required to proceed. please install it manually."
+                exit 1
+                ;;
+            * )
+                errmsg "invalid input. docker will not be installed."
+                errmsg "docker is required to proceed. please install it manually."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
 # Check if aws-cli is installed and install if not
 check_aws_cli() {
     if command_exists aws &> /dev/null; then
@@ -247,7 +338,7 @@ check_aws_cli() {
     else
         infomsg "aws-cli is not installed."
         
-        read -p "> Would you like to install it? (y/n): " install_aws_cli
+        read -p "> would you like to install it? (y/n): " install_aws_cli
         case "$install_aws_cli" in
             y|Y )
                 if [[ $(uname -s) == "Linux" ]]; then
@@ -262,7 +353,7 @@ check_aws_cli() {
                     fi
                     brew install awscli
                 else
-                    errmsg "Unsupported operating system. Please install aws-cli manually."
+                    errmsg "unsupported operating system. please install aws-cli manually."
                     exit 1
                 fi
                 ;;
@@ -302,7 +393,7 @@ check_gcloud_cli() {
                     fi
                     brew install google-cloud-sdk
                 else
-                    errmsg "unsupported operating system. Please install gcloud manually."
+                    errmsg "unsupported operating system. please install gcloud manually."
                     exit 1
                 fi
                 ;;
@@ -326,7 +417,7 @@ check_azure_cli() {
         infomsg "azure cli installed."
     else
         
-        read -p "> azure cli is not installed. Would you like to install it? (y/n) " install_azure
+        read -p "> azure cli is not installed. would you like to install it? (y/n) " install_azure
         case "$install_azure" in
             y|Y )
                 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -341,7 +432,7 @@ check_azure_cli() {
                     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
                 else
                     errmsg "unsupported operating system. please install azure cli manually."
-                    errmsg "azure cli is required to proceed. Please install it manually."
+                    errmsg "azure cli is required to proceed. please install it manually."
                     exit 1
                 fi
                 ;;
@@ -365,7 +456,7 @@ check_lacework_cli() {
         infomsg "lacework cli installed."
     else
         
-        read -p "> Lacework CLI is not installed. Would you like to install it? (y/n) " install_lacework
+        read -p "> Lacework CLI is not installed. would you like to install it? (y/n) " install_lacework
         case "$install_lacework" in
             y|Y )
                 # check if on Linux or macOS
@@ -505,7 +596,7 @@ function aws_check_vpcs {
             shift # past value
             ;;
             *)
-            errmsg "Unknown option: $1"
+            errmsg "unknown option: $1"
             exit 1
             ;;
         esac
@@ -516,12 +607,12 @@ function aws_check_vpcs {
     fi
 
     # Get the number of VPCs deployed in the default region
-    vpcs=$(aws ec2 describe-vpcs --region=$region --query 'length(Vpcs[])' --profile $profile --output json)
+    vpcs=$(aws ec2 describe-vpcs --region="$region" --query 'length(Vpcs[])' --profile "$profile" --output json)
 
     infomsg "number of VPCs deployed in the $region region: $vpcs"
 
     # Get the remaining VPC service quota for instances
-    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region=$region --profile $profile --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
+    vpc_quota=$(aws service-quotas get-service-quota --service-code 'vpc' --quota-code 'L-F678F1CE' --region="$region" --profile "$profile" --query 'Quota.Value' --output json --color off --no-cli-pager | cut -d '.' -f1)
 
     infomsg "vpc service quota: $vpc_quota"
     
@@ -540,7 +631,7 @@ function select_aws_profile {
     # Retrieve list of AWS profiles
     aws_profiles=$(aws configure list-profiles)
     
-    if (( $(echo -n $aws_profiles | wc -c) > 0 )); then
+    if (( $(echo -n "$aws_profiles" | wc -c) > 0 )); then
         infomsg "aws profiles found"
     else
         errmsg "no aws profiles configured - please add at least one aws profile"
@@ -575,36 +666,36 @@ function select_aws_profile {
     for environment in $environments; do 
         # Ask user to select AWS profile
         infomsg "select the $environment AWS profile:"
-        PS3="Profile number: "
+        PS3="profile number: "
         aws_profiles=$(aws configure list-profiles)
         select profile_name in $aws_profiles; do
             if [ -n "$profile_name" ]; then
-                infomsg "Selected $environment aws profile: $profile_name"
+                infomsg "selected $environment aws profile: $profile_name"
                 break
             else
-                errmsg "Invalid selection. Try again."
+                errmsg "invalid selection. Try again."
             fi
         done
 
-        infomsg "Please choose the $environment aws region from the list below:"
-        region_list=$(aws ec2 describe-regions --profile=$profile_name --query 'Regions[*].RegionName' --output text)
+        infomsg "please choose the $environment aws region from the list below:"
+        region_list=$(aws ec2 describe-regions --profile="$profile_name" --query 'Regions[*].RegionName' --output text)
         select region in $region_list; do
             if [ -n "$region" ]; then
-                infomsg "Selected $environment aws region: $region"
+                infomsg "selected $environment aws region: $region"
                 break
             else
-                errmsg "Invalid selection. Try again."
+                errmsg "invalid selection. Try again."
             fi
         done
 
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AWS_PROFILE=$profile_name
             ATTACKER_AWS_REGION=$region
-            aws_check_vpcs -r $ATTACKER_AWS_REGION -p $ATTACKER_AWS_PROFILE
+            aws_check_vpcs -r "$ATTACKER_AWS_REGION" -p "$ATTACKER_AWS_PROFILE"
         elif [ "$environment" == "target" ]; then
             TARGET_AWS_PROFILE=$profile_name
             TARGET_AWS_REGION=$region
-            aws_check_vpcs -r $TARGET_AWS_REGION -p $TARGET_AWS_PROFILE
+            aws_check_vpcs -r "$TARGET_AWS_REGION" -p "$TARGET_AWS_PROFILE"
         fi;
     done;
 }
@@ -618,27 +709,27 @@ function select_gcp_project {
     for environment in $environments; do 
         infomsg "select the $environment gcp project:"
         # Prompt the user to select a project
-        PS3="Please select the $environment gcp project: "
+        PS3="please select the $environment gcp project: "
         select project_id in $projects; do
             if [[ -n "$project_id" ]]; then
-                infomsg "Selected $environment gcp project: $project_id"
+                infomsg "selected $environment gcp project: $project_id"
                 break
             else
-                errmsg "Invalid selection. Please try again."
+                errmsg "invalid selection. please try again."
             fi
         done
 
-        infomsg "Fetching valid GCP locations..."
-        locations=$(gcloud compute regions list --project=$project_id --format="value(name)")
+        infomsg "fetching valid GCP locations..."
+        locations=$(gcloud compute regions list --project="$project_id" --format="value(name)")
 
         # Prompt the user to select a region
-        PS3="Please select a locations: "
+        PS3="please select a locations: "
         select location in $locations; do
             if [[ -n "$location" ]]; then
-                infomsg "Selected location: $location"
+                infomsg "selected location: $location"
                 break
             else
-                errmsg "Invalid selection. Please try again."
+                errmsg "invalid selection. please try again."
             fi
         done
         
@@ -657,13 +748,15 @@ function select_gcp_project {
 
 function select_azure_subscription {
     # Get the current tenant
-    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv)
-    
+    local tenant_id=$(az account list --query "[?isDefault].tenantId | [0]" --output tsv --all)
+    local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv --all)
+    local regions=($(az account list-locations --query "sort_by([].{name:name}, &name)" --output tsv))
+
     # iterate through the attack and target environments
     environments="attacker target"
     for environment in $environments; do
         infomsg "select the $environment azure subscription:"
-        local options=$(az account list --query "[?tenantId=='$tenant_id'].join('',[id,' (',name, ') isDefault:',to_string(isDefault)])" --output tsv)
+        PS3="$environment subscription number: "
         local IFS=$'\n'
         select opt in $options; do
             if [[ -n "$opt" ]]; then
@@ -673,57 +766,84 @@ function select_azure_subscription {
             fi
         done
 
-        infomsg "Retrieving list of Azure regions..."
-        regions=($(az account list-locations --query "[].name" --output tsv))
+        infomsg "retrieving list of Azure regions..."
         if [ ${#regions[@]} -eq 0 ]; then
-            echo "No valid Azure regions found for subscription $subscription_id."
+            echo "no valid Azure regions found for subscription $subscription_id."
             return 1
         fi
-        PS3="Enter the number of the Azure region you want to use: "
+        PS3="enter the number of the Azure region you want to use: "
         select region in "${regions[@]}"; do
             if [[ -n $region ]]; then
-                echo "You chose the Azure region: $region"
+                echo "you chose the Azure region: $region"
                 break
             else
-                echo "Invalid selection. Please try again."
+                echo "invalid selection. please try again."
             fi
         done
 
         if [ "$environment" == "attacker" ]; then
             ATTACKER_AZURE_SUBSCRIPTION=$subscription_id
             ATTACKER_AZURE_TENANT=$tenant_id
-            ATTACKER_AZURE_LOCATION=$region
+            ATTACKER_AZURE_LOCATION=$(az account list-locations --query "[?name == '$region'].displayName" --output tsv)
         elif [ "$environment" == "target" ]; then
             TARGET_AZURE_SUBSCRIPTION=$subscription_id
             TARGET_AZURE_TENANT=$tenant_id
-            TARGET_AZURE_LOCATION=$region
+            TARGET_AZURE_LOCATION=$(az account list-locations --query "[?name == '$region'].displayName" --output tsv)
         fi;
     done;
 
     # Print the selected subscription and organization
-    # infomsg "Current tenant: $tenant_id"
+    # infomsg "current tenant: $tenant_id"
 }
 
 function select_lacework_profile {
     # Get the current tenant
-    local options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
-    if (( $(echo -n $options | wc -c) > 0 )); then
-        infomsg "lacework profiles found"
-    else
-        errmsg "no lacework profiles configured - please add a lacework api key"
-        exit 1
-    fi
-    infomsg "select a lacework profile:"
-    PS3="Profile number: "
-    local IFS=$'\n'
-    select opt in $options; do
-        if [[ -n "$opt" ]]; then
-            LACEWORK_PROFILE=$opt
-            infomsg "selected lacework profile: $LACEWORK_PROFILE"
-            LACEWORK_ACCOUNT=$(lacework configure show account --profile=$LACEWORK_PROFILE)
-            break
+    if [ "$ATTACKER_LACEWORK_REQUIRED" == "true" ]; then
+        local attacker_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+        if (( $(echo -n $attacker_options | wc -c) > 0 )); then
+            infomsg "lacework profiles found"
+        else
+            errmsg "no lacework profiles configured - please add a lacework api key"
+            exit 1
         fi
-    done
+    
+    
+        infomsg "select a attacker lacework profile:"
+        PS3="attacker profile number: "
+        local IFS=$'\n'
+        select opt in $attacker_options; do
+            if [[ -n "$opt" ]]; then
+                ATTACKER_LACEWORK_PROFILE=$opt
+                infomsg "selected $environment lacework profile: $ATTACKER_LACEWORK_PROFILE"
+                ATTACKER_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$ATTACKER_LACEWORK_PROFILE")
+                break;
+            fi
+        done
+        sleep 3
+        clear
+    fi
+    if [ "$TARGET_LACEWORK_REQUIRED" == "true" ]; then
+        local target_options=$(lacework configure list | sed 's/>/ /' | awk 'NR>2 && $1!="To" {print $1}')
+        if (( $(echo -n $target_options | wc -c) > 0 )); then
+            infomsg "lacework profiles found"
+        else
+            errmsg "no lacework profiles configured - please add a lacework api key"
+            exit 1
+        fi
+        infomsg "select a target lacework profile:"
+        PS3="target profile number: "
+        local IFS=$'\n'
+        select opt in $target_options; do
+            if [[ -n "$opt" ]]; then
+                LACEWORK_PROFILE=$opt
+                TARGET_LACEWORK_PROFILE=$opt
+                infomsg "selected $environment lacework profile: $TARGET_LACEWORK_PROFILE"
+                LACEWORK_ACCOUNT=$(lacework configure show account --profile="$LACEWORK_PROFILE")
+                TARGET_LACEWORK_ACCOUNT=$(lacework configure show account --profile="$TARGET_LACEWORK_PROFILE")
+                break;
+            fi
+        done
+    fi
 }
 
 function output_aws_config {
@@ -737,11 +857,18 @@ target_aws_region = "$TARGET_AWS_REGION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_lacework_profile = "$ATTACKER_LACEWORK_PROFILE"
+attacker_lacework_account_name = "$ATTACKER_LACEWORK_ACCOUNT"
+attacker_lacework_server_url = "https://$ATTACKER_LACEWORK_ACCOUNT.lacework.net"
+target_lacework_profile = "$TARGET_LACEWORK_PROFILE"
+target_lacework_account_name = "$TARGET_LACEWORK_ACCOUNT"
+target_lacework_server_url = "https://$TARGET_LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -758,11 +885,18 @@ attacker_gcp_region="$ATTACKER_GCP_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_lacework_profile = "$ATTACKER_LACEWORK_PROFILE"
+attacker_lacework_account_name = "$ATTACKER_LACEWORK_ACCOUNT"
+attacker_lacework_server_url = "https://$ATTACKER_LACEWORK_ACCOUNT.lacework.net"
+target_lacework_profile = "$TARGET_LACEWORK_PROFILE"
+target_lacework_account_name = "$TARGET_LACEWORK_ACCOUNT"
+target_lacework_server_url = "https://$TARGET_LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -779,11 +913,18 @@ target_azure_region = "$TARGET_AZURE_LOCATION"
 lacework_profile = "$LACEWORK_PROFILE"
 lacework_account_name = "$LACEWORK_ACCOUNT"
 lacework_server_url = "https://$LACEWORK_ACCOUNT.lacework.net"
+attacker_lacework_profile = "$ATTACKER_LACEWORK_PROFILE"
+attacker_lacework_account_name = "$ATTACKER_LACEWORK_ACCOUNT"
+attacker_lacework_server_url = "https://$ATTACKER_LACEWORK_ACCOUNT.lacework.net"
+target_lacework_profile = "$TARGET_LACEWORK_PROFILE"
+target_lacework_account_name = "$TARGET_LACEWORK_ACCOUNT"
+target_lacework_server_url = "https://$TARGET_LACEWORK_ACCOUNT.lacework.net"
 attacker_context_config_protonvpn_user = "$ATTACKER_PROTONVPN_USER"
 attacker_context_config_protonvpn_password = "$ATTACKER_PROTONVPN_PASSWORD"
 attacker_context_config_protonvpn_privatekey = "$ATTACKER_PROTONVPN_PRIVATEKEY"
 dynu_api_key = "$DYNU_DNS_API_TOKEN"
-dynu_dns_domain = "$DYNU_DNS_DOMAIN"
+attacker_dynu_dns_domain = "$ATTACKER_DYNU_DNS_DOMAIN"
+target_dynu_dns_domain = "$TARGET_DYNU_DNS_DOMAIN"
 EOF
 }
 
@@ -799,12 +940,22 @@ function config_protonvpn {
 }
 
 function config_dynu {
-    infomsg "dynu configuration if required for this scenario."
-    read -p "> dynu dns domain: " dynu_dns_domain
-    DYNU_DNS_DOMAIN=$dynu_dns_domain
-    clear
-    read -p "> dynu dns api key: " dynu_api_key
+    infomsg "dynu configuration if required for this scenario. attacker and target dynu domain and api can be the same."
+    
+    read -p "> dynu dns api key (used for attacker and target dynu setup): " dynu_api_key
     DYNU_DNS_API_TOKEN=$dynu_api_key
+    clear
+    # iterate through the attack and target environments
+    environments="attacker target"
+    for environment in $environments; do 
+        read -p "> $environment dynu dns domain: " dynu_dns_domain
+        if [ "$environment" == "attacker" ]; then
+            ATTACKER_DYNU_DNS_DOMAIN=$dynu_dns_domain
+        else
+            TARGET_DYNU_DNS_DOMAIN=$dynu_dns_domain
+        fi
+        clear
+    done;
 }
 
 function select_option {
@@ -815,7 +966,7 @@ function select_option {
       infomsg "$opt"
       break
     else
-      infomsg "Invalid option. Try another one."
+      infomsg "invalid option. Try another one."
     fi
   done
 }
@@ -831,36 +982,62 @@ check_jq
 
 clear
 
+# check for yq
+check_yq
+
+clear
+
 # scenario selection
 select_scenario
 
 clear
 
-ATTACKER_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json)
-TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' aws/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json)
+CSP=$(echo ${SCENARIO} | awk -F '-' '{ print $1 }')
 
-for s in "docker_composite_compromised_credentials_attack" "docker_composite_cloud_cryptomining_attack" "docker_composite_cloud_ransomware_attack" "docker_composite_defense_evasion_attack" "docker_composite_host_cryptomining_attack"; do 
-    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/${SCENARIOS_PATH}/${SCENARIO}/shared/simulation.json)
+ATTACKER_DYNU_REQUIRED=$(jq -r 'try .context.dynu_dns.enabled catch false' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json 2>/dev/null)
+ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq )
+ATTACKER_LACEWORK_REQUIRED=$(jq -r '.context.lacework' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/infrastructure.json 2>/dev/null | jq '.[]' 2>/dev/null | jq 'try .enabled catch false' 2>/dev/null | grep true | uniq  2>/dev/null)
+TARGET_DYNU_REQUIRED=$(jq -r '.context.dynu_dns.enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json 2>/dev/null)
+TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enable_dynu_dns==true) and (.enabled==true)) | .enable_dynu_dns' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+TARGET_LACEWORK_REQUIRED=$(jq -r '.context.lacework' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/infrastructure.json 2>/dev/null | jq '.[]' 2>/dev/null | jq 'try .enabled catch false' 2>/dev/null | grep true | uniq  2>/dev/null)
+
+ATTACKER_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_APP_ENABLED=$(jq -r '.context.kubernetes[] | .[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq )
+ATTACKER_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/attacker/surface.json 2>/dev/null | uniq)
+TARGET_SURFACE_KUBE_VULN_ENABLED=$(jq -r '.context.kubernetes[] | .vulnerable[] | select((.enabled==true)) | .enabled' ${CSP}/${SCENARIOS_PATH}/${SCENARIO}/target/surface.json 2>/dev/null | uniq)
+
+if [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_ENABLED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_ENABLED}" ]]; then
+    infomsg "kubneretes apps enabled - some scenarios use docker to build containers.."
+    sleep 3
+    check_docker
+    sleep 3
+fi
+
+for s in "docker_composite_compromised_credentials" "docker_composite_cloud_cryptomining" "docker_composite_cloud_ransomware" "docker_composite_defense_evasion" "docker_composite_host_cryptomining"; do 
+    ATTACKER_PROTONVPN_REQUIRED=$(jq -r ".context.aws.ssm.attacker.execute.${s}.enabled" aws/"${SCENARIOS_PATH}"/"${SCENARIO}"/shared/simulation.json)
     if [[ "true" == "${ATTACKER_PROTONVPN_REQUIRED}" ]]; then
         break
     fi
 done
 
 if [ -e "$CONFIG_FILE" ]; then
-    infomsg "Existing config file:"
+    infomsg "existing config file:"
     echo "$(cat $CONFIG_FILE)"
 fi
 
-if check_file_exists $CONFIG_FILE; then
-    infomsg "Configuration file will be overwritten: $CONFIG_FILE"
-    
+if check_file_exists "$CONFIG_FILE"; then
+    warnmsg "configuration will overwrite existing config if saved: $CONFIG_FILE"
+    sleep 3
+
     # set provider to first segement of workspace name
-    PROVIDER=$(echo $SCENARIO | awk -F '-' '{ print $1 }')
+    PROVIDER=$(echo "$SCENARIO" | awk -F '-' '{ print $1 }')
     
     # check for sso logged out session
     if [[ "$PROVIDER" == "aws" ]]; then
-        session_check=$(aws sts get-caller-identity ${SSO_PROFILE} 2>&1)
-        if echo $session_check | grep "The SSO session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
+        session_check=$(aws sts get-caller-identity "${SSO_PROFILE}" 2>&1)
+        if echo "$session_check" | grep "the sso session associated with this profile has expired or is otherwise invalid." > /dev/null 2>&1; then
             read -p "> aws sso session has expired - login now? (y/n): " login
             case "$login" in
                 y|Y )
@@ -893,7 +1070,11 @@ if check_file_exists $CONFIG_FILE; then
 
     # lacework selection 
     clear
-    select_lacework_profile
+    if [ "$ATTACKER_LACEWORK_REQUIRED" == "true" ] || [ "$TARGET_LACEWORK_REQUIRED" == "true" ]; then
+        infomsg "found enabled lacework components - profile config required..."
+        sleep 3
+        select_lacework_profile
+    fi
     
     # provider preflight
     clear
@@ -906,12 +1087,14 @@ if check_file_exists $CONFIG_FILE; then
             config_protonvpn
             clear
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
+        else
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_aws_config
     elif [ "$PROVIDER" == "gcp" ]; then
         check_gcloud_cli
@@ -922,16 +1105,16 @@ if check_file_exists $CONFIG_FILE; then
             config_protonvpn
             clear
         else
-            infomsg "Skipping protonvpn configuration as it is not required..."
+            infomsg "skipping protonvpn configuration as it is not required..."
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
         else
-            infomsg "Skipping dynu configuration as it is not required..."
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_gcp_config
     elif [ "$PROVIDER" == "azure" ]; then
         check_azure_cli
@@ -942,12 +1125,14 @@ if check_file_exists $CONFIG_FILE; then
             config_protonvpn
             clear
         fi
-        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]]; then
+        if [[ "true" == "${ATTACKER_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${ATTACKER_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_APP_DYNU_REQUIRED}" ]] || [[ "true" == "${TARGET_SURFACE_KUBE_VULN_DYNU_REQUIRED}" ]]; then
             config_dynu
             clear
+        else
+            infomsg "skipping dynu configuration as it is not required..."
         fi
         echo -e "\n########################################     SCENARIO VARIABLES     ########################################\n"
-        echo -e "PATH: ${PROVIDER}/${SCENARIOS_PATH}/variables-${SCENARIO}.tfvars\n\n"
+        echo -e "PATH: ${PROVIDER}/../env_vars/variables-${SCENARIO}.tfvars\n\n"
         output_azure_config
     fi
 
@@ -961,11 +1146,11 @@ if check_file_exists $CONFIG_FILE; then
     case "$overwrite_config" in
         y|Y )
             if [ "$PROVIDER" == "aws" ]; then
-                output_aws_config > $CONFIG_FILE
+                output_aws_config > "$CONFIG_FILE"
             elif [ "$PROVIDER" == "gcp" ]; then
-                output_gcp_config > $CONFIG_FILE
+                output_gcp_config > "$CONFIG_FILE"
             elif [ "$PROVIDER" == "azure" ]; then
-                output_azure_config > $CONFIG_FILE
+                output_azure_config > "$CONFIG_FILE"
             fi
             infomsg "configuration file updated."
             if [ "${SCENARIOS_PATH}" == "../scenarios" ]; then
@@ -983,6 +1168,6 @@ if check_file_exists $CONFIG_FILE; then
             ;;
     esac
 else
-  errmsg "Existing configuration file found exiting."
+  errmsg "existing configuration file found exiting."
   exit 1
 fi
