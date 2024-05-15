@@ -48,12 +48,12 @@ graph TD
         %% subgraph prod-bucket-1["prod-bucket-1"]
             
         %% end
-        subgraph db-bucket-1["db-bucket-1"]
+        subgraph db-bucket-1["db-ec2-backup"]
             
         end
       end
       subgraph RDS_Instances_target["RDS Instaces"]
-        subgraph dev-db-1["dev-db-1"]
+        subgraph dev-db-1["ec2rds"]
             
         end
       end
