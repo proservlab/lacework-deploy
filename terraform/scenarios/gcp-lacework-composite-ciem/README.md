@@ -1,4 +1,4 @@
-# Google Cloud Platform-lacework-composite-ciem
+# GCP-lacework-composite-ciem
 
 ## Description
 
@@ -19,9 +19,9 @@ At a high-level:
 ```mermaid
 graph TD
   %% Root Node
-  subgraph Google Cloud Platform["Google Cloud Platform"]
+  subgraph GCP["GCP"]
     
-    %% Google Cloud Platform Projects
+    %% GCP Accounts
     subgraph attacker["Attacker"]
       Public_Instances_attacker["Public VPC"]
       
@@ -74,7 +74,7 @@ graph TD
 
   %% Local Enumeration and Credential Discovery
   reverse_shell-target-1 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
-  local_enum -->|"5. Credential Exfiltration"| cred_discovery["Google Cloud Platform Credential Discovery"]
+  local_enum -->|"5. Credential Exfiltration"| cred_discovery["GCP Credential Discovery"]
 
   %% Cloud Enumeration with ScoutSuite
   cred_discovery -->|"6. Cloud Enumeration with ScoutSuite"| scout_enum["Cloud Enumeration with ScoutSuite"]
@@ -98,7 +98,7 @@ graph TD
   classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
   
   %% Apply Rounded Corner Class
-  class Google Cloud Platform,attacker,db-bucket-1,dev-db-1,cloudsql_Instances_target,CloudStorage_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
+  class GCP,attacker,db-bucket-1,dev-db-1,cloudsql_Instances_target,CloudStorage_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
 ```
 
 ## Walkthrough
@@ -162,11 +162,11 @@ From this one composite alert the incident response team were able to determine 
 
 Actions for the incident response team are clear - quarantine the host, take a forensic snapshot and leave the machine in a stopped state until further investigation can be completed.
 
-_Potentially Compromised Google Cloud Platform Keys_
+_Potentially Compromised GCP Keys_
 
 > next tab
 
-Next the incident response team looks at another Lacework Composite alert in the same time window, this **Alert for Potentially Compromised Google Cloud Platform Keys.** 
+Next the incident response team looks at another Lacework Composite alert in the same time window, this **Alert for Potentially Compromised GCP Keys.** 
 
 In the Alert Description **we can see the IAM user khon.traktour@interlacelabs and the Principal ID for the session associated with the compromise indicators**. 
 
@@ -195,16 +195,16 @@ The team decides it’s time to take action knowing the scope and potential impa
 > next tab
 From the composite alert the team opens up the Lacework Alert Assistant context panel. Where they can use the alert assistant to help them understand any aspects of this particular alert. Or ask for additional guidance on remediation.
 
-The team knows they need to take immediate action, although they have some processes in place they’ve never experienced an incident of this magnitude in their environment before. So they leverage the Alert Assistant to help with best practices for remediating compromised credentials in an Google Cloud Platform environment. 
+The team knows they need to take immediate action, although they have some processes in place they’ve never experienced an incident of this magnitude in their environment before. So they leverage the Alert Assistant to help with best practices for remediating compromised credentials in an GCP environment. 
 
 We can see the question here at the top and assistant’s guidance here, including identify resource, invalidate credentials, delete unauthorized resource and continue to monitor.
 
-There’s also some back and forth where the team is working through additional understanding of how the alert assistant might help them, including some guidance on remediating using the Google Cloud Platform-cli.
+There’s also some back and forth where the team is working through additional understanding of how the alert assistant might help them, including some guidance on remediating using the GCP-cli.
 
 After receiving the input from the Alert Assistant the team now moves to contain the attacker activities by revoking session credentials, adding explicit deny policy to the cloudsql role and rotating credentials. 
 
 ```
-We believe the Google Cloud Platform credentials associated with this alert have been compromised. As a Security Analyst what steps should we take to revoke access for this Google Cloud Platform Role and the user who assumed this role?
+We believe the GCP credentials associated with this alert have been compromised. As a Security Analyst what steps should we take to revoke access for this GCP Role and the user who assumed this role?
 ```
 
 For the team at Interlabs knowing they can securely communicate their concerns, without exposing sensitive information to a third party chatbot, means they can more effectively leverage the power of GenAI in their remediation efforts. Lacework Alert Assistant is like adding another security analyst to the team when that additional help is needed most.
