@@ -1,4 +1,4 @@
-# GCP-lacework-composite-ciem
+# gcp-lacework-composite-ciem
 
 ## Description
 
