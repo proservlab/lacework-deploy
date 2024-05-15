@@ -229,7 +229,7 @@ As we can see the **relationship** between** internet exposure**, **vulnerabilit
 
 End-users can build their own queries to discover and visualize other high-risk entities within their environment using the query builder here at the top.
 
-Because the security team at Interlace Labs moved away from rules based alerting which yields low fidelity, low context alerts in high volume alerts - to Lacework, they’ve** increased their operational efficiency**, leaving the** time and space to work on proactive initiatives** such **attack surface reduction** and **right-sizing identity privileges** like we looked at here. 
+Because the security team at Interlace Labs moved away from rules based alerting which yields low fidelity, low context alerts in high volume alerts - to Lacework, they’ve** increased their operational efficiency**, leaving the** time and space to work on proactive initiatives** such **attack surface reduction** like we looked at here. 
 
 **Wrap up**
 
