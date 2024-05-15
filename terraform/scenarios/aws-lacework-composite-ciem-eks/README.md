@@ -57,7 +57,7 @@ graph TD
       end
       subgraph Private_Instances_target["Private VPC"]
         subgraph private-target-1["private-target-1"]
-            ssh_private-target-2(/bin/bash<br/>Port: None)
+            ssh_private-target-1(/bin/bash<br/>Port: None)
         end
       end
       subgraph EKS_Instances_target["EKS Clusters"]
@@ -88,9 +88,9 @@ graph TD
   reverse_shell-target-1 -->|"2. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
   local_enum -->|"3. Network Enumeration"| network_discovery["nmap"]
   network_discovery -->|"4. Private Key Discovery"| private_key["~/.ssh/private_key"]
-  private_key -->|"5. Lateral Movement"| ssh_private-target-2
+  private_key -->|"5. Lateral Movement"| ssh_private-target-1
 
-  ssh_private-target-2 -->|"6. Local Enumeration"| local_enum_2["/bin/bash linpeas.sh"]
+  ssh_private-target-1 -->|"6. Local Enumeration"| local_enum_2["/bin/bash linpeas.sh"]
   local_enum_2 -->|"7. Privilege Escalation to Root"| privilege_escalate["docker run"]
   privilege_escalate -->|"8. Exfiltrate Kubernetes Creds"| exfil_kube["~/.kube/config"]
   exfil_kube -->|"8. Exfiltrate AWS Creds"| exfil_aws["~/.aws/credentials"]
@@ -108,7 +108,7 @@ graph TD
   classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
   
   %% Apply Rounded Corner Class
-  class aws,attacker,dev-target-1,EKS_Instances_target,exfil_kube,exfil_aws,privilege_escalate,local_enum_2,private_key,network_discovery,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
+  class aws,attacker,private-target-1,ssh_private-target-1,Private_Instances_target,dev-target-1,EKS_Instances_target,exfil_kube,exfil_aws,privilege_escalate,local_enum_2,private_key,network_discovery,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
 ```
 
 ## Walkthrough
