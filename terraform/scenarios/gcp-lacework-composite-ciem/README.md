@@ -107,13 +107,9 @@ Alright, we’re going to walk you through a demo and storyline that we document
 
 You’ll see some of the innovations released in the last year including:
 
-
-
 * **composite alerts**
-* **CIEM**
 * **alert context panels**
 * **attack path analysis** and **security graph** 
-* as well as our **code aware functionality**
 
 We’ve got a lot to cover, let’s get started.
 
