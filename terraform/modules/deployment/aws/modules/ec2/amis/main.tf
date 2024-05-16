@@ -91,7 +91,7 @@ data "aws_ami" "rocky_linux_8" {
 
   filter {
     name   = "name"
-    values = ["Rocky-8-ec2-*.x86_64"]
+    values = ["Rocky-8-EC2-*.x86_64"]
   }
 
   filter {
