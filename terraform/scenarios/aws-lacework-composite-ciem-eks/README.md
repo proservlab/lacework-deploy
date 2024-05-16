@@ -71,7 +71,7 @@ graph TD
         subgraph dev-bucket-1["eks-data-dev"]
             
         end
-        subgraph prod-bucket-1["eks-data-produ"]
+        subgraph prod-bucket-1["eks-data-prod"]
             
         end
       end
@@ -100,8 +100,10 @@ graph TD
  pwncat_public-attacker-1 -->|"9. Kubernetes Enumeration"| dev-target-1
  pwncat_public-attacker-1 -->|"10. OIDC Credentials Discovery"| s3app
 
+ s3app -->dev-bucket-1 
+
  pwncat_public-attacker-1 -->|"11. Start Reverse Shell Cron"| reverseshell_pod
- reverseshell_pod -->|"11. Exfiltrate S3 Data"| dev-bucket-1
+ reverseshell_pod -->|"11. Exfiltrate S3 Data"| prod-bucket-1
 
 
   %% Styling Classes
