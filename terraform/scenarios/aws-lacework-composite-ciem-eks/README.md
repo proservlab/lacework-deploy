@@ -82,28 +82,29 @@ graph TD
   %% Example Attack Flow
   exploit.bin_public-attacker-1 -->|"1. Exploit insecure session token"| authapp
   pwncat_public-attacker-1 -->|"2. Unauthorized SSH Access"| nginx_public-target-1
+  pwncat_public-attacker-1 -->|"3. Establish C2" | reverse_shell-target-1
 
 
   %% Local Enumeration and Credential Discovery
-  reverse_shell-target-1 -->|"2. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
-  local_enum -->|"3. Network Enumeration"| network_discovery["nmap"]
-  network_discovery -->|"4. Private Key Discovery"| private_key["~/.ssh/private_key"]
-  private_key -->|"5. Lateral Movement"| ssh_private-target-1
+  reverse_shell-target-1 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
+  local_enum -->|"5. Network Enumeration"| network_discovery["nmap"]
+  network_discovery -->|"6. Private Key Discovery"| private_key["~/.ssh/private_key"]
+  private_key -->|"7. Lateral Movement"| ssh_private-target-1
 
-  ssh_private-target-1 -->|"6. Local Enumeration"| local_enum_2["/bin/bash linpeas.sh"]
-  local_enum_2 -->|"7. Privilege Escalation to Root"| privilege_escalate["docker run"]
-  privilege_escalate -->|"8. Exfiltrate Kubernetes Creds"| exfil_kube["~/.kube/config"]
-  exfil_kube -->|"8. Exfiltrate AWS Creds"| exfil_aws["~/.aws/credentials"]
+  ssh_private-target-1 -->|"8. Local Enumeration"| local_enum_2["/bin/bash linpeas.sh"]
+  local_enum_2 -->|"9. Privilege Escalation to Root"| privilege_escalate["docker run"]
+  privilege_escalate -->|"10. Exfiltrate Kubernetes Creds"| exfil_kube["~/.kube/config"]
+  exfil_kube -->|"11. Exfiltrate AWS Creds"| exfil_aws["~/.aws/credentials"]
 
  %% Kubernetes enumerate
 
- pwncat_public-attacker-1 -->|"9. Kubernetes Enumeration"| dev-target-1
- pwncat_public-attacker-1 -->|"10. OIDC Credentials Discovery"| s3app
+ pwncat_public-attacker-1 -->|"12. Kubernetes Enumeration"| dev-target-1
+ pwncat_public-attacker-1 -->|"13. OIDC Credentials Discovery"| s3app
 
  s3app -->dev-bucket-1 
 
- pwncat_public-attacker-1 -->|"11. Start Reverse Shell Cron"| reverseshell_pod
- reverseshell_pod -->|"11. Exfiltrate S3 Data"| prod-bucket-1
+ pwncat_public-attacker-1 -->|"14. Start Reverse Shell Cron"| reverseshell_pod
+ reverseshell_pod -->|"15. Exfiltrate S3 Data"| prod-bucket-1
 
 
   %% Styling Classes
