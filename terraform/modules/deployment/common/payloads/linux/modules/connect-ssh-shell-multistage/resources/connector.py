@@ -44,7 +44,7 @@ parser.add_argument('--default-passwords-url', dest="default_passwords_url",
 parser.add_argument('--add-default-users', dest="add_default_users",
                     default=True, action=argparse.BooleanOptionalAction)
 parser.add_argument('--default-users-url', dest="default_users_url",
-                    default="https://github.com/danielmiessler/SecLists/blob/master/Usernames/top-usernames-shortlist.txt")
+                    default="https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/top-usernames-shortlist.txt")
 
 args = parser.parse_args()
 
