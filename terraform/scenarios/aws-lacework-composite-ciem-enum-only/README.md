@@ -2,7 +2,7 @@
 
 ## Description
 
-This scenario covers the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day) and in this [Product Demo Video](https://vimeo.com/manage/videos/923893706/6d0c7ac128). 
+This scenario covers the a limited version of the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day) and in this [Product Demo Video](https://vimeo.com/manage/videos/923893706/6d0c7ac128). In this scenario no exfiltration is attempted, attacker in this case is limited to enumeration of the cloud and host enumeration only.
 
 At a high-level:
 
@@ -10,9 +10,6 @@ At a high-level:
 * Attackers leverage this exposed instance as a foot hold to establish a reverse shell. 
 * With access to the environment attackers then enumerate the exploited host and discover locally stored cloud credentials
 * Discovered cloud credentials from the exploited machine are used by attackers to enumerate access (using scoutsuite over TOR)
-* The enumeration reveals the credentials provide access to an RDS instance and that the `StartExportTask` capability is available
-* Attackers use `StartExportTask` to export a snapshot of the database to an S3 bucket. 
-* Once export is complete attackers exfiltrate the DB snapshot from the target environment to their local environment.
 
 ## Diagram
 
@@ -45,13 +42,9 @@ graph TD
             reverse_shell-target-1(/bin/bash<br/>Port: None)
         end
       end
+
       subgraph S3_Instances_target["S3 Buckets"]
-        %% subgraph dev-bucket-1["dev-bucket-1"]
-            
-        %% end
-        %% subgraph prod-bucket-1["prod-bucket-1"]
-            
-        %% end
+
         subgraph db-bucket-1["db-ec2-backup"]
             
         end
@@ -76,18 +69,6 @@ graph TD
 
   %% Cloud Enumeration with ScoutSuite
   cred_discovery -->|"6. Cloud Enumeration with ScoutSuite"| scout_enum["Cloud Enumeration with ScoutSuite"]
-
-  %% Example Attack Steps
-  scout_enum -->|"7. Data Exfiltration"| exfiltration["RDS Exfiltration via StartExportTask"]
-  
-  %% RDS Access
-  exfiltration -->|"8. StartExportTask Backup to S3"| dev-db-1
-  
-  %% S3 Backup
-  dev-db-1 -->|"9. DB Backup"| db-bucket-1
-  
-  %% S3 Exfil
-  db-bucket-1 -->|"10. Exfil Backup"| pwncat_public-attacker-1
 
   %% Styling Classes
   classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
