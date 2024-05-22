@@ -13,7 +13,7 @@ At a high-level:
 ## Diagram
 
 ```mermaid
-raph TD
+graph TD
   %% Root Node
   subgraph aws["AWS"]
     
