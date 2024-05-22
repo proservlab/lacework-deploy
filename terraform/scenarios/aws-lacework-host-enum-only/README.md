@@ -1,57 +1,43 @@
-# aws-lacework-composite-ciem
+# aws-lacework-host-enum-only
 
 ## Description
 
-This scenario covers the a limited version of the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day) and in this [Product Demo Video](https://vimeo.com/manage/videos/923893706/6d0c7ac128). In this scenario no exfiltration is attempted, attacker in this case is limited to enumeration of the cloud and host enumeration only.
+This scenario covers the a limited version of the compromised outlined in the blog post [Breaches happen: How cloud security platforms like Lacework save the day](https://www.lacework.com/blog/breaches-happen-how-cloud-security-platforms-like-lacework-save-the-day) and in this [Product Demo Video](https://vimeo.com/manage/videos/923893706/6d0c7ac128). In this scenario no exfiltration is attempted, attacker in this case is limited to enumeration of local host.
 
 At a high-level:
 
 * A vulnerable application (log4j vulnerability) is accidentally exposed to the internet. 
 * Attackers leverage this exposed instance as a foot hold to establish a reverse shell. 
 * With access to the environment attackers then enumerate the exploited host and discover locally stored cloud credentials
-* Discovered cloud credentials from the exploited machine are used by attackers to enumerate access (using scoutsuite over TOR)
 
 ## Diagram
 
 ```mermaid
-graph TD
+raph TD
   %% Root Node
   subgraph aws["AWS"]
     
     %% AWS Accounts
-    subgraph attacker["Attacker"]
-      Public_Instances_attacker["Public VPC"]
+    subgraph attacker["Cloud Account: Attacker"]
+      Public_Instances_attacker["Public Instances"]
       
       %% Attacker Public Instances
-      subgraph Public_Instances_attacker["Public VPC"]
-        subgraph public-attacker-1["public-attacker-1"]
-          pwncat_public-attacker-1(reverse shell handler<br/>Port: 4444,1389,8080)
-          exploit.bin_public-attacker-1(log4j exploit<br/>Port: None)
+      subgraph Public_Instances_attacker
+        subgraph public-instance-1["public-instance-1"]
+          pwncat_public-instance-1(reverse shell handler<br/>Port: 4444)
+          exploit.bin_public-instance-1(log4j exploit<br/>Port: None)
         end
       end
     end
     
-    subgraph target["Target"]
-      Public_Instances_target["Public VPC"]
-      S3_Instances_target["S3 Buckets"]
+    subgraph target["Cloud Account: Target"]
+      Public_Instances_target["Public Instances"]
 
       %% Target Public Instances
-      subgraph Public_Instances_target["Public VPC"]
-        subgraph public-target-1["developer"]
-            nginx_public-target-1(log4j app<br/>Port: 80)
-            reverse_shell-target-1(/bin/bash<br/>Port: None)
-        end
-      end
-
-      subgraph S3_Instances_target["S3 Buckets"]
-
-        subgraph db-bucket-1["db-ec2-backup"]
-            
-        end
-      end
-      subgraph RDS_Instances_target["RDS Instaces"]
-        subgraph dev-db-1["ec2rds"]
-            
+      subgraph Public_Instances_target
+        subgraph public-instance-2["public-instance-2"]
+            nginx_public-instance-2(log4j app<br/>Port: 80)
+            ssh_public-instance-2(/bin/bash<br/>Port: None)
         end
       end
     end
@@ -59,22 +45,18 @@ graph TD
   end
 
   %% Example Attack Flow
-  exploit.bin_public-attacker-1 -->|"1. Exploit log4j"| nginx_public-target-1
-  nginx_public-target-1 -->|"2. Establish C2"| pwncat_public-attacker-1
-  pwncat_public-attacker-1 -->|"3. Reverse Shell "| reverse_shell-target-1
+  exploit.bin_public-instance-1 -->|"1. Exploit log4j"| nginx_public-instance-2
+  nginx_public-instance-2 -->|"2. Establish C2"| pwncat_public-instance-1
+  pwncat_public-instance-1 -->|"3. Reverse Shell "| ssh_public-instance-2
 
   %% Local Enumeration and Credential Discovery
-  reverse_shell-target-1 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
-  local_enum -->|"5. Credential Exfiltration"| cred_discovery["AWS Credential Discovery"]
-
-  %% Cloud Enumeration with ScoutSuite
-  cred_discovery -->|"6. Cloud Enumeration with ScoutSuite"| scout_enum["Cloud Enumeration with ScoutSuite"]
-
+  ssh_public-instance-2 -->|"4. Local Enumeration"| local_enum["/bin/bash linpeas.sh"]
+  
   %% Styling Classes
-  classDef rounded-corner stroke:#333,stroke-width:2px,rx:10,ry:10;
+  classDef rounded-corner stroke:#333,stroke-width:1px,rx:10,ry:10;
   
   %% Apply Rounded Corner Class
-  class aws,attacker,db-bucket-1,dev-db-1,RDS_Instances_target,S3_Instances_target,Public_Instances_attacker,public-attacker-1,pwncat_public-attacker-1,exploit.bin_public-attacker-1,target,Public_Instances_target,public-target-1,public-target-2,nginx_public-target-1,ssh_public-target-1,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
+  class AWS_Cloud_Environment,attacker,Public_Instances_attacker,public-instance-1,pwncat_public-instance-1,exploit.bin_public-instance-1,target,Public_Instances_target,public-instance-2,nginx_public-instance-2,ssh_public-instance-2,local_enum,cred_discovery,scout_enum,exfiltration rounded-corner;
 ```
 
 ## Walkthrough
