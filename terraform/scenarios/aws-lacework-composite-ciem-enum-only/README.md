@@ -1,4 +1,4 @@
-# aws-lacework-composite-ciem
+# aws-lacework-composite-ciem-enum-only
 
 ## Description
 
