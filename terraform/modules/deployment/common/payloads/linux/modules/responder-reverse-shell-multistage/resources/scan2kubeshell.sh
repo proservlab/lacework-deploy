@@ -199,7 +199,6 @@ jq '.spec.concurrencyPolicy = "Forbid" |
   --arg REVERSE_SHELL_PORT "$REVERSE_SHELL_PORT" \
   reverse-shell-cronjob.json | tee -a $LOGFILE | tee tmp.json && mv tmp.json reverse-shell-cronjob.json
 
-
 # Apply the updated CronJob configuration
 kubectl apply -f reverse-shell-cronjob.json 2>&1 | tee -a $LOGFILE
 
