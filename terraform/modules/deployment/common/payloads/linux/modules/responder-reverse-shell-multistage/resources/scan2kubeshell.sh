@@ -56,12 +56,14 @@ EOF
 # kube cred setup
 #######################
 
+KUBECTL_PATH=$(command -v kubectl)
+
 # required for kubectl call tunneling
 function kubectl() {
     HTTPS_PROXY="socks5://torproxy:9050" \
     ALL_PROXY="socks5://torproxy:9050" \
     HTTP_PROXY="socks5://torproxy:9050" \
-    kubectl "$@"
+    $KUBECTL_PATH "$@"
 }
 
 log "public ip: $(curl -s https://icanhazip.com)"
