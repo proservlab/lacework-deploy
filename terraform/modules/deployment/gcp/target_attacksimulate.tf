@@ -184,7 +184,7 @@ module "target-osconfig-drop-malware-eicar" {
 # simulation-attacker-exec-docker-composite-host-cryptomining
 
 module "target-osconfig-execute-docker-cpu-miner" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner == true ) ? 1 : 0
+  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.enabled == true ) ? 1 : 0
   source        = "./modules/osconfig/execute-docker-cpu-miner"
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment

@@ -77,6 +77,16 @@ Retrieve instance tags of host on aws from local machine:
 Reteive meta data for compute instance from the local machine:
 `curl -s "http://metadata.google.internal/computeMetadata/v1/instance/"`
 
+# Tag Catalog
+
+Lacework-deploy uses SSM, OSConfig, and Runbooks on AWS, GCP and Azure respecrtively. When endpoints are tagged with an action a specifc payload is assigned to be run on the target endpoint. The payloads for each of these tags are cataloged here:
+
+* [AWS SSM TAGS](docs/AWS_TAGS.md)
+* [GCP OSCONFIG TAGS](docs/GCP_TAGS.md)
+* [AZURE RUNBOOK TAGS](docs/AZURE_TAGS.md)
+
+Additionaly tags are using within the terraform for perform public IP address discovery. This allows some jobs to automatically discover the attacker and target ip address.
+
 # Future
 
-Currently security related tests are focused in AWS, GCP and Azure with each developed to leverage SSM, OSConfig and Runbooks respectively. Measured outcomes for each scenario is a targeted future state. 
+Currently security related tests are focused in AWS, GCP and Azure with each developed to leverage SSM, OSConfig and Runbooks respectively. Expanding beyond Linux to include Windows use cases is a goal for future state in additon to providing easier access to tag/action contributions.

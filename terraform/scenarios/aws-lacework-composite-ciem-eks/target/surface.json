@@ -62,7 +62,7 @@
           },
           {
             "api_groups": ["*"],
-            "resources": ["deployments"],
+            "resources": ["*"],
             "verbs": ["get" ],
             "resource_names": ["s3app"]
           },
