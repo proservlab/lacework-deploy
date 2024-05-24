@@ -14,6 +14,13 @@ At a high-level:
 * Attackers use `StartExportTask` to export a snapshot of the database to an S3 bucket. 
 * Once export is complete attackers exfiltrate the DB snapshot from the target environment to their local environment.
 
+# Example Alerts
+
+* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-alerts.html)
+* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-host-public.html)
+* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-user.html)
+* [Potential Compromised Keys - Role](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-role.html)
+
 ## Diagram
 
 ```mermaid

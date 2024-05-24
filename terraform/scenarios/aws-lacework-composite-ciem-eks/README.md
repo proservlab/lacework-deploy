@@ -22,6 +22,15 @@ At a high-level:
 * Inside the compromised pod attackers once again enumerate their access to discover they have access to two s3 buckets `eks-data-dev` and `eks-data-prod` due to a misconfigured role policy `arn:aws:s3:::eks-data-*`
 * From inside the compromised pod attacker exfiltrate `production.db`
 
+# Example Alerts
+
+* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-alerts.html)
+* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-public.html)
+* [Potential Compromised Host - Private](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-private.html)
+* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-keys-user.html)
+* [Potential Compromised K8s](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-k8s.html)
+* [Potential Compromised Keys - K8s OIDC](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-key-k8s-oidc.html)
+
 ## Diagram
 
 ```mermaid

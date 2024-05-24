@@ -14,6 +14,12 @@ At a high-level:
 * Attackers use `cloudsql.instances.export` to export a snapshot of the database to an CloudStorage bucket. 
 * Once export is complete attackers exfiltrate the DB snapshot from the target environment to their local environment.
 
+# Example Alerts
+
+* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-alerts.html)
+* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-host-public.html)
+* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-keys-user.html)
+
 ## Diagram
 
 ```mermaid
