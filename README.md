@@ -81,9 +81,9 @@ Reteive meta data for compute instance from the local machine:
 
 Lacework-deploy uses SSM, OSConfig, and Runbooks on AWS, GCP and Azure respecrtively. When endpoints are tagged with an action a specifc payload is assigned to be run on the target endpoint. The payloads for each of these tags are cataloged here:
 
-* [AWS SSM Tags](docs/AWS_TAGS.md)
-* [GCP OSCONFIG Tags](docs/GCP_TAGS.md)
-* [AZURE RUNBOOK Tags](docs/AZURE_TAGS.md)
+* [AWS SSM TAGS](docs/AWS_TAGS.md)
+* [GCP OSCONFIG TAGS](docs/GCP_TAGS.md)
+* [AZURE RUNBOOK TAGS](docs/AZURE_TAGS.md)
 
 Additionaly tags are using within the terraform for perform public IP address discovery. This allows some jobs to automatically discover the attacker and target ip address.
 
