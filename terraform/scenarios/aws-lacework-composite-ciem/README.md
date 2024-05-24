@@ -16,10 +16,10 @@ At a high-level:
 
 # Example Alerts
 
-* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-alerts.html)
-* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-host-public.html)
-* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-user.html)
-* [Potential Compromised Keys - Role](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-role.html)
+* [Alerts](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-alerts.html)
+* [Potential Compromised Host - Public](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-host-public.html)
+* [Potential Compromised Keys - User](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-user.html)
+* [Potential Compromised Keys - Role](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-potentially-compromised-keys-role.html)
 
 ## Diagram
 

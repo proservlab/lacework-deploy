@@ -24,12 +24,12 @@ At a high-level:
 
 # Example Alerts
 
-* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-alerts.html)
-* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-public.html)
-* [Potential Compromised Host - Private](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-private.html)
-* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-keys-user.html)
-* [Potential Compromised K8s](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-k8s.html)
-* [Potential Compromised Keys - K8s OIDC](https://https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-key-k8s-oidc.html)
+* [Alerts](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-alerts.html)
+* [Potential Compromised Host - Public](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-public.html)
+* [Potential Compromised Host - Private](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-host-private.html)
+* [Potential Compromised Keys - User](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-keys-user.html)
+* [Potential Compromised K8s](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-k8s.html)
+* [Potential Compromised Keys - K8s OIDC](https://lacework-dev.github.io/lacework-deploy/aws-lacework-composite-ciem-eks-potentially-compromised-key-k8s-oidc.html)
 
 ## Diagram
 

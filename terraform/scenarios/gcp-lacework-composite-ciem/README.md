@@ -16,9 +16,9 @@ At a high-level:
 
 # Example Alerts
 
-* [Alerts](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-alerts.html)
-* [Potential Compromised Host - Public](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-host-public.html)
-* [Potential Compromised Keys - User](https://https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-keys-user.html)
+* [Alerts](https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-alerts.html)
+* [Potential Compromised Host - Public](https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-host-public.html)
+* [Potential Compromised Keys - User](https://lacework-dev.github.io/lacework-deploy/gcp-lacework-composite-ciem-potentially-compromised-keys-user.html)
 
 ## Diagram
 
