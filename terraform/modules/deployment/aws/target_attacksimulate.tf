@@ -151,7 +151,7 @@ module "target-ssm-drop-malware-eicar" {
 ##################################################
 
 module "target-ssm-execute-docker-cpu-miner" {
-  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner == true ) ? 1 : 0
+  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-cpu-miner"
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
