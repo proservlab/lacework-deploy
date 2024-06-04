@@ -117,7 +117,7 @@ resource "azurerm_network_security_rule" "public_ingress_rules_app" {
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public_app_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public_app_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
   destination_port_range      = "${var.public_app_ingress_rules[count.index].from_port}-${var.public_app_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.public_app_ingress_rules[count.index].cidr_block}"
