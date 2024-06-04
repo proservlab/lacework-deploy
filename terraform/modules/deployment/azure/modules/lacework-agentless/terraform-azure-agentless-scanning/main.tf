@@ -188,6 +188,10 @@ resource "lacework_integration_azure_agentless_scanning" "lacework_cloud_account
     local.included_subscriptions_list_no_prefix,
     local.excluded_subscriptions_list_no_prefix,
   )
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 /* **************** General **************** 
