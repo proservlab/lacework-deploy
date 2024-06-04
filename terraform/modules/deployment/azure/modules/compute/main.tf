@@ -195,6 +195,19 @@ resource "tls_private_key" "ssh" {
   rsa_bits = 4096
 }
 
+resource "azurerm_user_assigned_identity" "instances" {
+    for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+    name                = "${each.key}-${var.environment}-${var.deployment}"
+    location              = var.region
+    resource_group_name   = var.resource_group.name
+}
+
+resource "azurerm_role_assignment" "instances" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+    principal_id          = azurerm_user_assigned_identity.instances[each.key].principal_id
+    role_definition_name  = "Contributor"
+    scope                 = var.resource_group.id
+}
 
 resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
@@ -203,6 +216,11 @@ resource "azurerm_linux_virtual_machine" "instances" {
     resource_group_name   = var.resource_group.name
     network_interface_ids = [azurerm_network_interface.nic[each.key].id]
     size                  = each.value.instance_type
+
+    identity {
+        type         = "UserAssigned"
+        identity_ids = [azurerm_user_assigned_identity.instances[each.key].id]
+    }
 
     os_disk {
         name              = "disk-${each.key}-${var.environment}-${var.deployment}"
