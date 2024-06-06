@@ -199,7 +199,7 @@ resource "random_id" "randomIdApp" {
 
 resource "azurerm_user_assigned_identity" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-    name                  = "${each.key}-app-${var.environment}-${var.deployment}"
+    name                  = "${each.key}-identity-app-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
 }
