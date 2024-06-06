@@ -219,7 +219,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
 
     identity {
         type         = "SystemAssigned, UserAssigned"
-        identity_ids = [azurerm_user_assigned_identity.instances-app[each.key].id]
+        identity_ids = [azurerm_user_assigned_identity.instances[each.key].id]
     }
 
     os_disk {
