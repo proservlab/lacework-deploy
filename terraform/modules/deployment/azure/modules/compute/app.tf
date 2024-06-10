@@ -225,13 +225,6 @@ resource "azurerm_role_definition" "instances-app" {
     ]
 }
 
-resource "azurerm_role_assignment" "system-identity-role" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
-    role_definition_name  = azurerm_role_definition.instances-app[each.key].name
-    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
-}
-
 # resource "azurerm_role_assignment" "system-identity-role" {
 #     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
 #     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
@@ -277,4 +270,17 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 
 
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+}
+
+resource "azurerm_role_assignment" "system-identity-role" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
+    role_definition_name  = azurerm_role_definition.instances-app[each.key].name
+    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
+
+    depends_on [
+        azurerm_linux_virtual_machine.instances-app,
+        azurerm_role_definition.instances-app,
+        azurerm_user_assigned_identity.instances-app
+    ]
 }
