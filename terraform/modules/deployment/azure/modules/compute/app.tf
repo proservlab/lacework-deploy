@@ -278,7 +278,7 @@ resource "azurerm_role_assignment" "system-identity-role" {
     role_definition_name  = azurerm_role_definition.instances-app[each.key].name
     scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
 
-    depends_on [
+    depends_on = [
         azurerm_linux_virtual_machine.instances-app,
         azurerm_role_definition.instances-app,
         azurerm_user_assigned_identity.instances-app
