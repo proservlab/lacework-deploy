@@ -227,7 +227,7 @@ resource "azurerm_role_definition" "instances-app" {
 
 # resource "azurerm_role_assignment" "system-identity-role" {
 #     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-#     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
+#     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
 #     role_definition_name  = "Reader"
 #     scope                 = azurerm_linux_virtual_machine.instances-app[each.key].id
 # }
@@ -274,7 +274,7 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 
 resource "azurerm_role_assignment" "system-identity-role" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
+    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
     role_definition_name  = azurerm_role_definition.instances-app[each.key].name
     scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
 
