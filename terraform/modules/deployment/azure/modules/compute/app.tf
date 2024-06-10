@@ -191,25 +191,53 @@ resource "random_id" "randomIdApp" {
     byte_length = 8
 }
 
-# use the common default ssh key
-# resource "tls_private_key" "ssh-app" {
-#   algorithm = "RSA"
-#   rsa_bits = 4096
-# }
-
 resource "azurerm_user_assigned_identity" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name                  = "${each.key}-identity-app-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
+
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
 resource "azurerm_role_assignment" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     principal_id          = azurerm_user_assigned_identity.instances-app[each.key].principal_id
-    role_definition_name  = "Contributor"
+    role_definition_name  = "Reader"
     scope                 = var.resource_group.id
 }
+
+resource "azurerm_role_definition" "instances-app" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    name                  = "${each.key}-identity-app-role-${var.environment}-${var.deployment}"
+    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
+    description           = "Custom role to read specific user-assigned identities"
+
+    permissions {
+        actions = [
+            "Microsoft.ManagedIdentity/userAssignedIdentities/read"
+        ]
+        not_actions = []
+    }
+
+    assignable_scopes = [
+        azurerm_user_assigned_identity.instances-app[each.key].id
+    ]
+}
+
+resource "azurerm_role_assignment" "system-identity-role" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
+    role_definition_name  = azurerm_role_definition.instances-app[each.key].name
+    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
+}
+
+# resource "azurerm_role_assignment" "system-identity-role" {
+#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+#     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity.principal_id
+#     role_definition_name  = "Reader"
+#     scope                 = azurerm_linux_virtual_machine.instances-app[each.key].id
+# }
 
 
 resource "azurerm_linux_virtual_machine" "instances-app" {
@@ -250,27 +278,3 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
-
-# resource "azurerm_virtual_machine_extension" "jit-vm-access-app" {
-#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-#     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
-#     virtual_machine_id = azurerm_linux_virtual_machine.instances-app[each.key].id
-#     publisher = "Microsoft.Azure.Security"
-#     type = "JitNetworkAccess"
-#     type_handler_version = "1.4"
-#     auto_upgrade_minor_version = true
-#     settings = jsonencode({
-#         "durationInSeconds" = 3600
-#     })
-
-#     depends_on = [ azurerm_linux_virtual_machine.instances-app ]
-
-#     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-# }
-
-# use the common default ssh key
-# resource "local_file" "ssh-key-app" {
-#     content  = tls_private_key.ssh-app.private_key_pem
-#     filename = local.ssh_key_path_app
-#     file_permission = "0600"
-# }
