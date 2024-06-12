@@ -14,12 +14,15 @@ resource "random_id" "uniq" {
   byte_length                       = 4
 }
 
-resource "random_string" "root_db_password" {
+resource "random_password" "root_db_password" {
     length                          = 16
     special                         = false
     upper                           = true
     lower                           = true
     numeric                         = true
+    min_upper                       = 1
+    min_lower                       = 1
+    min_numeric                     = 1
 }
 
 
@@ -129,7 +132,7 @@ resource "azurerm_key_vault_secret" "db_username" {
 
 resource "azurerm_key_vault_secret" "db_password" {
   name         = "db-password"
-  value        = random_string.root_db_password.result
+  value        = random_password.root_db_password.result
   key_vault_id = azurerm_key_vault.this.id
 
   depends_on = [ 
@@ -189,7 +192,7 @@ resource "azurerm_subnet" "this" {
 #   infrastructure_encryption_enabled = false
 
 #   administrator_login               = var.root_db_username
-#   administrator_login_password      = random_string.root_db_password.result
+#   administrator_login_password      = random_password.root_db_password.result
 
 #   version = "5.7"
 
@@ -209,7 +212,7 @@ resource "azurerm_mysql_flexible_server" "this" {
   location                          = var.region
   resource_group_name               = var.db_resource_group_name
   administrator_login               = var.root_db_username
-  administrator_password            = random_string.root_db_password.result
+  administrator_password            = random_password.root_db_password.result
   backup_retention_days             = 7
   delegated_subnet_id               = azurerm_subnet.this.id
   private_dns_zone_id               = azurerm_private_dns_zone.mysql[0].id
@@ -360,7 +363,7 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "allow_azure_services" {
 #   infrastructure_encryption_enabled = false
 
 #   administrator_login               = var.root_db_username
-#   administrator_login_password      = random_string.root_db_password.result
+#   administrator_login_password      = random_password.root_db_password.result
 
 #   version                           = "9.5"
 #   ssl_enforcement_enabled           = true
@@ -378,7 +381,7 @@ resource "azurerm_postgresql_flexible_server" "this" {
   location                          = var.region
   resource_group_name               = var.db_resource_group_name
   administrator_login               = var.root_db_username
-  administrator_password            = random_string.root_db_password.result
+  administrator_password            = random_password.root_db_password.result
   backup_retention_days             = 7
   delegated_subnet_id               = azurerm_subnet.this.id
   private_dns_zone_id               = azurerm_private_dns_zone.postgres[0].id
