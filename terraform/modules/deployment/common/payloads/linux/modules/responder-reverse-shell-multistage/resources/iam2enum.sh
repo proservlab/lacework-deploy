@@ -40,7 +40,6 @@ done
 if [ -z $PROFILE ]; then
     log "profile not set using default: default"
     PROFILE="default"
-    help
 fi
 
 opts="--no-cli-pager"
