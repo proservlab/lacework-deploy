@@ -48,7 +48,7 @@
             }
         },
         "dynu_dns" : {
-            "enabled"                           : true,
+            "enabled"                           : false,
             "api_key"                           : "${ dynu_api_key }",
             "dns_domain"                        : "${ attacker_dynu_dns_domain }"
         }
