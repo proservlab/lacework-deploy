@@ -182,15 +182,7 @@ resource "azurerm_network_interface_security_group_association" "sg-app" {
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg-app.id : azurerm_network_security_group.sg-app-private.id
 }
 
-resource "random_id" "randomIdApp" {
-    keepers = {
-        # Generate a new ID only when a new resource group is defined
-        resource_group = var.resource_app_group.name
-    }
-    
-    byte_length = 8
-}
-
+# Assign system user assigned identity reader access to the resource group
 resource "azurerm_user_assigned_identity" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name                  = "${each.key}-identity-app-${var.environment}-${var.deployment}"
@@ -207,6 +199,7 @@ resource "azurerm_role_assignment" "instances-app" {
     scope                 = var.resource_group.id
 }
 
+# Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name                  = "${each.key}-identity-app-role-${var.environment}-${var.deployment}"
@@ -225,14 +218,21 @@ resource "azurerm_role_definition" "instances-app" {
     ]
 }
 
-# resource "azurerm_role_assignment" "system-identity-role" {
-#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-#     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
-#     role_definition_name  = "Reader"
-#     scope                 = azurerm_linux_virtual_machine.instances-app[each.key].id
-# }
+# Allow the system assigned identity reader access to the user assigned identity for the purposes of assuming the privilege user identity
+resource "azurerm_role_assignment" "system-identity-role-app" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
+    role_definition_name  = azurerm_role_definition.instances-app[each.key].name
+    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
 
+    depends_on = [
+        azurerm_linux_virtual_machine.instances-app,
+        azurerm_role_definition.instances-app,
+        azurerm_user_assigned_identity.instances-app
+    ]
+}
 
+# Create the linux virtual machine
 resource "azurerm_linux_virtual_machine" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name                  = "${each.key}-app-${var.environment}-${var.deployment}"
@@ -270,17 +270,4 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 
 
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-}
-
-resource "azurerm_role_assignment" "system-identity-role" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
-    role_definition_name  = azurerm_role_definition.instances-app[each.key].name
-    scope                 = azurerm_user_assigned_identity.instances-app[each.key].id
-
-    depends_on = [
-        azurerm_linux_virtual_machine.instances-app,
-        azurerm_role_definition.instances-app,
-        azurerm_user_assigned_identity.instances-app
-    ]
 }

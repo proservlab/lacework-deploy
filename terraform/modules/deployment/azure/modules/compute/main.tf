@@ -181,20 +181,12 @@ resource "azurerm_network_interface_security_group_association" "sg" {
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
 }
 
-resource "random_id" "randomId" {
-    keepers = {
-        # Generate a new ID only when a new resource group is defined
-        resource_group = var.resource_group.name
-    }
-    
-    byte_length = 8
-}
-
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits = 4096
 }
 
+# Assign system user assigned identity reader access to the resource group
 resource "azurerm_user_assigned_identity" "instances" {
     for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name                = "${each.key}-${var.environment}-${var.deployment}"
@@ -205,10 +197,44 @@ resource "azurerm_user_assigned_identity" "instances" {
 resource "azurerm_role_assignment" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     principal_id          = azurerm_user_assigned_identity.instances[each.key].principal_id
-    role_definition_name  = "Contributor"
+    role_definition_name  = "Reader"
     scope                 = var.resource_group.id
 }
 
+# Custom role for system identity allowing read access to the user assigned identity
+resource "azurerm_role_definition" "instances" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+    name                  = "${each.key}-identity-role-${var.environment}-${var.deployment}"
+    scope                 = azurerm_user_assigned_identity.instances[each.key].id
+    description           = "Custom role to read specific user-assigned identities"
+
+    permissions {
+        actions = [
+            "Microsoft.ManagedIdentity/userAssignedIdentities/read"
+        ]
+        not_actions = []
+    }
+
+    assignable_scopes = [
+        azurerm_user_assigned_identity.instances[each.key].id
+    ]
+}
+
+# Allow the system assigned identity reader access to the user assigned identity for the purposes of assuming the privilege user identity
+resource "azurerm_role_assignment" "system-identity-role" {
+    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+    principal_id          = azurerm_linux_virtual_machine.instances[each.key].identity[0].principal_id
+    role_definition_name  = azurerm_role_definition.instances[each.key].name
+    scope                 = azurerm_user_assigned_identity.instances[each.key].id
+
+    depends_on = [
+        azurerm_linux_virtual_machine.instances,
+        azurerm_role_definition.instances,
+        azurerm_user_assigned_identity.instances
+    ]
+}
+
+# Create the linux virtual machine
 resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     name                  = "${each.key}-identity-${var.environment}-${var.deployment}"
@@ -246,88 +272,5 @@ resource "azurerm_linux_virtual_machine" "instances" {
 
 
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-}
-
-# resource "azurerm_virtual_machine_extension" "jit-vm-access" {
-#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-#     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
-#     virtual_machine_id = azurerm_linux_virtual_machine.instances[each.key].id
-#     publisher = "Microsoft.Azure.Security"
-#     type = "JitNetworkAccess"
-#     type_handler_version = "1.4"
-#     auto_upgrade_minor_version = true
-#     settings = jsonencode({
-#         "durationInSeconds" = 3600
-#     })
-
-#     depends_on = [ azurerm_linux_virtual_machine.instances ]
-
-#     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-# }
-
-resource "local_file" "ssh-key" {
-    content  = tls_private_key.ssh.private_key_pem
-    filename = local.ssh_key_path
-    file_permission = "0600"
-}
-
-########################################
-# INSTANCE SUMMARY
-########################################
-
-locals {
-    instances = flatten([
-            [for instance in azurerm_linux_virtual_machine.instances : {
-                id         = instance.id
-                name       = instance.name
-                public_ip  = instance.public_ip_address
-                admin_user = instance.admin_username
-                ssh_key_path = local.ssh_key_path
-                role       = lookup(instance.tags,"role","default")
-                public     = lookup(instance.tags,"public","false")
-                tags       = instance.tags
-                dynu_dns_name = var.enable_dynu_dns == true ? "${instance.name}.${var.dynu_dns_domain}" : null
-            }],
-            [for instance in azurerm_linux_virtual_machine.instances-app : {
-                id         = instance.id
-                name       = instance.name
-                public_ip  = instance.public_ip_address
-                admin_user = instance.admin_username
-                ssh_key_path = local.ssh_key_path
-                role       = lookup(instance.tags,"role","app")
-                public     = lookup(instance.tags,"public","false")
-                tags       = instance.tags
-                dynu_dns_name = var.enable_dynu_dns == true ? "${instance.name}.${var.dynu_dns_domain}" : null
-            }]
-    ])
-
-    public_compute_instances = var.enable_dynu_dns == true ? [ for compute in local.instances: compute if compute.public == "true" ] : []
-    public_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "true" ]
-    public_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "true" ]
-    private_instances = [ for compute in local.instances: compute.public_ip if compute.role == "default" && compute.public == "false" ]
-    private_app_instances = [ for compute in local.instances: compute.public_ip if compute.role == "app" && compute.public == "false" ]
-}
-
-################################
-# DYNU DNS - DEFAULT AND APP
-################################
-
-module "dns-records" {
-    for_each              = { for instance in local.public_compute_instances: instance.name => instance }
-    source              = "../../../common/dynu-dns-record"
-    dynu_api_key        = var.dynu_api_key
-    dynu_dns_domain     = var.dynu_dns_domain
-    
-    record        = {
-            recordType     = "A"
-            recordName     = "${each.key}"
-            recordHostName = "${each.key}.${coalesce(var.dynu_dns_domain, "unknown")}"
-            recordValue    = each.value.public_ip
-        }
-    
-    depends_on = [
-        azurerm_linux_virtual_machine.instances,
-        azurerm_linux_virtual_machine.instances-app 
-    ]
 }
 
