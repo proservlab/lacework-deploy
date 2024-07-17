@@ -6,17 +6,20 @@ locals {
   database_name = var.database_name
   instance_name = "cloudsql-${var.environment}-${var.deployment}"
   init_db_username = var.root_db_username
-  init_db_password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
+  init_db_password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_password.root_db_password.result
   database_port = 3306
   gcp_project_number = data.google_project.project.number
 }
 
-resource "random_string" "root_db_password" {
-    length            = 16
-    special           = false
-    upper             = true
-    lower             = true
-    numeric           = true
+resource "random_password" "root_db_password" {
+    length                          = 16
+    special                         = false
+    upper                           = true
+    lower                           = true
+    numeric                         = true
+    min_upper                       = 1
+    min_lower                       = 1
+    min_numeric                     = 1
 }
 
 ##########################################
@@ -113,7 +116,7 @@ resource "time_sleep" "wait_60_seconds" {
 
 resource "google_sql_user" "this" {
   name     = var.root_db_username
-  password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_string.root_db_password.result
+  password = try(length(var.root_db_password), "false") != "false" ? var.root_db_password : random_password.root_db_password.result
   instance = google_sql_database_instance.this.name
 }
 
