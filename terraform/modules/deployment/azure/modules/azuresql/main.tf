@@ -10,15 +10,10 @@ data "azuread_service_principal" "this" {
   display_name = var.service_principal_display_name
 }
 
-data "azurerm_user_assigned_identity" "this" {
-  name                = "instance-user-identity-app-${var.environment}-${var.deployment}"
-  resource_group_name = var.db_resource_group_name
-}
-
 # Custom role for user managed identity allowing enumeration of sql instances
-resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
-    name                  = "sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = azurerm_user_assigned_identity.instances.id
+resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
+    name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
+    scope                 = azuread_service_principal.this.id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -28,6 +23,32 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
         not_actions = []
     }
     
+    assignable_scopes = [
+        # allow read access to this sql instance
+        var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+        # allow read of all sql servers in the resource group
+        # var.db_resource_group_name
+    ]
+}
+
+data "azurerm_user_assigned_identity" "this" {
+  name                = "instance-user-identity-app-${var.environment}-${var.deployment}"
+  resource_group_name = var.db_resource_group_name
+}
+
+# Custom role for user managed identity allowing enumeration of sql instances
+resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
+    name                  = "user-managed-identity-sql-read-role-${var.environment}-${var.deployment}"
+    scope                 = azurerm_user_assigned_identity.this.id
+    description           = "Custom role to read flexible sql server list"
+
+    permissions {
+        actions = [
+            var.instance_type == "mysql" ? "Microsoft.DBforMySQL/flexibleServers/read" : "Microsoft.DBforPostgreSQL/flexibleServers/read"
+        ]
+        not_actions = []
+    }
+
     assignable_scopes = [
         # allow read access to this sql instance
         var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
