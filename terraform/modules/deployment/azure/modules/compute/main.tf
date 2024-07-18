@@ -273,6 +273,6 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},{"role"="${each.key}-identity-${var.environment}-${var.deployment}"},each.value.tags)
 }
 
