@@ -1,5 +1,4 @@
 locals {
-    # ssh_key_path_app = pathexpand("~/.ssh/azure-app-${var.environment}-${var.deployment}.pem")
     resource_group_name_app = var.resource_app_group.name
 }
 
@@ -25,7 +24,7 @@ resource "azurerm_subnet" "subnet-app" {
     name                 = "public-app-subnet-${var.environment}-${var.deployment}"
     resource_group_name  = var.resource_app_group.name
     virtual_network_name = azurerm_virtual_network.network-app.name
-    address_prefixes       = [var.public_app_subnet]
+    address_prefixes       = [var.public-app-subnet]
 }
 
 resource "azurerm_subnet" "subnet-app-private" {
@@ -33,12 +32,12 @@ resource "azurerm_subnet" "subnet-app-private" {
     name                 = "GatewaySubnet"
     resource_group_name  = var.resource_app_group.name
     virtual_network_name = azurerm_virtual_network.network-app-private.name
-    address_prefixes       = [var.private_app_subnet]
+    address_prefixes       = [var.private-app-subnet]
 }
 
 resource "azurerm_virtual_network" "network-app-private" {
     name                = "private-app-vnet-${var.environment}-${var.deployment}"
-    address_space       = [var.private_app_network]
+    address_space       = [var.private-app-network]
     location            = var.region
     resource_group_name = var.resource_app_group.name
 
@@ -116,15 +115,15 @@ resource "azurerm_network_security_group" "sg-app" {
 }
 
 resource "azurerm_network_security_rule" "public-ingress-rules-app" {
-  count                       = length(var.public_app_ingress_rules)
+  count                       = length(var.public-app-ingress-rules)
   name                        = "public-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public_app_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public-app-ingress-rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.public_app_ingress_rules[count.index].from_port}-${var.public_app_ingress_rules[count.index].to_port}"
-  source_address_prefix       = "${var.public_app_ingress_rules[count.index].cidr_block}"
+  destination_port_range      = "${var.public-app-ingress-rules[count.index].from_port}-${var.public-app-ingress-rules[count.index].to_port}"
+  source_address_prefix       = "${var.public-app-ingress-rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_app_group.name
   network_security_group_name = azurerm_network_security_group.sg-app.name
@@ -143,16 +142,16 @@ resource "azurerm_network_security_group" "sg-app-private" {
     }
 }
 
-resource "azurerm_network_security_rule" "private_ingress_rules_app" {
-  count                       = length(var.private_app_ingress_rules)
+resource "azurerm_network_security_rule" "private-ingress-rules-app" {
+  count                       = length(var.private-app-ingress-rules)
   name                        = "private-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.private_app_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.private-app-ingress-rules[count.index] == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.private_app_ingress_rules[count.index].from_port}-${var.private_app_ingress_rules[count.index].to_port}"
-  source_address_prefix       = "${var.private_app_ingress_rules[count.index].cidr_block}"
+  destination_port_range      = "${var.private-app-ingress-rules[count.index].from_port}-${var.private-app-ingress-rules[count.index].to_port}"
+  source_address_prefix       = "${var.private-app-ingress-rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_app_group.name
   network_security_group_name = azurerm_network_security_group.sg-app-private.name
@@ -200,7 +199,7 @@ resource "azurerm_user_assigned_identity" "instance-user-identity-app" {
 }
 
 resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
-    principal_id          = azurerm_user_assigned_identity.instances-app.principal_id
+    principal_id          = azurerm_user_assigned_identity.instance-user-identity-app.principal_id
     role_definition_name  = "Reader"
     scope                 = var.resource_group.id
 }
@@ -208,7 +207,7 @@ resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
 # Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "system-role-definition-app" {
     name                  = "system-app-role-${var.environment}-${var.deployment}"
-    scope                 = azurerm_user_assigned_identity.instances-app.id
+    scope                 = azurerm_user_assigned_identity.instance-user-identity-app.id
     description           = "Custom role to read specific user-assigned identities"
 
     permissions {
@@ -219,7 +218,7 @@ resource "azurerm_role_definition" "system-role-definition-app" {
     }
 
     assignable_scopes = [
-        azurerm_user_assigned_identity.instances-app.id
+        azurerm_user_assigned_identity.instance-user-identity-app.id
     ]
 }
 

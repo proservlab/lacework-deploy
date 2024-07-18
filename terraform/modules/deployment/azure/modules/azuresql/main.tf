@@ -10,6 +10,32 @@ data "azuread_service_principal" "this" {
   display_name = var.service_principal_display_name
 }
 
+data "azurerm_user_assigned_identity" "this" {
+  name                = "instance-user-identity-app-${var.environment}-${var.deployment}"
+  resource_group_name = var.db_resource_group_name
+}
+
+# Custom role for user managed identity allowing enumeration of sql instances
+resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
+    name                  = "sql-read-role-${var.environment}-${var.deployment}"
+    scope                 = azurerm_user_assigned_identity.instances.id
+    description           = "Custom role to read flexible sql server list"
+
+    permissions {
+        actions = [
+            var.instance_type == "mysql" ? "Microsoft.DBforMySQL/flexibleServers/read" : "Microsoft.DBforPostgreSQL/flexibleServers/read"
+        ]
+        not_actions = []
+    }
+    
+    assignable_scopes = [
+        # allow read access to this sql instance
+        var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+        # allow read of all sql servers in the resource group
+        # var.db_resource_group_name
+    ]
+}
+
 resource "random_id" "uniq" {
   byte_length                       = 4
 }
@@ -64,11 +90,31 @@ resource "azurerm_key_vault_access_policy" "current" {
   ]
 }
 
+# grant service principal managed identity access to the key vault
 resource "azurerm_key_vault_access_policy" "this" {
   count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
   object_id    = data.azuread_service_principal.this[0].id
+
+  key_permissions = [
+    "Get",
+	  "List",
+    "Decrypt"
+  ]
+
+  secret_permissions = [
+    "Get",
+    "List",
+  ]
+}
+
+# grant user managed identity access to the key vault
+resource "azurerm_key_vault_access_policy" "user-managed-identity" {
+  count = var.add_service_principal_access ? 1 : 0
+  key_vault_id = azurerm_key_vault.this.id
+  tenant_id    = data.azurerm_subscription.current.tenant_id
+  object_id    = data.azurerm_user_assigned_identity.this[0].id
 
   key_permissions = [
     "Get",
@@ -177,35 +223,6 @@ resource "azurerm_subnet" "this" {
 # MYSQL
 #######################################
 
-# resource "azurerm_mysql_server" "this" {
-#   count                             = var.instance_type == "mysql" ? 1 : 0
-  # name                              = local.server_name
-  # location                          = var.region
-  # resource_group_name               = var.db_resource_group_name
-
-#   sku_name                          = var.sku_name
-
-#   storage_mb                        = 5120
-#   backup_retention_days             = 7
-#   auto_grow_enabled                 = true
-#   geo_redundant_backup_enabled      = false
-#   infrastructure_encryption_enabled = false
-
-#   administrator_login               = var.root_db_username
-#   administrator_login_password      = random_password.root_db_password.result
-
-#   version = "5.7"
-
-#   ssl_enforcement_enabled           = true
-#   ssl_minimal_tls_version_enforced  = "TLS1_2"
-#   public_network_access_enabled     = var.public_network_access_enabled
-  
-#   tags = {
-#     environment = var.environment
-#     deployment = var.deployment
-#   }
-# }
-
 resource "azurerm_mysql_flexible_server" "this" {
   count                             = var.instance_type == "mysql" ? 1 : 0
   name                              = local.server_name
@@ -227,19 +244,6 @@ resource "azurerm_mysql_flexible_server" "this" {
   depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql]
 }
 
-# resource "azurerm_mysql_database" "this" {
-#   count                             = var.instance_type == "mysql" ? 1 : 0
-#   name                              = var.db_name
-#   resource_group_name               = var.db_resource_group_name
-#   server_name                       = azurerm_mysql_flexible_server.this[0].name
-#   charset                           = "utf8"
-#   collation                         = "utf8_unicode_ci"
-
-#   depends_on = [  
-#     azurerm_mysql_flexible_server.this
-#   ]
-# }
-
 resource "azurerm_mysql_flexible_database" "this" {
   count                             = var.instance_type == "mysql" ? 1 : 0
   name                              = var.db_name
@@ -252,44 +256,6 @@ resource "azurerm_mysql_flexible_database" "this" {
     azurerm_mysql_flexible_server.this
   ]
 }
-
-# resource "azurerm_mysql_virtual_network_rule" "this" {
-#   count                             = var.instance_type == "mysql" ? 1 : 0
-#   name                              = "db-${var.environment}-${var.deployment}-vnet-rule"
-#   resource_group_name               = var.db_resource_group_name
-#   server_name                       = azurerm_mysql_flexible_server.this[0].name
-#   subnet_id                         = azurerm_subnet.this.id
-
-#   depends_on = [  
-#     azurerm_mysql_flexible_server.this
-#   ]
-# }
-
-# the endpoint will add a private ip address to your vnet
-# data sources for the vnet RG
-# resource "azurerm_private_endpoint" "mysql" {
-#   count               = var.instance_type == "mysql" && var.public_network_access_enabled == false ? 1 : 0
-#   name                = "private-endpoint-${var.environment}-${var.deployment}"
-#   location            = var.region
-#   resource_group_name = var.db_resource_group_name
-#   subnet_id           = azurerm_subnet.this.id
-
-#   private_dns_zone_group {
-#     name                 = "private-dns-${var.environment}-${var.deployment}"
-#     private_dns_zone_ids = [azurerm_private_dns_zone.mysql[0].id]
-#   }
-
-#   private_service_connection {
-#     name                           = "private-connection-${var.environment}-${var.deployment}"
-#     private_connection_resource_id = azurerm_mysql_flexible_server.this[0].id
-#     subresource_names              = ["mysqlServer"]
-#     is_manual_connection           = false
-#   }
-
-#   depends_on = [  
-#     azurerm_mysql_flexible_server.this
-#   ]
-# }
 
 resource "azurerm_private_dns_zone" "mysql" {
   count               = var.instance_type == "mysql" && var.public_network_access_enabled == false ? 1 : 0
@@ -304,30 +270,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "mysql" {
   private_dns_zone_name = azurerm_private_dns_zone.mysql[0].name
   virtual_network_id    = var.db_virtual_network_id
 }
-
-
-# Allow access from a specific IP range
-# resource "azurerm_mysql_firewall_rule" "this" {
-#   for_each = { for i in var.mysql_authorized_ip_ranges: "${i.start_ip_address}-${i.end_ip_address}" => i }
-#   name                = "${azurerm_mysql_flexible_server.this[0].name}-rule"
-#   resource_group_name = azurerm_mysql_flexible_server.this[0].resource_group_name
-#   server_name         = azurerm_mysql_flexible_server.this[0].name
-#   start_ip_address    = each.value.start_ip_address
-#   end_ip_address      = each.value.end_ip_address
-# }
-
-# resource "azurerm_mysql_firewall_rule" "allow_azure_services" {
-#   count                             = var.instance_type == "mysql" ? 1 : 0
-#   name                              = "allow-azure-services"
-#   resource_group_name               = azurerm_mysql_flexible_server.this[0].resource_group_name
-#   server_name                       = azurerm_mysql_flexible_server.this[0].name
-#   start_ip_address                  = "0.0.0.0"
-#   end_ip_address                    = "0.0.0.0"
-  
-#   depends_on = [  
-#     azurerm_mysql_flexible_server.this
-#   ]
-# }
 
 resource "azurerm_mysql_flexible_server_firewall_rule" "allow_azure_services" {
   count                             = var.instance_type == "mysql" ? 1 : 0
@@ -347,33 +289,6 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "allow_azure_services" {
 #######################################
 # POSTGRES
 #######################################
-
-# resource "azurerm_postgresql_server" "this" {
-#   count                             = var.instance_type == "postgres" ? 1 : 0
-#   name                              = local.server_name
-#   location                          = var.region
-#   resource_group_name               = var.db_resource_group_name
-
-#   sku_name                          = var.sku_name
-
-#   storage_mb                        = 5120
-#   backup_retention_days             = 7
-#   auto_grow_enabled                 = true
-#   geo_redundant_backup_enabled      = false
-#   infrastructure_encryption_enabled = false
-
-#   administrator_login               = var.root_db_username
-#   administrator_login_password      = random_password.root_db_password.result
-
-#   version                           = "9.5"
-#   ssl_enforcement_enabled           = true
-#   public_network_access_enabled     = var.public_network_access_enabled
-
-#   tags = {
-#     environment = var.environment
-#     deployment = var.deployment
-#   }
-# }
 
 resource "azurerm_postgresql_flexible_server" "this" {
   count                             = var.instance_type == "postgres" ? 1 : 0
@@ -396,19 +311,6 @@ resource "azurerm_postgresql_flexible_server" "this" {
   depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
 }
 
-# resource "azurerm_postgresql_database" "this" {
-#   count                             = var.instance_type == "postgres" ? 1 : 0
-#   name                              = var.db_name
-#   resource_group_name               = var.db_resource_group_name
-#   server_name                       = azurerm_postgresql_flexible_server.this[0].name
-#   charset                           = "UTF8"
-#   collation                         = "English_United States.1252"
-
-#   depends_on = [  
-#     azurerm_postgresql_flexible_server.this
-#   ]
-# }
-
 resource "azurerm_postgresql_flexible_server_database" "this" {
   count                             = var.instance_type == "postgres" ? 1 : 0
   name                              = var.db_name
@@ -420,45 +322,6 @@ resource "azurerm_postgresql_flexible_server_database" "this" {
     azurerm_postgresql_flexible_server.this
   ]
 }
-
-# resource "azurerm_postgresql_virtual_network_rule" "this" {
-#   count                                = var.instance_type == "postgres" && var.public_network_access_enabled == true ? 1 : 0
-#   name                                 = "db-${var.environment}-${var.deployment}-vnet-rule"
-#   resource_group_name                  = var.db_resource_group_name
-#   server_name                          = azurerm_postgresql_flexible_server.this[0].name
-#   subnet_id                            = azurerm_subnet.this.id
-#   ignore_missing_vnet_service_endpoint = true
-
-#   depends_on = [  
-#     azurerm_postgresql_flexible_server.this
-#   ]
-# }
-
-# the endpoint will add a private ip address to your vnet
-# data sources for the vnet RG
-# resource "azurerm_private_endpoint" "postgres" {
-#   count                                = var.instance_type == "postgres" && var.public_network_access_enabled == false ? 1 : 0
-#   name                = "private-endpoint-${var.environment}-${var.deployment}"
-#   location            = var.region
-#   resource_group_name = var.db_resource_group_name
-#   subnet_id           = azurerm_subnet.this.id
-
-#   private_dns_zone_group {
-#     name                 = "private-dns-${var.environment}-${var.deployment}"
-#     private_dns_zone_ids = [azurerm_private_dns_zone.postgres[0].id]
-#   }
-
-#   private_service_connection {
-#     name                           = "private-connection-${var.environment}-${var.deployment}"
-#     private_connection_resource_id = azurerm_postgresql_flexible_server.this[0].id
-#     subresource_names              = ["postgresqlServer"]
-#     is_manual_connection           = false
-#   }
-
-#   depends_on = [  
-#     azurerm_postgresql_flexible_server.this
-#   ]
-# }
 
 resource "azurerm_private_dns_zone" "postgres" {
   count                                = var.instance_type == "postgres" && var.public_network_access_enabled == false ? 1 : 0
@@ -473,29 +336,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
   private_dns_zone_name = azurerm_private_dns_zone.postgres[0].name
   virtual_network_id    = var.db_virtual_network_id
 }
-
-# Allow access from a specific IP range
-# resource "azurerm_postgresql_firewall_rule" "this" {
-#   for_each = { for i in var.postgres_authorized_ip_ranges: "${i.start_ip_address}-${i.end_ip_address}" => i }
-#   name                = "${azurerm_postgresql_flexible_server.this[0].name}-rule"
-#   resource_group_name = azurerm_postgresql_flexible_server.this[0].resource_group_name
-#   server_name         = azurerm_postgresql_flexible_server.this[0].name
-#   start_ip_address    = each.value.start_ip_address
-#   end_ip_address      = each.value.end_ip_address
-# }
-
-# resource "azurerm_postgresql_firewall_rule" "allow_azure_services" {
-#   count                             = var.instance_type == "postgres" ? 1 : 0
-#   name                              = "allow-azure-services"
-#   resource_group_name               = azurerm_postgresql_flexible_server.this[0].resource_group_name
-#   server_name                       = azurerm_postgresql_flexible_server.this[0].name
-#   start_ip_address                  = "0.0.0.0"
-#   end_ip_address                    = "0.0.0.0"
-
-#   depends_on = [  
-#     azurerm_postgresql_flexible_server.this
-#   ]
-# }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure_services" {
   count                             = var.instance_type == "postgres" ? 1 : 0
