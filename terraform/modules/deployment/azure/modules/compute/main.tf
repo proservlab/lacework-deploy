@@ -3,9 +3,13 @@ locals {
     resource_group_name = var.resource_group.name
 }
 
+####################################################
+# COMPUTE NETWORK
+####################################################
+
 resource "azurerm_virtual_network" "network" {
     name                = "public-vnet-${var.environment}-${var.deployment}"
-    address_space       = [var.public_network]
+    address_space       = [var.public-network]
     location            = var.region
     resource_group_name = var.resource_group.name
 
@@ -21,19 +25,20 @@ resource "azurerm_subnet" "subnet" {
     name                 = "public-subnet-${var.environment}-${var.deployment}"
     resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network.name
-    address_prefixes       = [var.public_subnet]
+    address_prefixes       = [var.public_app_subnet]
 }
 
 resource "azurerm_subnet" "subnet-private" {
+    # name                 = "private-subnet-${var.environment}-${var.deployment}"
     name                 = "GatewaySubnet"
     resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network-private.name
-    address_prefixes       = [var.private_subnet]
+    address_prefixes       = [var.private_app_subnet]
 }
 
 resource "azurerm_virtual_network" "network-private" {
     name                = "private-vnet-${var.environment}-${var.deployment}"
-    address_space       = [var.private_network]
+    address_space       = [var.private_app_network]
     location            = var.region
     resource_group_name = var.resource_group.name
 
@@ -45,7 +50,7 @@ resource "azurerm_virtual_network" "network-private" {
     }
 }
 
-resource "azurerm_public_ip" "private_nat_gw" {
+resource "azurerm_public_ip" "private-nat-gw" {
     name                  = "private-ip-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
@@ -59,7 +64,7 @@ resource "azurerm_public_ip" "private_nat_gw" {
     }
 }
 
-resource "azurerm_virtual_network_gateway" "private_nat_gw" {
+resource "azurerm_virtual_network_gateway" "private-nat-gw" {
     name                = "private-natgw-${var.environment}-${var.deployment}"
     location            = var.region
     resource_group_name = var.resource_group.name
@@ -69,7 +74,7 @@ resource "azurerm_virtual_network_gateway" "private_nat_gw" {
     sku      = "Basic"
 
     ip_configuration {
-        public_ip_address_id          = azurerm_public_ip.private_nat_gw.id
+        public_ip_address_id          = azurerm_public_ip.private-nat-gw.id
         private_ip_address_allocation = "Dynamic"
         subnet_id                     = azurerm_subnet.subnet-private.id
     }
@@ -83,7 +88,7 @@ resource "azurerm_virtual_network_gateway" "private_nat_gw" {
 }
 
 resource "azurerm_public_ip" "ip" {
-    for_each                     = { for instance in var.instances: instance.name => instance if instance.public == true && instance.role == "default"  }
+    for_each                     = { for instance in var.instances: instance.name => instance if instance.public == true  && instance.role == "default" }
     name                         = "ip-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
     resource_group_name          = var.resource_group.name
@@ -110,16 +115,16 @@ resource "azurerm_network_security_group" "sg" {
     }
 }
 
-resource "azurerm_network_security_rule" "public_ingress_rules" {
-  count                       = length(var.public_ingress_rules)
+resource "azurerm_network_security_rule" "public-ingress-rules" {
+  count                       = length(var.public_app_ingress_rules)
   name                        = "public-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public_app_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.public_ingress_rules[count.index].from_port}-${var.public_ingress_rules[count.index].to_port}"
-  source_address_prefix       = "${var.public_ingress_rules[count.index].cidr_block}"
+  destination_port_range      = "${var.public_app_ingress_rules[count.index].from_port}-${var.public_app_ingress_rules[count.index].to_port}"
+  source_address_prefix       = "${var.public_app_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_group.name
   network_security_group_name = azurerm_network_security_group.sg.name
@@ -138,16 +143,16 @@ resource "azurerm_network_security_group" "sg-private" {
     }
 }
 
-resource "azurerm_network_security_rule" "private_ingress_rules" {
-  count                       = length(var.private_ingress_rules)
+resource "azurerm_network_security_rule" "private_ingress_rules_app" {
+  count                       = length(var.private_app_ingress_rules)
   name                        = "private-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.private_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.private_app_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.private_ingress_rules[count.index].from_port}-${var.private_ingress_rules[count.index].to_port}"
-  source_address_prefix       = "${var.private_ingress_rules[count.index].cidr_block}"
+  destination_port_range      = "${var.private_app_ingress_rules[count.index].from_port}-${var.private_app_ingress_rules[count.index].to_port}"
+  source_address_prefix       = "${var.private_app_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_group.name
   network_security_group_name = azurerm_network_security_group.sg-private.name
@@ -174,6 +179,10 @@ resource "azurerm_network_interface" "nic" {
     }
 }
 
+####################################################
+# COMPUTE IDENTITY
+####################################################
+
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg" {
     for_each                    = { for instance in var.instances: instance.name => instance if instance.role == "default" }
@@ -181,33 +190,25 @@ resource "azurerm_network_interface_security_group_association" "sg" {
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
 }
 
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits = 4096
-}
-
 # Assign system user assigned identity reader access to the resource group
-resource "azurerm_user_assigned_identity" "instances" {
-    for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    name                = "${each.key}-identity-${var.environment}-${var.deployment}"
+resource "azurerm_user_assigned_identity" "instance-user-identity" {
+    name                  = "instance-user-identity-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
-    
+
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
-resource "azurerm_role_assignment" "instances" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    principal_id          = azurerm_user_assigned_identity.instances[each.key].principal_id
+resource "azurerm_role_assignment" "instance-user-idenity-role-assignment" {
+    principal_id          = azurerm_user_assigned_identity.instances.principal_id
     role_definition_name  = "Reader"
     scope                 = var.resource_group.id
 }
 
 # Custom role for system identity allowing read access to the user assigned identity
-resource "azurerm_role_definition" "instances" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    name                  = "${each.key}-identity-role-${var.environment}-${var.deployment}"
-    scope                 = azurerm_user_assigned_identity.instances[each.key].id
+resource "azurerm_role_definition" "system-role-definition" {
+    name                  = "system-role-${var.environment}-${var.deployment}"
+    scope                 = azurerm_user_assigned_identity.instances.id
     description           = "Custom role to read specific user-assigned identities"
 
     permissions {
@@ -218,7 +219,7 @@ resource "azurerm_role_definition" "instances" {
     }
 
     assignable_scopes = [
-        azurerm_user_assigned_identity.instances[each.key].id
+        azurerm_user_assigned_identity.instances.id
     ]
 }
 
@@ -226,15 +227,19 @@ resource "azurerm_role_definition" "instances" {
 resource "azurerm_role_assignment" "system-identity-role" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     principal_id          = azurerm_linux_virtual_machine.instances[each.key].identity[0].principal_id
-    role_definition_name  = azurerm_role_definition.instances[each.key].name
-    scope                 = azurerm_user_assigned_identity.instances[each.key].id
+    role_definition_name  = azurerm_role_definition.system-role-definition.name
+    scope                 = azurerm_user_assigned_identity.instance-user-identity.id
 
     depends_on = [
         azurerm_linux_virtual_machine.instances,
-        azurerm_role_definition.instances,
-        azurerm_user_assigned_identity.instances
+        azurerm_role_definition.system-role-definition,
+        azurerm_user_assigned_identity.instance-user-identity
     ]
 }
+
+####################################################
+# COMPUTE INSTANCES
+####################################################
 
 # Create the linux virtual machine
 resource "azurerm_linux_virtual_machine" "instances" {
@@ -247,7 +252,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
 
     identity {
         type         = "SystemAssigned, UserAssigned"
-        identity_ids = [azurerm_user_assigned_identity.instances[each.key].id]
+        identity_ids = [azurerm_user_assigned_identity.instance-user-identity.id]
     }
 
     os_disk {
@@ -273,6 +278,5 @@ resource "azurerm_linux_virtual_machine" "instances" {
     }
 
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},{"role"="${each.key}-identity-${var.environment}-${var.deployment}"},each.value.tags)
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{"public"="${each.value.public == true ? "true" : "false"}"},{"access-role"=azurerm_user_assigned_identity.instance-user-identity.name},each.value.tags)
 }
-

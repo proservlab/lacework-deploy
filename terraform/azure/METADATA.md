@@ -37,7 +37,7 @@ RESOURCE_GROUP_NAME=$(echo $METADATA | jq -r '.compute.resourceGroupName')
 SUBSCRIPTION_ID=$(echo $METADATA | jq -r '.compute.subscriptionId')
 
 # Assumes role tag is set to the user managed identity for the machine
-USER_MANAGED_IDENTITY_NAME=$(echo $METADATA | jq -r '.compute.tagsList[] | select(.name=="role") | .value')
+USER_MANAGED_IDENTITY_NAME=$(echo $METADATA | jq -r '.compute.tagsList[] | select(.name=="access-role") | .value')
 
 
 # Get the access token (if user and system are assigned system is returned by default)
