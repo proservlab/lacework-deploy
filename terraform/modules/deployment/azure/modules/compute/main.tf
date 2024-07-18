@@ -237,7 +237,7 @@ resource "azurerm_role_assignment" "system-identity-role" {
 # Create the linux virtual machine
 resource "azurerm_linux_virtual_machine" "instances" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    name                  = "${each.key}-identity-${var.environment}-${var.deployment}"
+    name                  = "${each.key}-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
     network_interface_ids = [azurerm_network_interface.nic[each.key].id]
