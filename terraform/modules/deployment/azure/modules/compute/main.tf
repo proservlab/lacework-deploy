@@ -189,7 +189,7 @@ resource "tls_private_key" "ssh" {
 # Assign system user assigned identity reader access to the resource group
 resource "azurerm_user_assigned_identity" "instances" {
     for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-    name                = "${each.key}-${var.environment}-${var.deployment}"
+    name                = "${each.key}-identity-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
 }
