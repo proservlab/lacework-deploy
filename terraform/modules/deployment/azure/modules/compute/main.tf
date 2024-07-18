@@ -192,6 +192,8 @@ resource "azurerm_user_assigned_identity" "instances" {
     name                = "${each.key}-identity-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
+    
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
 }
 
 resource "azurerm_role_assignment" "instances" {
