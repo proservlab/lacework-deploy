@@ -44,8 +44,8 @@ output "private_security_group" {
     value = azurerm_network_security_group.sg-private 
 }
 
-output "private_nat_gw" { 
-    value = azurerm_public_ip.private_nat_gw
+output "private-nat-gw" { 
+    value = azurerm_public_ip.private-nat-gw
 }
 
 output "private_app_virtual_network" { 
@@ -56,6 +56,6 @@ output "private_app_security_group" {
     value = azurerm_network_security_group.sg-app-private 
 }
 
-output "private_app_nat_gw" { 
-    value = azurerm_public_ip.private_app_nat_gw
+output "private-app-nat-gw" { 
+    value = azurerm_public_ip.private-app-nat-gw
 }
