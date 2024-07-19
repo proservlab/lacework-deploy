@@ -195,7 +195,11 @@ resource "azurerm_user_assigned_identity" "instance-user-identity-app" {
     location              = var.region
     resource_group_name   = var.resource_group.name
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        role = "app"
+    }
 }
 
 resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
