@@ -135,7 +135,7 @@ resource "azurerm_key_vault_access_policy" "user-managed-identity" {
   count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
-  object_id    = data.data.azurerm_user_assigned_identity.this[0].id
+  object_id    = data.azurerm_user_assigned_identity.this[0].id
 
   key_permissions = [
     "Get",
