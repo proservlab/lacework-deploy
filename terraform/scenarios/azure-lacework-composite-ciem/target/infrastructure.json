@@ -90,7 +90,7 @@
         "enabled"    : true
       },
       "azure_agentless": {
-        "enabled"    : false
+        "enabled"    : true
       },
       "agent": {
         "enabled" : true,
