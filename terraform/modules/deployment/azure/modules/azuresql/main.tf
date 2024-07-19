@@ -77,7 +77,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
 
     depends_on = [
-        azurerm_role_definition.user-managed-identiy-sql-read-role-definition
+        azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
         data.azurerm_user_assigned_identity.this.id,
         azurerm_mysql_flexible_server.this,
         azurerm_postgresql_flexible_server.this
