@@ -33,8 +33,9 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
 }
 
 resource "azurerm_role_assignment" "system-identity-role-app" {
+    count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].id
-    role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition.name
+    role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition[0].name
     scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
 
     depends_on = [
