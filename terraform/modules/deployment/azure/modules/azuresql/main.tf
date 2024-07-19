@@ -125,6 +125,11 @@ resource "azurerm_key_vault" "this" {
     default_action = "Allow"
     bypass         = "AzureServices"
   }
+
+  depends_on = [
+    azuread_group.vault-admin-group,
+    azuread_group_member.vault-admin-members
+  ]
 }
 
 # ensure current user is able to access modify after creation
@@ -221,6 +226,10 @@ resource "azurerm_key_vault_access_policy" "this" {
     "Get",
     "List",
   ]
+
+  depends_on = [
+    azurerm_key_vault_access_policy.current
+  ]
 }
 
 # grant user managed identity access to the key vault
@@ -240,6 +249,10 @@ resource "azurerm_key_vault_access_policy" "user-managed-identity" {
     "Get",
     "List",
   ]
+
+  depends_on = [
+    azurerm_key_vault_access_policy.current
+  ]
 }
 
 resource "azurerm_key_vault_secret" "db_host" {
@@ -249,8 +262,8 @@ resource "azurerm_key_vault_secret" "db_host" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.this,
     azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.this,
   ]
 }
 
@@ -261,8 +274,8 @@ resource "azurerm_key_vault_secret" "db_port" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.this,
     azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.this,
   ]
 }
 
@@ -273,8 +286,8 @@ resource "azurerm_key_vault_secret" "db_name" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.this,
     azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.this,
   ]
 }
 
