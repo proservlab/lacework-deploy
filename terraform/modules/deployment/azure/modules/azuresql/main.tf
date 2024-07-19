@@ -103,7 +103,7 @@ resource "random_password" "root_db_password" {
 
 resource "azuread_group" "vault-admin-group" {
   display_name = "db-vault-${var.environment}-${var.deployment}-admins"
-  owners = data.azurerm_client_config.current.object_id
+  owners = [data.azurerm_client_config.current.object_id]
   security_enabled = true
 }
 
