@@ -262,7 +262,7 @@ resource "azurerm_key_vault_secret" "db_host" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.current,
     azurerm_key_vault_access_policy.this,
   ]
 }
