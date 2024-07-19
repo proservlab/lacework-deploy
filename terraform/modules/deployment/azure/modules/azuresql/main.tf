@@ -13,7 +13,7 @@ data "azuread_service_principal" "this" {
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = azuread_service_principal.this.id
+    scope                 = data.azuread_service_principal.this.id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -135,7 +135,7 @@ resource "azurerm_key_vault_access_policy" "user-managed-identity" {
   count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
-  object_id    = data.azurerm_user_assigned_identity.this[0].id
+  object_id    = data.azurerm_user_assigned_identity.this.id
 
   key_permissions = [
     "Get",
