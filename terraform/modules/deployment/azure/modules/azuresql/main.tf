@@ -90,16 +90,26 @@ resource "random_id" "uniq" {
 }
 
 resource "random_password" "root_db_password" {
-    length                          = 16
-    special                         = false
-    upper                           = true
-    lower                           = true
-    numeric                         = true
-    min_upper                       = 1
-    min_lower                       = 1
-    min_numeric                     = 1
+  length                          = 16
+  special                         = false
+  upper                           = true
+  lower                           = true
+  numeric                         = true
+  min_upper                       = 1
+  min_lower                       = 1
+  min_numeric                     = 1
 }
 
+resource "azuread_group" "vault-admin-group" {
+  display_name = "db-vault-${var.environment}-${var.deployment}-admins"
+  owners = data.azurerm_client_config.current.object_id
+  security_enabled = true
+}
+
+resource "azuread_group_member" "vault-admin-members" {
+  group_object_id = azuread_group.vault-admin-group.id
+  member_object_id = data.azurerm_client_config.current.object_id
+}
 
 resource "azurerm_key_vault" "this" {
   name                        = "db-vault-${var.environment}-${var.deployment}"
@@ -119,8 +129,8 @@ resource "azurerm_key_vault" "this" {
 # ensure current user is able to access modify after creation
 resource "azurerm_key_vault_access_policy" "current" {
   key_vault_id = azurerm_key_vault.this.id
-  tenant_id = "${data.azurerm_client_config.current.tenant_id}"
-  object_id = "${data.azurerm_client_config.current.object_id}"
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azuread_group_member.vault-admin-members.id
 
   key_permissions = [
     "Backup", 
