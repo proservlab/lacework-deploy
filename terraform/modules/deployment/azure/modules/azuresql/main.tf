@@ -5,6 +5,10 @@ locals {
 data "azurerm_client_config" "current" {}
 data "azurerm_subscription" "current" {}
 
+data "azurerm_resource_group" "db" {
+  name = var.db_resource_group_name
+}
+
 data "azuread_service_principal" "this" {
   count = var.add_service_principal_access ? 1 : 0
   display_name = var.service_principal_display_name
@@ -14,7 +18,7 @@ data "azuread_service_principal" "this" {
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     count = var.add_service_principal_access ? 1 : 0
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
     description           = "Custom role to read flexible sql server list"
     
 
@@ -37,7 +41,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].id
     role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition[0].name
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
         azurerm_role_definition.service-principal-sql-read-role-definition,
@@ -55,7 +59,7 @@ data "azurerm_user_assigned_identity" "this" {
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
     name                  = "user-managed-identity-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -76,7 +80,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.id
     role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,

@@ -211,7 +211,7 @@ resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
 # Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "system-role-definition-app" {
     name                  = "system-app-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.app.id
     description           = "Custom role to read specific user-assigned identities"
 
     permissions {
@@ -231,7 +231,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
     role_definition_name  = azurerm_role_definition.system-role-definition-app.name
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.app.id
 
     depends_on = [
         azurerm_linux_virtual_machine.instances-app,
