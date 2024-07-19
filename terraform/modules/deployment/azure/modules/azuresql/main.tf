@@ -113,7 +113,7 @@ resource "azuread_group_member" "vault-admin-members" {
 }
 
 resource "azurerm_key_vault" "this" {
-  name                        = "db-key-vault-${var.environment}-${var.deployment}"
+  name                        = "db-${var.environment}-${var.deployment}"
   location                    = var.region
   resource_group_name         = var.db_resource_group_name
   tenant_id                   = data.azurerm_subscription.current.tenant_id
