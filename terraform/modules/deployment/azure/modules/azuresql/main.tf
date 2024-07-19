@@ -12,8 +12,9 @@ data "azuread_service_principal" "this" {
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
+    count = var.add_service_principal_access ? 1 : 0
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azuread_service_principal.this.id
+    scope                 = data.azuread_service_principal.this[0].id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -28,6 +29,19 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
         var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
         # allow read of all sql servers in the resource group
         # var.db_resource_group_name
+    ]
+}
+
+resource "azurerm_role_assignment" "system-identity-role-app" {
+    principal_id          = data.azuread_service_principal.this[0].id
+    role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition.name
+    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+
+    depends_on = [
+        azurerm_role_definition.service-principal-sql-read-role-definition,
+        data.azuread_service_principal.this,
+        azurerm_mysql_flexible_server.this,
+        azurerm_postgresql_flexible_server.this
     ]
 }
 
@@ -54,6 +68,19 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
         var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
         # allow read of all sql servers in the resource group
         # var.db_resource_group_name
+    ]
+}
+
+resource "azurerm_role_assignment" "system-identity-role-app" {
+    principal_id          = data.azurerm_user_assigned_identity.this.id
+    role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
+    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+
+    depends_on = [
+        azurerm_role_definition.user-managed-identiy-sql-read-role-definition
+        data.azurerm_user_assigned_identity.this.id,
+        azurerm_mysql_flexible_server.this,
+        azurerm_postgresql_flexible_server.this
     ]
 }
 
