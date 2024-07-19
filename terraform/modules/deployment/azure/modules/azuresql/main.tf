@@ -71,7 +71,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     ]
 }
 
-resource "azurerm_role_assignment" "system-identity-role-app" {
+resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.id
     role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
     scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
