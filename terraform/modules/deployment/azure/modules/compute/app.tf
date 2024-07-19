@@ -8,7 +8,7 @@ locals {
 
 resource "azurerm_virtual_network" "network-app" {
     name                = "public-app-vnet-${var.environment}-${var.deployment}"
-    address_space       = [var.public-app-network]
+    address_space       = [var.public_app_network]
     location            = var.region
     resource_group_name = var.resource_app_group.name
 
@@ -37,7 +37,7 @@ resource "azurerm_subnet" "subnet-app-private" {
 
 resource "azurerm_virtual_network" "network-app-private" {
     name                = "private-app-vnet-${var.environment}-${var.deployment}"
-    address_space       = [var.private-app-network]
+    address_space       = [var.private_app_network]
     location            = var.region
     resource_group_name = var.resource_app_group.name
 
@@ -115,15 +115,15 @@ resource "azurerm_network_security_group" "sg-app" {
 }
 
 resource "azurerm_network_security_rule" "public-ingress-rules-app" {
-  count                       = length(var.public-app-ingress-rules)
+  count                       = length(var.public_app_ingress_rules)
   name                        = "public-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public-app-ingress-rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public_app_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.public-app-ingress-rules[count.index].from_port}-${var.public-app-ingress-rules[count.index].to_port}"
-  source_address_prefix       = "${var.public-app-ingress-rules[count.index].cidr_block}"
+  destination_port_range      = "${var.public_app_ingress_rules[count.index].from_port}-${var.public_app_ingress_rules[count.index].to_port}"
+  source_address_prefix       = "${var.public_app_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_app_group.name
   network_security_group_name = azurerm_network_security_group.sg-app.name
@@ -143,15 +143,15 @@ resource "azurerm_network_security_group" "sg-app-private" {
 }
 
 resource "azurerm_network_security_rule" "private-ingress-rules-app" {
-  count                       = length(var.private-app-ingress-rules)
+  count                       = length(var.private_app_ingress_rules)
   name                        = "private-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.private-app-ingress-rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.private_app_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
-  destination_port_range      = "${var.private-app-ingress-rules[count.index].from_port}-${var.private-app-ingress-rules[count.index].to_port}"
-  source_address_prefix       = "${var.private-app-ingress-rules[count.index].cidr_block}"
+  destination_port_range      = "${var.private_app_ingress_rules[count.index].from_port}-${var.private_app_ingress_rules[count.index].to_port}"
+  source_address_prefix       = "${var.private_app_ingress_rules[count.index].cidr_block}"
   destination_address_prefix  = "*"
   resource_group_name         = var.resource_app_group.name
   network_security_group_name = azurerm_network_security_group.sg-app-private.name
