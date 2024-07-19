@@ -78,7 +78,7 @@ resource "azurerm_role_assignment" "user-managed-identity-role-app" {
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
-        data.azurerm_user_assigned_identity.this.id,
+        data.azurerm_user_assigned_identity.this,
         azurerm_mysql_flexible_server.this,
         azurerm_postgresql_flexible_server.this
     ]
