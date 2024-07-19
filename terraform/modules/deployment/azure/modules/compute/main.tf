@@ -24,7 +24,7 @@ resource "azurerm_subnet" "subnet" {
     name                 = "public-subnet-${var.environment}-${var.deployment}"
     resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network.name
-    address_prefixes       = [var.public-subnet]
+    address_prefixes       = [var.public_subnet]
 }
 
 resource "azurerm_subnet" "subnet-private" {
@@ -32,7 +32,7 @@ resource "azurerm_subnet" "subnet-private" {
     name                 = "GatewaySubnet"
     resource_group_name  = var.resource_group.name
     virtual_network_name = azurerm_virtual_network.network-private.name
-    address_prefixes       = [var.private-subnet]
+    address_prefixes       = [var.private_subnet]
 }
 
 resource "azurerm_virtual_network" "network-private" {
