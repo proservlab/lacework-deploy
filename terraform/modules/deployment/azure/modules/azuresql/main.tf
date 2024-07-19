@@ -274,7 +274,7 @@ resource "azurerm_key_vault_secret" "db_port" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.current,
     azurerm_key_vault_access_policy.this,
   ]
 }
@@ -286,7 +286,7 @@ resource "azurerm_key_vault_secret" "db_name" {
 
   depends_on = [ 
     azurerm_key_vault.this,
-    azurerm_key_vault_access_policy.current
+    azurerm_key_vault_access_policy.current,
     azurerm_key_vault_access_policy.this,
   ]
 }
@@ -310,8 +310,8 @@ resource "azurerm_key_vault_secret" "db_password" {
 
   depends_on = [ 
     azurerm_key_vault.this,
+    azurerm_key_vault_access_policy.current,
     azurerm_key_vault_access_policy.this,
-    azurerm_key_vault_access_policy.current
   ]
 }
 
@@ -322,8 +322,8 @@ resource "azurerm_key_vault_secret" "db_region" {
 
   depends_on = [ 
     azurerm_key_vault.this,
+    azurerm_key_vault_access_policy.current,
     azurerm_key_vault_access_policy.this,
-    azurerm_key_vault_access_policy.current
   ]
 }
 
