@@ -41,7 +41,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].id
     role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition[0].name
-    scope                 = data.azurerm_resource_group.db.id
+    scope                 = data.azurerm_subscription.current.id
 
     depends_on = [
         azurerm_role_definition.service-principal-sql-read-role-definition,
