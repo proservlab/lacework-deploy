@@ -224,7 +224,7 @@ resource "azurerm_role_definition" "system-role-definition" {
 
 # Allow the system assigned identity reader access to the user assigned identity for the purposes of assuming the privilege user identity
 resource "azurerm_role_assignment" "system-identity-role" {
-  for_each             = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+  for_each             = { for instance in var.instances: instance.name => instance if instance.role == "default" }
   principal_id         = azurerm_linux_virtual_machine.instances[each.key].identity[0].principal_id
   role_definition_name = azurerm_role_definition.system-role-definition.name
   scope                = azurerm_user_assigned_identity.instance-user-identity.id  # Assign at the user-assigned identity scope
