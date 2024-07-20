@@ -134,7 +134,7 @@ resource "azurerm_key_vault" "this" {
 resource "azurerm_key_vault_access_policy" "current" {
   key_vault_id = azurerm_key_vault.this.id
   tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azuread_group_member.vault-admin-members.object_id
+  object_id = azuread_group.vault-admin-group.id
 
   key_permissions = [
     "Backup", 
