@@ -134,7 +134,7 @@ resource "azurerm_key_vault" "this" {
 resource "azurerm_key_vault_access_policy" "current" {
   key_vault_id = azurerm_key_vault.this.id
   tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azuread_group_member.vault-admin-members.id
+  object_id = azuread_group_member.vault-admin-members.object_id
 
   key_permissions = [
     "Backup", 
@@ -212,7 +212,7 @@ resource "azurerm_key_vault_access_policy" "this" {
   count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
-  object_id    = data.azuread_service_principal.this[0].id
+  object_id    = data.azuread_service_principal.this[0].object_id
 
   key_permissions = [
     "Get",
@@ -235,7 +235,7 @@ resource "azurerm_key_vault_access_policy" "user-managed-identity" {
   count = var.add_service_principal_access ? 1 : 0
   key_vault_id = azurerm_key_vault.this.id
   tenant_id    = data.azurerm_subscription.current.tenant_id
-  object_id    = data.azurerm_user_assigned_identity.this.id
+  object_id    = data.azurerm_user_assigned_identity.this.object_id
 
   key_permissions = [
     "Get",
