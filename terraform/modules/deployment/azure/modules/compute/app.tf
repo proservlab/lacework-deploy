@@ -227,7 +227,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
     role_definition_name  = azurerm_role_definition.system-role-definition-app.name
-    scope                 = var.resource_app_group.id
+    scope                 = data.azurerm_subscription.current.id
 
     depends_on = [
         azurerm_linux_virtual_machine.instances-app,
