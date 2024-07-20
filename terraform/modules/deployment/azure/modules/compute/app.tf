@@ -206,34 +206,34 @@ resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
 
 # Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "system-role-definition-app" {
-    name                  = "system-app-role-${var.environment}-${var.deployment}"
-    scope                 = var.resource_app_group.id
-    description           = "Custom role to read specific user-assigned identities"
+  name        = "system-app-role-${var.environment}-${var.deployment}"
+  scope       = var.resource_app_group.id  # Define at the resource group level
+  description = "Custom role to read specific user-assigned identities"
 
-    permissions {
-        actions = [
-            "Microsoft.ManagedIdentity/userAssignedIdentities/read"
-        ]
-        not_actions = []
-    }
-
-    assignable_scopes = [
-        azurerm_user_assigned_identity.instance-user-identity-app.id
+  permissions {
+    actions = [
+      "Microsoft.ManagedIdentity/userAssignedIdentities/read"
     ]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    var.resource_app_group.id  # Ensure this includes the necessary scope
+  ]
 }
 
 # Allow the system assigned identity reader access to the user assigned identity for the purposes of assuming the privilege user identity
 resource "azurerm_role_assignment" "system-identity-role-app" {
-    for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-    principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
-    role_definition_name  = azurerm_role_definition.system-role-definition-app.name
-    scope                 = data.azurerm_subscription.current.id
+  for_each             = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+  principal_id         = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
+  role_definition_name = azurerm_role_definition.system-role-definition-app.name
+  scope                = azurerm_user_assigned_identity.instance-user-identity-app.id  # Assign at the user-assigned identity scope
 
-    depends_on = [
-        azurerm_linux_virtual_machine.instances-app,
-        azurerm_role_definition.system-role-definition-app,
-        azurerm_user_assigned_identity.instance-user-identity-app
-    ]
+  depends_on = [
+    azurerm_linux_virtual_machine.instances-app,
+    azurerm_role_definition.system-role-definition-app,
+    azurerm_user_assigned_identity.instance-user-identity-app
+  ]
 }
 
 ####################################################
