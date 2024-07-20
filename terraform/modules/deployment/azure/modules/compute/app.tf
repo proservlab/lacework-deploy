@@ -1,7 +1,3 @@
-locals {
-    resource_group_name_app = var.resource_app_group.name
-}
-
 ####################################################
 # COMPUTE NETWORK
 ####################################################
@@ -193,7 +189,7 @@ resource "azurerm_network_interface_security_group_association" "sg-app" {
 resource "azurerm_user_assigned_identity" "instance-user-identity-app" {
     name                  = "instance-user-identity-app-${var.environment}-${var.deployment}"
     location              = var.region
-    resource_group_name   = var.resource_group.name
+    resource_group_name   = var.resource_app_group.name
 
     tags = {
         environment = var.environment
@@ -205,13 +201,13 @@ resource "azurerm_user_assigned_identity" "instance-user-identity-app" {
 resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
     principal_id          = azurerm_user_assigned_identity.instance-user-identity-app.principal_id
     role_definition_name  = "Reader"
-    scope                 = var.resource_group.id
+    scope                 = var.resource_app_group.id
 }
 
 # Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "system-role-definition-app" {
     name                  = "system-app-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_resource_group.app.id
+    scope                 = var.resource_app_group.id
     description           = "Custom role to read specific user-assigned identities"
 
     permissions {
@@ -231,7 +227,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     principal_id          = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
     role_definition_name  = azurerm_role_definition.system-role-definition-app.name
-    scope                 = data.azurerm_resource_group.app.id
+    scope                 = var.resource_app_group.id
 
     depends_on = [
         azurerm_linux_virtual_machine.instances-app,

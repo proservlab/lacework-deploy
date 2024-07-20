@@ -2,10 +2,6 @@
 # INSTANCE SSH KEY - DEFAULT AND APP
 ########################################
 
-locals {
-    ssh_key_path = pathexpand("~/.ssh/azure-${var.environment}-${var.deployment}.pem")
-}
-
 # ssh key
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
