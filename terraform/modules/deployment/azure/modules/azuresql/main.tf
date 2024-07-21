@@ -32,6 +32,10 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     assignable_scopes = [
         data.azurerm_resource_group.db.id
     ]
+
+    provisioner "local-exec" {
+        command = "sleep 60"
+    }
 }
 
 resource "azurerm_role_assignment" "system-identity-role-app" {
@@ -71,7 +75,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     ]
 
     provisioner "local-exec" {
-        command = "sleep 30"
+        command = "sleep 60"
     }
 }
 
