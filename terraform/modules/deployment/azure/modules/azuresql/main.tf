@@ -23,9 +23,15 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     
 
     permissions {
-        actions = [
-            var.instance_type == "mysql" ? "Microsoft.DBforMySQL/flexibleServers/read" : "Microsoft.DBforPostgreSQL/flexibleServers/read"
-        ]
+        actions = var.instance_type == "mysql" ? [
+          "Microsoft.DBforMySQL/flexibleServers/read",
+          "Microsoft.DBforMySQL/flexibleServers/databases/read",
+          "Microsoft.DBforMySQL/flexibleServers/configurations/read"
+        ] : [
+          "Microsoft.DBforPostgreSQL/flexibleServers/read",
+          "Microsoft.DBforPostgreSQL/flexibleServers/databases/read",
+          "Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"
+        ],
         not_actions = []
     }
     
@@ -40,9 +46,9 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
 
 resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
-    principal_id          = data.azuread_service_principal.this[0].id
+    principal_id          = data.azuread_service_principal.this[0].object_id
     role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition[0].name
-    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
         azurerm_role_definition.service-principal-sql-read-role-definition,
@@ -64,9 +70,15 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     description           = "Custom role to read flexible sql server list"
 
     permissions {
-        actions = [
-            var.instance_type == "mysql" ? "Microsoft.DBforMySQL/flexibleServers/read" : "Microsoft.DBforPostgreSQL/flexibleServers/read"
-        ]
+        actions = var.instance_type == "mysql" ? [
+          "Microsoft.DBforMySQL/flexibleServers/read",
+          "Microsoft.DBforMySQL/flexibleServers/databases/read",
+          "Microsoft.DBforMySQL/flexibleServers/configurations/read"
+        ] : [
+          "Microsoft.DBforPostgreSQL/flexibleServers/read",
+          "Microsoft.DBforPostgreSQL/flexibleServers/databases/read",
+          "Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"
+        ],
         not_actions = []
     }
 
@@ -80,9 +92,9 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
 }
 
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
-    principal_id          = data.azurerm_user_assigned_identity.this.principal_id
+    principal_id          = data.azurerm_user_assigned_identity.this.object_id
     role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
-    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
