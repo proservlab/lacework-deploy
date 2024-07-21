@@ -24,7 +24,7 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     
 
     permissions {
-        actions = local.allowed_actions,
+        actions = local.allowed_actions
         not_actions = []
     }
     
@@ -63,7 +63,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     description           = "Custom role to read flexible sql server list"
 
     permissions {
-        actions = local.allowed_actions,
+        actions = local.allowed_actions
         not_actions = []
     }
 
