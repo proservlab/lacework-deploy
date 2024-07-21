@@ -1,5 +1,6 @@
 locals {
     server_name                     = "${var.server_name}-${var.environment}-${var.deployment}"
+    allowed_actions                     = var.instance_type == "mysql" ? ["Microsoft.DBforMySQL/flexibleServers/read","Microsoft.DBforMySQL/flexibleServers/databases/read","Microsoft.DBforMySQL/flexibleServers/configurations/read"] : ["Microsoft.DBforPostgreSQL/flexibleServers/read","Microsoft.DBforPostgreSQL/flexibleServers/databases/read","Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"]
 }
 
 data "azurerm_client_config" "current" {}
@@ -23,15 +24,7 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     
 
     permissions {
-        actions = var.instance_type == "mysql" ? [
-          "Microsoft.DBforMySQL/flexibleServers/read",
-          "Microsoft.DBforMySQL/flexibleServers/databases/read",
-          "Microsoft.DBforMySQL/flexibleServers/configurations/read"
-        ] : [
-          "Microsoft.DBforPostgreSQL/flexibleServers/read",
-          "Microsoft.DBforPostgreSQL/flexibleServers/databases/read",
-          "Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"
-        ],
+        actions = local.allowed_actions,
         not_actions = []
     }
     
@@ -70,15 +63,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     description           = "Custom role to read flexible sql server list"
 
     permissions {
-        actions = var.instance_type == "mysql" ? [
-          "Microsoft.DBforMySQL/flexibleServers/read",
-          "Microsoft.DBforMySQL/flexibleServers/databases/read",
-          "Microsoft.DBforMySQL/flexibleServers/configurations/read"
-        ] : [
-          "Microsoft.DBforPostgreSQL/flexibleServers/read",
-          "Microsoft.DBforPostgreSQL/flexibleServers/databases/read",
-          "Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"
-        ],
+        actions = local.allowed_actions,
         not_actions = []
     }
 
