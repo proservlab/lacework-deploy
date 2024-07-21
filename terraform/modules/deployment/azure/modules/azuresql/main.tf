@@ -69,11 +69,15 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     assignable_scopes = [
         data.azurerm_resource_group.db.id
     ]
+
+    provisioner "local-exec" {
+        command = "sleep 30"
+    }
 }
 
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.principal_id
-    role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
+    role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.role_definition_id
     scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this[0].id : azurerm_postgresql_flexible_server.this[0].id
 
     depends_on = [
