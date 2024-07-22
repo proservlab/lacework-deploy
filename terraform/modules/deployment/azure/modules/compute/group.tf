@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 # compute admin group
 resource "azuread_group" "compute-admin-group" {
   display_name = "compute-${var.environment}-${var.deployment}-admins"
