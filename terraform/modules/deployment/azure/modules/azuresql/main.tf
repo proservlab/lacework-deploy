@@ -24,7 +24,7 @@ data "azuread_service_principal" "this" {
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     count = var.add_service_principal_access ? 1 : 0
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
     description           = "Custom role to read flexible sql server list"
     
 
@@ -34,7 +34,6 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     }
     
     assignable_scopes = [
-        data.azurerm_subscription.current.id,
         data.azurerm_resource_group.db.id
     ]
 
@@ -53,7 +52,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].object_id
     role_definition_name  = data.azurerm_role_definition.service-principal-sql-read-role-definition[0].name
-    scope                 = data.azurerm_resource_group.db.id
+    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this.id : azurerm_postgresql_flexible_server.this.id
     skip_service_principal_aad_check = true
 
     depends_on = [
@@ -73,7 +72,7 @@ data "azurerm_user_assigned_identity" "this" {
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
     name                  = "user-managed-identity-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -82,7 +81,6 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     }
 
     assignable_scopes = [
-        data.azurerm_subscription.current.id,
         data.azurerm_resource_group.db.id
     ]
 
@@ -99,7 +97,7 @@ data "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.principal_id
     role_definition_name  = data.azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
-    scope                 = data.azurerm_resource_group.db.id
+    scope                 = var.instance_type == "mysql" ? azurerm_mysql_flexible_server.this.id : azurerm_postgresql_flexible_server.this.id
     skip_service_principal_aad_check = true
 
     depends_on = [
