@@ -281,3 +281,16 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
 
     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{"public"="${each.value.public == true ? "true" : "false"}"},{"access-role"=azurerm_user_assigned_identity.instance-user-identity-app.name},each.value.tags)
 }
+
+# enable AADLoginForLinux ssh login for each virtual machine (note: this _requires_ inbound ssh access to function properly)
+resource "azurerm_virtual_machine_extension" "ssh-login-extension-app" {
+  for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+  name                 = "${each.key}-app-AADLoginForLinux"
+  virtual_machine_id   = azurerm_linux_virtual_machine.instances-app[each.key].id
+  publisher            = "Microsoft.Azure.ActiveDirectory.LinuxSSH"
+  type                 = "AADLoginForLinux"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+  
+  tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{"public"="${each.value.public == true ? "true" : "false"}"})
+}
