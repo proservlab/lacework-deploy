@@ -198,12 +198,13 @@ resource "azurerm_user_assigned_identity" "instance-user-identity" {
     }
 }
 
-resource "azurerm_role_assignment" "instance-user-idenity-role-assignment" {
-    principal_id          = azurerm_user_assigned_identity.instance-user-identity.principal_id
-    role_definition_name  = "Reader"
-    scope                 = var.resource_group.id
-    skip_service_principal_aad_check = true
-}
+# allow reader access to everything in the current resource group (instead let's use azuresql scoped permissions...)
+# resource "azurerm_role_assignment" "instance-user-idenity-role-assignment" {
+#     principal_id          = azurerm_user_assigned_identity.instance-user-identity.principal_id
+#     role_definition_name  = "Reader"
+#     scope                 = var.resource_group.id
+#     skip_service_principal_aad_check = true
+# }
 
 # Custom role for system identity allowing read access to the user assigned identity
 resource "azurerm_role_definition" "system-role-definition" {
