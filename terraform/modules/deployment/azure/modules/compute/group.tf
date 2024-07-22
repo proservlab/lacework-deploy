@@ -1,5 +1,5 @@
 # compute admin group
-resource "azuread_group" "compute-admin-group-app" {
+resource "azuread_group" "compute-admin-group" {
   display_name = "compute-${var.environment}-${var.deployment}-admins"
   owners = [data.azurerm_client_config.current.object_id]
   security_enabled = true
