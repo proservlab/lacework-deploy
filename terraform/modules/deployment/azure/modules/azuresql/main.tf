@@ -34,7 +34,8 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     }
     
     assignable_scopes = [
-        data.azurerm_subscription.current.id
+        data.azurerm_subscription.current.id,
+        data.azurerm_resource_group.db.id
     ]
 
     provisioner "local-exec" {
@@ -52,9 +53,10 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].object_id
     role_definition_id    = data.azurerm_role_definition.service-principal-sql-read-role-definition[0].role_definition_id
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
+        data.azurerm_role_definition.service-principal-sql-read-role-definition,
         azurerm_role_definition.service-principal-sql-read-role-definition,
         data.azuread_service_principal.this,
         azurerm_mysql_flexible_server.this,
@@ -79,7 +81,8 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     }
 
     assignable_scopes = [
-        data.azurerm_subscription.current.id
+        data.azurerm_subscription.current.id,
+        data.azurerm_resource_group.db.id
     ]
 
     provisioner "local-exec" {
@@ -95,7 +98,7 @@ data "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.principal_id
     role_definition_id    = data.azurerm_role_definition.user-managed-identiy-sql-read-role-definition.role_definition_id
-    scope                 = data.azurerm_subscription.current.id
+    scope                 = data.azurerm_resource_group.db.id
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
