@@ -29,6 +29,7 @@ provider "helm" {
   }
 }
 provider "azurerm" {
+  features {}
   # features {
   #   resource_group {
   #     /* scanner creates disks in the resource group. In regular circumstance those disks are
@@ -46,6 +47,7 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias = "attacker"
+  features {}
   # features {
   #   resource_group {
   #     /* scanner creates disks in the resource group. In regular circumstance those disks are
