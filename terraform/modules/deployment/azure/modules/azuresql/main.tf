@@ -41,7 +41,7 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].object_id
     role_definition_id    = azurerm_role_definition.service-principal-sql-read-role-definition[0].role_definition_id
-    scope                 = data.azurerm_subscription.current.subscription_id
+    scope                 = data.azurerm_subscription.current.id
 
     depends_on = [
         azurerm_role_definition.service-principal-sql-read-role-definition,
@@ -79,7 +79,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.principal_id
     role_definition_id    = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.role_definition_id
-    scope                 = data.azurerm_subscription.current.subscription_id
+    scope                 = data.azurerm_subscription.current.id
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
