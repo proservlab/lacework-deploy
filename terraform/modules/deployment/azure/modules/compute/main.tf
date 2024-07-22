@@ -287,7 +287,7 @@ resource "azurerm_linux_virtual_machine" "instances" {
 resource "azurerm_virtual_machine_extension" "ssh-login-extension" {
   for_each              = { for instance in var.instances: instance.name => instance if instance.role == "default" }
   name                 = "${each.key}-AADLoginForLinux"
-  virtual_machine_id   = azurerm_linux_virtual_machine.instances-app[each.key].id
+  virtual_machine_id   = azurerm_linux_virtual_machine.instances[each.key].id
   publisher            = "Microsoft.Azure.ActiveDirectory.LinuxSSH"
   type                 = "AADLoginForLinux"
   type_handler_version       = "1.0"
