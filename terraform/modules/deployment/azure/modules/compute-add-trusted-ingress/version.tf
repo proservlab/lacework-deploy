@@ -10,12 +10,12 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 2.25"
+      version = "~> 2.53.1"
     }
 
     azurerm = {
       source = "hashicorp/azurerm"
-      version = "~> 3.45"
+      version = "~> 3.113"
     }
     helm = {
       source  = "hashicorp/helm"
