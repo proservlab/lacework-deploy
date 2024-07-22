@@ -19,7 +19,7 @@ data "azuread_service_principal" "this" {
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     count = var.add_service_principal_access ? 1 : 0
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_resource_group.db.id
+    scope                 = data.azurerm_subscription.current.subscription_id
     description           = "Custom role to read flexible sql server list"
     
 
@@ -29,7 +29,7 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     }
     
     assignable_scopes = [
-        data.azurerm_resource_group.db.id
+        data.azurerm_subscription.current.subscription_id
     ]
 
     provisioner "local-exec" {
@@ -40,8 +40,8 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
 resource "azurerm_role_assignment" "system-identity-role-app" {
     count = var.add_service_principal_access ? 1 : 0
     principal_id          = data.azuread_service_principal.this[0].object_id
-    role_definition_name  = azurerm_role_definition.service-principal-sql-read-role-definition[0].name
-    scope                 = data.azurerm_resource_group.db.id
+    role_definition_id    = azurerm_role_definition.service-principal-sql-read-role-definition[0].role_definition_id
+    scope                 = data.azurerm_subscription.current.subscription_id
 
     depends_on = [
         azurerm_role_definition.service-principal-sql-read-role-definition,
@@ -59,7 +59,7 @@ data "azurerm_user_assigned_identity" "this" {
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
     name                  = "user-managed-identity-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_resource_group.db.id
+    scope                 = data.azurerm_subscription.current.subscription_id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -68,7 +68,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     }
 
     assignable_scopes = [
-        data.azurerm_resource_group.db.id
+        data.azurerm_subscription.current.subscription_id
     ]
 
     provisioner "local-exec" {
@@ -78,8 +78,8 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
 
 resource "azurerm_role_assignment" "user-managed-identity-role-app" {
     principal_id          = data.azurerm_user_assigned_identity.this.principal_id
-    role_definition_name  = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.name
-    scope                 = data.azurerm_resource_group.db.id
+    role_definition_id    = azurerm_role_definition.user-managed-identiy-sql-read-role-definition.role_definition_id
+    scope                 = data.azurerm_subscription.current.subscription_id
 
     depends_on = [
         azurerm_role_definition.user-managed-identiy-sql-read-role-definition,
