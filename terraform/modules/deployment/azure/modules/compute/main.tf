@@ -174,16 +174,16 @@ resource "azurerm_network_interface" "nic" {
     }
 }
 
-####################################################
-# COMPUTE IDENTITY
-####################################################
-
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg" {
     for_each                    = { for instance in var.instances: instance.name => instance if instance.role == "default" }
     network_interface_id        = azurerm_network_interface.nic[each.key].id
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg.id : azurerm_network_security_group.sg-private.id
 }
+
+####################################################
+# COMPUTE IDENTITY
+####################################################
 
 # Assign system user assigned identity reader access to the resource group
 resource "azurerm_user_assigned_identity" "instance-user-identity" {
