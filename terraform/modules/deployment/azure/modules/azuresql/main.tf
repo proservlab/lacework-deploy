@@ -19,7 +19,7 @@ data "azuread_service_principal" "this" {
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     count = var.add_service_principal_access ? 1 : 0
     name                  = "service-principal-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.subscription_id
+    scope                 = data.azurerm_subscription.current.id
     description           = "Custom role to read flexible sql server list"
     
 
@@ -29,7 +29,7 @@ resource "azurerm_role_definition" "service-principal-sql-read-role-definition" 
     }
     
     assignable_scopes = [
-        data.azurerm_subscription.current.subscription_id
+        data.azurerm_subscription.current.id
     ]
 
     provisioner "local-exec" {
@@ -59,7 +59,7 @@ data "azurerm_user_assigned_identity" "this" {
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
     name                  = "user-managed-identity-sql-read-role-${var.environment}-${var.deployment}"
-    scope                 = data.azurerm_subscription.current.subscription_id
+    scope                 = data.azurerm_subscription.current.id
     description           = "Custom role to read flexible sql server list"
 
     permissions {
@@ -68,7 +68,7 @@ resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definitio
     }
 
     assignable_scopes = [
-        data.azurerm_subscription.current.subscription_id
+        data.azurerm_subscription.current.id
     ]
 
     provisioner "local-exec" {
