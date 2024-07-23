@@ -18,4 +18,5 @@ resource "azurerm_role_assignment" "virtual-machine-login-perms" {
   scope              = var.resource_group.id
   role_definition_id = "Virtual Machine User Login"
   principal_id       = azuread_group.compute-admin-group.object_id
+  skip_service_principal_aad_check = true
 }
