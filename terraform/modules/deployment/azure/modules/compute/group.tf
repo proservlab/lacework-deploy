@@ -15,16 +15,7 @@ resource "azuread_group_member" "compute-admin-members" {
 
 # add a role to the group allowing member login to virtual machine (allows aadloginforlinux access)
 resource "azurerm_role_assignment" "virtual-machine-login-perms" {
-  for_each           = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-  scope              = azurerm_linux_virtual_machine.instances[each.key].id
-  role_definition_id = "Virtual Machine User Login"
-  principal_id       = azuread_group.compute-admin-group.object_id
-}
-
-# do the same for the app instances
-resource "azurerm_role_assignment" "virtual-machine-login-app-perms" {
-  for_each           = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-  scope              = azurerm_linux_virtual_machine.instances-app[each.key].id
+  scope              = var.resource_group.id
   role_definition_id = "Virtual Machine User Login"
   principal_id       = azuread_group.compute-admin-group.object_id
 }
