@@ -33,14 +33,3 @@ data "azurerm_platform_image" "rocky_linux_8" {
     sku       = "free"
     version   = "8.7.20230215"
 }
-
-
-locals {
-    amis = {
-        ubuntu_focal = data.azurerm_platform_image.ubuntu_focal
-        debian_11 = data.azurerm_platform_image.debian_11
-        centos8 = data.azurerm_platform_image.centos8
-        rocky_linux_8 = data.azurerm_platform_image.rocky_linux_8
-        windowsserver_2019 = data.azurerm_platform_image.windowsserver_2019
-    }
-}

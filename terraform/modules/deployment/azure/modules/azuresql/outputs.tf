@@ -19,5 +19,5 @@ output "sql_user" {
 }
 
 output "sql_password" {
-  value = random_string.root_db_password.result
+  value = random_password.root_db_password.result
 }

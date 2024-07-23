@@ -1,17 +1,20 @@
 data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {}
 
-resource "random_string" "root_db_password" {
-    length            = 16
-    special           = false
-    upper             = true
-    lower             = true
-    numeric           = true
+resource "random_password" "root_db_password" {
+    length                          = 16
+    special                         = false
+    upper                           = true
+    lower                           = true
+    numeric                         = true
+    min_upper                       = 1
+    min_lower                       = 1
+    min_numeric                     = 1
 }
 
 locals {
   init_db_username = var.root_db_username
-  init_db_password = random_string.root_db_password.result
+  init_db_password = random_password.root_db_password.result
   
   database_name = var.database_name
   database_port = var.database_port

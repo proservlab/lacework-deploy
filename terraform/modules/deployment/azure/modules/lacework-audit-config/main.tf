@@ -8,9 +8,11 @@ module "az_ad_application" {
 
 module "az_config" {
   source  = "lacework/config/azure"
-  version = "~> 2.0.2"
+  version = "~> 2.1.0"
 
   use_existing_ad_application = true
+  all_subscriptions = false
+  subscription_exclusions = []
   subscription_ids = [
     data.azurerm_subscription.current.subscription_id
   ]
@@ -22,10 +24,12 @@ module "az_config" {
 
 module "activity-log" {
   source  = "lacework/activity-log/azure"
-  version = "~> 2.2.3"
+  version = "~> 2.3.0"
 
   use_existing_ad_application = true
   
+  all_subscriptions = false
+  subscription_exclusions = []
   subscription_ids = [
     data.azurerm_subscription.current.subscription_id
   ]

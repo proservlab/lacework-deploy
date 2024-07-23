@@ -188,6 +188,10 @@ resource "lacework_integration_azure_agentless_scanning" "lacework_cloud_account
     local.included_subscriptions_list_no_prefix,
     local.excluded_subscriptions_list_no_prefix,
   )
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 /* **************** General **************** 
@@ -398,17 +402,17 @@ resource "azurerm_role_assignment" "scanner" {
   scope              = local.scanning_subscription_id
 }
 
-# resource "azurerm_role_assignment" "orchestrate" {
-#   # for_each = var.global ? toset(local.included_subscriptions_list) : []
-#   depends_on = [
-#     azurerm_role_definition.agentless_monitored_subscription[0],
-#     azurerm_user_assigned_identity.sidekick,
-#   ]
+resource "azurerm_role_assignment" "orchestrate" {
+  count = var.global ? 1 : 0
+  depends_on = [
+    azurerm_role_definition.agentless_monitored_subscription[0],
+    azurerm_user_assigned_identity.sidekick,
+  ]
 
-#   principal_id       = local.sidekick_principal_id
-#   role_definition_id = local.monitored_subscription_role_definition_id
-#   scope              = each.value
-# }
+  principal_id       = local.sidekick_principal_id
+  role_definition_id = local.monitored_subscription_role_definition_id
+  scope              = local.scanning_subscription_id
+}
 
 /* **************** End Scanning **************** */
 

@@ -23,10 +23,10 @@
             "name": "[parameters('automationAccount_name')]",
             "location": "[parameters('my_location')]",
             "tags": {
-                "Owner": "YOUR-NAME",
-                "Reason": "test",
+                "Owner": "lacework",
+                "Reason": "deployment",
                 "Lifespan": "temporary",
-                "Project": "MI-Auto-test"
+                "Project": "lacework-deploy"
             },
             "identity": {
                 "type": "UserAssigned",

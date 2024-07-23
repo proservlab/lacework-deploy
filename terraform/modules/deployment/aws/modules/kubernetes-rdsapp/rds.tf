@@ -1,14 +1,17 @@
-resource "random_string" "root_db_password" {
-    length            = 16
-    special           = false
-    upper             = true
-    lower             = true
-    numeric           = true
+resource "random_password" "root_db_password" {
+    length                          = 16
+    special                         = false
+    upper                           = true
+    lower                           = true
+    numeric                         = true
+    min_upper                       = 1
+    min_lower                       = 1
+    min_numeric                     = 1
 }
 
 locals {
   init_db_username = var.root_db_username
-  init_db_password = random_string.root_db_password.result
+  init_db_password = random_password.root_db_password.result
 
   service_account_db_user = var.service_account_db_user
   service_account = var.service_account

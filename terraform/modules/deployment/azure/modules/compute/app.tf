@@ -1,7 +1,6 @@
-locals {
-    # ssh_key_path_app = pathexpand("~/.ssh/azure-app-${var.environment}-${var.deployment}.pem")
-    resource_group_name_app = var.resource_app_group.name
-}
+####################################################
+# COMPUTE NETWORK
+####################################################
 
 resource "azurerm_virtual_network" "network-app" {
     name                = "public-app-vnet-${var.environment}-${var.deployment}"
@@ -46,7 +45,7 @@ resource "azurerm_virtual_network" "network-app-private" {
     }
 }
 
-resource "azurerm_public_ip" "private_app_nat_gw" {
+resource "azurerm_public_ip" "private-app-nat-gw" {
     name                  = "private-app-ip-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_app_group.name
@@ -60,7 +59,7 @@ resource "azurerm_public_ip" "private_app_nat_gw" {
     }
 }
 
-resource "azurerm_virtual_network_gateway" "private_app_nat_gw" {
+resource "azurerm_virtual_network_gateway" "private-app-nat-gw" {
     name                = "private-app-natgw-${var.environment}-${var.deployment}"
     location            = var.region
     resource_group_name = var.resource_app_group.name
@@ -70,7 +69,7 @@ resource "azurerm_virtual_network_gateway" "private_app_nat_gw" {
     sku      = "Basic"
 
     ip_configuration {
-        public_ip_address_id          = azurerm_public_ip.private_app_nat_gw.id
+        public_ip_address_id          = azurerm_public_ip.private-app-nat-gw.id
         private_ip_address_allocation = "Dynamic"
         subnet_id                     = azurerm_subnet.subnet-app-private.id
     }
@@ -111,13 +110,13 @@ resource "azurerm_network_security_group" "sg-app" {
     }
 }
 
-resource "azurerm_network_security_rule" "public_ingress_rules_app" {
+resource "azurerm_network_security_rule" "public-ingress-rules-app" {
   count                       = length(var.public_app_ingress_rules)
   name                        = "public-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = var.public_app_ingress_rules[count.index] == "tcp" ? "Tcp" : "Udp"
+  protocol                    = var.public_app_ingress_rules[count.index].protocol == "tcp" ? "Tcp" : "Udp"
   source_port_range           = "*"
   destination_port_range      = "${var.public_app_ingress_rules[count.index].from_port}-${var.public_app_ingress_rules[count.index].to_port}"
   source_address_prefix       = "${var.public_app_ingress_rules[count.index].cidr_block}"
@@ -139,7 +138,7 @@ resource "azurerm_network_security_group" "sg-app-private" {
     }
 }
 
-resource "azurerm_network_security_rule" "private_ingress_rules_app" {
+resource "azurerm_network_security_rule" "private-ingress-rules-app" {
   count                       = length(var.private_app_ingress_rules)
   name                        = "private-app-sg-ingress-${var.environment}-${var.deployment}-${count.index}"
   priority                    = 1000+count.index
@@ -182,22 +181,68 @@ resource "azurerm_network_interface_security_group_association" "sg-app" {
     network_security_group_id   = each.value.public == true ? azurerm_network_security_group.sg-app.id : azurerm_network_security_group.sg-app-private.id
 }
 
-resource "random_id" "randomIdApp" {
-    keepers = {
-        # Generate a new ID only when a new resource group is defined
-        resource_group = var.resource_app_group.name
+####################################################
+# COMPUTE IDENTITY
+####################################################
+
+# Assign system user assigned identity reader access to the resource group
+resource "azurerm_user_assigned_identity" "instance-user-identity-app" {
+    name                  = "instance-user-identity-app-${var.environment}-${var.deployment}"
+    location              = var.region
+    resource_group_name   = var.resource_app_group.name
+
+    tags = {
+        environment = var.environment
+        deployment  = var.deployment
+        role = "app"
     }
-    
-    byte_length = 8
 }
 
-# use the common default ssh key
-# resource "tls_private_key" "ssh-app" {
-#   algorithm = "RSA"
-#   rsa_bits = 4096
-# }
+resource "azurerm_role_assignment" "instance-user-idenity-role-assignment-app" {
+    principal_id          = azurerm_user_assigned_identity.instance-user-identity-app.principal_id
+    role_definition_name  = "Reader"
+    scope                 = var.resource_app_group.id
+    skip_service_principal_aad_check = true
+}
 
+# Custom role for system identity allowing read access to the user assigned identity
+resource "azurerm_role_definition" "system-role-definition-app" {
+  name        = "system-app-role-${var.environment}-${var.deployment}"
+  scope       = var.resource_app_group.id  # Define at the resource group level
+  description = "Custom role to read specific user-assigned identities"
 
+  permissions {
+    actions = [
+      "Microsoft.ManagedIdentity/userAssignedIdentities/read"
+    ]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    var.resource_app_group.id  # Ensure this includes the necessary scope
+  ]
+}
+
+# Allow the system assigned identity reader access to the user assigned identity for the purposes of assuming the privilege user identity
+resource "azurerm_role_assignment" "system-identity-role-app" {
+  for_each             = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+  principal_id         = azurerm_linux_virtual_machine.instances-app[each.key].identity[0].principal_id
+  role_definition_id   = azurerm_role_definition.system-role-definition-app.role_definition_id
+  scope                = azurerm_user_assigned_identity.instance-user-identity-app.id  # Assign at the user-assigned identity scope
+  skip_service_principal_aad_check = true
+
+  depends_on = [
+    azurerm_linux_virtual_machine.instances-app,
+    azurerm_role_definition.system-role-definition-app,
+    azurerm_user_assigned_identity.instance-user-identity-app
+  ]
+}
+
+####################################################
+# COMPUTE INSTANCES
+####################################################
+
+# Create the linux virtual machine
 resource "azurerm_linux_virtual_machine" "instances-app" {
     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
     name                  = "${each.key}-app-${var.environment}-${var.deployment}"
@@ -205,6 +250,11 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     resource_group_name   = var.resource_app_group.name
     network_interface_ids = [azurerm_network_interface.nic-app[each.key].id]
     size                  = each.value.instance_type
+
+    identity {
+        type         = "SystemAssigned, UserAssigned"
+        identity_ids = [azurerm_user_assigned_identity.instance-user-identity-app.id]
+    }
 
     os_disk {
         name              = "disk-app-${each.key}-${var.environment}-${var.deployment}"
@@ -229,29 +279,18 @@ resource "azurerm_linux_virtual_machine" "instances-app" {
     }
 
 
-    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
+    tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{"public"="${each.value.public == true ? "true" : "false"}"},{"access-role"=azurerm_user_assigned_identity.instance-user-identity-app.name},each.value.tags)
 }
 
-# resource "azurerm_virtual_machine_extension" "jit-vm-access-app" {
-#     for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
-#     name = "${each.key}-${var.environment}-${var.deployment}-jit-vm-access"
-#     virtual_machine_id = azurerm_linux_virtual_machine.instances-app[each.key].id
-#     publisher = "Microsoft.Azure.Security"
-#     type = "JitNetworkAccess"
-#     type_handler_version = "1.4"
-#     auto_upgrade_minor_version = true
-#     settings = jsonencode({
-#         "durationInSeconds" = 3600
-#     })
-
-#     depends_on = [ azurerm_linux_virtual_machine.instances-app ]
-
-#     tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{ "public"="${each.value.public == true ? "true" : "false"}"},each.value.tags)
-# }
-
-# use the common default ssh key
-# resource "local_file" "ssh-key-app" {
-#     content  = tls_private_key.ssh-app.private_key_pem
-#     filename = local.ssh_key_path_app
-#     file_permission = "0600"
-# }
+# enable AADLoginForLinux ssh login for each virtual machine (note: this _requires_ inbound ssh access to function properly)
+resource "azurerm_virtual_machine_extension" "ssh-login-extension-app" {
+  for_each              = { for instance in var.instances: instance.name => instance if instance.role == "app" }
+  name                 = "${each.key}-app-AADLoginForLinux"
+  virtual_machine_id   = azurerm_linux_virtual_machine.instances-app[each.key].id
+  publisher            = "Microsoft.Azure.ActiveDirectory.LinuxSSH"
+  type                 = "AADLoginForLinux"
+  type_handler_version       = "1.0"
+  auto_upgrade_minor_version = true
+  
+  tags = merge({"environment"=var.environment},{"deployment"=var.deployment},{"public"="${each.value.public == true ? "true" : "false"}"})
+}
