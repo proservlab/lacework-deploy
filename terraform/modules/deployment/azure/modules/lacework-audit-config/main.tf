@@ -11,11 +11,11 @@ module "az_config" {
   version = "~> 2.1.0"
 
   use_existing_ad_application = true
-  all_subscriptions = true
+  all_subscriptions = false
   subscription_exclusions = []
-  # subscription_ids = [
-  #   data.azurerm_subscription.current.subscription_id
-  # ]
+  subscription_ids = [
+    data.azurerm_subscription.current.subscription_id
+  ]
 
   application_id              = module.az_ad_application.application_id
   application_password        = module.az_ad_application.application_password
@@ -28,11 +28,11 @@ module "activity-log" {
 
   use_existing_ad_application = true
   
-  all_subscriptions = true
+  all_subscriptions = false
   subscription_exclusions = []
-  # subscription_ids = [
-  #   data.azurerm_subscription.current.subscription_id
-  # ]
+  subscription_ids = [
+    data.azurerm_subscription.current.subscription_id
+  ]
   application_id              = module.az_ad_application.application_id
   application_password        = module.az_ad_application.application_password
   service_principal_id        = module.az_ad_application.service_principal_id
