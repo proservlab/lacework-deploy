@@ -23,8 +23,7 @@ resource "azurerm_role_assignment" "virtual-machine-login-perms" {
   scope              = azurerm_linux_virtual_machine.instances[each.key].id
   role_definition_id = data.azurerm_role_definition.compute-admin-role.id
   principal_id       = azuread_group.compute-admin-group.object_id
-  principal_type     = "Group"
-  skip_service_principal_aad_check = true
+  #   skip_service_principal_aad_check = true # cannot be used if principal is group
 }
 
 # do the same for the app instances
@@ -33,6 +32,5 @@ resource "azurerm_role_assignment" "virtual-machine-login-app-perms" {
   scope              = azurerm_linux_virtual_machine.instances-app[each.key].id
   role_definition_id = data.azurerm_role_definition.compute-admin-role.id
   principal_id       = azuread_group.compute-admin-group.object_id
-  principal_type     = "Group"
-  skip_service_principal_aad_check = true
+  #   skip_service_principal_aad_check = true # cannot be used if principal is group
 }
