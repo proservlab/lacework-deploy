@@ -7,7 +7,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.77.0"
+      version = "~> 3.77"
     }
     // include azapi because Azure Container App Jobs isn't yet available as a provider
     azapi = {
