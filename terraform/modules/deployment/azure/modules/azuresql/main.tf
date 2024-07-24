@@ -50,7 +50,6 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     skip_service_principal_aad_check = true
 
     depends_on = [
-        data.azurerm_role_definition.service-principal-sql-read-role-definition,
         azurerm_role_definition.service-principal-sql-read-role-definition,
         data.azuread_service_principal.this,
         azurerm_mysql_flexible_server.this,
