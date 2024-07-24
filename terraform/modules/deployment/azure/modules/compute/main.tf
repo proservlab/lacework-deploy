@@ -228,7 +228,7 @@ resource "azurerm_role_definition" "system-role-definition" {
 resource "azurerm_role_assignment" "system-identity-role" {
   for_each             = { for instance in var.instances: instance.name => instance if instance.role == "default" }
   principal_id         = azurerm_linux_virtual_machine.instances[each.key].identity[0].principal_id
-  role_definition_id   = azurerm_role_definition.system-role-definition.role_definition_id
+  role_definition_id   = azurerm_role_definition.system-role-definition.role_definition_resource_id
   scope                = azurerm_user_assigned_identity.instance-user-identity.id  # Assign at the user-assigned identity scope
   #   skip_service_principal_aad_check = true
 

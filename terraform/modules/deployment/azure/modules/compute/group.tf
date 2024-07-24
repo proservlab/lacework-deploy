@@ -30,7 +30,7 @@ resource "azurerm_role_assignment" "virtual-machine-login-perms" {
 resource "azurerm_role_assignment" "virtual-machine-login-app-perms" {
   for_each           = { for instance in var.instances: instance.name => instance if instance.role == "app" }
   scope              = azurerm_linux_virtual_machine.instances-app[each.key].id
-  role_definition_id = data.azurerm_role_definition.compute-admin-role.role_definition_id
+  role_definition_id = data.azurerm_role_definition.compute-admin-role.role_definition_resource_id
   principal_id       = azuread_group.compute-admin-group.object_id
   #   skip_service_principal_aad_check = true # cannot be used if principal is group
 }
