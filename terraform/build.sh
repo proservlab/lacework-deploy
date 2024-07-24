@@ -446,16 +446,19 @@ terraform fmt -no-color
 terraform workspace select -no-color -or-create=true ${WORK}
 
 # update modules as required
-terraform get -update=true -no-color
+terraform get -update=true -no-color >> $LOGFILE 2>&1
 if [ -z ${LOCAL_BACKEND} ]; then
     infomsg "Running terraform init..."
-    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color >> $LOGFILE
+    terraform init -backend-config=env_vars/init.tfvars -input=false -no-color >> $LOGFILE 2>&1
     BACKEND="-var-file=env_vars/backend.tfvars"
 else
     infomsg "Running terraform init..."
-    terraform init -upgrade -input=false -no-color >> $LOGFILE
+    terraform init -upgrade -input=false -no-color >> $LOGFILE 2>&1
     BACKEND=""
 fi;
+
+terraform version >> $LOGFILE 2>&1
+terraform providers >> $LOGFILE 2>&1
 
 if [ "show" = "${ACTION}" ]; then
     run_terraform_show
