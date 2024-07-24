@@ -230,7 +230,7 @@ resource "azurerm_role_assignment" "system-identity-role" {
   principal_id         = azurerm_linux_virtual_machine.instances[each.key].identity[0].principal_id
   role_definition_id   = azurerm_role_definition.system-role-definition.role_definition_id
   scope                = azurerm_user_assigned_identity.instance-user-identity.id  # Assign at the user-assigned identity scope
-  skip_service_principal_aad_check = true
+  #   skip_service_principal_aad_check = true
 
   depends_on = [
     azurerm_linux_virtual_machine.instances,
