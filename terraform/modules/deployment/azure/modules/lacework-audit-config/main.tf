@@ -38,9 +38,10 @@ module "activity-log" {
   service_principal_id        = module.az_ad_application.service_principal_id
 }
 
+# local integration until module is released to terraform hub
 module "entra-id-activity-log" {
+  count = var.enable_entra_id_activity_logs == true ? 1 : 0
   source  = "./terraform-azure-microsoft-entra-id-activity-log"
-  # version = "~> 2.3.0"
   
   location = var.region
   use_existing_ad_application = true
