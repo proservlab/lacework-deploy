@@ -39,7 +39,7 @@ module "activity-log" {
 }
 
 module "entra-id-activity-log" {
-  source  = "terraform-azure-microsoft-entra-id-activity-log"
+  source  = "./terraform-azure-microsoft-entra-id-activity-log"
   # version = "~> 2.3.0"
   
   location = var.region
