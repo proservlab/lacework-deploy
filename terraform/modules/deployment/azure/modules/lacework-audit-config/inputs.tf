@@ -7,3 +7,8 @@ variable "deployment" {
     type = string
     description = "unique deployment id"
 }
+
+variable "region" {
+    type = string
+    description = "West US 2"
+}

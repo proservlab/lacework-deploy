@@ -465,6 +465,9 @@ module "target-lacework-audit-config" {
   source      = "./modules/lacework-audit-config"
   environment = local.target_infrastructure_config.context.global.environment
   deployment   = local.target_infrastructure_config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+
+  enable_entra_id_activity_logs = local.target_infrastructure_config.context.lacework.azure_audit_config.enable_entra_id_activity_logs
 
   providers = {
     azurerm = azurerm.target

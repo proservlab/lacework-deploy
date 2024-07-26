@@ -319,8 +319,8 @@ variable "config" {
           org_integration       = bool
         })
         azure_audit_config      = object({
-          project_id            = string
-          enabled               = bool
+          enabled                       = bool
+          enable_entra_id_activity_logs = bool
         })
         custom_policy = object({
           enabled               = bool
@@ -894,8 +894,8 @@ variable "config" {
           org_integration       = false
         }
         azure_audit_config          = {
-          project_id            = null
-          enabled               = false
+          enabled                       = false
+          enable_entra_id_activity_logs = false
         }
         custom_policy = {
           enabled               = false

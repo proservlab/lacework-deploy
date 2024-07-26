@@ -460,6 +460,9 @@ module "attacker-lacework-audit-config" {
   source      = "./modules/lacework-audit-config"
   environment = local.attacker_infrastructure_config.context.global.environment
   deployment   = local.attacker_infrastructure_config.context.global.deployment
+  region       = local.attacker_infrastructure_config.context.azure.region
+
+  enable_entra_id_activity_logs = local.attacker_infrastructure_config.context.lacework.azure_audit_config.enable_entra_id_activity_logs
 
   providers = {
     azurerm = azurerm.attacker

@@ -37,3 +37,15 @@ module "activity-log" {
   application_password        = module.az_ad_application.application_password
   service_principal_id        = module.az_ad_application.service_principal_id
 }
+
+module "entra-id-activity-log" {
+  source  = "terraform-azure-microsoft-entra-id-activity-log"
+  # version = "~> 2.3.0"
+  
+  location = var.region
+  use_existing_ad_application = true
+    
+  application_id              = module.az_ad_application.application_id
+  application_password        = module.az_ad_application.application_password
+  service_principal_id        = module.az_ad_application.service_principal_id
+}
