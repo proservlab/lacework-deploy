@@ -60,7 +60,8 @@ resource "azurerm_eventhub" "lacework" {
 resource "azurerm_role_assignment" "lacework" {
   scope                = azurerm_eventhub.lacework.id
   role_definition_name = "Azure Event Hubs Data Receiver"
-  principal_id         = module.az_ad_application.service_principal_id
+  # principal_id         = module.az_ad_application.service_principal_id
+  principal_id         = local.service_principal_id 
 
   depends_on = [azurerm_eventhub_namespace.lacework]
 }
