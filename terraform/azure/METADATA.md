@@ -31,29 +31,66 @@ Once the resource name is discovered for the user managed identity the next step
 
 The following shell script is an example of this system to user managed identity path using the metadata service and az api:
 ```
+#!/bin/bash
+
+echo "Getting current machine metadata..."
+
 # get subscription and resource group from metadata
-METADATA=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01")
+METADATA=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01")
 RESOURCE_GROUP_NAME=$(echo $METADATA | jq -r '.compute.resourceGroupName')
 SUBSCRIPTION_ID=$(echo $METADATA | jq -r '.compute.subscriptionId')
 
+cat <<EOF
+RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME
+SUBSCRIPTION_ID=$SUBSCRIPTION_ID
+EOF
+
+echo "Getting the system identity name from metadata..."
 # Assumes role tag is set to the user managed identity for the machine
 USER_MANAGED_IDENTITY_NAME=$(echo $METADATA | jq -r '.compute.tagsList[] | select(.name=="access-role") | .value')
+cat <<EOF
+USER_MANAGED_IDENTITY_NAME=$USER_MANAGED_IDENTITY_NAME
+EOF
 
-
+echo "Getting system identity token..."
 # Get the access token (if user and system are assigned system is returned by default)
 TOKEN=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/" | jq -r '.access_token')
 
-# Get the user managed identity by name
-USER_MANAGED_IDENTITY=$(curl -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${USER_MANAGED_IDENTITY_NAME}?api-version=2023-01-31")
+cat <<EOF
+TOKEN=$TOKEN
+EOF
 
+echo "Getting user managed identity..."
+# Get the user managed identity by name
+USER_MANAGED_IDENTITY=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${USER_MANAGED_IDENTITY_NAME}?api-version=2023-01-31")
 CLIENT_ID=$(echo $USER_MANAGED_IDENTITY | jq -r '.properties.clientId')
 
+cat <<EOF
+USER_MANAGED_IDENTITY=$USER_MANAGED_IDENTITY
+CLIENT_ID=$CLIENT_ID
+EOF
+
+echo "Getting token for user managed identity..."
 # Get the access token for a client_id
 TOKEN=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/&client_id=$CLIENT_ID" | jq -r '.access_token')
 
-# List SQL Flexible Servers within the specified resource group (postgresql)
-curl -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforPostgreSQL/flexibleServers?api-version=2021-06-01"
+cat <<EOF
+TOKEN=$TOKEN
+EOF
 
+echo "Listing flexible postgres servers..."
+# List SQL Flexible Servers within the specified resource group (postgresql)
+POSTGRES_SERVERS=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforPostgreSQL/flexibleServers?api-version=2021-06-01")
+
+cat <<EOF
+POSTGRES_SERVERS=$POSTGRES_SERVERS
+EOF
+
+echo "Listing flexible mysql servers..."
 # List SQL Flexible Servers within the specified resource group (mysql) Microsoft.DBforMySQL
-curl -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers?api-version=2021-05-01"
+MYSQL_SERVERS=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers?api-version=2021-05-01")
+
+cat <<EOF
+MYSQL_SERVERS=$MYSQL_SERVERS
+EOF
 ```
