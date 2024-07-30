@@ -25,8 +25,9 @@ resource "azuread_directory_role" "sp_mysql_backup" {
 }
 
 resource "azuread_directory_role_assignment" "sp_mysql_backup_role" {
+  count = var.add_service_principal_access ? 1 : 0
   role_id             = azuread_directory_role.sp_mysql_backup.template_id
-  principal_object_id = data.azuread_service_principal.this.object_id
+  principal_object_id = data.azuread_service_principal.this[0].object_id
 } 
 
 # Custom role for user managed identity allowing enumeration of sql instances
