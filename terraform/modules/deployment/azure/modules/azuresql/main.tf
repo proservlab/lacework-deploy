@@ -15,20 +15,25 @@ data "azurerm_resource_group" "db" {
 # SQL ROLES - LIST SQL SERVER PROPERTIES
 #################################################
 
+#######################################
+# SERVICE PRINCIPAL
+#######################################
+
 data "azuread_service_principal" "this" {
   count = var.add_service_principal_access ? 1 : 0
   display_name = var.service_principal_display_name
 }
 
-resource "azuread_directory_role" "sp_mysql_backup" {
-  display_name = "MySQL Backup And Export Operator"
-}
+#######################################
+# SERVICE PRINCIPAL ROLE ASSIGNMENT - BACKUP
+#######################################
 
-resource "azuread_directory_role_assignment" "sp_mysql_backup_role" {
-  count = var.add_service_principal_access ? 1 : 0
-  role_id             = azuread_directory_role.sp_mysql_backup.template_id
-  principal_object_id = data.azuread_service_principal.this[0].object_id
-} 
+resource "azurerm_role_assignment" "mysql_backup_export_operator" {
+  count = var.add_service_principal_access == true && var.instance_type == "mysql" ? 1 : 0
+  scope                = azurerm_mysql_flexible_server.this.id
+  role_definition_name = "MySQL Backup And Export Operator"
+  principal_id         = data.azuread_service_principal.this[0].object_id
+}
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
@@ -67,19 +72,25 @@ resource "azurerm_role_assignment" "system-identity-role-app" {
     ]
 }
 
+#######################################
+# USER MANAGED IDENTITY
+#######################################
+
 data "azurerm_user_assigned_identity" "this" {
   name                = "instance-user-identity-app-${var.environment}-${var.deployment}"
   resource_group_name = var.db_resource_group_name
 }
 
-resource "azuread_directory_role" "umi_mysql_backup" {
-  display_name = "MySQL Backup And Export Operator"
-}
+#######################################
+# USER MANAGED IDENTITY ROLE ASSIGNMENT - BACKUP
+#######################################
 
-resource "azuread_directory_role_assignment" "umi_directory_role_assignment" {
-  role_id             = azuread_directory_role.umi_mysql_backup.template_id
-  principal_object_id = data.azurerm_user_assigned_identity.this.principal_id
-} 
+resource "azurerm_role_assignment" "mysql_backup_export_operator" {
+  count = var.add_service_principal_access == true && var.instance_type == "mysql" ? 1 : 0
+  scope                = azurerm_mysql_flexible_server.this.id
+  role_definition_name = "MySQL Backup And Export Operator"
+  principal_id         = data.azurerm_user_assigned_identity.this.principal_id
+}
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
