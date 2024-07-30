@@ -20,6 +20,15 @@ data "azuread_service_principal" "this" {
   display_name = var.service_principal_display_name
 }
 
+resource "azuread_directory_role" "sp_mysql_backup" {
+  display_name = "MySQL Backup And Export Operator"
+}
+
+resource "azuread_directory_role_assignment" "sp_mysql_backup_role" {
+  role_id             = azuread_directory_role.sp_mysql_backup.template_id
+  principal_object_id = azuread_service_principal.this.object_id
+} 
+
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
     count = var.add_service_principal_access ? 1 : 0
@@ -61,6 +70,15 @@ data "azurerm_user_assigned_identity" "this" {
   name                = "instance-user-identity-app-${var.environment}-${var.deployment}"
   resource_group_name = var.db_resource_group_name
 }
+
+resource "azuread_directory_role" "umi_mysql_backup" {
+  display_name = "MySQL Backup And Export Operator"
+}
+
+resource "azuread_directory_role_assignment" "umi_directory_role_assignment" {
+  role_id             = azuread_directory_role.umi_mysql_backup.template_id
+  principal_object_id = azurerm_user_assigned_identity.this.object_id
+} 
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
