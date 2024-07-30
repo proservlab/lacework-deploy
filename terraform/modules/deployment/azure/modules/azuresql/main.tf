@@ -77,7 +77,7 @@ resource "azuread_directory_role" "umi_mysql_backup" {
 
 resource "azuread_directory_role_assignment" "umi_directory_role_assignment" {
   role_id             = azuread_directory_role.umi_mysql_backup.template_id
-  principal_object_id = data.azurerm_user_assigned_identity.this.object_id
+  principal_object_id = data.azurerm_user_assigned_identity.this.principal_id
 } 
 
 # Custom role for user managed identity allowing enumeration of sql instances
