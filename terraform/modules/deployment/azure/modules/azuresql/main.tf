@@ -380,6 +380,49 @@ resource "azurerm_subnet" "this" {
 }
 
 #######################################
+# BACKUP STORAGE
+#######################################
+
+resource "azurerm_storage_account" "this" {
+  name                     = "dbbackup${var.environment}${var.deployment}"
+  resource_group_name      = var.db_resource_group_name
+  location                 = var.region
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  network_rules {
+    default_action = "Deny"
+    ip_rules = var.public_network_access_enabled == true ? flatten(
+      [
+        ["0.0.0.0/0"],
+        var.trusted_networks
+      ]) : var.trusted_networks
+  }
+
+  tags = {
+    environment = var.environment
+    deployment  = var.deployment
+  }
+}
+
+#######################################
+# DB STORAGE ROLE ASSIGNMENT
+#######################################
+
+resource "azurerm_role_assignment" "sp_storage_blob_data_reader" {
+  count = var.add_service_principal_access ? 1 : 0
+  scope                = azurerm_storage_account.this.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azuread_service_principal.this[0].object_id # The object ID of the user/service principal
+}
+
+resource "azurerm_role_assignment" "user_managed_identity_storage_blob_data_reader" {
+  scope                = azurerm_storage_account.this.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azurerm_user_assigned_identity.this.principal_id # The object ID of the user/service principal
+}
+
+#######################################
 # MYSQL
 #######################################
 
@@ -393,12 +436,12 @@ resource "azurerm_mysql_flexible_server" "this" {
   backup_retention_days             = 7
   delegated_subnet_id               = azurerm_subnet.this.id
   private_dns_zone_id               = azurerm_private_dns_zone.mysql[0].id
-  # az mysql server list-skus --location westus -o table --subscription="xxxxx"
   sku_name                          = var.sku_name # "GP_Standard_D2ds_v4"
 
   tags = {
     environment = var.environment
     deployment = var.deployment
+    backup_storage = azurerm_storage_account.this.name
   }
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql]
@@ -466,6 +509,7 @@ resource "azurerm_postgresql_flexible_server" "this" {
   tags = {
     environment = var.environment
     deployment = var.deployment
+    backup_storage = azurerm_storage_account.this.name
   }
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
