@@ -22,10 +22,11 @@ export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' $AZURE_CREDS_PATH)
 export AZURE_TENANT_ID=$(jq -r '.tenantId' $AZURE_CREDS_PATH)
 export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' $AZURE_CREDS_PATH)
 export IDENTITY_ENDPOINT="https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/token"
+export HEADERS_FILE="/tmp/headers.txt"
 # az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 # cloud enumeration
-#scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE 
+#scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE
 
 echo "Authenticating service principal..."
 AUTH_RESULT=$(curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" \
@@ -86,15 +87,21 @@ EOF
 echo "Getting latest backup..."
 BACKUP_NAME=$(echo $BACKUPS | jq -r '.value[-1].name')
 
-#echo "Creating backup..."
-#CURRENT_DATE=$(date +%Y%m%d%H%M%S)
-#NEW_BACKUP_NAME="mybackup-${CURRENT_DATE}"
-#RESULT=$(curl -s -X PUT -H "content-length: 0" -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups/${NEW_BACKUP_NAME}?api-version=2023-10-01-preview")
+echo "Creating backup..."
+CURRENT_DATE=$(date +%Y%m%d%H%M%S)
+NEW_BACKUP_NAME="mybackup-${CURRENT_DATE}"
+RESULT=$(curl -s -D -X PUT -H "content-length: 0" -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups/${NEW_BACKUP_NAME}?api-version=2023-10-01-preview")
 
-#echo "Result..."
-#cat <<EOF
-#RESULT=$RESULT
-#EOF
+echo "Result..."
+cat <<EOF
+RESULT=$RESULT
+EOF
+
+# Extract Operation Status URL from headers
+OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
+echo "Operation status URL: $OPERATION_STATUS_URL"
+
+exit
 
 echo "Getting a list of storage accounts..."
 RESULT=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/providers/Microsoft.Storage/storageAccounts?api-version=2023-05-01")
@@ -113,7 +120,9 @@ DB_BACKUP_STORAGE_ACCOUNT_NAME=$DB_BACKUP_STORAGE_ACCOUNT_NAME
 DB_BACKUP_STORAGE_ACCOUNT_ID=$DB_BACKUP_STORAGE_ACCOUNT_ID
 EOF
 
-EXPIRY_TIME=$(date -u -d "+1 hour" +"%Y-%m-%dT%H:%M:%S.%7NZ")
+EXPIRY_TIME=$(date -u -v+60M +"%Y-%m-%dT%H:%M:%S.0000000Z")
+echo "Setting expiry time for 1 hour: $EXPIRY_TIME"
+
 SAS_DATA="{\"canonicalizedResource\":\"/blob/${DB_BACKUP_STORAGE_ACCOUNT_NAME}/backup\",\"signedResource\":\"c\",\"signedPermission\":\"rcw\",\"signedProtocol\":\"https\",\"signedExpiry\":\"${EXPIRY_TIME}\"}"
 RESULT=$(curl -s -X POST -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Storage/storageAccounts/${DB_BACKUP_STORAGE_ACCOUNT_NAME}/listServiceSas/?api-version=2017-06-01"  -d ${SAS_DATA})
 
@@ -121,9 +130,40 @@ cat <<EOF
 RESULT=$RESULT
 EOF
 
+SAS_TOKEN=$(echo $RESULT | jq -r '.serviceSasToken')
+cat <<EOF
+SAS_TOKEN=$SAS_TOKEN
+EOF
+
+echo "Building SAS URI..."
+SAS_URI="https://${DB_BACKUP_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/backup?${SAS_TOKEN}"
+cat <<EOF
+SAS_URI=$SAS_URI
+EOF
+
+echo "Building export data payload..."
+EXPORT_DATA="{\"targetDetails\":{\"objectType\":\"FullBackupStoreDetails\",\"sasUriList\":[\"${SAS_URI}\"]},\"backupSettings\":{\"backupName\":\"${NEW_BACKUP_NAME}\"}}"
+cat <<EOF
+EXPORT_DATA=$EXPORT_DATA
+EOF
+
+echo "Requesting export..."
+RESULT=$(curl -s -D ${HEADERS_FILE} -X POST -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backupAndExport?api-version=2023-10-01-preview" -d ${EXPORT_DATA})
+cat <<EOF
+RESULT=$RESULT
+EOF
+
+# Extract Operation Status URL from headers
+OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
+echo "Operation status URL: $OPERATION_STATUS_URL"
+
 exit
 
-EXPORT_DATA="{ \"targetDetails\": { \"objectType\": \"FullBackupStoreDetails\", \"sasUriList\": [ \"${SAS_URI}\" ] }, \"backupSettings\": { \"backupName\": \"${BACKUP_NAME}\" } }"
+OPERATION_ID=fa1e8fa6-ea44-40a9-b6f2-cbf287317145
+REQUEST_ID=fa1e8fa6-ea44-40a9-b6f2-cbf287317145
+#curl -s -X GET -H "Authorization: Bearer ${TOKEN}" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/operationResults/${OPERATION_ID}?api-version=2023-10-01-preview"
+curl -s -X GET -H "Authorization: Bearer ${TOKEN}" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/operationProgress/${OPERATION_ID}?api-version=2023-10-01-preview"
 
-echo "Exporting latest backup to storage account..."
-RESULT=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -X POST "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SEVER_NAME}/backupAndExport?api-version=2023-10-01-preview" -d "" )
+# Extract Operation Status URL from headers
+OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
+echo "Operation status URL: $OPERATION_STATUS_URL"
