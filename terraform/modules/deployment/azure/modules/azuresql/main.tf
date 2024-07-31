@@ -1,6 +1,30 @@
 locals {
     server_name                     = "${var.server_name}-${var.environment}-${var.deployment}"
-    allowed_actions                     = var.instance_type == "mysql" ? ["Microsoft.DBforMySQL/flexibleServers/read","Microsoft.DBforMySQL/flexibleServers/databases/read","Microsoft.DBforMySQL/flexibleServers/configurations/read"] : ["Microsoft.DBforPostgreSQL/flexibleServers/read","Microsoft.DBforPostgreSQL/flexibleServers/databases/read","Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"]
+    sp_allowed_actions              = var.instance_type == "mysql" ? [
+        "Microsoft.DBforMySQL/flexibleServers/read",
+        "Microsoft.DBforMySQL/flexibleServers/databases/read",
+        "Microsoft.DBforMySQL/flexibleServers/configurations/read",
+        "Microsoft.DBforMySQL/flexibleServers/backupAndExport/action",
+        "Microsoft.DBforMySQL/flexibleServers/validateBackup/action",
+        "Microsoft.DBforMySQL/locations/azureAsyncOperation/read",
+        "Microsoft.DBforMySQL/locations/operationResults/read",
+        "Microsoft.Resources/subscriptions/read",
+        "Microsoft.Resources/subscriptions/resourceGroups/read",
+        "Microsoft.DBforMySQL/flexibleServers/backups/read",
+        "Microsoft.DBforMySQL/flexibleServers/backups/write",
+      ] : [
+        "Microsoft.DBforPostgreSQL/flexibleServers/read",
+        "Microsoft.DBforPostgreSQL/flexibleServers/databases/read",
+        "Microsoft.DBforPostgreSQL/flexibleServers/configurations/read",
+        "Microsoft.DBforPostgreSQL/flexibleServers/backupAndExport/action",
+        "Microsoft.DBforPostgreSQL/flexibleServers/validateBackup/action",
+        "Microsoft.DBforPostgreSQL/locations/azureAsyncOperation/read",
+        "Microsoft.DBforPostgreSQL/locations/operationResults/read",
+        "Microsoft.Resources/subscriptions/read",
+        "Microsoft.Resources/subscriptions/resourceGroups/read",
+        "Microsoft.DBforPostgreSQL/flexibleServers/backups/read",
+        "Microsoft.DBforPostgreSQL/flexibleServers/backups/write",
+      ]
 }
 
 data "azurerm_client_config" "current" {}
@@ -27,20 +51,6 @@ data "azuread_service_principal" "this" {
 #######################################
 # SERVICE PRINCIPAL ROLE ASSIGNMENT - BACKUP
 #######################################
-
-resource "azurerm_role_assignment" "sp_mysql_backup_export_operator" {
-  count = var.add_service_principal_access == true && var.instance_type == "mysql" ? 1 : 0
-  scope                = azurerm_mysql_flexible_server.this[0].id
-  role_definition_name = "MySQL Backup And Export Operator"
-  principal_id         = data.azuread_service_principal.this[0].object_id
-}
-
-resource "azurerm_role_assignment" "sp_postgres_backup_export_operator" {
-  count = var.add_service_principal_access == true && var.instance_type != "mysql" ? 1 : 0
-  scope                = azurerm_postgresql_flexible_server.this[0].id
-  role_definition_name = "Azure PostgreSQL Contributor"
-  principal_id         = data.azuread_service_principal.this[0].object_id
-}
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "service-principal-sql-read-role-definition" {
@@ -91,20 +101,6 @@ data "azurerm_user_assigned_identity" "this" {
 #######################################
 # USER MANAGED IDENTITY ROLE ASSIGNMENT - BACKUP
 #######################################
-
-resource "azurerm_role_assignment" "user_managed_identity_mysql_backup_export_operator" {
-  count = var.add_service_principal_access == true && var.instance_type == "mysql" ? 1 : 0
-  scope                = azurerm_mysql_flexible_server.this[0].id
-  role_definition_name = "MySQL Backup And Export Operator"
-  principal_id         = data.azurerm_user_assigned_identity.this.principal_id
-}
-
-resource "azurerm_role_assignment" "user_managed_identity_postgres_backup_export_operator" {
-  count = var.add_service_principal_access == true && var.instance_type != "mysql" ? 1 : 0
-  scope                = azurerm_postgresql_flexible_server.this[0].id
-  role_definition_name = "Azure PostgreSQL Contributor"
-  principal_id         = data.azurerm_user_assigned_identity.this.principal_id
-}
 
 # Custom role for user managed identity allowing enumeration of sql instances
 resource "azurerm_role_definition" "user-managed-identiy-sql-read-role-definition" {
