@@ -1,9 +1,6 @@
 locals {
     server_name                     = "${var.server_name}-${var.environment}-${var.deployment}"
     allowed_actions                     = var.instance_type == "mysql" ? ["Microsoft.DBforMySQL/flexibleServers/read","Microsoft.DBforMySQL/flexibleServers/databases/read","Microsoft.DBforMySQL/flexibleServers/configurations/read"] : ["Microsoft.DBforPostgreSQL/flexibleServers/read","Microsoft.DBforPostgreSQL/flexibleServers/databases/read","Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"]
-
-    start_ip = cidrhost(var.cidr_block, 0)
-    end_ip   = cidrhost(var.cidr_block, cidrsubnet(var.cidr_block, 0, 0) - 1)
 }
 
 data "azurerm_client_config" "current" {}
