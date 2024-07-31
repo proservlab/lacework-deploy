@@ -1,6 +1,6 @@
 locals {
     server_name                     = "${var.server_name}-${var.environment}-${var.deployment}"
-    sp_allowed_actions              = var.instance_type == "mysql" ? [
+    allowed_actions              = var.instance_type == "mysql" ? [
         "Microsoft.DBforMySQL/flexibleServers/read",
         "Microsoft.DBforMySQL/flexibleServers/databases/read",
         "Microsoft.DBforMySQL/flexibleServers/configurations/read",
