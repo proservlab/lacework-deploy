@@ -422,6 +422,12 @@ resource "azurerm_storage_account" "this" {
   }
 }
 
+resource "azurerm_storage_container" "this" {
+  name                  = "backup"
+  storage_account_name  = azurerm_storage_account.this.name
+  container_access_type = "private"
+}
+
 #######################################
 # DB STORAGE ROLE ASSIGNMENT
 #######################################
@@ -429,13 +435,13 @@ resource "azurerm_storage_account" "this" {
 resource "azurerm_role_assignment" "sp_storage_blob_data_reader" {
   count = var.add_service_principal_access ? 1 : 0
   scope                = azurerm_storage_account.this.id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Account Contributor"
   principal_id         = data.azuread_service_principal.this[0].object_id # The object ID of the user/service principal
 }
 
 resource "azurerm_role_assignment" "user_managed_identity_storage_blob_data_reader" {
   scope                = azurerm_storage_account.this.id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Account Contributor"
   principal_id         = data.azurerm_user_assigned_identity.this.principal_id # The object ID of the user/service principal
 }
 

