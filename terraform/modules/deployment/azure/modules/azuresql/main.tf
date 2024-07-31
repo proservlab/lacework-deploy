@@ -1,6 +1,9 @@
 locals {
     server_name                     = "${var.server_name}-${var.environment}-${var.deployment}"
     allowed_actions                     = var.instance_type == "mysql" ? ["Microsoft.DBforMySQL/flexibleServers/read","Microsoft.DBforMySQL/flexibleServers/databases/read","Microsoft.DBforMySQL/flexibleServers/configurations/read"] : ["Microsoft.DBforPostgreSQL/flexibleServers/read","Microsoft.DBforPostgreSQL/flexibleServers/databases/read","Microsoft.DBforPostgreSQL/flexibleServers/configurations/read"]
+
+    start_ip = cidrhost(var.cidr_block, 0)
+    end_ip   = cidrhost(var.cidr_block, cidrsubnet(var.cidr_block, 0, 0) - 1)
 }
 
 data "azurerm_client_config" "current" {}
@@ -417,11 +420,7 @@ resource "azurerm_storage_account" "this" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules = var.public_network_access_enabled == true ? flatten(
-      [
-        ["0.0.0.0/0"],
-        var.trusted_networks
-      ]) : var.trusted_networks
+    ip_rules = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -569,7 +568,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
 resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure_services" {
   count                             = var.instance_type == "postgres" ? 1 : 0
   name                              = "allow-azure-services"
-  server_id                       = azurerm_postgresql_flexible_server.this[0].name
+  server_id                         = azurerm_postgresql_flexible_server.this[0].name
   start_ip_address                  = "0.0.0.0"
   end_ip_address                    = "0.0.0.0"
 
