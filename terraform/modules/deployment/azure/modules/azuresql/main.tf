@@ -97,7 +97,7 @@ data "azurerm_user_assigned_identity" "this" {
 
 resource "azurerm_role_assignment" "user_managed_identity_mysql_backup_export_operator" {
   count = var.add_service_principal_access == true && var.instance_type == "mysql" ? 1 : 0
-  scope                = azurerm_mysql_flexible_server.this.id
+  scope                = azurerm_mysql_flexible_server.this[0].id
   role_definition_name = "MySQL Backup And Export Operator"
   principal_id         = data.azurerm_user_assigned_identity.this.principal_id
 }
