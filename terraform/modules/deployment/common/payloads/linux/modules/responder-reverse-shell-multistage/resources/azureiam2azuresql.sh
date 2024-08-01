@@ -15,17 +15,18 @@ if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/re
 log "public ip: $(curl -s https://icanhazip.com)"
 
 # azure cred setup
-export AZURE_CREDS_PATH="./my.azureauth"
-# export AZURE_CREDS_PATH="~/.azure/my.azureauth"
+export AZURE_CREDS_PATH="~/.azure/my.azureauth"
 export AZURE_CLIENT_ID=$(jq -r '.clientId' $AZURE_CREDS_PATH)
 export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' $AZURE_CREDS_PATH)
 export AZURE_TENANT_ID=$(jq -r '.tenantId' $AZURE_CREDS_PATH)
 export AZURE_SUBSCRIPTION_ID=$(jq -r '.subscriptionId' $AZURE_CREDS_PATH)
 export IDENTITY_ENDPOINT="https://login.microsoftonline.com/$AZURE_TENANT_ID/oauth2/token"
 export HEADERS_FILE="/tmp/headers.txt"
-# az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
-# cloud enumeration
+# auth az cli - used for blob download because I got tired of all this curl :)
+az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+
+# cloud enumeration - although this is fun there are no audit logs that show up so we'll skip this
 #scout azure --file-auth ~/.azure/my.azureauth --report-dir /$SCRIPTNAME/scout-report --no-browser 2>&1 | tee -a $LOGFILE
 
 echo "Authenticating service principal..."
@@ -90,18 +91,12 @@ BACKUP_NAME=$(echo $BACKUPS | jq -r '.value[-1].name')
 echo "Creating backup..."
 CURRENT_DATE=$(date +%Y%m%d%H%M%S)
 NEW_BACKUP_NAME="mybackup-${CURRENT_DATE}"
-RESULT=$(curl -s -D -X PUT -H "content-length: 0" -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups/${NEW_BACKUP_NAME}?api-version=2023-10-01-preview")
+RESULT=$(curl -s -D ${HEADERS_FILE} -X PUT -H "content-length: 0" -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/backups/${NEW_BACKUP_NAME}?api-version=2023-10-01-preview")
 
 echo "Result..."
 cat <<EOF
 RESULT=$RESULT
 EOF
-
-# Extract Operation Status URL from headers
-OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
-echo "Operation status URL: $OPERATION_STATUS_URL"
-
-exit
 
 echo "Getting a list of storage accounts..."
 RESULT=$(curl -s -X GET -H "Authorization: Bearer $TOKEN" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/providers/Microsoft.Storage/storageAccounts?api-version=2023-05-01")
@@ -153,17 +148,35 @@ cat <<EOF
 RESULT=$RESULT
 EOF
 
-# Extract Operation Status URL from headers
-OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
-echo "Operation status URL: $OPERATION_STATUS_URL"
+LOCATION_HEADER=$(grep -Fi Location "$HEADERS_FILE" | awk '{$1=""; print $0}' | tr -d '\r')
 
-exit
+IFS=' ' read -ra URLS <<< "$LOCATION_HEADER"
+for URL in "${URLS[@]}"; do
+    echo "Extracted URL: $URL"
+done
 
-OPERATION_ID=fa1e8fa6-ea44-40a9-b6f2-cbf287317145
-REQUEST_ID=fa1e8fa6-ea44-40a9-b6f2-cbf287317145
-#curl -s -X GET -H "Authorization: Bearer ${TOKEN}" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/operationResults/${OPERATION_ID}?api-version=2023-10-01-preview"
-curl -s -X GET -H "Authorization: Bearer ${TOKEN}" "https://management.azure.com/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.DBforMySQL/flexibleServers/${SERVER_NAME}/operationProgress/${OPERATION_ID}?api-version=2023-10-01-preview"
+# Use the first URL as the operation status URL (adjust if needed)
+OPERATION_STATUS_URL=${URLS[0]}
 
-# Extract Operation Status URL from headers
-OPERATION_STATUS_URL=$(grep -Fi Location "$HEADERS_FILE" | awk '{print $2}' | tr -d '\r')
-echo "Operation status URL: $OPERATION_STATUS_URL"
+cat <<EOF
+OPERATION_STATUS_URL=$OPERATION_STATUS_URL
+EOF
+
+# repeat while status is not complete
+echo "Waiting for export to complete..."
+STATUS="InProgress"
+while [[ "$STATUS" == "InProgress" || "$STATUS" == "Queued" ]]; do
+    sleep 10  # Wait for 10 seconds before polling again
+    STATUS_RESPONSE=$(curl -s -X GET -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" $(echo ${OPERATION_STATUS_URL} | sed 's/\\//g'))
+    STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status')
+    echo "Current status: $STATUS"
+done
+
+echo "Export complete."
+
+echo "Downloading backup from storage account..."
+echo "Retrieving most recent logs from storage account..."
+mkdir -p /tmp/${SERVER_NAME}-dbexport
+rm -rf /tmp/${SERVER_NAME}-dbexport/*
+az storage blob download-batch --destination "/tmp/${SERVER_NAME}-dbexport" --pattern "directory/[CDI]*" --source "backup" --account-name="${DB_BACKUP_STORAGE_ACCOUNT_NAME}"
+echo "Done."
