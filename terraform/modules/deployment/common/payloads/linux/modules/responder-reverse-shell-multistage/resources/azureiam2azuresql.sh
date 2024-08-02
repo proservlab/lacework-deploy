@@ -15,7 +15,7 @@ if ! command -v jq; then curl -LJ -o /usr/bin/jq https://github.com/jqlang/jq/re
 log "public ip: $(curl -s https://icanhazip.com)"
 
 # azure cred setup
-export AZURE_CREDS_PATH="~/.azure/my.azureauth"
+export AZURE_CREDS_PATH="$HOME/.azure/my.azureauth"
 export AZURE_CLIENT_ID=$(jq -r '.clientId' $AZURE_CREDS_PATH)
 export AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' $AZURE_CREDS_PATH)
 export AZURE_TENANT_ID=$(jq -r '.tenantId' $AZURE_CREDS_PATH)
