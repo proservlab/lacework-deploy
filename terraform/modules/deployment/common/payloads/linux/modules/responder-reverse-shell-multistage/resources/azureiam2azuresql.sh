@@ -115,7 +115,11 @@ DB_BACKUP_STORAGE_ACCOUNT_NAME=$DB_BACKUP_STORAGE_ACCOUNT_NAME
 DB_BACKUP_STORAGE_ACCOUNT_ID=$DB_BACKUP_STORAGE_ACCOUNT_ID
 EOF
 
+if [[ $OSTYPE == 'darwin'* ]]; then
 EXPIRY_TIME=$(date -u -v+60M +"%Y-%m-%dT%H:%M:%S.0000000Z")
+else
+EXPIRY_TIME=$(date +'%Y-%m-%dT%H:%M:%S.0000000Z' --date='+1 hour')
+fi
 echo "Setting expiry time for 1 hour: $EXPIRY_TIME"
 
 SAS_DATA="{\"canonicalizedResource\":\"/blob/${DB_BACKUP_STORAGE_ACCOUNT_NAME}/backup\",\"signedResource\":\"c\",\"signedPermission\":\"rcw\",\"signedProtocol\":\"https\",\"signedExpiry\":\"${EXPIRY_TIME}\"}"
@@ -168,6 +172,9 @@ STATUS="InProgress"
 while [[ "$STATUS" == "InProgress" || "$STATUS" == "Queued" ]]; do
     sleep 10  # Wait for 10 seconds before polling again
     STATUS_RESPONSE=$(curl -s -X GET -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" $(echo ${OPERATION_STATUS_URL} | sed 's/\\//g'))
+    cat <<EOF
+STATUS_RESPONSE=$STATUS_RESPONSE
+EOF
     STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status')
     echo "Current status: $STATUS"
 done
