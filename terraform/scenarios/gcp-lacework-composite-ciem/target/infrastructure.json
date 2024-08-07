@@ -89,7 +89,7 @@
       "gcp_audit_config": {
         "project_id" : "${ gcp_lacework_project }",
         "enabled"    : true,
-        "use_pub_sub" : false
+        "use_pub_sub" : true
       },
       "agent": {
         "enabled" : true
