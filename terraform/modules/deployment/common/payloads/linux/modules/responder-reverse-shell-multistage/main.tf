@@ -1,6 +1,35 @@
 locals {
     listen_port = var.inputs["listen_port"]
     listen_ip = var.inputs["listen_ip"]
+    csp_payloads = join("\n", startswith(var.inputs["tag"], "ssm") ? [
+        "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
+        "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
+        "echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh",
+        "echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh",
+        "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
+        "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh",
+        "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
+        "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
+        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
+    ] : startswith(var.inputs["tag"], "osconfig") ? [
+        "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
+        "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
+        "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh"
+    ] : startswith(var.inputs["tag"], "runbook") ? [
+        "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
+        "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
+        "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
+    ] : [
+        "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
+        "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
+        "echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh",
+        "echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh",
+        "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
+        "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh",
+        "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
+        "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
+        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
+    ])
     attack_dir = "/pwncat"
     payload = <<-EOT
     PWNCAT_LOG="/tmp/pwncat.log"
@@ -18,15 +47,7 @@ locals {
         rm -rf ${local.attack_dir}
         mkdir -p ${local.attack_dir}/plugins ${local.attack_dir}/resources
         cd ${local.attack_dir}
-        echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py
-        echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py
-        echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh
-        echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh
-        echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh
-        echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh
-        echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh
-        echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh 
-        echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh
+        ${local.csp_payloads}
         log "installing required python3.9..."
         apt-get install -y python3.9 python3.9-venv >> $LOGFILE 2>&1
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $LOGFILE 2>&1
