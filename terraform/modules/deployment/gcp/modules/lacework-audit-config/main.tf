@@ -25,7 +25,7 @@ module "gcp_organization_config" {
   source                        = "lacework/config/gcp"
   version                       = "~> 3.1"
 
-  org_integration               = var.org_integration
-  organization_id               = var.org_integration == true ? data.google_project.project.org_id : ""
-  project_id                    = var.org_integration == true ? "" : data.google_project.project.project_id
+  # org_integration               = var.org_integration
+  # organization_id               = var.org_integration == true ? data.google_project.project.org_id : ""
+  # project_id                    = var.org_integration == true ? "" : data.google_project.project.project_id
 }
