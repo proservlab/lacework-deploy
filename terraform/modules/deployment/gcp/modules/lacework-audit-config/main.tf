@@ -23,7 +23,7 @@ module "gcp_organization_audit_log" {
 
 module "gcp_organization_config" {
   source                        = "lacework/config/gcp"
-  version                       = "~> 3.0.2"
+  version                       = "~> 3.1"
 
   org_integration               = var.org_integration
   organization_id               = var.org_integration == true ? data.google_project.project.org_id : ""
