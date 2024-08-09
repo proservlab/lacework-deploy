@@ -3,9 +3,9 @@ locals {
     payload = <<-EOT
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
-        echo ${base64gzip(local.iplist_base64)} | base64 -d | gunzip > threatdb.csv
+        curl -s https://check.torproject.org/torbulkexitlist -o threatdb.csv
         log "enumerating bad ips in threatdb.csv"
-        for i in $(grep 'IPV4,' threatdb.csv | awk -F',' '{ print $2 }' ); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; sleep 1; done;
+        for i in $(cat threatdb.csv); do log "connecting to: $i"; nc -vv -w 5 $i 80 >> $LOGFILE 2>&1; nc -vv -w 5 $i 22 >> $LOGFILE 2>&1; sleep 1; done;
         log 'waiting ${var.inputs["retry_delay_secs"]} seconds...';
         sleep ${var.inputs["retry_delay_secs"]}
         if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
