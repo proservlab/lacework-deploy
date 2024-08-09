@@ -32,7 +32,7 @@
               "ssm_deploy_lacework_syscall": "true",
               "ssm_deploy_lacework_code_aware_agent" : "true",
               "ssm_connect_oast_host" : "true",
-              "ssm_connect_bad_ip" : "false"
+              "ssm_connect_bad_ip" : "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,
