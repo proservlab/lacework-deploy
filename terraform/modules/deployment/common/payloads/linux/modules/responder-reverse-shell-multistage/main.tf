@@ -134,7 +134,6 @@ locals {
                                     deployment = var.inputs["deployment"]
                                 }
                             )
-
     iam2rds         = templatefile(
                                 "${path.module}/resources/iam2rds.sh", 
                                 {
@@ -145,16 +144,74 @@ locals {
                                     iam2rds_session_name = "${var.inputs["iam2rds_session_name"]}-${var.inputs["deployment"]}"
                                 }
                             )
-    
     iam2enum = file("${path.module}/resources/iam2enum.sh")
-                            
     azureiam2azuresql = file("${path.module}/resources/azureiam2azuresql.sh")                            
-
     gcpiam2cloudsql = file("${path.module}/resources/gcpiam2cloudsql.sh")
-
     scan2kubeshell = file("${path.module}/resources/scan2kubeshell.sh")
-    
     kube2s3 = file("${path.module}/resources/kube2s3.sh")
+
+    # these payloads are used by shellcheck to validate syntax
+    additional_output_payloads = startswith(var.inputs["tag"], "ssm") ? [
+        {
+            name = "${basename(abspath(path.module))}_instance2rds.sh"
+            content = base64encode(local.instance2rds)
+        },
+        {
+            name = "${basename(abspath(path.module))}_iam2rds.sh"
+            content = base64encode(local.iam2rds)
+        },
+        {
+            name = "${basename(abspath(path.module))}_scan2kubeshell.sh"
+            content = base64encode(local.scan2kubeshell)
+        },
+        {
+            name = "${basename(abspath(path.module))}_kube2s3.sh"
+            content = base64encode(local.kube2s3)
+        },
+        {
+            name = "${basename(abspath(path.module))}_iam2enum.sh"
+            content = base64encode(local.iam2enum)
+        }
+    ] : startswith(var.inputs["tag"], "osconfig") ? [
+        {
+            name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
+            content = base64encode(local.gcpiam2cloudsql)
+        }
+    ] : startswith(var.inputs["tag"], "runbook") ? [
+        {
+            name = "${basename(abspath(path.module))}_azureiam2azuresql.sh"
+            content = base64encode(local.azureiam2azuresql)
+        }
+    ] : [
+        {
+            name = "${basename(abspath(path.module))}_instance2rds.sh"
+            content = base64encode(local.instance2rds)
+        },
+        {
+            name = "${basename(abspath(path.module))}_iam2rds.sh"
+            content = base64encode(local.iam2rds)
+        },
+        {
+            name = "${basename(abspath(path.module))}_scan2kubeshell.sh"
+            content = base64encode(local.scan2kubeshell)
+        },
+        {
+            name = "${basename(abspath(path.module))}_kube2s3.sh"
+            content = base64encode(local.kube2s3)
+        },
+        {
+            name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
+            content = base64encode(local.gcpiam2cloudsql)
+        },
+        {
+            name = "${basename(abspath(path.module))}_azureiam2azuresql.sh"
+            content = base64encode(local.azureiam2azuresql)
+        },
+        {
+            name = "${basename(abspath(path.module))}_iam2enum.sh"
+            content = base64encode(local.iam2enum)
+        }
+    ]
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
         script_name = var.inputs["tag"]
@@ -189,31 +246,6 @@ locals {
     outputs = {
         base64_payload = base64gzip(local.base64_payload)
         base64_uncompressed_payload = base64encode(local.base64_payload)
-        base64_uncompressed_payload_additional = [
-            {
-                name = "${basename(abspath(path.module))}_instance2rds.sh"
-                content = base64encode(local.instance2rds)
-            },
-            {
-                name = "${basename(abspath(path.module))}_iam2rds.sh"
-                content = base64encode(local.iam2rds)
-            },
-            {
-                name = "${basename(abspath(path.module))}_scan2kubeshell.sh"
-                content = base64encode(local.scan2kubeshell)
-            },
-            {
-                name = "${basename(abspath(path.module))}_kube2s3.sh"
-                content = base64encode(local.kube2s3)
-            },
-            {
-                name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
-                content = base64encode(local.gcpiam2cloudsql)
-            },
-            {
-                name = "${basename(abspath(path.module))}_iam2enum.sh"
-                content = base64encode(local.iam2enum)
-            }
-        ]
+        base64_uncompressed_payload_additional = local.additional_output_payloads
     }
 }

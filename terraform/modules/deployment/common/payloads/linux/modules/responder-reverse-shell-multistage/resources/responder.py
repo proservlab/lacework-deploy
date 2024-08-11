@@ -27,7 +27,6 @@ class Module(BaseModule):
             str,
             help="The default payload to execute when hosts connect.",
         ),
-
     }
 
     def run(self, session: Session, reverse_shell_host: str, reverse_shell_port: str, default_payload: str):
