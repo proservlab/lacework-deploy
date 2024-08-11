@@ -21,6 +21,11 @@ variable "tag" {
     default = "osconfig_exec_reverse_shell_multistage_attacker"
 }
 
+variable "scenario" {
+    type = string
+    default = "default"
+}
+
 variable "timeout" {
     type = string
     default = "600s"

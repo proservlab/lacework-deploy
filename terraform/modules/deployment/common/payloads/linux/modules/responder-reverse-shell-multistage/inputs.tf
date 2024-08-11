@@ -3,6 +3,7 @@ variable "inputs" {
                 environment = string
                 deployment = string
                 tag = string
+                scenario = string
                 timeout = optional(string)
                 cron = optional(string)
                 region = string

@@ -1,21 +1,20 @@
 locals {
+    scenario = var.inputs["listen_port"]
     listen_port = var.inputs["listen_port"]
     listen_ip = var.inputs["listen_ip"]
-    csp_payloads = join("\n", startswith(var.inputs["tag"], "ssm") ? [
+    csp_payloads = join("\n", startswith(local.scenario, "aws") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
         "echo ${base64gzip(local.instance2rds)} | base64 -d | gunzip > resources/instance2rds.sh",
         "echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh",
-        "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
-        "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh",
         "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
         "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
-    ] : startswith(var.inputs["tag"], "osconfig") ? [
+    ] : startswith(local.scenario, "gcp") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
         "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh"
-    ] : startswith(var.inputs["tag"], "runbook") ? [
+    ] : startswith(local.Scenario, "azure") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
         "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
@@ -151,7 +150,7 @@ locals {
     kube2s3 = file("${path.module}/resources/kube2s3.sh")
 
     # these payloads are used by shellcheck to validate syntax
-    additional_output_payloads = startswith(var.inputs["tag"], "ssm") ? [
+    additional_output_payloads = startswith(local.scenario, "aws") ? [
         {
             name = "${basename(abspath(path.module))}_instance2rds.sh"
             content = base64encode(local.instance2rds)
@@ -172,12 +171,12 @@ locals {
             name = "${basename(abspath(path.module))}_iam2enum.sh"
             content = base64encode(local.iam2enum)
         }
-    ] : startswith(var.inputs["tag"], "osconfig") ? [
+    ] : startswith(local.scenario, "gcp") ? [
         {
             name = "${basename(abspath(path.module))}_gcpiam2cloudsql.sh"
             content = base64encode(local.gcpiam2cloudsql)
         }
-    ] : startswith(var.inputs["tag"], "runbook") ? [
+    ] : startswith(local.scenario, "azure") ? [
         {
             name = "${basename(abspath(path.module))}_azureiam2azuresql.sh"
             content = base64encode(local.azureiam2azuresql)

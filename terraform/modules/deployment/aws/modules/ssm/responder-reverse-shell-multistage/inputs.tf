@@ -18,6 +18,11 @@ variable "tag" {
   default = "ssm_exec_reverse_shell_multistage_attacker"
 }
 
+variable "scenario" {
+  type = string
+  default = "default"
+}
+
 variable "timeout" {
   type = number
   default = 5400

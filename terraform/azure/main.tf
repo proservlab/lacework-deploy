@@ -39,6 +39,9 @@ resource "null_resource" "kubeconfig" {
 module "azure-deployment" {
   source = "../modules/deployment/azure"
 
+  # scenario name
+  scenario = var.scenario
+  
   # dynu api key
   dynu_api_key = var.dynu_api_key
 

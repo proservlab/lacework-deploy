@@ -419,6 +419,7 @@ module "attacker-ssm-responder-reverse-shell-multistage" {
   region        = local.attacker_infrastructure_config.context.aws.region
 
   tag = "ssm_exec_reverse_shell_multistage_attacker"
+  scenario = var.scenario
 
   listen_ip     = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_port

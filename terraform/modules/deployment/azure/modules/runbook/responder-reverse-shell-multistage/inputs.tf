@@ -34,6 +34,12 @@ variable "tag" {
     default = "runbook_exec_reverse_shell_multistage_attacker"
 }
 
+variable "scenario" {
+    type = string
+    description = "scenario name"
+    default = "default"
+}
+
 variable "listen_ip" {
   type = string
   description = "IP address of attacker"

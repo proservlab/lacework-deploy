@@ -8,6 +8,7 @@ module "payload" {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
+        scenario        = var.scenario
         region          = var.region
         listen_ip               = var.listen_ip
         listen_port             = var.listen_port

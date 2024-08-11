@@ -39,6 +39,9 @@ resource "null_resource" "kubeconfig" {
 module "gcp-deployment" {
   source = "../modules/deployment/gcp"
 
+  # scenario name
+  scenario = var.scenario
+  
   # dynu api key
   dynu_api_key = var.dynu_api_key
 

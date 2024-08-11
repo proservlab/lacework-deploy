@@ -279,6 +279,7 @@ module "attacker-runbook-responder-reverse-shell-multistage" {
   automation_princial_id = local.attacker_automation_account[0].automation_princial_id
 
   tag = "runbook_exec_reverse_shell_multistage_attacker"
+  scenario = var.scenario
 
   listen_ip     = local.attacker_attacksimulate_config.context.azure.runbook.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.azure.runbook.attacker.responder.reverse_shell_multistage.listen_port

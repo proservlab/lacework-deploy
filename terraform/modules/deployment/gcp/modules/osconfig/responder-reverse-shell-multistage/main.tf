@@ -9,6 +9,7 @@ module "payload" {
         deployment        = var.deployment
         region            = var.gcp_location
         tag               = var.tag
+        scenario          = var.scenario
         listen_ip               = var.listen_ip
         listen_port             = var.listen_port
         payload                 = var.payload

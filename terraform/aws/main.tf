@@ -39,6 +39,9 @@ resource "null_resource" "kubeconfig" {
 module "aws-deployment" {
   source = "../modules/deployment/aws"
 
+  # scenario name
+  scenario = var.scenario
+
   # dynu api key
   dynu_api_key = var.dynu_api_key
 

@@ -253,6 +253,7 @@ module "attacker-osconfig-responder-reverse-shell-multistage" {
   gcp_location = local.attacker_infrastructure_config.context.gcp.region
 
   tag = "osconfig_exec_reverse_shell_multistage_attacker"
+  scenario = var.scenario
 
   listen_ip     = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.gcp.osconfig.attacker.responder.reverse_shell_multistage.listen_port
