@@ -14,7 +14,7 @@ locals {
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
         "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh"
-    ] : startswith(local.Scenario, "azure") ? [
+    ] : startswith(local.scenario, "azure") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
         "echo ${base64gzip(local.azureiam2azuresql)} | base64 -d | gunzip > resources/azureiam2azuresql.sh",
