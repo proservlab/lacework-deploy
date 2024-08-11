@@ -1,0 +1,6 @@
+[
+  {
+    "name"   :  "haust.kripto-${deployment}@interlacelabs",
+    "policy" :  "power-user-${deployment}"
+  }
+]

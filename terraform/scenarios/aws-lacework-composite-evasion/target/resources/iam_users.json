@@ -1,0 +1,6 @@
+[
+  {
+    "name"   :  "dee.fensivason-${deployment}@interlacelabs",
+    "policy" :  "power-user-${deployment}"
+  }
+]

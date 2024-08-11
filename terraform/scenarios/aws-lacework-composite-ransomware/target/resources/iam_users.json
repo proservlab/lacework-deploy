@@ -1,0 +1,6 @@
+[
+  {
+    "name"   :  "rand.sumwer-${deployment}@interlacelabs",
+    "policy" :  "power-user-${deployment}"
+  }
+]

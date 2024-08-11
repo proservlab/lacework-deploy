@@ -1,0 +1,6 @@
+[
+  {
+    "name"   :  "claude.kripto-${deployment}@interlacelabs",
+    "policy" :  "power-user-${deployment}"
+  }
+]
