@@ -1,5 +1,5 @@
 locals {
-    scenario = var.inputs["listen_port"]
+    scenario = var.inputs["scenario"]
     listen_port = var.inputs["listen_port"]
     listen_ip = var.inputs["listen_ip"]
     csp_payloads = join("\n", startswith(local.scenario, "aws") ? [
