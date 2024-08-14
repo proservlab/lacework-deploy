@@ -9,6 +9,7 @@ variable "inputs" {
                 lacework_agent_temp_path = string
                 lacework_agent_access_token = string
                 lacework_server_url = string
+                lacework_agent_build_hash = optional(string)
         })
         description = "inherit variables from the parent"
 }

@@ -92,7 +92,8 @@
         "use_pub_sub" : true
       },
       "agent": {
-        "enabled" : true
+        "enabled" : true,
+        "build_hash": "7.0.0.24033_2024-06-14_release-v7.0_03087f1865df8e2a936c9ad968309c1d2ec25f72"
       },
       "gcp_agentless": {
         "enabled" : true

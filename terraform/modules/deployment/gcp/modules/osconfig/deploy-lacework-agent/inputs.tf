@@ -47,3 +47,9 @@ variable "lacework_server_url" {
   type = string
   default = "https://agent.lacework.net"
 }
+
+variable "lacework_agent_build_hash" {
+    type = string
+    description = "lacework agent build version hash - default latest stable (e.g. 7.0.0.24033_2024-06-14_release-v7.0_03087f1865df8e2a936c9ad968309c1d2ec25f72)"
+    default = ""
+}

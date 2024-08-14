@@ -489,6 +489,7 @@ module "target-ssm-deploy-lacework-agent" {
 
   lacework_agent_access_token = local.target_infrastructure_config.context.lacework.agent.token
   lacework_server_url         = local.target_infrastructure_config.context.lacework.server_url
+  lacework_agent_build_hash   = local.target_infrastructure_config.context.lacework.agent.build_hash
 
   providers = {
     aws = aws.target

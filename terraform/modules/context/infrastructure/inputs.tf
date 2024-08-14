@@ -332,6 +332,7 @@ variable "config" {
         agent = object({
           enabled               = bool
           token                 = string
+          build_hash            = string
           kubernetes = object({
             proxy_scanner = object({
               token           = string
@@ -906,6 +907,7 @@ variable "config" {
         agent = {
           enabled               = false
           token                 = null
+          build_hash            = null
           kubernetes = {
             enabled             = false
             proxy_scanner = {

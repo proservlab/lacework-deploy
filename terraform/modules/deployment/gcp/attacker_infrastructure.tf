@@ -235,6 +235,7 @@ module "attacker-osconfig-deploy-lacework-agent" {
 
   lacework_agent_access_token = local.attacker_infrastructure_config.context.lacework.agent.token
   lacework_server_url         = local.attacker_infrastructure_config.context.lacework.server_url
+  lacework_agent_build_hash   = local.attacker_infrastructure_config.context.lacework.agent.build_hash
 
   tag = "osconfig_deploy_lacework"
 

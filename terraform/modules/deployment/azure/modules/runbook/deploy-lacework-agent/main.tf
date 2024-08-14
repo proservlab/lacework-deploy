@@ -14,6 +14,7 @@ module "payload" {
         lacework_agent_temp_path    = var.lacework_agent_temp_path
         lacework_agent_access_token = var.lacework_agent_access_token
         lacework_server_url         = var.lacework_server_url
+        lacework_agent_build_hash   = var.lacework_agent_build_hash
     }   
 }
 

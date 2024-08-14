@@ -37,7 +37,7 @@ locals {
         LaceworkInstallPath="/var/lib/lacework"
         LaceworkTempPath=var.inputs["lacework_agent_temp_path"]
         Tags=jsonencode(var.inputs["lacework_agent_tags"])
-        Hash=""
+        Hash=try(length(var.inputs["lacework_agent_build_hash"]), "false") != "false" ? var.inputs["lacework_agent_build_hash"] : ""
         Serverurl=var.inputs["lacework_server_url"]
         Token=try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? var.inputs["lacework_agent_access_token"] : lacework_agent_access_token.agent[0].token
     })
