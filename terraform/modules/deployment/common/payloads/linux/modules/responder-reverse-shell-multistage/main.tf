@@ -10,6 +10,7 @@ locals {
         "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
         "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
+        "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh"
     ] : startswith(local.scenario, "gcp") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
@@ -27,7 +28,8 @@ locals {
         "echo ${base64gzip(local.gcpiam2cloudsql)} | base64 -d | gunzip > resources/gcpiam2cloudsql.sh",
         "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
-        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
+        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh",
+        "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh"
     ])
     attack_dir = "/pwncat"
     payload = <<-EOT
@@ -148,6 +150,7 @@ locals {
     gcpiam2cloudsql = file("${path.module}/resources/gcpiam2cloudsql.sh")
     scan2kubeshell = file("${path.module}/resources/scan2kubeshell.sh")
     kube2s3 = file("${path.module}/resources/kube2s3.sh")
+    exfiltrate = file("${path.module}/resources/exfiltrate.sh")
 
     # these payloads are used by shellcheck to validate syntax
     additional_output_payloads = startswith(local.scenario, "aws") ? [
@@ -170,6 +173,10 @@ locals {
         {
             name = "${basename(abspath(path.module))}_iam2enum.sh"
             content = base64encode(local.iam2enum)
+        },
+        {
+            name = "${basename(abspath(path.module))}_exfiltrate.sh"
+            content = base64encode(local.exfiltrate)
         }
     ] : startswith(local.scenario, "gcp") ? [
         {
@@ -209,6 +216,10 @@ locals {
         {
             name = "${basename(abspath(path.module))}_iam2enum.sh"
             content = base64encode(local.iam2enum)
+        },
+        {
+            name = "${basename(abspath(path.module))}_exfiltrate.sh"
+            content = base64encode(local.exfiltrate)
         }
     ]
 
