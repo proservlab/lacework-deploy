@@ -9,7 +9,7 @@ locals {
         "echo ${base64gzip(local.iam2rds)} | base64 -d | gunzip > resources/iam2rds.sh",
         "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
-        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh"
+        "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh",
         "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh"
     ] : startswith(local.scenario, "gcp") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
