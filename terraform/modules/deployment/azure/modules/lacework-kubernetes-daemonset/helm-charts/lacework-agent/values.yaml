@@ -2,7 +2,7 @@
 image:
   registry: docker.io
   repository: lacework/datacollector
-  tag: 6.2.0
+  tag: 7.0.0
   # imagePullPolicy should be Always to get the latest container
   # http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: Always
@@ -10,11 +10,13 @@ image:
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   # imagePullSecrets:
   #   - name: CustomerRegistrKeySecretName
+  overrideValue:
 resources:
   # The requests/limits is guidance and should be adjusted based on the workload
   # Please contact Lacework support for additional details
   # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
-  # https://support.lacework.com/hc/en-us/articles/360047019354-Usage-Impact-of-Agent-Deployment
+  # https://docs.lacework.net/onboarding/deploy-on-kubernetes#specify-cpu-requests-and-limits
+  # https://docs.lacework.net/onboarding/deploy-on-kubernetes#specify-memory-requests-and-limits
   requests:
     cpu: 200m
     memory: 512Mi
@@ -32,10 +34,14 @@ clusterAgent:
   scrapeInitialDelayMins:
   # [Optional] Cluster mode agent's scrape interval in minutes.
   scrapeIntervalMins:
+  # [Optional] Route agent traffic through the specified proxy.
+  # https://docs.lacework.net/onboarding/restricted/configure-agent-behavior-in-configjson-file#proxyurl-propert
+  proxyUrl:
+  hostNetworkAccess: false
   image:
     registry: docker.io
     repository: lacework/k8scollector
-    tag: latest
+    tag: 7.0.0
     # imagePullPolicy should be Always to get the latest container
     # http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     pullPolicy: Always
@@ -50,12 +56,32 @@ laceworkConfig:
   # [Required] An access token is required before running agents.
   # Visit https://<LACEWORK UI URL> for eg: https://lacework.lacework.net
   accessToken:
+  # [Optional] Anonymize incoming IP addresses collected by the agent
+  anonymizeIncoming:
+    # [Optional] Use the following netmask to anonymize addresses
+    netmask:
   # [Optional] Define custom annotations to use for identifying resources created by these charts
   annotations: {}
   # [Optional] Define custom labels to use for identifying resources created by these charts
   labels: {}
   # [Optional] Set to "disable" to disable autoupgrade of the datacollector
   autoUpgrade: enable
+  # [Optional] Filter executables tracked by the agent
+  cmdlinefilter:
+    # [Optional] Track only the executables listed in the following filter
+    allow:
+    # [Optional] Do not track only the executables listed in the following filter
+    disallow:
+  # [Optional] Configure auto-detect VM provider
+  vmprovidercustom: false
+  # [Optional] Enable Active Vulnerability Detection
+  # https://docs.lacework.net/onboarding/configure-agent-behavior-in-configjson-file#codeaware-property
+  codeaware:
+    enable:
+  # [Optional] Define the endpoint that the agent uses to discover containers
+  containerEngineEndpoint:
+  # [Optional] Define the runtime that the agent uses to discover containers
+  containerRuntime:
   # [Optional] Give your k8s environment a friendly name
   # https://docs.lacework.com/onboarding/add-agent-tags
   env:
@@ -63,6 +89,10 @@ laceworkConfig:
   datacollector: enable
   # [Optional] Kubernetes node's scrape interval in minutes.
   k8sNodeScrapeIntervalMins:
+  # [Optional]: Configure advanced ebpf settings. 
+  ebpf:
+    # [Optional] Configure the short lived process detection time in millisecs. Defaults to 1000msec - if not specified.
+    shortlivedmsecs:
   # [Optional] Configure File Integrity Monitoring
   # https://docs.lacework.com/configure-agent-behavior-in-configjson-file#file-integrity-monitoring-fim-properties
   fim:
@@ -70,7 +100,7 @@ laceworkConfig:
     coolingPeriod:
     # [Optional] Configure crawlinterval in minutes
     crawlInterval:
-    enable: true
+    enable:
     # [Optional] Configure file paths to ignore
     fileIgnore: []
     # [Optional] Configure file paths to include
@@ -80,21 +110,43 @@ laceworkConfig:
     # [Optional] Run the FIM scan interval at the specified time of the day (HH:MM)
     runAt:
   # [Optional] Kubernetes cluster name
-  # https://support.lacework.com/hc/en-us/articles/360005263034-Deploy-on-Kubernetes
+  # https://docs.lacework.net/onboarding/deploy-on-kubernetes
   kubernetesCluster:
+  # [Optional] Define the behavior of the agent's package scans
+  packagescan:
+    # [Optional] Set to "false" to disable agent package scans
+    enable:
+    # [Optional] Define the length of the interval (in minutes) between package scans
+    interval:
+  # [Optional] Define the behavior of the agent's process scans
+  procscan:
+    # [Optional] Set to "false" to disable agent process scans
+    enable:
+    # [Optional] Define the length of the interval (in minutes) between process scans
+    interval:
   # [Optional] Route agent traffic through the specified proxy.
   proxyUrl:
   # [Optional] Specify the service account for agent pods
   serviceAccountName:
   # [Required] Region specific Lacework service URL. Defaults to the US region.
-  serverUrl: https://agent.lacework.net
+  serverUrl: https://api.lacework.net
   # [Optional] Set to false to prevent agent from sending diagnostic logs to stdout
   stdoutLogging: true
   # [Optional] Set to one of the other modes like ebpflite, scan, or lite for load balancers.
   perfmode:
-##################################################
+  # [Optional] Specify custom name/value tags to categorize agents.
+  tags:
+  # [Optional] Rate limit to 1 request per interval to cloud providers
+  metadataRequestInterval:
+##########################################################################
 # Set daemonset priorityClassName
 priorityClassName:
+# Create the priority class for the daemonset pods
+priorityClassCreate: false
+# Preemption policy for the PriorityClass
+priorityClassPreemptionPolicy: PreemptLowerPriority
+# Priority class value to use for daemonset pods
+priorityClassValue: 1000000000
 # Allow Lacework agent to run on all nodes including master and infra nodes
 tolerations:
   - effect: NoSchedule
@@ -127,6 +179,36 @@ daemonset:
                 operator: In
                 values:
                   - linux
+#Specify per workload parameters for cluster agent
+deployment:
+  # Use rolling updates in the deployment
+  # hhttps://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment
+  updateStrategy:
+    type: RollingUpdate
+  # Deployment to schedule using affinity rules
+  # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                  - amd64
+                  - arm64
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+  # Allow cluster agent to run on all nodes but restrict it if needed
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
 cloudservice:
   gke:
     # Allow Lacework agent to be deployed to GKE Autopilot
