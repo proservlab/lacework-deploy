@@ -108,8 +108,10 @@ class Module(BaseModule):
 
             def enum_exfil_prep_creds(csp, task_name):
                 session.log("running enumerate...")
-                enumerate(csp)
-                session.log("enumerate complete")
+                # gcp enumeration can cause session to hang...skip this until the end
+                if csp is "aws" or "azure":
+                    enumerate(csp)
+                    session.log("enumerate complete")
                 session.log("running exfiltrate...")
                 exfiltrate(csp)
                 session.log("exfiltrate complete")
@@ -551,6 +553,9 @@ echo $BUCKET_URL
                 result = run_base64_payload(
                     session=session, payload=payload, log_name="payload_retrieve_backup")
                 session.log(result)
+                session.log("starting enumerate...")
+                enumerate(csp)
+                session.log("enumerate complete")
                 session.log("credentialed_access_tor complete")
             elif task_name == "azureiam2azuresql":
                 csp = "azure"
