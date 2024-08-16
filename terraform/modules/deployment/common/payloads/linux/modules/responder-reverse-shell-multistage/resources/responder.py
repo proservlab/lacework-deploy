@@ -107,11 +107,13 @@ class Module(BaseModule):
                         "Invalid direction specified for file copy: must be 'local_to_remote' or 'remote_to_local'")
 
             def enum_exfil_prep_creds(csp, task_name):
-                session.log("running enumerate...")
                 # gcp enumeration can cause session to hang...skip this until the end
-                if csp is "aws" or "azure":
+                if csp is "aws" or csp is "azure":
+                    session.log("running enumerate...")
                     enumerate(csp)
                     session.log("enumerate complete")
+                else:
+                    session.log("skipping enumerate...")
                 session.log("running exfiltrate...")
                 exfiltrate(csp)
                 session.log("exfiltrate complete")
@@ -123,9 +125,13 @@ class Module(BaseModule):
                 extended = "interesting_files,interesting_perms_files,api_keys_regex"
                 limited = "system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information"
 
-                if csp is "aws" or "azure":
+                if csp is "aws" or csp is "azure":
+                    session.log(
+                        "using full scope linpeas with aws and azure...")
                     opts = f"{limited},{extended}"
                 else:
+                    session.log(
+                        "limiting linpeas for gcp to avoid session hang...")
                     # gcp sessions timeout with extensive
                     opts = limited
 
