@@ -1,0 +1,26 @@
+{
+    "fortisoar-remediation-policy-${deployment}" : {
+        "Version" : "2012-10-17",
+        "Statement" : [
+            {
+                "Sid" : "AllowInstanceStartAndStop",
+                "Action" : [
+                    "ec2:StopInstances",
+                    "ec2:StartInstances",
+                    "ec2:DescribeInstances"
+                ],
+                "Effect" : "Allow",
+                "Resource" : "*"
+            },
+            {
+                "Sid" : "AllowCreateSnapshot",
+                "Action" : [
+                    "ec2:CreateSnapshot",
+                    "ec2:DescribeVolumes"
+                ],
+                "Effect" : "Allow",
+                "Resource" : "*"
+            }
+        ]
+    }
+}
