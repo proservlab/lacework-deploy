@@ -5,7 +5,8 @@ data "aws_availability_zones" "available" {}
 resource "aws_iam_user" "users" {
   for_each = { for i in var.users : i.name => i }
   name     = each.key
-
+  force_destroy = true
+  
   tags = {
     environment = var.environment
     deployment = var.deployment
