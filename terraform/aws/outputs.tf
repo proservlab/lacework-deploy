@@ -59,11 +59,3 @@ output "target_private_nat_gw_ip" {
 output "target_private_app_nat_gw_ip" {
   value = module.aws-deployment.target_private_app_nat_gw_ip
 }
-
-output "attacker_compromised_credentials" {
-    value = module.aws-deployment.attacker_compromised_credentials
-}
-
-output "target_compromised_credentials" {
-    value = module.aws-deployment.target_compromised_credentials
-}
