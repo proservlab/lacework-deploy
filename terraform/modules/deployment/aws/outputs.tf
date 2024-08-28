@@ -59,9 +59,10 @@ output "target_private_app_nat_gw_ip" {
 }
 
 output "attacker_compromised_credentials" {
-    value = join("\n", [ for u,k in local.attacker_compromised_credentials: "${k.rendered}" ])
+    value = local.attacker_compromised_credentials
 }
 
 output "target_compromised_credentials" {
-    value = join("\n", [ for u,k in local.target_compromised_credentials: "${k.rendered}" ])
+    value = local.target_compromised_credentials
+    # value = join("\n", [ for u,k in local.target_compromised_credentials: "${k.rendered}" ])
 }
