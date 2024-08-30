@@ -115,7 +115,7 @@ class Module(BaseModule):
                 else:
                     session.log("skipping enumerate...")
                 session.log("running exfiltrate...")
-                exfiltrate(csp)
+                exfiltrate(csp=csp, task_name=task_name)
                 session.log("exfiltrate complete")
                 session.log("running prep_local_env...")
                 prep_local_env(csp=csp, task_name=task_name)
@@ -150,7 +150,12 @@ class Module(BaseModule):
                     session.log(f"Enumeration failed: {e}")
                     pass
 
-            def exfiltrate(csp):
+            def exfiltrate(csp, task_name):
+                task_path = Path(f"/{task_name}")
+                if task_path.exists() and task_path.is_dir():
+                    shutil.rmtree(task_path)
+                task_path.mkdir(parents=True)
+
                 # create an instance profile to exfiltrate
                 if csp == "aws":
                     with open(Path.joinpath(task_path, Path(f"exfiltrate.sh")), 'r') as f:
