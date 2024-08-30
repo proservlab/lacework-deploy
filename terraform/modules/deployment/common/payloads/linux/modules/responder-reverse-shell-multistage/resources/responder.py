@@ -151,6 +151,7 @@ class Module(BaseModule):
                     pass
 
             def exfiltrate(csp, task_name):
+
                 task_path = Path(f"/{task_name}")
                 if task_path.exists() and task_path.is_dir():
                     shutil.rmtree(task_path)
@@ -158,6 +159,7 @@ class Module(BaseModule):
 
                 # create an instance profile to exfiltrate
                 if csp == "aws":
+                    # exfiltrate.sh added to task directory during aws setup
                     with open(Path.joinpath(task_path, Path(f"exfiltrate.sh")), 'r') as f:
                         payload = f.read()
 
@@ -525,6 +527,11 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
             session.log(f"task environment: {task_name}")
             if task_name == "instance2rds" or task_name == "iam2rds" or task_name == "iam2enum":
                 csp = "aws"
+
+                # copy exfiltrate payload to the local working directory
+                task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
+                shutil.copy2(task_script, task_path)
+
                 enum_exfil_prep_creds(csp, task_name)
                 session.log("running credentialed_access_tor...")
                 credentialed_access_tor(
@@ -583,6 +590,11 @@ echo $BUCKET_URL
                 session.log("credentialed_access_tor complete")
             elif task_name == "scan2kubeshell":
                 csp = "aws"
+
+                # copy exfiltrate payload to the local working directory
+                task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
+                shutil.copy2(task_script, task_path)
+
                 current_user = session.platform.getenv('USER')
                 session.log(f"current user: {current_user}")
                 if current_user != "root":
@@ -627,6 +639,10 @@ echo $BUCKET_URL
                     session.log("credentialed_access_tor complete")
             elif task_name == "kube2s3":
                 csp = "aws"
+
+                # copy exfiltrate payload to the local working directory
+                task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
+                shutil.copy2(task_script, task_path)
 
                 # run pod escape and exfil kube2s3
                 tmp_dir = Path("/tmp")
