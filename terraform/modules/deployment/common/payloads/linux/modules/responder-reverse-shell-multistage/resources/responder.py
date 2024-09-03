@@ -525,6 +525,13 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
             session.log(f"script dir: {script_dir}")
             task_name = session.platform.getenv("TASK")
             session.log(f"task environment: {task_name}")
+
+            # create work directory
+            task_path = Path(f"/{task_name}")
+            if task_path.exists() and task_path.is_dir():
+                shutil.rmtree(task_path)
+            task_path.mkdir(parents=True)
+
             if task_name == "instance2rds" or task_name == "iam2rds" or task_name == "iam2enum":
                 csp = "aws"
 
