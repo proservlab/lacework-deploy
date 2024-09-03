@@ -107,13 +107,6 @@ resource "azurerm_monitor_aad_diagnostic_setting" "entra_id_activity_logs" {
     }
   }
 
-  # added to include machine identity signin
-  enabled_log {
-    category = "ManagedIdentitySignInLogs"
-    retention_policy {
-    }
-  }
-
   depends_on = [azurerm_eventhub.lacework]
 }
 
