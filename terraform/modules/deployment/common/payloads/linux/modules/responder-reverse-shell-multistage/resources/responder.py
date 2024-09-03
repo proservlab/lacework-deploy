@@ -151,11 +151,8 @@ class Module(BaseModule):
                     pass
 
             def exfiltrate(csp, task_name):
-
+                # set task_path
                 task_path = Path(f"/{task_name}")
-                if task_path.exists() and task_path.is_dir():
-                    shutil.rmtree(task_path)
-                task_path.mkdir(parents=True)
 
                 # create an instance profile to exfiltrate
                 if csp == "aws":
@@ -391,11 +388,8 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
                     session.log(f'Error executing bash script: {e}')
 
             def prep_local_env(task_name, csp=None):
-                # create work directory
+                # set task_path
                 task_path = Path(f"/{task_name}")
-                if task_path.exists() and task_path.is_dir():
-                    shutil.rmtree(task_path)
-                task_path.mkdir(parents=True)
 
                 if csp == "aws":
                     # create aws directory
@@ -527,6 +521,7 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
             session.log(f"task environment: {task_name}")
 
             # create work directory
+            session.log(f"creating task directory: /{task_name}")
             task_path = Path(f"/{task_name}")
             if task_path.exists() and task_path.is_dir():
                 shutil.rmtree(task_path)
@@ -536,6 +531,7 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
                 csp = "aws"
 
                 # copy exfiltrate payload to the local working directory
+                session.log("copying exfiltrate to task path...")
                 task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
                 shutil.copy2(task_script, task_path)
 
@@ -599,6 +595,7 @@ echo $BUCKET_URL
                 csp = "aws"
 
                 # copy exfiltrate payload to the local working directory
+                session.log("copying exfiltrate to task path...")
                 task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
                 shutil.copy2(task_script, task_path)
 
@@ -624,11 +621,6 @@ echo $BUCKET_URL
                     session.log("iam2enum enumeration complete")
 
                     tmp_dir = Path("/tmp")
-                    # create work directory
-                    task_path = Path(f"/{task_name}")
-                    if task_path.exists() and task_path.is_dir():
-                        shutil.rmtree(task_path)
-                    task_path.mkdir(parents=True)
 
                     # copy our payload to the local working directory
                     task_script = Path(
@@ -648,16 +640,12 @@ echo $BUCKET_URL
                 csp = "aws"
 
                 # copy exfiltrate payload to the local working directory
+                session.log("copying exfiltrate to task path...")
                 task_script = Path(f"{script_dir}/../resources/exfiltrate.sh")
                 shutil.copy2(task_script, task_path)
 
                 # run pod escape and exfil kube2s3
                 tmp_dir = Path("/tmp")
-                # create work directory
-                task_path = Path(f"/{task_name}")
-                if task_path.exists() and task_path.is_dir():
-                    shutil.rmtree(task_path)
-                task_path.mkdir(parents=True)
 
                 # copy our payload to the local working directory
                 task_script = Path(f"{script_dir}/../resources/{task_name}.sh")
