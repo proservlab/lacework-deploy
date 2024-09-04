@@ -1,0 +1,12 @@
+{
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "gcp": {
+      "region"               : "${ gcp_region }",
+      "project_id"           : "${ gcp_project }"
+    }
+  }
+}

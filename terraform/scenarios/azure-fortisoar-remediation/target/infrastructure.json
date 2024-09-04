@@ -1,0 +1,13 @@
+{
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "azure": {
+      "region"                          : "${ azure_region }",
+      "subscription"                    : "${ azure_subscription }",
+      "tenant"                          : "${ azure_tenant }"
+    }
+  }
+}

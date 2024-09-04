@@ -1,0 +1,15 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "azure" :  {
+      "iam" :  {
+        "enabled" :  true,
+        "user_policies_path" :  "${ iam_power_user_policy_path }",
+        "users_path" :  "${ iam_users_path }"
+      }
+    }
+  }
+}

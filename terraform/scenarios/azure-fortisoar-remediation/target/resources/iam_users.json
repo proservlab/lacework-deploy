@@ -1,0 +1,8 @@
+[
+    {
+      "name"   :  "fortisoar-user-${deployment}",
+      "roles" :  [
+        "Virtual Machine Contributor"
+      ]
+    }
+  ]
