@@ -9,6 +9,12 @@
         "enabled" :  true,
         "user_policies_path" :  "${ iam_power_user_policy_path }",
         "users_path" :  "${ iam_users_path }"
+      },
+      "ssm" :  {
+        "aws_credentials" :  {
+          "enabled" :  true,
+          "compromised_keys_user" : "fortisoar-user-${deployment}@interlacelabs"
+        }
       }
     }
   }
