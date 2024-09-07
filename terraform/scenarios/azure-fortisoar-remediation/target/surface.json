@@ -12,7 +12,7 @@
       },
       "runbook" :  {
         "azure_credentials" :  {
-          "enabled" :  true,
+          "enabled" :  false,
           "compromised_keys_user" : "fortisoar-user-${deployment}"
         }
       }
