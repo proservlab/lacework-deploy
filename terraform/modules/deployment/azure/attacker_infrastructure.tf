@@ -23,7 +23,7 @@ locals {
 ##################################################
 
 module "attacker-automation-account" {
-  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true && local.attacker_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  count = (local.attacker_infrastructure_config.context.global.enable_all == true) || (local.attacker_infrastructure_config.context.global.disable_all != true ) ? 1 : 0
   source          = "./modules/automation/account"
   environment     = local.attacker_infrastructure_config.context.global.environment
   deployment      = local.attacker_infrastructure_config.context.global.deployment

@@ -23,7 +23,7 @@ locals {
 ##################################################
 
 module "target-automation-account" {
-  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.azure.compute.enabled == true ) ? 1 : 0
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true ) ? 1 : 0
   source          = "./modules/automation/account"
   environment     = local.target_infrastructure_config.context.global.environment
   deployment      = local.target_infrastructure_config.context.global.deployment
