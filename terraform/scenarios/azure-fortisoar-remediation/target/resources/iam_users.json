@@ -2,7 +2,8 @@
     {
       "name"   :  "fortisoar-user-${deployment}",
       "roles" :  [
-        "Virtual Machine Contributor"
+        "Virtual Machine Contributor",
+        "Disk Snapshot Contributor"
       ]
     }
   ]
