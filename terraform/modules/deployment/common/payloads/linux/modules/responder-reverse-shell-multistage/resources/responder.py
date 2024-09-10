@@ -518,6 +518,8 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
             script_dir = os.path.dirname(os.path.realpath(__file__))
             session.log(f"script dir: {script_dir}")
             task_name = session.platform.getenv("TASK")
+            if task_name is None:
+                task_name = "default_payload"
             session.log(f"task environment: {task_name}")
 
             # create work directory
