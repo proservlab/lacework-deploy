@@ -471,7 +471,7 @@ check_lacework_cli() {
                         exit 1
                     fi
                     # install for macOS using brew
-                    brew tap lacework/homebrew-lacework-cli
+                    # brew tap lacework/homebrew-lacework-cli
                     brew install lacework-cli
                 else
                     errmsg "unsupported operating system."
