@@ -206,7 +206,7 @@ resource "aws_db_instance" "database" {
   port                                  = local.database_port
   engine                                = "mysql"
   engine_version                        = "5.7"
-  instance_class                        = "db.t3.small"
+  instance_class                        = "db.t3.micro"
   username                              = local.init_db_username
   password                              = local.init_db_password
   identifier                            = "rdsapp-${var.environment}-${var.deployment}"
