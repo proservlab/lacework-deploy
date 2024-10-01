@@ -1,6 +1,6 @@
 [
     {
       "name"   :  "clue.burnetes-${deployment}@interlacelabs",
-      "policy" :  "ReadOnlyAccess"
+      "policy" :  "basic-user-${deployment}"
     }
 ]

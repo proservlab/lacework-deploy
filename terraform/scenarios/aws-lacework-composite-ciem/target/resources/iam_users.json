@@ -1,7 +1,7 @@
 [
   {
     "name"   :  "khon.traktour-${deployment}@interlacelabs",
-    "policy" :  "ReadOnlyAccess",
+    "policy" :  "basic-user-${deployment}",
     "role"   :  "rds_user_access_role_ciemdemo"
   }
 ]

