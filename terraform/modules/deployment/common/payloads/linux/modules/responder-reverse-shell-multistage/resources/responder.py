@@ -254,9 +254,10 @@ echo $ACCESS_TOKEN > /tmp/instance_access_token.json
                          "/tmp/instance_access_token.json",
                          "/tmp/instance_metadata.json"]
                 for file in files:
-                    copy_file(
-                        session, source_file=file, dest_file=f'/tmp/{hostname}_{os.path.basename(file)}', direction='remote_to_local')
+                    # ensure
                     if session.platform.Path(file).exists():
+                        copy_file(
+                            session, source_file=file, dest_file=f'/tmp/{hostname}_{os.path.basename(file)}', direction='remote_to_local')
                         session.platform.Path(file).unlink()
 
             # adds current session user to sudoers
@@ -488,8 +489,9 @@ export TORPROXY="$(docker inspect -f \'{{{{range .NetworkSettings.Networks}}}}{{
                 shutil.copy2(task_script, task_path)
 
                 # copy linpeas.txt into our working directory
-                linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
-                shutil.copy2(linpeas, task_path)
+                if Path(f'/tmp/{hostname}_linpeas.txt').exists():
+                    linpeas = Path(f'/tmp/{hostname}_linpeas.txt')
+                    shutil.copy2(linpeas, task_path)
 
                 # extract the kube config if they exist
                 kube_dir = Path.joinpath(
