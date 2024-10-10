@@ -49,7 +49,7 @@ resource "aws_vpc_endpoint" "vpc_interface_endpoint" {
     aws_security_group.vpc_endpoint.id,
   ]
 
-  public_dns_enabled = true
+  private_dns_enabled = true
 
   tags = {
     Name = "public-vpcepi-${each.key}-${var.environment}-${var.deployment}"
