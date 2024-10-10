@@ -84,16 +84,31 @@ output "public_instance_cout" {
     value = local.public_instance_count
 }
 
+output "public_vpc_endpoint_security_group" {
+    value = module.vpc.public_vpc_endpoint_security_group
+}
+
 output "public_app_instance_count" {
     value = local.public_app_instance_count
+}
+
+output "public_app_vpc_endpoint_security_group" {
+    value = module.vpc.public_app_vpc_endpoint_security_group
 }
 
 output "private_instance_count" {
     value = local.private_instance_count
 }
 
+output "private_vpc_endpoint_security_group" {
+    value = module.vpc.private_vpc_endpoint_security_group
+}
+
 output "private_app_instance_count" {
     value = local.private_app_instance_count
 }
 
+output "private_app_vpc_endpoint_security_group" {
+    value = module.vpc.private_app_vpc_endpoint_security_group
+}
 

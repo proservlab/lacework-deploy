@@ -18,3 +18,7 @@ output "route_table" {
 output "nat_gateway_ip" {
   value = aws_eip.nat_gateway
 }
+
+output "vpc_endpoint_security_group" {
+  value = aws_security_group.vpc_endpoint
+}

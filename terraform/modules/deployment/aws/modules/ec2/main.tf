@@ -70,7 +70,16 @@ module "instances" {
   iam_instance_profile = each.value.role == "app" ? module.ssm_app_profile.ec2-iam-profile.name : module.ssm_profile.ec2-iam-profile.name
   
   subnet_id = each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_subnet.id : module.vpc.public_subnet.id ) : (each.value.role == "app" ? module.vpc.private_app_subnet.id : module.vpc.private_subnet.id )
-  vpc_security_group_ids = [ each.value.public == true ? (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) ]
+  vpc_security_group_ids = flatten([[ 
+    each.value.public == true ? 
+      (each.value.role == "app" ? module.vpc.public_app_sg.id : module.vpc.public_sg.id ) 
+    : (each.value.role == "app" ? module.vpc.private_app_sg.id : module.vpc.private_sg.id ) 
+  ], [
+    each.value.public == true ? 
+      (each.value.role == "app" ? module.vpc.public_app_vpc_endpoint_security_group.id : module.vpc.public_vpc_endpoint_security_group.id ) 
+    : (each.value.role == "app" ? module.vpc.private_app_vpc_endpoint_security_group.id : module.vpc.private_vpc_endpoint_security_group.id ) 
+    module.vpc.
+  ]])
   
   user_data = each.value.user_data
   user_data_base64 = each.value.user_data_base64
