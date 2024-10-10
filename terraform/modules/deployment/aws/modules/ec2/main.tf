@@ -78,7 +78,6 @@ module "instances" {
     each.value.public == true ? 
       (each.value.role == "app" ? module.vpc.public_app_vpc_endpoint_security_group.id : module.vpc.public_vpc_endpoint_security_group.id ) 
     : (each.value.role == "app" ? module.vpc.private_app_vpc_endpoint_security_group.id : module.vpc.private_vpc_endpoint_security_group.id ) 
-    module.vpc.
   ]])
   
   user_data = each.value.user_data
