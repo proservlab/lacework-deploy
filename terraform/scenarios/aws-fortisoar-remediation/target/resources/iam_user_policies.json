@@ -15,7 +15,8 @@
                 "Action": [
                     "ec2:DescribeSecurityGroups",
                     "ec2:DescribeSecurityGroupReferences",
-                    "ec2:DescribeStaleSecurityGroups"
+                    "ec2:DescribeStaleSecurityGroups",
+                    "ec2:DescribeSecurityGroupRules"
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
