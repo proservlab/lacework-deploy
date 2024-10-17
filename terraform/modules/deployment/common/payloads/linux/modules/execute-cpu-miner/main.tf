@@ -70,7 +70,7 @@ locals {
         yum_pre_tasks =  ""
         yum_packages = ""
         yum_post_tasks = ""
-        script_delay_secs = var.attack_delay
+        script_delay_secs = var.inputs["attack_delay"]
         next_stage_payload = local.payload
     }})
 
