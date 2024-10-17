@@ -21,9 +21,9 @@
         "private_app_nat_subnet"        : "172.17.10.0/24",
         "instances": [
           {
-            "name"                      : "developer",
+            "name"                      : "crypto",
             "public"                    : true,
-            "role"                      : "app",
+            "role"                      : "default",
             "instance_type"             : "t2.micro",
             "ami_name"                  : "ubuntu_focal",
             "tags"                      : {
@@ -32,11 +32,7 @@
               "ssm_deploy_lacework_syscall"               : "true",
               "ssm_deploy_lacework_code_aware_agent"      : "true",
               "ssm_deploy_aws_cli"                        : "true",
-              "ssm_deploy_docker"                         : "true",
-              "ssm_deploy_log4j_app"                      : "true",
-              "ssm_deploy_secret_ssh_private"             : "true",
-              "ssm_deploy_secret_aws_credentials"         : "true",
-              "ssm_exec_generate_aws_cli_traffic_target"  : "true"
+              "ssm_deploy_docker"                         : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,
@@ -71,24 +67,6 @@
       "aws_agentless": {
         "enabled" : true,
         "use_existing_vpc" : true
-      },
-      "custom_policy": {
-        "enabled" : true
-      },
-      "alerts": {
-        "enabled" : false,
-        "slack": {
-          "enabled"   : false,
-          "api_token" : "${ slack_token }"
-        },
-        "jira": {
-          "enabled"           : false,
-          "cloud_url"         : "${ jira_cloud_url }",
-          "cloud_username"    : "${ jira_cloud_username }",
-          "cloud_api_token"   : "${ jira_cloud_api_token }",
-          "cloud_project_key" : "${ jira_cloud_project_key }",
-          "cloud_issue_type"  : "${ jira_cloud_issue_type }"
-        }
       }
     }
   }

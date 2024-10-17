@@ -22,7 +22,7 @@
                 "public_ingress_rules"              : [],
                 "instances": [
                     {
-                        "name"                      : "log4jc",
+                        "name"                      : "attacker",
                         "public"                    : true,
                         "role"                      : "default",
                         "instance_type"             : "t2.micro",
@@ -30,9 +30,7 @@
                         "tags"                      : {
                             "owner"                                             : "lacework",
                             "ssm_deploy_aws_cli"                                : "true",
-                            "ssm_deploy_docker"                                 : "true",
-                            "ssm_exec_docker_exploit_log4j_app"                 : "true",
-                            "ssm_exec_reverse_shell_multistage_attacker"        : "true"
+                            "ssm_deploy_docker"                                 : "true"
                         },
                         "user_data"                 : null,
                         "user_data_base64"          : null,
@@ -46,11 +44,6 @@
                 "deploy_docker"                  : { "enabled" : true },
                 "deploy_aws_cli"                 : { "enabled" : true }
             }
-        },
-        "dynu_dns" : {
-            "enabled"                           : true,
-            "api_key"                           : "${ dynu_api_key }",
-            "dns_domain"                        : "${ attacker_dynu_dns_domain }"
         }
     }
 }
