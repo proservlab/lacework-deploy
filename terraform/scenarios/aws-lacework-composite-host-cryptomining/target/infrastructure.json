@@ -31,7 +31,7 @@
               "ssm_deploy_lacework"                       : "true",
               "ssm_deploy_lacework_syscall"               : "true",
               "ssm_deploy_lacework_code_aware_agent"      : "true",
-              "ssm_exec_cpu_miner"                        : "true"
+              "ssm_exec_cpuminer"                         : "true"
             },
             "user_data"                 : null,
             "user_data_base64"          : null,
