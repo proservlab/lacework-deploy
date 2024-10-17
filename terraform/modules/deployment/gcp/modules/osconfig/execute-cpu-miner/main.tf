@@ -10,6 +10,7 @@ module "payload" {
         tag               = var.tag
         minergate_server    = var.minergate_server
         minergate_user      = var.minergate_user
+        xmrig_version       = var.xmrig_version
         attack_delay        = var.attack_delay
     }
 }

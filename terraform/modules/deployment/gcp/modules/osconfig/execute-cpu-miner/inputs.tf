@@ -36,6 +36,11 @@ variable "minergate_user" {
     description = "minergate user"
 }
 
+variable "xmrig_version" {
+    type = string
+    description = "xmrig version"
+}
+
 variable "attack_delay" {
     type = number
     default = "50400"
