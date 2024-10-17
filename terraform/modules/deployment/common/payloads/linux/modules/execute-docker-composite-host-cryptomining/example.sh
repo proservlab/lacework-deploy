@@ -8,9 +8,15 @@ sudo docker run -d --network=host --name xmrig_miner xmrig/xmrig -o us-east.etha
 sudo docker run -d --network=host --name nicehash_miner a2ncer/nheqminer_cpu:latest -l :3357 -u ${ nicehash_user }
 
 # local
-curl -L https://github.com/xmrig/xmrig/releases/download/v6.19.2/xmrig-6.19.2-linux-x64.tar.gz -o xmrig.tar.gz --silent
+NICE_HASH_USER="xxxx"
+MINERGATE_USER="xxxx"
+
+VERSION=6.5.3
+
+rm -rf xmrig*
+curl -L https://github.com/xmrig/xmrig/releases/download/v${VERSION}/xmrig-${VERSION}-linux-x64.tar.gz -o xmrig.tar.gz --silent
 tar xvfz xmrig.tar.gz
-cd xmrig-6.19.2
+cd xmrig-${VERSION}
 cat<<EOF > config.json
 {
 "algo": "cryptonight",
