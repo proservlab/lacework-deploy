@@ -167,6 +167,24 @@ module "target-ssm-execute-docker-cpu-miner" {
     aws = aws.target
   }
 }
+
+module "target-ssm-execute-cpu-miner" {
+  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.enabled == true ) ? 1 : 0
+  source        = "./modules/ssm/execute-cpu-miner"
+  environment   = local.target_attacksimulate_config.context.global.environment
+  deployment    = local.target_attacksimulate_config.context.global.deployment
+  
+  tag = "ssm_exec_cpu_miner"
+  
+  minergate_server = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.minergate_server
+  minergate_user = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.minergate_user
+  xmrig_version = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.xmrig_version
+
+  providers = {
+    aws = aws.target
+  }
+}
+
 module "target-ssm-execute-docker-hydra" {
   count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.aws.enabled == true && local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_hydra.enabled == true ) ? 1 : 0
   source        = "./modules/ssm/execute-docker-hydra"

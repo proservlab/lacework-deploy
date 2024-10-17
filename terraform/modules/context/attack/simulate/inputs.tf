@@ -80,6 +80,12 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              cpu_miner = object({
+                enabled                     = bool
+                minergate_server            = string
+                minergate_user              = string
+                xmrig_version               = string
+              })
               docker_nmap = object({
                 enabled                     = bool
                 use_tor                     = bool
@@ -369,6 +375,12 @@ variable "config" {
                 minergate_server            = string
                 minergate_user              = string
               })
+              cpu_miner = object({
+                enabled                     = bool
+                minergate_server            = string
+                minergate_user              = string
+                xmrig_version               = string
+              })
               docker_nmap = object({
                 enabled                     = bool
                 use_tor                     = bool
@@ -657,6 +669,12 @@ variable "config" {
                 minergate_image             = string
                 minergate_server            = string
                 minergate_user              = string
+              })
+              cpu_miner = object({
+                enabled                     = bool
+                minergate_server            = string
+                minergate_user              = string
+                xmrig_version               = string
               })
               docker_nmap = object({
                 enabled                     = bool
@@ -951,10 +969,16 @@ variable "config" {
                 nicehash_name               = "nicehash"
                 nicehash_server             = "equihash.usa.nicehash.com:3357"
                 nicehash_user               = null
-                minergate_name              = "minerd"
-                minergate_image             = "mkell43/minerd"
-                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
+                minergate_name              = "xmrig"
+                minergate_image             = "xmrig/xmrig"
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
                 minergate_user              = null
+              },
+              cpu_miner = {
+                enabled                     = false
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
+                minergate_user              = null
+                xmrig_version               = "6.5.3"
               },
               docker_nmap = {
                 enabled                     = false
@@ -1240,10 +1264,16 @@ variable "config" {
                 nicehash_name               = "nicehash"
                 nicehash_server             = "equihash.usa.nicehash.com:3357"
                 nicehash_user               = null
-                minergate_name              = "minerd"
-                minergate_image             = "mkell43/minerd"
-                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
+                minergate_name              = "xmrig"
+                minergate_image             = "xmrig/xmrig"
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
                 minergate_user              = null
+              },
+              cpu_miner = {
+                enabled                     = false
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
+                minergate_user              = null
+                xmrig_version               = "6.5.3"
               },
               docker_nmap = {
                 enabled                     = false
@@ -1529,10 +1559,16 @@ variable "config" {
                 nicehash_name               = "nicehash"
                 nicehash_server             = "equihash.usa.nicehash.com:3357"
                 nicehash_user               = null
-                minergate_name              = "minerd"
-                minergate_image             = "mkell43/minerd"
-                minergate_server            = "stratum+tcp://eth.pool.minergate.com:45791"
-                minergate_user              = null
+                minergate_name              = "xmrig"
+                minergate_image             = "xmrig/xmrig"
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
+                minergate_user              = "NOTAREALUSER"
+              },
+              cpu_miner = {
+                enabled                     = false
+                minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
+                minergate_user              = "NOTAREALUSER"
+                xmrig_version               = "6.5.3"
               },
               docker_nmap = {
                 enabled                     = false
