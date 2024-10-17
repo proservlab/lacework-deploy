@@ -3,13 +3,11 @@
 ###########################
 
 module "payload" {
-    source = "../../../../common/payloads/linux/modules/execute-docker-cpu-miner"
+    source = "../../../../common/payloads/linux/modules/execute-cpu-miner"
     inputs = {
         environment     = var.environment
         deployment      = var.deployment
         tag             = var.tag
-        minergate_image     = var.minergate_image
-        minergate_name      = var.minergate_name
         minergate_server    = var.minergate_server
         minergate_user      = var.minergate_user
         attack_delay        = var.attack_delay

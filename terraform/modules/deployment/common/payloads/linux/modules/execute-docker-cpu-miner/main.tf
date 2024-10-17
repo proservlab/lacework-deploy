@@ -1,8 +1,4 @@
 locals {
-    # nicehash_name = var.inputs["nicehash_name"]
-    # nicehash_image = var.inputs["nicehash_image"]
-    # nicehash_server = var.inputs["nicehash_server"]
-    # nicehash_user = var.inputs["nicehash_user"]
     minergate_name = var.inputs["minergate_name"]
     minergate_image = var.inputs["minergate_image"]
     minergate_server = var.inputs["minergate_server"]
@@ -51,7 +47,7 @@ locals {
         EOT
         yum_packages = ""
         yum_post_tasks = ""
-        script_delay_secs = 30
+        script_delay_secs = var.attack_delay
         next_stage_payload = local.payload
     }})
 

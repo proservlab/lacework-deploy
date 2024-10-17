@@ -9,6 +9,7 @@ variable "inputs" {
                 minergate_name = string
                 minergate_server = string
                 minergate_user = string
+                attack_delay = number
         })
         description = "inherit variables from the parent"
 }

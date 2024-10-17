@@ -195,8 +195,30 @@ module "target-osconfig-execute-docker-cpu-miner" {
   minergate_image = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_image
   minergate_server = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_server
   minergate_name = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.minergate_name
+  attack_delay = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.docker_cpu_miner.attack_delay
 
   tag = "osconfig_exec_docker_cpuminer"
+
+  providers = {
+    google = google.target
+  }
+}
+
+module "target-osconfig-execute-cpu-miner" {
+  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.gcp.enabled == true && local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.enabled == true ) ? 1 : 0
+  source        = "./modules/osconfig/execute-cpu-miner"
+  environment   = local.target_attacksimulate_config.context.global.environment
+  deployment    = local.target_attacksimulate_config.context.global.deployment
+  gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
+  gcp_location = local.target_infrastructure_config.context.gcp.region
+
+  minergate_user = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_user
+  minergate_image = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_image
+  minergate_server = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_server
+  minergate_name = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_name
+  attack_delay = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.attack_delay
+
+  tag = "osconfig_exec_cpuminer"
 
   providers = {
     google = google.target

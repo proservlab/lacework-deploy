@@ -215,8 +215,33 @@ module "target-runbook-execute-docker-cpu-miner" {
   minergate_image = local.target_attacksimulate_config.context.azure.runbook.target.execute.docker_cpu_miner.minergate_image
   minergate_server = local.target_attacksimulate_config.context.azure.runbook.target.execute.docker_cpu_miner.minergate_server
   minergate_name = local.target_attacksimulate_config.context.azure.runbook.target.execute.docker_cpu_miner.minergate_name
+  attack_delay = local.target_attacksimulate_config.context.azure.runbook.target.execute.docker_cpu_miner.attack_delay
+  
 
   tag = "runbook_exec_docker_cpuminer"
+
+  providers = {
+    azurerm = azurerm.target
+  }
+}
+
+module "target-runbook-execute-cpu-miner" {
+  count = (local.target_attacksimulate_config.context.global.enable_all == true) || (local.target_attacksimulate_config.context.global.disable_all != true && local.target_attacksimulate_config.context.azure.enabled == true && local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.enabled == true ) ? 1 : 0
+  source        = "./modules/runbook/execute-cpu-miner"
+  environment     = local.target_attacksimulate_config.context.global.environment
+  deployment      = local.target_attacksimulate_config.context.global.deployment
+  region          = local.target_infrastructure_config.context.azure.region
+  
+  resource_group  = local.target_automation_account[0].resource_group
+  automation_account = local.target_automation_account[0].automation_account_name
+  automation_princial_id = local.target_automation_account[0].automation_princial_id
+
+  minergate_user = local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.minergate_user
+  minergate_server = local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.minergate_server
+  attack_delay = local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.attack_delay
+  
+
+  tag = "runbook_exec_cpuminer"
 
   providers = {
     azurerm = azurerm.target

@@ -8,28 +8,22 @@ variable "deployment" {
     description = "unique deployment id"
 }
 
+variable "gcp_location" {
+    type = string
+}
+
+variable "gcp_project_id" {
+    type    = string
+}
+
 variable "tag" {
-  type = string
-  default = "ssm_exec_docker_cpuminer"
+    type = string
+    default = "osconfig_exec_cpuminer"
 }
 
 variable "timeout" {
-  type = number
-  default = 1200
-}
-
-variable "cron" {
-  type = string
-  default = "cron(0/30 * * * ? *)"
-}
-
-variable "minergate_image" {
     type = string
-    description = "minergate docker image"
-}
-variable "minergate_name" {
-    type = string
-    description = "minergate docker name"
+    default = "600s"
 }
 
 variable "minergate_server" {
@@ -44,5 +38,5 @@ variable "minergate_user" {
 
 variable "attack_delay" {
     type = number
-    description = 50400
+    default = "50400"
 }

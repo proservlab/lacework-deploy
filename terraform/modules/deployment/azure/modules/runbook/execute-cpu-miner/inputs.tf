@@ -34,15 +34,6 @@ variable "tag" {
     default = "runbook_exec_docker_cpuminer"
 }
 
-variable "minergate_image" {
-    type = string
-    description = "minergate docker image"
-}
-variable "minergate_name" {
-    type = string
-    description = "minergate docker name"
-}
-
 variable "minergate_server" {
     type = string
     description = "minergate server"

@@ -162,6 +162,7 @@ module "target-ssm-execute-docker-cpu-miner" {
   minergate_image = local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_image
   minergate_server = local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_server
   minergate_name = local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner.minergate_name
+  attack_delay = local.target_attacksimulate_config.context.aws.ssm.target.execute.docker_cpu_miner.attack_delay
 
   providers = {
     aws = aws.target
@@ -174,11 +175,12 @@ module "target-ssm-execute-cpu-miner" {
   environment   = local.target_attacksimulate_config.context.global.environment
   deployment    = local.target_attacksimulate_config.context.global.deployment
   
-  tag = "ssm_exec_cpu_miner"
+  tag = "ssm_exec_cpuminer"
   
   minergate_server = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.minergate_server
   minergate_user = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.minergate_user
   xmrig_version = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.xmrig_version
+  attack_delay = local.target_attacksimulate_config.context.aws.ssm.target.execute.cpu_miner.attack_delay
 
   providers = {
     aws = aws.target

@@ -71,20 +71,18 @@ variable "config" {
             execute = object({
               docker_cpu_miner = object({
                 enabled                     = bool
-                nicehash_image              = string
-                nicehash_name               = string
-                nicehash_server             = string
-                nicehash_user               = string
                 minergate_name              = string
                 minergate_image             = string
                 minergate_server            = string
                 minergate_user              = string
+                attack_delay                = number
               })
               cpu_miner = object({
                 enabled                     = bool
                 minergate_server            = string
                 minergate_user              = string
                 xmrig_version               = string
+                attack_delay                = number
               })
               docker_nmap = object({
                 enabled                     = bool
@@ -366,20 +364,18 @@ variable "config" {
             execute = object({
               docker_cpu_miner = object({
                 enabled                     = bool
-                nicehash_image              = string
-                nicehash_name               = string
-                nicehash_server             = string
-                nicehash_user               = string
                 minergate_name              = string
                 minergate_image             = string
                 minergate_server            = string
                 minergate_user              = string
+                attack_delay                = number
               })
               cpu_miner = object({
                 enabled                     = bool
                 minergate_server            = string
                 minergate_user              = string
                 xmrig_version               = string
+                attack_delay                = number
               })
               docker_nmap = object({
                 enabled                     = bool
@@ -661,20 +657,18 @@ variable "config" {
             execute = object({
               docker_cpu_miner = object({
                 enabled                     = bool
-                nicehash_image              = string
-                nicehash_name               = string
-                nicehash_server             = string
-                nicehash_user               = string
                 minergate_name              = string
                 minergate_image             = string
                 minergate_server            = string
                 minergate_user              = string
+                attack_delay                = number
               })
               cpu_miner = object({
                 enabled                     = bool
                 minergate_server            = string
                 minergate_user              = string
                 xmrig_version               = string
+                attack_delay                = number
               })
               docker_nmap = object({
                 enabled                     = bool
@@ -965,20 +959,18 @@ variable "config" {
             execute = {
               docker_cpu_miner = {
                 enabled                     = false
-                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
-                nicehash_name               = "nicehash"
-                nicehash_server             = "equihash.usa.nicehash.com:3357"
-                nicehash_user               = null
                 minergate_name              = "xmrig"
                 minergate_image             = "xmrig/xmrig"
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
-                minergate_user              = null
+                minergate_user              = "NOTAREALUSER"
+                attack_delay                = 50400
               },
               cpu_miner = {
                 enabled                     = false
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
-                minergate_user              = null
+                minergate_user              = "NOTAREALUSER"
                 xmrig_version               = "6.5.3"
+                attack_delay                = 50400
               },
               docker_nmap = {
                 enabled                     = false
@@ -1260,20 +1252,18 @@ variable "config" {
             execute = {
               docker_cpu_miner = {
                 enabled                     = false
-                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
-                nicehash_name               = "nicehash"
-                nicehash_server             = "equihash.usa.nicehash.com:3357"
-                nicehash_user               = null
                 minergate_name              = "xmrig"
                 minergate_image             = "xmrig/xmrig"
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
-                minergate_user              = null
+                minergate_user              = "NOTAREALUSER"
+                attack_delay                = 50400
               },
               cpu_miner = {
                 enabled                     = false
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
-                minergate_user              = null
+                minergate_user              = "NOTAREALUSER"
                 xmrig_version               = "6.5.3"
+                attack_delay                = 50400
               },
               docker_nmap = {
                 enabled                     = false
@@ -1555,20 +1545,18 @@ variable "config" {
             execute = {
               docker_cpu_miner = {
                 enabled                     = false
-                nicehash_image              = "a2ncer/nheqminer_cpu:latest"
-                nicehash_name               = "nicehash"
-                nicehash_server             = "equihash.usa.nicehash.com:3357"
-                nicehash_user               = null
                 minergate_name              = "xmrig"
                 minergate_image             = "xmrig/xmrig"
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
                 minergate_user              = "NOTAREALUSER"
+                attack_delay                = 50400
               },
               cpu_miner = {
                 enabled                     = false
                 minergate_server            = "us-east.ethash-hub.miningpoolhub.com:20535"
                 minergate_user              = "NOTAREALUSER"
                 xmrig_version               = "6.5.3"
+                attack_delay                = 50400
               },
               docker_nmap = {
                 enabled                     = false

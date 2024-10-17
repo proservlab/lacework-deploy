@@ -23,15 +23,6 @@ variable "cron" {
   default = "cron(0/30 * * * ? *)"
 }
 
-variable "minergate_image" {
-    type = string
-    description = "minergate docker image"
-}
-variable "minergate_name" {
-    type = string
-    description = "minergate docker name"
-}
-
 variable "minergate_server" {
     type = string
     description = "minergate server"

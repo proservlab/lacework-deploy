@@ -12,7 +12,8 @@
             "cpu_miner": {
               "enabled": true,
               "xmrig_version": "6.5.3",
-              "minergate_server": "us-east.ethash-hub.miningpoolhub.com:20535"
+              "minergate_server": "us-east.ethash-hub.miningpoolhub.com:20535",
+              "attack_delay": 50400
             }
           }
         }

@@ -44,3 +44,8 @@ variable "minergate_user" {
     type = string
     description = "minergate user"
 }
+
+variable "attack_delay" {
+    type = number
+    default = "50400"
+}
