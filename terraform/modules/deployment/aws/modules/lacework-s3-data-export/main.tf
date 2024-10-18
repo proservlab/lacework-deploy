@@ -6,7 +6,7 @@ module "lacework_s3_data_export" {
   lacework_data_export_rule_description = "AWS S3 Data Export"
 
   tags = {
-    deployment = vars.deployment
-    environment = vars.environment
+    deployment = var.deployment
+    environment = var.environment
   }
 }
