@@ -13,7 +13,8 @@
               "enabled": true,
               "xmrig_version": "6.5.3",
               "minergate_server": "us-east.ethash-hub.miningpoolhub.com:20535",
-              "attack_delay": 50400
+              "minergate_user": "NOTAREALUSER",
+              "attack_delay": 4500
             }
           }
         }
