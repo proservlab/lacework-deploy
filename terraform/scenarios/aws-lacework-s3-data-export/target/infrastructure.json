@@ -1,0 +1,32 @@
+{
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "aws": {
+      "region"       : "${ aws_region }",
+      "profile_name" : "${ aws_profile }",
+      "ec2": {
+        "enabled"                       : false,
+        "public_network"                : "172.18.0.0/16",
+        "public_subnet"                 : "172.18.0.0/24",
+        "public_app_network"            : "172.19.0.0/16",
+        "public_app_subnet"             : "172.19.0.0/24",
+        "private_network"               : "172.16.0.0/16",
+        "private_subnet"                : "172.16.0.0/24",
+        "private_nat_subnet"            : "172.16.10.0/24",
+        "private_app_network"           : "172.17.0.0/16",
+        "private_app_subnet"            : "172.17.0.0/24",
+        "private_app_nat_subnet"        : "172.17.10.0/24",
+        "public_ingress_rules"          : [],
+        "instances": []
+      }
+    },
+    "lacework": {
+      "aws_s3_data_export": {
+        "enabled": true
+      }
+    }
+  }
+}

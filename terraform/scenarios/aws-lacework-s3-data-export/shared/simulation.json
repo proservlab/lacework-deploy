@@ -1,7 +1,7 @@
 {
   "context" :  {
     "global": {
-      "environment"          : "attacker",
+      "environment"          : "${ environment }",
       "deployment"           : "${ deployment }"
     }
   }
