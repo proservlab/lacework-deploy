@@ -373,6 +373,9 @@ variable "config" {
         azure_agentless = object({
           enabled               = bool
         })
+        aws_s3_data_export = object({
+          enabled = bool
+        })
         alerts = object({
           enabled               = bool
           slack = object({
@@ -947,6 +950,9 @@ variable "config" {
           org_integration       = false
         }
         azure_agentless = {
+          enabled               = false
+        }
+        aws_s3_data_export = {
           enabled               = false
         }
         alerts = {

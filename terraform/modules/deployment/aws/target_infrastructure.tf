@@ -158,6 +158,20 @@ module "target-lacework-ecr" {
   }
 }
 
+# create s3 bucket and data export rule
+module "target-lacework-s3-data-export" {
+  count = (local.target_infrastructure_config.context.global.enable_all == true) || (local.target_infrastructure_config.context.global.disable_all != true && local.target_infrastructure_config.context.lacework.aws_s3_data_export.enabled == true  ) ? 1 : 0
+  source                                = "./modules/lacework-s3-data-export"
+
+  environment                           = local.target_infrastructure_config.context.global.environment
+  deployment                            = local.target_infrastructure_config.context.global.deployment
+
+  providers = {
+    aws = aws.target
+    lacework = lacework.target
+  }
+}
+
 
 ##################################################
 # AWS EC2
