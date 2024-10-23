@@ -25,7 +25,9 @@
     },
     "lacework": {
       "aws_s3_data_export": {
-        "enabled": true
+        "enabled": true,
+        "read_only_iam_user_names": ["lacework-eventbridge-sqs-user-u8GQfRc8"],
+        "read_only_iam_role_names": []
       }
     }
   }
