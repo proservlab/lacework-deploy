@@ -31,8 +31,8 @@ resource "aws_iam_policy" "lacework_s3_data_export_read_policy" {
         ],
         Effect   = "Allow",
         Resource = [
-          "${aws_s3_bucket.lacework_event_bucket.arn}/*",  # Read objects within the bucket
-          aws_s3_bucket.lacework_event_bucket.arn  # List bucket permission
+          "${module.aws_s3_bucket.lacework_s3_data_export.bucket_arn}/*",  # Read objects within the bucket
+          module.aws_s3_bucket.lacework_s3_data_export.bucket_arn  # List bucket permission
         ]
       }
     ]
