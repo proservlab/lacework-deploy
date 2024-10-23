@@ -48,7 +48,7 @@ data "aws_iam_user" "read_only_users" {
 resource "aws_iam_user_policy_attachment" "lacework_user_s3_data_export_read_policy_attachment" {
   for_each = { for i in data.aws_iam_user.read_only_users: i.name => i }
   user       = each.key
-  policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy.arn
+  policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy[0].arn
 }
 
 data "aws_iam_role" "read_only_roles" {
@@ -60,5 +60,5 @@ data "aws_iam_role" "read_only_roles" {
 resource "aws_iam_role_policy_attachment" "lacework_user_s3_data_export_read_policy_attachment" {
   for_each = { for i in data.aws_iam_user.read_only_roles: i.name => i }
   user       = each.key
-  policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy.arn
+  policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy[0].arn
 }
