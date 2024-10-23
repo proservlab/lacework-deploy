@@ -47,7 +47,7 @@ data "aws_iam_user" "read_only_users" {
 # Attach the S3 read policy to the user
 resource "aws_iam_user_policy_attachment" "lacework_user_s3_data_export_read_policy_attachment" {
   for_each = data.aws_iam_user.read_only_users
-  user       = each.value.name
+  user       = each.key
   policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy[0].arn
 }
 
@@ -59,6 +59,6 @@ data "aws_iam_role" "read_only_roles" {
 # Attach the S3 read policy to the user
 resource "aws_iam_role_policy_attachment" "lacework_user_s3_data_export_read_policy_attachment" {
   for_each = data.aws_iam_role.read_only_roles
-  role       = each.value.name
+  role       = each.key
   policy_arn = aws_iam_policy.lacework_s3_data_export_read_policy[0].arn
 }
