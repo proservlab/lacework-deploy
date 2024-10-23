@@ -17,7 +17,7 @@ resource "random_string" "unique_suffix" {
 }
 
 resource "aws_iam_policy" "lacework_s3_data_export_read_policy" {
-  count = can(length(var.read_only_iam_user_names)) || can(length(var.read_only_iam_role_names)) ? 0 : 1 
+  count = length(var.read_only_iam_user_names) >0 || length(var.read_only_iam_role_names) > 0 ? 1 : 0 
   name        = format("lacework-s3-data-export-read-policy-%s", random_string.unique_suffix.result)
   description = "Policy allowing read access to lacework data export S3 objects"
 
