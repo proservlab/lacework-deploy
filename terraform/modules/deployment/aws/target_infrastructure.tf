@@ -165,6 +165,9 @@ module "target-lacework-s3-data-export" {
 
   environment                           = local.target_infrastructure_config.context.global.environment
   deployment                            = local.target_infrastructure_config.context.global.deployment
+  
+  read_only_iam_user_names              = local.target_infrastructure_config.context.lacework.aws_s3_data_export.read_only_iam_user_names
+  read_only_iam_role_names              = local.target_infrastructure_config.context.lacework.aws_s3_data_export.read_only_iam_role_names
 
   providers = {
     aws = aws.target

@@ -375,6 +375,8 @@ variable "config" {
         })
         aws_s3_data_export = object({
           enabled = bool
+          read_only_iam_user_names = list(string)
+          read_only_iam_role_names = list(string)
         })
         alerts = object({
           enabled               = bool
@@ -954,6 +956,8 @@ variable "config" {
         }
         aws_s3_data_export = {
           enabled               = false
+          read_only_iam_user_names = []
+          read_only_iam_role_names = []
         }
         alerts = {
           enabled               = false
