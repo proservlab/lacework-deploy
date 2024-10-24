@@ -53,6 +53,20 @@
                 "Effect": "Allow",
                 "Resource": "*",
                 "Sid": "AllowCreateSnapshot"
+            },
+            {
+                "Action": [
+                    "iam:GetUser",
+                    "iam:ListAttachedUserPolicies",
+                    "iam:ListMFADevices",
+                    "iam:ListGroupsForUser",
+                    "iam:ListAttachedGroupPolicies",
+                    "iam:GetPolicy",
+                    "iam:GetRole"
+                ],
+                "Effect": "Allow",
+                "Resource": "*",
+                "Sid": "AllowIAMRead"
             }
         ],
         "Version": "2012-10-17"
