@@ -70,5 +70,20 @@
             }
         ],
         "Version": "2012-10-17"
+    },
+    "fortisoar-revoke-session-policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Deny",
+            "Action": "*",
+            "Resource": "*",
+            "Condition": {
+                "DateGreaterThan": {
+                    "aws:TokenIssueTime": "1982-06-04T00:00:00Z"
+                }
+            }
+          }
+        ]
     }
 }
