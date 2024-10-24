@@ -9,6 +9,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "AllowInstanceStartAndStop"
             },
             {
@@ -17,6 +18,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "AllowTagInstances"
             },
             {
@@ -28,6 +30,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "AllowDescribeSecurityGroups"
             },
             {
@@ -43,6 +46,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "ModifySecurityGroups"
             },
             {
@@ -52,6 +56,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "AllowCreateSnapshot"
             },
             {
@@ -66,6 +71,7 @@
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
+                "Condition": {},
                 "Sid": "AllowIAMRead"
             }
         ],
@@ -73,19 +79,19 @@
     },
     "fortisoar-revoke-session-policy": {
         "Statement": [
-          {
-            "Sid": "RevokeActiveSessions",
-            "Effect": "Deny",
-            "Action": [
-                "*"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "DateGreaterThan": {
-                    "aws:TokenIssueTime": "1982-06-04T00:00:00Z"
-                }
+            {
+                "Action": [
+                    "*"
+                ],
+                "Effect": "Deny",
+                "Resource": "*",
+                "Condition": {
+                    "DateGreaterThan": {
+                        "aws:TokenIssueTime": "1982-06-04T00:00:00Z"
+                    }
+                },
+                "Sid": "RevokeActiveSessions",
             }
-          }
         ],
         "Version": "2012-10-17"
     }
