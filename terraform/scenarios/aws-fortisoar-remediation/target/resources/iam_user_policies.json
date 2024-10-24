@@ -85,7 +85,7 @@
                     "iam:GetRole",
                     "iam:ListUsers",
                     "iam:ListRoles",
-                    "iam:PutRolePolicy",
+                    "iam:PutRolePolicy"
                 ],
                 "Effect": "Allow",
                 "Resource": "*",
