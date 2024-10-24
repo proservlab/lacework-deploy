@@ -72,11 +72,13 @@
         "Version": "2012-10-17"
     },
     "fortisoar-revoke-session-policy": {
-        "Version": "2012-10-17",
         "Statement": [
           {
+            "Sid": "RevokeActiveSessions",
             "Effect": "Deny",
-            "Action": "*",
+            "Action": [
+                "*"
+            ],
             "Resource": "*",
             "Condition": {
                 "DateGreaterThan": {
@@ -84,6 +86,7 @@
                 }
             }
           }
-        ]
+        ],
+        "Version": "2012-10-17"
     }
 }
