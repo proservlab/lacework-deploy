@@ -73,7 +73,26 @@
                 "Resource": "*",
                 "Condition": {},
                 "Sid": "AllowIAMRead"
+            },
+            {
+                "Action": [
+                    "iam:ListAccessKeys",
+                    "iam:UpdateAccessKey",
+                    "iam:ListMFADevices",
+                    "iam:ListGroupsForUser",
+                    "iam:ListAttachedGroupPolicies",
+                    "iam:GetPolicy",
+                    "iam:GetRole",
+                    "iam:ListUsers",
+                    "iam:ListRoles",
+                    "iam:PutRolePolicy",
+                ],
+                "Effect": "Allow",
+                "Resource": "*",
+                "Condition": {},
+                "Sid": "AllowIAMRemediate"
             }
+
         ],
         "Version": "2012-10-17"
     },
