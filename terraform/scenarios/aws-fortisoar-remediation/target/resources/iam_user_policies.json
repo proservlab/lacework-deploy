@@ -90,7 +90,7 @@
                         "aws:TokenIssueTime": "1982-06-04T00:00:00Z"
                     }
                 },
-                "Sid": "RevokeActiveSessions",
+                "Sid": "RevokeActiveSessions"
             }
         ],
         "Version": "2012-10-17"
