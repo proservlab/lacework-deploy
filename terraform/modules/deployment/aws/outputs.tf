@@ -59,9 +59,11 @@ output "target_private_app_nat_gw_ip" {
 }
 
 output "target_iam_access_keys" {
-    value = nonsensitive(try(module.target-iam[0].access_keys, {}))
+    sensitive = true
+    value = try(module.target-iam[0].access_keys, {})
 }
 
 output "attacker_iam_access_keys" {
-    value = nonsensitive(try(module.attacker-iam[0].access_keys, {}))
+    sensitive = true
+    value = try(module.attacker-iam[0].access_keys, {})
 }
