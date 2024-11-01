@@ -57,3 +57,11 @@ output "target_private_nat_gw_ip" {
 output "target_private_app_nat_gw_ip" {
     value = local.target_private_app_nat_gw_ip
 }
+
+output "attacker_iam_access_keys" {
+    value = try(module.attacker-iam[0].access_keys, {})
+}
+
+output "target_iam_access_keys" {
+    value = try{module.target-iam[0].access_keys, {})
+}

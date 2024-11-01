@@ -59,3 +59,11 @@ output "target_private_nat_gw_ip" {
 output "target_private_app_nat_gw_ip" {
   value = module.aws-deployment.target_private_app_nat_gw_ip
 }
+
+output "attacker_iam_access_keys" {
+  value = module.aws-deployment.attacker_iam_access_keys
+}
+
+output "target_iam_access_keys" {
+  value = module.aws-deployment.target_iam_access_keys
+}
