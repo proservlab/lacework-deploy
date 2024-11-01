@@ -59,9 +59,9 @@ output "target_private_app_nat_gw_ip" {
 }
 
 output "target_iam_access_keys" {
-    value = module.target-iam[0].access_keys
+    value = try(module.target-iam[0].access_keys, {})
 }
 
 output "attacker_iam_access_keys" {
-    value = module.attacker-iam[0].access_keys
+    value = try(module.attacker-iam[0].access_keys, {})
 }
