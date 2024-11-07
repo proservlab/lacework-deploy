@@ -14,9 +14,9 @@ module "aws_config" {
 }
 
 module "aws_cloudtrail" {
-  # source  = "lacework/cloudtrail/aws"
-  # version = "~> 2.9"
-  source = "./cloudtrail"
+  source  = "lacework/cloudtrail/aws"
+  version = "~> 2.9"
+  # source = "./cloudtrail"
 
   cloudtrail_name = var.cloudtrail_name
   use_existing_iam_role       = var.use_existing_iam_role
