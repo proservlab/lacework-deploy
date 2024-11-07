@@ -66,25 +66,23 @@ data "aws_ami" "amazon_linux_20221210" {
   }
 }
 
-# data "aws_ami" "centos_8" {
-#   most_recent = true
-#   include_deprecated = true
-#   owners = ["125523088429"]
-#   filter {
-#     name   = "name"
-#     values = ["CentOS 8*x86_64*"]
-#   }
-# }
+data "aws_ami" "windows_2019" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2019-English-Full-Base*"]
+  }
+}
 
-# data "aws_ami" "centos_8_2004" {
-#   most_recent = true
-#   include_deprecated = true
-#   owners = ["125523088429"]
-#   filter {
-#     name   = "name"
-#     values = ["CentOS 8.2.2004 x86_64"]
-#   }
-# }
+data "aws_ami" "windows_2022" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2022-English-Full-Base*"]
+  }
+}
 
 data "aws_ami" "rocky_linux_8" {
   most_recent = true
@@ -111,8 +109,8 @@ locals {
         ubuntu_bionic = data.aws_ami.ubuntu_bionic.id
         amazon_linux = data.aws_ami.amazon_linux.id
         amazon_linux_20221210 = data.aws_ami.amazon_linux_20221210.id
-        # centos_8 = data.aws_ami.centos_8.id
-        # centos_8_2004 = data.aws_ami.centos_8_2004.id
         rocky_linux_8 = data.aws_ami.rocky_linux_8.id
+        windows_2019 = data.aws_ami.windows_2019
+        windows_2022 = data.aws_ami.windows_2022
     }
 }

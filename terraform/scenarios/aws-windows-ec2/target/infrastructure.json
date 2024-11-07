@@ -1,0 +1,52 @@
+{
+  "context": {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "aws": {
+      "region"       : "${ aws_region }",
+      "profile_name" : "${ aws_profile }",
+      "ec2": {
+        "enabled"                       : true,
+        "public_network"                : "172.18.0.0/16",
+        "public_subnet"                 : "172.18.0.0/24",
+        "public_app_network"            : "172.19.0.0/16",
+        "public_app_subnet"             : "172.19.0.0/24",
+        "private_network"               : "172.16.0.0/16",
+        "private_subnet"                : "172.16.0.0/24",
+        "private_nat_subnet"            : "172.16.10.0/24",
+        "private_app_network"           : "172.17.0.0/16",
+        "private_app_subnet"            : "172.17.0.0/24",
+        "private_app_nat_subnet"        : "172.17.10.0/24",
+        "public_ingress_rules"          : [],
+        "instances": [
+          {
+            "name"                      : "lacework-public-1",
+            "public"                    : true,
+            "role"                      : "default",
+            "instance_type"             : "t2.micro",
+            "ami_name"                  : "windows_2022",
+            "tags": {
+              "ssm_deploy_lacework": "false",
+              "ssm_deploy_lacework_syscall": "false",
+              "ssm_deploy_lacework_code_aware_agent" : "false"
+            },
+            "user_data"        : null,
+            "user_data_base64" : null,
+            "enable_swap"      : true
+          }
+        ]
+      },
+      "ssm": {
+        "enabled"                        : true,
+        "deploy_git"                     : { "enabled" : false },
+        "deploy_docker"                  : { "enabled" : false },
+        "deploy_inspector_agent"         : { "enabled" : false },
+        "deploy_lacework_agent"          : { "enabled" : true },
+        "deploy_lacework_syscall_config" : { "enabled" : true },
+        "deploy_lacework_code_aware_agent"  : { "enabled" : true }
+      }
+    }
+  }
+}

@@ -26,6 +26,14 @@ data "azurerm_platform_image" "windowsserver_2019" {
     sku       = "2019-Datacenter"
 }
 
+data "azurerm_platform_image" "windowsserver_2022" {
+    location  = var.region
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
+}
+
+
 data "azurerm_platform_image" "rocky_linux_8" {
     location  = var.region
     publisher = "erockyenterprisesoftwarefoundationinc1653071250513"
