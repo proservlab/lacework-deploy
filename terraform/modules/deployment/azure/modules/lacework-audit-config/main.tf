@@ -2,13 +2,14 @@ data "azurerm_subscription" "current" {
 }
 
 module "az_ad_application" {
-  source  = "lacework/ad-application/azure"
-  version = "~> 1.3.0"
+  # source  = "lacework/ad-application/azure"
+  # version = "~> 2.0"
+  source = "./terraform-azure-ad-application"
 }
 
 module "az_config" {
   source  = "lacework/config/azure"
-  version = "~> 2.1.0"
+  version = "~> 3.0"
 
   use_existing_ad_application = true
   all_subscriptions = false
@@ -24,7 +25,7 @@ module "az_config" {
 
 module "activity-log" {
   source  = "lacework/activity-log/azure"
-  version = "~> 2.3.0"
+  version = "~> 3.0"
 
   use_existing_ad_application = true
   

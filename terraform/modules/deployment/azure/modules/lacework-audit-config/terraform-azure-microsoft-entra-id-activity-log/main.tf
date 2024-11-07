@@ -13,8 +13,9 @@ locals {
 }
 
 module "az_ad_application" {
-  source           = "lacework/ad-application/azure"
-  version          = "~> 1.0"
+  # source           = "lacework/ad-application/azure"
+  # version          = "~> 1.0"
+  source           = "../terraform-azure-ad-application"
   create           = var.use_existing_ad_application ? false : true
   application_name = var.application_name
 }

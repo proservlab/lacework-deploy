@@ -3,11 +3,11 @@ terraform {
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 2.45"
+      version = "~> 3.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.77"
+      version = "~> 4.0"
     }
     // include azapi because Azure Container App Jobs isn't yet available as a provider
     azapi = {
@@ -15,7 +15,7 @@ terraform {
     }
     lacework = {
       source  = "lacework/lacework"
-      version = ">= 1.18"
+      version = "~> 2.0"
     }
   }
 }
