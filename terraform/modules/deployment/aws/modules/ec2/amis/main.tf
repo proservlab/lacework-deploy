@@ -110,7 +110,7 @@ locals {
         amazon_linux = data.aws_ami.amazon_linux.id
         amazon_linux_20221210 = data.aws_ami.amazon_linux_20221210.id
         rocky_linux_8 = data.aws_ami.rocky_linux_8.id
-        windows_2019 = data.aws_ami.windows_2019
-        windows_2022 = data.aws_ami.windows_2022
+        windows_2019 = data.aws_ami.windows_2019.id
+        windows_2022 = data.aws_ami.windows_2022.id
     }
 }
