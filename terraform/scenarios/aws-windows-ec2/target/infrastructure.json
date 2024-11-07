@@ -43,9 +43,9 @@
         "deploy_git"                     : { "enabled" : false },
         "deploy_docker"                  : { "enabled" : false },
         "deploy_inspector_agent"         : { "enabled" : false },
-        "deploy_lacework_agent"          : { "enabled" : true },
-        "deploy_lacework_syscall_config" : { "enabled" : true },
-        "deploy_lacework_code_aware_agent"  : { "enabled" : true }
+        "deploy_lacework_agent"          : { "enabled" : false },
+        "deploy_lacework_syscall_config" : { "enabled" : false },
+        "deploy_lacework_code_aware_agent"  : { "enabled" : false }
       }
     }
   }
