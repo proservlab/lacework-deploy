@@ -33,6 +33,9 @@ locals {
   bucket_encryption_enabled = var.bucket_encryption_enabled && length(local.bucket_sse_key_arn) > 0
   bucket_versioning_enabled = var.bucket_versioning_enabled ? "Enabled" : "Suspended"
   bucket_sse_key_arn        = var.use_existing_kms_key ? var.bucket_sse_key_arn : ((var.use_existing_cloudtrail || length(var.bucket_sse_key_arn) > 0) ? var.bucket_sse_key_arn : aws_kms_key.lacework_kms_key[0].arn)
+  version_file   = "${abspath(path.module)}/VERSION"
+  module_name    = "terraform-aws-cloudtrail"
+  module_version = fileexists(local.version_file) ? file(local.version_file) : ""
 }
 
 resource "random_id" "uniq" {
@@ -75,11 +78,7 @@ resource "aws_cloudtrail" "lacework_cloudtrail" {
       }
     }
   }
-  depends_on = [
-    aws_s3_bucket.cloudtrail_bucket,
-    aws_sns_topic.lacework_cloudtrail_sns_topic,
-    aws_sns_topic_policy.default
-  ]
+  depends_on = [aws_s3_bucket.cloudtrail_bucket]
 }
 
 resource "aws_s3_bucket" "cloudtrail_bucket" {
@@ -170,6 +169,9 @@ resource "aws_s3_bucket_versioning" "cloudtrail_bucket_versioning" {
   }
 }
 
+data "aws_organizations_organization" "organization" {
+     count = var.is_organization_trail ? 1 : 0
+}
 
 data "aws_iam_policy_document" "cloudtrail_log_policy" {
   version = "2012-10-17"
@@ -201,11 +203,6 @@ resource "aws_s3_bucket_policy" "cloudtrail_log_bucket_policy" {
   count  = (var.use_existing_cloudtrail || var.use_existing_access_log_bucket) ? 0 : (var.bucket_logs_enabled ? 1 : 0)
   bucket = aws_s3_bucket.cloudtrail_log_bucket[0].id
   policy = data.aws_iam_policy_document.cloudtrail_log_policy.json
-
-  depends_on = [ 
-    aws_s3_bucket.cloudtrail_log_bucket,
-    data.aws_iam_policy_document.cloudtrail_log_policy
-  ]
 }
 
 resource "aws_s3_bucket" "cloudtrail_log_bucket" {
@@ -396,6 +393,27 @@ data "aws_iam_policy_document" "cloudtrail_s3_policy" {
     }
   }
 
+
+  dynamic "statement" {
+    for_each = var.is_organization_trail ? [1] : []
+    content {
+    sid       = "AWSCloudTrailOrganizationWrite20150319"
+    actions   = ["s3:PutObject"]
+    resources = ["arn:aws:s3:::${local.bucket_name}/AWSLogs/${data.aws_organizations_organization.organization[0].id}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+   }
+  }
+
   statement {
     sid       = "AWSCloudTrailWrite20150319"
     actions   = ["s3:PutObject"]
@@ -499,10 +517,6 @@ resource "aws_sns_topic_policy" "default" {
   count  = local.create_sns_topic ? 1 : 0
   arn    = local.sns_topic_arn
   policy = data.aws_iam_policy_document.sns_topic_policy[0].json
-
-  depends_on = [ 
-    aws_sns_topic.lacework_cloudtrail_sns_topic 
-  ]
 }
 
 resource "aws_sqs_queue" "lacework_cloudtrail_sqs_queue" {
@@ -535,10 +549,6 @@ resource "aws_sqs_queue_policy" "lacework_sqs_queue_policy" {
 	]
 }
 POLICY
-
-  depends_on = [
-    aws_sqs_queue.lacework_cloudtrail_sqs_queue
-  ]
 }
 
 resource "aws_sns_topic_subscription" "lacework_sns_topic_sub" {
@@ -684,4 +694,9 @@ resource "lacework_integration_aws_ct" "default" {
   }
 
   depends_on = [time_sleep.wait_time]
+}
+
+data "lacework_metric_module" "lwmetrics" {
+  name    = local.module_name
+  version = local.module_version
 }
