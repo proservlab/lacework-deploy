@@ -49,7 +49,8 @@ resource "azurerm_public_ip" "private-nat-gw" {
     name                  = "private-ip-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_group.name
-    allocation_method     = "Dynamic"
+    allocation_method   = "Static"
+    sku                 = "Basic" # Adjust this if you require a different SKU
 
     tags = {
         environment = var.environment
@@ -87,7 +88,8 @@ resource "azurerm_public_ip" "ip" {
     name                         = "ip-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
     resource_group_name          = var.resource_group.name
-    allocation_method            = "Dynamic"
+    allocation_method   = "Static"
+    sku                 = "Basic" # Adjust this if you require a different SKU
 
     tags = {
         environment = var.environment
@@ -172,6 +174,20 @@ resource "azurerm_network_interface" "nic" {
         public = each.value.public
         role = each.value.role
     }
+}
+
+resource "azurerm_network_interface" "nic" {
+  for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
+  name                = "${each.key}-nic"
+  location            = var.region
+  resource_group_name = var.resource_group.name
+
+  ip_configuration {
+    name                          = "primary"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = each.value.public ? azurerm_public_ip.static_ip[each.key].id : null
+  }
 }
 
 # Connect the security group to the network interface

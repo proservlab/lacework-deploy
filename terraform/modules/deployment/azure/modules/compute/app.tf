@@ -49,7 +49,8 @@ resource "azurerm_public_ip" "private-app-nat-gw" {
     name                  = "private-app-ip-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_app_group.name
-    allocation_method     = "Dynamic"
+    allocation_method   = "Static"
+    sku                 = "Basic" # Adjust this if you require a different SKU
 
     tags = {
         environment = var.environment
@@ -87,7 +88,8 @@ resource "azurerm_public_ip" "ip-app" {
     name                         = "ip-app-${ each.key }-${var.environment}-${var.deployment}"
     location                     = var.region
     resource_group_name          = var.resource_app_group.name
-    allocation_method            = "Dynamic"
+    allocation_method   = "Static"
+    sku                 = "Basic" # Adjust this if you require a different SKU
 
     tags = {
         environment = var.environment
