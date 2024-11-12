@@ -30,7 +30,8 @@
             "tags": {
               "ssm_deploy_lacework": "false",
               "ssm_deploy_lacework_syscall": "false",
-              "ssm_deploy_lacework_code_aware_agent" : "false"
+              "ssm_deploy_lacework_code_aware_agent" : "false",
+              "ssm_deploy_malware_eicar": "true"
             },
             "user_data"        : null,
             "user_data_base64" : null,

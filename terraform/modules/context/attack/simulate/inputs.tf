@@ -25,6 +25,7 @@ variable "config" {
                 eicar = object({ 
                   enabled                     = bool
                   eicar_path                  = string
+                  eicar_win_path              = string
                 })
               })
             })
@@ -318,6 +319,7 @@ variable "config" {
                 eicar = object({ 
                   enabled                     = bool
                   eicar_path                  = string
+                  eicar_win_path              = string
                 })
               })
             })
@@ -611,6 +613,7 @@ variable "config" {
                 eicar = object({ 
                   enabled                     = bool
                   eicar_path                  = string
+                  eicar_win_path              = string
                 })
               })
             })
@@ -913,6 +916,7 @@ variable "config" {
                 eicar = { 
                   enabled                     = false
                   eicar_path                  = "/tmp/eicar"
+                  eicar_win_path              = "C:\\eicar"
                 }
               }
             }
@@ -1206,6 +1210,7 @@ variable "config" {
                 eicar = { 
                   enabled                     = false
                   eicar_path                  = "/tmp/eicar"
+                  eicar_win_path              = "C:\\eicar"
                 }
               }
             }
@@ -1499,6 +1504,7 @@ variable "config" {
                 eicar = { 
                   enabled                     = false
                   eicar_path                  = "/tmp/eicar"
+                  eicar_win_path              = "C:\\eicar"
                 }
               }
             }

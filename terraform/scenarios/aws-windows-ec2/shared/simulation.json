@@ -3,6 +3,22 @@
     "global": {
       "environment"          : "${ environment }",
       "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "enabled" : true,
+      "ssm" :  {
+        "target": {
+          "drop": {
+            "malware" : {
+              "eicar": {
+                "enabled" :               true,
+                "eicar_path" :            "/tmp/eicar",
+                "eicar_win_path" :        "C:\\eicar"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

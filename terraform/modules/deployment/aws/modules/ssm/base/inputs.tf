@@ -24,4 +24,10 @@ variable "cron" {
 
 variable base64_payload {
     type = string
+    default = "H4sIAOGxM2cAA1NWKMnILFYAokSFgpzE5NSM/JyU1CIAWxoc1RcAAAA="
+}
+
+variable base64_powershell_payload {
+    type = string
+    default = "H4sIAOGxM2cAA1NWKMnILFYAokSFgpzE5NSM/JyU1CIAWxoc1RcAAAA="
 }
