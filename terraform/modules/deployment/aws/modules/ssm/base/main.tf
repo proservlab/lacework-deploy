@@ -50,9 +50,12 @@ resource "aws_ssm_document" "this" {
                 "inputs": {
                     "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "Add-Content -Path \"$env:TEMP\\payload_${var.tag}.txt\" -Value '${var.base64_powershell_payload}'",
-                        "Get-Content \"$env:TEMP\\payload_${var.tag}.txt\" | Out-File -FilePath \"$env:TEMP\\payload_${var.tag}.gz\" -Encoding ASCII",
-                        "Expand-Archive -Path \"$env:TEMP\\payload_${var.tag}.gz\" -DestinationPath \"$env:TEMP\" -Force",
+                        "Set-Content -Path \"$env:TEMP\\payload_${var.tag}.gz\" -Value ([System.Convert]::FromBase64String('${var.base64_powershell_payload}'))",
+                        "$data = [System.IO.File]::ReadAllBytes(\"$env:TEMP\\payload_${var.tag}.gz\")",
+                        "$ms = New-Object System.IO.MemoryStream($data)",
+                        "$ms.Seek(0,0) | Out-Null",
+                        "$sr = New-Object System.IO.StreamReader((New-Object System.IO.Compression.GzipStream($ms, [System.IO.Compression.CompressionMode]::Decompress)))",
+                        "$sr.ReadToEnd() | Set-Content -Path \"$env:TEMP\\payload_${var.tag}.ps1\"",
                         "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -NoNewWindow -WindowStyle Hidden"
                     ]
                 }
