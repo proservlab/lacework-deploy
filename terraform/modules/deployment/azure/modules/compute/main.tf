@@ -176,20 +176,6 @@ resource "azurerm_network_interface" "nic" {
     }
 }
 
-resource "azurerm_network_interface" "nic" {
-  for_each            = { for instance in var.instances: instance.name => instance if instance.role == "default" }
-  name                = "${each.key}-nic"
-  location            = var.region
-  resource_group_name = var.resource_group.name
-
-  ip_configuration {
-    name                          = "primary"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = each.value.public ? azurerm_public_ip.static_ip[each.key].id : null
-  }
-}
-
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg" {
     for_each                    = { for instance in var.instances: instance.name => instance if instance.role == "default" }
