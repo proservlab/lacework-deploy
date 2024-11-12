@@ -29,17 +29,26 @@ function Write-Log {
 
 # Create Lock File if Not Exists
 if (Test-Path $lockFile) {
-    Write-Log "Another instance is already running. Exiting..."
+    Write-Host "Another instance is already running. Exiting..."
     exit 1
 } else {
     New-Item -Path $lockFile -ItemType File | Out-Null
+}
+
+# Log Rotation
+for ($i = $logRotationCount - 1; $i -ge 1; $i--) {
+    if (Test-Path "$logFile.$i") {
+        Rename-Item "$logFile.$i" "$logFile.($i + 1)" -ErrorAction Ignore
+    }
+}
+if (Test-Path $logFile) {
+    Rename-Item $logFile "$logFile.1" -ErrorAction Ignore
 }
 
 # Cleanup Lock File on Exit
 function Cleanup {
     Remove-Item -Path $lockFile -ErrorAction Ignore
 }
-trap { Cleanup } EXIT
 
 # Check for Chocolatey Installation
 function Install-ChocolateyIfNeeded {
@@ -58,24 +67,6 @@ function Check-ChocolateyInUse {
     return (Get-Process | Where-Object { $_.Name -match "choco|msiexec" }) -ne $null
 }
 
-# Base64-Encoded and Gzipped Script (Simulated Delivery)
-# Example gzip and base64 encoding a script: `gzip script.ps1 | base64`
-function Deliver-ScriptToTemp {
-    param (
-        [string]$encodedGzip
-    )
-    # Decode base64, then decompress
-    [System.IO.File]::WriteAllBytes($gzipFilePath, [System.Convert]::FromBase64String($encodedGzip))
-    $decompressedScript = "$tempDir\$scriptName.ps1"
-    # Decompress gzip
-    $gzipStream = [System.IO.Compression.GzipStream]::new([System.IO.File]::OpenRead($gzipFilePath), [System.IO.Compression.CompressionMode]::Decompress)
-    $fileStream = [System.IO.File]::Create($decompressedScript)
-    $gzipStream.CopyTo($fileStream)
-    $gzipStream.Close()
-    $fileStream.Close()
-    Write-Log "Script delivered to $decompressedScript"
-}
-
 # Execute Pre-Tasks and Post-Tasks
 function Run-Tasks {
     param (
@@ -88,71 +79,62 @@ function Run-Tasks {
     }
 }
 
-Install-ChocolateyIfNeeded
+try {
+    Write-Log "Starting..."
 
-# Retry Mechanism if Chocolatey is Busy
-$retryAttempts = 5
-$attempt = 0
-while (Check-ChocolateyInUse -and $attempt -lt $retryAttempts) {
-    Write-Log "Chocolatey or an install is in use. Retrying in 30 seconds..."
-    Start-Sleep -Seconds 30
-    $attempt++
-}
+    Write-Log "Checking for chocolatey package manager..."
+    Install-ChocolateyIfNeeded
 
-if ($attempt -ge $retryAttempts) {
-    Write-Log "Installation is still in use after multiple attempts. Exiting..."
-    exit 1
-}
-
-# Log Rotation
-for ($i = $logRotationCount - 1; $i -ge 1; $i--) {
-    if (Test-Path "$logFile.$i") {
-        Rename-Item "$logFile.$i" "$logFile.($i + 1)" -ErrorAction Ignore
+    # Retry Mechanism if Chocolatey is Busy
+    $retryAttempts = 5
+    $attempt = 0
+    while (Check-ChocolateyInUse -and $attempt -lt $retryAttempts) {
+        Write-Log "Chocolatey or an install is in use. Retrying in 30 seconds..."
+        Start-Sleep -Seconds 30
+        $attempt++
     }
+
+    if ($attempt -ge $retryAttempts) {
+        Write-Log "Installation is still in use after multiple attempts. Exiting..."
+        exit 1
+    }
+
+    # Randomized Delay
+    $randWait = Get-Random -Minimum 30 -Maximum 300
+    Write-Log "Waiting $randWait seconds before starting..."
+    Start-Sleep -Seconds $randWait
+
+    # Execute Pre-tasks
+    Write-Log "Starting pre-tasks..."
+    Run-Tasks -tasks $preTasks -taskType "pre"
+
+    # Install Chocolatey Packages
+    Write-Log "Starting package installation..."
+    foreach ($package in $packages) {
+        $installCommand = "choco install $package -y"
+        Write-Log "Installing package: $package"
+        Invoke-Expression $installCommand
+    }
+    Write-Log "Package installation complete."
+
+    # Script Delay
+    Write-Log "Starting delay of $scriptDelaySecs seconds..."
+    Start-Sleep -Seconds $scriptDelaySecs
+    Write-Log "Delay complete."
+
+    # Powershell Payload execution
+    Write-Log "Starting next stage after $scriptDelaySecs seconds..."
+    Write-Log "Starting execution of next stage payload..."
+    ${config["next_stage_powershell_payload"]}
+    log "done next stage payload execution."
+
+    # Execute Post-Tasks
+    Write-Log "Starting post-tasks..."
+    Run-Tasks -tasks $postTasks -taskType "post"
+} catch {
+    Write-Log "Error: $_"
+} finally {
+    Cleanup
+    Write-Log "Done"  
 }
-if (Test-Path $logFile) {
-    Rename-Item $logFile "$logFile.1" -ErrorAction Ignore
-}
 
-# Randomized Delay
-$randWait = Get-Random -Minimum 30 -Maximum 300
-Write-Log "Waiting $randWait seconds before starting..."
-Start-Sleep -Seconds $randWait
-
-# Replace with the actual base64-encoded gzipped content of your script
-$encodedGzipScript = "<base64-gzipped-script-content-here>"
-Deliver-ScriptToTemp -encodedGzip $encodedGzipScript
-
-# Execute Pre-tasks
-Write-Log "Starting pre-tasks..."
-Run-Tasks -tasks $preTasks -taskType "pre"
-
-# Install Chocolatey Packages
-Write-Log "Starting package installation..."
-foreach ($package in $packages) {
-    $installCommand = "choco install $package -y"
-    Write-Log "Installing package: $package"
-    Invoke-Expression $installCommand
-}
-Write-Log "Package installation complete."
-
-# Script Delay
-Write-Log "Starting delay of $scriptDelaySecs seconds..."
-Start-Sleep -Seconds $scriptDelaySecs
-Write-Log "Delay complete."
-
-Write-Log "Starting next stage after $scriptDelaySecs seconds..."
-Write-Log "Starting execution of next stage payload..."
-${config["next_stage_powershell_payload"]}
-log "done next stage payload execution."
-
-# Launch Script in Background
-Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File $tempDir\$scriptName.ps1" -NoNewWindow
-Write-Log "Script launched in background."
-
-# Execute Post-Tasks
-Write-Log "Starting post-tasks..."
-Run-Tasks -tasks $postTasks -taskType "post"
-
-Cleanup
-Write-Log "Done"
