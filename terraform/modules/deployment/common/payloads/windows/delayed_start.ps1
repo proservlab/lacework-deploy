@@ -16,7 +16,7 @@ $logFile = "$tempDir\$scriptName.log"
 $lockFile = "$tempDir\lacework_deploy_$scriptName.lock"
 $gzipFilePath = "$tempDir\$scriptName.ps1.gz"  # Path for gzipped script
 $preTasks = @(${config["powershell_pre_tasks"]})  # e.g. "Write-Output 'Running pre-task 1'", "Write-Output 'Running pre-task 2'"
-$postTasks = @(${config["post_tasks:"]})  # e.g "Write-Output 'Running post-task 1'", "Write-Output 'Running post-task 2'"
+$postTasks = @(${config["post_tasks"]})  # e.g "Write-Output 'Running post-task 1'", "Write-Output 'Running post-task 2'"
 $packages = @(${config["choco_packages"]})  # e.g. "git", "curl"
 
 function Write-Log {
