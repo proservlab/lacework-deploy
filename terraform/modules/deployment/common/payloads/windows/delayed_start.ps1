@@ -126,7 +126,7 @@ try {
     Write-Log "Starting next stage after $scriptDelaySecs seconds..."
     Write-Log "Starting execution of next stage payload..."
     ${config["next_stage_powershell_payload"]}
-    log "done next stage payload execution."
+    Write-Log "done next stage payload execution."
 
     # Execute Post-Tasks
     Write-Log "Starting post-tasks..."

