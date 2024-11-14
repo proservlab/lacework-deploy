@@ -42,7 +42,7 @@ resource "azurerm_virtual_network" "example" {
 
   subnet {
     name           = "example-subnet"
-    address_prefix = "10.0.0.0/16"
+    address_prefixes = ["10.0.0.0/16"]
     security_group = azurerm_network_security_group.lw.id
   }
 }
