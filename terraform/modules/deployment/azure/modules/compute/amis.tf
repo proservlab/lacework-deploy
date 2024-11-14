@@ -36,8 +36,16 @@ data "azurerm_platform_image" "windowsserver_2022" {
 
 data "azurerm_platform_image" "rocky_linux_8" {
     location  = var.region
-    publisher = "erockyenterprisesoftwarefoundationinc1653071250513"
-    offer     = "rockylinux"
-    sku       = "free"
-    version   = "8.7.20230215"
+    publisher = "resf"
+    offer     = "rockylinux-x86_64"
+    sku       = "8-lvm"
+    version   = "8.9.20231119"
+}
+
+data "azurerm_platform_image" "rocky_linux_9" {
+    location  = var.region
+    publisher = "resf"
+    offer     = "rockylinux-x86_64"
+    sku       = "9-lvm"
+    version   = "9.3.20231113"
 }
