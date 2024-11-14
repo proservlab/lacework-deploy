@@ -162,7 +162,7 @@ resource "azuread_group" "vault-admin-group" {
 }
 
 resource "azuread_group_member" "vault-admin-members" {
-  group_object_id = azuread_group.vault-admin-group.id
+  group_object_id = azuread_group.vault-admin-group.object_id
   member_object_id = data.azurerm_client_config.current.object_id
 }
 
