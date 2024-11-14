@@ -448,7 +448,7 @@ resource "azurerm_virtual_network" "agentless_orchestrate" {
 
   subnet {
     name           = length(var.custom_network) > 0 ? "" : lower(replace("${local.prefix}-subnet-${local.suffix}-${local.region}", " ", ""))
-    address_prefix = "10.0.0.0/16"
+    address_prefixes = "10.0.0.0/16"
     security_group = azurerm_network_security_group.agentless_orchestrate[0].id
   }
 }
