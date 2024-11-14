@@ -38,7 +38,7 @@ if (Test-Path $lockFile) {
 # Log Rotation
 for ($i = $logRotationCount - 1; $i -ge 1; $i--) {
     if (Test-Path "$logFile.$i") {
-        Rename-Item "$logFile.$i" "$logFile.($i + 1)" -ErrorAction Ignore
+        Rename-Item "$logFile.$i" "$logFile.$($i + 1)" -ErrorAction Ignore
     }
 }
 if (Test-Path $logFile) {
@@ -70,7 +70,7 @@ function Install-ChocolateyIfNeeded {
     if ($env:Path -notlike "*$chocoExePath*") {
         $env:Path = [Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine);
     }
-    
+
     if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
         Write-Log "Chocolatey not found. Installing..."
         Set-ExecutionPolicy Bypass -Scope Process -Force
