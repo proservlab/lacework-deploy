@@ -24,7 +24,7 @@ function Write-Log {
         [string]$message
     )
     $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-    "$timestamp $message" | Out-File -Append -FilePath $logFile
+    Write-Output "$timestamp $message" | Tee-Object -Append -FilePath $logFile
 }
 
 # Create Lock File if Not Exists
