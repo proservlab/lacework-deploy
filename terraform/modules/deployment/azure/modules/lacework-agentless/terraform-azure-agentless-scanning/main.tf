@@ -219,7 +219,7 @@ resource "azuread_service_principal" "data_loader" {
 resource "azuread_service_principal_password" "data_loader" {
   count = var.global ? 1 : 0
 
-  service_principal_id = azuread_service_principal.data_loader[0].object_id
+  service_principal_id = azuread_service_principal.data_loader[0].id
   end_date_relative    = "87600h" // expires in 10 years
 }
 
