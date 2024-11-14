@@ -354,7 +354,7 @@ resource "azurerm_storage_account" "scanning" {
   infrastructure_encryption_enabled = var.enable_storage_infrastructure_encryption
   allow_nested_items_to_be_public   = false
   min_tls_version                   = "TLS1_2"
-  enable_https_traffic_only         = true
+  https_traffic_only_enabled         = true
 
   tags = var.tags
 }
