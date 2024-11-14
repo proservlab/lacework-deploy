@@ -9,7 +9,7 @@ resource "azuread_group" "compute-admin-group" {
 
 # add current user to the compute admin group
 resource "azuread_group_member" "compute-admin-members" {
-  group_object_id = azuread_group.compute-admin-group.id
+  group_object_id = azuread_group.compute-admin-group.object_id
   member_object_id = data.azurerm_client_config.current.object_id
 }
 
