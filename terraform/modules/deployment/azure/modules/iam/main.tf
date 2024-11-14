@@ -28,7 +28,7 @@ resource "azurerm_role_assignment" "this" {
   for_each             = local.user_roles
   scope                = data.azurerm_subscription.current.id
   role_definition_name = each.value.role
-  principal_id         = azuread_service_principal.this[each.value.name].id
+  principal_id         = azuread_service_principal.this[each.value.name].object_id
 }
 
 resource "time_rotating" "this" {
