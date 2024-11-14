@@ -52,6 +52,25 @@ function Cleanup {
 
 # Check for Chocolatey Installation
 function Install-ChocolateyIfNeeded {
+    Write-Host 'Ensuring Chocolatey commands are on the path'
+    $chocoInstallVariableName = "ChocolateyInstall"
+    $chocoPath = [Environment]::GetEnvironmentVariable($chocoInstallVariableName)
+
+    if (-not $chocoPath) {
+        $chocoPath = "$env:ALLUSERSPROFILE\Chocolatey"
+    }
+
+    if (-not (Test-Path ($chocoPath))) {
+        $chocoPath = "$env:PROGRAMDATA\chocolatey"
+    }
+
+    $chocoExePath = Join-Path $chocoPath -ChildPath 'bin'
+
+    # Update current process PATH environment variable if it needs updating.
+    if ($env:Path -notlike "*$chocoExePath*") {
+        $env:Path = [Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine);
+    }
+    
     if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
         Write-Log "Chocolatey not found. Installing..."
         Set-ExecutionPolicy Bypass -Scope Process -Force
