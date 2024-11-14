@@ -49,7 +49,7 @@ resource "azurerm_public_ip" "private-app-nat-gw" {
     name                  = "private-app-ip-${var.environment}-${var.deployment}"
     location              = var.region
     resource_group_name   = var.resource_app_group.name
-    allocation_method   = "Dynamic"
+    allocation_method   = "Static"
     sku                 = "Basic" # Adjust this if you require a different SKU
 
     tags = {
@@ -71,7 +71,7 @@ resource "azurerm_virtual_network_gateway" "private-app-nat-gw" {
 
     ip_configuration {
         public_ip_address_id          = azurerm_public_ip.private-app-nat-gw.id
-        private_ip_address_allocation = "Dynamic"
+        private_ip_address_allocation = "Static"
         subnet_id                     = azurerm_subnet.subnet-app-private.id
     }
 
