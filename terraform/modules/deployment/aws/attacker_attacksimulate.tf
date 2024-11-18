@@ -423,7 +423,9 @@ module "attacker-ssm-responder-reverse-shell-multistage" {
 
   listen_ip     = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_ip
   listen_port   = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.listen_port
+  windows_listen_port   = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.windows_listen_port
   payload       = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.payload
+  windows_payload = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.windows_payload
 
   iam2rds_role_name = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_role_name
   iam2rds_session_name = local.attacker_attacksimulate_config.context.aws.ssm.attacker.responder.reverse_shell_multistage.iam2rds_session_name

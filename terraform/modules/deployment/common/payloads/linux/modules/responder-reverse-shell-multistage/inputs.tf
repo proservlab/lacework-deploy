@@ -9,12 +9,13 @@ variable "inputs" {
                 region = string
                 listen_ip = string
                 listen_port = string
+                windows_listen_port = string
                 payload = string
+                windows_payload = string
                 attack_delay = string
                 iam2rds_role_name = string
                 iam2rds_session_name = string
                 reverse_shell_host = string
-                reverse_shell_port = string
         })
         description = "inherit variables from the parent"
 }

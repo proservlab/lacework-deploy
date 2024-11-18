@@ -7,10 +7,10 @@
     "aws" :  {
       "ec2" :  {
         "add_trusted_ingress" :  {
-          "enabled"                     :  false,
-          "trust_workstation_source"    :  false,
-          "trust_attacker_source"       :  false,
-          "trust_target_source"         :  false,
+          "enabled"                     :  true,
+          "trust_workstation_source"    :  true,
+          "trust_attacker_source"       :  true,
+          "trust_target_source"         :  true,
           "additional_trusted_sources"  :  [],
           "trusted_tcp_ports"           :  {
             "from_port" :  0,

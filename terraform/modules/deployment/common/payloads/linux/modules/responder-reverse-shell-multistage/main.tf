@@ -11,6 +11,9 @@ locals {
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
         "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh",
         "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh"
+        # add windows support
+        "echo ${base64gzip(local.responder_windows)} | base64 -d | gunzip > plugins/responder_windows.py",
+        "echo ${base64gzip(local.windows_default_payload)} | base64 -d | gunzip > resources/windows_default_payload.ps1"
     ] : startswith(local.scenario, "gcp") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
@@ -77,7 +80,7 @@ locals {
             log "starting background process via screen..."
             screen -S $PWNCAT_SESSION -X quit
             screen -wipe
-            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 listener.py --port=\"${var.inputs["reverse_shell_port"]}\" --host=\"${var.inputs["reverse_shell_host"]}\" --payload=\"${var.inputs["payload"]}\""
+            screen -d -L -Logfile $PWNCAT_LOG -S $PWNCAT_SESSION -m /bin/bash -c "cd ${local.attack_dir} && python3.9 listener.py --port=\"${var.inputs["listen_port"]}\" --windows-port=\"${var.inputs["windows_listen_port"]}\" --host=\"${var.inputs["reverse_shell_host"]}\" --payload=\"${var.inputs["payload"]}\" --windows-payload=\"${var.inputs["windows_payload"]}\""
             screen -S $PWNCAT_SESSION -X colon "logfile flush 0^M"
             log "Checking for listener..."
             TIMEOUT=1800
@@ -127,6 +130,7 @@ locals {
 
     listener        = file("${path.module}/resources/listener.py")
     responder       = file("${path.module}/resources/responder.py")
+    
     instance2rds    = templatefile(
                                 "${path.module}/resources/instance2rds.sh", 
                                 {
@@ -151,6 +155,10 @@ locals {
     scan2kubeshell = file("${path.module}/resources/scan2kubeshell.sh")
     kube2s3 = file("${path.module}/resources/kube2s3.sh")
     exfiltrate = file("${path.module}/resources/exfiltrate.sh")
+
+    # add windows support
+    responder_windows = file("${path.module}/resources/responder_windows.py")
+    windows_default_payload = file("${path.module}/resources/windows_default_payload.ps1")
 
     # these payloads are used by shellcheck to validate syntax
     additional_output_payloads = startswith(local.scenario, "aws") ? [

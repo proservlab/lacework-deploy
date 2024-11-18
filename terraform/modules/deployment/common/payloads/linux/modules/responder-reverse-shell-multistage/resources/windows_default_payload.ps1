@@ -1,0 +1,1 @@
+if (Test-Path "C:\Windows\Temp\pwned.txt") { (Get-Item "C:\Windows\Temp\pwned.txt").LastWriteTime = Get-Date } else { New-Item -ItemType File -Path "C:\Windows\Temp\pwned.txt" }
