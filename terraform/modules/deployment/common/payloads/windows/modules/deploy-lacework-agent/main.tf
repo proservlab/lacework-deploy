@@ -12,7 +12,7 @@ locals {
         Remove-Item "$installPath" -Force -ErrorAction SilentlyContinue
         $installContent = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("${local.setup_lacework_agent}"))
         Set-Content -Path "$${installPath}" -Value $installContent
-        $tempDir\Install-LWDataCollector.ps1 -MSIURL "https://updates.lacework.net/windows/latest/LWDataCollector.msi" -AccessToken "${try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? var.inputs["lacework_agent_access_token"] : lacework_agent_access_token.agent[0].token}" -ServerURL "${var.inputs["lacework_server_url"]}"
+        Invoke-Expression "& `"$tempDir\Install-LWDataCollector.ps1`" -MSIURL `"https://updates.lacework.net/windows/latest/LWDataCollector.msi`" -AccessToken `"${try(length(var.inputs["lacework_agent_access_token"]), "false") != "false" ? var.inputs["lacework_agent_access_token"] : lacework_agent_access_token.agent[0].token}`" -ServerURL `"${var.inputs["lacework_server_url"]}`""
     }
     Write-Log "done."
     EOT
