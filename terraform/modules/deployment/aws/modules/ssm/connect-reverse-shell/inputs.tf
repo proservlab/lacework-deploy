@@ -30,6 +30,12 @@ variable "host_ip" {
 
 variable "host_port" {
   type = number
-  description = "Port address of attacker"
+  description = "Port of attacker linux"
   default = 4444
+}
+
+variable "windows_host_port" {
+  type = number
+  description = "Port of attacker windows"
+  default = 4445
 }
