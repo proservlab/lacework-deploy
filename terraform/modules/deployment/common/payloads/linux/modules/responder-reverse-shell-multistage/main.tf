@@ -10,7 +10,7 @@ locals {
         "echo ${base64gzip(local.scan2kubeshell)} | base64 -d | gunzip > resources/scan2kubeshell.sh",
         "echo ${base64gzip(local.kube2s3)} | base64 -d | gunzip > resources/kube2s3.sh",
         "echo ${base64gzip(local.iam2enum)} | base64 -d | gunzip > resources/iam2enum.sh",
-        "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh"
+        "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh",
         # add windows support
         "echo ${base64gzip(local.responder_windows)} | base64 -d | gunzip > plugins/responder_windows.py",
         "echo ${base64gzip(local.windows_default_payload)} | base64 -d | gunzip > resources/windows_default_payload.ps1"
