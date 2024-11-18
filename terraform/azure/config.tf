@@ -179,10 +179,18 @@ locals {
       azure = {
         compute = {
           add_trusted_ingress = {
-            enabled = try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["azure"]["compute"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = (
+              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
+              &&
+              try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0
+            ) ? try(local.attacker_attacksurface_temp_config["context"]["azure"]["compute"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["azure"]["compute"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = (
+              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
+              &&
+              try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0
+            ) ? try(local.attacker_attacksurface_temp_config["context"]["azure"]["compute"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
@@ -193,10 +201,18 @@ locals {
       azure = {
         compute = {
           add_trusted_ingress = {
-            enabled = try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0 ? try(local.target_attacksurface_temp_config["context"]["azure"]["compute"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = (
+              (try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
+              &&
+              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
+            ) ? try(local.target_attacksurface_temp_config["context"]["azure"]["compute"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0 ? try(local.target_attacksurface_temp_config["context"]["azure"]["compute"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = (
+              (try(length([for x in local.target_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
+              &&
+              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["azure"]["compute"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
+            ) ? try(local.target_attacksurface_temp_config["context"]["azure"]["compute"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
