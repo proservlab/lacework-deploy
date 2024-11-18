@@ -183,18 +183,10 @@ locals {
       gcp = {
         gce = {
           add_trusted_ingress = {
-            enabled = (
-              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
-              &&
-              (try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
-            ) ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = (
-              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
-              &&
-              (try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
-            ) ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0 ? try(local.attacker_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
@@ -205,18 +197,10 @@ locals {
       gcp = {
         gce = {
           add_trusted_ingress = {
-            enabled = (
-              (try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
-              &&
-              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0)
-            ) ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
+            enabled = try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "default"]),0) > 0 ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_trusted_ingress"]["enabled"], false) : false
           }
           add_app_trusted_ingress = {
-            enabled = (
-              (try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
-              &&
-              (try(length([for x in local.attacker_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0)
-            ) ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
+            enabled = try(length([for x in local.target_infrastructure_temp_config["context"]["gcp"]["gce"]["instances"] : x if x["public"] == true && x["role"] == "app"]),0) > 0 ? try(local.target_attacksurface_temp_config["context"]["gcp"]["gce"]["add_app_trusted_ingress"]["enabled"], false) : false
           }
         }
       }
