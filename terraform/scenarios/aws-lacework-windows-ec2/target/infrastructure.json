@@ -32,8 +32,7 @@
               "ssm_deploy_malware_eicar": "true"
             },
             "user_data"        : null,
-            "user_data_base64" : null,
-            "enable_swap"      : true
+            "user_data_base64" : null
           }
         ]
       },
