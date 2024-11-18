@@ -50,10 +50,10 @@ resource "aws_ssm_document" "this" {
                 "inputs": {
                     "timeoutSeconds": "${var.timeout}",
                     "runCommand": [
-                        "$outputPath = \"$env:TEMP\\payload_ssm_deploy_malware_eicar.gz\"",
+                        "$outputPath = \"$env:TEMP\\payload_${var.tag}.gz\"",
                         "$bytes = [System.Convert]::FromBase64String('${var.base64_powershell_payload}')",
                         "[System.IO.File]::WriteAllBytes($outputPath, $bytes)",
-                        "$outputDecompressedPath = \"$env:TEMP\\payload_ssm_deploy_malware_eicar.ps1\"",
+                        "$outputDecompressedPath = \"$env:TEMP\\payload_${var.tag}.ps1\"",
                         "Add-Type -AssemblyName System.IO.Compression.FileSystem",
                         "$gzipFile = $null",
                         "$gzipStream = $null",
