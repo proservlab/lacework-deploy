@@ -122,14 +122,11 @@ locals {
     base64_payload = templatefile("${path.module}/../../delayed_start.ps1", { config = {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
-        apt_pre_tasks = ""
-        apt_packages = ""
-        apt_post_tasks = ""
-        yum_pre_tasks =  ""
-        yum_packages = ""
-        yum_post_tasks = ""
+        powershell_pre_tasks = ""
+        choco_packages = ""
+        powershell_post_tasks = ""
         script_delay_secs = 30
-        next_stage_payload = local.payload
+        next_stage_powershell_payload = local.payload
     }})
 
     outputs = {
