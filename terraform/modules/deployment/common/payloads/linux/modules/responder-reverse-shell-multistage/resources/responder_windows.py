@@ -33,11 +33,11 @@ class Module(BaseModule):
     def run(self, session: Session, reverse_shell_host: str, reverse_shell_port: str, default_payload: str):
         session.log("starting module")
 
-        session_lock = Path("/tmp/pwncat_session.lock")
+        session_lock = Path("/tmp/pwncat_windows_session.lock")
         task_name = "default"
 
         try:
-            session.log("creating session lock: /tmp/pwncat_session.lock")
+            session.log(f"creating session lock: {session_lock}")
             session_lock.touch()
 
             def run_remote(session, payload, cwd='C:\Windows\Temp', timeout=7200, retries=3, retry_delay=5):
@@ -76,10 +76,11 @@ class Module(BaseModule):
 
             script_dir = os.path.dirname(os.path.realpath(__file__))
             session.log(f"script dir: {script_dir}")
-            task_name = session.platform.getenv("TASK")
-            if task_name is None:
-                task_name = "default_payload"
-            session.log(f"task environment: {task_name}")
+            # task_name = session.platform.getenv("TASK")
+            # if task_name is None:
+            #     task_name = "default_payload"
+            # session.log(f"task environment: {task_name}")
+            task_name = "default_payload"
 
             # create work directory
             session.log(f"creating task directory: /{task_name}")
