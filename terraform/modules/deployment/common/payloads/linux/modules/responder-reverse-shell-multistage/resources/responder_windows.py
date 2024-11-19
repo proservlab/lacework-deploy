@@ -3,7 +3,7 @@ from email.policy import default
 import os
 from pwncat.modules import BaseModule, Argument
 from pwncat.manager import Session
-from pwncat.platform.linux import Linux
+from pwncat.platform.windows import Windows, PowershellError
 from pathlib import Path
 import time
 import subprocess
@@ -40,13 +40,13 @@ class Module(BaseModule):
             session.log("creating session lock: /tmp/pwncat_session.lock")
             session_lock.touch()
 
-            def run_remote(session, payload, cwd="/tmp", timeout=7200, retries=3, retry_delay=5):
+            def run_remote(session, payload, cwd='C:\Windows\Temp', timeout=7200, retries=3, retry_delay=5):
                 attempt = 0
                 while attempt < retries:
                     try:
                         session.log(
                             f"Running payload: {payload}, attempt {attempt + 1}")
-                        result = session.platform.run(
+                        result = session.platform.powershell(
                             payload, cwd=cwd, timeout=timeout)
                         if result.returncode == 0:
                             session.log("Payload executed successfully.")
