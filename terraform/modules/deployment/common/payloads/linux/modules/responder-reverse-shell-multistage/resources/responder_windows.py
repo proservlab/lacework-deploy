@@ -5,6 +5,7 @@ from pwncat.modules import BaseModule, Argument
 from pwncat.manager import Session
 from pwncat.platform.windows import Windows, PowershellError
 from pathlib import Path
+import json
 import time
 import subprocess
 import shutil
@@ -92,16 +93,16 @@ class Module(BaseModule):
             session.log("touch file: C:\Windows\Temp\pwned.txt")
             session.platform.touch("C:\Windows\Temp\pwned.txt")
             result = session.platform.listdir("C:\Windows\Temp")
-            session.log(f"list directory: {"\n".join(result)}")
+            session.log(f"list directory: {json.dumps(result, indent=4)}")
             result = session.platform.whoami()
-            session.log(f"whoami: {result}")
+            session.log(f"whoami: {json.dumps(result, indent=4)}")
 
             session.log(f"running default payload...")
             windows_default_payload = Path(
                 f"{script_dir}/../resources/windows_default_payload.ps1")
             payload = windows_default_payload.read_text()
             result = run_remote(session, payload)
-            session.log(result)
+            session.log(json.dumps(result, indent=4))
 
             session.log("Removing sesssion lock...")
             if session_lock.exists():
