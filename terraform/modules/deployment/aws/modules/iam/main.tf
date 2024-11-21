@@ -3,7 +3,7 @@ data "aws_availability_zones" "available" {}
 
 # create roles
 resource "aws_iam_role" "roles" {
-  for_each = var.user_policies
+  for_each = var.user_roles
   name     = each.key 
   
   assume_role_policy = jsonencode(each.value.assume_role_policy)
