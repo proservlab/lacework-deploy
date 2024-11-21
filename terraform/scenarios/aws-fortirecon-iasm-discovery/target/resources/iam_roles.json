@@ -1,0 +1,61 @@
+{
+    "fortirecon-iasm-role-${deployment}" : {
+        "policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "FortiReconRead",
+                    "Effect": "Allow",
+                    "Action": [
+                        "elasticfilesystem:DescribeBackupPolicy",
+                        "elasticfilesystem:DescribeReplicationConfigurations",
+                        "route53:TestDNSAnswer",
+                        "s3:Get*",
+                        "elasticfilesystem:DescribeAccountPreferences",
+                        "s3:List*",
+                        "rds:Describe*",
+                        "resource-groups:GetGroup",
+                        "route53:Get*",
+                        "route53:List*",
+                        "elasticloadbalancing:Describe*",
+                        "apigateway:GET",
+                        "es:Describe*",
+                        "resource-groups:ListGroupResources",
+                        "resource-groups:GetGroupQuery",
+                        "elasticfilesystem:ListTagsForResource",
+                        "elasticfilesystem:DescribeLifecycleConfiguration",
+                        "elasticfilesystem:DescribeFileSystemPolicy",
+                        "elasticfilesystem:DescribeFileSystems",
+                        "elasticfilesystem:DescribeMountTargets",
+                        "es:Get*",
+                        "ec2:Describe*",
+                        "elasticfilesystem:DescribeAccessPoints",
+                        "resource-groups:ListGroups",
+                        "elasticache:Describe*",
+                        "elasticfilesystem:DescribeTags",
+                        "es:List*",
+                        "elasticfilesystem:DescribeMountTargetSecurityGroups",
+                        "cloudfront:List*",
+                        "cloudfront:GetDistributionConfig",
+                        "ecs:Describe*",
+                        "ecs:List*",
+                        "kinesis:List*",
+                        "kinesis:Describe*",
+                        "redshift:Describe*"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "assume_role_policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "sts:AssumeRole",
+                    "Resource": "arn:aws:iam::565521166478:root"
+                }
+            ]
+        }
+    }
+}

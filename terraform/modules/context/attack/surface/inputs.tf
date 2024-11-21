@@ -171,8 +171,9 @@ variable "config" {
       aws = object({
         iam = object({
           enabled                       = bool
-          user_policies_path = string
-          users_path = string
+          user_roles_path               = string
+          user_policies_path            = string
+          users_path                    = string
         })
         ec2 = object({
           add_trusted_ingress = object({
@@ -695,6 +696,7 @@ variable "config" {
       aws = {
         iam = {
           enabled                       = false
+          user_roles_path               = null
           user_policies_path            = null
           users_path                    = null
         }

@@ -1,6 +1,24 @@
 data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {}
 
+# create roles
+resource "aws_iam_role" "roles" {
+  for_each = var.user_policies
+  name     = each.key 
+  
+  assume_role_policy = jsonencode(each.value.assume_role_policy)
+  
+  inline_policy {
+    name   = "${each.key}-policy"
+    policy = jsonencode(each.value.policy)
+  }
+
+  tags = {
+    environment = var.environment
+    deployment = var.deployment
+  }
+}
+
 # create users
 resource "aws_iam_user" "users" {
   for_each = { for i in var.users : i.name => i }
@@ -11,6 +29,8 @@ resource "aws_iam_user" "users" {
     environment = var.environment
     deployment = var.deployment
   }
+
+  
 }
 
 resource "aws_iam_policy" "policy" {
@@ -47,6 +67,13 @@ resource "aws_iam_policy" "assume_role_policy" {
       },
     ]
   })
+
+  # ensure we have created any custom roles defined in the scenario
+  # in some cases these roles are created when resources like rds are created
+  # but iam general already depends on those resources being created
+  depends_on = [
+    aws_iam_role.roles
+  ]
 }
 
 resource "aws_iam_user_policy_attachment" "attach-iam-policy" {

@@ -1,0 +1,14 @@
+{
+  "context" :  {
+    "global": {
+      "environment"          : "target",
+      "deployment"           : "${ deployment }"
+    },
+    "aws" :  {
+      "iam" :  {
+        "enabled" :  true,
+        "user_roles" :  "${ iam_roles_path }"
+      }
+    }
+  }
+}

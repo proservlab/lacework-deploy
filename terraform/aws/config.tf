@@ -190,8 +190,9 @@ locals {
       target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
-      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
-      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
+      iam_roles_path             = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/iam_roles.json")
+      iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/iam_user_policies.json")
+      iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/attacker/resources/iam_users.json")
     }
   )
   target-attacksurface-config-file = templatefile(
@@ -207,6 +208,7 @@ locals {
       target_dynu_dns_domain   = var.target_dynu_dns_domain
 
       # iam
+      iam_roles_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_roles.json")
       iam_power_user_policy_path = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_user_policies.json")
       iam_users_path             = abspath("${var.scenarios_path}/${var.scenario}/target/resources/iam_users.json")
     }
