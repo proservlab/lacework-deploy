@@ -15,13 +15,13 @@ variable "region" {
 variable "user_policies" {
     type = map(any)
     description = "list of iam policies to create"
-    default = []
+    default = {}
 }
 
 variable "user_roles" {
     type = map(any)
     description = "list of iam roles to create"
-    default = []
+    default = {}
 }
 
 variable "users" {
