@@ -1,6 +1,1 @@
-[
-    {
-      "name"   :  "fortisoar-user-${deployment}",
-      "policy" :  "fortisoar-remediation-policy-${deployment}"
-    }
-]
+[]
