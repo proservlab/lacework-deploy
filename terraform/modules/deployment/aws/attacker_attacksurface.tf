@@ -56,9 +56,9 @@ module "attacker-iam" {
   deployment        = local.attacker_attacksurface_config.context.global.deployment
   region            = local.attacker_infrastructure_config.context.aws.region
 
-  user_roles        = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_roles_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
-  user_policies     = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_policies_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
-  users             = jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.users_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment }))
+  user_roles        = try(jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_roles_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment })), {})
+  user_policies     = try(jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.user_policies_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment })), {})
+  users             = try(jsondecode(templatefile(local.attacker_attacksurface_config.context.aws.iam.users_path, { environment = local.attacker_attacksurface_config.context.global.environment, deployment = local.attacker_attacksurface_config.context.global.deployment })), [])
 
   providers = {
     aws = aws.attacker
