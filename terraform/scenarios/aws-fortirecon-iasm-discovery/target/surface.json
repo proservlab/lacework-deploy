@@ -7,7 +7,7 @@
     "aws" :  {
       "iam" :  {
         "enabled" :  true,
-        "user_roles" :  "${ iam_roles_path }"
+        "user_roles_path" :  "${ iam_roles_path }"
       }
     }
   }
