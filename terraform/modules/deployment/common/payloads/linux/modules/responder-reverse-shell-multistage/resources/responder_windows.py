@@ -41,14 +41,13 @@ class Module(BaseModule):
             session.log(f"creating session lock: {session_lock}")
             session_lock.touch()
 
-            def run_remote(session, payload, cwd='C:\Windows\Temp', timeout=7200, retries=3, retry_delay=5):
+            def run_remote(session, payload, retries=3, retry_delay=5):
                 attempt = 0
                 while attempt < retries:
                     try:
                         session.log(
                             f"Running payload: {payload}, attempt {attempt + 1}")
-                        result = session.platform.powershell(
-                            payload, cwd=cwd, timeout=timeout)
+                        result = session.platform.powershell(payload)
                         if result.returncode == 0:
                             session.log("Payload executed successfully.")
                             return result
@@ -56,11 +55,6 @@ class Module(BaseModule):
                             session.log(
                                 f"Payload execution failed with return code: {result.returncode}")
                             session.log(f"Error output: {result.stderr}")
-                    except subprocess.TimeoutExpired:
-                        session.log(
-                            f"Timeout expired after {timeout} seconds for payload: {payload}")
-                    except subprocess.CalledProcessError as e:
-                        session.log(f"Subprocess error: {e}")
                     except Exception as e:
                         session.log(f"An unexpected error occurred: {e}")
                     attempt += 1
