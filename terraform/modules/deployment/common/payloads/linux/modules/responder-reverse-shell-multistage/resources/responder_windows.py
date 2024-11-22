@@ -47,14 +47,7 @@ class Module(BaseModule):
                     try:
                         session.log(
                             f"Running payload: {payload}, attempt {attempt + 1}")
-                        result = session.platform.powershell(payload)
-                        if result.returncode == 0:
-                            session.log("Payload executed successfully.")
-                            return result
-                        else:
-                            session.log(
-                                f"Payload execution failed with return code: {result.returncode}")
-                            session.log(f"Error output: {result.stderr}")
+                        return session.platform.powershell(payload)
                     except Exception as e:
                         session.log(f"An unexpected error occurred: {e}")
                     attempt += 1
