@@ -99,6 +99,10 @@ function Setup-CMD {
     $ProcessStartInfo.RedirectStandardInput = $True
     $ProcessStartInfo.RedirectStandardOutput = $True
     $ProcessStartInfo.RedirectStandardError = $True
+
+    # set task
+    $ProcessStartInfo.EnvironmentVariables["TASK"] = "touch_file"
+
     $FuncVars["Process"] = [System.Diagnostics.Process]::Start($ProcessStartInfo)
     $FuncVars["StdOutDestinationBuffer"] = New-Object System.Byte[] 65536
     $FuncVars["StdOutReadOperation"] = $FuncVars["Process"].StandardOutput.BaseStream.BeginRead($FuncVars["StdOutDestinationBuffer"], 0, 65536, $null, $null)
