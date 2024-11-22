@@ -13,7 +13,7 @@ locals {
         "echo ${base64gzip(local.exfiltrate)} | base64 -d | gunzip > resources/exfiltrate.sh",
         # add windows support
         "echo ${base64gzip(local.responder_windows)} | base64 -d | gunzip > plugins/responder_windows.py",
-        "echo ${base64gzip(local.windows_default_payload)} | base64 -d | gunzip > resources/windows_default_payload.ps1"
+        "echo ${base64gzip(local.windows_default_payload)} | base64 -d | gunzip > resources/touch_file.ps1"
     ] : startswith(local.scenario, "gcp") ? [
         "echo ${base64gzip(local.listener)} | base64 -d | gunzip > listener.py",
         "echo ${base64gzip(local.responder)} | base64 -d | gunzip > plugins/responder.py",
@@ -158,7 +158,7 @@ locals {
 
     # add windows support
     responder_windows = file("${path.module}/resources/responder_windows.py")
-    windows_default_payload = file("${path.module}/resources/windows_default_payload.ps1")
+    windows_default_payload = file("${path.module}/resources/touch_file.ps1")
 
     # these payloads are used by shellcheck to validate syntax
     additional_output_payloads = startswith(local.scenario, "aws") ? [
