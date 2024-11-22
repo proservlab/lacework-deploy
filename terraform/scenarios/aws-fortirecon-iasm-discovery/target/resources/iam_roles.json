@@ -54,7 +54,7 @@
                     "Effect": "Allow",
                     "Action": "sts:AssumeRole",
                     "Principal": { "AWS": "565521166478" },
-                    "Condition": {"StringEquals": {"sts:ExternalId": "673f8541532189881eb57d7b"}}
+                    "Condition": {"StringEquals": {"sts:ExternalId": "2521e0a0-4466-49c6-9b56-4bc294c1f265"}}
                 }
             ]
         }
