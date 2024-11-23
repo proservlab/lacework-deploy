@@ -50,7 +50,7 @@ class Module(BaseModule):
                 while attempt < retries:
                     try:
                         session.log(
-                            f"Running payload: {payload}, attempt {attempt + 1}")
+                            f'Running payload: {payload}, attempt {attempt + 1}')
                         return session.platform.powershell(payload)
                     except Exception as e:
                         session.log(f"An unexpected error occurred: {e}")
