@@ -589,13 +589,13 @@ variable "config" {
               log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
-                trusted_addresses         = null
+                trusted_addresses         = []
               }
             },
             log4j_app = {
               enabled                   = false
               listen_port               = 8080
-              trusted_addresses         = null
+              trusted_addresses         = []
             }
             npm_app = {
               enabled                   = false
@@ -665,13 +665,13 @@ variable "config" {
               log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
-                trusted_addresses         = null
+                trusted_addresses         = []
               }
             },
             log4j_app = {
               enabled                   = false
               listen_port               = 8080
-              trusted_addresses         = null
+              trusted_addresses         = []
             }
             npm_app = {
               enabled                   = false
@@ -757,13 +757,13 @@ variable "config" {
               log4j_app = {
                 enabled                   = false
                 listen_port               = 8000
-                trusted_addresses         = null
+                trusted_addresses         = []
               }
             },
             log4j_app = {
               enabled                   = false
               listen_port               = 8080
-              trusted_addresses         = null
+              trusted_addresses         = []
             }
             npm_app = {
               enabled                   = false
