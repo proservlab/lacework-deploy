@@ -13,7 +13,7 @@ server {
     location / {
         # Check if the IP is trusted
         if ($trusted_ip = 1) {
-            proxy_pass http://127.0.0.1:${listen_port}; # Backend vulnerable app
+            proxy_pass http://127.0.0.1:${loopback_port}; # Backend vulnerable app
             break;
         }
 

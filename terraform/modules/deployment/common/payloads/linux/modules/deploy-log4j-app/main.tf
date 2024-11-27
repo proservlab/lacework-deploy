@@ -1,6 +1,7 @@
 locals {
     app_dir = "/vuln-log4j-app"
     listen_port=var.inputs["listen_port"]
+    loopback_port = tonumber(var.inputs["listen_port"]) + 1
     payload = <<-EOT
     screen -S vuln_log4j_app_target -X quit
     screen -wipe
@@ -86,14 +87,21 @@ locals {
         fi
         screen -S vuln_log4j_app_target -X quit
         screen -wipe
-        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=${var.inputs["listen_port"]}
+        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=${local.loopback_port}
         screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
         sleep 30
-        log "check app url..."
-        while ! curl -sv http://localhost:${var.inputs["listen_port"]} | tee -a $LOGFILE; do
-            log "failed to connect to app url http://localhost:${var.inputs["listen_port"]} - retrying"
+        log "check nginx url: http://localhost:${local.listen_port}"
+        while ! curl -sv http://localhost:${local.listen_port} | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${local.listen_port} - retrying"
             sleep 60
         done
+
+        log "check java url: http://localhost:${local.loopback_port}"
+        while ! curl -sv http://localhost:${local.loopback_port} | tee -a $LOGFILE; do
+            log "failed to connect to app url http://localhost:${local.loopback_port} - retrying"
+            sleep 60
+        done
+
         log 'waiting 30 minutes...';
         sleep 1800
         if ! check_payload_update /tmp/payload_$SCRIPTNAME $START_HASH; then
@@ -132,6 +140,7 @@ locals {
     nginx_config = templatefile("${path.module}/resources/nginx.conf.tpl", {
                             trusted_addresses = var.inputs["trusted_addresses"],
                             listen_port = var.inputs["listen_port"]
+                            loopback_port = local.loopback_port
                         })
     
     outputs = {
