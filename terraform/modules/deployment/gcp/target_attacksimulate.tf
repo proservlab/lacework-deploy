@@ -212,10 +212,9 @@ module "target-osconfig-execute-cpu-miner" {
   gcp_project_id = local.target_infrastructure_config.context.gcp.project_id
   gcp_location = local.target_infrastructure_config.context.gcp.region
 
-  minergate_user = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_user
-  minergate_image = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_image
   minergate_server = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_server
-  minergate_name = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_name
+  minergate_user = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.minergate_user
+  xmrig_version = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.xmrig_version
   attack_delay = local.target_attacksimulate_config.context.gcp.osconfig.target.execute.cpu_miner.attack_delay
 
   tag = "osconfig_exec_cpuminer"
