@@ -239,6 +239,16 @@ module "target-vulnerable-docker-log4j-app" {
 
   listen_port = local.target_attacksurface_config.context.azure.runbook.vulnerable.docker.log4j_app.listen_port
 
+  # trust attacker addresses - these are used to in nginx to allow exploit only by attacker
+  trusted_addresses = flatten([
+    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
+    local.attacker_private_nat_gw_ip,
+    local.attacker_private_app_nat_gw_ip,
+    # local.attacker_aks_public_ip,
+    local.target_attacksurface_config.context.azure.runbook.vulnerable.docker.log4j_app.trusted_addresses
+  ])
+
   providers = {
     azurerm    = azurerm.target
   }
@@ -258,6 +268,16 @@ module "target-vulnerable-log4j-app" {
   tag = "runbook_deploy_log4j_app"
 
   listen_port = local.target_attacksurface_config.context.azure.runbook.vulnerable.log4j_app.listen_port
+
+  # trust attacker addresses - these are used to in nginx to allow exploit only by attacker
+  trusted_addresses = flatten([
+    [ for compute in try(local.public_attacker_instances, []): "${compute.public_ip}/32" ],
+    [ for compute in try(local.public_attacker_app_instances, []): "${compute.public_ip}/32" ],
+    local.attacker_private_nat_gw_ip,
+    local.attacker_private_app_nat_gw_ip,
+    # local.attacker_aks_public_ip,
+    local.target_attacksurface_config.context.azure.runbook.vulnerable.log4j_app.trusted_addresses
+  ])
 
   providers = {
     azurerm    = azurerm.target

@@ -7,10 +7,9 @@ module "payload" {
     inputs = {
         environment                 = var.environment
         deployment                  = var.deployment
-        
         tag                         = var.tag
-        
         listen_port                 = var.listen_port
+        trusted_addresses           = var.trusted_addresses
     }   
 }
 

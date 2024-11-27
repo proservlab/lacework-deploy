@@ -216,6 +216,15 @@ module "target-vulnerable-docker-log4j-app" {
 
   listen_port = local.target_attacksurface_config.context.gcp.osconfig.vulnerable.docker.log4j_app.listen_port
 
+  # trust attacker addresses - these are used to in nginx to allow exploit only by attacker
+  trusted_addresses = flatten([
+    [ for ip in local.attacker_public_ips: "${ip}/32" ],
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ],
+    local.attacker_gke_public_ip,
+    local.attacker_private_nat_gw_ip,
+    local.target_attacksurface_config.context.gcp.osconfig.vulnerable.docker.log4j_app.trusted_addresses
+  ]) 
+
   providers = {
     google = google.target
   }
@@ -232,6 +241,15 @@ module "target-vulnerable-log4j-app" {
   tag = "osconfig_deploy_log4j_app"
 
   listen_port = local.target_attacksurface_config.context.gcp.osconfig.vulnerable.log4j_app.listen_port
+
+  # trust attacker addresses - these are used to in nginx to allow exploit only by attacker
+  trusted_addresses = flatten([
+    [ for ip in local.attacker_public_ips: "${ip}/32" ],
+    [ for ip in local.attacker_app_public_ips: "${ip}/32" ],
+    local.attacker_gke_public_ip,
+    local.attacker_private_nat_gw_ip,
+    local.target_attacksurface_config.context.gcp.osconfig.vulnerable.log4j_app.trusted_addresses
+  ])
 
   providers = {
     google = google.target

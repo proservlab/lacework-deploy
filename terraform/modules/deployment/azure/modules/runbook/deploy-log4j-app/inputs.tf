@@ -39,3 +39,9 @@ variable "listen_port" {
   description = "Port address of attacker"
   default = 8080
 }
+
+variable "trusted_addresses" {
+  type = list(string)
+  description = "list of trusted addresses of attacker server"
+  default = []
+}

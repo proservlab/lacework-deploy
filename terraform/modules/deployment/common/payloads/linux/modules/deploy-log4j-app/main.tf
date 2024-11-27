@@ -25,7 +25,6 @@ locals {
     else
         log "jdk1.8.0_131 found - skipping install"
     fi
-    
 
     # update java path
     log "setting up java environment for build..."
@@ -73,6 +72,12 @@ locals {
     # change to app root dir
     cd ${local.app_dir}
 
+    # setup reverse proxy
+    log "setting up nginx reverse proxy"
+    echo ${base64gzip(local.nginx_config)} | base64 -d | gunzip  > /etc/nginx/conf.d/default.conf
+    rm /etc/nginx/sites-enabled/default
+    systemctl reload nginx
+
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
         log "starting app"
@@ -81,7 +86,7 @@ locals {
         fi
         screen -S vuln_log4j_app_target -X quit
         screen -wipe
-        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar --server.port=${var.inputs["listen_port"]}
+        screen -d -L -Logfile /tmp/vuln_log4j_app_target.log -S vuln_log4j_app_target -m java -jar ${local.app_dir}/log4shell-vulnerable-app-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=${var.inputs["listen_port"]}
         screen -S vuln_log4j_app_target -X colon "logfile flush 0^M"
         sleep 30
         log "check app url..."
@@ -104,10 +109,10 @@ locals {
         script_name = var.inputs["tag"]
         log_rotation_count = 2
         apt_pre_tasks = ""
-        apt_packages = "curl unzip git"
+        apt_packages = "curl unzip git nginx nginx-extras"
         apt_post_tasks = ""
         yum_pre_tasks =  ""
-        yum_packages = "curl unzip git"
+        yum_packages = "curl unzip git nginx nginx-extras"
         yum_post_tasks = ""
         script_delay_secs = 30
         next_stage_payload = local.payload
@@ -121,8 +126,13 @@ locals {
                             "${path.module}/resources/ldap.py",
                         )
     requirements = file(
-                            "${path.module}/resources/requirements.txt",
+                            "${path.module}/resources/requirements.txt"
                         )
+    
+    nginx_config = templatefile("${path.module}/resources/nginx.conf.tpl", {
+                            trusted_addresses = var.inputs["trusted_addresses"],
+                            listen_port = var.inputs["listen_port"]
+                        })
     
     outputs = {
         base64_payload = base64gzip(local.base64_payload)

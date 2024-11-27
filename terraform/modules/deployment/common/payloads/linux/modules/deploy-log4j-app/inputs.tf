@@ -6,6 +6,7 @@ variable "inputs" {
                 timeout = optional(string)
                 cron = optional(string)
                 listen_port = string
+                trusted_addresses = list(string)
         })
         description = "inherit variables from the parent"
 }
