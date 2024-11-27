@@ -232,7 +232,7 @@ module "attacker-vulnerable-docker-log4j-app" {
     local.target_eks_public_ip,
     local.target_private_nat_gw_ip,
     local.target_private_app_nat_gw_ip,
-    local.attacker_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.trusted_addresses
+    [ for address in local.attacker_attacksurface_config.context.aws.ssm.vulnerable.docker.log4j_app.trusted_addresses:  "${address}/32" ]
   ])
 
   providers = {
@@ -257,7 +257,7 @@ module "attacker-vulnerable-log4j-app" {
     local.target_eks_public_ip,
     local.target_private_nat_gw_ip,
     local.target_private_app_nat_gw_ip,
-    local.attacker_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.trusted_addresses
+    [ for address in local.attacker_attacksurface_config.context.aws.ssm.vulnerable.log4j_app.trusted_addresses:  "${address}/32" ]
   ])
 
   providers = {

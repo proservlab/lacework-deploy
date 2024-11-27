@@ -246,8 +246,8 @@ module "attacker-vulnerable-docker-log4j-app" {
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     local.target_private_nat_gw_ip,
     local.target_private_app_nat_gw_ip,
-    # local.target_eks_public_ip,
-    local.attacker_attacksurface_config.context.azure.runbook.vulnerable.docker.log4j_app.trusted_addresses
+    # local.target_aks_public_ip,
+    [ for address in local.attacker_attacksurface_config.context.azure.runbook.vulnerable.docker.log4j_app.trusted_addresses:  "${address}/32" ]
   ])
 
   providers = {
@@ -276,8 +276,8 @@ module "attacker-vulnerable-log4j-app" {
     [ for compute in try(local.public_target_app_instances, []): "${compute.public_ip}/32" ],
     local.target_private_nat_gw_ip,
     local.target_private_app_nat_gw_ip,
-    # local.target_eks_public_ip,
-    local.attacker_attacksurface_config.context.azure.runbook.vulnerable.log4j_app.trusted_addresses
+    # local.target_aks_public_ip,
+    [ for address in local.attacker_attacksurface_config.context.azure.runbook.vulnerable.log4j_app.trusted_addresses:  "${address}/32" ]
   ])
 
   providers = {
