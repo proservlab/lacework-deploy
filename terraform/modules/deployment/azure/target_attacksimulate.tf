@@ -240,7 +240,6 @@ module "target-runbook-execute-cpu-miner" {
   minergate_server = local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.minergate_server
   xmrig_version = local.target_attacksimulate_config.context.aws.azure.target.execute.cpu_miner.xmrig_version
   attack_delay = local.target_attacksimulate_config.context.azure.runbook.target.execute.cpu_miner.attack_delay
-  
 
   tag = "runbook_exec_cpuminer"
 
