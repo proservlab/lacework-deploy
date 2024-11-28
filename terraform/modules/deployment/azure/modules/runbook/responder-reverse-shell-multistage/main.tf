@@ -14,6 +14,7 @@ module "payload" {
         listen_port             = var.listen_port
         windows_listen_port     = var.windows_listen_port
         payload                 = var.payload
+        windows_payload         = var.windows_payload
         attack_delay            = var.attack_delay
         iam2rds_role_name       = var.iam2rds_role_name
         iam2rds_session_name    = var.iam2rds_session_name
