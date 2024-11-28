@@ -77,7 +77,8 @@ locals {
     log "setting up nginx reverse proxy"
     echo ${base64gzip(local.nginx_config)} | base64 -d | gunzip  > /etc/nginx/conf.d/default.conf
     rm /etc/nginx/sites-enabled/default
-    systemctl reload nginx
+    systemctl enable nginx
+    systemctl restart nginx
 
     START_HASH=$(sha256sum --text /tmp/payload_$SCRIPTNAME | awk '{ print $1 }')
     while true; do
