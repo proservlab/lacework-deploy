@@ -22,6 +22,7 @@ server {
         add_header X-Application "Apache Struts 2.5.10";
         add_header Server "Apache-Coyote/1.1";
         add_header X-Log4j-Version "2.14.1"; # Log4j vulnerable version
+        add_header Content-Type "text/html;charset=ISO-8859-1";
 
         # Clear default Nginx headers
         more_clear_headers Server;
@@ -42,8 +43,21 @@ server {
                 end
             end
 
-            -- Return a simple JSON response
-            ngx.say('{"status": "Simulated vulnerable service"}')
+            -- Return a simple HTML response
+            local page = [[
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                        <title>Basic Struts 2 Application - Welcome</title>
+                    </head>
+                    <body>
+                        <h1>Welcome To Struts 2!</h1>
+                        <p><a href="#">Hello World</a></p>
+                    </body>
+                </html>
+            ]]
+            ngx.say(page)
         }
     }
 }
