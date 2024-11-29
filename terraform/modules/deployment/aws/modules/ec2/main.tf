@@ -42,8 +42,14 @@ module "vpc" {
 
   private_ingress_rules = var.private_ingress_rules
   private_egress_rules = var.private_egress_rules
+  private_app_ingress_rules = var.private_app_ingress_rules
+  private_app_egress_rules = var.private_app_egress_rules
+
   public_ingress_rules = var.public_ingress_rules
   public_egress_rules = var.public_egress_rules
+  public_app_ingress_rules = var.public_app_ingress_rules
+  public_app_egress_rules = var.public_app_egress_rules
+
   trust_security_group=var.trust_security_group
 
   public_network = var.public_network
