@@ -1,0 +1,43 @@
+{
+    "FortiCASBTester" : {
+        "policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "FortiCASBRead",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:Get*",
+                        "s3:List*",
+                        "s3:Put*",
+                        "s3:Delete*",
+                        "s3:CreateBucket",
+                        "iam:List*",
+                        "iam:Get*",
+                        "cloudtrail:LookupEvents",
+                        "cloudtrail:GetTrailStatus",
+                        "cloudtrail:DescribeTrails",
+                        "cloudtrail:ListTags",
+                        "cloudtrail:GetEventSelectors",
+                        "config:Get*",
+                        "config:Describe*",
+                        "config:Deliver*",
+                        "config:List*"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        },
+        "assume_role_policy": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "sts:AssumeRole",
+                    "Principal": { "AWS": "897379900121" },
+                    "Condition": {"StringEquals": {"sts:ExternalId": "Jgl7DhLCGgPI7drLRPVzyk5_qEJisbGVJMcGowTmcWsYD4Nrr0uaFxS3blklE0nmSQOXO9j_-kOOUb70Zfk9xg=="}}
+                }
+            ]
+        }
+    }
+}
