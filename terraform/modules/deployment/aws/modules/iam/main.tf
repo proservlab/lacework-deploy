@@ -7,16 +7,27 @@ resource "aws_iam_role" "roles" {
   name     = each.key 
   
   assume_role_policy = jsonencode(each.value.assume_role_policy)
-  
-  inline_policy {
-    name   = "${each.key}-policy"
-    policy = jsonencode(each.value.policy)
-  }
 
   tags = {
     environment = var.environment
     deployment = var.deployment
   }
+}
+
+# Separate IAM Policy resource
+resource "aws_iam_policy" "role_policy" {
+  for_each = var.user_roles
+
+  name   = "${each.key}-policy"
+  policy = jsonencode(each.value.policy)
+}
+
+# Attach the policy to the role
+resource "aws_iam_role_policy_attachment" "role_policy_attachment" {
+  for_each = var.user_roles
+
+  role       = aws_iam_role.roles[each.key].name
+  policy_arn = aws_iam_policy.role_policy[each.key].arn
 }
 
 # create users
@@ -29,8 +40,6 @@ resource "aws_iam_user" "users" {
     environment = var.environment
     deployment = var.deployment
   }
-
-  
 }
 
 resource "aws_iam_policy" "policy" {
